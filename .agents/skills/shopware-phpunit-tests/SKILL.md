@@ -15,6 +15,7 @@ Tests should read like executable examples.
 - Move stable boilerplate such as mock services, the class under test, command testers, and temporary project directories into `setUp()` / `tearDown()` when that lets concrete tests focus on the scenario-specific data and execution.
 - Put reusable fixture collaborators in `setUp()` when helper methods or getters may be called more than once in a test and callers should observe the same instance or state, for example registries, containers, command testers, shared filesystem roots, or other idempotent lookup objects. Keep per-scenario mutations in the test body or explicit helper parameters, but do not hide repeated construction in a getter when identity or accumulated setup matters.
 - For unit tests around file access, choose the lightest setup that still reads naturally: simple single-file reads/writes can use Symfony `Filesystem` injected into the class and mocked in the test; when the scenario needs several consecutive filesystem calls, realistic paths, or directory structure, prefer committed `_fixtures` over building temp files at runtime or over-mocking the filesystem.
+- When a test must really write to disk, use the Symfony `Filesystem` component instead of raw `mkdir`/`file_put_contents`/`unlink`/`rmdir`.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
@@ -23,6 +24,14 @@ Tests should read like executable examples.
 
 - Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
 - Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Stub DBAL-consuming collaborators when needed; isolate SQL/DBAL adapters and cover those adapters with integration tests.
+
+## Stubbing DAL Repositories
+
+- Stub DAL repositories with `Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository`, not with a mock of `EntityRepository`.
+- Do not add a `/** @var StaticEntityRepository<FooCollection> */` annotation above the construction. The generic is inferred from the constructor when the searches contain a typed collection or `EntitySearchResult`.
+- When no search carries the type — empty searches, plain id lists for `searchIds()`, callables — bind the generic with the factory instead: `StaticEntityRepository::of(FooCollection::class, $searches)`.
+- Build search results with the concrete collection class the consumer expects (`new AppCollection([...])`, not `new EntityCollection([...])`); a generic `EntityCollection` infers the wrong type and fails against `EntityRepository<AppCollection>` parameters.
+- Class properties holding the stub keep their `@var StaticEntityRepository<FooCollection>` docblock — that is the property's type declaration, not an inference crutch.
 
 ## Feature Flags And Coverage
 

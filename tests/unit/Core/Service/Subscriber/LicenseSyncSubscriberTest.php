@@ -14,7 +14,6 @@ use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -123,7 +122,7 @@ class LicenseSyncSubscriberTest extends TestCase
         });
 
         $this->appRepository = new StaticEntityRepository([
-            new EntityCollection([$app, $app2, $app3]),
+            new AppCollection([$app, $app2, $app3]),
         ]);
 
         // Set up system config with a different initial value so the comparison doesn't match
@@ -186,7 +185,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            new EntityCollection([$app, $app2, $app3]),
+            new AppCollection([$app, $app2, $app3]),
         ]);
 
         // Set up system config with a different initial value so the comparison doesn't match
@@ -310,7 +309,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            new EntityCollection([$app, $app2, $app3]),
+            new AppCollection([$app, $app2, $app3]),
         ]);
 
         // Set up system config with a different initial value so the comparison doesn't match
@@ -357,7 +356,7 @@ class LicenseSyncSubscriberTest extends TestCase
             new EntitySearchResult(
                 'app',
                 1,
-                new EntityCollection([$app]),
+                new AppCollection([$app]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -403,7 +402,7 @@ class LicenseSyncSubscriberTest extends TestCase
             new EntitySearchResult(
                 'app',
                 1,
-                new EntityCollection([$app]),
+                new AppCollection([$app]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -504,7 +503,7 @@ class LicenseSyncSubscriberTest extends TestCase
             new EntitySearchResult(
                 'app',
                 1,
-                new EntityCollection([$app]),
+                new AppCollection([$app]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -550,7 +549,7 @@ class LicenseSyncSubscriberTest extends TestCase
             new EntitySearchResult(
                 'app',
                 1,
-                new EntityCollection([$app]),
+                new AppCollection([$app]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -758,7 +757,7 @@ class LicenseSyncSubscriberTest extends TestCase
             new EntitySearchResult(
                 'app',
                 1,
-                new EntityCollection([$app]),
+                new AppCollection([$app]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),

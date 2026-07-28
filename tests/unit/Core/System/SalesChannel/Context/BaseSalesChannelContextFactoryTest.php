@@ -75,24 +75,15 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $this->expectExceptionObject($expectedException);
         }
 
-        /** @var StaticEntityRepository<CurrencyCollection> $currencyRepository */
-        $currencyRepository = new StaticEntityRepository([new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CustomerGroupCollection> $customerGroupRepository */
-        $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = new StaticEntityRepository([new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<TaxCollection> $taxRepository */
-        $taxRepository = new StaticEntityRepository([new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
-        $paymentMethodRepository = new StaticEntityRepository([new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<ShippingMethodCollection> $shippingMethodRepository */
-        $shippingMethodRepository = new StaticEntityRepository([new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryStateCollection> $countryStateRepository */
-        $countryStateRepository = new StaticEntityRepository([new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
-        $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
+        $currencyRepository = StaticEntityRepository::of(CurrencyCollection::class, [new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
+        $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
+        $countryRepository = StaticEntityRepository::of(CountryCollection::class, [new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
+        $taxRepository = StaticEntityRepository::of(TaxCollection::class, [new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
+        $paymentMethodRepository = StaticEntityRepository::of(PaymentMethodCollection::class, [new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
+        $shippingMethodRepository = StaticEntityRepository::of(ShippingMethodCollection::class, [new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
+        $countryStateRepository = StaticEntityRepository::of(CountryStateCollection::class, [new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
+        $currencyCountryRepository = StaticEntityRepository::of(CurrencyCountryRoundingCollection::class, [new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
         /** @var StaticEntityRepository<EntityCollection<PartialEntity>> $languageRepository */
         $languageRepository = new StaticEntityRepository([new EntityCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
 

@@ -51,7 +51,7 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
-### New BC-change attributes for planned, breaking API changes
+### New BC-change attributes for planned API changes
 
 Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
 
@@ -62,7 +62,7 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * When a core symbol you use carries a BC-change attribute, the attribute tells you whether your project can be affected: attributes implementing `CallSiteCompatibilityChange` concern code *calling* the symbol (for example a parameter type being narrowed, or a parameter you pass as a named argument being renamed), attributes implementing `ExtenderCompatibilityChange` concern classes in your project that *extend or override* the symbol (for example a return type being narrowed or a class becoming final). Each attribute states the version in which the change happens and the new declaration, so you can prepare ahead of the next major.
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
-The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
+All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
 
 ### Product export scheduling decoupled from the cache timestamp
 
@@ -86,6 +86,27 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### MCP tools can be enabled per session through toolsets
+
+The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
+
+Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
+### MCP tools can be discovered on demand
+
+A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
+
+The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
+### MCP list responses apply allowlists before pagination
+
+MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
 The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.

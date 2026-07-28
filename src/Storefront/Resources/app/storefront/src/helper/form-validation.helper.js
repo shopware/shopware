@@ -419,18 +419,26 @@ export default class FormValidation {
 
     /**
      * Guards the reCAPTCHA field so a form can never be submitted without a token.
-     * Fails for two independent reasons, with different UX:
-     *  1. Cookie consent is missing. The reCAPTCHA plugin is only registered once
-     *     'cookie-preference' is accepted (see `registerGoogleReCaptchaPlugins()` in main.js),
-     *     so without consent no token can ever be generated. Show the cookie bar to guide the user.
-     *  2. Consent is given but reCAPTCHA has not produced a token yet (async / plugin not
-     *     initialized). Block the submit, but do not show the cookie bar (consent already exists).
+     * Only the hidden reCAPTCHA fields ('_grecaptcha_v3' / '_grecaptcha_v2') are checked;
+     * every other field passes straight through.
      *
-     * The token check uses the field's own value, which is the actual token that would be
+     * The gate has two independent parts:
+     *  1. Cookie consent, only when the shop uses Shopware's default cookie consent.
+     *     The reCAPTCHA plugin is registered once 'cookie-preference' is accepted
+     *     (see `registerGoogleReCaptchaPlugins()` in main.js), so without consent no token
+     *     can ever be generated. Show the cookie bar to guide the user, with the default
+     *     cookie message. A custom consent solution manages its own cookies, so this part is
+     *     skipped, but the token check below still runs.
+     *  2. Token presence, always. The reCAPTCHA submit handler initializes asynchronously,
+     *     so the field can still be empty while the plugin is loading. An empty value is the
+     *     empty-token case that fails server-side with a 500 (CaptchaException). Block the
+     *     submit with a token-specific message and do not show the cookie bar, since consent
+     *     is not the problem here.
+     *
+     * The token check uses the field's own value, i.e. the actual token that would be
      * submitted, rather than the '_GRECAPTCHA' cookie. That cookie is Google-owned, is not
      * removed when consent is revoked (root cause of #18239) and can be blocked by browser
-     * privacy settings, so it is not a reliable signal. An empty value is exactly the empty-token
-     * case that fails server-side with a 500 (CaptchaException).
+     * privacy settings, so it is not a reliable signal.
      *
      * @param {string} value - The field value, i.e. the reCAPTCHA token
      * @param {HTMLElement} field
@@ -444,20 +452,43 @@ export default class FormValidation {
 
         const fieldName = field.getAttribute('name');
 
-        if (!window.useDefaultCookieConsent || (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2')) {
+        // Only the reCAPTCHA token fields are guarded here.
+        if (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2') {
             return true;
         }
 
-        const consentGiven = CookieStorageHelper.getItem('cookie-preference') === '1';
+        // The cookie-consent gate only applies with Shopware's default cookie consent.
+        // A custom consent solution manages its own cookies, so we cannot read
+        // 'cookie-preference' and skip this gate, but the token check below still runs.
+        if (window.useDefaultCookieConsent) {
+            const consentGiven = CookieStorageHelper.getItem('cookie-preference') === '1';
 
-        if (!consentGiven) {
-            const showCookieBarEvent = new CustomEvent('showCookieBar');
-            document.dispatchEvent(showCookieBarEvent);
+            if (!consentGiven) {
+                // No token can exist yet, so restore the default cookie message and
+                // guide the user to the cookie bar.
+                field.removeAttribute('data-form-validation-error-message');
+                document.dispatchEvent(new CustomEvent('showCookieBar'));
+
+                return false;
+            }
+        }
+
+        // Consent is not the blocker (given, or managed by a custom solution). A reCAPTCHA
+        // field must still carry a token. Block an empty token with a token-specific message,
+        // without showing the cookie bar.
+        if (value.length === 0) {
+            const tokenMessage = window.validationMessages?.grecaptchaToken;
+
+            if (tokenMessage) {
+                field.setAttribute('data-form-validation-error-message', tokenMessage);
+            }
 
             return false;
         }
 
-        return value.length > 0;
+        field.removeAttribute('data-form-validation-error-message');
+
+        return true;
     }
 
     /**

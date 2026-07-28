@@ -92,7 +92,7 @@ class AccountOrderDetailPageLoader
         $result = $this->orderRoute
             ->load($event->getStoreApiRequest(), $salesChannelContext, $criteria);
 
-        $order = $result->getOrders()->first();
+        $order = $result->getOrders()->getEntities()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();

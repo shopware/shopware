@@ -59,7 +59,6 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         $registeredTask->setScheduledTaskClass(CleanupCartTask::class);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([
             new ScheduledTaskCollection([$registeredTask]),
         ]);
@@ -329,7 +328,6 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setId('cleanupTask');
         $taskEntity->setName('foo');
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
 
         $tasks = (new TaskRegistry([], $repository, new ParameterBag([]), new NativeClock()))->getAllTasks(Context::createDefaultContext());

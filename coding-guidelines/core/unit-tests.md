@@ -10,7 +10,7 @@ When writing unit tests, the following is important:
 - **Package ownership** - Every test class must declare `#[Package('…')]` with the same package as its covered production domain so CI failures can be routed to the owning team.
 - **Source-file coverage** - New source files should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` when they are intentionally covered by integration tests. Add a separate `@see \Shopware\Tests\Integration\…\DedicatedIntegrationTest` line in the class docblock. Use the fully qualified class name with a leading `\`; do not import a test class solely for the annotation. The referenced test must be dedicated to that production class; do not point to an unrelated test that only covers the class incidentally. Extract or add a focused integration test first.
 - **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
-- **Mocking and stubbing** - Use mocks and stubs intentionally to keep unit tests fast and focused. Simple stubs such as `createStub()` or concrete test doubles like `StaticEntityRepository` are fine when a dependency only needs to return data. Do not behavior-mock Doctrine DBAL `Connection` by asserting SQL calls or parameters; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests.
+- **Mocking and stubbing** - Use mocks and stubs intentionally to keep unit tests fast and focused. Simple stubs such as `createStub()` or concrete test doubles like `StaticEntityRepository` are fine when a dependency only needs to return data. Do not behavior-mock Doctrine DBAL `Connection` by asserting SQL calls or parameters; isolate SQL/DBAL work in database adapters and cover those adapters with integration tests. When the behaviour under test has no observable effect other than the write itself, see "Asserting writes when there is no other seam" below.
 - **Readable** - You are not the only one who maintains the code. Therefore, it is important that others can quickly and easily understand your unit tests and extend them with additional cases.
 - **Callback assertions** - When a callback, listener, or inline test double observes the behavior under test, assert the observed arguments directly in that callback. Only keep the smallest state outside the callback that the test still needs, for example a boolean to prove it was called, a counter when cardinality matters, or captured values when later assertions need comparison across calls.
 - **Extensibility** - It is important that when more cases are added or certain cases are not tested that it is easy to extend your unit tests with another case without extending dozens of lines of code.
@@ -56,6 +56,25 @@ or
 For all other cases, use real implementations and rely as minimally as possible on the magic of phpunit's mocking framework.
 
 Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Classes with direct SQL/DBAL work should usually be treated as database adapters and covered with integration tests. Unit-test the surrounding business logic against a narrow repository, gateway, service abstraction, or simple stub that returns the result object the class under test needs.
+
+### Asserting writes when there is no other seam
+
+The rule above bans coupling a test to SQL: statement text, clause order, parameter names. It does not ban observing *that* a write happened.
+
+Sometimes the behaviour under test is a decision whose only effect is a write, in a class that offers no other seam: the public methods return `void`, no domain event distinguishes the cases, and the collaborator performing the write is constructed inline instead of injected. The write-protection guard in `SeoUrlPersister` is the reference example — when it skips an update, an `INSERT` is not queued and nothing else observable changes.
+
+In that situation, prefer in this order:
+
+1. Extract the decision into a collaborator with a public contract and unit-test that collaborator.
+2. Cover the behaviour in an integration test against a real database.
+3. Drive the public method, stub the read side for data only, capture the executed statements, and assert on the written **values**.
+
+Option 3 is acceptable when the first two do not fit, under these conditions:
+
+- Assert on values, never on SQL text or parameter names, and phrase the assertion in domain terms ("no row was written for this path") rather than in SQL terms.
+- Keep the statement capture in a single helper, so a query refactor touches one place instead of every test.
+- Make sure the transaction wrapper actually invokes its closure. A `Connection` double whose `transactional()` ignores its argument executes nothing, so every test in the file passes without proving anything.
+- Confirm each test fails when the decision under test is flipped, before trusting it.
 
 ## Focus on behavior, not implementation: Effective unit testing principles
 

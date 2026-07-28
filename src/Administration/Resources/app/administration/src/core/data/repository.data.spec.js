@@ -7,6 +7,7 @@ import RepositoryData from 'src/core/data/repository.data';
 import IdCollection from 'test/_helper_/id.collection';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import CacheService from 'src/app/service/cache.service';
 
 const clientMock = global.repositoryFactoryMock.clientMock;
 const responses = global.repositoryFactoryMock.responses;
@@ -42,9 +43,14 @@ function createRepositoryData() {
     return new RepositoryData(undefined, undefined, undefined, undefined, undefined, undefined, undefined, {});
 }
 
+if (!Shopware.Service('cacheService')) {
+    Shopware.Service().register('cacheService', () => new CacheService());
+}
+
 describe('repository.data.ts', () => {
     beforeEach(async () => {
         clientMock.resetHistory();
+        Shopware.Service('cacheService').clear();
     });
 
     it('should search with the criteria title', async () => {
@@ -129,6 +135,33 @@ describe('repository.data.ts', () => {
 
         expect(actualHeaders['sw-measurement-length-unit']).toBe('cm');
         expect(actualHeaders['sw-measurement-weight-unit']).toBe('kg');
+    });
+
+    it('should pass repository reads through the cache service when cache options are provided', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const cacheService = Shopware.Service('cacheService');
+        const querySpy = jest.spyOn(cacheService, 'query');
+        const repository = repositoryFactory.create('product');
+
+        await repository.search(new Criteria(), {
+            cacheKey: ['products'],
+        });
+
+        expect(querySpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                key: ['products'],
+                fn: expect.any(Function),
+            }),
+        );
+        expect(clientMock.history.post).toHaveLength(1);
     });
 
     it('should create one delete operation for multiple deletes', async () => {

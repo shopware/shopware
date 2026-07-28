@@ -86,6 +86,33 @@ class CacheWatchDelayedCommandTest extends TestCase
         static::assertSame(1000, $option->getDefault());
     }
 
+    #[TestDox('runs the watch once and exits when a stop was already requested')]
+    public function testWatchRunsOnceWhenStopAlreadyRequested(): void
+    {
+        $adapter = $this->createMock(\Redis::class);
+        $adapter->expects($this->atLeastOnce())
+            ->method('sMembers')
+            ->willReturnCallback(static function (string $key): array {
+                self::assertSame('invalidation', $key);
+
+                return ['theme-config'];
+            });
+
+        $container = static::createStub(ContainerInterface::class);
+        $container->method('has')->willReturn(true);
+        $container->method('get')->willReturn($adapter);
+
+        $command = new CacheWatchDelayedCommand($container);
+        // requesting the stop up front makes the watch loop exit after its first poll
+        $command->handleSignal(\SIGTERM);
+
+        $tester = new CommandTester($command);
+        $tester->execute(['--interval' => '5000'], ['capture_stderr_separately' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        static::assertStringContainsString('theme-config', $tester->getDisplay());
+    }
+
     private function runWithConsoleOutput(CacheWatchDelayedCommand $command): CommandTester
     {
         // The watch command requires a ConsoleOutputInterface; "capture_stderr_separately" makes the

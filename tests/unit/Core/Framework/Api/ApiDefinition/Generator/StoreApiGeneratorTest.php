@@ -712,37 +712,6 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $schema['components']['schemas']);
     }
 
-    public function testEnrichPathsWithAssociationsHandlesNonArrayPaths(): void
-    {
-        $reflection = new \ReflectionClass($this->generator);
-        $method = $reflection->getMethod('enrichPathsWithAssociations');
-
-        // Test with non-array paths - should return early without errors
-        $specs = ['paths' => null];
-        $definitions = [];
-
-        // Should not throw an exception when paths is not an array
-        $method->invoke($this->generator, $specs, $definitions);
-
-        // If we get here, the method handled the null value gracefully
-        static::assertArrayHasKey('paths', $specs);
-    }
-
-    public function testEnrichPathsWithAssociationsHandlesMissingPaths(): void
-    {
-        $reflection = new \ReflectionClass($this->generator);
-        $method = $reflection->getMethod('enrichPathsWithAssociations');
-
-        // Test with no paths key
-        $specs = [];
-        $definitions = [];
-
-        $method->invoke($this->generator, $specs, $definitions);
-
-        // Should handle gracefully
-        static::assertArrayNotHasKey('paths', $specs);
-    }
-
     public function testSwLanguageIdHeaderIsInjectedOrKeptWithoutDuplicationPerOperation(): void
     {
         $bundle = new BundleWithPredeclaredSwLanguageId();

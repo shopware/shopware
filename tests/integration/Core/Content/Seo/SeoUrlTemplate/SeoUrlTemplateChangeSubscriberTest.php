@@ -223,6 +223,83 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         static::assertSame(1, $this->getDispatchedMessageCount(SeoUrlTemplateIndexingMessage::class));
     }
 
+    public function testManuallyModifiedSeoUrlsSurviveTemplateChange(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
+            ['id' => $ids->create('a'), 'name' => 'a', 'parentId' => $ids->get('root'), 'active' => true],
+            ['id' => $ids->create('b'), 'name' => 'b', 'parentId' => $ids->get('a'), 'active' => true],
+        ], $context);
+
+        $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
+
+        $this->runWorker();
+
+        // Manually override the SEO URL of category "a", like a merchant does on
+        // the category detail page. The override is flagged as modified.
+        $canonical = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonical);
+
+        $seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $seoUrlRepository->update([
+            [
+                'id' => $canonical['id'],
+                'seoPathInfo' => 'my-manual-path/',
+                'isModified' => true,
+            ],
+        ], $context);
+
+        $this->seoUrlTemplateRepository->create([
+            [
+                'id' => $ids->create('template'),
+                'salesChannelId' => null,
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => CategoryDefinition::ENTITY_NAME,
+                'template' => 'v3/{{ category.name }}',
+            ],
+        ], $context);
+
+        $this->runWorker();
+
+        // The untouched category must follow the new template ...
+        $canonicalB = $this->getCanonicalSeoUrl($ids->get('b'), $ids->get('sales-channel'));
+        static::assertNotNull($canonicalB);
+        static::assertStringStartsWith('v3/', $canonicalB['seoPathInfo']);
+
+        // ... while the manual override must not be replaced by the regeneration.
+        $canonicalA = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonicalA);
+        static::assertSame('my-manual-path/', $canonicalA['seoPathInfo']);
+    }
+
+    /**
+     * @return array{id: string, seoPathInfo: string}|null
+     */
+    private function getCanonicalSeoUrl(string $foreignKey, string $salesChannelId): ?array
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(id)) as id, seo_path_info as seoPathInfo
+             FROM seo_url
+             WHERE foreign_key = :foreignKey
+               AND route_name = :routeName
+               AND language_id = :language
+               AND sales_channel_id = :salesChannel
+               AND is_canonical = 1',
+            [
+                'foreignKey' => Uuid::fromHexToBytes($foreignKey),
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'language' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'salesChannel' => Uuid::fromHexToBytes($salesChannelId),
+            ]
+        );
+
+        /** @var array{id: string, seoPathInfo: string}|false $row */
+        return $row === false ? null : $row;
+    }
+
     private function findDefaultTemplateId(string $routeName): ?string
     {
         $criteria = new Criteria();

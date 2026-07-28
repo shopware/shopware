@@ -6,6 +6,9 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
+// Matches the viewport at which the search becomes collapsible in sw-search-bar.scss.
+const COLLAPSE_BREAKPOINT = 500;
+
 /**
  * @sw-package framework
  *
@@ -251,16 +254,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            const that = this;
-
+            // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
+            this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
+            this.collapseQuery.addEventListener('change', this.showSearchFieldOnLargerViewports);
             this.showSearchFieldOnLargerViewports();
-
-            this.$device.onResize({
-                listener() {
-                    that.showSearchFieldOnLargerViewports();
-                },
-                component: this,
-            });
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -280,6 +277,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.collapseQuery?.removeEventListener('change', this.showSearchFieldOnLargerViewports);
             document.removeEventListener('click', this.closeOnClickOutside);
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
@@ -389,9 +387,7 @@ export default {
         },
 
         showSearchFieldOnLargerViewports() {
-            if (this.$device.getViewportWidth() > 500) {
-                this.isSearchBarShown = true;
-            }
+            this.isSearchBarShown = !this.collapseQuery.matches;
         },
 
         onSearchTermChange() {

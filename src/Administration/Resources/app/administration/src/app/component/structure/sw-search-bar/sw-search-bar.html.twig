@@ -1,26 +1,26 @@
 {% block sw_search_bar %}
 <div class="sw-search-bar">
 
+    {% block sw_search_bar_button_off_canvas_toggle %}
+    <mt-button
+        class="sw-search-bar__off-canvas-toggle"
+        variant="tertiary"
+        size="default"
+        square
+        :aria-label="isOffCanvasShown ? $t('global.sw-admin-menu.linkCloseMenu') : $t('global.sw-admin-menu.linkExpandMenu')"
+        @click="toggleOffCanvas"
+    >
+        <template #iconFront>
+            <mt-icon
+                name="regular-bars"
+                size="20px"
+            />
+        </template>
+    </mt-button>
+    {% endblock %}
+
     {% block sw_search_bar_container %}
     <div class="sw-search-bar__container">
-
-        {% block sw_search_bar_button_off_canvas_toggle %}
-        <mt-button
-            class="sw-search-bar__off-canvas-toggle"
-            variant="tertiary"
-            size="default"
-            square
-            :aria-label="isOffCanvasShown ? $t('global.sw-admin-menu.linkCloseMenu') : $t('global.sw-admin-menu.linkExpandMenu')"
-            @click="toggleOffCanvas"
-        >
-            <template #iconFront>
-                <mt-icon
-                    name="regular-bars"
-                    size="20px"
-                />
-            </template>
-        </mt-button>
-        {% endblock %}
 
         {% block sw_search_bar_mobile_controls %}
         <div
@@ -98,16 +98,21 @@
             </div>
 
             {% block sw_search_bar_field_close %}
-            <button
+            <mt-button
                 class="sw-search-bar__field-close"
+                variant="tertiary"
+                size="default"
+                square
                 :aria-label="$t('global.sw-search-bar.ariaLabelCloseSearch')"
                 @click="hideSearchBar"
             >
-                <mt-icon
-                    name="regular-times-s"
-                    size="10px"
-                />
-            </button>
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-times-s"
+                        size="10px"
+                    />
+                </template>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}

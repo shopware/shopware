@@ -476,20 +476,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
-    it('should render the off-canvas toggle next to the full search bar', async () => {
+    it('should collapse the search when the viewport shrinks into the collapsible range', async () => {
         wrapper = await createWrapper();
+        expect(wrapper.vm.isSearchBarShown).toBe(true);
 
-        // The toggle used to sit inside the mobile controls, so it only existed in compact mode. It is
-        // rendered next to the search field now and hidden per media query above the off-canvas viewport.
-        expect(wrapper.find('.sw-search-bar__off-canvas-toggle').exists()).toBe(true);
-        expect(wrapper.find('.sw-search-bar__field-wrapper').exists()).toBe(true);
-        expect(wrapper.find('.sw-search-bar__mobile-controls').exists()).toBe(false);
+        wrapper.vm.collapseQuery.matches = true;
+        wrapper.vm.showSearchFieldOnLargerViewports();
+
+        expect(wrapper.vm.isSearchBarShown).toBe(false);
     });
 
-    it('should toggle the off-canvas menu when the toggle is clicked', async () => {
+    it('should render the off-canvas toggle next to the full search bar and toggle the menu', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.find('.sw-search-bar__off-canvas-toggle').trigger('click');
+        const toggle = wrapper.find('.sw-search-bar__off-canvas-toggle');
+        expect(toggle.exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__field-wrapper').exists()).toBe(true);
+
+        await toggle.trigger('click');
 
         expect(wrapper.vm.isOffCanvasShown).toBe(true);
     });

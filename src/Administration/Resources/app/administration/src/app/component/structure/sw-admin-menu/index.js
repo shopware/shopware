@@ -360,7 +360,9 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
+            // The off-canvas panel opens and closes instead, the event keeps the search bar toggle in sync.
             if (this.isMobileViewport) {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', !this.isOffCanvasShown);
                 return;
             }
 

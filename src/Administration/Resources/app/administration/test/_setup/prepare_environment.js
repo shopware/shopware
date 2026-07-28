@@ -196,6 +196,12 @@ config.global.mocks = {
         removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
+        getMediaQuery: jest.fn((query) => ({
+            matches: false,
+            media: query,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+        })),
     },
     $router: {
         replace: jest.fn(),

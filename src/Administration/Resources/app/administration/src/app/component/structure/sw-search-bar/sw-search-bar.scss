@@ -12,9 +12,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
 .sw-search-bar {
     width: 100%;
-    height: 80px;
     z-index: $sw-search-bar-z-index;
-    align-content: center;
+
+    // The off-canvas toggle sits outside the container below, which anchors the results dropdown.
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-16);
 
     .sw-search-bar__button {
         width: 50px;
@@ -30,38 +33,34 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         -moz-appearance: none;
     }
 
-    @media screen and (max-width: 500px) {
-        border-bottom: 0 none;
-    }
-
     .sw-search-bar__container {
-        // Lays the off-canvas toggle next to the search, whatever form the search currently takes.
         display: flex;
         align-items: center;
-        padding: 15px 0;
+        flex: 1;
+        min-width: 0;
+
+        // Adds up to the 80px bar height with the 50px field.
+        padding-block: calc(var(--scale-size-16) - 1px);
         max-width: $content-width;
         margin: 0 auto;
         position: relative;
 
         @media screen and (max-width: 1360px) {
-            padding: 15px;
+            padding-inline: var(--scale-size-16);
         }
     }
 
     .sw-search-bar__off-canvas-toggle {
         flex: 0 0 auto;
 
-        // Matches the viewport at which sw-admin-menu turns into an off-canvas panel. Kept in CSS so it
-        // switches with the resize instead of trailing the debounced resize listener.
+        // Visible while sw-admin-menu shows as an off-canvas panel.
         @media screen and (min-width: 1281px) {
             display: none;
         }
     }
 
     .sw-search-bar__mobile-controls {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        grid-gap: 5px;
+        display: flex;
         align-items: center;
         flex: 1 1 auto;
         min-width: 0;
@@ -90,6 +89,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         position: relative;
         display: flex;
         flex-wrap: nowrap;
+        gap: var(--scale-size-8);
         height: 50px;
 
         &.is--active {
@@ -98,20 +98,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         }
 
         .sw-search-bar__field-icon {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            height: 100%;
-            width: 50px;
-            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: var(--scale-size-24);
             color: var(--color-icon-primary-default);
-            text-align: center;
-            line-height: 45px;
-            background: 0 none;
-            border: 0 none;
-            outline: none;
-            -moz-appearance: none;
-            -webkit-appearance: none;
         }
 
         .sw-search-bar__field-search-icon {
@@ -126,22 +118,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     .sw-search-bar__field-close {
-        display: none;
-        align-items: center;
-        justify-content: center;
         flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        color: var(--color-icon-primary-default);
-        background: 0 none;
-        border: 0 none;
-        outline: none;
-        cursor: pointer;
-        -moz-appearance: none;
-        -webkit-appearance: none;
 
-        @media screen and (max-width: 500px) {
-            display: flex;
+        @media screen and (min-width: 501px) {
+            display: none;
         }
     }
 
@@ -208,9 +188,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     .sw-search-bar__input {
         color: var(--color-text-primary-default);
         flex-grow: 1;
+
+        // An input carries an intrinsic width, without this it overflows the field instead of shrinking.
+        min-width: 0;
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
-        padding: 0 40px 0 15px;
+        padding-inline: 0;
         border: 0;
         background: none;
         outline: none;
@@ -270,8 +253,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         }
 
         @media screen and (max-width: 1360px) {
-            right: 15px;
-            left: 15px;
+            right: var(--scale-size-16);
+            left: var(--scale-size-16);
         }
 
         &--v2 {
@@ -365,8 +348,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         box-shadow: $sw-search-bar-results-box-shadow;
 
         @media screen and (max-width: 1360px) {
-            right: 15px;
-            left: 15px;
+            right: var(--scale-size-16);
+            left: var(--scale-size-16);
         }
     }
 

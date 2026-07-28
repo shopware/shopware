@@ -303,6 +303,20 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         wrapper.vm.shortcutService.isPendingCombinationKey = () => false;
     });
 
+    it('should toggle the off-canvas menu via the "s" shortcut below the off-canvas viewport', async () => {
+        wrapper.vm.viewportWidth = 1280;
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
     it('should render correct admin menu entries', async () => {
         const topLevelEntries = wrapper.findAllComponents('.navigation-list-item__level-1');
 

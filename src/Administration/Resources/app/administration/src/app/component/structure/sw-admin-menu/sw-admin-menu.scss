@@ -57,17 +57,16 @@
         padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
 
     @media screen and (max-width: 1280px) {
-        width: 280px;
         position: absolute;
         top: 0;
-        left: -280px;
+        transform: translateX(-100%);
         bottom: 0;
         height: 100%;
         z-index: $z-index-off-canvas;
-        transition: left var(--sw-admin-menu-duration-inner) ease-in-out;
+        transition: transform var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
 
         &.is--off-canvas-shown {
-            left: 0;
+            transform: translateX(0);
         }
     }
 

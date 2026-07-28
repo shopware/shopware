@@ -62,7 +62,6 @@ class ConfigurationServiceTest extends TestCase
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
         $configService = new ConfigurationService(
             [],
@@ -80,7 +79,6 @@ class ConfigurationServiceTest extends TestCase
 
     public function testMissingConfig(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [],
@@ -251,7 +249,6 @@ class ConfigurationServiceTest extends TestCase
         $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection()]);
         $service = new ConfigurationService(
             [
@@ -336,7 +333,6 @@ class ConfigurationServiceTest extends TestCase
             UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
         );
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [new SwagExampleTest(true, '')],
@@ -363,7 +359,6 @@ class ConfigurationServiceTest extends TestCase
         $appConfigReader = static::createStub(AppConfigReader::class);
         $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$app]),
             new AppCollection([$app]),

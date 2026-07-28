@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Context;
@@ -23,23 +22,18 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SeoUrlPersister::class)]
 class SeoUrlPersisterTest extends TestCase
 {
-    private Connection&MockObject $connection;
-
     private SeoUrlPersister $seoUrlPersister;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->seoUrlPersister = new SeoUrlPersister(
-            $this->connection,
-            static::createStub(EntityRepository::class),
-            static::createStub(EventDispatcherInterface::class),
-            new NativeClock()
-        );
+        $this->seoUrlPersister = $this->createSeoUrlPersister(static::createStub(Connection::class));
     }
 
     public function testUpdateSeoUrlsWithNewSeoPaths(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
@@ -59,21 +53,202 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('fetchOne')
             ->willReturn([]);
 
-        $this->connection->expects($this->never())
+        $connection->expects($this->never())
             ->method('executeStatement');
 
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $this->seoUrlPersister->updateSeoUrls(
+        $seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'test-route',
+            [
+                'foreignKey' => Uuid::randomHex(),
+            ],
+            $seoUrls,
+            $seoChannel
+        );
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: when a SEO URL is write-protected (is_modified=1),
+     * the legacy guard in skipUpdate() should still protect it against automatic template
+     * regeneration (default overwrite=false).
+     */
+    public function testSkipUpdateProtectsWriteProtectedSeoUrlByDefault(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'template-path',
+            'isModified' => false,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: when the admin/API explicitly requests an overwrite,
+     * the skipUpdate() guard must no longer protect write-protected SEO URLs from being
+     * replaced with the template-generated path.
+     */
+    public function testSkipUpdateAllowsResetWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'template-path',
+            'isModified' => false,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: the admin must be able to persist an edit that
+     * replaces the write-protected path with a new manual path.
+     */
+    public function testSkipUpdateAllowsManualEditWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'manual-path-edited',
+            'isModified' => true,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: even with overwrite=true the path-equality guard
+     * must still short-circuit, so re-saving the exact same SEO URL does not create a duplicate.
+     */
+    public function testSkipUpdateStillSkipsIdenticalPayloadWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'manual-path',
+            'isModified' => true,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413 (same-path reset): when a write-protected URL
+     * already equals the template output, an explicit overwrite that only flips isModified
+     * to false must NOT be skipped, so the write-protection flag is actually dropped.
+     */
+    public function testSkipUpdateClearsProtectionOnIdenticalPathWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'red-shoe',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'red-shoe',
+            'isModified' => false,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Without overwrite the same-path automatic regeneration must keep skipping, regardless of
+     * the requested isModified state, so it never creates duplicate rows.
+     */
+    public function testSkipUpdateKeepsSkippingIdenticalPathWithoutOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'red-shoe',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'red-shoe',
+            'isModified' => false,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+    }
+
+    public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
+        $seoUrls = [
+            [
+                'languageId' => Uuid::randomHex(),
+                'foreignKey' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomHex(),
+                'routeName' => 'test-route',
+                'pathInfo' => 'path1',
+                'seoPathInfo' => 'path1',
+            ],
+        ];
+
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
+        $connection->expects($this->never())
+            ->method('fetchOne');
+
+        $connection->expects($this->never())
+            ->method('executeStatement');
+
+        $seoChannel = new SalesChannelEntity();
+        $seoChannel->setId(Uuid::randomHex());
+
+        $seoUrlPersister->forceUpdateSeoUrls(
             Context::createDefaultContext(),
             'test-route',
             [
@@ -86,6 +261,9 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testUpdateSeoUrlsWithInuseSeoPaths(): void
     {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
@@ -109,7 +287,7 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -128,11 +306,11 @@ class SeoUrlPersisterTest extends TestCase
                 ],
             ]);
 
-        $this->connection->expects($this->exactly(2))
+        $connection->expects($this->exactly(2))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls($id1, $id2);
 
-        $this->connection->expects($this->once())
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->with(
                 'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
@@ -143,7 +321,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $this->seoUrlPersister->updateSeoUrls(
+        $seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
             'test-route',
             [
@@ -151,6 +329,28 @@ class SeoUrlPersisterTest extends TestCase
             ],
             $seoUrls,
             $seoChannel
+        );
+    }
+
+    /**
+     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
+     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     */
+    private function invokeSkipUpdate(array $existing, array $seoUrl, bool $overwrite): bool
+    {
+        $reflection = new \ReflectionMethod(SeoUrlPersister::class, 'skipUpdate');
+        $reflection->setAccessible(true);
+
+        return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);
+    }
+
+    private function createSeoUrlPersister(Connection $connection): SeoUrlPersister
+    {
+        return new SeoUrlPersister(
+            $connection,
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            new NativeClock()
         );
     }
 }

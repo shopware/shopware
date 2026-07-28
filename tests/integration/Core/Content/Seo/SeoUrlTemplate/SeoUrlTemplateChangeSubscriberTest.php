@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingMessage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -197,6 +198,29 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
 
         $urlsAfter = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
         static::assertSame($urlsBefore, $urlsAfter);
+    }
+
+    public function testResubmittingSameTemplateDoesNotTriggerReindex(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $templateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
+        static::assertNotNull($templateId);
+
+        $template = 'idempotent/{{ category.name }}';
+        $this->seoUrlTemplateRepository->update([
+            ['id' => $templateId, 'template' => $template],
+        ], $context);
+
+        static::assertSame(1, $this->getDispatchedMessageCount(SeoUrlTemplateIndexingMessage::class));
+
+        // An idempotent write submitting the identical template again must not
+        // enqueue another full reindex of the route.
+        $this->seoUrlTemplateRepository->update([
+            ['id' => $templateId, 'template' => $template],
+        ], $context);
+
+        static::assertSame(1, $this->getDispatchedMessageCount(SeoUrlTemplateIndexingMessage::class));
     }
 
     private function findDefaultTemplateId(string $routeName): ?string

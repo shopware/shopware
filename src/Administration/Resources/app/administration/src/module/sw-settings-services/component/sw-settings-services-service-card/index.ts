@@ -82,6 +82,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.service.version.split('-')[0];
         },
 
+        stateChangePermitted() {
+            return this.service.state_change_permitted;
+        },
+
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -102,12 +106,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const extensionService = Shopware.Service('shopwareExtensionService');
+                const servicesService = Shopware.Service('shopwareServicesService');
 
                 if (active) {
-                    await extensionService.activateExtension(this.service.name, 'app');
+                    await servicesService.activateService(this.service.name);
                 } else {
-                    await extensionService.deactivateExtension(this.service.name, 'app');
+                    await servicesService.deactivateService(this.service.name);
                 }
 
                 this._reloadPage();

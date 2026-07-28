@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 class ContactFormServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -76,6 +79,7 @@ class ContactFormServiceTest extends TestCase
         ]);
 
         $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
         $dispatcher->removeListener($validationEventName, $validationListenerClosure);
@@ -239,6 +243,7 @@ class ContactFormServiceTest extends TestCase
         ]);
 
         $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

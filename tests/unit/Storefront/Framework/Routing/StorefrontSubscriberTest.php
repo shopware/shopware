@@ -8,9 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -35,6 +37,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontSubscriber::class)]
 class StorefrontSubscriberTest extends TestCase
 {
@@ -70,16 +73,16 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testMaintenanceRedirect(): void
     {
-        $maintenanceModeResolver = $this->createMock(MaintenanceModeResolver::class);
+        $maintenanceModeResolver = static::createStub(MaintenanceModeResolver::class);
         $maintenanceModeResolver
             ->method('shouldRedirect')
             ->willReturn(true);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/maintenance');
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -109,12 +112,12 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testMaintenanceParametersRedirect(): void
     {
-        $maintenanceModeResolver = $this->createMock(MaintenanceModeResolver::class);
+        $maintenanceModeResolver = static::createStub(MaintenanceModeResolver::class);
         $maintenanceModeResolver
             ->method('shouldRedirect')
             ->willReturn(true);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/maintenance?foo=bar');
 
         $request = new Request(
@@ -133,7 +136,7 @@ class StorefrontSubscriberTest extends TestCase
         );
 
         $event = new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -174,7 +177,7 @@ class StorefrontSubscriberTest extends TestCase
         $server = $isXmlHttpRequest ? ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'] : [];
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(
                 attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true],
                 server: $server,
@@ -184,9 +187,9 @@ class StorefrontSubscriberTest extends TestCase
         );
 
         (new StorefrontSubscriber(
-            $this->createMock(RequestStack::class),
+            static::createStub(RequestStack::class),
             $router,
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
@@ -203,16 +206,16 @@ class StorefrontSubscriberTest extends TestCase
     public function testRedirectCustomerNonStorefrontRequest(): void
     {
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             HttpKernelInterface::MAIN_REQUEST,
             new \RuntimeException('test')
         );
 
         (new StorefrontSubscriber(
-            $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
@@ -257,7 +260,7 @@ class StorefrontSubscriberTest extends TestCase
     public function testNonXmlHttpRequestPassesThrough(Request $request, bool $expected): void
     {
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -275,8 +278,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             new RequestStack(),
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->preventPageLoadingFromXmlHttpRequest($event);
@@ -327,13 +330,34 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->startSession();
 
         static::assertTrue($request->getSession()->has('sessionId'));
+    }
+
+    public function testDoesNotStartSessionWithoutStorefrontSalesChannelMarker(): void
+    {
+        $request = new Request();
+        $factoryCalls = 0;
+        $request->setSessionFactory(static function () use (&$factoryCalls): Session {
+            ++$factoryCalls;
+
+            return new Session(new MockArraySessionStorage());
+        });
+
+        (new StorefrontSubscriber(
+            new RequestStack([$request]),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
+        ))->startSession();
+
+        static::assertSame(0, $factoryCalls);
     }
 
     public function testSubRequestShouldGetSameContextTokenAsMainRequest(): void
@@ -354,8 +378,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->startSession();
@@ -371,8 +395,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
@@ -386,8 +410,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             new RequestStack([$request]),
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
@@ -397,13 +421,16 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSessionWithoutSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $requestStack = new RequestStack([$request]);
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
@@ -413,20 +440,47 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack([$request]);
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testDoesNotUpdateSessionForStoreApiRequest(): void
+    {
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ]);
+        $factoryCalls = 0;
+        $request->setSessionFactory(static function () use (&$factoryCalls): Session {
+            ++$factoryCalls;
+
+            return new Session(new MockArraySessionStorage());
+        });
+
+        (new StorefrontSubscriber(
+            new RequestStack([$request]),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertSame(0, $factoryCalls);
     }
 
     public function testStartSessionWithBindingDisabledUsesDefaultTokenKey(): void
@@ -447,8 +501,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->startSession();
@@ -477,8 +531,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->startSession();
@@ -518,8 +572,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStackA,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->startSession();
@@ -539,8 +593,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStackB,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->startSession();
@@ -561,8 +615,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStackA2,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->startSession();
@@ -583,6 +637,7 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );
@@ -595,8 +650,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->updateSession($newToken);
@@ -616,6 +671,7 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]
         );
@@ -628,8 +684,8 @@ class StorefrontSubscriberTest extends TestCase
 
         (new StorefrontSubscriber(
             $requestStack,
-            $this->createMock(RouterInterface::class),
-            $this->createMock(MaintenanceModeResolver::class),
+            static::createStub(RouterInterface::class),
+            static::createStub(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
         ))->updateSession($newToken);

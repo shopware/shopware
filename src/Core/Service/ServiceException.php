@@ -4,16 +4,15 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-/**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ServiceException extends HttpException
 {
     public const NOT_FOUND = 'SERVICE__NOT_FOUND';
@@ -30,6 +29,8 @@ class ServiceException extends HttpException
     public const SERVICE_MISSING_APP_SECRET_INFO = 'SERVICE__MISSING_APP_SECRET_INFO';
 
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
+
+    public const SERVICE_STATE_CHANGE_NOT_PERMITTED = 'SERVICE__STATE_CHANGE_NOT_PERMITTED';
 
     public const COULD_NOT_FETCH_PERMISSIONS_REVISIONS = 'SERVICE__COULD_NOT_FETCH_PERMISSIONS_REVISIONS';
 
@@ -110,6 +111,16 @@ class ServiceException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::SERVICE_TOGGLE_ACTION_NOT_ALLOWED,
             'Service is not allowed to toggle itself.',
+        );
+    }
+
+    public static function stateChangeNotPermitted(string $serviceName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_STATE_CHANGE_NOT_PERMITTED,
+            'The state of service "{{ serviceName }}" is managed by its requirements and cannot be changed manually.',
+            ['serviceName' => $serviceName]
         );
     }
 

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -40,6 +41,7 @@ use Twig\Loader\ChainLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileRenderer::class)]
 class SalesChannelFileRendererTest extends TestCase
 {
@@ -54,7 +56,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -95,6 +97,51 @@ class SalesChannelFileRendererTest extends TestCase
 
         static::assertSame('merchant plugin + merchant core', $content);
         static::assertSame('plugin + core', $renderer->render($file, $context));
+    }
+
+    public function testLegacyLowercaseExtensionRendersUppercaseCoreTemplate(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@Framework/files/agentic/AGENTS.md.twig' => '{% block content %}core{% endblock %}',
+                '@Ucp/files/agentic/agents.md.twig' => '{% sw_extends \'files/agentic/agents.md.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+        $hierarchyBuilder = new NamespaceHierarchyBuilder([
+            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => 0, 'Framework' => -1]),
+        ]);
+        $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
+
+        $renderer = new SalesChannelFileRenderer(
+            $twig,
+            $this->createTemplateResolver($templateFinder, $loader, $hierarchyBuilder),
+            $templateOverrideLoader,
+            $this->createSeoUrlPlaceholderHandler(),
+            $this->createSalesChannelRepository(),
+            $this->createExtensionDispatcher()
+        );
+        $file = new SalesChannelFile(
+            'agentic',
+            'AGENTS.md',
+            'files/agentic/AGENTS.md.twig',
+            'text/markdown; charset=utf-8',
+            'files/agentic/AGENTS.md.twig',
+            [],
+            [
+                'files/agentic/AGENTS.md.twig',
+                'files/agentic/agents.md.twig',
+            ],
+        );
+
+        static::assertSame('plugin + merchant core', $renderer->render($file, $this->createSalesChannelContext(), [
+            'Framework' => '{% block content %}merchant core{% endblock %}',
+        ]));
     }
 
     public function testRenderEntryIsResolvedThroughTemplateFinderInsteadOfDiscoveredSourceOrder(): void
@@ -229,7 +276,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -281,7 +328,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -333,7 +380,7 @@ class SalesChannelFileRendererTest extends TestCase
             ]),
         ]);
         $twig = new Environment($loader);
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
@@ -471,9 +518,9 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('extended', $renderer->render($file, $this->createSalesChannelContext()));
     }
 
-    private function createSeoUrlPlaceholderHandler(): SeoUrlPlaceholderHandlerInterface&MockObject
+    private function createSeoUrlPlaceholderHandler(): SeoUrlPlaceholderHandlerInterface&Stub
     {
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlPlaceholderHandler = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $seoUrlPlaceholderHandler
             ->method('replace')
             ->willReturnArgument(0);
@@ -489,7 +536,7 @@ class SalesChannelFileRendererTest extends TestCase
         ChainLoader $loader,
         array|TemplateNamespaceHierarchyBuilderInterface $hierarchy = ['Ucp' => 0, 'Framework' => -1]
     ): TemplateFinder {
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(
@@ -536,10 +583,10 @@ class SalesChannelFileRendererTest extends TestCase
         ]);
     }
 
-    private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&MockObject
+    private function createSalesChannelContext(?SalesChannelEntity $salesChannel = null, ?string $domainId = null): SalesChannelContext&Stub
     {
         $salesChannel ??= $this->createSalesChannel('Context sales channel');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannel->getId());
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
@@ -551,11 +598,11 @@ class SalesChannelFileRendererTest extends TestCase
     /**
      * @param \Closure(Criteria, Context): void|null $criteriaAssertion
      *
-     * @return EntityRepository<SalesChannelCollection>&MockObject
+     * @return EntityRepository<SalesChannelCollection>&Stub
      */
-    private function createSalesChannelRepository(?SalesChannelEntity $salesChannel = null, ?\Closure $criteriaAssertion = null): EntityRepository&MockObject
+    private function createSalesChannelRepository(?SalesChannelEntity $salesChannel = null, ?\Closure $criteriaAssertion = null): EntityRepository&Stub
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository
             ->method('search')
             ->willReturnCallback(static function (Criteria $criteria, Context $context) use ($salesChannel, $criteriaAssertion): EntitySearchResult {

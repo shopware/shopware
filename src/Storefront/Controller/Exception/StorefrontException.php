@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller\Exception;
 
 use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Twig\Error\Error as TwigError;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontException extends HttpException
 {
     final public const CAN_NOT_RENDER_VIEW = 'STOREFRONT__CAN_NOT_RENDER_VIEW';
@@ -118,9 +119,7 @@ class StorefrontException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function domainNotFound(SalesChannelEntity $salesChannel): self|SalesChannelDomainNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {

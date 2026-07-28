@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\SalesChannelRequest;
@@ -13,6 +14,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MaintenanceModeResolver::class)]
 class MaintenanceModeResolverTest extends TestCase
 {
@@ -78,7 +80,7 @@ class MaintenanceModeResolverTest extends TestCase
 
     public function testGetIpsFallsBackToDeprecatedAllowlistAttribute(): void
     {
-        $resolver = new MaintenanceModeResolver($this->createMock(EventDispatcherInterface::class));
+        $resolver = new MaintenanceModeResolver(static::createStub(EventDispatcherInterface::class));
 
         $request = new Request(server: ['REMOTE_ADDR' => '192.168.0.4']);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
@@ -94,7 +96,7 @@ class MaintenanceModeResolverTest extends TestCase
 
     public function testGetIpsPrefersTheNewAllowlistAttribute(): void
     {
-        $resolver = new MaintenanceModeResolver($this->createMock(EventDispatcherInterface::class));
+        $resolver = new MaintenanceModeResolver(static::createStub(EventDispatcherInterface::class));
 
         $request = new Request(server: ['REMOTE_ADDR' => '192.168.0.4']);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);

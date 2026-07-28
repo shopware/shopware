@@ -44,7 +44,7 @@ class IntFieldSerializerTest extends TestCase
     {
         $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $validator = new RecursiveValidator(
-            new ExecutionContextFactory($this->createMock(TranslatorInterface::class)),
+            new ExecutionContextFactory(static::createStub(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );

@@ -85,8 +85,8 @@ class StorefrontCategoryUrlGeneratorTest extends TestCase
 
     public function testGetDecoratedReturnsInner(): void
     {
-        $decorated = $this->createMock(AbstractCategoryUrlGenerator::class);
-        $generator = new StorefrontCategoryUrlGenerator($decorated, $this->createMock(RouterInterface::class));
+        $decorated = static::createStub(AbstractCategoryUrlGenerator::class);
+        $generator = new StorefrontCategoryUrlGenerator($decorated, static::createStub(RouterInterface::class));
 
         static::assertSame($decorated, $generator->getDecorated());
     }

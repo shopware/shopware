@@ -33,7 +33,7 @@ class StoreClientFactoryTest extends TestCase
 
     public function testCreatesClientWithMiddlewares(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $middlewares = [
             new StoreSessionExpiredMiddleware($connection, new RequestStack()),
             new ShopSecretInvalidMiddleware($connection, new StaticSystemConfigService()),

@@ -1,10 +1,4 @@
-import {
-    test,
-    setViewport,
-    replaceElements,
-    assertScreenshot,
-    getCurrencyCodeFromLocale,
-} from '@fixtures/AcceptanceTest';
+import { test, setViewport, replaceElements, assertScreenshot, getCurrencyCodeFromLocale } from '@fixtures/AcceptanceTest';
 
 test(
     'Visual: Product Detail Page',
@@ -104,5 +98,5 @@ test(
             await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
             await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Reviews-Tab.png');
         });
-    }
+    },
 );

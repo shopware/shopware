@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
@@ -17,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(DefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
+#[CoversClass(DefaultCategoryLevelLoader::class)]
 class DefaultCategoryLevelLoaderTest extends TestCase
 {
     private DefaultCategoryLevelLoader $categoryLevelLoader;
@@ -28,12 +29,12 @@ class DefaultCategoryLevelLoaderTest extends TestCase
      */
     private MockObject&SalesChannelRepository $categoryRepository;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
         $this->categoryRepository = $this->createMock(SalesChannelRepository::class);
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $this->categoryLevelLoader = new DefaultCategoryLevelLoader(
             $this->categoryRepository

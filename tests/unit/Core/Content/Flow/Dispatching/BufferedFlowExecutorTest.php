@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -27,49 +27,41 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(BufferedFlowExecutor::class)]
 class BufferedFlowExecutorTest extends TestCase
 {
-    private BufferedFlowExecutor $bufferedFlowExecutor;
+    private Stub&BufferedFlowQueue $bufferedFlowQueueMock;
 
-    private MockObject&BufferedFlowQueue $bufferedFlowQueueMock;
+    private Stub&AbstractFlowLoader $flowLoaderMock;
 
-    private MockObject&AbstractFlowLoader $flowLoaderMock;
+    private Stub&FlowFactory $flowFactoryMock;
 
-    private MockObject&FlowFactory $flowFactoryMock;
+    private Stub&FlowExecutor $flowExecutorMock;
 
-    private MockObject&FlowExecutor $flowExecutorMock;
-
-    private MockObject&LoggerInterface $loggerMock;
+    private Stub&LoggerInterface $loggerMock;
 
     protected function setUp(): void
     {
-        $this->bufferedFlowQueueMock = $this->createMock(BufferedFlowQueue::class);
-        $this->flowLoaderMock = $this->createMock(AbstractFlowLoader::class);
-        $this->flowFactoryMock = $this->createMock(FlowFactory::class);
-        $this->flowExecutorMock = $this->createMock(FlowExecutor::class);
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
-
-        $this->bufferedFlowExecutor = new BufferedFlowExecutor(
-            $this->bufferedFlowQueueMock,
-            $this->flowLoaderMock,
-            $this->flowFactoryMock,
-            $this->flowExecutorMock,
-            $this->loggerMock,
-        );
+        $this->bufferedFlowQueueMock = static::createStub(BufferedFlowQueue::class);
+        $this->flowLoaderMock = static::createStub(AbstractFlowLoader::class);
+        $this->flowFactoryMock = static::createStub(FlowFactory::class);
+        $this->flowExecutorMock = static::createStub(FlowExecutor::class);
+        $this->loggerMock = static::createStub(LoggerInterface::class);
     }
 
     public function testExecutesBufferedFlows(): void
     {
         $bufferedFlow = $this->createBufferedFlow(new OrderEntity());
 
-        $this->bufferedFlowQueueMock->expects($this->exactly(2))
+        $bufferedFlowQueue = $this->createMock(BufferedFlowQueue::class);
+        $bufferedFlowQueue->expects($this->exactly(2))
             ->method('isEmpty')
             ->willReturnOnConsecutiveCalls(false, true);
 
-        $this->bufferedFlowQueueMock->expects($this->once())
+        $bufferedFlowQueue->expects($this->once())
             ->method('dequeueFlows')
             ->willReturn([$bufferedFlow]);
 
         $flowPayload = new Flow(Uuid::randomHex());
-        $this->flowLoaderMock->expects($this->once())
+        $flowLoader = $this->createMock(AbstractFlowLoader::class);
+        $flowLoader->expects($this->once())
             ->method('load')
             ->willReturn([
                 'checkout.order.placed' => [
@@ -82,12 +74,14 @@ class BufferedFlowExecutorTest extends TestCase
             ]);
 
         $flow = new StorableFlow($bufferedFlow->eventName, $bufferedFlow->eventContext, [], []);
-        $this->flowFactoryMock->expects($this->once())
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $flowFactory->expects($this->once())
             ->method('restoreBuffered')
             ->with($bufferedFlow)
             ->willReturn($flow);
 
-        $this->flowExecutorMock->expects($this->once())
+        $flowExecutor = $this->createMock(FlowExecutor::class);
+        $flowExecutor->expects($this->once())
             ->method('executeFlows')
             ->with(
                 [
@@ -100,7 +94,8 @@ class BufferedFlowExecutorTest extends TestCase
                 $flow,
             );
 
-        $this->bufferedFlowExecutor->executeBufferedFlows();
+        $this->buildExecutor($bufferedFlowQueue, $flowLoader, $flowFactory, $flowExecutor)
+            ->executeBufferedFlows();
     }
 
     public function testExecuteBufferedEventsWithoutFlows(): void
@@ -110,11 +105,14 @@ class BufferedFlowExecutorTest extends TestCase
         $this->bufferedFlowQueueMock->method('dequeueFlows')->willReturn([$bufferedFlow]);
 
         $flow = new StorableFlow($bufferedFlow->eventName, $bufferedFlow->eventContext, [], []);
-        $this->flowFactoryMock->expects($this->once())->method('restoreBuffered')->with($bufferedFlow)->willReturn($flow);
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $flowFactory->expects($this->once())->method('restoreBuffered')->with($bufferedFlow)->willReturn($flow);
 
-        $this->flowLoaderMock->expects($this->once())->method('load')->willReturn([]);
+        $flowLoader = $this->createMock(AbstractFlowLoader::class);
+        $flowLoader->expects($this->once())->method('load')->willReturn([]);
 
-        $this->bufferedFlowExecutor->executeBufferedFlows();
+        $this->buildExecutor(flowLoader: $flowLoader, flowFactory: $flowFactory)
+            ->executeBufferedFlows();
     }
 
     public function testLogsErrorIfMaximumExecutionDepthIsExceeded(): void
@@ -124,14 +122,32 @@ class BufferedFlowExecutorTest extends TestCase
         $this->bufferedFlowQueueMock->method('dequeueFlows')->willReturn([$bufferedFlow]);
         $this->flowLoaderMock->method('load')->willReturn([]);
 
-        $this->loggerMock->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with(
                 'Maximum execution depth reached for buffered flow executor. This might be caused by a cyclic flow execution.',
                 ['bufferedEvents' => ['checkout.order.placed']],
             );
 
-        $this->bufferedFlowExecutor->executeBufferedFlows();
+        $this->buildExecutor(logger: $logger)
+            ->executeBufferedFlows();
+    }
+
+    private function buildExecutor(
+        ?BufferedFlowQueue $bufferedFlowQueue = null,
+        ?AbstractFlowLoader $flowLoader = null,
+        ?FlowFactory $flowFactory = null,
+        ?FlowExecutor $flowExecutor = null,
+        ?LoggerInterface $logger = null,
+    ): BufferedFlowExecutor {
+        return new BufferedFlowExecutor(
+            $bufferedFlowQueue ?? $this->bufferedFlowQueueMock,
+            $flowLoader ?? $this->flowLoaderMock,
+            $flowFactory ?? $this->flowFactoryMock,
+            $flowExecutor ?? $this->flowExecutorMock,
+            $logger ?? $this->loggerMock,
+        );
     }
 
     private function createBufferedFlow(OrderEntity $order): BufferedFlow

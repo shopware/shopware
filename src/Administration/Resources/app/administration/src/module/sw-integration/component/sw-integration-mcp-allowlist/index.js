@@ -81,7 +81,7 @@ export default {
         },
 
         toolGroups() {
-            return buildGroups(this.availableTools, (tool) => tool.name.split('-')[0] ?? 'other');
+            return buildGroups(this.availableTools, (tool) => tool.group ?? tool.name.split('-')[0] ?? 'other');
         },
 
         resourceGroups() {
@@ -390,7 +390,7 @@ export default {
         },
 
         privilegeChipClass(chip) {
-            if (this.isAdmin || this.grantedPrivileges.length === 0 || chip.startsWith('<')) {
+            if (this.isAdmin || this.grantedPrivileges.length === 0 || typeof chip !== 'string' || chip.startsWith('<')) {
                 return 'neutral';
             }
 
@@ -539,6 +539,10 @@ export default {
             }
 
             const items = this.getGroupItems(type, group);
+            if (items.some((item) => !!item.group)) {
+                return humanizeLabel(group);
+            }
+
             return humanizeCommonPrefix(items.map((item) => item.name));
         },
 

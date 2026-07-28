@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(SeoUrlPlaceholderHandler::class)]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
-    private MockObject&Connection $connection;
+    private Connection&Stub $connection;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -34,16 +34,12 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $this->connection = static::createStub(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
-            $this->createMock(RequestStack::class),
-            $this->createMock(Router::class),
-            $this->connection
-        );
+        $this->seoUrlPlaceholderHandler = $this->createHandler();
     }
 
     /**
@@ -89,9 +85,11 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     #[DataProvider('replaceDataProvider')]
     public function testReplace(string $host, string $content, string $expected): void
     {
-        $this->connection->expects($this->once())->method('executeQuery')->willReturn($this->createMock(Result::class));
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+        $connection->expects($this->once())->method('executeQuery')->willReturn(static::createStub(Result::class));
 
-        static::assertSame($expected, $this->seoUrlPlaceholderHandler->replace($content, $host, $this->salesChannelContext));
+        static::assertSame($expected, $this->createHandler($connection)->replace($content, $host, $this->salesChannelContext));
     }
 
     public function testSeoReplacementSalesChannelDefaultAndOverride(): void
@@ -123,5 +121,14 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $expectedUrl2 = $host . '/cars-default';
         $expected = \sprintf($template, $expectedUrl1, $expectedUrl2);
         static::assertSame($expected, $actual);
+    }
+
+    private function createHandler(?Connection $connection = null): SeoUrlPlaceholderHandler
+    {
+        return new SeoUrlPlaceholderHandler(
+            static::createStub(RequestStack::class),
+            static::createStub(Router::class),
+            $connection ?? $this->connection
+        );
     }
 }

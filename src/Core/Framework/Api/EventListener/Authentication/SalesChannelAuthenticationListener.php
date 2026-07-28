@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Tests\Integration\Core\Framework\Api\EventListener\SalesChannelAuthenticationListenerTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -27,7 +26,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @codeCoverageIgnore
  *
- * @see SalesChannelAuthenticationListenerTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Api\EventListener\SalesChannelAuthenticationListenerTest
  */
 #[Package('framework')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface

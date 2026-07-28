@@ -12,6 +12,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 
 - Keep application/domain services hexagonal: controllers, CLI commands, subscribers, and handlers translate infrastructure details (`Request`, IO, database, filesystem, HTTP) into plain inputs before calling services.
 - Services must not perform direct infrastructure work or depend on framework objects. Depend on narrow abstractions instead, such as repositories, filesystem interfaces, HTTP clients, or gateways.
+- Where code legitimately touches the local filesystem, inject and use the Symfony `Filesystem` component instead of raw PHP functions like `mkdir`, `file_put_contents`, `copy`, `unlink`, or `rmdir`. It throws `IOException` instead of warnings plus `false` returns, handles recursive operations, and keeps the dependency mockable.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.
@@ -35,6 +36,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 ## Deprecations
 
 - Core code should never trigger self-deprecation notices. If core must keep calling deprecated behavior for BC, wrap that call with `Feature::silent($majorFlag, static fn () => ...)` so the deprecation notice is suppressed, the code path is explicitly tied to the major feature flag, and the branch will disappear when the flag is removed.
+- Do not mark DI service definitions as deprecated while Shopware core still references that service id anywhere. Internal DI references still trigger container deprecations and spam logs during warmup/compile. Deprecate the PHP API or class if needed, but only add the DI `<deprecated>` service tag once core no longer uses that service internally.
 - When adding an `@deprecated` annotation to executable PHP code, add a matching `Feature::triggerDeprecationOrThrow()` in the deprecated code path unless the deprecation uses an explicit exception reason supported by the PHPStan deprecation rule.
 - Do not leave new Shopware core code paths calling deprecated functionality. Move internal callers to the replacement API/service and keep legacy behavior only in focused BC tests.
 - For private implementation cleanup reminders, do not add method-level deprecations. Use a short inline `// @deprecated tag:vX.Y.Z - ...` comment near the branch or code that should be removed later, with enough detail to simplify the future cleanup.

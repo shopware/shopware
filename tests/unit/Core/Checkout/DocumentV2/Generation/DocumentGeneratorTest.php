@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
@@ -28,6 +27,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -47,7 +47,7 @@ class DocumentGeneratorTest extends TestCase
     public function testGenerate(): void
     {
         $orderId = Uuid::randomHex();
-        $orderVersionId = Uuid::randomHex();
+        $createdOrderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
         $orderLanguageId = Uuid::randomHex();
@@ -55,26 +55,32 @@ class DocumentGeneratorTest extends TestCase
 
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
-            $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
         );
 
         $order = new OrderEntity();
         $order->setId($orderId);
+        $order->setVersionId($createdOrderVersionId);
         $order->setSalesChannelId($salesChannelId);
         $order->setLanguageId($orderLanguageId);
 
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([
-            function (
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->once())
+            ->method('createVersion')
+            ->with($orderId, $context, 'document')
+            ->willReturn($createdOrderVersionId);
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
                 Criteria $criteria,
                 Context $searchContext,
-            ) use ($order, $orderId, $orderVersionId): EntitySearchResult {
+            ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
-                static::assertSame(['languageId'], $criteria->getFields());
-                static::assertSame($orderVersionId, $searchContext->getVersionId());
+                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,
@@ -84,26 +90,7 @@ class DocumentGeneratorTest extends TestCase
                     $criteria,
                     $searchContext,
                 );
-            },
-            function (
-                Criteria $criteria,
-                Context $searchContext,
-            ) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
-                static::assertSame([$orderId], $criteria->getIds());
-                static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
-                static::assertSame($orderVersionId, $searchContext->getVersionId());
-                static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
-
-                return new EntitySearchResult(
-                    OrderDefinition::ENTITY_NAME,
-                    1,
-                    new OrderCollection([$order]),
-                    null,
-                    $criteria,
-                    $searchContext,
-                );
-            },
-        ], new OrderDefinition());
+            });
 
         $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator
@@ -131,7 +118,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
-        static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($createdOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
@@ -140,54 +127,103 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
     }
 
-    #[DataProvider('invalidGenerationRequestProvider')]
-    public function testGenerateThrowsExceptionOnInvalidGenerationRequest(
-        DocumentGenerationRequest $generationRequest,
-        DocumentV2Exception $exception
-    ): void {
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([], new OrderDefinition());
+    public function testPreview(): void
+    {
+        $orderId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $documentTypeId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $generationRequest = new DocumentGenerationRequest(
+            $orderId,
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+        );
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setSalesChannelId($salesChannelId);
+        $order->setLanguageId($orderLanguageId);
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->never())
+            ->method('createVersion');
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame(Defaults::LIVE_VERSION, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
+
+        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $numberRangeValueGenerator
+            ->expects($this->once())
+            ->method('getValue')
+            ->with(
+                DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . DocumentType::INVOICE->value,
+                $context,
+                $salesChannelId,
+                true,
+            )
+            ->willReturn('generated-number');
+
+        [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
+            $orderRepository,
+            $numberRangeValueGenerator,
+            $documentTypeId,
+            new DocumentEntity(),
+        );
+
+        $result = $generator->preview($generationRequest, $context);
+
+        static::assertSame('filename.pdf', $result->getName());
+        static::assertSame('content', $result->getContent());
+        static::assertSame(DocumentFormat::PDF->fileExtension(), $result->getFileExtension());
+        static::assertSame(DocumentFormat::PDF->mimeType(), $result->getContentType());
+        static::assertCount(0, $documentRepository->creates);
+        static::assertCount(0, $documentFileRepository->creates);
+    }
+
+    public function testGenerateThrowsExceptionForMissingFormats(): void
+    {
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         [$generator] = $this->createGenerator(
             $orderRepository,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
         );
 
-        static::expectExceptionObject($exception);
+        $generationRequest = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [],
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::missingFormats());
 
         $generator->generate($generationRequest, Context::createDefaultContext());
     }
 
     /**
-     * @return iterable<string, array{generationRequest: DocumentGenerationRequest, exception: DocumentV2Exception}>
-     */
-    public static function invalidGenerationRequestProvider(): iterable
-    {
-        yield 'missing formats' => [
-            'generationRequest' => new DocumentGenerationRequest(
-                Uuid::randomHex(),
-                Uuid::randomHex(),
-                DocumentType::INVOICE,
-                [],
-            ),
-            'exception' => DocumentV2Exception::missingFormats(),
-        ];
-
-        yield 'live version not allowed' => [
-            'generationRequest' => new DocumentGenerationRequest(
-                Uuid::randomHex(),
-                Defaults::LIVE_VERSION,
-                DocumentType::INVOICE,
-                [DocumentFormat::PDF],
-            ),
-            'exception' => DocumentV2Exception::liveVersionNotAllowed(),
-        ];
-    }
-
-    /**
-     * @param StaticEntityRepository<OrderCollection> $orderRepository
+     * @param EntityRepository<OrderCollection> $orderRepository
      *
      * @return array{
      *     0: DocumentGenerator,
@@ -196,13 +232,12 @@ class DocumentGeneratorTest extends TestCase
      * }
      */
     private function createGenerator(
-        StaticEntityRepository $orderRepository,
+        EntityRepository $orderRepository,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         string $documentTypeId,
         DocumentEntity $document,
     ): array {
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             [],
             function (
                 Criteria $criteria,
@@ -216,13 +251,11 @@ class DocumentGeneratorTest extends TestCase
             },
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
@@ -243,7 +276,7 @@ class DocumentGeneratorTest extends TestCase
             ),
         ]);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
 
         $generator = new DocumentGenerator(

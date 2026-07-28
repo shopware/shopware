@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorybookRouteScopeAllowList::class)]
 class StorybookRouteScopeAllowListTest extends TestCase
 {

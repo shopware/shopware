@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Example\NoCreateMockWithoutExpectationsRule;
+namespace Shopware\Tests\Migration\Example\NoCreateMockWithoutExpectationsRule;
 
 use PHPUnit\Framework\TestCase;
 
@@ -12,8 +12,8 @@ interface OutOfScopeDependency
 /**
  * @internal
  *
- * Lives in a namespace that is NOT yet in the rule's enabled allowlist, so even a clear stub must NOT be
- * flagged — the rule only enforces in already-swept domains.
+ * Lives in a unit-test namespace (per TestRuleHelper) that is NOT in the rule's enabled allowlist — the
+ * migration test suite is not swept — so even a clear stub must NOT be flagged.
  */
 class CasesOutOfScope extends TestCase
 {

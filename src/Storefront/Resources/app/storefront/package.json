@@ -75,6 +75,7 @@
     "@babel/preset-env": "7.23.7",
     "@babel/preset-typescript": "7.23.3",
     "@eslint/js": "9.39.3",
+    "@eslint/json": "2.0.0",
     "@storybook/addon-docs": "10.4.0",
     "@storybook/addon-webpack5-compiler-swc": "4.0.3",
     "@storybook/server-webpack5": "10.4.0",

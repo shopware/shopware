@@ -1,7 +1,102 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
+        "/_action/media/{mediaId}/download": {
+            "get": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Download a media file",
+                "description": "Downloads a media file by its identifier.",
+                "operationId": "downloadMedia",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "Identifier of the media entity.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The media file.",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "302": {
+                        "description": "Redirects to the resolved media download URL.",
+                        "headers": {
+                            "Location": {
+                                "description": "Contains the resolved media download URL.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/{mediaId}/download/prepare": {
+            "get": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Prepare a media download",
+                "description": "Resolves the browser download URL for a media file by its identifier.",
+                "operationId": "prepareMediaDownload",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "Identifier of the media entity.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The resolved browser download strategy.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "type"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "external",
+                                                "blob"
+                                            ],
+                                            "description": "Whether the frontend should trigger an external URL directly or fall back to an authenticated blob download."
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "description": "External URL that should be used by the browser to start the download."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/_action/media/{mediaId}/upload": {
             "post": {
                 "tags": [

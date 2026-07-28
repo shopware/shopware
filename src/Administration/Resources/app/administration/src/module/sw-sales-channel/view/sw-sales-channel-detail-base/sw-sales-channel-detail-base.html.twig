@@ -701,7 +701,6 @@
         <div class="sw-sales-channel-detail__action-button">
             <mt-button
                 v-if="isProductComparison"
-                ghost
                 :disabled="!acl.can('sales_channel.editor')"
                 size="small"
                 class="sw-sales-channel-detail-base__button-generate-keys"
@@ -861,7 +860,7 @@
                     variant="critical"
                     @click="onConfirmDelete"
                 >
-                    {{ $t('sw-sales-channel.detail.buttonConfirmDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
                 {% endblock %}
             </template>

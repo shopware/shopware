@@ -4,15 +4,27 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
+        grid-column-gap: var(--scale-size-32);
+    }
+
+    .sw-settings-user-detail__information-grid {
         grid-template-areas:
             "FirstName LastName"
-            "EMail ProfilePicture"
-            "Username ProfilePicture"
-            "Password IsAdmin"
-            "ChangePassword none"
-            "Language Timezone"
-            "JobTitle AclRoles";
-        grid-column-gap: var(--scale-size-32);
+            "EMail EMail"
+            "Username Password"
+            "Active Active";
+    }
+
+    .sw-settings-user-detail__user-interface-grid {
+        grid-template-areas:
+            "Language ProfilePicture"
+            "Timezone ProfilePicture";
+    }
+
+    .sw-settings-user-detail__roles-permissions-grid {
+        grid-template-areas:
+            "AclRoles JobTitle"
+            "IsAdmin IsAdmin";
     }
 
     .sw-settings-user-detail__grid-firstName {
@@ -53,6 +65,15 @@
 
     .sw-settings-user-detail__grid-is-admin {
         grid-area: IsAdmin;
+    }
+
+    .sw-settings-user-detail__grid-active {
+        grid-area: Active;
+    }
+
+    .mt-switch {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     &__grid-timezone {

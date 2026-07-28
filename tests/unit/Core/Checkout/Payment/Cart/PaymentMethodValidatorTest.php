@@ -18,8 +18,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(PaymentMethodValidator::class)]
 #[Package('checkout')]
+#[CoversClass(PaymentMethodValidator::class)]
 class PaymentMethodValidatorTest extends TestCase
 {
     private PaymentMethodValidator $validator;

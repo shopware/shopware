@@ -230,13 +230,13 @@ class ExtensionLoaderTest extends TestCase
         ?LoggerInterface $logger = null,
     ): ExtensionLoader {
         return new ExtensionLoader(
-            $this->createMock(AppLoader::class),
-            $this->createMock(SourceResolver::class),
-            $configurationService ?? $this->createMock(ConfigurationService::class),
-            $this->createMock(LocaleProvider::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(AppLoader::class),
+            static::createStub(SourceResolver::class),
+            $configurationService ?? static::createStub(ConfigurationService::class),
+            static::createStub(LocaleProvider::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? static::createStub(LoggerInterface::class),
             $eventDispatcher,
         );
     }

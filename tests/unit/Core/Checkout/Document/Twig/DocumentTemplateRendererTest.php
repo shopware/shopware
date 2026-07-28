@@ -25,8 +25,8 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
-#[CoversClass(DocumentTemplateRenderer::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentTemplateRenderer::class)]
 class DocumentTemplateRendererTest extends TestCase
 {
     private static bool $rendererParameterEventCalled = false;
@@ -54,9 +54,9 @@ class DocumentTemplateRendererTest extends TestCase
 
         $documentTemplateRenderer = new DocumentTemplateRenderer(
             $templateFinder,
-            $this->createMock(TwigEnvironment::class),
-            $this->createMock(Translator::class),
-            $this->createMock(SalesChannelContextFactory::class),
+            static::createStub(TwigEnvironment::class),
+            static::createStub(Translator::class),
+            static::createStub(SalesChannelContextFactory::class),
             $eventDispatcher,
         );
 
@@ -104,25 +104,25 @@ class DocumentTemplateRendererTest extends TestCase
 
     private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
     {
-        $templateFinder = $this->createMock(TemplateFinder::class);
+        $templateFinder = static::createStub(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setBusinessTimeZone($businessTimeZone);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $contextFactory->method('create')->willReturn($salesChannelContext);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         return new DocumentTemplateRenderer(
             $templateFinder,
             $twig,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
             $contextFactory,
             $eventDispatcher,
         );

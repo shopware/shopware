@@ -12,14 +12,13 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
-use Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * @codeCoverageIgnore
  *
- * @see ScriptExecutorTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
  */
 #[Package('framework')]
 class ScriptExecutor

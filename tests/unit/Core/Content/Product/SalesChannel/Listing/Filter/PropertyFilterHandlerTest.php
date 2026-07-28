@@ -204,7 +204,6 @@ class PropertyFilterHandlerTest extends TestCase
         $languageInfo = new LanguageInfo(Generator::LANGUAGE_INFO_NAME, Generator::LANGUAGE_INFO_LOCALE_CODE);
         $context = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
 
-        /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
         $groupRepository = new StaticEntityRepository([
             static function (Criteria $criteria) {
                 static::assertContains('color', $criteria->getIds());
@@ -226,7 +225,6 @@ class PropertyFilterHandlerTest extends TestCase
             new PropertyGroupCollection(),
         ], new PropertyGroupDefinition());
 
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $repository */
         $repository = new StaticEntityRepository([
             static function (Criteria $criteria) {
                 static::assertContains('red', $criteria->getIds());
@@ -439,9 +437,7 @@ class PropertyFilterHandlerTest extends TestCase
 
     private function getHandlerWithConnection(Connection $connection): PropertyListingFilterHandler
     {
-        /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
         $groupRepository = new StaticEntityRepository([], new PropertyGroupDefinition());
-        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([], new PropertyGroupOptionDefinition());
 
         return new PropertyListingFilterHandler(

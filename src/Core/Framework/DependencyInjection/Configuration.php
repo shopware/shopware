@@ -620,6 +620,7 @@ class Configuration implements ConfigurationInterface
                     ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead.')
                 ->end()
                 ->scalarNode('compression_method')->defaultValue('gzip')->end()
+                ->scalarNode('serialization_method')->defaultValue('serialize')->end()
                 ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()

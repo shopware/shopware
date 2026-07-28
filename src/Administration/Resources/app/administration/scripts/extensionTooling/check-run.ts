@@ -13,7 +13,8 @@ import path from 'path';
 import { aggregateModeResolution, canonicalizePath, collectSkippedTargets, relativePosix, toPosix } from './shared';
 import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 import { DEFAULT_TOOLING_COMMANDS } from './shared';
-import { PROCESS_TIMEOUT_MS, probeEslintMode, probeTsMode, runCommand } from './probe';
+import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
+import { probeEslintMode, probeTsMode } from './probe-live';
 import { baselineFilePath, buildBaseline, diffEslint, readBaseline, writeBaselineFile } from './baseline';
 import type { BaselineEslintEntry, BaselineTsEntry, TypeScriptFinding } from './baseline';
 import {

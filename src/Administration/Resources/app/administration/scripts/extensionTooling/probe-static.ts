@@ -1,27 +1,22 @@
 /**
  * @sw-package framework
  *
- * Mode resolution for extension-owned configs. Two layers:
+ * Static mode resolution for extension-owned configs: synchronous, no process
+ * spawns, safe for setup. Parses the config and walks its `extends` chain /
+ * import specifiers to produce a fast best guess (`verified: false`) that the
+ * setup report renders.
  *
- * 1. Static analysis — synchronous, no process spawns, safe for setup: parse
- *    the config and walk its `extends` chain / import specifiers. A fast
- *    best-guess that setup renders.
- * 2. Live probes — asynchronous `tsc --showConfig` / `eslint --print-config`
- *    runs, the authority, executed by the check command.
+ * The authority is the live probe in `./probe-live`, which resolves what the
+ * tools actually see. Everything here is knowingly lossy — a bare package
+ * specifier in `extends` is not followed, and the ESLint side is a text scan —
+ * so a check run can and does overrule these verdicts.
  */
 
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
-import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
-import type { CommandResult } from './probe-command';
 import { SHIM_DIR_NAME } from './shared';
-import type { AdministrationTarget, ModeReason, ModeResolution } from './shared';
-
-// The child-process runner lives in ./probe-command; these bindings are
-// re-exported so ./probe stays the single import surface callers and specs use.
-export { PROCESS_TIMEOUT_MS, runCommand };
-export type { CommandResult };
+import type { ModeReason, ModeResolution } from './shared';
 
 /** How deep an `extends` chain is followed before giving up. */
 const MAX_EXTENDS_DEPTH = 10;
@@ -210,33 +205,6 @@ export function resolveStaticTsMode(tsconfigPath: string | null): ModeResolution
 export const ESLINT_NOT_COMPOSED_DETAIL =
     'the config does not compose the Shopware factory, so the preset rules never apply.';
 
-/** Shown when a config-load failure produced no recognizable error line. */
-export const ESLINT_LOAD_FAILED_DETAIL =
-    'own ESLint config failed to load — run with --verbose for the underlying error (often an ESLint ' +
-    'version or plugin-resolution mismatch).';
-
-/**
- * Picks the actionable line from failed ESLint output. ESLint prefixes fatal
- * config-load errors with the generic banner `Oops! Something went wrong! :(`
- * and a version/usage preamble; surfacing that as the `why:` hides the real
- * cause behind `--verbose`. Prefer the first line that looks like a real
- * runtime error (an error class or an `ERR_*` code); fall back to a stable
- * message that names `--verbose` rather than repeating the banner.
- */
-export function selectEslintErrorLine(output: string): string {
-    const lines = output
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter((line) => line !== '');
-    const errorLine = lines.find(
-        (line) =>
-            /^(Error|TypeError|ReferenceError|SyntaxError|RangeError|AggregateError|EvalError|URIError)\b/.test(line) ||
-            /\bERR_[A-Z0-9_]+\b/.test(line),
-    );
-
-    return errorLine ?? ESLINT_LOAD_FAILED_DETAIL;
-}
-
 /** Static best-guess for a plugin-owned ESLint config; `verified: false` until a live probe confirms it. */
 export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeResolution {
     if (eslintConfigPath === null) {
@@ -256,7 +224,7 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
 }
 
 /** Why a live tsc probe rules a config unmanaged, once its resolved program is known not to inject the surface. */
-function tsUnmanagedReason(analysis: StaticConfigAnalysis): ModeReason {
+export function tsUnmanagedReason(analysis: StaticConfigAnalysis): ModeReason {
     if (analysis.declaresFiles) {
         return 'files-override';
     }
@@ -266,107 +234,4 @@ function tsUnmanagedReason(analysis: StaticConfigAnalysis): ModeReason {
     }
 
     return 'surface-not-injected';
-}
-
-/**
- * Live probe: a custom tsconfig composes the Shopware preset when its
- * resolved configuration reaches the shipped type surface (directly or
- * through the generated bridge). `tsc --showConfig` resolves the whole
- * extends chain.
- */
-export async function probeTsMode(
-    target: AdministrationTarget,
-    projectRoot: string,
-    administrationRoot: string,
-): Promise<ModeResolution> {
-    if (!target.tsconfig) {
-        return target.ts;
-    }
-
-    const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'bin', 'tsc');
-    const tsconfigPath = path.resolve(projectRoot, target.tsconfig);
-    const probe = await runCommand(
-        process.execPath,
-        [
-            tscPath,
-            '--showConfig',
-            '--project',
-            tsconfigPath,
-        ],
-        projectRoot,
-    );
-
-    if (probe.status !== 0) {
-        const firstErrorLine =
-            probe.output.split('\n').find((line) => line.trim() !== '') ?? 'the tsconfig does not resolve.';
-
-        return {
-            mode: 'unmanaged',
-            reason: 'config-error',
-            detail: firstErrorLine,
-            probeOutput: probe.output,
-            verified: true,
-        };
-    }
-
-    const composes = probe.output.includes('extension-tooling/admin-types') || probe.output.includes('admin-types.d.ts');
-
-    if (composes) {
-        return { mode: 'bridged', verified: true };
-    }
-
-    const analysis = analyzeTsConfigStatically(tsconfigPath);
-    const reason = tsUnmanagedReason(analysis);
-
-    return { mode: 'unmanaged', reason, detail: detailForTsReason(reason, analysis), verified: true };
-}
-
-/**
- * Live probe: a custom ESLint config composes the Shopware preset when the
- * resolved configuration for a sample source file carries the factory's
- * runtime contract rule. (`--print-config` emits the merged config without
- * block names, so the probe checks for the rule instead.)
- */
-export async function probeEslintMode(
-    target: AdministrationTarget,
-    projectRoot: string,
-    administrationRoot: string,
-    eslintBaseArguments: string[],
-    sampleFile: string | null,
-): Promise<ModeResolution> {
-    if (!target.eslintConfig) {
-        return target.eslint;
-    }
-
-    if (!sampleFile) {
-        return { mode: 'bridged', verified: true };
-    }
-
-    const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
-    const probe = await runCommand(
-        process.execPath,
-        [
-            eslintPath,
-            ...eslintBaseArguments,
-            '--print-config',
-            sampleFile,
-        ],
-        projectRoot,
-    );
-
-    if (probe.status !== 0) {
-        return {
-            mode: 'unmanaged',
-            reason: 'config-error',
-            detail: selectEslintErrorLine(probe.output),
-            probeOutput: probe.output,
-            verified: true,
-        };
-    }
-
-    if (probe.output.includes('plugin-rules/no-src-imports')) {
-        return { mode: 'bridged', verified: true };
-    }
-
-    return { mode: 'unmanaged', reason: 'factory-not-composed', detail: ESLINT_NOT_COMPOSED_DETAIL, verified: true };
 }

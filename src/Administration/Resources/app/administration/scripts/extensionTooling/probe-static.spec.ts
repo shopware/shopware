@@ -4,16 +4,14 @@
 
 import path from 'path';
 import {
-    ESLINT_LOAD_FAILED_DETAIL,
     analyzeEslintConfigStatically,
     analyzeTsConfigStatically,
     resolveStaticEslintMode,
     resolveStaticTsMode,
-    selectEslintErrorLine,
-} from './probe';
+} from './probe-static';
 import { cleanupTempProject, createTempProject, writeFile } from './test-helpers';
 
-describe('scripts/extensionTooling/probe', () => {
+describe('scripts/extensionTooling/probe-static', () => {
     let projectRoot: string;
 
     beforeEach(() => {
@@ -86,38 +84,6 @@ describe('scripts/extensionTooling/probe', () => {
             expect(analyzeEslintConfigStatically(tsconfigPath('bridge.mjs')).importsFactory).toBe(true);
             expect(analyzeEslintConfigStatically(tsconfigPath('factory.mjs')).importsFactory).toBe(true);
             expect(analyzeEslintConfigStatically(tsconfigPath('own.mjs')).importsFactory).toBe(false);
-        });
-    });
-
-    describe('selectEslintErrorLine', () => {
-        it('skips the generic banner and surfaces the real ERR_ line', () => {
-            const output = [
-                'Oops! Something went wrong! :(',
-                '',
-                'ESLint: 9.39.3',
-                '',
-                "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/…/twigVuePlugin/lib/index.js'",
-                '    imported from /…/SwagPayPal/…/eslint.config.mjs',
-            ].join('\n');
-
-            const detail = selectEslintErrorLine(output);
-
-            expect(detail).toContain('ERR_MODULE_NOT_FOUND');
-            expect(detail).not.toContain('Oops!');
-        });
-
-        it('matches other error classes and indented ERR_ codes', () => {
-            expect(selectEslintErrorLine('Oops! Something went wrong! :(\nTypeError: x is not a function')).toBe(
-                'TypeError: x is not a function',
-            );
-            expect(selectEslintErrorLine("Oops!\n    code: 'ERR_REQUIRE_ESM'")).toContain('ERR_REQUIRE_ESM');
-        });
-
-        it('falls back to a --verbose hint when no error line is recognizable', () => {
-            expect(selectEslintErrorLine('Oops! Something went wrong! :(\n\nESLint couldn’t find a config')).toBe(
-                ESLINT_LOAD_FAILED_DETAIL,
-            );
-            expect(selectEslintErrorLine('')).toBe(ESLINT_LOAD_FAILED_DETAIL);
         });
     });
 

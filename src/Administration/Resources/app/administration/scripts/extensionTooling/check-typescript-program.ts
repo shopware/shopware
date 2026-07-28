@@ -9,7 +9,7 @@
  */
 
 import path from 'path';
-import { PROCESS_TIMEOUT_MS, runCommand } from './probe';
+import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { diffTypeScript } from './baseline';
 import type { BaselineTsEntry, TypeScriptFinding } from './baseline';
 import { canonicalizePath, relativePosix, toPosix } from './shared';

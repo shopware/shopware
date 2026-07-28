@@ -12,7 +12,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { runCommand } from '../probe';
+import { runCommand } from '../probe-command';
 import { checkExtensions, listSpecFiles, listTypeCheckableFiles } from '../check';
 import {
     cleanupTempProject,
@@ -24,8 +24,8 @@ import {
     writePluginsConfig,
 } from '../test-helpers';
 
-jest.mock('../probe', () => ({
-    ...jest.requireActual<Record<string, unknown>>('../probe'),
+jest.mock('../probe-command', () => ({
+    ...jest.requireActual<Record<string, unknown>>('../probe-command'),
     runCommand: jest.fn(),
 }));
 

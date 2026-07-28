@@ -18,7 +18,7 @@ import {
     relativePosix,
 } from './shared';
 import type { AdministrationTarget, ExtensionToolingProject } from './shared';
-import { resolveStaticEslintMode, resolveStaticTsMode } from './probe';
+import { resolveStaticEslintMode, resolveStaticTsMode } from './probe-static';
 
 const ESLINT_CONFIG_NAMES = [
     'eslint.config.mjs',

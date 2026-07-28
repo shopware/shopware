@@ -1,6 +1,6 @@
---- /dev/null
-+++ ../bin/roave-backward-compatibility-check.php
-@@ -82,6 +82,41 @@
+--- a/bin/roave-backward-compatibility-check.php
++++ b/bin/roave-backward-compatibility-check.php
+@@ -82,6 +82,40 @@
          }
      }
  

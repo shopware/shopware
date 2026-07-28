@@ -27,7 +27,7 @@ class ReferencedDocumentResolverTest extends TestCase
         $this->orderId = Uuid::randomHex();
     }
 
-    public function testResolvesTheLatestInvoiceWhenNoExplicitReferenceIsGiven(): void
+    public function testResolvesTheOrdersInvoiceWhenNoExplicitReferenceIsGiven(): void
     {
         $documentId = Uuid::randomHex();
         $orderVersionId = Uuid::randomHex();
@@ -66,6 +66,17 @@ class ReferencedDocumentResolverTest extends TestCase
         $this->expectExceptionObject(DocumentV2Exception::referencedInvoiceNotFound($this->orderId));
 
         $resolver->resolve($this->orderId, null);
+    }
+
+    public function testThrowsWhenTheExplicitReferenceIsNotAValidUuid(): void
+    {
+        $resolver = $this->createResolver([
+            $this->invoiceRow(Uuid::randomHex(), Uuid::randomHex(), documentNumber: '1000'),
+        ]);
+
+        $this->expectExceptionObject(DocumentV2Exception::referencedInvoiceNotFound($this->orderId));
+
+        $resolver->resolve($this->orderId, 'not-a-uuid');
     }
 
     public function testThrowsWhenTheReferencedOrderVersionIsUnresolvable(): void

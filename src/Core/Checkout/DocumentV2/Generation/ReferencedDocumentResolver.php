@@ -29,6 +29,10 @@ final readonly class ReferencedDocumentResolver
      */
     public function resolve(string $orderId, ?string $referencedDocumentId): ReferencedDocument
     {
+        if ($referencedDocumentId !== null && !Uuid::isValid($referencedDocumentId)) {
+            throw DocumentV2Exception::referencedInvoiceNotFound($orderId);
+        }
+
         $invoice = $this->referenceInvoiceLoader->load($orderId, $referencedDocumentId);
 
         if ($invoice === []) {
@@ -41,7 +45,7 @@ final readonly class ReferencedDocumentResolver
             throw DocumentV2Exception::referencedOrderVersionNotFound($orderId);
         }
 
-        if ($this->snapshotVanished($orderVersionId, $invoice['id'])) {
+        if ($this->snapshotMissing($orderVersionId, $invoice['id'])) {
             throw DocumentV2Exception::referencedOrderVersionNotFound($orderId);
         }
 
@@ -52,7 +56,7 @@ final readonly class ReferencedDocumentResolver
         );
     }
 
-    private function snapshotVanished(string $orderVersionId, string $documentId): bool
+    private function snapshotMissing(string $orderVersionId, string $documentId): bool
     {
         if ($orderVersionId !== Defaults::LIVE_VERSION) {
             return false;

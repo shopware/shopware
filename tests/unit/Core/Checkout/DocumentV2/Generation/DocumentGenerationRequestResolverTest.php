@@ -81,7 +81,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::HTML->value,
             $field => 'foo',
@@ -106,7 +105,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::HTML->value,
             'documentDate' => $value,
@@ -133,7 +131,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::HTML->value,
             'referencedDocumentId' => 'not-a-uuid',

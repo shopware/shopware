@@ -8,7 +8,8 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
-use Shopware\Core\Checkout\DocumentV2\Provider\OrderVersionStrategy;
+use Shopware\Core\Checkout\DocumentV2\Provider\ReferencesDocument;
+use Shopware\Core\Checkout\DocumentV2\Provider\RendersReferencedSnapshot;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
@@ -46,9 +47,7 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
-     * The request must contain at least one format. The order is loaded at the snapshot chosen
-     * by the document type's {@see OrderVersionStrategy}, so the persisted document stays
-     * consistent even if the order changes afterward.
+     * The request must contain at least one format.
      *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
@@ -77,8 +76,6 @@ final readonly class DocumentGenerator
 
     /**
      * Generates one logical document and returns the first requested format as a RenderedDocument.
-     * Nothing is persisted, so CREATE document types render against the live order version instead
-     * of creating a new one. REFERENCED types render the referenced snapshot in preview too.
      *
      * @throws DocumentV2Exception
      */
@@ -203,10 +200,6 @@ final readonly class DocumentGenerator
     }
 
     /**
-     * Under OrderVersionStrategy::CREATE the current order is snapshotted into a new version
-     * (or rendered live in preview). Under OrderVersionStrategy::REFERENCED the snapshot
-     * captured by the referenced document is reused and no new version is created.
-     *
      * @param list<AbstractDocumentDataProvider> $providers
      *
      * @throws DocumentV2Exception
@@ -219,45 +212,48 @@ final readonly class DocumentGenerator
         bool $preview,
         Context $apiContext,
     ): array {
-        if ($this->resolveOrderVersionStrategy($providers) === OrderVersionStrategy::CREATE) {
-            if ($generationRequest->referencedDocumentId !== null) {
-                throw DocumentV2Exception::referencedDocumentNotSupported(
-                    $generationRequest->documentType,
-                    $generationRequest->referencedDocumentId,
-                );
+        $resolvedReference = null;
+
+        if ($this->anyProviderImplements($providers, ReferencesDocument::class)) {
+            $resolvedReference = $this->referencedDocumentResolver->resolve(
+                $generationRequest->orderId,
+                $generationRequest->referencedDocumentId,
+            );
+
+            if ($this->anyProviderImplements($providers, RendersReferencedSnapshot::class)) {
+                return [$resolvedReference->orderVersionId, $resolvedReference];
             }
-
-            $orderVersionId = $preview
-                ? Defaults::LIVE_VERSION
-                : $this->orderRepository->createVersion(
-                    $generationRequest->orderId,
-                    $apiContext,
-                    'document',
-                );
-
-            return [$orderVersionId, null];
+        } elseif ($generationRequest->referencedDocumentId !== null) {
+            throw DocumentV2Exception::referencedDocumentNotSupported(
+                $generationRequest->documentType,
+                $generationRequest->referencedDocumentId,
+            );
         }
 
-        $resolvedReference = $this->referencedDocumentResolver->resolve(
-            $generationRequest->orderId,
-            $generationRequest->referencedDocumentId,
-        );
+        $orderVersionId = $preview
+            ? Defaults::LIVE_VERSION
+            : $this->orderRepository->createVersion(
+                $generationRequest->orderId,
+                $apiContext,
+                'document',
+            );
 
-        return [$resolvedReference->orderVersionId, $resolvedReference];
+        return [$orderVersionId, $resolvedReference];
     }
 
     /**
      * @param list<AbstractDocumentDataProvider> $providers
+     * @param class-string $marker
      */
-    private function resolveOrderVersionStrategy(array $providers): OrderVersionStrategy
+    private function anyProviderImplements(array $providers, string $marker): bool
     {
         foreach ($providers as $provider) {
-            if ($provider->getOrderVersionStrategy() === OrderVersionStrategy::REFERENCED) {
-                return OrderVersionStrategy::REFERENCED;
+            if ($provider instanceof $marker) {
+                return true;
             }
         }
 
-        return OrderVersionStrategy::CREATE;
+        return false;
     }
 
     /**

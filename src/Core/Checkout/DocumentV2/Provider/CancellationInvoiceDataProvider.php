@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider
+final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider implements RendersReferencedSnapshot
 {
     final public const KEY = 'storno';
 
@@ -31,11 +31,6 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
     public function supports(string $documentType): bool
     {
         return $documentType === DocumentType::CANCELLATION_INVOICE->value;
-    }
-
-    public function getOrderVersionStrategy(): OrderVersionStrategy
-    {
-        return OrderVersionStrategy::REFERENCED;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void

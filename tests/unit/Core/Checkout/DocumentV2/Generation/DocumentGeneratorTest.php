@@ -23,8 +23,8 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
-use Shopware\Core\Checkout\DocumentV2\Provider\OrderVersionStrategy;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -41,6 +41,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
 
 /**
  * @internal
@@ -111,19 +113,30 @@ class DocumentGeneratorTest extends TestCase
 
         $document = new DocumentEntity();
 
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             $numberRangeValueGenerator,
             $documentTypeId,
             $document,
+            providers: [
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], receivedInputs: $receivedInputs),
+            ],
         );
 
         $result = $generator->generate($generationRequest, $context);
+
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertNull($inputs[0]->resolvedReference);
 
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
         static::assertSame($createdOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertNull($documentRepository->creates[0][0]['referencedDocumentId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
@@ -188,14 +201,24 @@ class DocumentGeneratorTest extends TestCase
             )
             ->willReturn('generated-number');
 
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             $numberRangeValueGenerator,
             $documentTypeId,
             new DocumentEntity(),
+            providers: [
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], receivedInputs: $receivedInputs),
+            ],
         );
 
         $result = $generator->preview($generationRequest, $context);
+
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertNull($inputs[0]->resolvedReference);
 
         static::assertSame('filename.pdf', $result->getName());
         static::assertSame('content', $result->getContent());
@@ -227,7 +250,7 @@ class DocumentGeneratorTest extends TestCase
         $generator->generate($generationRequest, Context::createDefaultContext());
     }
 
-    public function testGenerateRejectsReferencedDocumentIdForCreateStrategyType(): void
+    public function testGenerateRejectsAReferencedDocumentIdForANonReferencingType(): void
     {
         $referencedDocumentId = Uuid::randomHex();
 
@@ -256,7 +279,7 @@ class DocumentGeneratorTest extends TestCase
         );
     }
 
-    public function testGenerateWithReferencedStrategyRendersAndPersistsTheReferencedSnapshot(): void
+    public function testGenerateForAReferencingTypeRendersAndPersistsTheReferencedSnapshot(): void
     {
         $orderId = Uuid::randomHex();
         $referencedVersionId = Uuid::randomHex();
@@ -271,13 +294,16 @@ class DocumentGeneratorTest extends TestCase
 
         $orderRepository = $this->createOrderRepository($order, $orderId, $referencedVersionId, $orderLanguageId);
 
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
         [$generator, $documentRepository] = $this->createGenerator(
             $orderRepository,
             static::createStub(NumberRangeValueGeneratorInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
             providers: [
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', OrderVersionStrategy::REFERENCED),
+                new StaticReferencedSnapshotDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', $receivedInputs),
             ],
             referenceRows: [
                 $this->referenceInvoiceRow($orderId, $referencedDocumentId, $referencedVersionId),
@@ -294,12 +320,16 @@ class DocumentGeneratorTest extends TestCase
             Context::createDefaultContext(),
         );
 
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertSame($referencedDocumentId, $inputs[0]->resolvedReference?->id);
+
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($referencedVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($referencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
     }
 
-    public function testPreviewWithReferencedStrategyRendersTheReferencedSnapshot(): void
+    public function testPreviewForAReferencingTypeRendersTheReferencedSnapshot(): void
     {
         $orderId = Uuid::randomHex();
         $referencedVersionId = Uuid::randomHex();
@@ -314,13 +344,16 @@ class DocumentGeneratorTest extends TestCase
 
         $orderRepository = $this->createOrderRepository($order, $orderId, $referencedVersionId, $orderLanguageId);
 
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             static::createStub(NumberRangeValueGeneratorInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
             providers: [
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', OrderVersionStrategy::REFERENCED),
+                new StaticReferencedSnapshotDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', $receivedInputs),
             ],
             referenceRows: [
                 $this->referenceInvoiceRow($orderId, $referencedDocumentId, $referencedVersionId),
@@ -336,6 +369,135 @@ class DocumentGeneratorTest extends TestCase
             ),
             Context::createDefaultContext(),
         );
+
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertSame($referencedDocumentId, $inputs[0]->resolvedReference?->id);
+
+        static::assertSame('content', $result->getContent());
+        static::assertCount(0, $documentRepository->creates);
+        static::assertCount(0, $documentFileRepository->creates);
+    }
+
+    public function testGenerateForAResolveOnlyReferencingTypeCreatesAVersionAndPersistsTheResolvedReference(): void
+    {
+        $orderId = Uuid::randomHex();
+        $createdOrderVersionId = Uuid::randomHex();
+        $referencedVersionId = Uuid::randomHex();
+        $referencedDocumentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setVersionId($createdOrderVersionId);
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setLanguageId(Uuid::randomHex());
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->expects($this->once())
+            ->method('createVersion')
+            ->with($orderId, $context, 'document')
+            ->willReturn($createdOrderVersionId);
+
+        $orderRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $createdOrderVersionId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            });
+
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
+        [$generator, $documentRepository] = $this->createGenerator(
+            $orderRepository,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            Uuid::randomHex(),
+            new DocumentEntity(),
+            providers: [
+                new StaticReferencingDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', $receivedInputs),
+            ],
+            referenceRows: [
+                $this->referenceInvoiceRow($orderId, $referencedDocumentId, $referencedVersionId),
+            ],
+        );
+
+        $generator->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '2000',
+            ),
+            $context,
+        );
+
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertSame($referencedDocumentId, $inputs[0]->resolvedReference?->id);
+
+        static::assertCount(1, $documentRepository->creates);
+        static::assertSame($createdOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($referencedDocumentId, $documentRepository->creates[0][0]['referencedDocumentId']);
+    }
+
+    public function testPreviewForAResolveOnlyReferencingTypeRendersLiveAndResolvesTheReference(): void
+    {
+        $orderId = Uuid::randomHex();
+        $referencedVersionId = Uuid::randomHex();
+        $referencedDocumentId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
+
+        $order = new OrderEntity();
+        $order->setId($orderId);
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setLanguageId($orderLanguageId);
+
+        $orderRepository = $this->createOrderRepository($order, $orderId, Defaults::LIVE_VERSION, $orderLanguageId);
+
+        /** @var \ArrayObject<int, ProviderInput> $receivedInputs */
+        $receivedInputs = new \ArrayObject();
+
+        [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
+            $orderRepository,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            Uuid::randomHex(),
+            new DocumentEntity(),
+            providers: [
+                new StaticReferencingDocumentDataProvider([DocumentType::INVOICE->value], 'referencing', $receivedInputs),
+            ],
+            referenceRows: [
+                $this->referenceInvoiceRow($orderId, $referencedDocumentId, $referencedVersionId),
+            ],
+        );
+
+        $result = $generator->preview(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '2000',
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $inputs = $receivedInputs->getArrayCopy();
+        static::assertCount(1, $inputs);
+        static::assertSame($referencedDocumentId, $inputs[0]->resolvedReference?->id);
 
         static::assertSame('content', $result->getContent());
         static::assertCount(0, $documentRepository->creates);

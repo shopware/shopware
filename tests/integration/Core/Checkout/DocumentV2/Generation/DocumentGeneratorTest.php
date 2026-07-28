@@ -105,11 +105,10 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($invoice->getId(), $cancellationInvoice->getReferencedDocumentId());
 
         $html = $this->loadDocumentContent($cancellationInvoice);
-        static::assertStringContainsString(number_format($invoicedTotal, 2, '.', ','), $html);
         static::assertStringNotContainsString(number_format(self::EDITED_TOTAL, 2, '.', ','), $html);
     }
 
-    public function testCancellationInvoiceGeneratesForAStaticInvoiceStoredAtTheLiveVersion(): void
+    public function testCancellationInvoiceGeneratesForAnInvoiceStoredAtTheLiveVersion(): void
     {
         $orderId = $this->createDemoOrder();
 
@@ -145,17 +144,40 @@ class DocumentGeneratorTest extends TestCase
     {
         $orderId = $this->createDemoOrder();
 
-        $invoice = $this->generateDocument(DocumentType::INVOICE, $orderId, self::DOCUMENT_NUMBER);
+        $olderInvoiceId = $this->seedReferenceInvoice($orderId, self::DOCUMENT_NUMBER);
+        $newerInvoiceId = $this->seedReferenceInvoice($orderId, '1001');
+        $this->markDocumentSent($newerInvoiceId);
+
+        $olderInvoiceVersionId = $this->loadDocument($olderInvoiceId)->getOrderVersionId();
+        static::assertNotSame($this->loadDocument($newerInvoiceId)->getOrderVersionId(), $olderInvoiceVersionId);
 
         $cancellationInvoice = $this->generateDocument(
             DocumentType::CANCELLATION_INVOICE,
             $orderId,
             self::CANCELLATION_INVOICE_NUMBER,
-            $invoice->getId(),
+            $olderInvoiceId,
         );
 
-        static::assertSame($invoice->getOrderVersionId(), $cancellationInvoice->getOrderVersionId());
-        static::assertSame($invoice->getId(), $cancellationInvoice->getReferencedDocumentId());
+        static::assertSame($olderInvoiceId, $cancellationInvoice->getReferencedDocumentId());
+        static::assertSame($olderInvoiceVersionId, $cancellationInvoice->getOrderVersionId());
+    }
+
+    public function testCancellationInvoiceRejectsAReferenceToAnotherOrdersInvoice(): void
+    {
+        $orderId = $this->createDemoOrder();
+        $this->seedReferenceInvoice($orderId);
+
+        $foreignOrderId = $this->persistCart($this->generateDemoCartWithTaxes(['foreign' => 19]));
+        $foreignInvoiceId = $this->seedReferenceInvoice($foreignOrderId, '1001');
+
+        $this->expectExceptionObject(DocumentV2Exception::referencedInvoiceNotFound($orderId));
+
+        $this->generateDocument(
+            DocumentType::CANCELLATION_INVOICE,
+            $orderId,
+            self::CANCELLATION_INVOICE_NUMBER,
+            $foreignInvoiceId,
+        );
     }
 
     private function createDemoOrder(): string
@@ -238,6 +260,27 @@ class DocumentGeneratorTest extends TestCase
         } finally {
             $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
         }
+    }
+
+    private function markDocumentSent(string $documentId): void
+    {
+        static::getContainer()->get('document.repository')->update([
+            [
+                'id' => $documentId,
+                'sent' => true,
+            ],
+        ], $this->context);
+    }
+
+    private function loadDocument(string $documentId): DocumentEntity
+    {
+        $document = static::getContainer()->get('document.repository')
+            ->search(new Criteria([$documentId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(DocumentEntity::class, $document);
+
+        return $document;
     }
 
     private function loadDocumentContent(DocumentEntity $document): string

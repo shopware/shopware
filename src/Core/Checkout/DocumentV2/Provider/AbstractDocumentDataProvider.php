@@ -32,17 +32,6 @@ abstract readonly class AbstractDocumentDataProvider
     abstract public function supports(string $documentType): bool;
 
     /**
-     * Which order snapshot the generation pipeline loads for this provider's document type.
-     *
-     * Any provider declaring REFERENCED switches the whole document type to REFERENCED
-     * and fills {@see ProviderInput::$resolvedReference}.
-     */
-    public function getOrderVersionStrategy(): OrderVersionStrategy
-    {
-        return OrderVersionStrategy::CREATE;
-    }
-
-    /**
      * Allows a provider to preload additional order associations before data extraction.
      */
     public function enrichOrderCriteria(Criteria $criteria): void

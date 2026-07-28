@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
-use Shopware\Core\Checkout\DocumentV2\Provider\OrderVersionStrategy;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
@@ -71,11 +70,6 @@ class CancellationInvoiceDataProviderTest extends TestCase
         yield 'cancellation invoice is supported' => [DocumentType::CANCELLATION_INVOICE->value, true];
         yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
         yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
-    }
-
-    public function testDeclaresTheReferencedOrderVersionStrategy(): void
-    {
-        static::assertSame(OrderVersionStrategy::REFERENCED, $this->createProvider()->getOrderVersionStrategy());
     }
 
     public function testEnrichOrderCriteriaDelegatesToInvoiceProvider(): void

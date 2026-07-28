@@ -123,7 +123,7 @@ trait DocumentV2Trait
                     ?? static::getContainer()->get('order.repository')->createVersion($orderId, $this->context),
                 'config' => $documentNumber === null ? [] : ['documentNumber' => $documentNumber],
                 'deepLinkCode' => Uuid::randomHex(),
-                'static' => $orderVersionId !== null,
+                'static' => false,
                 'sent' => false,
             ],
         ], $this->context);

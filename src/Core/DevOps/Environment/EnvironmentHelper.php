@@ -23,6 +23,14 @@ class EnvironmentHelper
     public static function getVariable(string $key, $default = null)
     {
         $value = $_SERVER[$key] ?? $_ENV[$key] ?? null;
+
+        // Fast path for the common case (no transformers registered, the production default): avoid
+        // allocating an EnvironmentHelperTransformerData on every call. getVariable() is one of the
+        // hottest functions in the application (env reads, every Feature::isActive() call).
+        if (self::$transformers === []) {
+            return $value ?? $default;
+        }
+
         $transformerData = new EnvironmentHelperTransformerData($key, $value, $default);
 
         foreach (self::$transformers as $transformers) {

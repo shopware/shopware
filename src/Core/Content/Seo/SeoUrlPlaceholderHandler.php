@@ -45,6 +45,14 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     public function replace(string $content, string $host, SalesChannelContext $context): string
     {
         return Profiler::trace('seo-url-replacer', function () use ($content, $host, $context) {
+            // Cheap literal pre-check before running the regex engine over the whole response body.
+            // The placeholder is a fixed marker with no regex meta-characters, so its literal presence
+            // is a necessary condition for any match. Avoids two full-body regex passes on responses
+            // without placeholders (e.g. JSON/AJAX responses routed through the same replacer).
+            if (!str_contains($content, self::DOMAIN_PLACEHOLDER)) {
+                return $content;
+            }
+
             $matches = [];
 
             if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {

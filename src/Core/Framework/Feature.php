@@ -31,6 +31,14 @@ class Feature
      */
     private static array $registeredFeatures = [];
 
+    /**
+     * Memoization of normalizeName(). The transform is pure and deterministic, and the method is
+     * called on every Feature::isActive()/setActive()/... invocation (hundreds of times per request).
+     *
+     * @var array<string, string>
+     */
+    private static array $normalizedNames = [];
+
     public static function normalizeName(string $name): string
     {
         /*
@@ -40,7 +48,7 @@ class Feature
          * - SAAS_321
          * - v6.5.0.0 => v6_5_0_0
          */
-        return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+        return self::$normalizedNames[$name] ??= \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
     }
 
     /**

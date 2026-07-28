@@ -110,6 +110,43 @@ class TemplateFinderTest extends TestCase
         $this->finder->find('', true);
     }
 
+    public function testFindMemoizesResultForRepeatedArguments(): void
+    {
+        $this->hierarchyBuilder->method('buildHierarchy')->willReturn(['SwagTheme' => true, 'Framework' => true]);
+
+        $existsCalls = 0;
+        $this->loader->method('exists')->willReturnCallback(static function (string $template) use (&$existsCalls): bool {
+            ++$existsCalls;
+
+            return $template === '@SwagTheme/documents/invoice.html.twig';
+        });
+
+        $first = $this->finder->find('@Framework/documents/invoice.html.twig');
+        $callsAfterFirst = $existsCalls;
+
+        $second = $this->finder->find('@Framework/documents/invoice.html.twig');
+
+        static::assertSame('@SwagTheme/documents/invoice.html.twig', $first);
+        static::assertSame($first, $second);
+        // the second call is served from the per-request cache, so the loader is not consulted again
+        static::assertSame($callsAfterFirst, $existsCalls);
+    }
+
+    public function testResetClearsTheResultCache(): void
+    {
+        // buildHierarchy is only reached when neither the result cache nor the namespace hierarchy is
+        // populated; expecting it exactly twice proves reset() cleared both.
+        $this->hierarchyBuilder->expects($this->exactly(2))->method('buildHierarchy')->willReturn(['SwagTheme' => true, 'Framework' => true]);
+        $this->loader->method('exists')->willReturnCallback(static fn (string $template): bool => $template === '@SwagTheme/documents/invoice.html.twig');
+
+        $first = $this->finder->find('@Framework/documents/invoice.html.twig');
+        $this->finder->reset();
+        $second = $this->finder->find('@Framework/documents/invoice.html.twig');
+
+        static::assertSame('@SwagTheme/documents/invoice.html.twig', $first);
+        static::assertSame($first, $second);
+    }
+
     /**
      * @return iterable<string, array<int, string>>
      */

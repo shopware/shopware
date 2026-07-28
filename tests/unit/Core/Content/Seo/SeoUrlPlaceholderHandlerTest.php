@@ -123,6 +123,21 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    public function testReplaceWithoutPlaceholderReturnsContentUnchangedAndSkipsDatabase(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+        // no placeholder present -> the regex/DB lookup must be skipped entirely (e.g. JSON/AJAX responses)
+        $connection->expects($this->never())->method('executeQuery');
+
+        $content = 'Plain response body without any SEO placeholder, e.g. a JSON API payload.';
+
+        static::assertSame(
+            $content,
+            $this->createHandler($connection)->replace($content, 'http://foo.text', $this->salesChannelContext)
+        );
+    }
+
     private function createHandler(?Connection $connection = null): SeoUrlPlaceholderHandler
     {
         return new SeoUrlPlaceholderHandler(

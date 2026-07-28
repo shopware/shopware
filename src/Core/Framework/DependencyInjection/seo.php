@@ -273,6 +273,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(IteratorFactory::class),
             service(DefinitionInstanceRegistry::class),
             service(SeoUrlRouteRegistry::class),
+            service('messenger.default_bus'),
         ])
         ->tag('messenger.message_handler');
 

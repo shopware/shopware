@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -24,11 +26,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(SeoUrlTemplateIndexingHandler::class)]
 class SeoUrlTemplateIndexingHandlerTest extends TestCase
 {
-    public function testIteratesEntitiesInBatchesAndUpdatesSeoUrls(): void
+    private const BATCH_SIZE = 250;
+
+    public function testProcessesFullBatchAndChainsFollowUpMessage(): void
     {
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
-        $id3 = Uuid::randomHex();
+        $ids = $this->randomHexIds(self::BATCH_SIZE);
 
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
@@ -41,38 +43,72 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $seoUrlRouteRegistry->method('findByRouteName')
             ->willReturn(static::createStub(SeoUrlRouteInterface::class));
 
-        // fetch() returns [binaryId => hexId] batches and an empty array stops iteration.
         $iterator = static::createStub(IterableQuery::class);
-        $iterator->method('fetch')->willReturnOnConsecutiveCalls(
-            ['binA' => $id1, 'binB' => $id2],
-            ['binC' => $id3],
-            []
-        );
+        $iterator->method('fetch')->willReturn(array_combine($ids, $ids));
+        $iterator->method('getOffset')->willReturn(['offset' => 4711]);
 
         $iteratorFactory = $this->createMock(IteratorFactory::class);
         $iteratorFactory->expects($this->once())
             ->method('createIterator')
-            ->with($definition, null, 250, Defaults::LIVE_VERSION)
+            ->with($definition, null, self::BATCH_SIZE, Defaults::LIVE_VERSION)
             ->willReturn($iterator);
 
-        $captured = [];
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
-        $seoUrlUpdater->expects($this->exactly(2))
+        $seoUrlUpdater->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (string $route, array $ids) use (&$captured): void {
-                $captured[] = [$route, $ids];
-            });
+            ->with('frontend.navigation.page', $ids);
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry);
+        // A full batch means more entities may follow: the handler must chain a
+        // follow-up message carrying the iterator offset.
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static fn (SeoUrlTemplateIndexingMessage $message): bool => $message->routeName === 'frontend.navigation.page'
+                && $message->entityName === 'category'
+                && $message->offset === ['offset' => 4711]))
+            ->willReturn(new Envelope(new \stdClass()));
+
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry, $messageBus);
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.navigation.page', 'category'));
-
-        static::assertSame([
-            ['frontend.navigation.page', [$id1, $id2]],
-            ['frontend.navigation.page', [$id3]],
-        ], $captured);
     }
 
-    public function testPassesNullVersionForNonVersionAwareDefinition(): void
+    public function testStopsChainOnPartialBatch(): void
+    {
+        $ids = $this->randomHexIds(2);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('isVersionAware')->willReturn(true);
+
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definitionRegistry->method('has')->willReturn(true);
+        $definitionRegistry->method('getByEntityName')->willReturn($definition);
+
+        $seoUrlRouteRegistry = static::createStub(SeoUrlRouteRegistry::class);
+        $seoUrlRouteRegistry->method('findByRouteName')
+            ->willReturn(static::createStub(SeoUrlRouteInterface::class));
+
+        $iterator = static::createStub(IterableQuery::class);
+        $iterator->method('fetch')->willReturn(array_combine($ids, $ids));
+
+        $iteratorFactory = $this->createMock(IteratorFactory::class);
+        $iteratorFactory->expects($this->once())
+            ->method('createIterator')
+            ->willReturn($iterator);
+
+        $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
+        $seoUrlUpdater->expects($this->once())
+            ->method('update')
+            ->with('frontend.navigation.page', $ids);
+
+        // Fewer ids than the batch size: the entity set is exhausted.
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
+
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry, $messageBus);
+        $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.navigation.page', 'category'));
+    }
+
+    public function testPassesMessageOffsetToIteratorAndStopsOnEmptyBatch(): void
     {
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(false);
@@ -85,20 +121,23 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $seoUrlRouteRegistry->method('findByRouteName')
             ->willReturn(static::createStub(SeoUrlRouteInterface::class));
 
+        // A chained message resumes where the previous batch stopped.
         $iterator = static::createStub(IterableQuery::class);
         $iterator->method('fetch')->willReturn([]);
 
         $iteratorFactory = $this->createMock(IteratorFactory::class);
         $iteratorFactory->expects($this->once())
             ->method('createIterator')
-            ->with($definition, null, 250, null)
+            ->with($definition, ['offset' => 4711], self::BATCH_SIZE, null)
             ->willReturn($iterator);
 
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $seoUrlUpdater->expects($this->never())->method('update');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry);
-        $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.detail.page', 'product'));
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry, $messageBus);
+        $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.detail.page', 'product', ['offset' => 4711]));
     }
 
     public function testReturnsEarlyOnEmptyRouteName(): void
@@ -109,8 +148,10 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $iteratorFactory->expects($this->never())->method('createIterator');
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $seoUrlUpdater->expects($this->never())->method('update');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class));
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class), $messageBus);
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('', 'category'));
     }
 
@@ -122,8 +163,10 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $iteratorFactory->expects($this->never())->method('createIterator');
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $seoUrlUpdater->expects($this->never())->method('update');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class));
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class), $messageBus);
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.navigation.page', ''));
     }
 
@@ -136,8 +179,10 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $iteratorFactory->expects($this->never())->method('createIterator');
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $seoUrlUpdater->expects($this->never())->method('update');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class));
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, static::createStub(SeoUrlRouteRegistry::class), $messageBus);
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('frontend.navigation.page', 'unknown'));
     }
 
@@ -154,8 +199,34 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $iteratorFactory->expects($this->never())->method('createIterator');
         $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
         $seoUrlUpdater->expects($this->never())->method('update');
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
 
-        $handler = new SeoUrlTemplateIndexingHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry);
+        $handler = $this->createHandler($seoUrlUpdater, $iteratorFactory, $definitionRegistry, $seoUrlRouteRegistry, $messageBus);
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('unregistered.route', 'category'));
+    }
+
+    private function createHandler(
+        SeoUrlUpdater $seoUrlUpdater,
+        IteratorFactory $iteratorFactory,
+        DefinitionInstanceRegistry $definitionRegistry,
+        SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        MessageBusInterface $messageBus,
+    ): SeoUrlTemplateIndexingHandler {
+        return new SeoUrlTemplateIndexingHandler(
+            $seoUrlUpdater,
+            $iteratorFactory,
+            $definitionRegistry,
+            $seoUrlRouteRegistry,
+            $messageBus
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function randomHexIds(int $count): array
+    {
+        return array_map(static fn (): string => Uuid::randomHex(), range(1, $count));
     }
 }

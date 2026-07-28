@@ -9,11 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Handles {@see SeoUrlTemplateIndexingMessage} by iterating every entity of the
- * affected route in bounded batches and delegating regeneration to the
- * {@see SeoUrlUpdater}.
+ * Handles {@see SeoUrlTemplateIndexingMessage} by regenerating one batch of
+ * entities via the {@see SeoUrlUpdater} and dispatching a follow-up message
+ * with the iterator offset for the next batch. Chaining bounded messages keeps
+ * every handler invocation short, so worker time limits and message retries
+ * never restart the whole catalog iteration from scratch.
  *
  * @internal
  */
@@ -22,8 +25,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class SeoUrlTemplateIndexingHandler
 {
     /**
-     * Number of entity ids passed to the SEO URL updater in one call. Keeps memory
-     * usage bounded for shops with many products or categories.
+     * Number of entity ids processed per message. Keeps the runtime and memory of
+     * a single message bounded for shops with many products or categories.
      */
     private const ITERATE_BATCH_SIZE = 250;
 
@@ -32,6 +35,7 @@ final class SeoUrlTemplateIndexingHandler
         private readonly IteratorFactory $iteratorFactory,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
@@ -55,19 +59,25 @@ final class SeoUrlTemplateIndexingHandler
         $definition = $this->definitionRegistry->getByEntityName($entityName);
         $iterator = $this->iteratorFactory->createIterator(
             $definition,
-            null,
+            $message->offset,
             self::ITERATE_BATCH_SIZE,
             $definition->isVersionAware() ? Defaults::LIVE_VERSION : null
         );
 
-        while ($ids = $iterator->fetch()) {
-            $hexIds = array_values($ids);
-
-            if ($hexIds === []) {
-                continue;
-            }
-
-            $this->seoUrlUpdater->update($routeName, $hexIds);
+        $hexIds = array_values($iterator->fetch());
+        if ($hexIds === []) {
+            return;
         }
+
+        $this->seoUrlUpdater->update($routeName, $hexIds);
+
+        if (\count($hexIds) < self::ITERATE_BATCH_SIZE) {
+            // Partial batch: the entity set is exhausted, no follow-up needed.
+            return;
+        }
+
+        $this->messageBus->dispatch(
+            new SeoUrlTemplateIndexingMessage($routeName, $entityName, $iterator->getOffset())
+        );
     }
 }

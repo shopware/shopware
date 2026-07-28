@@ -20,5 +20,13 @@ class SeoUrlTemplateIndexingMessageTest extends TestCase
 
         static::assertSame('frontend.navigation.page', $message->routeName);
         static::assertSame('category', $message->entityName);
+        static::assertNull($message->offset);
+    }
+
+    public function testItExposesIteratorOffsetForChainedMessages(): void
+    {
+        $message = new SeoUrlTemplateIndexingMessage('frontend.detail.page', 'product', ['offset' => 4711]);
+
+        static::assertSame(['offset' => 4711], $message->offset);
     }
 }

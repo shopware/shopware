@@ -188,7 +188,7 @@
                                 {% block sw_search_bar_results_list_bar_item_icon %}
                                 <mt-icon
                                     name="regular-double-chevron-right-s"
-                                    color="rgb(179, 191, 204)"
+                                    color="var(--color-icon-primary-default)"
                                 />
                                 {% endblock %}
 
@@ -292,7 +292,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="12px"
-                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        color="var(--color-icon-primary-default)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
 
@@ -361,7 +361,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="14px"
-                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        color="var(--color-icon-primary-default)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
                     {{ type.entityName ? getLabelSearchType(type.entityName) : $t('global.sw-search-bar.searchTypeAll') }}

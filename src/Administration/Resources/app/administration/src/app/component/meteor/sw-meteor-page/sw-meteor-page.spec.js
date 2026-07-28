@@ -107,7 +107,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
 
         const iconComponent = wrapper.findComponent('.mt-icon');
         expect(iconComponent.vm.name).toContain('regular-plug');
-        expect(iconComponent.vm.color).toBe('#189EFF');
+        expect(iconComponent.vm.color).toBe('var(--color-icon-primary-default)');
     });
 
     [

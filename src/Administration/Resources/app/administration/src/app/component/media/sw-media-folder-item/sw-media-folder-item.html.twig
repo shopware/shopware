@@ -29,7 +29,8 @@
             <mt-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
-                v-bind="iconConfig"
+                :name="iconConfig.name"
+                color="var(--color-icon-primary-default)"
             />
         </span>
         {% endblock %}

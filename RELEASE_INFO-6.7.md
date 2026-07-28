@@ -4,6 +4,10 @@
 
 ## API
 
+### Product export preview and validation require `product_export:update`
+
+The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. Admin API integrations and users that use these endpoints must be granted this existing privilege.
+
 ## Core
 
 ### Built-in translation system configurable via `shopware.translation`

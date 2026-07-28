@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -69,6 +70,21 @@ class ProductExportControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testPreviewAndValidateRequireProductExportUpdatePrivilege(): void
+    {
+        foreach (['preview', 'validate'] as $action) {
+            $browser = $this->getBrowser();
+            TestUser::createNewTestUser(
+                $browser->getContainer()->get(Connection::class),
+                []
+            )->authorizeBrowser($browser);
+
+            $browser->request('POST', \sprintf('/api/_action/product-export/%s', $action));
+
+            static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        }
     }
 
     public function testValidateFailure(): void

@@ -1036,6 +1036,35 @@ class CustomFieldTest extends TestCase
         $this->getTestRepository()->create($entities, Context::createDefaultContext());
     }
 
+    /**
+     * an empty list satisfies the array check and must still be rejected further down
+     */
+    public function testCustomFieldPriceRejectsEmptyArray(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => [],
+                ],
+            ],
+        ];
+
+        $expected = (new WriteException())->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('No price for default currency defined', 'No price for default currency defined', [], '', '/price', []),
+            ]),
+            '/0/custom'
+        ));
+
+        $this->expectExceptionObject($expected);
+
+        $this->getTestRepository()->create($entities, Context::createDefaultContext());
+    }
+
     public function testCustomFieldArray(): void
     {
         $this->addCustomFields(['array' => CustomFieldTypes::JSON]);

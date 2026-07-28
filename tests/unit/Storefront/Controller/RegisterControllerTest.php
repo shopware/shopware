@@ -150,10 +150,10 @@ class RegisterControllerTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem('test', 'test'));
 
-        $checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
+        $checkoutRegisterPageLoader = static::createStub(CheckoutRegisterPageLoader::class);
         $checkoutRegisterPageLoader->method('load')->willReturn($page);
 
-        $cartService = $this->createMock(CartService::class);
+        $cartService = static::createStub(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
         $controller = $this->createController(cartService: $cartService, checkoutRegisterPageLoader: $checkoutRegisterPageLoader);

@@ -4,6 +4,25 @@
 
 ## API
 
+### Admin action endpoints now require ACL privileges
+
+Seventeen admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/message-queue/consume` and `POST /api/_action/scheduled-task/run` require the new `system:queue:process` privilege.
+* `GET /api/_action/scheduled-task/min-run-interval` requires the existing `scheduled_task:read` privilege.
+* `POST|GET /api/_action/increment/{pool}`, `POST /api/_action/decrement/{pool}`, `POST /api/_action/reset-increment/{pool}`, and `DELETE /api/_action/delete-increment/{pool}` require the new `increment:manage` privilege.
+* `GET /api/consents`, `POST /api/consents/accept`, and `POST /api/consents/revoke` require the new `consent:manage` privilege.
+* `PATCH /api/_action/seo-url/canonical` requires `seo_url:update`; `POST /api/_action/seo-url/create-custom-url` requires `seo_url:create`; `POST /api/_action/seo-url-template/context` and `GET /api/_action/seo-url-template/default/{routeName}` require `seo_url_template:read`.
+* `POST /api/_action/media/{mediaId}/upload` requires `media:create`, `POST /api/_action/media/{mediaId}/rename` requires `media:update`, and `GET /api/_action/media/provide-name` requires `media:read`.
+
+Administration users are not affected:
+
+* `system:queue:process`, `increment:manage`, `consent:manage`, and `scheduled_task:read` are granted to every authenticated Administration user at runtime (they back the admin worker, module-usage tracking, and the consent banner, which run in every admin session).
+* `seo_url:update` is now part of the "Products editor", "Categories editor", and "Landing pages editor" permissions in the role editor, and a migration grants it to existing roles containing those permissions.
+* The media and SEO template privileges were already part of the corresponding role editor permissions.
+
+Integrations and API clients with manually assigned privilege lists that call these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only.
+
 ## Core
 
 ### Built-in translation system configurable via `shopware.translation`

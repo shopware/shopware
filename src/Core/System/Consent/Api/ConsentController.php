@@ -26,13 +26,13 @@ class ConsentController
     ) {
     }
 
-    #[Route(path: '/api/consents', name: 'api.consents.fetch', defaults: ['auth_required' => true], methods: ['GET'])]
+    #[Route(path: '/api/consents', name: 'api.consents.fetch', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['consent:manage']], methods: ['GET'])]
     public function fetchConsents(Context $context): Response
     {
         return new JsonResponse($this->consentService->list($context));
     }
 
-    #[Route(path: '/api/consents/accept', name: 'api.consents.accept', defaults: ['auth_required' => true], methods: ['POST'])]
+    #[Route(path: '/api/consents/accept', name: 'api.consents.accept', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['consent:manage']], methods: ['POST'])]
     public function acceptConsent(Context $context, Request $request): Response
     {
         $consent = $request->request->getString('consent');
@@ -48,7 +48,7 @@ class ConsentController
         );
     }
 
-    #[Route(path: '/api/consents/revoke', name: 'api.consents.revoke', defaults: ['auth_required' => true], methods: ['POST'])]
+    #[Route(path: '/api/consents/revoke', name: 'api.consents.revoke', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['consent:manage']], methods: ['POST'])]
     public function revokeConsent(Context $context, Request $request): Response
     {
         $consent = $request->request->getString('consent');

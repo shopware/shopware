@@ -42,6 +42,8 @@ class AclValidPermissionsHelper
         'notification:create',
         'flow:dispatch',
         'system:app:change',
+        'increment:manage',
+        'message_queue_stats:read',
     ];
 
     /**

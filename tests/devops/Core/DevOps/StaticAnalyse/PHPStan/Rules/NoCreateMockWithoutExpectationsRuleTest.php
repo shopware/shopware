@@ -20,13 +20,23 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/Cases.php'], [
             [
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
-                35, // local stub
+                44, // local stub
             ],
             [
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
-                68, // inline stub passed into the SUT
+                77, // inline stub passed into the SUT
             ],
-            // NOT flagged: 46 (->expects), 57 (passed to $this-> helper), 76 (inline ->expects)
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                95, // stub forwarded into the SUT by a fixture helper
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                106, // stub forwarded into the SUT through two fixture helpers
+            ],
+            // NOT flagged: 55 (->expects), 66 (helper ->expects it), 85 (inline ->expects),
+            // 115 (helper parks it on a property), 124 (callee not declared in this class),
+            // 134 (->expects()-ed through a fixture alias), 152 (handed back to the caller)
         ]);
     }
 

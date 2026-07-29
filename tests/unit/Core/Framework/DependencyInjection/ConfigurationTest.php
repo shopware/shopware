@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Log\Package;
@@ -336,6 +337,101 @@ class ConfigurationTest extends TestCase
         static::assertSame('local', $config['filesystem']['public']['type']);
         static::assertSame('private', $config['filesystem']['public']['visibility']);
         static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
+    }
+
+    public function testRemoteThumbnailFallbackSizesDefaultToEmptyList(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [],
+                ],
+            ],
+        ]);
+
+        static::assertSame([], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    public function testRemoteThumbnailFallbackSizesRetainsValidEntry(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 100, 'height' => 200],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([['width' => 100, 'height' => 200]], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    public function testRemoteThumbnailFallbackSizesReplacesPreviousList(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 100, 'height' => 200],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 300, 'height' => 400],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([['width' => 300, 'height' => 400]], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    /**
+     * @param array{width: int, height: int} $fallbackSize
+     */
+    #[DataProvider('invalidRemoteThumbnailFallbackSizes')]
+    public function testRemoteThumbnailFallbackSizesRejectNonPositiveDimensions(array $fallbackSize, string $path, int $value): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            \sprintf('The value %d is too small for path "%s". Should be greater than or equal to 1', $value, $path)
+        ));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [$fallbackSize],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @return \Generator<string, array{fallbackSize: array{width: int, height: int}, path: string, value: int}>
+     */
+    public static function invalidRemoteThumbnailFallbackSizes(): \Generator
+    {
+        yield 'zero width' => [
+            'fallbackSize' => ['width' => 0, 'height' => 100],
+            'path' => 'shopware.media.remote_thumbnails.fallback_sizes.0.width',
+            'value' => 0,
+        ];
+
+        yield 'negative height' => [
+            'fallbackSize' => ['width' => 100, 'height' => -1],
+            'path' => 'shopware.media.remote_thumbnails.fallback_sizes.0.height',
+            'value' => -1,
+        ];
     }
 
     public function testFilesystemAdapterConfigOverrideReplacesPreviousAdapterConfig(): void

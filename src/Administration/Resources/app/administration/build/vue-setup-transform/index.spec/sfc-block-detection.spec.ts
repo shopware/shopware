@@ -78,6 +78,31 @@ describe('build/vue-setup-transform SFC block detection', () => {
         expect(transformShopwareSetupSfc(source, 'normal-script.vue')).toBeNull();
     });
 
+    it.each([
+        [
+            'a template-only override',
+            stripIndent`
+                <template><div>nothing registers me</div></template>
+            `,
+        ],
+        [
+            'an override with a non-setup script block',
+            stripIndent`
+                <template><div /></template>
+                <script>
+                export default { name: 'sw-thing' };
+                </script>
+            `,
+        ],
+    ])('rejects %s, which would silently register nothing', (_name, source) => {
+        // The `.override.vue` filename declares the intent, and an override registers itself from its
+        // `<script setup>` body - so without that block the file is transformed away to nothing and the
+        // override never applies. Returning null here (as for a plain `.vue`) would be a silent no-op.
+        expect(() => transformShopwareSetupSfc(source, 'sw-thing.override.vue')).toThrow(
+            'An override component needs a <script setup> block to register its override.',
+        );
+    });
+
     it('rejects an additional normal script block next to Shopware setup', () => {
         const source = stripIndent`
             <script>

@@ -10,7 +10,11 @@
  */
 
 import { parse as parseWithVue } from '@vue/compiler-sfc';
-import { normalizeShopwareSetupBlock, type ShopwareSetupBlock } from './utils/shopware-setup-block';
+import {
+    inferShopwareSetupFromFilename,
+    normalizeShopwareSetupBlock,
+    type ShopwareSetupBlock,
+} from './utils/shopware-setup-block';
 import { toScriptBlock } from './utils/sfc-script-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
@@ -26,6 +30,19 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
     }
 
     if (!parsed.descriptor.scriptSetup) {
+        // An `.override.vue` filename is an explicit declaration of intent, and an override registers
+        // itself from its `<script setup>` body - so without that block the file silently registers
+        // nothing at all. A plain `.vue` without `<script setup>` is just an ordinary Vue SFC and is
+        // left alone, but here the author asked for an override and would not get one.
+        if (inferShopwareSetupFromFilename(filename).mode === 'override') {
+            throw new ShopwareSetupTransformError(
+                'An override component needs a <script setup> block to register its override. Add ' +
+                    '<script setup> with swDefineOverride({ ... }) - pass an empty object for a ' +
+                    'template-only override.',
+                0,
+            );
+        }
+
         return null;
     }
 

@@ -105,6 +105,17 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('2 git-ignored bridge file(s), 1 committable plugin file(s), 1 host projection(s)');
     });
 
+    it('states the experimental status on every run, including the empty state', () => {
+        // The report is the only surface a developer is guaranteed to see, so the
+        // BC caveat may never depend on which branch the run takes.
+        const populated = setupReport(setupResult([managed]));
+
+        expect(populated).toContain('EXPERIMENTAL — not covered by the backwards-compatibility promise.');
+        expect(populated).toContain('manifest');
+        expect(setupReport(setupResult([]))).toContain('EXPERIMENTAL');
+        expect(setupReport(setupResult([managed]), { checkOnly: true })).toContain('EXPERIMENTAL');
+    });
+
     it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
         const output = setupReport(setupResult([]));
 

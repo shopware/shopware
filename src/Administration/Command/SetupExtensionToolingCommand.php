@@ -7,11 +7,14 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal
+ *
+ * EXPERIMENTAL — see AbstractExtensionToolingCommand: neither this command's name
+ * nor its options are a stable contract yet.
  */
 #[Package('framework')]
 #[AsCommand(
     name: 'administration:setup-extension-tooling',
-    description: 'Generates TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions. Pass options after "--", e.g. -- --check.',
+    description: '[EXPERIMENTAL] Generates TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions. Pass options after "--", e.g. -- --check. Command name, options and generated output can change in any release.',
 )]
 class SetupExtensionToolingCommand extends AbstractExtensionToolingCommand
 {

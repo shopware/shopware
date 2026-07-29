@@ -73,6 +73,9 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
         expect(exitCode).toBe(0);
         expect(listTree(projectRoot)).toEqual(treeBefore);
         expect(logSpy.mock.calls.join('\n')).toContain('composer admin:setup-extension-tooling -- [options]');
+        // --help is the flag reference, so it must carry the caveat that the flags
+        // it documents are not a stable contract.
+        expect(logSpy.mock.calls.join('\n')).toContain('EXPERIMENTAL');
         logSpy.mockRestore();
 
         if (previousProjectRoot !== undefined) {

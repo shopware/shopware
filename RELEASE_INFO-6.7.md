@@ -583,7 +583,9 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ## Administration
 
-### Opt-in TypeScript and ESLint configuration for Administration extensions
+### Opt-in TypeScript and ESLint configuration for Administration extensions (experimental)
+
+This toolchain is **experimental** and not covered by the backwards-compatibility promise: it is shipped early to gather feedback while it is still being shaped, so the command names and their options, the layout of the generated files, and the `manifest.json` schema can change in any release without a deprecation cycle. Re-running setup after a Shopware update is the supported migration path — the generated files are disposable by design, so nothing should be hand-edited or automated on top of. No stable version is targeted yet; the experimental marker is removed once the surfaces have settled. Not running the command leaves a project exactly as it was.
 
 `composer admin:setup-extension-tooling` generates the TypeScript and ESLint configuration that lets an Administration extension be type-checked and linted against the **installed** Shopware version — its live types, its entity schema and its pinned tool versions — instead of against a toolchain the extension vendors itself and that drifts.
 

@@ -1,6 +1,17 @@
 /**
  * @sw-package framework
  *
+ * EXPERIMENTAL — the whole extension tooling is shipped for feedback and is not
+ * covered by the backwards-compatibility promise. Nothing here is a stable
+ * contract: the command name, its flags, the module boundaries below, the layout
+ * of the generated files and the manifest schema can all change in any release,
+ * so the implementation can be reshaped once real-world usage shows what does
+ * not hold. Consumers are expected to re-run setup rather than to depend on the
+ * generated output, which is why the manifest is versioned and every generated
+ * file is either tool-owned or marker-owned. Deliberately no `stableVersion` is
+ * declared yet — the marker is dropped from the code, the README and the release
+ * note together once the surfaces have settled.
+ *
  * Orchestrator and CLI entrypoint for the Administration extension tooling
  * ("Connected Toolchain"). The generation steps live in sibling modules:
  * discovery (setup-discovery), the config generators (setup-configs), the
@@ -195,7 +206,12 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
 
 const SETUP_COMMAND: CommandSpec = {
     command: 'admin:setup-extension-tooling',
-    description: 'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.',
+    // The help text is the flag reference, so the BC caveat belongs on the flags
+    // themselves, not only on the report a run prints.
+    description:
+        'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.\n' +
+        'EXPERIMENTAL: not covered by the backwards-compatibility promise — the command name, the flags\n' +
+        'below, the generated-file layout and the manifest format can change in any release.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
         { name: '--no-gitignore', description: 'Never manage the ignore block in the project .gitignore.' },

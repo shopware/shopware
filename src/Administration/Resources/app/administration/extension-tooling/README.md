@@ -1,5 +1,40 @@
 # Administration Extension Tooling
 
+> **⚠ Experimental — not covered by the backwards-compatibility promise.**
+>
+> This toolchain is shipped early to gather feedback while it is still being
+> shaped, so it can be refactored in any release — including a patch — without a
+> deprecation cycle. No stable version is targeted yet; the marker is removed
+> once the surfaces below have settled in practice.
+>
+> **What can change without notice**
+>
+> - the command names (`admin:setup-extension-tooling`,
+>   `administration:setup-extension-tooling`) and every option they accept
+> - the layout and contents of everything generated under
+>   `var/admin-extension-tooling/`, the root `tsconfig.json` / `eslint.config.mjs`
+>   projections, and the `.shopware-admin/` bridge
+> - the `var/admin-extension-tooling/manifest.json` schema (it carries a `version`
+>   field precisely so it can change)
+> - the exit codes, the report wording, and the module layout under
+>   `scripts/extensionTooling/`
+>
+> **What is safe to rely on**
+>
+> - **Re-running setup.** The generated files are disposable by design: every one
+>   is either tool-owned (rewritten on each run) or marker-owned (never
+>   overwritten once a human edits it). Re-running setup after a Shopware update
+>   is the supported migration path for every change listed above.
+> - **Your own committed configs.** A bridged extension's `tsconfig.json` and
+>   `eslint.config.mjs` are yours; the tooling only asks that they keep the
+>   `extends` pointing at the generated bridge.
+> - **Opting out costs nothing.** No build, watch, init, or CI pipeline invokes
+>   this tooling. Not running it leaves a project exactly as it was.
+>
+> Do not hand-edit generated files and do not build automation on top of the
+> generated layout — drive it through the commands instead, and re-run them after
+> updating Shopware.
+
 This folder ships the TypeScript and ESLint contract for Administration
 extensions. It travels with the Administration package, so a platform checkout,
 a Composer install, and a production shop all carry the identical toolchain —

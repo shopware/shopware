@@ -32,6 +32,21 @@ interface SetupRenderOptions {
 type StateMap = Map<string, DerivedExtensionState>;
 
 /**
+ * Printed on every run, including the empty state. The tooling is experimental,
+ * so the surfaces an extension could come to depend on — the command name, its
+ * flags, the generated-file layout and the manifest format — are deliberately
+ * outside the backwards-compatibility promise until it is declared stable.
+ */
+function renderExperimentalNotice(): string[] {
+    return [
+        colors.yellow('  EXPERIMENTAL — not covered by the backwards-compatibility promise.'),
+        colors.dim('  The command name, its flags, the generated-file layout and the manifest'),
+        colors.dim('  format can change in any release. Re-run setup after a Shopware update'),
+        colors.dim('  and never hand-edit generated files.'),
+    ];
+}
+
+/**
  * "3 generated, 1 updated" answers nothing — up to 8 changes are listed by
  * path so "what did this do to my repo" is answerable from the output; larger
  * batches keep the count only.
@@ -75,6 +90,7 @@ function describeFileChanges(result: SetupExtensionToolingResult): string[] {
 function renderNoExtensionsFound(result: SetupExtensionToolingResult, platform: ExtensionToolingProject[]): string[] {
     const lines = [
         colors.bold('Administration extension tooling — no extensions found'),
+        ...renderExperimentalNotice(),
         '',
         '  No installed extension with Administration sources was discovered.',
         '  Discovery reads var/plugins.json. If you just installed or activated a',
@@ -297,7 +313,10 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         return renderNoExtensionsFound(result, platform).join('\n');
     }
 
-    const lines = [colors.bold(`Administration extension tooling — ${ownExtensions.length} extension(s)`)];
+    const lines = [
+        colors.bold(`Administration extension tooling — ${ownExtensions.length} extension(s)`),
+        ...renderExperimentalNotice(),
+    ];
 
     if (options.shim) {
         lines.push(...renderShimConfirmation(result, options.shim, stateOf, commands));

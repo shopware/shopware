@@ -19,7 +19,7 @@ class NonStandardFkGuardRuleTest extends RuleTestCase
 {
     public function testRule(): void
     {
-        $message = 'DDL against "product" must run inside MigrationStep::withRelaxedNonStandardFkGuard(), otherwise it '
+        $message = 'Raw DDL against "product" must go through MigrationStep::executeDdlStatement(), otherwise it '
             . 'fails on MySQL 8.4 for the shops that carry non-standard foreign key drift against that '
             . 'table (MySQL bug #118151).';
 

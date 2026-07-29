@@ -22,8 +22,6 @@ abstract class MigrationStep
 
     private const MAX_INT_32_BIT = 2147483647;
 
-    private const NON_STANDARD_FK_GUARD = 'restrict_fk_on_non_standard_key';
-
     /**
      * get creation timestamp
      */
@@ -103,45 +101,18 @@ abstract class MigrationStep
     }
 
     /**
-     * Runs DDL with `restrict_fk_on_non_standard_key` relaxed for the current session.
+     * Executes a raw DDL statement, retrying with the FK guard relaxed when MySQL 8.4 rejects it
+     * through bug #118151. The addColumn() / drop*IfExists() / updateInheritance() helpers
+     * already run through it.
      *
-     * MySQL 8.4 enables that guard by default, and while it is on, MySQL bug #118151 makes any
-     * `ALTER TABLE` / `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>':
-     * needed in a foreign key constraint` when the table is involved in a foreign key with a
-     * non-standard supporting key. Shops carrying such drift cannot upgrade without this.
+     * @see NonStandardFkGuard
      *
-     * On MariaDB and MySQL < 8.4 the variable does not exist and the callback just runs as-is.
-     *
-     * @see https://bugs.mysql.com/bug.php?id=118151
-     *
-     * @internal Temporary workaround, will be removed once MySQL fixes bug #118151
+     * @internal Temporary workaround, will be removed once MySQL fixes bug #118151; safe to call
+     *           from extension migrations in the meantime.
      */
-    protected function withRelaxedNonStandardFkGuard(Connection $connection, \Closure $ddl): void
+    protected function executeDdlStatement(Connection $connection, string $sql): void
     {
-        // Empty result means the server does not know the variable. More reliable than parsing
-        // VERSION(), which reports strings like "5.5.5-10.11.2-MariaDB" that compare as >= 8.4.
-        $guard = $connection->fetchAssociative(
-            'SHOW SESSION VARIABLES LIKE :variable',
-            ['variable' => self::NON_STANDARD_FK_GUARD]
-        );
-
-        if ($guard === false) {
-            $ddl();
-
-            return;
-        }
-
-        $connection->executeStatement('SET SESSION ' . self::NON_STANDARD_FK_GUARD . ' = OFF');
-
-        try {
-            $ddl();
-        } finally {
-            $connection->executeStatement(\sprintf(
-                'SET SESSION %s = %s',
-                self::NON_STANDARD_FK_GUARD,
-                $connection->quote((string) $guard['Value'])
-            ));
-        }
+        NonStandardFkGuard::executeDdl($connection, $sql);
     }
 
     protected function dropTableIfExists(Connection $connection, string $table): void
@@ -156,7 +127,7 @@ abstract class MigrationStep
     protected function dropColumnIfExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
-            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
+            NonStandardFkGuard::executeDdl($connection, \sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -181,7 +152,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $foreignKeyName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -206,7 +177,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;

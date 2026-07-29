@@ -73,18 +73,14 @@ Product export body templates now receive RFC 3986-encoded `MediaEntity::url` an
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 
-MySQL 8.4 enables `restrict_fk_on_non_standard_key` by default. While that guard is on, MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151) makes any `ALTER TABLE` or `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` when that table is involved in a foreign key with a non-standard supporting key. Shops carrying such drift from older Shopware versions or from extensions could not run product-table migrations at all.
+On MySQL 8.4, bug [#118151](https://bugs.mysql.com/bug.php?id=118151) made `ALTER TABLE` and `CREATE INDEX` fail on tables involved in a foreign key with a non-standard supporting key, blocking product-table migrations on shops carrying such drift. Migration DDL now retries such a failure once with `restrict_fk_on_non_standard_key` relaxed, restoring it afterwards. Healthy schemas, MariaDB, and MySQL without the variable are unaffected; legitimate failures fail the retry as well.
 
-All core migrations doing DDL on the `product` table now run that DDL with the guard relaxed for the current session, restoring the previous value afterwards. On MariaDB and MySQL versions without the variable, nothing changes.
-
-Extension migrations can hit the same failure. `MigrationStep::withRelaxedNonStandardFkGuard()` wraps the affected DDL:
+The `MigrationStep` DDL helpers retry automatically, in core and extension migrations alike. For raw DDL statements, extension migrations can use `MigrationStep::executeDdlStatement()`:
 
 ```php
 public function update(Connection $connection): void
 {
-    $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
-    });
+    $this->executeDdlStatement($connection, 'ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
 }
 ```
 

@@ -21,21 +21,18 @@ class Migration1714659357CanonicalProductVersion extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // The non-standard FK replaced here is what makes MySQL 8.4 refuse the statements below.
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $this->addColumn($connection, 'product', 'canonical_product_version_id', 'binary(16)', true, '0x0fa91ce3e96a4bc2be4bd9ce752c3425');
+        $this->addColumn($connection, 'product', 'canonical_product_version_id', 'binary(16)', true, '0x0fa91ce3e96a4bc2be4bd9ce752c3425');
 
-            // Safe to drop: the foreign key is re-added below with the versioned column pair.
-            $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.canonical_product_id');
-            $this->dropIndexIfExists($connection, 'product', 'fk.product.canonical_product_id');
+        /** @phpstan-ignore shopware.dropStatement (As the foreign key is directly added again, the drop is fine in this case) */
+        $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.canonical_product_id');
+        $this->dropIndexIfExists($connection, 'product', 'fk.product.canonical_product_id');
 
-            $connection->executeStatement('
-                ALTER TABLE `product`
-                ADD CONSTRAINT `fk.product.canonical_product_id`
-                FOREIGN KEY (`canonical_product_id` , `canonical_product_version_id`)
-                REFERENCES `product` (`id`, `version_id`)
-                ON DELETE SET NULL
-            ');
-        });
+        $this->executeDdlStatement($connection, '
+            ALTER TABLE `product`
+            ADD CONSTRAINT `fk.product.canonical_product_id`
+            FOREIGN KEY (`canonical_product_id` , `canonical_product_version_id`)
+            REFERENCES `product` (`id`, `version_id`)
+            ON DELETE SET NULL
+        ');
     }
 }

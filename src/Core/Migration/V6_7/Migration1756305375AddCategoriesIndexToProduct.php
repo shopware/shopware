@@ -24,8 +24,6 @@ class Migration1756305375AddCategoriesIndexToProduct extends MigrationStep
             return;
         }
 
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $connection->executeStatement('CREATE INDEX `idx.product.categories` ON `product` (`categories`)');
-        });
+        $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.categories` ON `product` (`categories`)');
     }
 }

@@ -23,11 +23,7 @@ class Migration1761739065IncreaseProductWeightPrecision extends MigrationStep
             return;
         }
 
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $connection->executeStatement(
-                'ALTER TABLE `product` MODIFY `weight` DECIMAL(15,6) UNSIGNED NULL'
-            );
-        });
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` MODIFY `weight` DECIMAL(15,6) UNSIGNED NULL');
     }
 
     private function isProductWeightUsingDefaultPrecision(Connection $connection): bool

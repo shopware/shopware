@@ -7,7 +7,6 @@ import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & {
     baseUrl: string;
-    overflowHidden?: boolean;
 };
 
 const modalsStore = Shopware.Store.register({
@@ -28,7 +27,6 @@ const modalsStore = Shopware.Store.register({
             baseUrl,
             buttons,
             textContent,
-            overflowHidden,
         }: ModalItemEntry) {
             this.modals.push({
                 title,
@@ -40,7 +38,6 @@ const modalsStore = Shopware.Store.register({
                 buttons: buttons ?? [],
                 baseUrl,
                 textContent,
-                overflowHidden,
             });
         },
 

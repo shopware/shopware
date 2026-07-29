@@ -19,6 +19,7 @@ Tests should read like executable examples.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
+- Do not invoke private or protected methods of Shopware classes via reflection (`->invoke()`, `->invokeArgs()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. Fix legacy usages when touching such a test. Reflecting into a third-party class stays acceptable when a vendor API leaves no other option, and reading metadata from a reflection object is always fine, for example asserting a declaring class, a signature, or an attribute. A Danger rule fails the pull request when the reflected target is a proven private or protected method of a Shopware class, and warns when it cannot resolve the target from the diff; resolve the warning thread when the target is third-party or public.
 
 ## Assertions And Fixtures
 
@@ -43,6 +44,7 @@ Tests should read like executable examples.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
+- Declare exactly one `#[CoversClass]` per test file: the covered class decides which domain owns the test. When a second class needs tests, create a second test file. A Danger rule fails new test files covering more than one class.
 
 ## Package Attribute
 

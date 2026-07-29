@@ -134,6 +134,23 @@ class LineItemIsNewRuleTest extends TestCase
         ];
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemIsNewRule(false);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     private function createLineItemWithIsNewMarker(bool $isNew): LineItem
     {
         return $this->createLineItem()->setPayloadValue('isNew', $isNew);

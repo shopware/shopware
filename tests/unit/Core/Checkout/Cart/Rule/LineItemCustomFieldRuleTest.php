@@ -199,6 +199,23 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertSame($result, $rule->match($scope));
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemCustomFieldRule(Rule::OPERATOR_NEQ);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     /**
      * @return iterable<string, array<string, array<int, int>|LineItemCustomFieldRule|string|bool>>
      */

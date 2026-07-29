@@ -188,8 +188,8 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, 10.0);
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(static::createLineItem('a'));
-        $lineItemCollection->add(static::createLineItem('b'));
+        $lineItemCollection->add(static::createLineItem());
+        $lineItemCollection->add(static::createLineItem());
 
         $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
@@ -262,5 +262,22 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         static::assertIsArray($result['operatorSet']['operators']);
         static::assertSame('dimension', $result['fields']['amount']['config']['unit']);
+    }
+
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemDimensionHeightRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -201,6 +202,21 @@ class LineItemInProductStreamRuleTest extends TestCase
         $streamIds = $ruleConstraints['streamIds'];
         static::assertEquals(new NotBlank(), $streamIds[0]);
         static::assertEquals(new ArrayOfUuid(), $streamIds[1]);
+    }
+
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')->setGood(false)->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemInProductStreamRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
     }
 
     /**

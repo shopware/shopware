@@ -142,6 +142,23 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame('clearanceSale', $result['fields']['clearanceSale']['name']);
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemClearanceSaleRule(false);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
         return $this->createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);

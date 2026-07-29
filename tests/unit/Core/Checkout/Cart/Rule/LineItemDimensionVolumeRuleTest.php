@@ -426,6 +426,23 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields']['amount']['config']['unit']);
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemDimensionVolumeRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     private function createLineItemWithVolume(float $volume): LineItem
     {
         return $this->createLineItemWithDeliveryInfo(false, 1, 50, $volume, 1, 1);

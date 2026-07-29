@@ -471,6 +471,23 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemDimensionLengthRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     private function createLineItemWithLength(?float $length): LineItem
     {
         return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, $length);

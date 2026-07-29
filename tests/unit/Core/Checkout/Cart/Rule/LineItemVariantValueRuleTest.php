@@ -132,6 +132,24 @@ class LineItemVariantValueRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = new LineItem(Uuid::randomHex(), 'customized-products-option');
+        $container = (new LineItem(Uuid::randomHex(), 'customized-products'))->setGood(false)->setChildren(new LineItemCollection([$option]));
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$container]));
+
+        $rule = new LineItemVariantValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $matches = $rule->match(new CartRuleScope(
+            $cart,
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     /**
      * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */

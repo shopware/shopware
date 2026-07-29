@@ -593,6 +593,23 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame('amount', $result->getData()['fields']['amount']['name']);
     }
 
+    public function testNonProductGoodsAreSkipped(): void
+    {
+        $option = self::createLineItem('customized-products-option');
+        $container = self::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$option]));
+
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $matches = $rule->match(new CartRuleScope(
+            self::createCart(new LineItemCollection([$container])),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($matches);
+    }
+
     private static function createLineItemWithWidth(?float $width): LineItem
     {
         return self::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);

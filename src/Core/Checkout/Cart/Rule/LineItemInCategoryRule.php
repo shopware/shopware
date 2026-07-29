@@ -44,6 +44,10 @@ class LineItemInCategoryRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                continue;
+            }
+
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }

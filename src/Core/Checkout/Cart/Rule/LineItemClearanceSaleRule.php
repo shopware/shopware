@@ -40,6 +40,10 @@ class LineItemClearanceSaleRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                continue;
+            }
+
             if ($this->matchesClearanceSaleCondition($lineItem)) {
                 return true;
             }

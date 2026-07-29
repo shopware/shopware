@@ -50,6 +50,10 @@ class LineItemVariantValueRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $item) {
+            if ($item->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                continue;
+            }
+
             if ($this->matchLineItem($item)) {
                 return true;
             }

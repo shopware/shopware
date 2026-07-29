@@ -7,6 +7,9 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class EntityRouteResolver
 {

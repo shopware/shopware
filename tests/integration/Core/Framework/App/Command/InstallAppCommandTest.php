@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -29,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class InstallAppCommandTest extends TestCase
 {
     use EventDispatcherBehaviour;

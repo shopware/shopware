@@ -9,6 +9,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
@@ -32,6 +33,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityLifecycleService::class)]
 class CustomEntityLifecycleServiceTest extends TestCase
 {
@@ -273,7 +275,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );
@@ -296,7 +298,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater,
             $clock
@@ -325,7 +327,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );
@@ -397,7 +399,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
      */
     private function createCustomEntityRepository(CustomEntityEntity ...$customEntities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<CustomEntityCollection> $repository */
         $repository = new StaticEntityRepository([new CustomEntityCollection($customEntities)]);
 
         return $repository;

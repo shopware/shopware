@@ -24,10 +24,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ContainerFacade::class)]
 #[CoversClass(DiscountTrait::class)]
 #[CoversClass(SurchargeTrait::class)]
-#[Package('checkout')]
 class ContainerFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

@@ -7,11 +7,16 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * OAuth integrations should rely on {@see UserRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class UserRepository implements UserRepositoryInterface
 {
     /**

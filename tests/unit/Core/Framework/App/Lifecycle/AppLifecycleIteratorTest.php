@@ -13,11 +13,13 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppLifecycleIterator::class)]
 class AppLifecycleIteratorTest extends TestCase
 {

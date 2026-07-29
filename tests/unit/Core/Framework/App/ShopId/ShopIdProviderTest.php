@@ -14,12 +14,14 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {

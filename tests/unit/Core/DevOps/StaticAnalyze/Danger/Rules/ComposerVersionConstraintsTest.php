@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ComposerVersionConstraints;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubFile;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPlatform;
 use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
@@ -16,10 +17,11 @@ use Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\Danger\Stub\StubPullRequest;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ComposerVersionConstraints::class)]
 class ComposerVersionConstraintsTest extends TestCase
 {
-    #[TestDox('Enforces caret by default, tilde for symfony-like packages, exact pins for pipeline-critical tools')]
+    #[TestDox('Enforces caret by default, tilde for compatibility-sensitive packages, exact pins for pipeline-critical tools')]
     #[DataProvider('constraintProvider')]
     public function testConstraintPolicy(string $package, string $constraint, ?string $expectedFailurePart): void
     {
@@ -46,6 +48,8 @@ class ComposerVersionConstraintsTest extends TestCase
         yield 'symfony package with caret fails' => ['symfony/console', '^7.4', 'tilde version range'];
         yield 'php with tilde passes' => ['php', '~8.2.0', null];
         yield 'doctrine/dbal with caret fails' => ['doctrine/dbal', '^4.0', 'tilde version range'];
+        yield 'dompdf with tilde passes' => ['dompdf/dompdf', '~3.1.6', null];
+        yield 'dompdf with caret fails' => ['dompdf/dompdf', '^3.1.6', 'tilde version range'];
         yield 'phpstan with exact pin passes' => ['phpstan/phpstan', '2.1.30', null];
         yield 'phpstan with caret fails' => ['phpstan/phpstan', '^2.1', 'pinned to a specific version'];
         yield 'cs-fixer with tilde fails' => ['friendsofphp/php-cs-fixer', '~3.1.0', 'pinned to a specific version'];

@@ -13,9 +13,12 @@ use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetFixer;
 use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -32,6 +35,38 @@ class ValidateSnippetsCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $commandTester->execute([]));
         static::assertStringContainsString('Snippets are valid!', $commandTester->getDisplay());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('The deprecated command alias remains supported before v6.8')]
+    public function testDeprecatedCommandAliasRemainsSupported(): void
+    {
+        $command = $this->createCommand(new SnippetFileCollection(), []);
+        $command->setName('translation:validate');
+        $command->setAliases(['snippets:validate']);
+        $application = new Application();
+        // without this, Application::run() calls exit(0) and silently kills the whole PHPUnit process
+        $application->setAutoExit(false);
+        $application->addCommand($command);
+        $applicationTester = new ApplicationTester($application);
+
+        static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
+    }
+
+    #[TestDox('The deprecated command alias stays silent when v6.8 is active')]
+    public function testDeprecatedCommandAliasIsSilent(): void
+    {
+        $command = $this->createCommand(new SnippetFileCollection(), []);
+        $command->setName('translation:validate');
+        $command->setAliases(['snippets:validate']);
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->addCommand($command);
+        // without catching, a deprecation wrongly raised as FeatureException would surface here
+        $application->setCatchExceptions(false);
+        $applicationTester = new ApplicationTester($application);
+
+        static::assertSame(Command::SUCCESS, $applicationTester->run(['command' => 'snippets:validate']));
     }
 
     #[TestDox('Missing translations are listed per ISO and fail the command')]
@@ -98,6 +133,17 @@ class ValidateSnippetsCommandTest extends TestCase
         array $jsonByPath,
         ?SnippetFixer $snippetFixer = null
     ): CommandTester {
+        return new CommandTester($this->createCommand($collection, $jsonByPath, $snippetFixer));
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $jsonByPath
+     */
+    private function createCommand(
+        SnippetFileCollection $collection,
+        array $jsonByPath,
+        ?SnippetFixer $snippetFixer = null
+    ): ValidateSnippetsCommand {
         $snippetFileHandler = static::createStub(SnippetFileHandler::class);
         $snippetFileHandler->method('findAdministrationSnippetFiles')->willReturn([]);
         $snippetFileHandler->method('findStorefrontSnippetFiles')->willReturn([]);
@@ -111,7 +157,7 @@ class ValidateSnippetsCommandTest extends TestCase
         );
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
 
-        return new CommandTester($command);
+        return $command;
     }
 
     private function createSnippetFile(string $iso, string $path): GenericSnippetFile

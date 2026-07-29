@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -98,6 +99,33 @@ trait DocumentV2Trait
         $config['companyCountryId'] = $this->loadCompanyCountry()->getId();
 
         $this->upsertBaseConfig($config, $documentType);
+    }
+
+    protected function seedReferenceInvoice(string $orderId, ?string $documentNumber = self::DOCUMENT_NUMBER): string
+    {
+        $documentTypeId = static::getContainer()->get('document_type.repository')->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice')),
+            $this->context,
+        )->firstId();
+
+        static::assertIsString($documentTypeId);
+
+        $documentId = Uuid::randomHex();
+
+        static::getContainer()->get('document.repository')->create([
+            [
+                'id' => $documentId,
+                'documentTypeId' => $documentTypeId,
+                'orderId' => $orderId,
+                'orderVersionId' => Defaults::LIVE_VERSION,
+                'config' => $documentNumber === null ? [] : ['documentNumber' => $documentNumber],
+                'deepLinkCode' => Uuid::randomHex(),
+                'static' => false,
+                'sent' => false,
+            ],
+        ], $this->context);
+
+        return $documentId;
     }
 
     protected function applyTenPercentPromotion(Cart $cart): Cart

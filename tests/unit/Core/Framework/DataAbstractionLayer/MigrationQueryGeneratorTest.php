@@ -17,10 +17,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationQueryGenerator::class)]
 class MigrationQueryGeneratorTest extends TestCase
 {

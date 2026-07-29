@@ -18,8 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * Provides the list of registered MCP capabilities so the Admin UI can populate
  * the per-integration allowlist selector.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class McpToolListController
 {
     /**

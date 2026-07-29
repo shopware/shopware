@@ -195,6 +195,50 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNotEmpty($product->getSeoUrls());
     }
 
+    public function testAddSeoInformationForSearchResultNestedInStructVars(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            static::createStub(SalesChannelContext::class),
+        );
+
+        $product = $this->createProductEntity();
+        $nestedResult = new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $searchResult = new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection([]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+        $searchResult->addExtension('cmsSlotData', new MockNestedSearchResultStruct($nestedResult));
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new ProductListResponse($searchResult)
+        );
+
+        static::assertEmpty($product->getSeoUrls());
+
+        $storeApiSeoResolver = $this->createStoreApiSeoResolver();
+        $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertNotEmpty($product->getSeoUrls());
+    }
+
     #[DoesNotPerformAssertions]
     public function testResponseIsNotStoreApiResponse(): void
     {

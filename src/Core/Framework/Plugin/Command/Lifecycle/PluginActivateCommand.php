@@ -10,11 +10,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:activate',
     description: 'Activate a plugin',
 )]
-#[Package('framework')]
 class PluginActivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'activate';

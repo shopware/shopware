@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -40,6 +41,7 @@ use Twig\Loader\ChainLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileRenderer::class)]
 class SalesChannelFileRendererTest extends TestCase
 {

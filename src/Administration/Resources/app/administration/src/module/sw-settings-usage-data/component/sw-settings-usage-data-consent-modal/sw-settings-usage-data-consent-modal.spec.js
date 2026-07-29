@@ -54,21 +54,29 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.share-all-data');
         });
 
-        it('shows decline/give consent buttons when store data consent was given before', async () => {
-            const wrapper = await createConsentModal(true, false);
+        it.each([
+            [
+                'store data consent was given before',
+                [
+                    'system.system_config',
+                    'user.update_profile',
+                ],
+                true,
+            ],
+            [
+                'store data consent is hidden by permissions',
+                ['user.update_profile'],
+                false,
+            ],
+            [
+                'user data consent is hidden by permissions',
+                ['system.system_config'],
+                false,
+            ],
+        ])('shows decline/give consent buttons when %s', async (scenario, roles, storeDataConsent) => {
+            global.activeAclRoles = roles;
 
-            const buttons = wrapper.findAll('.mt-modal__footer button');
-
-            expect(buttons).toHaveLength(2);
-            expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.decline');
-            expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.give-consent');
-            expect(wrapper.findAllComponents(MtSwitch)).toHaveLength(0);
-        });
-
-        it('shows decline/give consent buttons when store data consent is hidden by permissions', async () => {
-            global.activeAclRoles = ['user.update_profile'];
-
-            const wrapper = await createConsentModal(false, false);
+            const wrapper = await createConsentModal(storeDataConsent, false);
 
             const buttons = wrapper.findAll('.mt-modal__footer button');
 
@@ -162,7 +170,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it('hides store data consent if user can not write the system config', async () => {
-            global.activeAclRoles = [];
+            global.activeAclRoles = ['user.update_profile'];
             const eventHandler = jest.fn();
             Shopware.Utils.EventBus.on('consent', eventHandler);
 
@@ -179,6 +187,35 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
                     'consent_modal_viewed',
                     {
                         consents_shown: ['product_analytics'],
+                    },
+                    new Date(),
+                ),
+            );
+
+            Shopware.Utils.EventBus.off('consent', eventHandler);
+        });
+
+        it('hides user data consent if user can not update their profile', async () => {
+            global.activeAclRoles = ['system.system_config'];
+            const eventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', eventHandler);
+
+            const wrapper = await createConsentModal(false, false);
+            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
+
+            expect(subCardHeadings).toHaveLength(1);
+            expect(subCardHeadings.map((heading) => heading.text())).toContain(
+                'sw-settings-usage-data.consent-modal.store-data.title',
+            );
+            expect(subCardHeadings.map((heading) => heading.text())).not.toContain(
+                'sw-settings-usage-data.consent-modal.user-data.title',
+            );
+
+            expect(eventHandler).toHaveBeenCalledWith(
+                new ConsentEvent(
+                    'consent_modal_viewed',
+                    {
+                        consents_shown: ['backend_data'],
                     },
                     new Date(),
                 ),
@@ -389,7 +426,18 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
         });
 
-        it('does not update user data consent if permissions are missing', async () => {
+        it.each([
+            [
+                'gives',
+                1,
+                'accept',
+            ],
+            [
+                'declines',
+                0,
+                'revoke',
+            ],
+        ])('%s store data consent in the single-option case', async (_label, buttonIndex, expectedMethod) => {
             global.activeAclRoles = ['system.system_config'];
 
             const consentStore = useConsentStore();
@@ -400,17 +448,13 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             const wrapper = await createConsentModal(false, false);
 
-            const [shareStoreDataSwitch] = wrapper.findAllComponents(MtSwitch);
+            const button = wrapper.findAll('.mt-modal__footer button')[buttonIndex];
 
-            await shareStoreDataSwitch.get('input').trigger('change');
+            await button.trigger('click');
+            await flushPromises();
 
-            const savePreferencesButton = wrapper.find('.mt-modal__footer button');
-
-            await savePreferencesButton.trigger('click');
-
-            expect(acceptSpy).toHaveBeenCalled();
-            expect(revokeSpy).not.toHaveBeenCalled();
-            expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
+            expect(expectedMethod === 'accept' ? acceptSpy : revokeSpy).toHaveBeenCalledWith('backend_data');
+            expect(expectedMethod === 'accept' ? revokeSpy : acceptSpy).not.toHaveBeenCalled();
         });
 
         it('shows error notification when updating consent fails', async () => {

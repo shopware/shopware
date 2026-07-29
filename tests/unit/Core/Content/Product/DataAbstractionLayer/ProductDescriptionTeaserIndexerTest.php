@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDescriptionTeaserIndexer::class)]
 class ProductDescriptionTeaserIndexerTest extends TestCase
 {
@@ -41,7 +43,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
         $query->method('fetch')->willReturn(['id-1', 'id-2']);
         $query->method('getOffset')->willReturn(['offset' => 50]);
 
-        $factory = $this->createMock(IteratorFactory::class);
+        $factory = static::createStub(IteratorFactory::class);
         $factory->method('createIterator')->willReturn($query);
 
         $message = $this->createIndexer(iteratorFactory: $factory)->iterate(null);
@@ -56,7 +58,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
         $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn([]);
 
-        $factory = $this->createMock(IteratorFactory::class);
+        $factory = static::createStub(IteratorFactory::class);
         $factory->method('createIterator')->willReturn($query);
 
         static::assertNull($this->createIndexer(iteratorFactory: $factory)->iterate(null));
@@ -117,7 +119,7 @@ class ProductDescriptionTeaserIndexerTest extends TestCase
         $query = static::createStub(IterableQuery::class);
         $query->method('fetchCount')->willReturn(42);
 
-        $factory = $this->createMock(IteratorFactory::class);
+        $factory = static::createStub(IteratorFactory::class);
         $factory->method('createIterator')->willReturn($query);
 
         static::assertSame(42, $this->createIndexer(iteratorFactory: $factory)->getTotal());

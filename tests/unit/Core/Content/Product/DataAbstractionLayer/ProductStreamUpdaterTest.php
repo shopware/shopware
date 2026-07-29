@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -36,6 +37,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
@@ -47,10 +49,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method(static::anything());
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -93,10 +93,8 @@ class ProductStreamUpdaterTest extends TestCase
             return new Envelope($message);
         });
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -140,10 +138,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -607,7 +603,6 @@ class ProductStreamUpdaterTest extends TestCase
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);
 
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
         $repo = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         return $repo;

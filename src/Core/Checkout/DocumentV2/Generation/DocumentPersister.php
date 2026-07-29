@@ -73,8 +73,9 @@ final readonly class DocumentPersister
             [
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
-                'orderVersionId' => $generationRequest->orderVersionId,
+                'orderVersionId' => $input->order->getVersionId(),
                 'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
+                'referencedDocumentId' => $generationRequest->referencedDocumentId,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,

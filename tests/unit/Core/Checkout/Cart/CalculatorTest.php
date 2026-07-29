@@ -32,8 +32,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(Calculator::class)]
 #[Package('checkout')]
+#[CoversClass(Calculator::class)]
 class CalculatorTest extends TestCase
 {
     private Calculator $calculator;

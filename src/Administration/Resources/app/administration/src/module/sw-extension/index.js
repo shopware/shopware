@@ -40,6 +40,10 @@ Shopware.Component.register(
     'sw-extension-bulk-uninstall-modal',
     () => import('./component/sw-extension-bulk-uninstall-modal'),
 );
+Shopware.Component.register(
+    'sw-extension-bulk-deactivation-modal',
+    () => import('./component/sw-extension-bulk-deactivation-modal'),
+);
 Shopware.Component.register('sw-extension-permissions-modal', () => import('./component/sw-extension-permissions-modal'));
 Shopware.Component.register('sw-extension-domains-modal', () => import('./component/sw-extension-domains-modal'));
 Shopware.Component.register(

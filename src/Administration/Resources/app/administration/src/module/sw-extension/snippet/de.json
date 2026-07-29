@@ -40,6 +40,12 @@
           "labelRemovePluginData": "Alle Daten jeder ausgewählten Erweiterung ebenfalls entfernen",
           "helpTextRemovePluginData": "Achtung: Wenn aktiviert, werden alle von diesen Erweiterungen erstellten Daten unwiderruflich gelöscht."
         },
+        "deactivationModal": {
+          "title": "{count} Erweiterung deaktivieren|{count} Erweiterungen deaktivieren",
+          "description": "Die folgenden Erweiterungen erfordern eine monatliche Miete. Durch das Deaktivieren wird die Miete nicht beendet und Gebühren fallen weiter an:",
+          "alert": "Möchtest Du die ausgewählten Erweiterungen wirklich deaktivieren?",
+          "buttonLabel": "Deaktivieren"
+        },
         "consent": {
           "extensionLabel": "{count} Erweiterung|{count} Erweiterungen",
           "installTitle": "{count} Erweiterung installieren|{count} Erweiterungen installieren",

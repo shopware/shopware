@@ -36,8 +36,6 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
             return;
         }
 
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
-        });
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

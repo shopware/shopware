@@ -20,24 +20,22 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            if (!TableHelper::columnExists($connection, 'product', 'type')) {
-                $this->addColumn(
-                    $connection,
-                    'product',
-                    'type',
-                    'VARCHAR(32)',
-                    false,
-                    '\'physical\''
-                );
+        if (!TableHelper::columnExists($connection, 'product', 'type')) {
+            $this->addColumn(
+                $connection,
+                'product',
+                'type',
+                'VARCHAR(32)',
+                false,
+                '\'physical\''
+            );
 
-                $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
-            }
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        }
 
-            if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
-                $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
-            }
-        });
+        if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        }
 
         $batchSize = 5000;
 

@@ -35,16 +35,14 @@ List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) repl
 
 MySQL 8.4 enables `restrict_fk_on_non_standard_key` by default. While that guard is on, MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151) makes any `ALTER TABLE` or `CREATE INDEX` on a table fail with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` when that table is involved in a foreign key with a non-standard supporting key. Shops carrying such drift from older Shopware versions or from extensions could not run product-table migrations at all.
 
-All core migrations doing DDL on the `product` table now run that DDL with the guard relaxed for the current session, restoring the previous value afterwards. On MariaDB and MySQL versions without the variable, nothing changes.
+Migration DDL now retries such failures: the statement runs unmodified first, and only when the server rejects it with that error while the guard is on is the guard relaxed for a single retry, restoring the previous value afterwards. Healthy schemas, MariaDB, and MySQL versions without the variable see no behaviour change; legitimate failures still surface, because they fail the retry as well.
 
-Extension migrations can hit the same failure. `MigrationStep::withRelaxedNonStandardFkGuard()` wraps the affected DDL:
+The `MigrationStep` DDL helpers (`addColumn()`, `dropColumnIfExists()`, `dropForeignKeyIfExists()`, `dropIndexIfExists()`, `updateInheritance()`) retry automatically, in core and extension migrations alike. For raw DDL statements, extension migrations can use `MigrationStep::executeDdlStatement()`:
 
 ```php
 public function update(Connection $connection): void
 {
-    $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
-    });
+    $this->executeDdlStatement($connection, 'ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
 }
 ```
 

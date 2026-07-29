@@ -12,15 +12,16 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Requires DDL against {@see self::TABLES_WITH_KNOWN_DRIFT} to run inside
- * {@see \Shopware\Core\Framework\Migration\MigrationStep::withRelaxedNonStandardFkGuard()},
- * otherwise it fails on MySQL 8.4 (bug #118151).
+ * Requires raw DDL against {@see self::TABLES_WITH_KNOWN_DRIFT} to go through
+ * {@see \Shopware\Core\Framework\Migration\MigrationStep::executeDdlStatement()}, which retries
+ * with the FK guard relaxed when MySQL 8.4 rejects the statement (bug #118151). The MigrationStep
+ * DDL helpers (addColumn, dropColumnIfExists, dropForeignKeyIfExists, dropIndexIfExists,
+ * updateInheritance) already run through it and need no attention.
  *
  * Whether a shop is affected depends on its schema history, which static analysis cannot see, so
  * the rule guards the tables where drift has been reported rather than a derived category.
  *
- * The wrapping check is coarse: it only asserts the statement sits inside some closure. The
- * MySQL 8.4 regression test in the devops suite covers the behaviour itself.
+ * The MySQL 8.4 regression test in the devops suite covers the behaviour itself.
  *
  * @internal
  *
@@ -43,17 +44,6 @@ class NonStandardFkGuardRule implements Rule
         'product',
     ];
 
-    /**
-     * MigrationStep helpers that issue ALTER TABLE, with the position of their table argument.
-     */
-    private const TABLE_ARGUMENT_METHODS = [
-        'addColumn' => 1,
-        'dropColumnIfExists' => 1,
-        'dropForeignKeyIfExists' => 1,
-        'dropIndexIfExists' => 1,
-        'updateInheritance' => 1,
-    ];
-
     public function getNodeType(): string
     {
         return MethodCall::class;
@@ -65,23 +55,27 @@ class NonStandardFkGuardRule implements Rule
             return [];
         }
 
+        if ($node->name->toString() !== 'executeStatement') {
+            return [];
+        }
+
         if (!$this->isInMigrationClass($scope) || !$this->isRecentMigration($scope)) {
             return [];
         }
 
-        $table = $this->getTargetedDriftedTable($node);
-        if ($table === null) {
+        $sql = $node->getArgs()[0]->value ?? null;
+        if (!$sql instanceof String_) {
             return [];
         }
 
-        // Anything inside a closure is assumed to be wrapped by the guard helper.
-        if ($scope->isInAnonymousFunction()) {
+        $table = $this->getDriftedTableFromSql($sql->value);
+        if ($table === null) {
             return [];
         }
 
         return [
             RuleErrorBuilder::message(\sprintf(
-                'DDL against "%s" must run inside MigrationStep::withRelaxedNonStandardFkGuard(), otherwise it '
+                'Raw DDL against "%s" must go through MigrationStep::executeDdlStatement(), otherwise it '
                 . 'fails on MySQL 8.4 for the shops that carry non-standard foreign key drift against that '
                 . 'table (MySQL bug #118151).',
                 $table
@@ -101,34 +95,6 @@ class NonStandardFkGuardRule implements Rule
         }
 
         return (int) $matches[1] > (int) strtotime(self::CUTOFF_UNIX_TIMESTAMP);
-    }
-
-    private function getTargetedDriftedTable(MethodCall $node): ?string
-    {
-        $method = $node->name;
-        if (!$method instanceof Identifier) {
-            return null;
-        }
-
-        $args = $node->getArgs();
-
-        $tableArgumentPosition = self::TABLE_ARGUMENT_METHODS[$method->toString()] ?? null;
-        if ($tableArgumentPosition !== null) {
-            $table = $args[$tableArgumentPosition]->value ?? null;
-
-            return $table instanceof String_ && $this->hasKnownDrift($table->value) ? $table->value : null;
-        }
-
-        if ($args === []) {
-            return null;
-        }
-
-        $sql = $args[0]->value;
-        if (!$sql instanceof String_) {
-            return null;
-        }
-
-        return $this->getDriftedTableFromSql($sql->value);
     }
 
     private function getDriftedTableFromSql(string $sql): ?string

@@ -21,10 +21,13 @@ class Migration1785000001UnguardedDdl extends MigrationStep
 
         $connection->executeStatement('CREATE INDEX `idx.product.foo` ON `product` (`foo`)');
 
-        $this->dropColumnIfExists($connection, 'product', 'bar');
+        $connection->executeStatement('DROP INDEX `idx.product.foo` ON `product`');
 
         // Not in TABLES_WITH_KNOWN_DRIFT, so not reported
         $connection->executeStatement('ALTER TABLE `order_line_item` ADD COLUMN `foo` VARCHAR(32) NULL');
         $connection->executeStatement('ALTER TABLE `media` ADD COLUMN `foo` VARCHAR(32) NULL');
+
+        // Not DDL, so not reported
+        $connection->executeStatement('UPDATE `product` SET `foo` = NULL');
     }
 }

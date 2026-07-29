@@ -17,17 +17,16 @@ class Migration1785000002GuardedDdl extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `foo` VARCHAR(32) NULL');
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` ADD COLUMN `foo` VARCHAR(32) NULL');
 
-            $this->dropColumnIfExists($connection, 'product', 'bar');
-        });
+        $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.foo` ON `product` (`foo`)');
+
+        // The MigrationStep DDL helpers run through the guard themselves
+        $this->addColumn($connection, 'product', 'bar', 'VARCHAR(32)');
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $this->withRelaxedNonStandardFkGuard($connection, function () use ($connection): void {
-            $this->dropColumnIfExists($connection, 'product', 'foo');
-        });
+        $this->dropColumnIfExists($connection, 'product', 'foo');
     }
 }

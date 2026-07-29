@@ -106,6 +106,16 @@ class NonStandardFkGuardTest extends TestCase
         }
     }
 
+    public function testExecuteDdlStatementRetriesWithRelaxedGuard(): void
+    {
+        // Direct probe for the retry helper: the raw ALTER trips bug #118151 first, the retry with
+        // the guard relaxed must succeed and restore the guard. tearDown drops the probe column.
+        (new ProbeColumnMigration())->update($this->connection);
+
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', '_fk_guard_probe'));
+        $this->assertGuardRestored();
+    }
+
     public function testUnguardedDdlStillFailsSoTheFixtureStaysMeaningful(): void
     {
         // Regression witness: if this stops throwing, the fixture no longer reproduces the bug and
@@ -177,5 +187,21 @@ class NonStandardFkGuardTest extends TestCase
         } finally {
             $this->connection->executeStatement('SET SESSION restrict_fk_on_non_standard_key = ON');
         }
+    }
+}
+
+/**
+ * @internal
+ */
+class ProbeColumnMigration extends MigrationStep
+{
+    public function getCreationTimestamp(): int
+    {
+        return 1;
+    }
+
+    public function update(Connection $connection): void
+    {
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` ADD COLUMN `_fk_guard_probe` VARCHAR(8) NULL');
     }
 }

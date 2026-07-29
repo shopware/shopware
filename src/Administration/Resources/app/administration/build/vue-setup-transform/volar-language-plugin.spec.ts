@@ -53,6 +53,14 @@ swDefineOverride({ count });
 
         plugin.resolveEmbeddedCode('base-override.vue', sfc, code);
 
+        // Volar exposes no API for a plugin to report its own diagnostic, so the message is smuggled
+        // through the type system: the generated code declares a function whose parameter type has the
+        // error message as a property key typed `never`, then calls it with the offending source text.
+        // No argument can satisfy that type, so TypeScript must report an error - and because the
+        // parameter type *is* the message, it prints our text. The array entry is the source mapping
+        // (text, block, offset, features): it anchors the generated call to the author's range and
+        // `verification: true` tells Volar to surface diagnostics from it, so the squiggle lands on
+        // `swDefineOverride` in the .vue file and `vue-tsc` fails on it too.
         expect(code.content).toEqual([
             expect.stringContaining(
                 'declare const __shopwareSetupDiagnostic_0: (value: { "Shopware setup error: swDefineOverride()',

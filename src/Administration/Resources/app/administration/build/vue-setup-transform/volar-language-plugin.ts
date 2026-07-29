@@ -178,6 +178,11 @@ function collectShopwareSetupVolarDiagnostics(fileName: string, sfc: VueSfcDescr
 
 /**
  * Adds virtual TypeScript that reports a mapped diagnostic for the invalid macro.
+ *
+ * Volar has no hook for a plugin to raise its own diagnostic, so the message travels through the type
+ * system: the declared function's parameter type carries the message as a property key typed `never`,
+ * which nothing can satisfy, so TypeScript reports it - printing the message because the message *is*
+ * the type. The mapped argument anchors that error to the author's source range.
  */
 function addDiagnosticVirtualCode(code: VolarEmbeddedCode, diagnostics: ShopwareSetupVolarDiagnostic[]): void {
     diagnostics.forEach((diagnostic, index) => {

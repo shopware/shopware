@@ -23,21 +23,15 @@ use Symfony\Component\Filesystem\Filesystem;
 class StoreApiSchemaMigrationReporter
 {
     /**
-     * @var list<StoreApiSchemaMigrationScopeProviderInterface>
-     */
-    private readonly array $scopeProviders;
-
-    /**
      * @internal
      *
      * @param iterable<StoreApiSchemaMigrationScopeProviderInterface> $scopeProviders
      */
     public function __construct(
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        iterable $scopeProviders,
+        private readonly iterable $scopeProviders,
         private readonly Filesystem $filesystem = new Filesystem(),
     ) {
-        $this->scopeProviders = \is_array($scopeProviders) ? array_values($scopeProviders) : iterator_to_array($scopeProviders, false);
     }
 
     /**

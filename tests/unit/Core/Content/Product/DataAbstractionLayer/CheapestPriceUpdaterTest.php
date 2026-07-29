@@ -98,6 +98,7 @@ class CheapestPriceUpdaterTest extends TestCase
         $variantId = Uuid::randomHex();
 
         $mockedData = [
+            // currencyId is required: the full update() run builds the price accessor from it
             $this->createPriceRow($parentId, $variantId, 'default', '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca"}}'),
         ];
 

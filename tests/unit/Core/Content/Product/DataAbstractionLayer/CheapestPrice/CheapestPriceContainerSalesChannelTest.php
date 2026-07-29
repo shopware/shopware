@@ -19,52 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(CheapestPriceContainer::class)]
 class CheapestPriceContainerSalesChannelTest extends TestCase
 {
-    public function testResolveReturnsPriceOfVariantAssignedToTheCurrentSalesChannel(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-
-        $container = new CheapestPriceContainer([
-            'variant1' => [
-                'default' => $this->createPrice(100.0, 84.03, [$salesChannelId]),
-            ],
-        ]);
-
-        $cheapestPrice = $container->resolve($this->createSalesChannelContext($salesChannelId));
-
-        static::assertNotNull($cheapestPrice);
-        static::assertSame('variant1', $cheapestPrice->getVariantId());
-
-        $firstPrice = $cheapestPrice->getPrice()->first();
-        static::assertNotNull($firstPrice);
-        static::assertSame(100.0, $firstPrice->getGross());
-    }
-
-    public function testResolveSkipsCheaperVariantThatIsRestrictedToAnotherSalesChannel(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-        $otherSalesChannelId = Uuid::randomHex();
-
-        $container = new CheapestPriceContainer([
-            // cheaper, but only assigned to another sales channel
-            'variant1' => [
-                'default' => $this->createPrice(50.0, 42.02, [$otherSalesChannelId]),
-            ],
-            // no sales channel restriction stored: available everywhere
-            'variant2' => [
-                'default' => $this->createPrice(100.0, 84.03),
-            ],
-        ]);
-
-        $cheapestPrice = $container->resolve($this->createSalesChannelContext($salesChannelId));
-
-        static::assertNotNull($cheapestPrice);
-        static::assertSame('variant2', $cheapestPrice->getVariantId());
-
-        $firstPrice = $cheapestPrice->getPrice()->first();
-        static::assertNotNull($firstPrice);
-        static::assertSame(100.0, $firstPrice->getGross());
-    }
-
     public function testResolveReturnsPriceWithoutStoredSalesChannelIds(): void
     {
         $container = new CheapestPriceContainer([

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Log\Package;
@@ -47,37 +46,26 @@ class SystemInstallCommandTest extends TestCase
         ]);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
-    public function testExecuteWhenInstallLockExists(array $options): void
+    public function testExecuteWhenInstallLockExists(): void
     {
         touch(__DIR__ . '/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
         $output = new BufferedOutput();
-        $result = $systemInstallCmd->run(new ArrayInput($options), $output);
+        $result = $systemInstallCmd->run(new ArrayInput([
+            '--shop-name' => 'Storefront',
+            '--shop-email' => 'admin@gmail.com',
+            '--shop-locale' => 'de-DE',
+            '--shop-currency' => 'USD',
+            '--basic-setup' => true,
+            '--no-assign-theme' => true,
+            '--drop-database' => true,
+            '--create-database' => true,
+        ]), $output);
 
         static::assertSame(Command::FAILURE, $result);
         static::assertStringContainsString('install.lock already exists', $output->fetch());
-    }
-
-    public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
-    {
-        yield 'Data provider for test execute failure' => [
-            'options' => [
-                '--shop-name' => 'Storefront',
-                '--shop-email' => 'admin@gmail.com',
-                '--shop-locale' => 'de-DE',
-                '--shop-currency' => 'USD',
-                '--basic-setup' => true,
-                '--no-assign-theme' => true,
-                '--drop-database' => true,
-                '--create-database' => true,
-            ],
-        ];
     }
 
     public function testDefaultInstallFlow(): void

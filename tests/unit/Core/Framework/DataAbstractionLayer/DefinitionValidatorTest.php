@@ -408,13 +408,9 @@ class DefinitionValidatorTest extends TestCase
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
 
-        // @phpstan-ignore class.extendsFinalByPhpDoc
-        $validator = new class($registry, $connection) extends DefinitionValidator {
-            protected function shouldSkipDefinition(string $definitionClass): bool
-            {
-                return false;
-            }
-        };
+        // No shouldSkipDefinition override needed: the skip regex only matches backslash
+        // namespaces, never the file-path-based name of an anonymous definition class.
+        $validator = new DefinitionValidator($registry, $connection);
 
         return array_values(array_filter(
             $validator->validate()[$definition->getClass()] ?? [],

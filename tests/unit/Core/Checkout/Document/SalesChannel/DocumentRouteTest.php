@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -64,6 +65,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -93,6 +95,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -121,6 +124,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -157,6 +161,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -204,6 +209,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -250,6 +256,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -296,6 +303,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -345,6 +353,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -392,6 +401,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -426,6 +436,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock
         );
@@ -477,6 +488,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generatorMock,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
@@ -529,6 +541,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderers,
         );
@@ -594,6 +607,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock
         );
@@ -662,6 +676,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock
         );
@@ -713,6 +728,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock
         );
@@ -767,6 +783,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $generator,
             $documentRepository,
+            static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock
         );

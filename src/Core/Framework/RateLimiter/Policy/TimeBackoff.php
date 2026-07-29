@@ -133,7 +133,7 @@ class TimeBackoff implements LimiterStateInterface
         foreach ($this->limits as $key => $current) {
             $next = $this->limits[$key + 1] ?? null;
 
-            if ($next === null && $count >= $current['limit']) {
+            if ($next === null && $count > $current['limit']) {
                 return $current;
             }
 

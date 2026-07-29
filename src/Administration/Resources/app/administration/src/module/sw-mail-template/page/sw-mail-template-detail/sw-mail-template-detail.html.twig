@@ -634,7 +634,7 @@
 
                     <mt-button
                         variant="secondary"
-                        :disabled="!triggerEvent || !acl.can('api_send_email')"
+                        :disabled="!triggerEvent || !acl.can('mail_templates.editor')"
                         @click="onClickShowPreview"
                     >
                         {{ $t('sw-mail-template.detail.previewModalTitle') }}

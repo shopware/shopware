@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[McpTool(
     name: 'shopware-entity-upsert',
     title: 'Entity Upsert',
-    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. Use shopware-entity-schema to understand required fields before building the payload. Returns validation result in dryRun mode, or the written entity data on commit.'
+    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
 #[McpToolGroup('entity')]

@@ -23,6 +23,13 @@ class BCPlanningDeprecations
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:parameter-default-change - parameter $scope will use a new default value
+     */
+    public function parameterDefaultChange(): void
+    {
+    }
+
+    /**
      * @deprecated tag:v6.8.0 - reason:remove-subscriber - Subscriber will be removed
      */
     public function actualDeprecationIsAllowed(): void

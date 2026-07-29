@@ -191,8 +191,7 @@ class DocumentPersisterTest extends TestCase
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
     ): array {
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             $existingDocumentIds,
             $documentSearch ?? static function (
                 Criteria $criteria,
@@ -209,13 +208,11 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             static function (Criteria $criteria) use ($documentTypeId): array {
                 static::assertSame(1, $criteria->getLimit());
 

@@ -108,6 +108,9 @@
       "placeholderPlaceOfFulfillment": "Erfüllungsort eingeben ...",
       "placeholderExecutiveDirector": "Geschäftsführer eingeben ...",
       "placeholderPaymentDueDate": "Fälligkeit eingeben ..."
+    },
+    "errors": {
+      "invalidDueDateFormat": "Datums-Modifier ist nicht gültig."
     }
   },
   "sw-privileges": {

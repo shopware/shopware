@@ -79,6 +79,8 @@ const documentBaseConfigRepositoryMock = {
             },
         });
     },
+
+    save: jest.fn(),
 };
 
 const salesChannelRepositoryMock = {
@@ -148,7 +150,29 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     'sw-entity-single-select': true,
                     'sw-card-view': true,
                     'sw-container': true,
-                    'sw-form-field-renderer': true,
+                    'sw-form-field-renderer': {
+                        template: `
+                            <div :id="name">
+                                <span
+                                    v-if="error"
+                                    class="sw-form-field-renderer__error"
+                                >
+                                    {{ error.detail }}
+                                </span>
+                            </div>
+                        `,
+                        props: {
+                            name: {
+                                type: String,
+                                required: true,
+                            },
+                            error: {
+                                type: Object,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                    },
                     'mt-checkbox': MtCheckbox,
                     'mt-banner': true,
                     'sw-media-compact-upload-v2': {
@@ -191,6 +215,8 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
     beforeEach(async () => {
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
+        documentBaseConfigRepositoryMock.save.mockReset();
+        documentBaseConfigRepositoryMock.save.mockResolvedValue();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
@@ -359,6 +385,38 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         const paymentDueDateField = wrapper.vm.generalFormFields.find((field) => field.name === 'paymentDueDate');
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
+    });
+
+    it('should show errors on payment due date field if value is not valid', async () => {
+        documentBaseConfigRepositoryMock.save.mockRejectedValueOnce({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE',
+                        },
+                    ],
+                },
+            },
+        });
+
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            ['document.editor'],
+        );
+        await flushPromises();
+
+        expect(wrapper.find('#paymentDueDate .sw-form-field-renderer__error').exists()).toBe(false);
+
+        await wrapper.get('.sw-settings-document-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(wrapper.get('#paymentDueDate .sw-form-field-renderer__error').text()).toBe(
+            'sw-settings-document.errors.invalidDueDateFormat',
+        );
     });
 
     it('should render the company settings layout without feature flag', async () => {

@@ -352,25 +352,27 @@
         align-self: stretch;
         gap: var(--scale-size-12);
         cursor: pointer;
-        background: transparent;
+        background-color: transparent;
         border: none;
         border-radius: var(--border-radius-s);
         transition:
-            padding var(--sw-admin-menu-duration-inner) ease-in-out,
-            gap var(--sw-admin-menu-duration-inner) ease-in-out,
-            margin var(--sw-admin-menu-duration-inner) ease-in-out;
+            padding var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            gap var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            margin var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            background-color 0.15s ease-out;
 
         &:hover {
-            background: var(--color-interaction-secondary-hover);
+            background-color: var(--color-interaction-secondary-hover);
         }
 
+        &:active,
         &.is--active,
         &.is--active:hover {
-            background: var(--color-interaction-secondary-pressed);
+            background-color: var(--color-interaction-secondary-pressed);
         }
 
         .mt-loader {
-            background: var(--color-background-brand-default);
+            background-color: var(--color-background-brand-default);
         }
 
         .sw-admin-menu__user-actions-toggle-icon-wrapper {
@@ -459,9 +461,10 @@
                 }
             }
 
+            &:active,
             &.is--active,
             &.is--active:hover {
-                background: transparent;
+                background-color: transparent;
             }
         }
 

@@ -35,6 +35,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -404,7 +405,11 @@ class RegisterControllerTest extends TestCase
         $request = new Request();
         $request->setSession($this->getSession());
         $request->request->add(['errorRoute' => 'frontend.checkout.register.page']);
-        $request->attributes->add(['_route' => 'frontend.checkout.register.page', SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request->attributes->add([
+            '_route' => 'frontend.checkout.register.page',
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
 
         static::getContainer()->get('request_stack')->push($request);

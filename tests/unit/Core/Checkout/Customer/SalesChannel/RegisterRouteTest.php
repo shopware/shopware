@@ -1634,12 +1634,16 @@ class RegisterRouteTest extends TestCase
             'errorRoute' => 'frontend.account.register.page',
             '_grecaptcha_v3' => 'first-captcha-token',
             'shopware_basic_captcha_confirm' => 'first-captcha-answer',
+            'shopware_basic_captcha_check' => 'first-captcha-answer',
+            'formId' => 'form-1',
         ]);
         $duplicateData = array_merge($data, [
             'redirectTo' => 'frontend.checkout.cart.page',
             'errorRoute' => 'frontend.checkout.register.page',
             '_grecaptcha_v3' => 'second-captcha-token',
             'shopware_basic_captcha_confirm' => 'second-captcha-answer',
+            'shopware_basic_captcha_check' => 'second-captcha-answer',
+            'formId' => 'form-2',
         ]);
 
         $registerRoute->register(new RequestDataBag($data), $this->createRequestContext(), false);

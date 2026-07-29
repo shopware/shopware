@@ -71,8 +71,12 @@ class RegisterRoute extends AbstractRegisterRoute
 
     /**
      * Transport and one-shot fields that may differ between the requests of one double submission
-     * without changing the registration outcome. The captcha field names mirror the Storefront
-     * captcha implementations, which cannot be referenced from Core.
+     * without changing the registration outcome. The captcha entries cover every field the Storefront
+     * captchas post, which cannot be referenced from Core: `formId` is a per-render nonce and
+     * `shopware_basic_captcha_check` a hidden mirror of the basic captcha input.
+     *
+     * A field that is missing here only makes the duplicate look like a different request, so the
+     * registration runs again as it did before this guard existed.
      */
     private const DIGEST_EXCLUDED_FIELDS = [
         'redirectTo',
@@ -82,6 +86,8 @@ class RegisterRoute extends AbstractRegisterRoute
         '_grecaptcha_v2',
         '_grecaptcha_v3',
         'shopware_basic_captcha_confirm',
+        'shopware_basic_captcha_check',
+        'formId',
         'shopware_surname_confirm',
     ];
 

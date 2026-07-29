@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 
 /**
  * @internal
@@ -67,7 +68,7 @@ class TimeBackoffTest extends TestCase
         $stringLimits = new \ReflectionProperty(TimeBackoff::class, 'stringLimits');
         $stringLimits->setValue($backoff, 'invalid');
 
-        static::expectException(\BadMethodCallException::class);
+        static::expectExceptionObject(RateLimiterException::backoffUnserializationFailed(TimeBackoff::class));
         $backoff->__wakeup();
     }
 

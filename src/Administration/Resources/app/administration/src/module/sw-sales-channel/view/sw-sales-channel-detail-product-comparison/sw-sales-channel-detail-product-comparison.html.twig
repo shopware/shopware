@@ -77,7 +77,7 @@
                 variant="ghost"
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__test-action"
                 :is-loading="isLoadingValidate"
-                :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                :disabled="isLoadingValidate || !acl.can('sales_channel.editor') || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                 :process-success="isValidateSuccessful"
                 @click="validateTemplate"
             >
@@ -91,7 +91,7 @@
                 variant="ghost"
                 class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__preview-action"
                 :is-loading="isLoadingPreview"
-                :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                :disabled="isLoadingPreview || !acl.can('sales_channel.editor') || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                 :process-success="isPreviewSuccessful"
                 @click="preview"
             >

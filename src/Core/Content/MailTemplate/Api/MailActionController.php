@@ -108,4 +108,90 @@ class MailActionController extends AbstractController
 
         return new JsonResponse($renderedTemplate);
     }
+
+    /**
+     * This route is used to render mail template content against simulated data for a given event name.
+     * It differs from the "preview" route in that it generates the template data automatically
+     * instead of expecting entity IDs and template data in the request.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/simulate',
+        name: 'api.action.mail_template.simulate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function simulate(
+        #[MapRequestPayload(resolver: SimulateRequestResolver::class)]
+        SimulateRequest $simulateRequest,
+        Context $context
+    ): JsonResponse {
+        $renderedTemplate = $this->mailTemplateService->simulate($simulateRequest, $context);
+
+        return new JsonResponse($renderedTemplate);
+    }
+
+    /**
+     * This route is used to render a persisted mail template with the entity IDs and template data provided in the request.
+     * It differs from the "simulate" route in that it uses caller-provided data instead of generating simulated data from an event name.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/preview',
+        name: 'api.action.mail_template.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function preview(
+        #[MapRequestPayload(resolver: PreviewRequestResolver::class)]
+        PreviewRequest $previewRequest,
+        Context $context
+    ): JsonResponse {
+        $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context);
+
+        return new JsonResponse($renderedTemplate);
+    }
+
+    /**
+     * This route is used to gather the required data for a mail template and send it.
+     * It differs from the "send" route in that it gathers the necessary data for the mail template
+     * based on the provided mail template ID and entity IDs.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/get-data-and-send',
+        name: 'api.action.mail_template.get_data_and_send',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function getDataAndSend(
+        #[MapRequestPayload(resolver: GetDataAndSendRequestResolver::class)]
+        GetDataAndSendRequest $request,
+        Context $context
+    ): JsonResponse {
+        $message = $this->mailTemplateSendService->getTemplateDataAndSend($request, $context);
+
+        return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
+    }
+
+    /**
+     * This route is used to list variables available for a business event and an optional parent variable path.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/available-variables',
+        name: 'api.action.mail_template.available_variables',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function availableVariables(RequestDataBag $post, Context $context): JsonResponse
+    {
+        $eventName = $post->get('eventName');
+        if (!\is_string($eventName)) {
+            throw MailTemplateException::invalidRequestParameterType('eventName', 'string', get_debug_type($eventName));
+        }
+
+        $parentVariablePath = $post->get('parentVariablePath', '');
+        if (!\is_string($parentVariablePath)) {
+            throw MailTemplateException::invalidRequestParameterType('parentVariablePath', 'string', get_debug_type($parentVariablePath));
+        }
+
+        return new JsonResponse($this->mailTemplateService->getAvailableVariables($eventName, $context, $parentVariablePath));
+    }
 }

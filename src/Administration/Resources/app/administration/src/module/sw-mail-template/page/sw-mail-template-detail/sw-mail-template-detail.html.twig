@@ -421,8 +421,50 @@
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="!previewAllowed"
                 class="sw-mail-template-detail__show-preview-sidebar"
-                @click="onClickShowPreview"
-            />
+            >
+                <div class="sw-mail-template-detail__show-preview-sidebar-container">
+                    <sw-entity-single-select
+                        v-model:value="testMailSalesChannelId"
+                        name="sw-field--previewSalesChannelId"
+                        entity="sales_channel"
+                        :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                        show-clearable-button
+                    >
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.previewSalesChannelHint') }}
+                        </template>
+                    </sw-entity-single-select>
+
+                    <mt-select
+                        value-property="name"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
+                        :options="triggerEvents"
+                        @update:model-value="onTriggerEventChange"
+                    >
+                        <template #hint>
+                            <mt-icon
+                                size="12"
+                                name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
+                        </template>
+                    </mt-select>
+
+                    <mt-button
+                        variant="secondary"
+                        :disabled="!triggerEvent || !acl.can('mail_templates.editor')"
+                        @click="onClickShowPreview"
+                    >
+                        {{ $t('sw-mail-template.detail.previewModalTitle') }}
+                    </mt-button>
+                </div>
+            </sw-sidebar-item>
             {% endblock %}
 
             {% block sw_mail_template_detail_sidebar_inner_media %}

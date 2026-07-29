@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -117,7 +118,128 @@ class MailActionControllerTest extends TestCase
                 ],
             );
 
-        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertArrayHasKey('size', $response);
+    }
+
+    public function testPreviewSuccess(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createSimpleMailTemplate($context);
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/preview',
+            [
+                'mailTemplateId' => $mailTemplate->getId(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'includeHeaderFooter' => true,
+                'templateData' => [
+                    'customName' => 'Shopware',
+                ],
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertSame('success', $response['subject']['type']);
+        static::assertSame('Hello Shopware', $response['subject']['content']);
+        static::assertSame('success', $response['contentHtml']['type']);
+        static::assertStringContainsString('Shopware', $response['contentHtml']['content']);
+    }
+
+    public function testGetDataAndSendSuccess(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createSimpleMailTemplate($context);
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/get-data-and-send',
+            [
+                'mailTemplateId' => $mailTemplate->getId(),
+                'templateData' => [
+                    'customName' => 'Shopware',
+                ],
+                'recipients' => ['d.dinh@shopware.com' => 'Duy'],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'testMode' => false,
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertArrayHasKey('size', $response);
+        static::assertGreaterThan(0, $response['size']);
+    }
+
+    public function testSimulateSuccess(): void
+    {
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['mail_template:update']
+        )->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/simulate',
+            [
+                'templateParts' => [
+                    'contentHtml' => '<p>{{ order.id }}</p>',
+                ],
+                'eventName' => 'checkout.order.placed',
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertSame('success', $response['contentHtml']['type']);
+        static::assertNotSame('', $response['contentHtml']['content']);
+    }
+
+    public function testSimulateRequiresMailTemplateUpdatePrivilege(): void
+    {
+        $browser = $this->getBrowser();
+        TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['mail_template:read']
+        )->authorizeBrowser($browser);
+
+        $browser->request('POST', '/api/_action/mail-template/simulate');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testAvailableVariablesSuccess(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/available-variables',
+            [
+                'eventName' => 'checkout.order.placed',
+                'parentVariablePath' => 'order',
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertContains('lineItems', array_column($response, 'fieldName'));
     }
 
     private function createCustomer(Context $context): string

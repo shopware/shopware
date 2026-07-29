@@ -251,6 +251,22 @@ class ThemeDumpCommandTest extends TestCase
         static::assertStringContainsString('http://first.example.com', $this->commandTester->getDisplay());
     }
 
+    public function testAsksForDomainUrlInteractivelyWhenMoreThanOneDomainExists(): void
+    {
+        $this->arrangeThemeDump($this->createThemeEntityWithDomains([
+            'http://first.example.com',
+            'http://second.example.com',
+        ]));
+
+        $this->commandTester->setInputs(['http://second.example.com']);
+        $this->commandTester->execute(['theme-id' => 'theme-id']);
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertStringContainsString('Please select a domain url:', $this->commandTester->getDisplay());
+        static::assertIsArray($this->dumpedConfig);
+        static::assertSame('http://second.example.com', $this->dumpedConfig['domainUrl']);
+    }
+
     public function testFailsWithoutInteractionWhenNoDomainExists(): void
     {
         $this->arrangeThemeDump($this->createThemeEntityWithDomains([]));

@@ -94,5 +94,9 @@ class ProductGatewayTest extends TestCase
         // the category breadcrumb is a stored field on the category itself, so the assigned
         // categories are enough and no ancestor association is needed
         static::assertSame([], $criteria->getAssociation('categories')->getAssociations());
+
+        // the main category has to be preloaded, otherwise resolving it would query per product
+        static::assertTrue($criteria->hasAssociation('mainCategories'));
+        static::assertTrue($criteria->getAssociation('mainCategories')->hasAssociation('category'));
     }
 }

@@ -387,6 +387,78 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(['Mid', 'Leaf'], $lineItem->getPayloadValue('categoryNames'));
     }
 
+    public function testPayloadCategoryNamesPrefersTheSalesChannelMainCategory(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('deep'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Deep',
+            'children' => [[
+                'id' => $this->ids->create('deeper'),
+                'name' => 'Deeper',
+                'children' => [
+                    ['id' => $this->ids->create('deepest'), 'name' => 'Deepest'],
+                ],
+            ]],
+        ], [
+            'id' => $this->ids->create('main'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'MainCat',
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('deepest')],
+            ['id' => $this->ids->get('main')],
+        ]]);
+
+        static::getContainer()->get('main_category.repository')->create([[
+            'productId' => $this->ids->get('product'),
+            'categoryId' => $this->ids->get('main'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]], Context::createDefaultContext());
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // the main category wins over the deeper branch, matching the breadcrumb the storefront shows
+        static::assertSame(['MainCat'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesIgnoresInvisibleCategories(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('visible'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Visible',
+        ], [
+            'id' => $this->ids->create('hidden'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Hidden',
+            'children' => [
+                ['id' => $this->ids->create('hiddenChild'), 'name' => 'HiddenChild', 'visible' => false],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('visible')],
+            ['id' => $this->ids->get('hiddenChild')],
+        ]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // the deeper category is not visible, so the visible one is reported instead
+        static::assertSame(['Visible'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
     public function testPayloadCategoryNamesIsEmptyWithoutCategories(): void
     {
         $this->createProduct();

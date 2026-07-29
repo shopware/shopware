@@ -37,6 +37,7 @@ class ProductGateway implements ProductGatewayInterface
         $criteria->addAssociation('properties.group');
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('categories');
+        $criteria->addAssociation('mainCategories.category');
 
         $this->eventDispatcher->dispatch(
             new ProductGatewayCriteriaEvent($ids, $criteria, $context)

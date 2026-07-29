@@ -329,7 +329,18 @@ export default {
         },
 
         setFocus() {
-            this.$refs.searchInput.focus();
+            // The default input can be replaced through the search-input slot.
+            this.$refs.searchInput?.focus();
+        },
+
+        onClickFieldWrapper(event) {
+            // Interactive children keep their own click behavior without
+            // pulling the focus into the search input.
+            if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
+                return;
+            }
+
+            this.setFocus();
         },
 
         closeOnClickOutside(event) {
@@ -346,6 +357,13 @@ export default {
             this.showResultsContainer = false;
             this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
+        },
+
+        onKeyUpEsc() {
+            this.clearSearchTerm();
+            this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
+            this.$refs.searchInput?.blur();
         },
 
         onFocusInput() {
@@ -450,7 +468,7 @@ export default {
 
         onClickType(type) {
             this.setSearchType(type);
-            this.$refs.searchInput.focus();
+            this.setFocus();
         },
 
         setSearchType(type) {

@@ -498,6 +498,37 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isOffCanvasShown).toBe(true);
     });
 
+    it('should focus the search input when the field wrapper is clicked', async () => {
+        wrapper = await createWrapper();
+
+        const setFocusSpy = jest.spyOn(wrapper.vm, 'setFocus');
+
+        await wrapper.find('.sw-search-bar__field-wrapper').trigger('click');
+        expect(setFocusSpy).toHaveBeenCalledTimes(1);
+
+        // Interactive children keep their own click behavior.
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+        expect(setFocusSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should close the dropdowns and blur the search input on escape', async () => {
+        wrapper = await createWrapper();
+
+        const input = wrapper.find('.sw-search-bar__input');
+        const blurSpy = jest.spyOn(input.element, 'blur');
+
+        await wrapper.setData({
+            showTypeSelectContainer: true,
+            showResultsContainer: true,
+        });
+
+        await input.trigger('keyup.esc');
+
+        expect(wrapper.vm.showTypeSelectContainer).toBe(false);
+        expect(wrapper.vm.showResultsContainer).toBe(false);
+        expect(blurSpy).toHaveBeenCalled();
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {

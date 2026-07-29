@@ -49,9 +49,12 @@
         {% endblock %}
 
         {% block sw_search_bar_field %}
+        <!-- The click delegation is a pointer convenience only — the input stays the real, keyboard-reachable control. -->
         <div
             v-if="isSearchBarShown"
             class="sw-search-bar__field-wrapper"
+            role="presentation"
+            @click="onClickFieldWrapper"
         >
             <div
                 class="sw-search-bar__field"
@@ -68,7 +71,8 @@
                 >
                     {{ getLabelSearchType() }}
                     <mt-icon
-                        name="regular-chevron-down-xxs"
+                        name="solid-chevron-down-s"
+                        size="var(--scale-size-10)"
                     />
                 </span>
                 {% endblock %}
@@ -87,7 +91,7 @@
                         @focus="onFocusInput"
                         @blur="onBlur"
                         @keydown.delete="resetSearchType"
-                        @keyup.esc="clearSearchTerm"
+                        @keyup.esc="onKeyUpEsc"
                         @keyup.enter.prevent="onKeyUpEnter"
                         @keydown.up.prevent="navigateUpResults"
                         @keydown.down.prevent="navigateDownResults"

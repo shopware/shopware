@@ -22,7 +22,7 @@ describe('components/media/sw-media-folder-thumbnail', () => {
         const path = wrapper.find('path');
 
         expect(path.attributes('fill')).toBe('var(--color-background-secondary-default)');
-        expect(path.attributes('stroke')).toBe('var(--color-border-secondary-default)');
+        expect(path.attributes('stroke')).toBe('var(--color-border-primary-default)');
         expect(path.attributes('vector-effect')).toBe('non-scaling-stroke');
     });
 

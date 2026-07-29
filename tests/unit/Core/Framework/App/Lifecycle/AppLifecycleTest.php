@@ -83,7 +83,7 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository($app)));
 
-        $appLifecycle->update($manifest, $parameters, ['id' => 'app-id', 'roleId' => 'role-id'], $context);
+        $appLifecycle->update($manifest, $parameters, ['id' => 'app-id'], $context);
     }
 
     public function testUninstallLoadsAppAndDelegatesToAppManager(): void
@@ -107,7 +107,7 @@ class AppLifecycleTest extends TestCase
 
         static::expectException(AppException::class);
 
-        $appLifecycle->update(ManifestFixture::empty(), new AppUpdateParameters(), ['id' => 'missing', 'roleId' => 'role-id'], Context::createDefaultContext());
+        $appLifecycle->update(ManifestFixture::empty(), new AppUpdateParameters(), ['id' => 'missing'], Context::createDefaultContext());
     }
 
     public function testActivateThrowsWhenAppDoesNotExist(): void

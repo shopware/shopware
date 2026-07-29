@@ -38,6 +38,7 @@ describe('modals.store', () => {
                 textContent: undefined,
                 buttons: [],
                 baseUrl: 'https://example.com',
+                overflowHidden: undefined,
             },
         ]);
     });
@@ -64,6 +65,7 @@ describe('modals.store', () => {
                 textContent: 'Test content',
                 buttons: [],
                 baseUrl: 'https://example.com',
+                overflowHidden: undefined,
             },
         ]);
     });
@@ -128,6 +130,7 @@ describe('modals.store', () => {
                 textContent: 'Test content',
                 buttons: [],
                 baseUrl: 'https://example.com',
+                overflowHidden: undefined,
             },
             {
                 locationId: 'test',
@@ -139,6 +142,7 @@ describe('modals.store', () => {
                 textContent: undefined,
                 buttons: [],
                 baseUrl: 'https://example.com',
+                overflowHidden: undefined,
             },
         ]);
     });

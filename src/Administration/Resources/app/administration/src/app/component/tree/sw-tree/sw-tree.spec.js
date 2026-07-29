@@ -710,5 +710,32 @@ describe('src/app/component/tree/sw-tree', () => {
 
             expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
         });
+
+        it('should forget a mouse interaction that ended outside the tree', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const focusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+
+            await wrapper.get('.sw-tree').trigger('mousedown');
+
+            // Dragging out of the tree releases the button somewhere else entirely
+            document.dispatchEvent(new MouseEvent('mouseup'));
+            await flushPromises();
+
+            await wrapper.get('.sw-tree').trigger('focusin');
+            await flushPromises();
+
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+        });
+
+        it('should stop listening for mouse interactions when it is destroyed', async () => {
+            const wrapper = await createActiveWrapper();
+            const removeListener = jest.spyOn(document, 'removeEventListener');
+
+            wrapper.unmount();
+
+            expect(removeListener).toHaveBeenCalledWith('mouseup', expect.any(Function));
+            expect(removeListener).toHaveBeenCalledWith('touchend', expect.any(Function));
+        });
     });
 });

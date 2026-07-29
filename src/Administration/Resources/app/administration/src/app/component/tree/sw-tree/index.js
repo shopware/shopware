@@ -327,15 +327,23 @@ export default {
             // Focus handling
             this.$el.addEventListener('focusin', this.handleFocusIn);
             this.$el.addEventListener('keydown', this.handleKeyDown);
-            this.$el.addEventListener('mousedown', this.handleMouseDown);
-            this.$el.addEventListener('mouseup', this.handleMouseUp);
+
+            // Capture, because the drag directive stops the propagation of mousedown on tree items
+            this.$el.addEventListener('mousedown', this.handleMouseDown, true);
+
+            /* The button can be released anywhere, so the tree would never learn about the end of a
+             * drag out of it and would keep treating the next keyboard focus as a mouse one.
+             */
+            document.addEventListener('mouseup', this.handleMouseUp);
+            document.addEventListener('touchend', this.handleMouseUp);
         },
 
         beforeUnmountedComponent() {
             this.$el.removeEventListener('focusin', this.handleFocusIn);
             this.$el.removeEventListener('keydown', this.handleKeyDown);
-            this.$el.removeEventListener('mousedown', this.handleMouseDown);
-            this.$el.removeEventListener('mouseup', this.handleMouseUp);
+            this.$el.removeEventListener('mousedown', this.handleMouseDown, true);
+            document.removeEventListener('mouseup', this.handleMouseUp);
+            document.removeEventListener('touchend', this.handleMouseUp);
         },
 
         handleMouseDown() {
@@ -343,7 +351,6 @@ export default {
         },
 
         handleMouseUp() {
-            // A click that did not move the focus must not affect the next keyboard focus
             this.focusInByMouse = false;
         },
 

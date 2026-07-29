@@ -389,7 +389,9 @@ The admin menu only supports up to three levels of nesting.`,
         // trap runs its checks it is gone. Capture phase and registered before the trap, so
         // this runs first.
         captureMenuDropdownState() {
-            this.hadOpenMenuDropdown = !!this.$refs.swAdminMenu?.querySelector('[data-state="open"][aria-expanded="true"]');
+            // aria-haspopup, so expanded navigation collapsibles do not match - they share
+            // the open state attributes with the dropdown triggers.
+            this.hadOpenMenuDropdown = !!this.$refs.swAdminMenu?.querySelector('[aria-haspopup="menu"][data-state="open"]');
         },
 
         // Focus only returns to the toggle when the trap closes itself, e.g. via Escape. On a

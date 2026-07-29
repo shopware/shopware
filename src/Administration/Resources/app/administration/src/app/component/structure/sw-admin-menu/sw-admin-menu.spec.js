@@ -379,7 +379,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         // an open dropdown is only visible through its trigger state, the content is teleported away
         const dropdownTrigger = document.createElement('button');
         dropdownTrigger.setAttribute('data-state', 'open');
-        dropdownTrigger.setAttribute('aria-expanded', 'true');
+        dropdownTrigger.setAttribute('aria-haspopup', 'menu');
         attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
 
         document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
@@ -420,7 +420,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         const dropdownTrigger = document.createElement('button');
         dropdownTrigger.setAttribute('data-state', 'open');
-        dropdownTrigger.setAttribute('aria-expanded', 'true');
+        dropdownTrigger.setAttribute('aria-haspopup', 'menu');
         attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));

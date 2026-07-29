@@ -56,7 +56,7 @@
                         "type": "boolean"
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/ProductJsonApi"
+                        "$ref": "#/components/schemas/Product"
                     },
                     "price": {
                         "type": "object",

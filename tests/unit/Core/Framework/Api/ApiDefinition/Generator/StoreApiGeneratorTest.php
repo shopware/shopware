@@ -113,6 +113,14 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
+    public function testSchemaDoesNotContainJsonApiComponents(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        static::assertArrayNotHasKey('SimpleJsonApi', $schema['components']['schemas']);
+        static::assertArrayNotHasKey('JsonOverrideEntityJsonApi', $schema['components']['schemas']);
+    }
+
     public function testSchemaContainsCustomEntitiesOnly(): void
     {
         $schema = $this->customApiGenerator->generate(
@@ -1303,7 +1311,11 @@ class StoreApiGeneratorTest extends TestCase
 
             // Plugin extension association SHOULD be present under extensions
             static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
-            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+            $extensionProperties = $entities['JsonOverrideEntity']['properties']['extensions']['properties'];
+            static::assertArrayHasKey('pluginEntities', $extensionProperties);
+            static::assertSame('object', $extensionProperties['pluginEntities']['type']);
+            static::assertSame('string', $extensionProperties['pluginLabel']['type']);
+            static::assertSame('boolean', $extensionProperties['pluginActive']['type']);
         } finally {
             $definition->removeExtension($extension);
         }
@@ -1369,7 +1381,10 @@ class StoreApiGeneratorTest extends TestCase
 
             // PHP extension association IS preserved
             static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
-            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+            $extensionProperties = $entities['JsonOverrideEntity']['properties']['extensions']['properties'];
+            static::assertArrayHasKey('pluginEntities', $extensionProperties);
+            static::assertSame('string', $extensionProperties['pluginLabel']['type']);
+            static::assertSame('boolean', $extensionProperties['pluginActive']['type']);
         } finally {
             $definition->removeExtension($extension);
         }

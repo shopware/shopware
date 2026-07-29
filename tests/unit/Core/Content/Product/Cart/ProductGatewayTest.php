@@ -55,7 +55,7 @@ class ProductGatewayTest extends TestCase
         $gateway->get($ids, $context);
     }
 
-    public function testCriteriaContainsManufacturerAssociation(): void
+    public function testCriteriaContainsPayloadAssociations(): void
     {
         $ids = [Uuid::randomHex()];
 
@@ -85,9 +85,14 @@ class ProductGatewayTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertTrue($criteria->hasAssociation('manufacturer'));
+        static::assertTrue($criteria->hasAssociation('categories'));
 
         // the manufacturer name is read from the translated fields of the same query,
         // so no nested association may be added which would trigger a second read
         static::assertSame([], $criteria->getAssociation('manufacturer')->getAssociations());
+
+        // the category breadcrumb is a stored field on the category itself, so the assigned
+        // categories are enough and no ancestor association is needed
+        static::assertSame([], $criteria->getAssociation('categories')->getAssociations());
     }
 }

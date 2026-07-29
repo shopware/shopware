@@ -89,6 +89,13 @@
                                 },
                                 "readOnly": true
                             },
+                            "categoryNames": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "readOnly": true
+                            },
                             "createdAt": {
                                 "type": "string",
                                 "format": "date-time",

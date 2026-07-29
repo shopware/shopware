@@ -123,7 +123,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
-                $this->enrich($match['item'], $data, $behavior);
+                $this->enrich($match['item'], $data, $context, $behavior);
 
                 // remove "parent" products which should never be displayed in storefront
                 $this->validateParents($match['item'], $data, $match['scope']);
@@ -306,7 +306,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -404,6 +404,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'taxId' => $product->getTaxId(),
             'tagIds' => $product->getTagIds(),
             'categoryIds' => $product->getCategoryTree(),
+            'categoryNames' => $this->getCategoryNames($product, $context),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $product->getVariation(),
@@ -413,6 +414,50 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ];
 
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
+    }
+
+    /**
+     * Resolves the category path of the product as a list of names, ordered from the top level down.
+     *
+     * `categoryIds` holds every category in the product's tree, which for a product assigned to
+     * multiple branches is a union and therefore not a path. The deepest assigned category is used
+     * instead, because its stored breadcrumb is a single path. Everything up to and including the
+     * sales channel entry point is stripped, so the list starts below the shop navigation root.
+     *
+     * @return list<string>
+     */
+    private function getCategoryNames(SalesChannelProductEntity $product, SalesChannelContext $context): array
+    {
+        $deepest = null;
+        foreach ($product->getCategories() ?? [] as $category) {
+            if ($deepest === null || $category->getLevel() > $deepest->getLevel()) {
+                $deepest = $category;
+            }
+        }
+
+        if ($deepest === null) {
+            return [];
+        }
+
+        $breadcrumb = $deepest->getPlainBreadcrumb();
+
+        $salesChannel = $context->getSalesChannel();
+        $entryPoints = array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+        ]);
+
+        $ids = array_keys($breadcrumb);
+        foreach ($entryPoints as $entryPoint) {
+            $position = array_search($entryPoint, $ids, true);
+
+            if ($position !== false) {
+                return array_values(\array_slice($breadcrumb, $position + 1));
+            }
+        }
+
+        return array_values($breadcrumb);
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition

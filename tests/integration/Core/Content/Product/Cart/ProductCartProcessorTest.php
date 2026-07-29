@@ -332,6 +332,72 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
     }
 
+    public function testPayloadContainsCategoryNamesBelowTheNavigationRoot(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('mid'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Mid',
+            'children' => [
+                ['id' => $this->ids->create('leaf'), 'name' => 'Leaf'],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [['id' => $this->ids->get('leaf')]]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        // the sales channel navigation root itself is stripped, so tracking starts below the shop root
+        static::assertSame(['Mid', 'Leaf'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesUsesASinglePathForMultiBranchProducts(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('mid'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Mid',
+            'children' => [
+                ['id' => $this->ids->create('leaf'), 'name' => 'Leaf'],
+            ],
+        ], [
+            'id' => $this->ids->create('other'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Other',
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('leaf')],
+            ['id' => $this->ids->get('other')],
+        ]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // categoryIds is the union of both branches and therefore not a path, the deepest
+        // assigned category is used so the names stay a single breadcrumb
+        static::assertSame(['Mid', 'Leaf'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesIsEmptyWithoutCategories(): void
+    {
+        $this->createProduct();
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame([], $lineItem->getPayloadValue('categoryNames'));
+    }
+
     public function testPayloadManufacturerNameIsNullWithoutManufacturer(): void
     {
         $this->createProduct();

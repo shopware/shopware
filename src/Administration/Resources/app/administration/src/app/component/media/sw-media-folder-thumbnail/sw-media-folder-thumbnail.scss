@@ -1,0 +1,21 @@
+// Layout defaults live in :where() so they have zero specificity — any
+// consumer rule wins deterministically, independent of stylesheet load order.
+:where(.sw-media-folder-thumbnail) {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.sw-media-folder-thumbnail {
+    // An svg element has no intrinsic ratio like an img — derive the height
+    // from the artwork so consumers only need to set a width (or a height).
+    aspect-ratio: 65 / 56;
+
+    &.is--back {
+        aspect-ratio: 64 / 56;
+    }
+
+    &.is--back-breadcrumb {
+        aspect-ratio: 32 / 28;
+    }
+}

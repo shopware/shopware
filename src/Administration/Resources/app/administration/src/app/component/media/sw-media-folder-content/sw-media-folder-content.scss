@@ -23,22 +23,24 @@ $sw-media-folder-content-border-radius-list-item: $border-radius-default;
         cursor: pointer;
 
         &:hover {
+            background-color: var(--color-interaction-secondary-hover);
+        }
+
+        &.is--selected {
             background-color: var(--color-background-brand-default);
+            border: 1px solid var(--color-border-brand-default);
 
             .sw-media-folder-content__folder-button {
                 color: var(--color-text-brand-default);
             }
         }
-
-        &.is--selected {
-            background-color: var(--color-background-brand-default);
-        }
     }
 
     .sw-media-folder-content__folder-icon {
+        display: inline-block;
+        vertical-align: middle;
         margin-right: 16px;
-        width: 14px;
-        height: 14px;
+        width: var(--scale-size-20);
     }
 
     .sw-media-folder-content__button {

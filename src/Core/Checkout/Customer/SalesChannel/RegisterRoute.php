@@ -70,13 +70,9 @@ class RegisterRoute extends AbstractRegisterRoute
     use CustomerAddressDataNormalizerTrait;
 
     /**
-     * Transport and one-shot fields that may differ between the requests of one double submission
-     * without changing the registration outcome. The captcha entries cover every field the Storefront
-     * captchas post, which cannot be referenced from Core: `formId` is a per-render nonce and
-     * `shopware_basic_captcha_check` a hidden mirror of the basic captcha input.
-     *
-     * A field that is missing here only makes the duplicate look like a different request, so the
-     * registration runs again as it did before this guard existed.
+     * Transport and one-shot fields that may differ between the requests of one submission without
+     * changing the registration outcome. An unlisted field only makes a duplicate look like a
+     * different request, which registers again.
      */
     private const DIGEST_EXCLUDED_FIELDS = [
         'redirectTo',
@@ -321,8 +317,7 @@ class RegisterRoute extends AbstractRegisterRoute
             unset($payload[$field]);
         }
 
-        // language and customer group are persisted on the customer, so they change the
-        // registration outcome even for an identical payload
+        // persisted on the customer, so they change the outcome of an otherwise identical payload
         $mode = ($validateStorefrontUrl ? '1' : '0')
             . '|'
             . ($additionalValidationDefinitions === null ? 'none' : 'additional:' . $additionalValidationDefinitions->getName())
@@ -360,10 +355,9 @@ class RegisterRoute extends AbstractRegisterRoute
     }
 
     /**
-     * Answers a duplicate submission with the original result: the same customer and, when a
-     * login happened, the same rotated context token - validated against the persisted context
-     * first. Register/login events, flows and mails are not dispatched a second time. Returns
-     * null when the original result is no longer valid; the caller then registers freshly.
+     * Answers a duplicate submission with the original customer and, when a login happened, its
+     * rotated context token. Returns null when that result is no longer valid, so the caller
+     * registers freshly.
      */
     private function replayRegistration(string $customerId, ?string $newContextToken, SalesChannelContext $context): ?CustomerResponse
     {

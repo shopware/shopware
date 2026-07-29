@@ -13,13 +13,11 @@ use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
 /**
- * Answers duplicate registration submissions (double-tap, stale-session replay) with the original
- * result instead of registering twice: the registration runs under a short-lived lock that is
- * global per context token, and its result is remembered in a cache marker scoped to sales
- * channel, token and request digest. Best-effort only - it requires lock and cache backends
- * shared by the competing requests and degrades to unguarded registrations on infrastructure
- * failures. In dev/test, `cache.app` is a per-process array adapter, so duplicates handled by
- * different workers cannot be suppressed there.
+ * Answers duplicate registration submissions with the original result instead of registering
+ * twice: the registration runs under a lock that is global per context token, and its result is
+ * remembered in a cache marker scoped to sales channel, token and request digest. Best-effort -
+ * it requires lock and cache backends shared by the competing requests and degrades to unguarded
+ * registrations on infrastructure failures.
  *
  * @internal
  */
@@ -178,9 +176,9 @@ class RegistrationIdempotencyGuard
     }
 
     /**
-     * Non-blocking acquire under a bounded retry budget of roughly $lockWaitTimeout seconds:
-     * blocking acquires wait indefinitely (the default FlockStore ignores TTLs entirely), which
-     * would let requests sharing one token pile up on the worker pool.
+     * Non-blocking acquire under a bounded retry budget of roughly $lockWaitTimeout seconds; a
+     * blocking acquire can wait indefinitely and pile requests sharing one token up on the worker
+     * pool.
      */
     private function acquireWithDeadline(SharedLockInterface $lock): bool
     {

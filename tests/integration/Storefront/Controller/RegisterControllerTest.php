@@ -131,7 +131,7 @@ class RegisterControllerTest extends TestCase
     {
         $requestStack = static::getContainer()->get('request_stack');
 
-        // start from an empty stack so the requests created below are the main requests the session subscriber acts on
+        // empty the stack so the requests below become the main request the session subscriber acts on
         while ($requestStack->getMainRequest() !== null) {
             $requestStack->pop();
         }
@@ -156,8 +156,8 @@ class RegisterControllerTest extends TestCase
         static::assertIsString($loginToken);
         static::assertNotSame($originalToken, $loginToken);
 
-        // simulate the duplicate submission of a browser that never received the rotated context token:
-        // the same payload arrives with the stale session token and a customer-less context
+        // a browser that never received the rotated token resubmits: same payload, stale session
+        // token, customer-less context
         $requestStack->pop();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $originalToken);
 

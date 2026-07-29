@@ -33,10 +33,6 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
-### Duplicate registration submissions no longer create duplicate customers or lose the cart
-
-Double submissions of the registration form (e.g. a mobile double-tap) previously registered twice: two guest customers were created and the context token was rotated twice, losing the cart. `POST /store-api/account/register` and the storefront registration now answer a resubmission with the same context token and an identical payload within a short window with the original result — same customer, same rotated token where a login occurred. This is immediate, best-effort duplicate suppression on top of the configured lock and cache backends, not a general Store API idempotency contract; payloads that differ in anything but transport fields, such as redirect targets and captcha tokens, behave as before. (shopware/shopware#18063)
-
 ### `product-export:generate --force` now regenerates scheduler-managed exports
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.

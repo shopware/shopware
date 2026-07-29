@@ -98,7 +98,7 @@ class CancelOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
+        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($order->getStateMachineState());
         static::assertSame('cancelled', $order->getStateMachineState()->getTechnicalName());

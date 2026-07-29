@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class AdminSearcherTest extends TestCase
 {
     use AdminApiTestBehaviour;

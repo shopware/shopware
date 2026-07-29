@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
@@ -21,6 +22,7 @@ use Symfony\UX\TwigComponent\TwigComponentBundle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -26,6 +27,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchEntitySearcher::class)]
 class ElasticsearchEntitySearcherTest extends TestCase
 {

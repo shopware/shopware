@@ -9,10 +9,14 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Util\Json;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://flow-actions', name: 'shopware-flow-actions', description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://flow-actions',
+    name: 'shopware-flow-actions',
+    description: 'All registered Shopware flow actions (core and app-provided) available in Flow Builder automations.'
+)]
 class FlowActionsResource
 {
     /**

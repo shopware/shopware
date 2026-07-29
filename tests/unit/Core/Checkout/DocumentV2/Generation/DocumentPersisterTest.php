@@ -54,16 +54,18 @@ class DocumentPersisterTest extends TestCase
 
         $this->generationRequest = new DocumentGenerationRequest(
             Uuid::randomHex(),
-            Uuid::randomHex(),
             self::DOCUMENT_TYPE,
             [self::FORMAT],
             '12345',
         );
 
+        $order = new OrderEntity();
+        $order->setVersionId(Uuid::randomHex());
+
         $this->renderInput = new RenderInput(
             self::DOCUMENT_TYPE,
             '12345',
-            new OrderEntity(),
+            $order,
             ['test' => new StaticRenderData()]
         );
 
@@ -99,6 +101,7 @@ class DocumentPersisterTest extends TestCase
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($documentRepository->creates[0][0]['id'], $document->getId());
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
+        static::assertSame($this->renderInput->order->getVersionId(), $documentRepository->creates[0][0]['orderVersionId']);
 
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
@@ -113,7 +116,7 @@ class DocumentPersisterTest extends TestCase
     ): void {
         [$persister] = $this->createPersister($documentTypeId, $documentSearch);
 
-        static::expectExceptionObject($exception);
+        $this->expectExceptionObject($exception);
 
         $persister->persist(
             $this->generationRequest,
@@ -162,7 +165,7 @@ class DocumentPersisterTest extends TestCase
 
         [$persister] = $this->createPersister($documentTypeId, existingDocumentIds: [$existingDocumentId]);
 
-        static::expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
+        $this->expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
 
         $persister->persist(
             $this->generationRequest,
@@ -188,8 +191,7 @@ class DocumentPersisterTest extends TestCase
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
     ): array {
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             $existingDocumentIds,
             $documentSearch ?? static function (
                 Criteria $criteria,
@@ -206,13 +208,11 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentDefinition());
 
-        /** @var StaticEntityRepository<DocumentFileCollection> $documentFileRepository */
-        $documentFileRepository = new StaticEntityRepository([
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
             new DocumentFileCollection([]),
         ], new DocumentFileDefinition());
 
-        /** @var StaticEntityRepository<DocumentTypeCollection> $documentTypeRepository */
-        $documentTypeRepository = new StaticEntityRepository([
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
             static function (Criteria $criteria) use ($documentTypeId): array {
                 static::assertSame(1, $criteria->getLimit());
 

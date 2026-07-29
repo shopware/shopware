@@ -56,6 +56,12 @@
             <ram:URIID>mail@example.com</ram:URIID>
           </ram:EmailURIUniversalCommunication>
         </ram:DefinedTradeContact>
+        <ram:PostalTradeAddress>
+          <ram:PostcodeCode>12345</ram:PostcodeCode>
+          <ram:LineOne>Example Street 1</ram:LineOne>
+          <ram:CityName>Example City</ram:CityName>
+          <ram:CountryID>DE</ram:CountryID>
+        </ram:PostalTradeAddress>
         <ram:URIUniversalCommunication>
           <ram:URIID schemeID="EM">mail@example.com</ram:URIID>
         </ram:URIUniversalCommunication>

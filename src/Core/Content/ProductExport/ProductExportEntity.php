@@ -62,6 +62,8 @@ class ProductExportEntity extends Entity
 
     protected ?\DateTimeInterface $generatedAt = null;
 
+    protected ?\DateTimeInterface $nextGenerationAt = null;
+
     protected int $interval;
 
     protected ?string $headerTemplate = null;
@@ -262,6 +264,16 @@ class ProductExportEntity extends Entity
     public function setGeneratedAt(?\DateTimeInterface $generatedAt): void
     {
         $this->generatedAt = $generatedAt;
+    }
+
+    public function getNextGenerationAt(): ?\DateTimeInterface
+    {
+        return $this->nextGenerationAt;
+    }
+
+    public function setNextGenerationAt(?\DateTimeInterface $nextGenerationAt): void
+    {
+        $this->nextGenerationAt = $nextGenerationAt;
     }
 
     public function getInterval(): int

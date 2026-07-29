@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class HandshakeFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

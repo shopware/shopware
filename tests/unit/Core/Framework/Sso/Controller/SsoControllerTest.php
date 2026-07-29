@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Sso\Controller;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\Controller\SsoController;
 use Shopware\Core\Framework\Sso\LoginResponseService;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SsoController::class)]
 class SsoControllerTest extends TestCase
 {
@@ -85,7 +87,7 @@ class SsoControllerTest extends TestCase
 
         $this->setEnvVars(['APP_URL' => 'https://example.com']);
 
-        $response = $this->createController($this->createMock(LoginConfigService::class), $router)->ssoAuth($request);
+        $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
 
         static::assertSame('https://example.com/admin', $response->getTargetUrl());
     }

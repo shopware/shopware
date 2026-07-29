@@ -12,12 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductStreamBuilder::class)]
 class ProductStreamBuilderTest extends TestCase
 {
@@ -45,7 +47,6 @@ class ProductStreamBuilderTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildFiltersDoesNotThrowWhenV68IsInactive(): void
     {
-        /** @var StaticEntityRepository<ProductStreamCollection> $repository */
         $repository = new StaticEntityRepository([new ProductStreamCollection([])]);
         $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
 

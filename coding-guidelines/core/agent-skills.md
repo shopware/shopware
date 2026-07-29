@@ -6,9 +6,10 @@ skills, not two snowflakes.
 
 A **Skill** packages an AI capability in the [Anthropic Agent Skills](https://agentskills.io/specification)
 format. It is offered to Claude Code, opencode, Codex CLI, Cursor, Gemini
-CLI and other Agent-Skills-compatible runtimes and is invoked when the user
-message matches the skill's `description` (best-effort, model-decided). This
-repository ships several skills; the same pattern applies to any new skill.
+CLI and other Agent-Skills-compatible runtimes. Skills normally match their
+`description` against the user message (best-effort, model-decided); skills
+with unattended CI twins require explicit invocation. This repository ships
+several skills; the same pattern applies to any new skill.
 
 ## Two surfaces per skill
 
@@ -41,6 +42,8 @@ install command live in [`.github/aw/README.md`](../../.github/aw/README.md) →
 ```
 .agents/skills/<name>/
 ├── SKILL.md                   # required — frontmatter + body
+├── agents/
+│   └── openai.yaml            # optional — Codex UI metadata and policy
 ├── references/                # optional — on-demand context for the agent
 │   ├── CLASSIFICATION.md
 │   ├── DOMAINS.md
@@ -86,8 +89,11 @@ skills — never per-skill.
 3. **Decide on the unattended path.** If the skill should also run in CI:
    create `.github/workflows/<name>.md` (gh aw frontmatter) plus
    `.github/aw/<name>-policy.md` (frontmatter-free fragment, runtime-imported
-   by the workflow), then `gh aw compile`. The mechanics — secrets remap,
-   engine model pin, registration trick, output validation — live in
+   by the workflow). Make the interactive skill explicit-only by adding
+   `disable-model-invocation: true` to `SKILL.md` for Claude Code and
+   `policy.allow_implicit_invocation: false` to `agents/openai.yaml` for Codex,
+   then run `gh aw compile`. The mechanics — secrets remap, engine model pin,
+   registration trick, output validation — live in
    [`.github/aw/README.md`](../../.github/aw/README.md).
 
 4. **Update the catalogue.** Add a row to `.agents/skills/README.md`
@@ -98,9 +104,15 @@ skills — never per-skill.
 
 ## Skill-specific conventions
 
+- **CI twins are explicit-only in interactive sessions.** A skill with a
+  GitHub Agentic Workflow twin must not auto-load from an ordinary conversation.
+  Set `disable-model-invocation: true` in `SKILL.md` for Claude Code and
+  `policy.allow_implicit_invocation: false` in `agents/openai.yaml` for Codex.
+  Users can still invoke it deliberately as `/name` in Claude Code or `$name`
+  in Codex.
 - **Frontmatter `description` is matched against user messages** in the
-  interactive surface. Be specific about trigger phrases — they decide whether
-  the skill auto-loads.
+  interactive surface unless automatic invocation is disabled. Be specific
+  about trigger phrases for skills that may auto-load.
 - **References load on demand.** Keep SKILL.md scannable; push lookups,
   taxonomies, and tool catalogues into `references/`.
 - **Default to Sonnet; escalate with a reason.** gh aw workflows pin the

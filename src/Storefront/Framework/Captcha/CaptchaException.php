@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CaptchaException extends HttpException
 {
     public const INVALID_CAPTCHA_ERROR = 'FRAMEWORK__INVALID_CAPTCHA_VALUE';

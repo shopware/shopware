@@ -16,12 +16,14 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 class DefaultMappingsTest extends TestCase
 {
     use KernelTestBehaviour;

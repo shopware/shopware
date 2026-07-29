@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\MockClock;
@@ -25,6 +26,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SearchKeywordUpdater::class)]
 class SearchKeywordUpdaterTest extends TestCase
 {
@@ -63,7 +65,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $parent->setName('Parent product');
         $parent->setTranslated(['name' => 'Parent product']);
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([
             new ProductCollection([$parent]),
             new ProductCollection(),
@@ -89,7 +90,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $child = $this->createProduct($childId, Uuid::randomHex());
 
         // empty searches: any call to the repository would throw
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([], new ProductDefinition());
 
         $updater = $this->createUpdater($productRepository);
@@ -105,7 +105,6 @@ class SearchKeywordUpdaterTest extends TestCase
 
     public function testBuildCriteriaFiltersTranslationsByLanguageChain(): void
     {
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository([], new ProductDefinition());
         $updater = $this->createUpdater($productRepository);
 

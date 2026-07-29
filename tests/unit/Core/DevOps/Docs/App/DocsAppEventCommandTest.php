@@ -10,6 +10,7 @@ use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,6 +21,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DocsAppEventCommand::class)]
 class DocsAppEventCommandTest extends TestCase
 {

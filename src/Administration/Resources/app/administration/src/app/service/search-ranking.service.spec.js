@@ -195,6 +195,7 @@ describe('app/service/search-ranking.service.js', () => {
         };
 
         clearModules();
+        Shopware.Service('userConfigService').search = () => Promise.resolve({ data: {} });
     });
 
     const userConfigSearchPreferenceCase = [

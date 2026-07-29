@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework\Routing\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('framework')]
+#[Package('discovery')]
 readonly class DomainStruct
 {
     public function __construct(

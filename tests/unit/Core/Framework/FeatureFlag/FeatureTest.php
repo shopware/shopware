@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -16,6 +17,7 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('framework')]
 #[CoversClass(Feature::class)]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureTest extends TestCase

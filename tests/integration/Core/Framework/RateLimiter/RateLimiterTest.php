@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -14,6 +13,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -43,7 +43,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class RateLimiterTest extends TestCase
 {
     use CustomerTestTrait;

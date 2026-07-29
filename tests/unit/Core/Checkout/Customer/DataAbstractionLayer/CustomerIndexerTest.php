@@ -20,8 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerIndexer::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerIndexer::class)]
 class CustomerIndexerTest extends TestCase
 {
     public function testUpdate(): void

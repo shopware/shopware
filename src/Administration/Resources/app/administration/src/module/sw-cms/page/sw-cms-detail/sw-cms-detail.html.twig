@@ -25,16 +25,21 @@
                 <template #title>
                     <div class="sw-cms-detail__page-info">
                         {% block sw_cms_detail_toolbar_back_button %}
-                        <a
+                        <mt-button
                             class="sw-cms-detail__back-btn"
-                            role="link"
-                            tabindex="0"
+                            variant="tertiary"
+                            size="default"
+                            square
                             :aria-label="$t('global.default.back')"
                             @click="onClickBack"
-                            @keyup.enter="onClickBack"
                         >
-                            <mt-icon name="regular-times" />
-                        </a>
+                            <template #iconFront>
+                                <mt-icon
+                                    name="solid-times"
+                                    size="12px"
+                                />
+                            </template>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_page_name %}

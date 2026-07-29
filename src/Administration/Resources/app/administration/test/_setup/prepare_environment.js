@@ -41,10 +41,12 @@ import {
     MtSkeletonBar,
     MtSwitch,
     MtTabs,
+    MtText,
     MtTextField,
     MtTextarea,
     MtToast,
     MtTextEditor,
+    MtTooltip,
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
@@ -239,6 +241,12 @@ config.global.mocks = {
         removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
+        getMediaQuery: jest.fn((query) => ({
+            matches: false,
+            media: query,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+        })),
     },
     $router: {
         replace: jest.fn(),
@@ -305,10 +313,12 @@ config.global.stubs = {
     'mt-skeleton-bar': MtSkeletonBar,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
+    'mt-text': MtText,
     'mt-text-field': MtTextField,
     'mt-textarea': MtTextarea,
     'mt-toast': MtToast,
     'mt-text-editor': MtTextEditor,
+    'mt-tooltip': MtTooltip,
     ...config.global.stubs,
 };
 

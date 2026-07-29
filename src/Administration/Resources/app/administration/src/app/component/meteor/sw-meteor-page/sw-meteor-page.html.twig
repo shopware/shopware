@@ -30,7 +30,10 @@
                 <sw-app-topbar-sidebar />
             </div>
 
-            <div class="sw-meteor-page__smart-bar">
+            <div
+                v-if="!hideSmartBar"
+                class="sw-meteor-page__smart-bar"
+            >
                 <div class="sw-meteor-page__smart-bar-navigation">
                     <slot name="smart-bar-back">
                         {% block sw_meteor_page_navigation %}
@@ -50,7 +53,7 @@
                                 <mt-icon
                                     v-if="hasIcon"
                                     :name="module.icon"
-                                    :color="pageColor"
+                                    color="var(--color-icon-primary-default)"
                                 />
                                 {% endblock %}
                             </slot>

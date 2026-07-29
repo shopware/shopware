@@ -1,9 +1,17 @@
+import { createFocusTrap } from 'focus-trap';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
 
 const { Mixin } = Shopware;
 const { dom } = Shopware.Utils;
+
+// Keep in sync with --sw-admin-menu-duration in sw-admin-menu.scss.
+const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
+
+// Outlasts the debounced `$device` resize listener, so the viewport state it applies late still
+// falls into the transition-free window.
+const VIEWPORT_RESIZE_SETTLE_DURATION = 200;
 
 /**
  * @sw-package framework
@@ -14,6 +22,7 @@ export default {
     template,
 
     inject: [
+        'acl',
         'menuService',
         'loginService',
         'userService',
@@ -21,11 +30,16 @@ export default {
         'feature',
         'customEntityDefinitionService',
         'systemConfigApiService',
+        'shortcutService',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
     ],
+
+    shortcuts: {
+        s: 'onToggleSidebarShortcut',
+    },
 
     data() {
         return {
@@ -44,6 +58,10 @@ export default {
             shopName: '',
             isTogglingSidebar: false,
             toggleSidebarTimeout: null,
+            isViewportResizing: false,
+            viewportResizeTimeout: null,
+            // Key of the top-level branch owning the currently active route.
+            activeBranchKey: null,
         };
     },
 
@@ -59,7 +77,7 @@ export default {
         },
 
         isMobileViewport() {
-            return this.viewportWidth !== null && this.viewportWidth <= 500;
+            return this.viewportWidth !== null && this.viewportWidth <= 1280;
         },
 
         userTitle() {
@@ -86,19 +104,17 @@ export default {
             return Shopware.Store.get('session').currentLocale;
         },
 
-        currentExpandedMenuEntries() {
-            return this.adminMenuStore.expandedEntries;
-        },
-
         adminModuleNavigation() {
             const adminModuleNavigationEntries = this.adminMenuStore.adminModuleNavigation;
 
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
+
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
+
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -139,10 +155,6 @@ The admin menu only supports up to three levels of nesting.`,
             return tree.convertToTree();
         },
 
-        sidebarCollapseIcon() {
-            return 'solid-panel-right';
-        },
-
         scrollbarOffsetStyle() {
             return {
                 right: this.scrollbarOffset,
@@ -156,6 +168,7 @@ The admin menu only supports up to three levels of nesting.`,
                 'is--collapsed': !this.isExpanded,
                 'is--off-canvas-shown': this.isOffCanvasShown,
                 'is--toggling': this.isTogglingSidebar,
+                'is--viewport-resizing': this.isViewportResizing,
             };
         },
 
@@ -211,10 +224,36 @@ The admin menu only supports up to three levels of nesting.`,
     watch: {
         isExpanded() {
             this.toggleSidebar();
-            this.suppressLogoHoverDuringToggle();
+            this.startSidebarToggleWindow();
+        },
+        isOffCanvasShown(isShown) {
+            if (isShown) {
+                this.activateOffCanvasFocusTrap();
+            } else {
+                this.deactivateOffCanvasFocusTrap();
+            }
+        },
+        isMobileViewport(isMobile) {
+            // Resizing above the breakpoint with an open panel would otherwise keep the focus trap
+            // active on the desktop menu and reopen the panel on the next crossing.
+            if (!isMobile && this.isOffCanvasShown) {
+                this.closeOffCanvas();
+            }
         },
         '$route.fullPath': {
             handler() {
+                // Close an open flyout after navigating, e.g. when a flyout link
+                // was activated. Focus follows the navigation, so it must not be
+                // pulled back into the sidebar.
+                if (!this.isExpanded && this.flyoutEntries.length) {
+                    this.deactivateFlyoutFocusTrap(false);
+                    this.onFlyoutLeave();
+                }
+
+                if (this.isMobileViewport && this.isOffCanvasShown) {
+                    this.closeOffCanvas();
+                }
+
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
             },
             immediate: true,
@@ -231,12 +270,18 @@ The admin menu only supports up to three levels of nesting.`,
 
     beforeUnmount() {
         this.cancelFlyoutClose();
+        this.deactivateFlyoutFocusTrap(false);
 
         this.beforeUnmountedComponent();
     },
 
     methods: {
         createdComponent() {
+            // Non-reactive instance properties; hold the active focus traps.
+            this.flyoutFocusTrap = null;
+            this.offCanvasFocusTrap = null;
+            this.hadOpenMenuDropdown = false;
+
             this.loginService.notifyOnLoginListener();
 
             this.viewportWidth = this.$device.getViewportWidth();
@@ -245,21 +290,53 @@ The admin menu only supports up to three levels of nesting.`,
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
+            // Raw listener on purpose: the suppression class has to land in the same frame as the
+            // media query flip, the debounced `$device` listener is too late for that.
+            window.addEventListener('resize', this.onViewportResize);
+
             this.initNavigation();
         },
 
         loadShopName() {
-            this.systemConfigApiService.getValues('core.basicInformation').then((values) => {
-                this.shopName = values['core.basicInformation.shopName'] ?? '';
-            });
+            this.systemConfigApiService
+                .getValues('core.basicInformation')
+                .then((values) => {
+                    this.shopName = values['core.basicInformation.shopName'] || 'Shopware';
+                })
+                .catch(() => {
+                    // Users without system config read permission still get the fallback.
+                    this.shopName = 'Shopware';
+                });
         },
 
         beforeUnmountedComponent() {
+            this.deactivateOffCanvasFocusTrap();
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+            window.removeEventListener('resize', this.onViewportResize);
 
             if (this.toggleSidebarTimeout) {
                 clearTimeout(this.toggleSidebarTimeout);
             }
+
+            if (this.viewportResizeTimeout) {
+                clearTimeout(this.viewportResizeTimeout);
+            }
+        },
+
+        onViewportResize() {
+            // Synced here instead of the debounced `$device` listener: the menu mode derived from it
+            // has to flip in the same frame as the CSS breakpoint, the debounce shows the wrong mode
+            // for its full delay otherwise.
+            this.viewportWidth = this.$device.getViewportWidth();
+            this.isViewportResizing = true;
+
+            if (this.viewportResizeTimeout) {
+                clearTimeout(this.viewportResizeTimeout);
+            }
+
+            this.viewportResizeTimeout = setTimeout(() => {
+                this.isViewportResizing = false;
+            }, VIEWPORT_RESIZE_SETTLE_DURATION);
         },
 
         onToggleCanvas(state) {
@@ -269,6 +346,65 @@ The admin menu only supports up to three levels of nesting.`,
         closeOffCanvas() {
             this.isOffCanvasShown = false;
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+        },
+
+        activateOffCanvasFocusTrap() {
+            this.$nextTick(() => {
+                const panelElement = this.$refs.swAdminMenu;
+
+                if (!panelElement || !this.isOffCanvasShown || this.offCanvasFocusTrap) {
+                    return;
+                }
+
+                document.addEventListener('pointerdown', this.captureMenuDropdownState, true);
+                document.addEventListener('keydown', this.captureMenuDropdownState, true);
+
+                this.offCanvasFocusTrap = createFocusTrap(panelElement, {
+                    // Stay active while a dropdown owned by the menu is open: its content is
+                    // teleported to the body, so the dismissing outside click, clicks on its
+                    // items and its Escape handling all happen outside the trap and would
+                    // close the whole panel along with the dropdown.
+                    escapeDeactivates: () => !this.hadOpenMenuDropdown,
+                    clickOutsideDeactivates: () => !this.hadOpenMenuDropdown,
+
+                    // Without this the trap swallows clicks on the teleported dropdown items.
+                    allowOutsideClick: (event) => !!event.target?.closest?.('[data-reka-popper-content-wrapper]'),
+                    returnFocusOnDeactivate: true,
+                    delayInitialFocus: false,
+                    fallbackFocus: panelElement,
+                    onDeactivate: () => {
+                        document.removeEventListener('pointerdown', this.captureMenuDropdownState, true);
+                        document.removeEventListener('keydown', this.captureMenuDropdownState, true);
+                        this.offCanvasFocusTrap = null;
+                        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+                    },
+                });
+
+                this.offCanvasFocusTrap.activate();
+            });
+        },
+
+        // Captures whether a menu dropdown is open before anything reacts to the interaction:
+        // the dropdown dismisses itself on pointerdown/Escape already, at the time the focus
+        // trap runs its checks it is gone. Capture phase and registered before the trap, so
+        // this runs first.
+        captureMenuDropdownState() {
+            // aria-haspopup, so expanded navigation collapsibles do not match - they share
+            // the open state attributes with the dropdown triggers.
+            this.hadOpenMenuDropdown = !!this.$refs.swAdminMenu?.querySelector('[aria-haspopup="menu"][data-state="open"]');
+        },
+
+        // Focus only returns to the toggle when the trap closes itself, e.g. via Escape. On a
+        // programmatic close the focus already moved on and must not be pulled back.
+        deactivateOffCanvasFocusTrap() {
+            if (!this.offCanvasFocusTrap) {
+                return;
+            }
+
+            const trap = this.offCanvasFocusTrap;
+            this.offCanvasFocusTrap = null;
+
+            trap.deactivate({ returnFocus: false });
         },
 
         initNavigation() {
@@ -292,13 +428,6 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         mountedComponent() {
-            this.$device.onResize({
-                listener: () => {
-                    this.viewportWidth = this.$device.getViewportWidth();
-                },
-                component: this,
-            });
-
             this.addScrollbarOffset();
         },
 
@@ -325,18 +454,39 @@ The admin menu only supports up to three levels of nesting.`,
             this.toggleSidebar();
         },
 
-        suppressLogoHoverDuringToggle() {
+        onToggleSidebarShortcut() {
+            // "S" also ends navigation sequences like "GS" and "AS" — skip the
+            // toggle when the keypress completes one of those.
+            if (this.shortcutService?.isPendingCombinationKey?.('S')) {
+                return;
+            }
+
+            // The off-canvas panel opens and closes instead, the event keeps the search bar toggle in sync.
+            if (this.isMobileViewport) {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', !this.isOffCanvasShown);
+                return;
+            }
+
+            this.onToggleSidebar();
+        },
+
+        /**
+         * Marks the sidebar as mid-toggle (`is--toggling`), which suppresses the logo/expand-button
+         * crossfade on hover and scopes the nested tree-line transitions to the toggle window.
+         * Must outlast the longest animation it gates: the root width/padding transition
+         * (--sw-admin-menu-duration, 0.5s).
+         */
+        startSidebarToggleWindow() {
             this.isTogglingSidebar = true;
 
             if (this.toggleSidebarTimeout) {
                 clearTimeout(this.toggleSidebarTimeout);
             }
 
-            // 300ms matches the 0.3s panel width transition.
             this.toggleSidebarTimeout = setTimeout(() => {
                 this.isTogglingSidebar = false;
                 this.toggleSidebarTimeout = null;
-            }, 300);
+            }, SIDEBAR_TOGGLE_ANIMATION_DURATION);
         },
 
         toggleSidebar() {
@@ -363,21 +513,6 @@ The admin menu only supports up to three levels of nesting.`,
             this.scrollbarOffset = `-${scrollbarWidthPx}px`;
         },
 
-        onMenuItemClick(entry, eventTarget) {
-            if (!this.isExpanded) {
-                return;
-            }
-
-            if (eventTarget?.closest?.('.sw-admin-menu__sub-navigation-list')) {
-                return;
-            }
-
-            if (this.flyoutEntries.length) {
-                this.flyoutEntries = [];
-                this.flyoutTitle = '';
-            }
-        },
-
         onMenuBranchToggle({ entry, open }) {
             if (!this.isExpanded || !entry || entry.level !== 1) {
                 return;
@@ -388,8 +523,32 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            this.adminMenuStore.clearExpandedMenuEntries();
+            this.collapseInactiveBranches(entry);
             this.adminMenuStore.expandMenuEntry(entry);
+        },
+
+        /**
+         * Accordion behaviour with one exception: a branch owning the currently
+         * active route stays open until it is closed manually or the active item
+         * moves to another branch.
+         */
+        collapseInactiveBranches(exceptEntry = null) {
+            const exceptKey = exceptEntry ? (exceptEntry.id ?? exceptEntry.path) : null;
+            const activeNames = getActiveRouteNames(this.$route, this.$router);
+
+            this.adminMenuStore.expandedEntries
+                .filter((expanded) => {
+                    const key = expanded.id ?? expanded.path;
+
+                    if (key === exceptKey) {
+                        return false;
+                    }
+
+                    const menuEntry = this.mainMenuEntries.find((entry) => (entry.id ?? entry.path) === key);
+
+                    return !menuEntry || !isEntryOnActiveRoute(menuEntry, this.$route, activeNames);
+                })
+                .forEach((expanded) => this.adminMenuStore.collapseMenuEntry(expanded));
         },
 
         onMenuItemHover(entry, eventTarget) {
@@ -427,7 +586,7 @@ The admin menu only supports up to three levels of nesting.`,
             this.deactivatePreviousMenuItem();
             target.classList.add('is--flyout-enabled');
 
-            this.activeEntry = { entry, target, parentEntries: [] };
+            this.activeEntry = { entry, target };
         },
 
         onNavigationListMouseLeave(event) {
@@ -489,17 +648,140 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
-        getSingleChildTooltipConfig(entry) {
-            const children = this.getChildren(entry);
-            const shouldShowTooltip = !this.isExpanded && children.length === 0;
+        /**
+         * Whether the flyout currently shows the children of the given entry.
+         * Drives the aria-expanded state of the collapsed parent items.
+         */
+        isFlyoutEntryActive(entry) {
+            if (this.isExpanded || this.flyoutEntries.length === 0) {
+                return false;
+            }
 
-            return {
-                message: shouldShowTooltip ? this.getEntryLabel(entry) : '',
-                disabled: !shouldShowTooltip,
-            };
+            const active = this.activeEntry?.entry;
+
+            return !!active && (active.id || active.path) === (entry.id || entry.path);
+        },
+
+        /**
+         * Moves keyboard focus into the flyout. The flyout is teleported to the
+         * body and therefore unreachable via the natural tab order — a focus trap
+         * keeps Tab cycling inside it; Escape deactivates the trap, closes the
+         * flyout and returns focus to the menu entry it was opened from.
+         */
+        onFlyoutFocusRequest() {
+            this.$nextTick(() => {
+                const flyoutElement = this.$refs.swAdminMenuFlyout;
+
+                if (!flyoutElement || this.flyoutEntries.length === 0) {
+                    return;
+                }
+
+                this.flyoutFocusTrap = createFocusTrap(flyoutElement, {
+                    escapeDeactivates: true,
+                    clickOutsideDeactivates: true,
+                    returnFocusOnDeactivate: true,
+                    delayInitialFocus: false,
+                    fallbackFocus: flyoutElement,
+                    onDeactivate: () => {
+                        this.flyoutFocusTrap = null;
+                        this.onFlyoutLeave();
+                    },
+                });
+
+                this.flyoutFocusTrap.activate();
+            });
+        },
+
+        deactivateFlyoutFocusTrap(returnFocus = true) {
+            if (!this.flyoutFocusTrap) {
+                return;
+            }
+
+            const trap = this.flyoutFocusTrap;
+            this.flyoutFocusTrap = null;
+
+            // Override the configured onDeactivate: it closes the flyout via
+            // onFlyoutLeave, which is the caller of this method.
+            trap.deactivate({ returnFocus, onDeactivate: () => {} });
+        },
+
+        /**
+         * All focusable navigation links inside the given container. Links of
+         * closed collapsible branches stay in the DOM (hidden="until-found")
+         * and are skipped — they cannot receive focus.
+         */
+        getNavigationLinks(container) {
+            return Array.from(container.querySelectorAll('.sw-admin-menu__navigation-link')).filter(
+                (link) => !link.closest('[hidden]'),
+            );
+        },
+
+        /**
+         * Optional arrow key support (APG disclosure navigation pattern):
+         * ArrowDown/ArrowUp move through the given links, Home/End jump to the
+         * first/last one.
+         */
+        moveListFocus(links, event) {
+            if (links.length === 0) {
+                return;
+            }
+
+            const currentIndex = links.indexOf(document.activeElement);
+            let nextIndex = null;
+
+            switch (event.key) {
+                case 'ArrowDown':
+                    nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % links.length;
+                    break;
+                case 'ArrowUp':
+                    nextIndex = currentIndex < 0 ? links.length - 1 : (currentIndex - 1 + links.length) % links.length;
+                    break;
+                case 'Home':
+                    nextIndex = 0;
+                    break;
+                case 'End':
+                    nextIndex = links.length - 1;
+                    break;
+                default:
+                    return;
+            }
+
+            event.preventDefault();
+            links[nextIndex]?.focus();
+        },
+
+        onNavigationKeydown(event) {
+            const menuBody = this.$refs.swAdminMenuBody;
+
+            if (!menuBody) {
+                return;
+            }
+
+            this.moveListFocus(this.getNavigationLinks(menuBody), event);
+        },
+
+        onFlyoutKeydown(event) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                // Mirror of ArrowRight on the menu entry: the trap returns the
+                // focus to the entry the flyout was opened from.
+                this.deactivateFlyoutFocusTrap(true);
+                this.onFlyoutLeave();
+
+                return;
+            }
+
+            const flyoutElement = this.$refs.swAdminMenuFlyout;
+
+            if (!flyoutElement) {
+                return;
+            }
+
+            this.moveListFocus(this.getNavigationLinks(flyoutElement), event);
         },
 
         onFlyoutLeave() {
+            this.deactivateFlyoutFocusTrap();
             this.cancelFlyoutClose();
             this.deactivatePreviousMenuItem();
             this.flyoutReferenceElement = null;
@@ -516,10 +798,10 @@ The admin menu only supports up to three levels of nesting.`,
 
         getEntryLabel(entry) {
             if (entry.label instanceof Object) {
-                return entry.label.translated ? entry.label.label : this.$tc(entry.label.label);
+                return entry.label.translated ? entry.label.label : this.$t(entry.label.label);
             }
 
-            return this.$tc(entry.label);
+            return this.$t(entry.label);
         },
 
         expandAncestorBranchesForCurrentRoute() {
@@ -531,16 +813,25 @@ The admin menu only supports up to three levels of nesting.`,
             // route chain (+ parentPath bridge), so it works for any routing — including path-less
             // parents (e.g. "Extensions") and detail/create sub-pages.
             const activeNames = getActiveRouteNames(this.$route, this.$router);
+            const owner = this.mainMenuEntries.find(
+                (entry) => (entry.children?.length ?? 0) > 0 && isEntryOnActiveRoute(entry, this.$route, activeNames),
+            );
+            const ownerKey = owner ? (owner.id ?? owner.path) : null;
 
-            this.mainMenuEntries.forEach((entry) => {
-                if (
-                    (entry.children?.length ?? 0) > 0 &&
-                    isEntryOnActiveRoute(entry, this.$route, activeNames) &&
-                    !this.isNavigationEntryExpanded(entry)
-                ) {
-                    this.adminMenuStore.expandMenuEntry(entry);
-                }
-            });
+            // Same owning branch as before (e.g. tab navigation inside a module) —
+            // keep the current expansion state so a manual close is not overridden.
+            if (ownerKey === this.activeBranchKey) {
+                return;
+            }
+
+            // The active item moved to another branch: branches only stay open while
+            // they own the active item, so collapse the previous ones.
+            this.collapseInactiveBranches(owner);
+            this.activeBranchKey = ownerKey;
+
+            if (owner && !this.isNavigationEntryExpanded(owner)) {
+                this.adminMenuStore.expandMenuEntry(owner);
+            }
         },
 
         isNavigationEntryExpanded(entry) {

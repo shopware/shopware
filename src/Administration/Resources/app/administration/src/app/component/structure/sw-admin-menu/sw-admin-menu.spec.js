@@ -4,7 +4,7 @@
  * @sw-package framework
  */
 
-import { mount, config } from '@vue/test-utils';
+import { mount, config, DOMWrapper } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import createMenuService from 'src/app/service/menu.service';
 
@@ -51,10 +51,14 @@ async function createWrapper(options = {}) {
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'router-link': {
-                    template: '<div class="router-link"><slot /></div>',
+                    template: '<a class="router-link" href="#"><slot /></a>',
                 },
                 'mt-link': true,
                 'mt-icon': true,
+                'mt-floating-ui': {
+                    template: '<div class="mt-floating-ui"><slot v-if="isOpened" /></div>',
+                    props: ['isOpened'],
+                },
             },
             provide: {
                 menuService,
@@ -74,6 +78,9 @@ async function createWrapper(options = {}) {
                     can: (privilege) => {
                         return privilege !== 'shouldReturnFalse';
                     },
+                },
+                shortcutService: {
+                    isPendingCombinationKey: () => false,
                 },
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
@@ -117,8 +124,11 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     beforeEach(async () => {
-        // This is here to fix v-bind false error for transition "persisted"
+        // This is here to fix v-bind false error for transition "persisted".
+        // Merge instead of replace: the globally registered meteor components
+        // (e.g. mt-tooltip used by sw-admin-menu-item) must stay resolvable.
         config.global.stubs = {
+            ...config.global.stubs,
             transition: false,
         };
 
@@ -133,6 +143,82 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         wrapper = await createWrapper();
         await flushPromises();
+    });
+
+    it('should fall back to "Shopware" when no shop name is configured', async () => {
+        await flushPromises();
+
+        expect(wrapper.find('.sw-admin-menu__shop-name').text()).toBe('Shopware');
+    });
+
+    it('should fall back to "Shopware" when the shop name cannot be loaded', async () => {
+        wrapper.vm.shopName = '';
+        wrapper.vm.systemConfigApiService.getValues = () => Promise.reject(new Error('forbidden'));
+
+        wrapper.vm.loadShopName();
+        await flushPromises();
+
+        expect(wrapper.vm.shopName).toBe('Shopware');
+    });
+
+    it('should keep the branch with the active child open when another branch is opened', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+        expect(branches.length).toBeGreaterThanOrEqual(2);
+
+        const [
+            activeBranch,
+            otherBranch,
+        ] = branches;
+
+        wrapper.vm.$route.name = activeBranch.children[0].path;
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+
+        wrapper.vm.onMenuBranchToggle({ entry: activeBranch, open: true });
+        wrapper.vm.onMenuBranchToggle({ entry: otherBranch, open: true });
+
+        expect(wrapper.vm.isNavigationEntryExpanded(activeBranch)).toBe(true);
+        expect(wrapper.vm.isNavigationEntryExpanded(otherBranch)).toBe(true);
+    });
+
+    it('should close a branch without an active child when another branch is opened', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+
+        const [
+            branchA,
+            branchB,
+        ] = branches;
+
+        wrapper.vm.$route.name = undefined;
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+
+        wrapper.vm.onMenuBranchToggle({ entry: branchA, open: true });
+        wrapper.vm.onMenuBranchToggle({ entry: branchB, open: true });
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(false);
+        expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(true);
+    });
+
+    it('should close the previous branch when the active item moves to another branch', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+
+        const [
+            branchA,
+            branchB,
+        ] = branches;
+
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+        wrapper.vm.activeBranchKey = null;
+
+        wrapper.vm.$route.name = branchA.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(true);
+
+        wrapper.vm.$route.name = branchB.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(false);
+        expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(true);
     });
 
     it('should show the snippet for the admin title', async () => {
@@ -191,67 +277,180 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(userTitle.text()).toBe('Copyreader');
     });
 
-    it('should be able to check if a mouse position is in a polygon', async () => {
-        const polygon = [
-            [
-                0,
-                287,
-            ],
-            [
-                0,
-                335,
-            ],
-            [
-                300,
-                431,
-            ],
-            [
-                300,
-                287,
-            ],
-        ];
+    it('should toggle the sidebar via the "s" shortcut', async () => {
+        expect(wrapper.vm.$options.shortcuts.s).toBe('onToggleSidebarShortcut');
 
-        const insideMousePosition = {
-            x: 10,
-            y: 300,
-        };
-        expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBe(true);
+        const isExpandedBefore = wrapper.vm.isExpanded;
 
-        const outsideMousePosition = {
-            x: 1,
-            y: 1,
-        };
-        expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBe(false);
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(!isExpandedBefore);
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
     });
 
-    it('should get polygon from menu item', async () => {
-        const element = document.createElement('div');
-        const entry = {
-            children: [
-                {
-                    name: 'foo',
-                },
-            ],
-        };
+    it('should not toggle the sidebar via the "s" shortcut while a navigation sequence is pending', async () => {
+        wrapper.vm.shortcutService.isPendingCombinationKey = () => true;
 
-        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-            [
-                0,
-                0,
-            ],
-        ]);
+        const isExpandedBefore = wrapper.vm.isExpanded;
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
+
+        wrapper.vm.shortcutService.isPendingCombinationKey = () => false;
+    });
+
+    it('should toggle the off-canvas menu via the "s" shortcut below the off-canvas viewport', async () => {
+        wrapper.vm.viewportWidth = 1280;
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+
+        wrapper.vm.onToggleSidebarShortcut();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
+    it('should suppress the menu transitions while the viewport is resizing', async () => {
+        jest.useFakeTimers();
+
+        wrapper.vm.onViewportResize();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('aside.sw-admin-menu').classes()).toContain('is--viewport-resizing');
+
+        jest.advanceTimersByTime(200);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('aside.sw-admin-menu').classes()).not.toContain('is--viewport-resizing');
+
+        jest.useRealTimers();
+    });
+
+    it('should keep the closed off-canvas menu out of the tab order via inert', async () => {
+        const menu = wrapper.find('aside.sw-admin-menu');
+        // Browsers reflect `inert` as a property, jsdom only knows the attribute.
+        const isInert = () => menu.element.inert === true || menu.element.getAttribute('inert') === 'true';
+
+        // desktop: never inert
+        expect(isInert()).toBe(false);
+
+        wrapper.vm.viewportWidth = 1280;
+        await wrapper.vm.$nextTick();
+
+        expect(isInert()).toBe(true);
+
+        wrapper.vm.onToggleCanvas(true);
+        await wrapper.vm.$nextTick();
+
+        expect(isInert()).toBe(false);
+    });
+
+    it('should trap the focus inside the off-canvas menu while it is open', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+
+        attachedWrapper.vm.onToggleCanvas(false);
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
+    it('should keep the off-canvas menu open when an outside click dismisses an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        // an open dropdown is only visible through its trigger state, the content is teleported away
+        const dropdownTrigger = document.createElement('button');
+        dropdownTrigger.setAttribute('data-state', 'open');
+        dropdownTrigger.setAttribute('aria-haspopup', 'menu');
+        attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
+
+        document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+        expect(attachedWrapper.vm.isOffCanvasShown).toBe(true);
+
+        dropdownTrigger.remove();
+        attachedWrapper.unmount();
+    });
+
+    it('should close the off-canvas menu on outside click without an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
+    it('should keep the off-canvas menu open when Escape closes an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        const dropdownTrigger = document.createElement('button');
+        dropdownTrigger.setAttribute('data-state', 'open');
+        dropdownTrigger.setAttribute('aria-haspopup', 'menu');
+        attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+
+        dropdownTrigger.remove();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
+    it('should close the open off-canvas menu when the viewport grows past the breakpoint', async () => {
+        wrapper.vm.viewportWidth = 1280;
+        wrapper.vm.onToggleCanvas(true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+
+        wrapper.vm.viewportWidth = 1920;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
     it('should render correct admin menu entries', async () => {
@@ -437,30 +636,206 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
     });
 
-    it('should not show icons in flyout menu items', async () => {
-        const app = document.createElement('div');
-        app.id = 'app';
-        document.body.appendChild(app);
-        const component = document.createElement('div');
-        component.id = 'component';
-        app.appendChild(component);
+    describe('collapsed flyout keyboard access', () => {
+        async function createCollapsedWrapper() {
+            wrapper.unmount();
+            wrapper = await createWrapper({ attachTo: document.body });
+            await flushPromises();
 
-        wrapper = await createWrapper({
-            attachTo: '#component',
+            Shopware.Store.get('adminMenu').collapseSidebar();
+            await flushPromises();
+
+            return wrapper.find('.navigation-list-item__has-children');
+        }
+
+        afterEach(() => {
+            wrapper.unmount();
         });
+
+        it('should not open the flyout when a collapsed entry only receives focus', async () => {
+            const target = await createCollapsedWrapper();
+
+            await target.trigger('focusin');
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+        });
+
+        it('should open the flyout and move focus into it on ArrowRight', async () => {
+            const target = await createCollapsedWrapper();
+
+            target.find('.sw-admin-menu__navigation-link').element.focus();
+            await target.trigger('keydown', { key: 'ArrowRight' });
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+
+            const flyout = document.getElementById('sw-admin-menu-flyout');
+            expect(flyout).not.toBeNull();
+            expect(flyout.contains(document.activeElement)).toBe(true);
+
+            // The trigger acts as an expanded disclosure button while the flyout is open
+            expect(target.find('.sw-admin-menu__navigation-link').attributes('aria-expanded')).toBe('true');
+        });
+
+        it('should close the flyout on Escape and return focus to the menu entry', async () => {
+            const target = await createCollapsedWrapper();
+            const trigger = target.find('.sw-admin-menu__navigation-link');
+
+            trigger.element.focus();
+            await target.trigger('keydown', { key: 'ArrowRight' });
+            await flushPromises();
+
+            const flyout = document.getElementById('sw-admin-menu-flyout');
+            await new DOMWrapper(flyout).trigger('keydown', { key: 'Escape' });
+            await flushPromises();
+            // focus-trap returns the focus in a deferred tick
+            await new Promise((resolve) => {
+                window.setTimeout(resolve);
+            });
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+            expect(document.activeElement).toBe(trigger.element);
+        });
+
+        it('should move focus through the navigation with arrow keys', async () => {
+            await createCollapsedWrapper();
+
+            const body = wrapper.find('.sw-admin-menu__body');
+            const links = Array.from(body.element.querySelectorAll('.sw-admin-menu__navigation-link')).filter(
+                (link) => !link.closest('[hidden]'),
+            );
+            expect(links.length).toBeGreaterThan(1);
+
+            links[0].focus();
+            await body.trigger('keydown', { key: 'ArrowDown' });
+            expect(document.activeElement).toBe(links[1]);
+
+            await body.trigger('keydown', { key: 'ArrowUp' });
+            expect(document.activeElement).toBe(links[0]);
+
+            await body.trigger('keydown', { key: 'End' });
+            expect(document.activeElement).toBe(links[links.length - 1]);
+
+            await body.trigger('keydown', { key: 'Home' });
+            expect(document.activeElement).toBe(links[0]);
+        });
+
+        it('should move focus through the flyout with arrow keys and close it with ArrowLeft', async () => {
+            const target = await createCollapsedWrapper();
+            const trigger = target.find('.sw-admin-menu__navigation-link');
+
+            trigger.element.focus();
+            await target.trigger('keydown', { key: 'ArrowRight' });
+            await flushPromises();
+
+            const flyout = document.getElementById('sw-admin-menu-flyout');
+            const flyoutWrapper = new DOMWrapper(flyout);
+            const links = flyout.querySelectorAll('.sw-admin-menu__navigation-link');
+            expect(links.length).toBeGreaterThan(1);
+            // In jsdom the focus trap falls back to the container itself
+            expect(flyout.contains(document.activeElement)).toBe(true);
+
+            await flyoutWrapper.trigger('keydown', { key: 'ArrowDown' });
+            expect(document.activeElement).toBe(links[0]);
+
+            await flyoutWrapper.trigger('keydown', { key: 'ArrowDown' });
+            expect(document.activeElement).toBe(links[1]);
+
+            await flyoutWrapper.trigger('keydown', { key: 'ArrowUp' });
+            expect(document.activeElement).toBe(links[0]);
+
+            await flyoutWrapper.trigger('keydown', { key: 'ArrowLeft' });
+            await flushPromises();
+            // focus-trap returns the focus in a deferred tick
+            await new Promise((resolve) => {
+                window.setTimeout(resolve);
+            });
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+            expect(document.activeElement).toBe(trigger.element);
+        });
+
+        it('should skip links of closed sub branches when moving focus with arrow keys', async () => {
+            const target = await createCollapsedWrapper();
+
+            target.find('.sw-admin-menu__navigation-link').element.focus();
+            await target.trigger('keydown', { key: 'ArrowRight' });
+            await flushPromises();
+
+            const flyout = document.getElementById('sw-admin-menu-flyout');
+
+            // The flyout contains a sub branch whose closed children stay in the
+            // DOM as hidden, non-focusable links.
+            const allLinks = Array.from(flyout.querySelectorAll('.sw-admin-menu__navigation-link'));
+            const visibleLinks = allLinks.filter((link) => !link.closest('[hidden]'));
+            expect(visibleLinks.length).toBeLessThan(allLinks.length);
+
+            await new DOMWrapper(flyout).trigger('keydown', { key: 'End' });
+            expect(document.activeElement).toBe(visibleLinks[visibleLinks.length - 1]);
+
+            await new DOMWrapper(flyout).trigger('keydown', { key: 'ArrowDown' });
+            expect(document.activeElement).toBe(visibleLinks[0]);
+        });
+
+        it('should close the flyout on route change without pulling focus back', async () => {
+            const target = await createCollapsedWrapper();
+
+            target.find('.sw-admin-menu__navigation-link').element.focus();
+            await target.trigger('keydown', { key: 'ArrowRight' });
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+
+            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+            expect(target.find('.sw-admin-menu__navigation-link').element).not.toBe(document.activeElement);
+        });
+    });
+
+    it('should not show icons in flyout menu items', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        // Flyouts only open while the sidebar is collapsed.
+        Shopware.Store.get('adminMenu').collapseSidebar();
         await flushPromises();
 
         const target = wrapper.find('.navigation-list-item__has-children');
-
-        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
-        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
-
         await target.trigger('mouseenter');
         await flushPromises();
 
-        const flyoutItem = wrapper.findComponent(
-            '.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first',
-        );
-        expect(flyoutItem.findAll('.mt-icon')).toHaveLength(0);
+        expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+
+        const flyoutItem = wrapper.find('.sw-admin-menu__flyout-list .sw-admin-menu__navigation-link');
+        expect(flyoutItem.exists()).toBe(true);
+        expect(flyoutItem.element.querySelectorAll('mt-icon-stub, .mt-icon')).toHaveLength(0);
+    });
+
+    it('should close the off-canvas menu on route change on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.viewportWidth = 375;
+        wrapper.vm.isOffCanvasShown = true;
+
+        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
+    it('should not close the off-canvas menu on route change on desktop', async () => {
+        wrapper.vm.viewportWidth = 1920;
+        wrapper.vm.isOffCanvasShown = true;
+
+        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
     });
 });

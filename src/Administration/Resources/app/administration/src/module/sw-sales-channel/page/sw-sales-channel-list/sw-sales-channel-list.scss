@@ -8,4 +8,13 @@
     .favorite-switch {
         margin: 0;
     }
+
+    // Center the empty state on the page; the card view content already
+    // spans the full page height, and the empty state caps its own width.
+    .sw-card-view__content:has(.mt-empty-state) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 }

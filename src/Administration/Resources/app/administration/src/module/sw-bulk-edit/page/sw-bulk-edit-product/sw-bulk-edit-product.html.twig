@@ -17,10 +17,10 @@
             v-if="isChild"
             class="smart-bar__back-btn"
             :to="{ name: 'sw.product.detail.variants', params: { id: $route.params.parentId } }"
-            :style="{ 'color': $route.meta.$module?.color }"
         >
             <mt-icon
                 name="regular-chevron-left"
+                color="var(--color-icon-primary-default)"
                 size="var(--scale-size-16)"
             />
         </router-link>

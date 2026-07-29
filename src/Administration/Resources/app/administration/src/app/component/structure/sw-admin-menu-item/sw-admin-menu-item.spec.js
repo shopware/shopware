@@ -4,85 +4,8 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
-import AclService from 'src/app/service/acl.service';
-import 'src/app/component/structure/sw-admin-menu-item';
+import createWrapper from './_sw-admin-menu-item/create-wrapper';
 import catalogues from './_sw-admin-menu-item/catalogues';
-
-async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null } = {}) {
-    const collectRoutes = (entry) => {
-        if (!entry) {
-            return [];
-        }
-
-        return [
-            ...(entry.children ?? []).flatMap((child) => collectRoutes(child)),
-            entry,
-        ];
-    };
-
-    const $router = {
-        getRoutes: () =>
-            routerRoutes ??
-            collectRoutes(props.entry)
-                .filter((entry) => entry.path)
-                .map((entry) => ({
-                    name: entry.path,
-                    meta: {
-                        privilege: entry.privilege,
-                    },
-                })),
-    };
-
-    const can = (privilege) => {
-        if (!privilege) {
-            return true;
-        }
-
-        return privileges.includes(privilege);
-    };
-
-    const aclService = new AclService();
-
-    return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-                'router-link': {
-                    template: '<a class="router-link"></a>',
-                    props: ['to'],
-                },
-            },
-            mocks: {
-                $route: {
-                    name: route.name,
-                    params: route.params ?? {},
-                    matched: route.matched ?? [],
-                    meta: { $module: { name: '' }, ...(route.meta ?? {}) },
-                },
-                $router,
-            },
-            provide: {
-                acl: {
-                    can,
-                    hasAccessToRoute: (path) => {
-                        const match = $router.getRoutes().find((route) => route.name === path);
-
-                        if (!match?.meta) {
-                            return true;
-                        }
-
-                        return can(match.meta.privilege);
-                    },
-                    hasActiveSettingModules: aclService.hasActiveSettingModules,
-                    state: aclService.state,
-                },
-                feature: {},
-            },
-        },
-    });
-}
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeEach(async () => {
@@ -165,8 +88,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should not show the menu entry when user has no privilege', async () => {
@@ -283,8 +207,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
@@ -718,7 +643,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         const wrapper = await createWrapper({
             route: {
                 name: 'sw.product.detail.base',
-                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
+                matched: [
+                    { name: 'sw.product.detail' },
+                    { name: 'sw.product.detail.base' },
+                ],
                 meta: { parentPath: 'sw.product.index' },
             },
             routerRoutes: [{ name: 'sw.product.index', meta: {} }],
@@ -798,5 +726,32 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
         );
         expect(childMenuItem.props().displayIcon).toBe(false);
+    });
+
+    it('should never mark the row active when showActiveState is disabled', async () => {
+        const entry = {
+            id: 'sw-sales-channel-more',
+            path: 'sw.sales.channel.list',
+            label: 'sw-sales-channel.general.titleMenuMoreItems',
+            moduleType: 'core',
+            position: 10,
+            level: 1,
+            children: [],
+        };
+
+        const wrapper = await createWrapper({
+            props: {
+                entry,
+                showActiveState: false,
+            },
+            route: { name: 'sw.sales.channel.list' },
+        });
+
+        expect(wrapper.vm.rowActive).toBe(false);
+        expect(wrapper.find('.sw-admin-menu__navigation-link').classes()).not.toContain('router-link-active');
+        expect(wrapper.attributes('aria-current')).toBe('false');
+        // Vue Router's own active classes are suppressed as well
+        expect(wrapper.vm.routerLinkActiveClass).toBe('');
+        expect(wrapper.vm.routerLinkExactActiveClass).toBe('');
     });
 });

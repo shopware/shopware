@@ -161,8 +161,11 @@
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü einklappen",
+      "linkExpandMenu": "Menü ausklappen",
+      "linkCloseMenu": "Menü schließen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Hauptnavigation",
@@ -636,6 +639,8 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Suche schließen",
+      "ariaLabelOpenSearch": "Suche öffnen",
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
@@ -1495,6 +1500,8 @@
     "keyboardShortcutAddRule": "A R",
     "functionAddSaleschannel": "Verkaufskanal hinzufügen",
     "keyboardShortcutAddSaleschannel": "A S",
+    "functionToggleMainMenu": "Hauptnavigation öffnen / schließen",
+    "keyboardShortcutToggleMainMenu": "S",
     "functionGoToDashboard": "Dashboard öffnen",
     "keyboardShortcutGoToDashboard": "G H",
     "functionGoToProducts": "Produkte öffnen",

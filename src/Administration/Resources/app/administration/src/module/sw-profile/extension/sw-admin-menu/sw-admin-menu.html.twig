@@ -2,14 +2,14 @@
 <router-link
     v-if="acl.can('user.update_profile')"
     v-slot="{ navigate }"
-    :to="{ name: 'sw.profile.index', params: { currentUser } }"
+    :to="{ name: 'sw.profile.index' }"
     custom
 >
     <mt-action-menu-item
         icon="regular-user"
         @click="navigate"
     >
-        {{ $tc('sw-profile.general.headlineProfile') }}
+        {{ $t('sw-profile.general.headlineProfile') }}
     </mt-action-menu-item>
 </router-link>
 

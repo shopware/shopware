@@ -6,15 +6,16 @@
         <router-link
             class="smart-bar__back-btn"
             :to="backPath"
-            :style="{ 'color': moduleData.color }"
         >
             <mt-icon
                 name="regular-chevron-left"
+                color="var(--color-icon-primary-default)"
                 size="16px"
             />
             <mt-icon
                 v-if="moduleData && moduleData.icon"
                 :name="moduleData.icon"
+                color="var(--color-icon-primary-default)"
                 size="16px"
             />
         </router-link>

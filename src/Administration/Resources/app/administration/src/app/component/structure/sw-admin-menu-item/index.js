@@ -4,6 +4,18 @@ import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from
 import './sw-admin-menu-item.scss';
 
 /**
+ * The mt-tooltip trigger props that make the tooltip open. Stripped from the trigger when the
+ * collapsed tooltip must stay silent — see collapsedTooltipTriggerProps.
+ *
+ * @private
+ */
+export const TOOLTIP_OPEN_TRIGGER_PROPS = [
+    'onMouseover',
+    'onFocus',
+    'aria-describedby',
+];
+
+/**
  * @sw-package framework
  *
  * @private
@@ -17,15 +29,16 @@ export default {
         MtCollapsibleContent,
     },
 
-    inject: {
-        acl: 'acl',
-        feature: 'feature',
-    },
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     emits: [
-        'menu-item-click',
         'menu-item-hover',
         'branch-toggle',
+        'flyout-focus-request',
+        'flyout-close-request',
     ],
 
     data() {
@@ -89,11 +102,23 @@ export default {
             default: false,
             required: false,
         },
+        /** Set to false for entries that must never show the "current page" highlight. */
+        showActiveState: {
+            type: Boolean,
+            default: true,
+            required: false,
+        },
+        /** Whether the collapsed sidebar currently shows this entry's children in the flyout. */
+        flyoutActive: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     computed: {
         /** Admin menu supports at most three levels; level-3 rows are leaf items only */
-        leafDepth() {
+        isLeafDepth() {
             return this.menuDepth >= 3;
         },
 
@@ -108,6 +133,10 @@ export default {
          * parent yields the highlight to its active child.
          */
         rowActive() {
+            if (!this.showActiveState) {
+                return false;
+            }
+
             if (!isEntryOnActiveRoute(this.entry, this.$route, this.activeRouteNames)) {
                 return false;
             }
@@ -181,23 +210,15 @@ export default {
         },
 
         hasCollapsibleSubtree() {
-            return this.children.length > 0 && !this.leafDepth;
+            return this.children.length > 0 && !this.isLeafDepth;
         },
 
+        // Keep collapsible items on the same <mt-collapsible> template branch whether the sidebar
+        // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
+        // navigation icons flash; the collapsed appearance is handled purely via CSS and the
+        // forced-closed collapsibleOpen state instead.
         usesCollapsible() {
-            if (!this.hasCollapsibleSubtree) {
-                return false;
-            }
-
-            // Keep collapsible items on the same <MtCollapsible> template branch whether the sidebar
-            // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
-            // navigation icons flash; the collapsed appearance is handled purely via CSS and the
-            // forced-closed collapsibleOpen state instead.
-            if (!this.sidebarExpanded && this.menuDepth >= 2) {
-                return true;
-            }
-
-            return this.menuDepth <= 2;
+            return this.hasCollapsibleSubtree;
         },
 
         routeKeepsFolderOpen() {
@@ -253,7 +274,7 @@ export default {
             ];
         },
 
-        legacyLiClass() {
+        leafLiClass() {
             return [
                 'sw-admin-menu__navigation-list-item',
                 this.getElementClasses(this.entry.id || this.entryPath),
@@ -275,9 +296,66 @@ export default {
             // A descendant's route is the current route (or an ancestor of it).
             return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
         },
+
+        /**
+         * Collapsed top-level parents act as disclosure triggers for the flyout:
+         * aria-expanded reflects the flyout state instead of the (forced closed)
+         * collapsible. Empty while expanded, so the collapsible semantics apply.
+         */
+        collapsedFlyoutAria() {
+            if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
+                return {};
+            }
+
+            return {
+                'aria-expanded': this.flyoutActive ? 'true' : 'false',
+                ...(this.flyoutActive ? { 'aria-controls': 'sw-admin-menu-flyout' } : {}),
+            };
+        },
+
+        /**
+         * Vue Router adds its active classes on matching links by itself, so they
+         * must be suppressed explicitly when the active state is disabled.
+         */
+        routerLinkActiveClass() {
+            return this.showActiveState ? 'router-link-active' : '';
+        },
+
+        routerLinkExactActiveClass() {
+            return this.showActiveState ? 'router-link-exact-active' : '';
+        },
+
+        /**
+         * Top-level entries without children have no flyout, so their label is only
+         * accessible via a tooltip while the sidebar is collapsed.
+         */
+        showsCollapsedTooltip() {
+            return !this.sidebarExpanded && this.menuDepth === 1 && this.children.length === 0;
+        },
     },
 
     methods: {
+        collapsedTooltipTriggerProps(tooltipProps) {
+            if (this.showsCollapsedTooltip) {
+                return tooltipProps;
+            }
+
+            // The wrapping <mt-tooltip> stays mounted even when the tooltip must not open,
+            // because unmounting the row on sidebar toggle makes the navigation icons flash
+            // (see usesCollapsible). The trigger id also has to stay bound; mt-tooltip errors
+            // when it cannot find its trigger element. Only the handlers that open the
+            // tooltip are dropped — the closing handlers keep an already visible tooltip
+            // hidable when the sidebar expands while it is hovered.
+            //
+            // These are mt-tooltip's internal trigger prop names rather than a documented API:
+            // a meteor upgrade that renames or adds an opening handler would silently re-enable
+            // the tooltip. TOOLTIP_OPEN_TRIGGER_PROPS is asserted against the real component in
+            // sw-admin-menu-item.spec/collapsed-sidebar.spec.js so the drift fails a test.
+            return Object.fromEntries(
+                Object.entries(tooltipProps).filter(([key]) => !TOOLTIP_OPEN_TRIGGER_PROPS.includes(key)),
+            );
+        },
+
         hasAccessToRoute(path) {
             const match = this.$router.getRoutes().find((route) => route.name === path);
 
@@ -300,10 +378,6 @@ export default {
             }
 
             return `${name}`;
-        },
-
-        getItemName(menuItemName) {
-            return menuItemName.replace(/\./g, '-');
         },
 
         getElementClasses(menuItemName) {
@@ -346,11 +420,7 @@ export default {
         },
 
         onCollapsibleOpenUpdate(open) {
-            if (!open) {
-                this.suppressRouteKeepsFolderOpen = true;
-            } else {
-                this.suppressRouteKeepsFolderOpen = false;
-            }
+            this.suppressRouteKeepsFolderOpen = !open;
 
             if (this.menuDepth >= 2) {
                 this.manualNestedOpen = open;
@@ -364,30 +434,40 @@ export default {
             }
         },
 
-        emitMenuInteractionForFlyoutDismiss(event) {
-            this.$emit('menu-item-click', this.entry, event?.currentTarget || event?.target);
+        /**
+         * Keyboard access to the collapsed flyout (disclosure navigation pattern):
+         * ArrowRight — and Enter/Space on entries without an own route — opens the
+         * flyout and moves focus into it; Escape or ArrowLeft closes an open flyout.
+         */
+        onCollapsedParentKeydown(event) {
+            if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
+                return;
+            }
+
+            if ((event.key === 'Escape' || event.key === 'ArrowLeft') && this.flyoutActive) {
+                this.$emit('flyout-close-request');
+                return;
+            }
+
+            const isActivationKey = event.key === 'Enter' || event.key === ' ';
+            // Entries with an own route keep Enter/Space for navigation.
+            const opensFlyout = event.key === 'ArrowRight' || (isActivationKey && !this.entryPath);
+
+            if (!opensFlyout) {
+                return;
+            }
+
+            event.preventDefault();
+            this.$emit('menu-item-hover', this.entry, event.currentTarget);
+            this.$emit('flyout-focus-request');
         },
 
         forwardMenuItemHover(entry, target) {
             this.$emit('menu-item-hover', entry, target);
         },
 
-        forwardMenuItemClick(entry, target) {
-            this.$emit('menu-item-click', entry, target);
-        },
-
         forwardBranchToggle(payload) {
             this.$emit('branch-toggle', payload);
-        },
-
-        handleLegacyRowClick(event) {
-            const isNestedRow = !this.$el?.parentElement?.classList.contains('sw-admin-menu__navigation-list');
-
-            if (isNestedRow) {
-                event.stopPropagation();
-            }
-
-            this.$emit('menu-item-click', this.entry, event.target);
         },
     },
 };

@@ -6,6 +6,9 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
+// Matches the viewport at which the search becomes collapsible in sw-search-bar.scss.
+const COLLAPSE_BREAKPOINT = 500;
+
 /**
  * @sw-package framework
  *
@@ -247,16 +250,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            const that = this;
-
+            // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
+            this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
+            this.collapseQuery.addEventListener('change', this.showSearchFieldOnLargerViewports);
             this.showSearchFieldOnLargerViewports();
-
-            this.$device.onResize({
-                listener() {
-                    that.showSearchFieldOnLargerViewports();
-                },
-                component: this,
-            });
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -276,6 +273,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.collapseQuery?.removeEventListener('change', this.showSearchFieldOnLargerViewports);
             document.removeEventListener('click', this.closeOnClickOutside);
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
@@ -327,7 +325,18 @@ export default {
         },
 
         setFocus() {
-            this.$refs.searchInput.focus();
+            // The default input can be replaced through the search-input slot.
+            this.$refs.searchInput?.focus();
+        },
+
+        onClickFieldWrapper(event) {
+            // Interactive children keep their own click behavior without
+            // pulling the focus into the search input.
+            if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
+                return;
+            }
+
+            this.setFocus();
         },
 
         closeOnClickOutside(event) {
@@ -344,6 +353,13 @@ export default {
             this.showResultsContainer = false;
             this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
+        },
+
+        onKeyUpEsc() {
+            this.clearSearchTerm();
+            this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
+            this.$refs.searchInput?.blur();
         },
 
         onFocusInput() {
@@ -385,9 +401,7 @@ export default {
         },
 
         showSearchFieldOnLargerViewports() {
-            if (this.$device.getViewportWidth() > 500) {
-                this.isSearchBarShown = true;
-            }
+            this.isSearchBarShown = !this.collapseQuery.matches;
         },
 
         onSearchTermChange() {
@@ -450,7 +464,7 @@ export default {
 
         onClickType(type) {
             this.setSearchType(type);
-            this.$refs.searchInput.focus();
+            this.setFocus();
         },
 
         setSearchType(type) {

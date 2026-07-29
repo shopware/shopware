@@ -60,4 +60,42 @@ describe('app/service/shortcut.service', () => {
 
         expect(addEventListenerSpy).toHaveBeenCalledWith('keyup', expect.any(Function));
     });
+
+    describe('isPendingCombinationKey', () => {
+        it('should detect a key that completes a buffered combination', () => {
+            shortcutFactory.getPathByCombination.mockImplementation((combination) => {
+                return combination === 'GM' ? '/sw/manufacturer/index' : undefined;
+            });
+            shortcutService = createShortcutService(shortcutFactory);
+            shortcutService.startEventListener();
+
+            document.dispatchEvent(new KeyboardEvent('keyup', { key: 'g' }));
+
+            expect(shortcutService.isPendingCombinationKey('m')).toBe(true);
+            expect(shortcutService.isPendingCombinationKey('p')).toBe(false);
+        });
+
+        it('should not report a pending combination without buffered keys', () => {
+            shortcutFactory.getPathByCombination.mockReturnValue('/sw/manufacturer/index');
+            shortcutService = createShortcutService(shortcutFactory);
+
+            expect(shortcutService.isPendingCombinationKey('m')).toBe(false);
+        });
+
+        it('should not report a pending combination after the keystroke delay', () => {
+            shortcutFactory.getPathByCombination.mockImplementation((combination) => {
+                return combination === 'GM' ? '/sw/manufacturer/index' : undefined;
+            });
+            shortcutService = createShortcutService(shortcutFactory, 50);
+            shortcutService.startEventListener();
+
+            const now = Date.now();
+            jest.spyOn(Date, 'now').mockReturnValue(now);
+            document.dispatchEvent(new KeyboardEvent('keyup', { key: 'g' }));
+
+            Date.now.mockReturnValue(now + 51);
+
+            expect(shortcutService.isPendingCombinationKey('m')).toBe(false);
+        });
+    });
 });

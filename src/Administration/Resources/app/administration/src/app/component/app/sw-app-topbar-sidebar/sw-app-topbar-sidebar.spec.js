@@ -92,4 +92,59 @@ describe('sw-app-topbar-sidebar', () => {
 
         expect(store.setActiveSidebar).toHaveBeenCalledWith('second-location-id');
     });
+
+    it('should open the sidebar when clicking the button while it is closed', async () => {
+        const store = Shopware.Store.get('sidebar');
+        store.sidebars.push({ ...sidebar, active: false });
+        store.closingSidebar = null;
+        store.setActiveSidebar = jest.fn();
+        store.requestCloseSidebar = jest.fn();
+
+        wrapper = await createWrapper();
+
+        const button = wrapper.find('button');
+        expect(button.attributes('aria-expanded')).toBe('false');
+        expect(button.attributes('aria-label')).toBe('sidebar.ariaLabelButtonOpen');
+
+        await button.trigger('click');
+
+        expect(store.setActiveSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(store.requestCloseSidebar).not.toHaveBeenCalled();
+    });
+
+    it('should request the animated close when clicking the button while the sidebar is open', async () => {
+        const store = Shopware.Store.get('sidebar');
+        store.sidebars.push({ ...sidebar, active: true });
+        store.closingSidebar = null;
+        store.setActiveSidebar = jest.fn();
+        store.requestCloseSidebar = jest.fn();
+
+        wrapper = await createWrapper();
+
+        const button = wrapper.find('button');
+        expect(button.attributes('aria-expanded')).toBe('true');
+        expect(button.attributes('aria-label')).toBe('sidebar.ariaLabelButtonClose');
+
+        await button.trigger('click');
+
+        expect(store.requestCloseSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(store.setActiveSidebar).not.toHaveBeenCalled();
+    });
+
+    it('should reopen the sidebar when clicking the button while it is closing', async () => {
+        const store = Shopware.Store.get('sidebar');
+        store.sidebars.push({ ...sidebar, active: true });
+        store.closingSidebar = 'example-location-id';
+        store.setActiveSidebar = jest.fn();
+        store.requestCloseSidebar = jest.fn();
+
+        wrapper = await createWrapper();
+
+        await wrapper.find('button').trigger('click');
+
+        expect(store.setActiveSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(store.requestCloseSidebar).not.toHaveBeenCalled();
+
+        store.closingSidebar = null;
+    });
 });

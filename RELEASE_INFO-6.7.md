@@ -4,7 +4,23 @@
 
 ## API
 
+### Admin action endpoints now require ACL privileges
+
+Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/sso/invite-user` requires the existing `user:create` privilege.
+* `POST /api/app-system/shop-id/change` requires the new `system:app:change` privilege.
+* `POST /api/_action/trigger-event/{eventName}` requires the new `flow:dispatch` privilege.
+* `POST /api/_action/extension-sdk/run-action` requires `app.all` or the app-specific `app.{appName}` privilege.
+
+The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
+
 ## Core
+
+### `product-export:generate --force` now regenerates scheduler-managed exports
+
+`--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
+
 
 ### Built-in translation system configurable via `shopware.translation`
 
@@ -72,9 +88,63 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Storefront
 
+### `theme:create` gains `--full` and granular scaffold flags
+
+`bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
+
+### `PluginManager.override()` now works for async plugins
+
+Overriding a lazily loaded core storefront plugin no longer silently falls back to the core class. Three defects caused the override to be registered but never applied:
+
+* A core plugin class that finished loading after the override was registered overwrote the override in the registry.
+* An element kept the plugin instance it was first initialized with, even after the registered class had changed.
+* Re-registering an async plugin with a plain (non-lazy) class left it flagged as async, so it was never initialized at all.
+
+Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. This replacement happens whenever the class registered under a plugin name differs from the class an existing instance was built with, so it is not limited to `PluginManager.override()` and it can happen during any later initialization pass, for example the one that runs after AJAX-loaded content.
+
+Before an outdated instance is replaced, the PluginManager calls its `destroy()` method and resets its `$emitter`.
+
+**Be aware of the current limitation:** the instance being replaced is the previously registered class, which is usually a core plugin, and most core plugins do not implement `destroy()` yet. Anything such an instance registered outside of itself — most importantly listeners added with `addEventListener` — therefore stays active, and both the replaced and the new instance react to the same event. The PluginManager logs a `console.warn` naming every plugin that is replaced without implementing `destroy()`. Registering your override before the storefront initializes its plugins, which is what a theme entry file does by default, avoids the replacement entirely and is the recommended way to override a plugin.
+
+`PluginBaseClass` now declares a `destroy()` method. Implement it in your own plugins to clean up anything `init()` registered outside the instance:
+
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    init() {
+        this._onClick = this._onClick.bind(this);
+        this.el.addEventListener('click', this._onClick);
+    }
+
+    destroy() {
+        this.el.removeEventListener('click', this._onClick);
+    }
+}
+```
+
+Note that `PluginManager.override()` still requires the exact selector the plugin was registered with. Overriding `FormCmsHandler` for example only takes effect with the selector `.cms-element-form form`.
+
+### `PluginManager.extend()` can extend plugins under a new name again
+
+`PluginManager.extend(fromName, newName, ...)` threw a `TypeError` for every plugin, because it assigned to the non-writable `prototype` property of the generated class. Extending a lazily loaded plugin additionally failed because the unloaded plugin cannot be used as a base class. Both cases now work; for a lazily loaded parent, the extended class is built once the parent has been loaded.
+
 ## App System
 
 ## Hosting & Configuration
+
+### Fallback thumbnail sizes for remote thumbnails
+
+When remote thumbnails are enabled, operators can optionally configure `shopware.media.remote_thumbnails.fallback_sizes`. It defaults to `[]` and accepts entries with `width` and `height`:
+
+```yaml
+# config/packages/shopware.yaml
+shopware:
+    media:
+        remote_thumbnails:
+            fallback_sizes:
+                - { width: 400, height: 400 }
+```
+
+Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
 
 # 6.7.13.0
 
@@ -86,6 +156,22 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
+### MCP tools can be enabled per session through toolsets
+
+The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
+
+Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
+### MCP tools can be discovered on demand
+
+A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
+
+The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
+### MCP list responses apply allowlists before pagination
+
+MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
 ### MCP tools expose a group for operator-facing selection
 
 MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.

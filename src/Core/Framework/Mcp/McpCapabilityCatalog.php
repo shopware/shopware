@@ -52,7 +52,8 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
-        $toolGroups = $this->resolveToolGroups();
+        $appToolGroups = $this->privilegeProvider->getAppToolGroups();
+        $toolGroups = $this->resolveToolGroups($appToolGroups);
 
         $tools = [];
 
@@ -83,7 +84,8 @@ class McpCapabilityCatalog
         }
 
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
-        $toolGroups = $this->resolveToolGroups();
+        $appToolGroups = $this->privilegeProvider->getAppToolGroups();
+        $toolGroups = $this->resolveToolGroups($appToolGroups);
 
         foreach ($this->registry->getTools()->references as $tool) {
             if (!$tool instanceof Tool || $tool->name !== $name) {
@@ -199,28 +201,29 @@ class McpCapabilityCatalog
     }
 
     /**
-     * Explicit #[McpToolGroup] values take precedence. Each remaining tool uses the longest
-     * hyphen-separated prefix it shares with another unconfigured tool.
+     * Explicit #[McpToolGroup] values take precedence over runtime app groups. Each remaining
+     * tool uses the longest hyphen-separated prefix it shares with another unconfigured tool.
+     *
+     * @param array<string, string> $appToolGroups
      *
      * @return array<string, string> tool-name => group
      */
-    private function resolveToolGroups(): array
+    private function resolveToolGroups(array $appToolGroups): array
     {
         \assert($this->registry !== null);
 
+        $resolvedGroups = array_merge($appToolGroups, $this->toolGroups);
         $unconfiguredToolNames = [];
 
         foreach ($this->registry->getTools()->references as $tool) {
             \assert($tool instanceof Tool);
 
-            if (isset($this->toolGroups[$tool->name])) {
+            if (isset($resolvedGroups[$tool->name])) {
                 continue;
             }
 
             $unconfiguredToolNames[] = $tool->name;
         }
-
-        $resolvedGroups = $this->toolGroups;
 
         foreach ($unconfiguredToolNames as $toolName) {
             $group = explode('-', $toolName)[0] ?: 'other';

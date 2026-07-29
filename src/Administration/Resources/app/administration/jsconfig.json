@@ -28,7 +28,7 @@
         }
     },
     "include": [
-        "./src/Administration/Resources/app/administration/**/*",
+        "src/**/*",
         "types/**/*"
     ],
     "exclude": [

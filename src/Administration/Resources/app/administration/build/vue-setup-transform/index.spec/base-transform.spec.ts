@@ -65,6 +65,56 @@ const {
         expect(transformOrFail(source, 'sw-my-component.vue').code).toBe(expected);
     });
 
+    it('pins the exact generated output for a base component with an <sw-block name> declaration', () => {
+        const source = stripIndent`
+            <template>
+                <sw-block name="sw_example_headline">
+                    <h1>{{ title }}</h1>
+                </sw-block>
+            </template>
+            <script setup lang="ts">
+            import { ref } from 'vue';
+
+            const title = ref('Hello');
+            const internalNote = ref('secret');
+
+            swDefinePublic({
+                title,
+            });
+            </script>
+        `;
+
+        // Companion to the script-only exact-string test above, for the <sw-block> path: pins the full
+        // output including the generated `:data="$dataScope"` injected before the author's `name`, the
+        // rest of the template preserved verbatim, and the usual rename + attachOverrides footer.
+        const expected = `<template>
+    <sw-block :data="$dataScope" name="sw_example_headline">
+        <h1>{{ title }}</h1>
+    </sw-block>
+</template>
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const __swSetupAuthor_title = ref('Hello');
+const __swSetupAuthor_internalNote = ref('secret');
+
+const {
+    title,
+    internalNote,
+} = Shopware.Component.attachOverrides({
+    name: 'sw-example',
+    public: {
+        title: __swSetupAuthor_title,
+    },
+    private: {
+        internalNote: __swSetupAuthor_internalNote,
+    },
+});
+</script>`;
+
+        expect(transformOrFail(source, 'sw-example.vue').code).toBe(expected);
+    });
+
     it('preserves multi-line template literal contents instead of re-indenting them', () => {
         const source = stripIndent`
             <script setup>

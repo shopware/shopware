@@ -6,6 +6,11 @@
 
 ## Core
 
+### `product-export:generate --force` now regenerates scheduler-managed exports
+
+`--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
+
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
@@ -75,6 +80,10 @@ Cron-driven product export generation no longer derives the next run from `gener
 The bundled `@shopware-ag/meteor-admin-sdk` dependency was updated from `6.9.1` to `6.10.0`. This version adds an optional `visible` flag to `ui.tabs().addTabItem()` so an extension can register its tab hidden, and a new `ui.tabs().setVisibility()` method to show or hide a previously registered tab afterwards. Extensions that do not pass `visible` are unaffected; their tabs continue to render as before.
 
 ## Storefront
+
+### `theme:create` gains `--full` and granular scaffold flags
+
+`bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
 
 ## App System
 

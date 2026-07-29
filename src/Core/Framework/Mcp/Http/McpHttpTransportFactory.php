@@ -12,6 +12,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
+use Shopware\Core\Framework\Mcp\McpToolSchemaNormalizer;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -89,6 +90,10 @@ class McpHttpTransportFactory
      * This guards against mcp/sdk v0.6.0 (symfony/mcp-bundle v0.10.0) still emitting batch arrays.
      * Once the SDK stops bundling multiple messages over application/json, this becomes a no-op and
      * can be removed.
+     *
+     * On top of that, tool schemas are normalized on every path — the plain JSON object, the batch
+     * re-emitted as SSE, and a native SSE stream the SDK emits directly — so an empty
+     * `properties` map never reaches a client as `[]` (see {@see McpToolSchemaNormalizer}).
      */
     public function createResponse(PsrResponseInterface $psrResponse): Response
     {
@@ -97,7 +102,15 @@ class McpHttpTransportFactory
         $contentType = strtolower($psrResponse->getHeaderLine('Content-Type'));
 
         if (str_starts_with($contentType, 'text/event-stream')) {
-            return $this->httpFoundationFactory->createResponse($psrResponse, true);
+            // A tools/list can arrive as a native SSE stream — the SDK emits one when the client
+            // accepts text/event-stream, which is exactly the shape a tools/list takes right after
+            // a toolset-enable (it rides the notification channel). It bypasses the JSON branch
+            // below, so normalize the JSON carried in each `data:` frame here too, leaving the SSE
+            // framing untouched. Server::run() returns a fully materialized response, so the body
+            // is finite and safe to read.
+            $body = (string) $psrResponse->getBody();
+
+            return $this->rebuildResponse(self::normalizeEventStreamBody($body) ?? $body, $psrResponse);
         }
 
         if (str_starts_with($contentType, 'application/json')) {
@@ -106,9 +119,71 @@ class McpHttpTransportFactory
             if (\is_array($decoded) && array_is_list($decoded) && $decoded !== []) {
                 return $this->eventStreamResponse($decoded, $psrResponse);
             }
+
+            if (\is_array($decoded)) {
+                $normalized = McpToolSchemaNormalizer::normalizeToolListResult($decoded);
+
+                if ($normalized !== null) {
+                    return $this->rebuildResponse(Json::encode($normalized), $psrResponse);
+                }
+            }
         }
 
         return $this->httpFoundationFactory->createResponse($psrResponse, false);
+    }
+
+    /**
+     * Rewrites the JSON-RPC messages carried in an SSE body's `data:` frames, leaving the SSE
+     * framing (`event:`, `id:`, blank lines) untouched so event ids stay intact for resumability.
+     * Returns null when nothing changed. Multi-line `data:` payloads are left alone — the SDK emits
+     * single-line JSON per frame (see {@see self::eventStreamResponse()}).
+     */
+    private static function normalizeEventStreamBody(string $body): ?string
+    {
+        $lines = explode("\n", $body);
+        $changed = false;
+
+        foreach ($lines as $index => $line) {
+            if (!str_starts_with($line, 'data:')) {
+                continue;
+            }
+
+            $prefixLength = str_starts_with($line, 'data: ') ? 6 : 5;
+            $decoded = json_decode(substr($line, $prefixLength), true);
+
+            if (!\is_array($decoded)) {
+                continue;
+            }
+
+            $normalized = McpToolSchemaNormalizer::normalizeToolListResult($decoded);
+
+            if ($normalized === null) {
+                continue;
+            }
+
+            $lines[$index] = substr($line, 0, $prefixLength) . Json::encode($normalized);
+            $changed = true;
+        }
+
+        return $changed ? implode("\n", $lines) : null;
+    }
+
+    /**
+     * Re-emits a (re-encoded) body while preserving the SDK response's status code and all headers
+     * (Content-Type, mcp-session-id, and any others). The body was rewritten, so a now-stale
+     * Content-Length is dropped and left for Symfony to recompute.
+     */
+    private function rebuildResponse(string $body, PsrResponseInterface $psrResponse): Response
+    {
+        $response = new Response($body, $psrResponse->getStatusCode());
+
+        foreach ($psrResponse->getHeaders() as $name => $values) {
+            $response->headers->set($name, $values);
+        }
+
+        $response->headers->remove('Content-Length');
+
+        return $response;
     }
 
     /**
@@ -118,6 +193,13 @@ class McpHttpTransportFactory
     {
         $body = '';
         foreach ($messages as $message) {
+            // The batched shape is exactly what a tools/list following a toolset-enable looks
+            // like (the list_changed notification rides along), so it needs the same schema
+            // normalization as the single-object path.
+            if (\is_array($message)) {
+                $message = McpToolSchemaNormalizer::normalizeToolListResult($message) ?? $message;
+            }
+
             $body .= 'event: message' . "\n" . 'data: ' . Json::encode($message) . "\n\n";
         }
 

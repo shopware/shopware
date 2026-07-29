@@ -43,7 +43,6 @@ class SortingListingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$this->buildSortings()]);
 
         $processor = new SortingListingProcessor(
@@ -154,7 +153,6 @@ class SortingListingProcessorTest extends TestCase
     {
         $sortings = $this->buildSortings();
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$sortings]);
 
         $processor = new SortingListingProcessor(
@@ -179,7 +177,6 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->expectException(ProductException::class);
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([
             $this->buildSortings(),
         ]);

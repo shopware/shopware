@@ -176,12 +176,12 @@ class SeoActionController extends AbstractController
             return new Response('', Response::HTTP_NO_CONTENT);
         }
 
-        $this->seoUrlPersister->updateSeoUrls(
+        $this->seoUrlPersister->forceUpdateSeoUrls(
             $context,
             $seoUrlData['routeName'],
             [$seoUrlData['foreignKey']],
             [$seoUrlData],
-            $salesChannel
+            $salesChannel,
         );
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -232,12 +232,12 @@ class SeoActionController extends AbstractController
                 continue;
             }
 
-            $this->seoUrlPersister->updateSeoUrls(
+            $this->seoUrlPersister->forceUpdateSeoUrls(
                 $context,
                 $writeRows[0]['routeName'],
                 array_column($writeRows, 'foreignKey'),
                 $writeRows,
-                $salesChannelEntity
+                $salesChannelEntity,
             );
         }
 

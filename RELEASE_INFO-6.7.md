@@ -6,21 +6,11 @@
 
 ## Core
 
-### Product line items expose the manufacturer name in their payload
+### Product line items expose the manufacturer and category names in their payload
 
-Product line items now carry the manufacturer name in `payload.manufacturerName`, alongside the existing `payload.manufacturerId`. The value is the translated manufacturer name for the current language, or `null` when the product has no manufacturer. Variants inherit the name from their parent, matching how `manufacturerId` is inherited. The name is also written to `order_line_item.payload` when a cart is converted to an order. Existing orders are not backfilled.
+Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
 
-Previously this key was only present when a client posted it as part of the line item payload. The Storefront product detail page did that, but no other add-to-cart path did, so the key was missing for products added from listings, by product number, through reorder, through the Store API, or as a promotion item. Code reading `payload.manufacturerName` no longer needs to handle a missing key. Clients that post the key themselves can stop doing so: Core resolves the name during cart enrichment and overwrites any client supplied value, which also means the value can no longer be spoofed.
-
-The manufacturer is now loaded as part of the existing cart product query. Plugins that subscribe to `Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent` only to add the `manufacturer` association can remove that workaround.
-
-### Product line items expose the category path in their payload
-
-Product line items now carry the category path of the product in `payload.categoryNames`, alongside the existing `payload.categoryIds`. The value is a list of translated category names ordered from the top level down, starting below the sales channel navigation root, and it is an empty list when the product has no category. The path is also written to `order_line_item.payload` when a cart is converted to an order. Existing orders are not backfilled.
-
-`payload.categoryIds` contains every category in the product's tree. For a product assigned to more than one branch that is a union of branches and therefore not a path, so it cannot be turned into a category hierarchy by resolving the names in order. `payload.categoryNames` is built from a single category instead, selected the same way the storefront breadcrumb selects one: the sales channel main category when one is assigned, otherwise the deepest assigned category. Categories that are inactive, not visible, or outside the sales channel category tree are ignored.
-
-As with the manufacturer name, this key was previously only present when a client posted it as part of the line item payload, which only the Storefront product detail page did. Core now resolves it during cart enrichment for every add-to-cart path and overwrites any client supplied value. The product's assigned categories are loaded with the existing cart product query, which adds one query when the cart data is refreshed; the category breadcrumb itself is a stored field, so building the path needs no further queries.
+Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 
 ### Built-in translation system configurable via `shopware.translation`
 
@@ -94,9 +84,7 @@ Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties 
 
 With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
 
-`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, regardless of how the product was added to the cart. They previously only appeared for products added from the product detail page, because both were read from hidden form fields instead of the product line item. Those hidden `manufacturerName` and `categoryNames` inputs have been removed from the buy widget, and the values now come from the product line item payload. See the Core section for details.
-
-Removing the category inputs also removes the buy widget's call to `sw_breadcrumb_full`, which is deprecated and will be removed with Shopware 6.8. Themes that override the `buy_widget_buy_product_buy_info` block and rely on those hidden inputs should drop them; the block itself is unchanged.
+`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The buy widget's hidden `manufacturerName` and `categoryNames` inputs have been removed because the values come from the product line item payload instead; themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should drop them.
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 ### `theme:create` gains `--full` and granular scaffold flags

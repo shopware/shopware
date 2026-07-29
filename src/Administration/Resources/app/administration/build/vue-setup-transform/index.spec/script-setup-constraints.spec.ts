@@ -242,11 +242,38 @@ describe('build/vue-setup-transform script setup constraints', () => {
             thrown = error;
         }
 
-        const error = thrown as { name: string; index: number };
+        const error = thrown as { name: string; index: number; endIndex: number };
 
         // The absolute SFC offset must land on the offending `await`, not at 0 (block-relative) or the
         // block start - this is the contract index.ts's withBlockOffset() exists to preserve.
         expect(error.name).toBe('ShopwareSetupTransformError');
         expect(source.slice(error.index, error.index + 'await'.length)).toBe('await');
+        // The error also carries the full node range (endIndex), so ESLint can underline the whole
+        // offending expression rather than a single point.
+        expect(source.slice(error.index, error.endIndex)).toBe('await loadValue()');
+    });
+
+    it('carries the full binding range on a reserved-name error so the whole name is underlined', () => {
+        const source = stripIndent`
+            <template><div /></template>
+            <script setup>
+            const Shopware = { custom: true };
+            swDefinePublic({});
+            </script>
+        `;
+
+        let thrown: unknown;
+
+        try {
+            transformShopwareSetupSfc(source, 'reserved-range.vue');
+        } catch (error) {
+            thrown = error;
+        }
+
+        const error = thrown as { name: string; index: number; endIndex: number };
+
+        expect(error.name).toBe('ShopwareSetupTransformError');
+        // The range spans the offending binding identifier, not just its first character.
+        expect(source.slice(error.index, error.endIndex)).toBe('Shopware');
     });
 });

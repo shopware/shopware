@@ -17,7 +17,7 @@
 import type { CallExpression, Statement } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { absoluteStart, unwrapTransparentMacroExpression } from './utils';
+import { absoluteRange, unwrapTransparentMacroExpression } from './utils';
 
 type MacroName =
     | 'defineProps'
@@ -256,14 +256,14 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
         const named = entries.filter((entry) => entry.name === name);
 
         if (!rule.modes.includes(mode) && named.length > 0) {
-            throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteStart(named[0].call, scriptOffset));
+            throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteRange(named[0].call, scriptOffset));
         }
 
         // Multiplicity is per name, not per `group`: the only macros with a duplicate limit are the
         // swDefine* markers, which have no group, and the grouped props macros deliberately leave
         // multiplicity to Vue's own "duplicate defineProps() call" error.
         if (rule.duplicateMessage && named.length > 1) {
-            throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteStart(named[1].call, scriptOffset));
+            throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteRange(named[1].call, scriptOffset));
         }
 
         if (rule.required?.modes.includes(mode) && named.length === 0) {

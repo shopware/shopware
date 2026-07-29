@@ -12,7 +12,7 @@
 import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { absoluteStart, walk } from './utils';
+import { absoluteRange, walk } from './utils';
 import { isFunctionLikeNode } from '../utils/ast-traversal';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
 import {
@@ -61,7 +61,7 @@ function assertNoUnsupportedSyntax(
             const wrongModeCheck = wrongModeChecks.find((check) => check.name === calleeName);
 
             if (wrongModeCheck) {
-                throw new ShopwareSetupTransformError(wrongModeCheck.message, absoluteStart(node, scriptOffset));
+                throw new ShopwareSetupTransformError(wrongModeCheck.message, absoluteRange(node, scriptOffset));
             }
 
             // Shopware marker macros are only meaningful as top-level statements; a nested call would
@@ -69,7 +69,7 @@ function assertNoUnsupportedSyntax(
             const topLevelOnlyCheck = topLevelOnlyChecks.find((check) => check.name === calleeName);
 
             if (topLevelOnlyCheck && !topLevelMarkerCalls.get(calleeName)?.has(node)) {
-                throw new ShopwareSetupTransformError(topLevelOnlyCheck.message, absoluteStart(node, scriptOffset));
+                throw new ShopwareSetupTransformError(topLevelOnlyCheck.message, absoluteRange(node, scriptOffset));
             }
         }
 
@@ -83,7 +83,7 @@ function assertNoUnsupportedSyntax(
         if (isAwait && !ancestors.some(isFunctionLikeNode)) {
             throw new ShopwareSetupTransformError(
                 'Top-level await is not supported inside Shopware setup blocks.',
-                absoluteStart(node, scriptOffset),
+                absoluteRange(node, scriptOffset),
             );
         }
 
@@ -105,7 +105,7 @@ function assertNoUnsupportedSyntax(
             if (!isTypeOnlyExport && !isInsideAmbientModule) {
                 throw new ShopwareSetupTransformError(
                     '<script setup> cannot contain ES module exports.',
-                    absoluteStart(node, scriptOffset),
+                    absoluteRange(node, scriptOffset),
                 );
             }
         }
@@ -113,7 +113,7 @@ function assertNoUnsupportedSyntax(
         if (node.type === 'ExportAllDeclaration' || node.type === 'ExportDefaultDeclaration') {
             throw new ShopwareSetupTransformError(
                 '<script setup> cannot contain ES module exports.',
-                absoluteStart(node, scriptOffset),
+                absoluteRange(node, scriptOffset),
             );
         }
     });
@@ -137,21 +137,21 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
         if (helpers.has(binding.name)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved by the Shopware setup transform and must not be declared or imported.`,
-                absoluteStart(binding.node, scriptOffset),
+                absoluteRange(binding.node, scriptOffset),
             );
         }
 
         if (binding.name === RESERVED_OVERRIDE_STATE_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" is reserved for Shopware override-private state and must not be declared or imported.`,
-                absoluteStart(binding.node, scriptOffset),
+                absoluteRange(binding.node, scriptOffset),
             );
         }
 
         if (binding.name.startsWith(SHOPWARE_SETUP_INTERNAL_PREFIX)) {
             throw new ShopwareSetupTransformError(
                 `"${binding.name}" uses the reserved "${SHOPWARE_SETUP_INTERNAL_PREFIX}" prefix of the Shopware setup transform and must not be declared or imported.`,
-                absoluteStart(binding.node, scriptOffset),
+                absoluteRange(binding.node, scriptOffset),
             );
         }
 
@@ -162,7 +162,7 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
             throw new ShopwareSetupTransformError(
                 '"__proto__" cannot be a Shopware setup binding: it collides with prototype-setter syntax in the ' +
                     'generated state object and would be silently dropped. Rename the binding.',
-                absoluteStart(binding.node, scriptOffset),
+                absoluteRange(binding.node, scriptOffset),
             );
         }
 
@@ -172,7 +172,7 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
         if (binding.name === RESERVED_RUNTIME_GLOBAL_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${RESERVED_RUNTIME_GLOBAL_NAME}" is reserved by the Shopware setup transform, which generates code that reads the global "${RESERVED_RUNTIME_GLOBAL_NAME}" object. Rename your binding.`,
-                absoluteStart(binding.node, scriptOffset),
+                absoluteRange(binding.node, scriptOffset),
             );
         }
     });
@@ -230,7 +230,7 @@ function assertNoRuntimeBindingPropCollision(
             `Setup binding "${binding.name}" has the same name as a declared prop. The extendable setup runtime removes ` +
                 `declared prop keys from returned state, so this binding would be deleted and its template reference would ` +
                 `read undefined. Rename the binding and read the prop through the props object (props.${binding.name}).`,
-            absoluteStart(binding.node, scriptOffset),
+            absoluteRange(binding.node, scriptOffset),
         );
     });
 }

@@ -11,7 +11,7 @@
 
 import type { CallExpression, Node as BabelNode, ObjectExpression } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { absoluteStart } from './utils';
+import { absoluteRange } from './utils';
 
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
@@ -38,7 +38,7 @@ function assertSingleArgument(
     if (callNode.arguments.length !== 1 || callNode.arguments[0].type !== 'ObjectExpression') {
         throw new ShopwareSetupTransformError(
             `${macroName}() requires exactly one object-literal argument.`,
-            absoluteStart(callNode, scriptOffset),
+            absoluteRange(callNode, scriptOffset),
         );
     }
 
@@ -61,14 +61,14 @@ function extractStaticObjectMarker(
         if (property.type === 'SpreadElement') {
             throw new ShopwareSetupTransformError(
                 `Spread properties are not supported inside ${macroName}().`,
-                absoluteStart(property, scriptOffset),
+                absoluteRange(property, scriptOffset),
             );
         }
 
         if (property.type !== 'ObjectProperty') {
             throw new ShopwareSetupTransformError(
                 `${macroName}() only supports plain object properties.`,
-                absoluteStart(property, scriptOffset),
+                absoluteRange(property, scriptOffset),
             );
         }
 
@@ -77,7 +77,7 @@ function extractStaticObjectMarker(
         if (property.computed || !property.shorthand || property.key.type !== 'Identifier') {
             throw new ShopwareSetupTransformError(
                 `${macroName}() only supports shorthand bindings such as { a, b }. Renaming and string or computed keys (for example { a: b } or { 'a': b }) are not supported.`,
-                absoluteStart(property, scriptOffset),
+                absoluteRange(property, scriptOffset),
             );
         }
 
@@ -86,14 +86,14 @@ function extractStaticObjectMarker(
         if (localName === RESERVED_OVERRIDE_STATE_NAME) {
             throw new ShopwareSetupTransformError(
                 `"${localName}" is reserved for Shopware override-private state and cannot be exposed with ${macroName}().`,
-                absoluteStart(property, scriptOffset),
+                absoluteRange(property, scriptOffset),
             );
         }
 
         if (seenKeys.has(localName)) {
             throw new ShopwareSetupTransformError(
                 `Duplicate ${entryType} Shopware setup binding key "${localName}".`,
-                absoluteStart(property, scriptOffset),
+                absoluteRange(property, scriptOffset),
             );
         }
 

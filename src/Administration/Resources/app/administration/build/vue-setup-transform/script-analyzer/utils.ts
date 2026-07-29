@@ -11,7 +11,7 @@
 
 import { parse, type ParserPlugin } from '@babel/parser';
 import type { File as BabelFile, Node as BabelNode } from '@babel/types';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { ShopwareSetupTransformError, type ShopwareSetupErrorPosition } from '../utils/transform-error';
 import { childBabelNodes } from '../utils/ast-traversal';
 import type { SourceRange } from '../utils/source-range';
 
@@ -21,7 +21,7 @@ type AstVisitor = (node: BabelNode, ancestors: BabelNode[]) => void;
  * Converts Babel source ranges into the transform's compact range shape.
  *
  * The result is **script-local**: it indexes into the `<script setup>` content, not the whole SFC. Use
- * `absoluteStart()` to move a position into SFC coordinates for a diagnostic.
+ * `absoluteRange()` to move a range into SFC coordinates for a diagnostic.
  */
 function getNodeRange(node: BabelNode): SourceRange {
     if (typeof node.start !== 'number' || typeof node.end !== 'number') {
@@ -35,15 +35,21 @@ function getNodeRange(node: BabelNode): SourceRange {
 }
 
 /**
- * Moves a node's start position from script-local into absolute SFC coordinates.
+ * Moves a node's full range from script-local into absolute SFC coordinates for a diagnostic.
  *
  * The transform juggles two coordinate spaces: analyzer ranges are script-local (they index into the
- * script block's content), while `ShopwareSetupTransformError.index` is an absolute SFC offset. This is
- * the one place that conversion happens, so call sites no longer open-code `offset + range.start` and
- * cannot silently forget it.
+ * script block's content), while `ShopwareSetupTransformError` positions are absolute SFC offsets. This
+ * is the one place that conversion happens, so call sites no longer open-code `offset + range.start`
+ * and cannot silently forget it. Passing the result to the error carries both the start (for build/CLI
+ * adapters) and the end (so ESLint underlines the whole offending token).
  */
-function absoluteStart(node: BabelNode, blockOffset: number): number {
-    return blockOffset + getNodeRange(node).start;
+function absoluteRange(node: BabelNode, blockOffset: number): ShopwareSetupErrorPosition {
+    const range = getNodeRange(node);
+
+    return {
+        index: blockOffset + range.start,
+        endIndex: blockOffset + range.end,
+    };
 }
 
 /**
@@ -121,4 +127,4 @@ function unwrapTransparentMacroExpression(node: BabelNode | null | undefined): B
 /**
  * @private
  */
-export { type SourceRange, absoluteStart, getNodeRange, parseScript, unwrapTransparentMacroExpression, walk };
+export { type SourceRange, absoluteRange, getNodeRange, parseScript, unwrapTransparentMacroExpression, walk };

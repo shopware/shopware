@@ -101,6 +101,20 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(iconComponent.exists()).toBe(false);
     });
 
+    it('should hide the smart bar', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-meteor-page__smart-bar').exists()).toBe(true);
+
+        await wrapper.setProps({
+            hideSmartBar: true,
+        });
+
+        expect(wrapper.classes()).toContain('sw-meteor-page--hide-smart-bar');
+        expect(wrapper.find('.sw-meteor-page__smart-bar').exists()).toBe(false);
+    });
+
     it('should render the module icon when slot "smart-bar-icon" is not filled', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

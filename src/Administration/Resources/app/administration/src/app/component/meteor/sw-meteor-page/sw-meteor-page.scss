@@ -90,6 +90,16 @@
         }
     }
 
+    // Without the smart bar the bottom margin has nothing to space away and the top bar
+    // divider would only double the head area border.
+    &.sw-meteor-page--hide-smart-bar .sw-meteor-page__head-area {
+        margin-bottom: 0;
+
+        &::before {
+            content: none;
+        }
+    }
+
     .sw-meteor-page__head-area.is--scrolled {
         .sw-meteor-page__smart-bar-navigation {
             margin-bottom: 4px;

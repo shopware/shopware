@@ -2,12 +2,13 @@ import { mount } from '@vue/test-utils';
 
 let successfulActivation = true;
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-extension-store-landing-page', {
             sync: true,
         }),
         {
+            props,
             global: {
                 provide: {
                     extensionHelperService: {
@@ -23,6 +24,9 @@ async function createWrapper() {
                 stubs: {
                     'sw-loader': true,
                     'sw-label': true,
+                    'sw-meteor-page': {
+                        template: '<div class="sw-meteor-page-stub"><slot></slot></div>',
+                    },
                 },
             },
         },
@@ -98,5 +102,18 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         // check if error message is shown
         const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
         expect(activationHeading.text()).toBe('sw-extension-store.landing-page.activationErrorTitle');
+    });
+
+    it('should render inside a meteor page for the top bar', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-meteor-page-stub .sw-extension-store-landing-page').exists()).toBe(true);
+    });
+
+    it('should render without a page wrapper inside a modal', async () => {
+        const wrapper = await createWrapper({ insideModal: true });
+
+        expect(wrapper.find('.sw-meteor-page-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-store-landing-page').exists()).toBe(true);
     });
 });

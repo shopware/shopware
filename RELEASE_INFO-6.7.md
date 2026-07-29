@@ -73,18 +73,7 @@ Product export body templates now receive RFC 3986-encoded `MediaEntity::url` an
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 
-On MySQL 8.4, bug [#118151](https://bugs.mysql.com/bug.php?id=118151) made `ALTER TABLE` and `CREATE INDEX` fail on tables involved in a foreign key with a non-standard supporting key, blocking product-table migrations on shops carrying such drift. Migration DDL now retries such a failure once with `restrict_fk_on_non_standard_key` relaxed, restoring it afterwards. Healthy schemas, MariaDB, and MySQL without the variable are unaffected; legitimate failures fail the retry as well.
-
-The `MigrationStep` DDL helpers retry automatically, in core and extension migrations alike. For raw DDL statements, extension migrations can use `MigrationStep::executeDdlStatement()`:
-
-```php
-public function update(Connection $connection): void
-{
-    $this->executeDdlStatement($connection, 'ALTER TABLE `product` ADD COLUMN `my_column` VARCHAR(32) NULL');
-}
-```
-
-The method is marked `@internal` because it exists only until MySQL fixes bug #118151, but it is safe to call from extension migrations in the meantime.
+Migration DDL now retries once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4 rejects a statement through MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151). The `MigrationStep` DDL helpers do this automatically; raw DDL statements in extension migrations should go through `MigrationStep::executeDdlStatement()`. The method is `@internal` only because it will be removed once MySQL fixes the bug; it is safe to call in the meantime.
 
 ### Polyfill packages are installed as declared dependencies
 

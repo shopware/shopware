@@ -322,12 +322,14 @@ class EntityAggregateToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
         $registry->method('getRepository')->willReturn($repository);
 
+        $criteria = new Criteria();
         $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
         $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
         $criteriaValidator->expects($this->once())
             ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
             ->willReturn(['order_customer:read']);
 
         $contextProvider = static::createStub(McpContextProvider::class);

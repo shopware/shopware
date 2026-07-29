@@ -30,17 +30,17 @@ class EntitySearchToolIntegrationTest extends TestCase
     {
         $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        /** @var RequestCriteriaBuilder $criteriaBuilder */
         $criteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
+        \assert($criteriaBuilder instanceof RequestCriteriaBuilder);
 
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        /** @var JsonEntityEncoder $encoder */
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        \assert($encoder instanceof JsonEntityEncoder);
 
-        /** @var AclCriteriaValidator $criteriaValidator */
         $criteriaValidator = static::getContainer()->get(AclCriteriaValidator::class);
+        \assert($criteriaValidator instanceof AclCriteriaValidator);
 
         $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
     }

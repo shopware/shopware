@@ -37,6 +37,9 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
 
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
 ### Built-in translation system configurable via `shopware.translation`
 

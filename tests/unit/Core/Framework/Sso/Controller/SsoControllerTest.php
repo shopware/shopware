@@ -87,7 +87,7 @@ class SsoControllerTest extends TestCase
 
         $this->setEnvVars(['APP_URL' => 'https://example.com']);
 
-        $response = $this->createController($this->createMock(LoginConfigService::class), $router)->ssoAuth($request);
+        $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
 
         static::assertSame('https://example.com/admin', $response->getTargetUrl());
     }

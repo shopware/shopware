@@ -74,7 +74,7 @@ final readonly class CompileThemeHandler
             [
                 'id' => Uuid::randomHex(),
                 'status' => 'info',
-                'message' => 'Compilation for sales channel ' . $salesChannel->getName() . ' completed',
+                'message' => 'sw-theme-manager.detail.asyncCompilation.completed',
                 'requiredPrivileges' => [],
             ],
             $message->getContext()

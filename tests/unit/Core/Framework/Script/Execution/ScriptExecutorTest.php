@@ -21,14 +21,14 @@ class ScriptExecutorTest extends TestCase
     public function testThrowsIfHookIsInterfaceHook(): void
     {
         $scriptExecutor = new ScriptExecutor(
-            $this->createMock(ScriptLoader::class),
-            $this->createMock(ScriptTraces::class),
-            $this->createMock(ContainerInterface::class),
-            $this->createMock(ScriptEnvironmentFactory::class),
+            static::createStub(ScriptLoader::class),
+            static::createStub(ScriptTraces::class),
+            static::createStub(ContainerInterface::class),
+            static::createStub(ScriptEnvironmentFactory::class),
         );
 
         try {
-            $scriptExecutor->execute($this->createMock(InterfaceHook::class));
+            $scriptExecutor->execute(static::createStub(InterfaceHook::class));
         } catch (ScriptException $e) {
             static::assertSame(ScriptException::INTERFACE_HOOK_EXECUTION_NOT_ALLOWED, $e->getErrorCode());
         }

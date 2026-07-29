@@ -120,8 +120,7 @@ class CompressedCriteriaDecoderTest extends TestCase
 
         $encoded = self::encodeCompressedCriteria($largeCriteria);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('Unable to decompress gzipped data');
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decompress gzipped data'));
 
         $decoder->decode($encoded);
     }
@@ -132,8 +131,7 @@ class CompressedCriteriaDecoderTest extends TestCase
 
         $tooLongString = str_repeat('a', 101);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('The _criteria parameter is too long');
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidCompressedCriteriaParameter('The _criteria parameter is too long'));
 
         $decoder->decode($tooLongString);
     }

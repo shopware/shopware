@@ -35,7 +35,6 @@ class StaticFileConfigLoader extends AbstractConfigLoader
         }
 
         $fileContent = $this->filesystem->read($path);
-        \assert(\is_string($fileContent));
         $fileObject = json_decode($fileContent, true, 512, \JSON_THROW_ON_ERROR);
 
         $fileObject = $this->prepareCollections($fileObject);

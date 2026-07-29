@@ -24,6 +24,11 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1737430168, (new Migration1737430168RemoveFileTypeOfDocumentTable())->getCreationTimestamp());
+    }
+
     public function testUpdateSetsColumnToNullable(): void
     {
         $exists = TableHelper::columnExists($this->connection, 'document', 'file_type');

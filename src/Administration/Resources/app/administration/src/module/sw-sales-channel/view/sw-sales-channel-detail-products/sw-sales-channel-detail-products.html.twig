@@ -34,7 +34,6 @@
                             disabled: acl.can('sales_channel.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
                         variant="secondary"
@@ -182,7 +181,6 @@
                     showOnDisabledElements: true
                 }"
                 :disabled="!acl.can('sales_channel.editor')"
-                ghost
                 variant="secondary"
                 @click="openAddProductsModal"
             >

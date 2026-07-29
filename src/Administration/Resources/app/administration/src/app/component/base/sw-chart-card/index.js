@@ -67,6 +67,11 @@ export default {
                 return '';
             },
         },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

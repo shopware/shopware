@@ -146,6 +146,10 @@ export default {
                 bind.repository = this.createRepository(this.config.entity);
             }
 
+            if (this.type === 'multi-select') {
+                bind.enableMultiSelection = true;
+            }
+
             return bind;
         },
 

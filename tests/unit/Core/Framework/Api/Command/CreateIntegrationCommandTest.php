@@ -17,14 +17,12 @@ use Symfony\Component\Dotenv\Dotenv;
 class CreateIntegrationCommandTest extends TestCase
 {
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function createIntegrationDataProvider(): array
+    public static function createIntegrationDataProvider(): iterable
     {
-        return [
-            ['adminOption' => false],
-            ['adminOption' => true],
-        ];
+        yield 'integration is created without admin privileges' => ['adminOption' => false];
+        yield 'integration is created with admin privileges' => ['adminOption' => true];
     }
 
     #[DataProvider('createIntegrationDataProvider')]

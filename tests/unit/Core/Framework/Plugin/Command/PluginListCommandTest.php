@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -152,6 +153,30 @@ class PluginListCommandTest extends TestCase
         static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
     }
 
+    public function testFormatJsonOutput(): void
+    {
+        $entities = [
+            $plugin1 = new PluginEntity(),
+            $plugin2 = new PluginEntity(),
+        ];
+
+        $plugin1->setUniqueIdentifier('1');
+        $plugin2->setUniqueIdentifier('2');
+
+        $this->setupEntityCollection($entities);
+
+        $options = ['--format' => 'json'];
+        $json = json_encode([$plugin1->jsonSerialize(), $plugin2->jsonSerialize()], \JSON_THROW_ON_ERROR);
+
+        $commandTester = $this->executeCommand($options);
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame($json, trim($commandTester->getDisplay()));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--json` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testJsonOutput(): void
     {
         $entities = [
@@ -172,6 +197,15 @@ class PluginListCommandTest extends TestCase
         static::assertSame($json, trim($commandTester->getDisplay()));
     }
 
+    public function testInvalidFormatReturnsError(): void
+    {
+        $this->setupEntityCollection([]);
+
+        $commandTester = $this->executeCommand(['--format' => 'xml']);
+        static::assertSame(2, $commandTester->getStatusCode());
+        static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());
+    }
+
     /**
      * @param array<string, bool|string> $options
      */
@@ -188,7 +222,7 @@ class PluginListCommandTest extends TestCase
      */
     private function setupEntityCollection(array $entities): void
     {
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new PluginCollection($entities));
         $this->pluginRepoMock->method('search')->willReturn($result);
     }

@@ -13,9 +13,10 @@ const categoryMock = {
     isNew: () => false,
 };
 
-async function createWrapper() {
+async function createWrapper({ customFieldSets = [] } = {}) {
     Shopware.Store.get('swCategoryDetail').$reset();
     Shopware.Store.get('swCategoryDetail').category = categoryMock;
+    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSets;
 
     return mount(await wrapTestComponent('sw-category-detail-base', { sync: true }), {
         global: {
@@ -39,7 +40,11 @@ async function createWrapper() {
                 },
                 'sw-category-entry-point-card': true,
                 'sw-category-link-settings': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-custom-field-set-renderer': {
+                    name: 'sw-custom-field-set-renderer',
+                    props: ['disabled'],
+                    template: '<div class="sw-custom-field-set-renderer"></div>',
+                },
             },
         },
         props: {
@@ -68,5 +73,13 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         wrapper.findAllComponents('input').forEach((element) => {
             expect(element.props('disabled')).toBe(false);
         });
+    });
+
+    it('should disable the custom field renderer without category edit permissions', async () => {
+        global.activeAclRoles = ['category.viewer'];
+
+        const wrapper = await createWrapper({ customFieldSets: [{}] });
+
+        expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);
     });
 });

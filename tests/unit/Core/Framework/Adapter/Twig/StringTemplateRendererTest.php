@@ -34,7 +34,7 @@ TWIG;
         $item->setLabel($label);
 
         $environment = new Environment(new ArrayLoader());
-        $translator = $this->createMock(Translator::class);
+        $translator = static::createStub(Translator::class);
         $translator
             ->method('trans')
             ->willReturnCallback(static function (string $id) {
@@ -73,7 +73,8 @@ TWIG;
         $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
 
         $this->expectException(AdapterException::class);
-        $this->expectExceptionMessageMatches('/Failed rendering Twig string template due syntax error: "Unexpected "}" in "[^"]+" at line 1."/');
+        // Twig 3.28 appends the column to syntax error messages, older versions stop at the line
+        $this->expectExceptionMessageMatches('/Failed rendering Twig string template due syntax error: "Unexpected "}" in "[^"]+" at line 1( column \d+)?."/');
         $renderer->render($template, [], $context);
     }
 }

@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-sales-channel-detail {
+    /** @deprecated tag:v6.8.0 - Will be removed */
+    .sw-sales-channel-detail__agentic-commerce-deprecation-banner {
+        max-width: $content-width;
+        margin-bottom: 32px;
+
+        .mt-button {
+            margin-top: 12px;
+        }
+    }
+}

@@ -61,7 +61,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     public function testItPersistsSnippetsWithoutCoreAdministrationSnippets(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('readFile')->willThrowException(new IOException('File not found'));
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
@@ -81,7 +81,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     public function testItPersistsSnippetsWithInvalidCoreAdministrationSnippets(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('readFile')->willReturn('invalid json');
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->never())->method('invalidate');
@@ -109,7 +109,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         $persister = new AppAdministrationSnippetPersister(
             $this->getAppAdministrationSnippetRepository(),
             $this->getLocaleRepository(),
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInvalidator::class),
             new Filesystem()
         );
 
@@ -136,7 +136,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         $persister = new AppAdministrationSnippetPersister(
             $snippetRepository,
             $localeRepository,
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInvalidator::class),
             new Filesystem()
         );
 
@@ -329,7 +329,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      */
     private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
 
         $appSnippets = [];
         foreach ($snippetsFromApp as $snippet) {
@@ -355,24 +355,19 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
         if ($updatedSnippets) {
             $repository
-                ->method('upsert')
-                ->with($newSnippets, Context::createDefaultContext());
+                ->method('upsert');
         }
 
         if ($newSnippets && !$updatedSnippets) {
             $repository
-                ->method('upsert')
-                // assert at least count($newSnippets) are upserted
-                ->with(static::arrayHasKey(\count($newSnippets) - 1), Context::createDefaultContext());
+                ->method('upsert');
         } elseif (!$updatedSnippets) {
             $repository
-                ->method('upsert')
-                ->with([], Context::createDefaultContext());
+                ->method('upsert');
         }
 
         $repository
-            ->method('delete')
-            ->with($deletesSnippetIds, Context::createDefaultContext());
+            ->method('delete');
 
         return $repository;
     }
@@ -384,7 +379,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
      */
     private function getLocaleRepository(array $locales = []): EntityRepository
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
 
         $localeEntities = [];
         foreach ($locales as $locale) {

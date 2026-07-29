@@ -42,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -78,6 +79,11 @@ class OrderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        $billingAddressAssociation = Feature::isActive('v6.8.0.0')
+            ? new OneToOneAssociationField('billingAddress', 'billing_address_id', 'id', OrderAddressDefinition::class, false)
+            : new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class);
+        $billingAddressAssociation->addFlags(new ApiAware())->setDescription('Billing address for the order');
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of order.'),
             (new VersionField())->addFlags(new ApiAware()),
@@ -130,7 +136,7 @@ class OrderDefinition extends EntityDefinition
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Language used when placing the order'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('All addresses associated with the order (billing and shipping)'),
-            (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class))->addFlags(new ApiAware())->setDescription('Billing address for the order'),
+            $billingAddressAssociation,
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Delivery information including shipping address and tracking'),
             (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Order line items (products, discounts, fees)'),
             (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Payment transactions for the order'),

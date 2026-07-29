@@ -33,10 +33,10 @@ class CategoryAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new CategoryAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -60,7 +60,7 @@ class CategoryAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $category = new CategoryEntity();
         $category->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -75,10 +75,10 @@ class CategoryAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new CategoryAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -100,9 +100,9 @@ class CategoryAdminSearchIndexerTest extends TestCase
 
         $indexer = new CategoryAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -126,10 +126,10 @@ class CategoryAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new CategoryAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -150,7 +150,7 @@ class CategoryAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(

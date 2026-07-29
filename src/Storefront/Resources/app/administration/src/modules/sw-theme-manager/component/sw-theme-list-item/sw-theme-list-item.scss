@@ -4,22 +4,22 @@
     display: grid;
     grid-auto-rows: 120px 40px;
     padding: 10px 10px 0 10px;
-    background: $color-white;
-    border: 1px solid $color-gray-300;
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-primary-default);
     border-radius: 4px;
     position: relative;
 
     &.is--disabled {
         &:hover {
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             box-shadow: none;
             cursor: not-allowed;
         }
     }
 
     &:hover {
-        border-color: $color-shopware-brand-500;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
+        border-color: var(--color-border-brand-default);
+        box-shadow: 0 0 4px 0 var(--color-elevation-shadow-default);
         cursor: pointer;
 
         .sw-theme-list-item__options {
@@ -28,15 +28,15 @@
     }
 
     .sw-theme-list-item__image {
-        background: center center no-repeat $color-white;
+        background: center center no-repeat var(--color-elevation-surface-raised);
         background-size: 90% 90%;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
         height: 120px;
 
         &.is--empty {
             background: unset;
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -53,7 +53,7 @@
     }
 
     .sw-theme-list-item__locked{
-        color: $color-gray-300;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-theme-list-item__status {
@@ -61,15 +61,15 @@
         height: 8px;
         border-radius: 100%;
         margin-top: 1px;
-        background: $color-gray-300;
+        background: var(--color-background-tertiary-default);
 
         &.is--active {
-            background: $color-module-green-900;
+            background: var(--color-green-700);
         }
     }
 
     .sw-theme-list-item__title {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -86,12 +86,12 @@
             height: 16px;
             padding: 0 2px;
             line-height: 13px;
-            background: $color-white;
-            border: 1px solid $color-gray-300;
+            background: var(--color-elevation-surface-raised);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
 
             &:hover, &.is--active {
-                background-color: $color-gray-300;
+                background-color: var(--color-background-tertiary-default);
             }
 
             &.is--active {

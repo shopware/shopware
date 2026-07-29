@@ -47,6 +47,11 @@ class Migration1763316536ChangeProductManufacturerLinkTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763316536, (new Migration1763316536ChangeProductManufacturerLink())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1763316536ChangeProductManufacturerLink();

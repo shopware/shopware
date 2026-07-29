@@ -27,6 +27,11 @@ class Migration1743256470RemoveDebitPaymentTest extends TestCase
         parent::setUp();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743256470, (new Migration1743256470RemoveDebitPayment())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $connection = static::getContainer()->get(Connection::class);

@@ -216,7 +216,6 @@
                 },
                 "pricesModal": {
                     "advancedPricesHeader": "Advanced prices",
-                    "closeModal": "Close",
                     "labelCurrency": "Currency",
                     "labelPrice": "Value",
                     "linkAdvancedPrices": "Open advanced prices view"
@@ -284,7 +283,6 @@
                     "linkAdvancedPrices": "Open advanced prices view",
                     "pricesModal": {
                         "advancedPricesHeader": "Advanced prices",
-                        "closeModal": "Close",
                         "labelCurrency": "Currency",
                         "labelPrice": "Value"
                     }

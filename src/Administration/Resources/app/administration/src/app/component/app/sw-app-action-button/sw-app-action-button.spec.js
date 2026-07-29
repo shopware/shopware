@@ -61,6 +61,15 @@ describe('sw-app-action-button', () => {
         expect(icon.attributes('src')).toBe(`data:image/png;base64, ${baseAction.icon}`);
     });
 
+    it('should constrain the extension icon in context menu action buttons', async () => {
+        wrapper = await createWrapper(baseAction);
+        await flushPromises();
+
+        const extensionIcon = wrapper.find('.sw-extension-icon');
+
+        expect(extensionIcon.classes()).toContain('sw-app-action-button__icon');
+    });
+
     it('does not render an icon if not present', async () => {
         wrapper = await createWrapper({
             ...baseAction,

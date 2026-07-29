@@ -87,8 +87,7 @@ class ExtensionDispatcherTest extends TestCase
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Test exception');
+        $this->expectExceptionObject(new \Exception('Test exception'));
 
         try {
             $extensionDispatcher->publish('eventName', $extension, $function);

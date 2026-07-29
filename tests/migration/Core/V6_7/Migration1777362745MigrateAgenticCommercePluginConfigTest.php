@@ -34,6 +34,11 @@ class Migration1777362745MigrateAgenticCommercePluginConfigTest extends TestCase
         $this->migration = new Migration1777362745MigrateAgenticCommercePluginConfig();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1777362745, (new Migration1777362745MigrateAgenticCommercePluginConfig())->getCreationTimestamp());
+    }
+
     public function testMigratesFullyConfiguredOpenAiProductExportSetup(): void
     {
         $values = [

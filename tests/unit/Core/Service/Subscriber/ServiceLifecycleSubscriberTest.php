@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -20,19 +19,10 @@ use Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber;
 #[CoversClass(ServiceLifecycleSubscriber::class)]
 class ServiceLifecycleSubscriberTest extends TestCase
 {
-    private LifecycleManager&MockObject $lifecycleManager;
-
-    private NotificationService&MockObject $notificationService;
-
-    private ServiceLifecycleSubscriber $subscriber;
-
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->lifecycleManager = $this->createMock(LifecycleManager::class);
-        $this->notificationService = $this->createMock(NotificationService::class);
-        $this->subscriber = new ServiceLifecycleSubscriber($this->lifecycleManager, new Notification($this->notificationService));
         $this->context = Context::createDefaultContext();
     }
 
@@ -50,11 +40,13 @@ class ServiceLifecycleSubscriberTest extends TestCase
         $serviceName = 'TestService';
         $event = new ServiceInstalledEvent($serviceName, $this->context);
 
-        $this->lifecycleManager->expects($this->once())
+        $lifecycleManager = $this->createMock(LifecycleManager::class);
+        $lifecycleManager->expects($this->once())
             ->method('syncState')
             ->with($serviceName, $this->context);
 
-        $this->subscriber->syncState($event);
+        $subscriber = new ServiceLifecycleSubscriber($lifecycleManager, new Notification(static::createStub(NotificationService::class)));
+        $subscriber->syncState($event);
     }
 
     public function testSyncStateWithServiceUpdatedEvent(): void
@@ -62,17 +54,21 @@ class ServiceLifecycleSubscriberTest extends TestCase
         $serviceName = 'TestService';
         $event = new ServiceUpdatedEvent($serviceName, $this->context);
 
-        $this->lifecycleManager->expects($this->once())
+        $lifecycleManager = $this->createMock(LifecycleManager::class);
+        $lifecycleManager->expects($this->once())
             ->method('syncState')
             ->with($serviceName, $this->context);
 
-        $this->subscriber->syncState($event);
+        $subscriber = new ServiceLifecycleSubscriber($lifecycleManager, new Notification(static::createStub(NotificationService::class)));
+        $subscriber->syncState($event);
     }
 
-    public function delegatesAllServicesInstalledEvents(): void
+    public function testDelegatesAllServicesInstalledEvents(): void
     {
-        $this->notificationService->expects($this->once())->method('createNotification');
+        $notificationService = $this->createMock(NotificationService::class);
+        $notificationService->expects($this->once())->method('createNotification');
 
-        $this->subscriber->sendInstalledNotification(new NewServicesInstalledEvent());
+        $subscriber = new ServiceLifecycleSubscriber(static::createStub(LifecycleManager::class), new Notification($notificationService));
+        $subscriber->sendInstalledNotification(new NewServicesInstalledEvent());
     }
 }

@@ -68,8 +68,7 @@ class TranslationConfigLoaderTest extends TestCase
     {
         $this->translationConfigLoader->setConfigFileName('translation_invalid_url.yaml');
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "invalid_url" is invalid: "repository-url" must contain a schema and a host.');
+        $this->expectExceptionObject(SnippetException::invalidRepositoryUrl('invalid_url', new \Exception('"repository-url" must contain a schema and a host.')));
         $this->translationConfigLoader->load();
     }
 
@@ -77,8 +76,7 @@ class TranslationConfigLoaderTest extends TestCase
     {
         $this->translationConfigLoader->setConfigFileName('translation_broken_url.yaml');
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "http://" is invalid: Unable to parse URI: http://');
+        $this->expectExceptionObject(SnippetException::invalidRepositoryUrl('http://', new \Exception('Unable to parse URI: http://')));
         $this->translationConfigLoader->load();
     }
 
@@ -86,8 +84,7 @@ class TranslationConfigLoaderTest extends TestCase
     {
         $this->translationConfigLoader->setConfigFileName('translation_non_string_url.yaml');
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "4" is invalid: "repository-url" in the translation config must be a string.');
+        $this->expectExceptionObject(SnippetException::invalidRepositoryUrl('4', new \Exception('"repository-url" in the translation config must be a string.')));
         $this->translationConfigLoader->load();
     }
 
@@ -95,8 +92,7 @@ class TranslationConfigLoaderTest extends TestCase
     {
         $this->translationConfigLoader->setConfigFileName('translation_empty_string_url.yaml');
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The repository URL "" is invalid: "repository-url" in the translation config must not be empty.');
+        $this->expectExceptionObject(SnippetException::invalidRepositoryUrl('', new \Exception('"repository-url" in the translation config must not be empty.')));
         $this->translationConfigLoader->load();
     }
 
@@ -111,16 +107,14 @@ class TranslationConfigLoaderTest extends TestCase
     public function testThrowsOnNonExistingConfigurationFile(): void
     {
         $this->translationConfigLoader->setConfigFileName('non-existing-file');
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('Translation configuration file does not exist: "non-existing-file".');
+        $this->expectExceptionObject(SnippetException::translationConfigurationFileDoesNotExist('non-existing-file'));
         $this->translationConfigLoader->load();
     }
 
     public function testThrowsOnEmptyConfigurationFile(): void
     {
         $this->translationConfigLoader->setConfigFileName('translation_empty.yaml');
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('Translation configuration file exists, but is empty: "translation_empty.yaml".');
+        $this->expectExceptionObject(SnippetException::translationConfigurationFileIsEmpty('translation_empty.yaml'));
         $this->translationConfigLoader->load();
     }
 

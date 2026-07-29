@@ -18,7 +18,7 @@ class PluginTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $pluginsDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/';
+        $pluginsDir = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/';
         $swagTestPluginPath = realpath($pluginsDir . '/SwagTestPlugin');
         static::assertIsString($swagTestPluginPath);
         self::$swagTestPluginPath = $swagTestPluginPath;

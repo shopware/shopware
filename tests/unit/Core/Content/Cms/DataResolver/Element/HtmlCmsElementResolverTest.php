@@ -123,12 +123,12 @@ class HtmlCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 
     private function createResolverContextWithProduct(ProductEntity $product): EntityResolverContext
     {
-        return new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
+        return new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
     }
 
     private function createSlot(): CmsSlotEntity

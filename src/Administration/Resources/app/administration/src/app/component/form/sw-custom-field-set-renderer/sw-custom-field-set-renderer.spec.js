@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -764,6 +766,58 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         Shopware.Utils.debounce = (fn) => {
             return fn;
         };
+    });
+
+    it('builds meteor inheritance config for meteor custom fields', async () => {
+        const removeInheritance = jest.fn();
+        const restoreInheritance = jest.fn();
+
+        wrapper = await createWrapper({
+            sets: createEntityCollection(),
+            entity: {
+                customFields: {
+                    customFieldName: null,
+                },
+                customFieldSetSelectionActive: null,
+                customFieldSets: createEntityCollection(),
+            },
+            parentEntity: {
+                id: 'parentId',
+                translated: {
+                    customFields: {
+                        customFieldName: 'parent',
+                    },
+                },
+                customFieldSetSelectionActive: null,
+                customFieldSets: [],
+            },
+        });
+
+        const bind = wrapper.vm.getBind(
+            {
+                name: 'customFieldName',
+                type: 'text',
+                config: {
+                    componentName: 'sw-text-field',
+                },
+            },
+            {
+                isInheritField: true,
+                isInherited: true,
+                removeInheritance,
+                restoreInheritance,
+            },
+        );
+
+        expect(bind).toEqual(
+            expect.objectContaining({
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: removeInheritance,
+                inheritanceRestore: restoreInheritance,
+                inheritedValue: 'parent',
+            }),
+        );
     });
 
     it('should inherit the value from parent entity', async () => {

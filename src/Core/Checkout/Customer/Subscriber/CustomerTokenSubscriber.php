@@ -105,7 +105,8 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             'token' => $newToken,
         ]);
 
-        if (!$mainRequest->hasSession()) {
+        // Only migrate an initialized storefront session. Store API requests use their context token directly.
+        if (!$mainRequest->hasSession(true)) {
             return null;
         }
 

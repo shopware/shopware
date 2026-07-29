@@ -21,7 +21,7 @@ class ProductSearchBuilderTest extends TestCase
     public function testFallbackToCriteriaTermWhenSearchKeywordIndexingIsDisabled(): void
     {
         $termInterpreter = $this->createMock(ProductSearchTermInterpreterInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
         $searchBuilder = new ProductSearchBuilder(
             $termInterpreter,
             $logger,
@@ -29,7 +29,7 @@ class ProductSearchBuilderTest extends TestCase
             false
         );
 
-        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext = static::createStub(SalesChannelContext::class);
         $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $criteria = new Criteria();
@@ -53,7 +53,7 @@ class ProductSearchBuilderTest extends TestCase
             20
         );
 
-        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext = static::createStub(SalesChannelContext::class);
         $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $criteria = new Criteria();

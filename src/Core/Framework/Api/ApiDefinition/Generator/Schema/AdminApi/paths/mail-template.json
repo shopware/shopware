@@ -8,7 +8,7 @@
                     "Mail Operations"
                 ],
                 "summary": "Send a mail",
-                "description": "Generates a mail from a mail template and sends it to the customer.\n\nTake a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
+                "description": "Generates a mail and sends it to the customer. The mail content is rendered with data passed through the request.\n\nTake a look at the `salesChannel` entity for possible values. For example `{{ salesChannel.name }}` can be used.",
                 "operationId": "send",
                 "requestBody": {
                     "required": true,
@@ -20,20 +20,22 @@
                                     "salesChannelId",
                                     "contentHtml",
                                     "contentPlain",
-                                    "subject",
-                                    "senderName"
+                                    "subject"
                                 ],
                                 "properties": {
                                     "recipients": {
-                                        "description": "A list of recipients with name and mail address.",
+                                        "description": "A map of recipients with name and mail address.",
                                         "type": "object",
                                         "example": {
                                             "test1@example.com": "Test user 1",
                                             "test2@example.com": "Test user 2"
                                         },
                                         "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
+                                            "description": "Name of the recipient. Can be null to omit the display name.",
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         }
                                     },
                                     "salesChannelId": {
@@ -59,7 +61,8 @@
                                     },
                                     "senderEmail": {
                                         "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
                                     },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
@@ -69,15 +72,23 @@
                                             "pattern": "^[0-9a-f]{32}$"
                                         }
                                     },
-                                    "binAttachments": {
-                                        "description": "A list of binary attachments which should be added to the mail.",
-                                        "required": [
-                                            "content",
-                                            "fileName",
-                                            "mimeType"
-                                        ],
+                                    "documentIds": {
+                                        "description": "List of document identifiers which should be attached to the mail.",
                                         "type": "array",
                                         "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "binAttachments": {
+                                        "description": "A list of binary attachments which should be added to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "content",
+                                                "fileName",
+                                                "mimeType"
+                                            ],
                                             "properties": {
                                                 "content": {
                                                     "description": "Binary content of the attachment.",
@@ -96,52 +107,115 @@
                                         }
                                     },
                                     "recipientsBcc": {
-                                        "description": "A list of recipients with name and mail address to be set in BCC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in BCC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "recipientsCc": {
-                                        "description": "A list of recipients with name and mail address to be set in CC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in CC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "replyTo": {
-                                        "description": "A list of mail addresses with name and mail address to be set in reply to.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of mail addresses with name to be set in reply-to.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "returnPath": {
-                                        "description": "A list of mail addresses with name and mail address to be set in return path.",
+                                        "description": "A mail address or a map of mail addresses with name to be set in return-path.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template that should be used for attachments and sender defaults.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "mailTemplateData": {
+                                        "description": "A map of available data that is used to fill the mail template. Values in this map override generated or entity-derived template data with the same top-level keys.",
                                         "type": "object",
+                                        "additionalProperties": true,
                                         "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
+                                            "salesChannel": {
+                                                "name": "Storefront"
+                                            }
                                         }
+                                    },
+                                    "testMode": {
+                                        "description": "Enables mail test mode. The mail is still sent, but template rendering runs with the renderer's test mode enabled, a fallback `order.deepLinkCode` of `home` is injected when missing, and debug headers such as `X-Shopware-Language-Id` plus available event or sales-channel headers are added to the message.",
+                                        "type": "boolean"
                                     }
                                 },
                                 "type": "object"
@@ -155,6 +229,9 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
+                                    "required": [
+                                        "size"
+                                    ],
                                     "properties": {
                                         "size": {
                                             "description": "Length of the email message",
@@ -165,6 +242,10 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "$ref": "#/components/responses/400"
                     }
                 }
             }
@@ -177,6 +258,7 @@
                 "summary": "Validate a mail content",
                 "description": "Validates if content for a mail can be rendered without sending an email.",
                 "operationId": "validate",
+                "deprecated": true,
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -213,9 +295,10 @@
                 "tags": [
                     "Mail Operations"
                 ],
-                "summary": "Preview a mail template",
-                "description": "Generates a preview of a mail template.",
+                "summary": "Build up a mail template",
+                "description": "Generates a preview of a mail template when all the required data is passed through the request.",
                 "operationId": "build",
+                "deprecated": true,
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -248,7 +331,7 @@
                                         "description": "The content of the mail as plain text.",
                                         "properties": {
                                             "contentHtml": {
-                                                "description": "The content of mail mail template in html format.",
+                                                "description": "The content of the mail template in html format.",
                                                 "type": "string",
                                                 "example": "Hello {{ order.customerName }}, this is example mail content, the current date is {{ 'now'|date('d\/m\/Y') }}"
                                             }
@@ -263,7 +346,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The rendered preview of the mail template.",
+                        "description": "The rendered simulation result of the mail template parts.",
                         "content": {
                             "application\/json": {
                                 "schema": {
@@ -271,6 +354,622 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/simulate": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Simulate a mail template",
+                "description": "Generates simulated data for a given event name and renders the provided mail template content against it.",
+                "operationId": "simulateMailTemplate",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "templateParts",
+                                    "eventName"
+                                ],
+                                "properties": {
+                                    "templateParts": {
+                                        "description": "A map of mail template fields and their template content to render.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "example": {
+                                            "subject": "Order {{ order.orderNumber }} confirmation",
+                                            "senderName": "{{ salesChannel.name }}",
+                                            "contentHtml": "<div>Hello {{ order.orderCustomer.firstName }}</div>",
+                                            "contentPlain": "Hello {{ order.orderCustomer.firstName }}"
+                                        }
+                                    },
+                                    "eventName": {
+                                        "description": "The business event name used to generate simulated mail template data.",
+                                        "type": "string",
+                                        "example": "checkout.order.placed"
+                                    },
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel that should be used for the simulate request.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
+                                    },
+                                    "strictRendering": {
+                                        "description": "Enables strict variable rendering and surfaces errors for unknown variables. Defaults to `true`.",
+                                        "type": "boolean",
+                                        "default": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The rendered preview of the mail template.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "A map of render results keyed by the same field names that were provided in the request's `templateParts` object.",
+                                    "additionalProperties": {
+                                        "type": "object",
+                                        "required": [
+                                            "type",
+                                            "content"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "description": "The type of the render result (either `success` or `error`)",
+                                                "type": "string",
+                                                "enum": [
+                                                    "success",
+                                                    "error"
+                                                ],
+                                                "example": "success"
+                                            },
+                                            "content": {
+                                                "description": "The rendered content of the mail template field. Also contains the error when rendering this field wasn't possible.",
+                                                "type": "string",
+                                                "example": "Example mail"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid eventName",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/preview": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Preview a mail template",
+                "description": "Fetches the required data needed for the mail template and generates a preview.",
+                "operationId": "mailTemplatePreview",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateId"
+                                ],
+                                "properties": {
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template which should be rendered.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f678906"
+                                    },
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel that should be used for the preview request.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
+                                    },
+                                    "includeHeaderFooter": {
+                                        "description": "Includes the sales channel mail header and footer in `contentHtml` and `contentPlain`. Defaults to `false`.",
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "strictRendering": {
+                                        "description": "Enables strict variable rendering and enables errors on e.g. unknown variables. Defaults to `false`.",
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
+                                        }
+                                    },
+                                    "templateData": {
+                                        "description": "A map of template data that should be used additionally during rendering. Values in this map override generated or entity-derived template data with the same top-level keys.",
+                                        "type": "object",
+                                        "additionalProperties": true,
+                                        "example": {
+                                            "salesChannel": {
+                                                "name": "Storefront"
+                                            },
+                                            "order": {
+                                                "orderNumber": "SW10042"
+                                            }
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The rendered preview of the mail template.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "subject",
+                                        "senderName",
+                                        "contentHtml",
+                                        "contentPlain"
+                                    ],
+                                    "properties": {
+                                        "subject": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template's subject. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Example mail"
+                                                }
+                                            }
+                                        },
+                                        "senderName": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template's sender name. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Storefront"
+                                                }
+                                            }
+                                        },
+                                        "contentHtml": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template in html format. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "<div>Hello Mr. Mustermann,<br/>this is example mail content, the current date is 16.03.2026.</div>"
+                                                }
+                                            }
+                                        },
+                                        "contentPlain": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the render result (either `success` or `error`)",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
+                                                    "example": "success"
+                                                },
+                                                "content": {
+                                                    "description": "The rendered content of the mail template in plain text format. Also contains the error when rendering this field wasn't possible.",
+                                                    "type": "string",
+                                                    "example": "Hello Mr. Mustermann, this is example mail content, the current date is 16.03.2026."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid mailTemplateId",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/get-data-and-send": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Fetch the template data and send a mail",
+                "description": "Generates the required data needed for the mail template, renders the mail content and sends it to the customer.",
+                "operationId": "generateAndSendMail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateId",
+                                    "recipients",
+                                    "salesChannelId"
+                                ],
+                                "properties": {
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template which should be rendered.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
+                                    },
+                                    "recipients": {
+                                        "description": "A map of recipients with name and mail address.",
+                                        "type": "object",
+                                        "example": {
+                                            "test1@example.com": "Test user 1",
+                                            "test2@example.com": "Test user 2"
+                                        },
+                                        "additionalProperties": {
+                                            "description": "Name of the recipient. Can be null to omit the display name.",
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel from which the mail should be send.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "contentHtml": {
+                                        "description": "The content of the mail in HTML format. If passed, this content will be used instead of the content from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "contentPlain": {
+                                        "description": "The content of the mail as plain text. If passed, this content will be used instead of the content from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "description": "Subject of the mail. If passed, this subject will be used instead of the subject from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "senderName": {
+                                        "description": "Name of the sender. If passed, this sender name will be used instead of the sender name from the mail template.",
+                                        "type": "string"
+                                    },
+                                    "senderEmail": {
+                                        "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "mediaIds": {
+                                        "description": "List of media identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "documentIds": {
+                                        "description": "List of document identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "binAttachments": {
+                                        "description": "A list of binary attachments which should be added to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "content",
+                                                "fileName",
+                                                "mimeType"
+                                            ],
+                                            "properties": {
+                                                "content": {
+                                                    "description": "Binary content of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "fileName": {
+                                                    "description": "File name of the attachment.",
+                                                    "type": "string"
+                                                },
+                                                "mimeType": {
+                                                    "description": "Mime type of the attachment.",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "recipientsBcc": {
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in BCC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "recipientsCc": {
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in CC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "replyTo": {
+                                        "description": "A mail address or a map of mail addresses with name to be set in reply-to.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "returnPath": {
+                                        "description": "A mail address or a map of mail addresses with name to be set in return-path.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
+                                        }
+                                    },
+                                    "templateData": {
+                                        "description": "A map of template data that should be used additionally during rendering. Values in this map override generated or entity-derived template data with the same top-level keys.",
+                                        "type": "object",
+                                        "additionalProperties": true,
+                                        "example": {
+                                            "salesChannel": {
+                                                "name": "Storefront"
+                                            },
+                                            "order": {
+                                                "orderNumber": "SW10042"
+                                            }
+                                        }
+                                    },
+                                    "testMode": {
+                                        "description": "Enables mail test mode. The mail is still sent, but template rendering runs with the renderer's test mode enabled, a fallback `order.deepLinkCode` of `home` is injected when missing, and debug headers such as `X-Shopware-Language-Id` plus available event or sales-channel headers are added to the message.",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The mail was sent successful",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "size"
+                                    ],
+                                    "properties": {
+                                        "size": {
+                                            "description": "Length of the email message",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid mailTemplateId",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/mail-template/available-variables": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Fetch the available variables for a business event and an optional parent variable path.",
+                "description": "Fetches the available variables that a business event provides for a certain parent variable path to determine which variables can be used in a mail template.",
+                "operationId": "mailTemplateAvailableVariables",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "eventName"
+                                ],
+                                "properties": {
+                                    "eventName": {
+                                        "description": "The business event name that provides the available variables.",
+                                        "type": "string",
+                                        "example": "checkout.order.placed"
+                                    },
+                                    "parentVariablePath": {
+                                        "description": "The path to the parent field of which the available variables should be returned. If omitted or empty, the top-level variables of the business event are returned.",
+                                        "type": "string",
+                                        "example": "order.transactions"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The available variables got fetched successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "fieldName",
+                                            "hasChildren"
+                                        ],
+                                        "properties": {
+                                            "fieldName": {
+                                                "description": "The name of the variable.",
+                                                "type": "string",
+                                                "example": "salesChannel"
+                                            },
+                                            "hasChildren": {
+                                                "description": "Shows if behind the variable are more nested variables which can be accessed by another request to this endpoint with the updated parent variable path: `<parentVariablePath>.<fieldName>`",
+                                                "type": "boolean",
+                                                "example": true
+                                            }
+                                        }
+                                    },
+                                    "type": "array",
+                                    "description": "A collection of the available variables which also show if behind the variables are more nested variables."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid eventName",
+                        "$ref": "#/components/responses/400"
                     }
                 }
             }

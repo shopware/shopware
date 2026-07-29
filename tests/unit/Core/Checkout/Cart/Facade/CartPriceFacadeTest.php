@@ -31,7 +31,7 @@ class CartPriceFacadeTest extends TestCase
             99.99
         );
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
         $price = new PriceCollection([]);
 
         $stubs->method('build')->willReturn($price);

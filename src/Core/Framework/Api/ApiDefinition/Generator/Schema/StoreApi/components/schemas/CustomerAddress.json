@@ -5,50 +5,121 @@
     "components": {
         "schemas": {
             "CustomerAddress": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "customerId",
+                    "countryId",
+                    "firstName",
+                    "lastName",
+                    "city",
+                    "street"
+                ],
                 "properties": {
-                    "salutationId": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customerId": {
+                        "description": "Unique identity of customer.",
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "countryId": {
+                        "description": "Unique identity of country.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryStateId": {
+                        "description": "Unique identity of country's state.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salutationId": {
+                        "description": "Unique identity of salutation.",
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
+                        "description": "First name of the customer.",
                         "type": "string"
                     },
                     "lastName": {
+                        "description": "Last name of the customer.",
                         "type": "string"
                     },
                     "zipcode": {
+                        "description": "Postal or zip code of customer's address.",
                         "type": "string"
                     },
                     "city": {
+                        "description": "Name of customer's city.",
                         "type": "string"
                     },
                     "company": {
+                        "description": "Name of customer's company.",
                         "type": "string"
                     },
                     "street": {
+                        "description": "Name of customer's street.",
                         "type": "string"
                     },
                     "department": {
+                        "description": "Name of customer's department.",
                         "type": "string"
                     },
                     "title": {
+                        "description": "Titles given to customer like Dr. , Prof., etc",
                         "type": "string"
                     },
                     "phoneNumber": {
+                        "description": "Customer's phone number.",
                         "type": "string"
                     },
                     "additionalAddressLine1": {
+                        "description": "Additional customer's address information.",
                         "type": "string"
                     },
                     "additionalAddressLine2": {
+                        "description": "Additional customer's address information.",
                         "type": "string"
+                    },
+                    "hash": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "isDefaultBillingAddress": {
+                        "description": "Added since version: 6.7.7.0. Runtime field, cannot be used as part of the criteria.",
+                        "type": "boolean"
+                    },
+                    "isDefaultShippingAddress": {
+                        "description": "Added since version: 6.7.7.0. Runtime field, cannot be used as part of the criteria.",
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "$ref": "#/components/schemas/CountryState"
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
                     }
-                }
+                },
+                "type": "object"
             }
         }
     }

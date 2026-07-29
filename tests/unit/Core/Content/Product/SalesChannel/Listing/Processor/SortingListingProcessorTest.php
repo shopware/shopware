@@ -52,7 +52,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             new Request(['order' => $sorting, 'availableSortings' => $testWithAvailableSortings ? $this->buildAvailableSortings() : []]),
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals($expected, $criteria->getSorting());
@@ -70,7 +70,7 @@ class SortingListingProcessorTest extends TestCase
             ],
         ]);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult(
                 ProductSortingDefinition::ENTITY_NAME,
@@ -92,7 +92,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             $requested,
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals([
@@ -113,7 +113,7 @@ class SortingListingProcessorTest extends TestCase
             ],
         ]);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult(
                 ProductSortingDefinition::ENTITY_NAME,
@@ -137,7 +137,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             $requested,
             $criteria,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals([
@@ -166,7 +166,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->process(
             new Request(['order' => $requested]),
             $result,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expected, $result->getSorting());
@@ -190,7 +190,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             new Request(['order' => $requested]),
             new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 

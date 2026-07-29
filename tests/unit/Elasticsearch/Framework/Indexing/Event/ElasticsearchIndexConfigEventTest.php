@@ -16,7 +16,7 @@ class ElasticsearchIndexConfigEventTest extends TestCase
 {
     public function testEvent(): void
     {
-        $event = new ElasticsearchIndexConfigEvent('index', ['config' => 'value'], $this->createMock(AbstractElasticsearchDefinition::class), Context::createDefaultContext());
+        $event = new ElasticsearchIndexConfigEvent('index', ['config' => 'value'], static::createStub(AbstractElasticsearchDefinition::class), Context::createDefaultContext());
         static::assertSame('index', $event->getIndexName());
         static::assertSame(['config' => 'value'], $event->getConfig());
 

@@ -117,6 +117,7 @@ class ProductExportController extends AbstractController
         $entity->setFileName($dataBag->get('fileName'));
         $entity->setAccessKey($dataBag->get('accessKey'));
         $entity->setProvider($dataBag->get('provider'));
+        $entity->setFeedLabel($dataBag->get('feedLabel'));
         $entity->setSalesChannelId($dataBag->get('salesChannelId'));
         $entity->setSalesChannelDomainId($dataBag->get('salesChannelDomainId'));
         $entity->setCurrencyId($dataBag->get('currencyId'));

@@ -26,6 +26,11 @@ class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCas
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1718658881, (new Migration1718658881AddValidationDataToOrderTransaction())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();

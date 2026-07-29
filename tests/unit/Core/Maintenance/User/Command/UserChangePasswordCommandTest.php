@@ -11,7 +11,9 @@ use Shopware\Core\Maintenance\User\Command\UserChangePasswordCommand;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -67,14 +69,13 @@ class UserChangePasswordCommandTest extends TestCase
 
     public function testEmptyPasswordOption(): void
     {
-        $userRepo = $this->createMock(EntityRepository::class);
+        $userRepo = static::createStub(EntityRepository::class);
         $command = new UserChangePasswordCommand($userRepo);
 
         $commandTester = new CommandTester($command);
 
-        $this->expectException(ValidationFailedException::class);
-        $this->expectExceptionMessage(':
-    This value should not be blank. (code c1051bb4-d103-4f74-8988-acbcafc7fdc3)');
+        $violations = Validation::createValidator()->validate('', new NotBlank());
+        $this->expectExceptionObject(new ValidationFailedException('', $violations));
 
         $commandTester->setInputs(['', '', '']);
         $commandTester->execute([

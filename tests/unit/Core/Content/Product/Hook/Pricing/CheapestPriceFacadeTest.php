@@ -71,8 +71,8 @@ class CheapestPriceFacadeTest extends TestCase
             new PriceFacade(
                 new Entity(),
                 new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                $this->createMock(ScriptPriceStubs::class),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(ScriptPriceStubs::class),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -129,7 +129,7 @@ class CheapestPriceFacadeTest extends TestCase
 
         $stubs = new ScriptPriceStubs(
             // not necessary for this test
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
         );
@@ -139,14 +139,14 @@ class CheapestPriceFacadeTest extends TestCase
         $original = new CalculatedCheapestPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));
 
         // mock context to simulate currency and tax states
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         // currency key will be provided, we want to test different currencies are taking into account
-        $context->expects($this->any())->method('getCurrencyId')->willReturn($ids->get($currencyKey));
+        $context->method('getCurrencyId')->willReturn($ids->get($currencyKey));
 
         // we also want to test different tax states (gross/net)
-        $context->expects($this->any())->method('getTaxState')->willReturn($taxState);
-        $context->expects($this->any())->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         return new CheapestPriceFacade($entity, $original, $stubs, $context);
     }

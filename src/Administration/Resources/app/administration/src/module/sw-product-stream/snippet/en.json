@@ -102,7 +102,6 @@
         "tags": "Tags",
         "tax": "Tax",
         "taxRate": "Tax rate",
-        "type": "Type",
         "unit": "Unit",
         "variations": "Variants",
         "visibilities": "Visibility",
@@ -129,29 +128,29 @@
     },
     "detail": {
       "titleCard": "General information",
-      "buttonSave": "Save",
       "labelName": "Name",
       "placeholderName": "Enter title...",
       "labelDescription": "Description",
       "placeholderDescription": "Enter description...",
+      "labelDisplayAsGroup": "Keep matching variants grouped",
+      "helpTextDisplayAsGroup": "When enabled, matching variants are grouped according to the product presentation setting. Disable to show them individually.",
       "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",
       "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
       "messageSaveError": "Dynamic product group \"{name}\" could not be saved.",
-      "buttonOpenPreview": "Preview",
       "productStreamIndexingWarning": {
         "title": "Dynamic Product Group indexing is disabled",
         "message": "Some features may not work as expected: <ul><li>Category pages may not reflect changes until the HTTP cache expires or is manually cleared.</li><li>The rule condition \"Item in dynamic product group\" will never be true.</li></ul>",
         "action": "Learn more in our documentation"
       },
       "buttonOpenPreview": "Preview",
-      "productStatesFilterWarning": "This dynamic product group still uses the deprecated product states filter. It will be removed in v6.8 – please switch to the product type filter instead."
+      "deprecatedFilterWarning": "The filter \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+      "deprecatedFilterWarningNoReplacement": "The filter \"{label}\" is deprecated and will be removed in {version}."
     },
     "previewModal": {
       "title": "Preview",
-      "empty": "No products found.",
-      "close": "Close"
+      "empty": "No products found."
     }
   },
   "sw-privileges": {

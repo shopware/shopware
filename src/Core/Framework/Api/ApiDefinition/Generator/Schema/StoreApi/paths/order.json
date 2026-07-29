@@ -12,14 +12,7 @@
                 "operationId": "cancelOrder",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -69,19 +62,9 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a list of orders",
-                "description": "List orders of a customer.",
+                "description": "List orders of a customer.\n\n**Available Associations:**\n- `stateMachineState` - Current order state (e.g., open, in_progress, completed, cancelled)\n- `primaryOrderDelivery` - Primary delivery information for the order\n- `primaryOrderTransaction` - Primary payment transaction for the order\n- `orderCustomer` - Customer information associated with the order\n- `currency` - Currency used for the order\n- `language` - Language used when placing the order\n- `addresses` - All addresses associated with the order (billing and shipping)\n- `billingAddress` - Billing address for the order\n- `deliveries` - Delivery information including shipping address and tracking\n- `lineItems` - Order line items (products, discounts, fees)\n- `transactions` - Payment transactions for the order\n- `documents` - Generated documents (invoices, delivery notes, credit notes)\n- `tags` - Tags assigned to the order for organization and filtering",
                 "operationId": "readOrder",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "sw-include-search-info",
                         "in": "header",
@@ -95,6 +78,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -204,14 +190,7 @@
                 "operationId": "orderSetPayment",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -288,14 +267,7 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {

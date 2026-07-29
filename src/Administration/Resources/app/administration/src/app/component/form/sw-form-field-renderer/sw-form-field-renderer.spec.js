@@ -113,4 +113,18 @@ describe('components/form/sw-form-field-renderer', () => {
 
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
+
+    it('should enable multi selection for meteor multi-select fields', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'multi-select',
+                config: {
+                    options: [],
+                },
+                value: [],
+            },
+        });
+
+        expect(wrapper.vm.bind.enableMultiSelection).toBe(true);
+    });
 });

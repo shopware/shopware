@@ -170,7 +170,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await wrapper.vm.onDuplicate(ruleToDuplicate);
         expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
-            name: 'sw.settings.rule.detail',
+            name: 'sw.settings.rule.detail.base',
             params: {
                 id: ruleToDuplicate.id,
             },

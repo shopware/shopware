@@ -20,15 +20,17 @@ class Migration1773824493AddProviderColumnToProductExportTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
 
-        try {
-            $this->connection->executeStatement('ALTER TABLE `product_export` DROP COLUMN `provider`;');
-        } catch (\Throwable) {
-        }
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773824493, (new Migration1773824493AddProviderColumnToProductExport())->getCreationTimestamp());
     }
 
     public function testMigrationAddsProviderColumn(): void
     {
+        $this->dropProviderColumn();
+
         static::assertFalse(TableHelper::columnExists($this->connection, 'product_export', 'provider'));
 
         $migration = new Migration1773824493AddProviderColumnToProductExport();
@@ -36,5 +38,13 @@ class Migration1773824493AddProviderColumnToProductExportTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'product_export', 'provider'));
+    }
+
+    private function dropProviderColumn(): void
+    {
+        try {
+            $this->connection->executeStatement('ALTER TABLE `product_export` DROP COLUMN `provider`;');
+        } catch (\Throwable) {
+        }
     }
 }

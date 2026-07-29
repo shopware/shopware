@@ -11,12 +11,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
-use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -230,12 +228,13 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(ThemeAssignmentException::class);
-        } else {
-            $this->expectException(ThemeException::class);
-        }
-        $this->expectExceptionMessage('Unable to deactivate or uninstall theme "Simple theme". Remove the following assignments between theme and sales channel assignments: "Simple theme" => "Headless".');
+        $placeholderSalesChannelId = 'sc-id';
+        $this->expectExceptionObject(ThemeException::themeAssignmentException(
+            'Simple theme',
+            ['Simple theme' => [$placeholderSalesChannelId]],
+            [],
+            [$placeholderSalesChannelId => 'Headless'],
+        ));
 
         $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
     }

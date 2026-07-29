@@ -22,8 +22,8 @@ class SalesChannelsReadinessCheckTest extends TestCase
         parent::setUp();
 
         $this->salesChannelReadinessCheck = new SalesChannelsReadinessCheck(
-            $this->createMock(SalesChannelDomainUtil::class),
-            $this->createMock(AbstractSalesChannelDomainProvider::class)
+            static::createStub(SalesChannelDomainUtil::class),
+            static::createStub(AbstractSalesChannelDomainProvider::class)
         );
     }
 

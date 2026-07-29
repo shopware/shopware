@@ -24,6 +24,11 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTableTest extends 
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736866790, (new Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->rollback();

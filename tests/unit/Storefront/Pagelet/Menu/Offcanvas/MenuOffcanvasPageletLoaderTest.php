@@ -24,11 +24,11 @@ class MenuOffcanvasPageletLoaderTest extends TestCase
 {
     public function testLoad(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $categoryId1 = Uuid::randomHex();
         $categoryId2 = Uuid::randomHex();
         $category1 = (new CategoryEntity())->assign(['id' => $categoryId1]);

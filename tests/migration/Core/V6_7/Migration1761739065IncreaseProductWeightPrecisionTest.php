@@ -16,6 +16,11 @@ class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1761739065, (new Migration1761739065IncreaseProductWeightPrecision())->getCreationTimestamp());
+    }
+
     public function testUpdateIncreasesPrecision(): void
     {
         $connection = static::getContainer()->get(Connection::class);

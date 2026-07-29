@@ -40,8 +40,8 @@ class PreWriteValidationEventTest extends TestCase
 
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class, CategoryDefinition::class, ProductTranslationDefinition::class, OrderDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -91,6 +91,23 @@ class PreWriteValidationEventTest extends TestCase
         foreach ($assertions as $entity => $ids) {
             static::assertSame($ids, $event->getDeletedPrimaryKeys($entity), \sprintf('Deleted primary keys for entity %s not match', $entity));
         }
+    }
+
+    public function testGetCommandsForEntity(): void
+    {
+        $ids = new IdsCollection();
+
+        $commands = $this->getCommands([
+            ['entityName' => 'product', 'type' => 'insert', 'primaryKey' => ['id' => $ids->getBytes('p1')]],
+            ['entityName' => 'category', 'type' => 'insert', 'primaryKey' => ['id' => $ids->getBytes('c1')]],
+            ['entityName' => 'product', 'type' => 'delete', 'primaryKey' => ['id' => $ids->getBytes('p2')]],
+        ]);
+
+        $event = new PreWriteValidationEvent($this->context, $commands);
+
+        static::assertSame([$commands[0], $commands[2]], $event->getCommandsForEntity('product'));
+        static::assertSame([$commands[1]], $event->getCommandsForEntity('category'));
+        static::assertSame([], $event->getCommandsForEntity('not-found'));
     }
 
     public static function getPrimaryKeysProvider(): \Generator

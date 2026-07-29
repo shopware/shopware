@@ -33,7 +33,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->never())
             ->method('search');
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -44,8 +44,8 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $searcher = new ElasticsearchEntityAggregator(
             $helper,
             $client,
-            $this->createMock(EntityAggregatorInterface::class),
-            $this->createMock(AbstractElasticsearchAggregationHydrator::class),
+            static::createStub(EntityAggregatorInterface::class),
+            static::createStub(AbstractElasticsearchAggregationHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -73,7 +73,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->never())
             ->method('search');
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -84,8 +84,8 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $searcher = new ElasticsearchEntityAggregator(
             $helper,
             $client,
-            $this->createMock(EntityAggregatorInterface::class),
-            $this->createMock(AbstractElasticsearchAggregationHydrator::class),
+            static::createStub(EntityAggregatorInterface::class),
+            static::createStub(AbstractElasticsearchAggregationHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -115,15 +115,15 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -131,8 +131,8 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $searcher = new ElasticsearchEntityAggregator(
             $helper,
             $client,
-            $this->createMock(EntityAggregatorInterface::class),
-            $this->createMock(AbstractElasticsearchAggregationHydrator::class),
+            static::createStub(EntityAggregatorInterface::class),
+            static::createStub(AbstractElasticsearchAggregationHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -163,10 +163,10 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([
@@ -175,7 +175,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
                 ],
             ]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -195,8 +195,8 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $aggregator = new ElasticsearchEntityAggregator(
             $helper,
             $client,
-            $this->createMock(EntityAggregatorInterface::class),
-            $this->createMock(AbstractElasticsearchAggregationHydrator::class),
+            static::createStub(EntityAggregatorInterface::class),
+            static::createStub(AbstractElasticsearchAggregationHydrator::class),
             $dispatcher,
             '10s',
             'dfs_query_then_fetch'

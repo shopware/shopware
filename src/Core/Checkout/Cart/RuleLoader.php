@@ -50,7 +50,7 @@ class RuleLoader extends AbstractRuleLoader
                     $rules->add($rule);
                 }
             }
-            if ($result->count() < 500) {
+            if ($result->getEntities()->count() < 500) {
                 break;
             }
         }

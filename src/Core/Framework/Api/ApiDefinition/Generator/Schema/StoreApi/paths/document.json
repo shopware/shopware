@@ -29,14 +29,7 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -53,7 +46,7 @@
                                         "type": "string"
                                     }
                                 },
-                              "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                                "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
                             }
                         }
                     }
@@ -69,13 +62,13 @@
                                 }
                             },
                             "text/html": {
-                                  "schema": {
+                                "schema": {
                                     "type": "string"
-                                  }
+                                }
                             },
                             "application/xml": {
                                 "schema": {
-                                  "type": "string"
+                                    "type": "string"
                                 }
                             }
                         }
@@ -112,7 +105,7 @@
             },
             "get": {
                 "tags": [
-                  "Document"
+                    "Document"
                 ],
                 "summary": "Download generated document",
                 "description": "Returns generated document to download.",
@@ -154,14 +147,7 @@
                         "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                      }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {

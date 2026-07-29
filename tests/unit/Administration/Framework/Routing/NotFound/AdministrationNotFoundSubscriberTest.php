@@ -35,7 +35,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     public function testShowErrorPage(string $root, string $route): void
     {
         $container = new ContainerBuilder();
-        $container->set('twig', $this->createMock(Environment::class));
+        $container->set('twig', static::createStub(Environment::class));
 
         $subscriber = new AdministrationNotFoundSubscriber(
             $root,
@@ -43,7 +43,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
         );
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             Request::create($route),
             0,
             new HttpException(Response::HTTP_NOT_FOUND)
@@ -60,7 +60,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     public function testDoNothingWhenNot404(string $route, \Exception $exception): void
     {
         $container = new ContainerBuilder();
-        $container->set('twig', $this->createMock(Environment::class));
+        $container->set('twig', static::createStub(Environment::class));
 
         $subscriber = new AdministrationNotFoundSubscriber(
             'admin',
@@ -68,7 +68,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
         );
 
         $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             Request::create($route),
             0,
             $exception

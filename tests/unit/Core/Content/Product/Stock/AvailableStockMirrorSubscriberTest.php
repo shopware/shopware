@@ -35,8 +35,8 @@ class AvailableStockMirrorSubscriberTest extends TestCase
     {
         new StaticDefinitionInstanceRegistry(
             [$definition = new ProductDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $definition;

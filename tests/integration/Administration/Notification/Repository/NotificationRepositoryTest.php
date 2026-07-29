@@ -72,7 +72,7 @@ class NotificationRepositoryTest extends TestCase
             return;
         }
 
-        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context);
+        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context)->getEntities();
 
         /** @var NotificationEntity $notification */
         $notification = $result->get($id);
@@ -82,14 +82,12 @@ class NotificationRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string>>
+     * @return iterable<string, array<int, string>>
      */
-    public static function notificationProvider(): array
+    public static function notificationProvider(): iterable
     {
-        return [
-            [Context::USER_SCOPE, 'write'],
-            [Context::USER_SCOPE, 'read'],
-            [Context::SYSTEM_SCOPE, 'write'],
-        ];
+        yield 'notification context user scope write' => [Context::USER_SCOPE, 'write'];
+        yield 'notification context user scope read' => [Context::USER_SCOPE, 'read'];
+        yield 'notification context system scope write' => [Context::SYSTEM_SCOPE, 'write'];
     }
 }

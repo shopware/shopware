@@ -51,7 +51,7 @@ class UserCrudTest extends TestCase
 
         $userRepository->delete([['id' => $userId]], Context::createDefaultContext());
 
-        $user = $userRepository->search(new Criteria([$userId]), Context::createDefaultContext())->first();
+        $user = $userRepository->search(new Criteria([$userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertNull($user);
     }
 }

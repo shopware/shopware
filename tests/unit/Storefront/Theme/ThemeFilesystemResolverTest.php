@@ -47,7 +47,7 @@ class ThemeFilesystemResolverTest extends TestCase
             new StaticSourceResolver([
                 'CoolApp' => new StaticFilesystem(),
             ]),
-            $this->createMock(Kernel::class)
+            static::createStub(Kernel::class)
         );
 
         $pluginConfig = new StorefrontPluginConfiguration('CoolApp');

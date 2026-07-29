@@ -315,7 +315,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 
-    public function testCachingWithInvalidationState(): void
+    public function testCachingIsBypassedForLoggedInCustomer(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
@@ -364,8 +364,13 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('store-api-cache-script::response', $traces);
-        // assert that when the invalidation state is present the response is not cached
-        static::assertCount(2, $traces['store-api-cache-script::response']);
+        if (Feature::isActive('v6.8.0.0')) {
+            // invalidation states were removed with v6.8.0.0, the response stays cached after login
+            static::assertCount(1, $traces['store-api-cache-script::response']);
+        } else {
+            // assert that when the invalidation state is present the response is not cached
+            static::assertCount(2, $traces['store-api-cache-script::response']);
+        }
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);

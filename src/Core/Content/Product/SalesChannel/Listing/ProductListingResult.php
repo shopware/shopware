@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult, but will keep extending Struct.
+ *
  * @extends EntitySearchResult<ProductCollection>
  */
 #[Package('inventory')]
@@ -23,6 +25,47 @@ class ProductListingResult extends EntitySearchResult
     protected ProductSortingCollection $availableSortings;
 
     protected ?string $streamId = null;
+
+    /**
+     * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
+     *
+     * @param EntitySearchResult<ProductCollection> $result
+     * @param array<string, int|float|string|bool|array<mixed>|null> $currentFilters
+     */
+    public static function fromSearchResult(
+        EntitySearchResult $result,
+        ?ProductSortingCollection $availableSortings = null,
+        ?string $sorting = null,
+        array $currentFilters = [],
+        ?string $streamId = null,
+    ): self {
+        $instance = self::createFrom($result);
+
+        if ($availableSortings !== null) {
+            $instance->availableSortings = $availableSortings;
+        }
+        $instance->sorting = $sorting;
+        $instance->currentFilters = $currentFilters;
+        $instance->streamId = $streamId;
+
+        return $instance;
+    }
+
+    /**
+     * Intentionally not deprecated, unlike the parent method: listing processors modify the page after construction by design.
+     */
+    public function setPage(int $page): void
+    {
+        $this->page = $page;
+    }
+
+    /**
+     * Intentionally not deprecated, unlike the parent method: listing processors modify the limit after construction by design.
+     */
+    public function setLimit(int $limit): void
+    {
+        $this->limit = $limit;
+    }
 
     /**
      * @param int|float|string|bool|array<mixed>|null $value

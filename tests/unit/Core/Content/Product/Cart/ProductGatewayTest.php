@@ -29,7 +29,7 @@ class ProductGatewayTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository = static::createStub(SalesChannelRepository::class);
         $emptySearchResult = new EntitySearchResult(
             'product',
             0,

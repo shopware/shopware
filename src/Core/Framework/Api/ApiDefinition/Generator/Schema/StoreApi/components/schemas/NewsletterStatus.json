@@ -1,0 +1,14 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "NewsletterStatus": {
+                "type": "string",
+                "enum": ["notSet", "optIn", "optOut", "direct", "undefined"],
+                "description": "The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined."
+            }
+        }
+    }
+}

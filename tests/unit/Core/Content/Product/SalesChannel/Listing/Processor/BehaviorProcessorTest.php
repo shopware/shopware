@@ -19,7 +19,7 @@ class BehaviorProcessorTest extends TestCase
     {
         $request = new Request(['no-aggregations' => true]);
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
 
@@ -30,7 +30,7 @@ class BehaviorProcessorTest extends TestCase
     {
         $request = new Request(['only-aggregations' => true]);
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
 

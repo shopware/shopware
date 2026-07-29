@@ -38,8 +38,8 @@ class HookableBusinessEventTest extends TestCase
         $event = HookableBusinessEvent::fromBusinessEvent(
             $scalarEvent,
             new BusinessEventEncoder(
-                $this->createMock(JsonEntityEncoder::class),
-                $this->createMock(DefinitionInstanceRegistry::class)
+                static::createStub(JsonEntityEncoder::class),
+                static::createStub(DefinitionInstanceRegistry::class)
             )
         );
 
@@ -52,7 +52,7 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->createMock(BusinessEventEncoder::class)
+            static::createStub(BusinessEventEncoder::class)
         );
 
         static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
@@ -76,7 +76,7 @@ class HookableBusinessEventTest extends TestCase
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
             $rootEvent,
-            $this->createMock(BusinessEventEncoder::class)
+            static::createStub(BusinessEventEncoder::class)
         );
 
         $allowedPermissions = new AclPrivilegeCollection([

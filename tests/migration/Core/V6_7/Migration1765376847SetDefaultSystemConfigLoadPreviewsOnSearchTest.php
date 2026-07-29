@@ -27,6 +27,11 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends 
         $this->connection->delete('system_config', ['configuration_key' => self::CONFIG_KEY]);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1765376847, (new Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertEmpty($this->getConfig());

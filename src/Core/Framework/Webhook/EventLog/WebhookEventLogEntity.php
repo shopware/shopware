@@ -45,6 +45,8 @@ class WebhookEventLogEntity extends Entity
 
     protected bool $onlyLiveVersion;
 
+    protected ?int $sequence = null;
+
     /**
      * @internal
      */
@@ -190,6 +192,16 @@ class WebhookEventLogEntity extends Entity
     public function setOnlyLiveVersion(bool $onlyLiveVersion): void
     {
         $this->onlyLiveVersion = $onlyLiveVersion;
+    }
+
+    public function getSequence(): ?int
+    {
+        return $this->sequence;
+    }
+
+    public function setSequence(?int $sequence): void
+    {
+        $this->sequence = $sequence;
     }
 
     /**

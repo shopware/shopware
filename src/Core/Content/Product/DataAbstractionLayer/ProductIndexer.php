@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -70,7 +71,8 @@ class ProductIndexer extends EntityIndexer
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
         private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly MessageBusInterface $messageBus,
-        private readonly ?StatesUpdater $statesUpdater
+        private readonly ?StatesUpdater $statesUpdater,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -240,7 +242,7 @@ class ProductIndexer extends EntityIndexer
         RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
                 ['ids' => ArrayParameterType::BINARY]
             );
         });

@@ -216,7 +216,6 @@
                 },
                 "pricesModal": {
                     "advancedPricesHeader": "Erweiterte Preise",
-                    "closeModal": "Schließen",
                     "labelCurrency": "Währung",
                     "labelPrice": "Wert",
                     "linkAdvancedPrices": "Erweiterte Preisansicht öffnen"
@@ -284,7 +283,6 @@
                     "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
                     "pricesModal": {
                         "advancedPricesHeader": "Erweiterte Preise",
-                        "closeModal": "Schließen",
                         "labelCurrency": "Währung",
                         "labelPrice": "Wert"
                     }

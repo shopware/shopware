@@ -46,7 +46,10 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
 
         $invalidationSubscriber->invalidate($event);
 
-        static::assertSame([CachedDomainLoader::CACHE_KEY], $mockedInvalidator->getForceInvalidatedTags());
+        static::assertSame(
+            [CachedDomainLoader::CACHE_KEY, CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY],
+            $mockedInvalidator->getForceInvalidatedTags()
+        );
     }
 
     public function testInvalidateIsNotCalledForNonSalesChannelWrites(): void

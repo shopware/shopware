@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -141,6 +142,8 @@ class AdminProductStreamControllerTest extends TestCase
 
     private function prepareTestData(): void
     {
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
         $products = [
             (new ProductBuilder($this->ids, 'p.1'))
                 ->price(900)

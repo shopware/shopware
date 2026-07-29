@@ -109,13 +109,13 @@ class AuthControllerTest extends TestCase
 
     public function testRateLimitThrowsApiException(): void
     {
-        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter = static::createStub(RateLimiter::class);
         $rateLimiter->method('ensureAccepted')
             ->willThrowException(new RateLimitExceededException(time() + 60));
 
         $controller = new AuthController(
-            $this->createMock(AuthorizationServer::class),
-            $this->createMock(PsrHttpFactory::class),
+            static::createStub(AuthorizationServer::class),
+            static::createStub(PsrHttpFactory::class),
             $rateLimiter,
         );
 

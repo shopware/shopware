@@ -43,7 +43,7 @@ class AdapterExceptionTest extends TestCase
     public function testUnexpectedTwigExpression(): void
     {
         /** @var AbstractExpression&MockObject $expression */
-        $expression = $this->createMock(AbstractExpression::class);
+        $expression = static::createStub(AbstractExpression::class);
         $type = $expression::class;
 
         $exception = AdapterException::unexpectedTwigExpression($expression);

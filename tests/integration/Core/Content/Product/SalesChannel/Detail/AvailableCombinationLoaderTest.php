@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -247,6 +248,7 @@ class AvailableCombinationLoaderTest extends TestCase
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
             'stock' => 10,
             'active' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
             'configuratorSettings' => $configuratorSettings,
             'configuratorGroupConfig' => $configuratorGroupConfig,

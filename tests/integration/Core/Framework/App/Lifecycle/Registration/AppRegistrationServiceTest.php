@@ -29,6 +29,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -218,6 +219,7 @@ class AppRegistrationServiceTest extends TestCase
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
@@ -231,7 +233,8 @@ class AppRegistrationServiceTest extends TestCase
             static::getContainer()->get('app.repository'),
             $this->shopUrl,
             $shopIdMock,
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         static::expectException(AppRegistrationException::class);

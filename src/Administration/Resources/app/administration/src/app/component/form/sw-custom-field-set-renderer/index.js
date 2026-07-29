@@ -1,5 +1,7 @@
 import { computed } from 'vue';
 
+import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -472,11 +474,7 @@ export default {
 
                 // Special case for meteor components
                 if (isMeteorComponent) {
-                    customFieldClone.isInheritanceField = props.isInheritField;
-                    customFieldClone.isInherited = props.isInherited;
-                    customFieldClone.inheritanceRemove = props.removeInheritance;
-                    customFieldClone.inheritanceRestore = props.restoreInheritance;
-                    customFieldClone.inheritedValue = inheritedCustomFieldValue;
+                    Object.assign(customFieldClone, mapInheritanceSlotPropsToMeteorProps(props, inheritedCustomFieldValue));
                     customFieldClone.disabled = this.disabled || props.isInherited;
                 }
 

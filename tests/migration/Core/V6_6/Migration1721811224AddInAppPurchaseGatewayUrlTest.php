@@ -26,6 +26,11 @@ class Migration1721811224AddInAppPurchaseGatewayUrlTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1721811224, (new Migration1721811224AddInAppPurchaseGatewayUrl())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();

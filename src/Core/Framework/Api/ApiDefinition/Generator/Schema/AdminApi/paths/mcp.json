@@ -1,0 +1,529 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/integration\/{integrationId}\/mcp-allowlist": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Save MCP allowlist for an integration",
+                "description": "Saves the per-integration MCP allowlist covering tools, resources, and prompts. Pass `null` as the top-level value to allow all capabilities unrestricted. Pass an object with `tools`, `resources`, and `prompts` keys where each key is either `null` (unrestricted for that type) or a list of allowed names/URIs (empty array = deny all of that type). Requires `integration_mcp.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "saveMcpAllowlist",
+                "parameters": [
+                    {
+                        "name": "integrationId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The integration UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["allowlist"],
+                                "properties": {
+                                    "allowlist": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "description": "Per-type allowlist. Each key is null (unrestricted) or a list of allowed names/URIs.",
+                                                "properties": {
+                                                    "tools": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
+                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                        ]
+                                                    },
+                                                    "resources": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
+                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                        ]
+                                                    },
+                                                    "prompts": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
+                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "null",
+                                                "description": "Null = all capabilities unrestricted."
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Allowlist saved successfully."
+                    },
+                    "400": {
+                        "description": "Bad request — missing or invalid `allowlist` field."
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden — caller lacks `integration_mcp.editor` privilege."
+                    },
+                    "404": {
+                        "description": "Integration not found."
+                    }
+                }
+            }
+        },
+        "\/_action\/user\/{userId}\/mcp-allowlist": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Save MCP allowlist for a user",
+                "description": "Saves the per-user MCP allowlist covering tools, resources, and prompts. Pass `null` as the top-level value to allow all capabilities unrestricted. Pass an object with `tools`, `resources`, and `prompts` keys where each key is either `null` (unrestricted for that type) or a list of allowed names/URIs (empty array = deny all of that type). Requires `users_and_permissions.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "saveMcpAllowlistUser",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["allowlist"],
+                                "properties": {
+                                    "allowlist": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "description": "Per-type allowlist. Each key is null (unrestricted) or a list of allowed names/URIs.",
+                                                "properties": {
+                                                    "tools": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
+                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                        ]
+                                                    },
+                                                    "resources": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
+                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                        ]
+                                                    },
+                                                    "prompts": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
+                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "null",
+                                                "description": "Null = all capabilities unrestricted."
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Allowlist saved successfully."
+                    },
+                    "400": {
+                        "description": "Bad request — missing or invalid `allowlist` field."
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden — caller lacks `users_and_permissions.editor` privilege."
+                    },
+                    "404": {
+                        "description": "User not found."
+                    }
+                }
+            }
+        },
+        "\/_action\/mcp\/tools": {
+            "get": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "List registered MCP tools",
+                "description": "Returns all MCP tools currently registered on this Shopware installation. For all capability types (tools, resources, prompts) use `GET \/_action\/mcp\/capabilities` instead. Requires `integration.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpToolsList",
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of registered MCP tools.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": ["name"],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Unique tool identifier used in `tools\/call` requests.",
+                                                "example": "shopware-entity-search"
+                                            },
+                                            "description": {
+                                                "type": ["string", "null"],
+                                                "description": "Human-readable description of what the tool does.",
+                                                "example": "Search Shopware entities and return matching records."
+                                            },
+                                            "dependencies": {
+                                                "type": "array",
+                                                "items": {"type": "string"},
+                                                "description": "Tool names that are automatically included when this tool is selected."
+                                            },
+                                            "requiredPrivileges": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "static": {"type": "array", "items": {"type": "string"}},
+                                                            "entityParam": {"type": ["string", "null"]},
+                                                            "operations": {"type": "array", "items": {"type": "string"}}
+                                                        }
+                                                    },
+                                                    {"type": "null"}
+                                                ],
+                                                "description": "ACL privileges required by this tool."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden — caller lacks `integration.editor` privilege."
+                    }
+                }
+            }
+        },
+        "\/_action\/mcp\/capabilities": {
+            "get": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "List all registered MCP capabilities",
+                "description": "Returns all registered MCP tools, resources, and prompts. Used by the Admin UI to populate the per-integration allowlist selector. Requires `integration.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpCapabilitiesList",
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Object containing all registered MCP capabilities.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["tools", "resources", "prompts"],
+                                    "properties": {
+                                        "tools": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["name"],
+                                                "properties": {
+                                                    "name": {"type": "string", "example": "shopware-entity-search"},
+                                                    "description": {"type": ["string", "null"]},
+                                                    "dependencies": {"type": "array", "items": {"type": "string"}},
+                                                    "requiredPrivileges": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "static": {"type": "array", "items": {"type": "string"}},
+                                                                    "entityParam": {"type": ["string", "null"]},
+                                                                    "operations": {"type": "array", "items": {"type": "string"}}
+                                                                }
+                                                            },
+                                                            {"type": "null"}
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "resources": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["uri", "name"],
+                                                "properties": {
+                                                    "uri": {"type": "string", "example": "shopware:\/\/entity-list"},
+                                                    "name": {"type": "string", "example": "shopware-entity-list"},
+                                                    "description": {"type": ["string", "null"]},
+                                                    "mimeType": {"type": ["string", "null"]}
+                                                }
+                                            }
+                                        },
+                                        "prompts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["name"],
+                                                "properties": {
+                                                    "name": {"type": "string", "example": "shopware-context"},
+                                                    "description": {"type": ["string", "null"]}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden — caller lacks `integration.editor` privilege."
+                    }
+                }
+            }
+        },
+        "\/_mcp": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP JSON-RPC endpoint",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport. Accepts JSON-RPC 2.0 messages for methods such as `initialize`, `tools\/list`, `tools\/call`, `prompts\/list`, `prompts\/get`, `resources\/list`, and `resources\/read`. Requires either an integration access key pair (`sw-access-key` + `sw-secret-access-key` headers) or a standard OAuth2 bearer token. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpPost",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": false,
+                        "description": "Session ID returned by the server after `initialize`. Required for all requests except `initialize`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-access-key",
+                        "in": "header",
+                        "required": false,
+                        "description": "Integration access key for direct credential authentication (alternative to bearer token).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-secret-access-key",
+                        "in": "header",
+                        "required": false,
+                        "description": "Integration secret access key. Required when `sw-access-key` is provided.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "A JSON-RPC 2.0 request or batch.",
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["jsonrpc", "method"],
+                                "properties": {
+                                    "jsonrpc": {
+                                        "type": "string",
+                                        "enum": ["2.0"]
+                                    },
+                                    "id": {
+                                        "oneOf": [
+                                            {"type": "string"},
+                                            {"type": "integer"},
+                                            {"type": "null"}
+                                        ]
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "tools\/call"
+                                    },
+                                    "params": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON-RPC response or Server-Sent Events stream for long-running operations.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "jsonrpc": {
+                                            "type": "string",
+                                            "enum": ["2.0"]
+                                        },
+                                        "id": {
+                                            "oneOf": [
+                                                {"type": "string"},
+                                                {"type": "integer"},
+                                                {"type": "null"}
+                                            ]
+                                        },
+                                        "result": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "properties": {
+                                                "code": {"type": "integer"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "text\/event-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "Server-Sent Events stream for streaming responses."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "429": {
+                        "description": "Too many requests — rate limit exceeded."
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP SSE stream",
+                "description": "Opens a Server-Sent Events stream for receiving server-initiated messages. Used by MCP clients that support the SSE transport variant. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpGet",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Server-Sent Events stream.",
+                        "content": {
+                            "text\/event-stream": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Close MCP session",
+                "description": "Terminates an active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpDelete",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Session closed successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized."
+                    }
+                }
+            },
+            "options": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP CORS preflight",
+                "description": "Handles CORS preflight requests for the MCP endpoint. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "mcpOptions",
+                "responses": {
+                    "204": {
+                        "description": "CORS preflight accepted."
+                    }
+                }
+            }
+        }
+    }
+}

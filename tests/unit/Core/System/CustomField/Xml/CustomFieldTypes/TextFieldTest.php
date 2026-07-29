@@ -1,0 +1,65 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\System\CustomField\Xml\CustomFieldTypes;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\TextField;
+
+/**
+ * @internal
+ */
+#[CoversClass(TextField::class)]
+class TextFieldTest extends TestCase
+{
+    public function testCreateFromXml(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/text-field.xml');
+
+        static::assertNotNull($manifest->getCustomFields());
+        static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
+
+        $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
+
+        static::assertCount(1, $customFieldSet->getFields());
+
+        $textField = $customFieldSet->getFields()[0];
+        static::assertInstanceOf(TextField::class, $textField);
+        static::assertSame('test_text_field', $textField->getName());
+        static::assertSame([
+            'en-GB' => 'Test text field',
+        ], $textField->getLabel());
+        static::assertSame([], $textField->getHelpText());
+        static::assertSame(1, $textField->getPosition());
+        static::assertSame(['en-GB' => 'Enter a text...'], $textField->getPlaceholder());
+        static::assertFalse($textField->getRequired());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/text-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $textField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(TextField::class, $textField);
+
+        static::assertEquals([
+            'name' => 'test_text_field',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test text field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'type' => 'text',
+                'placeholder' => [
+                    'en-GB' => 'Enter a text...',
+                ],
+                'componentName' => 'sw-field',
+                'customFieldType' => 'text',
+            ],
+        ], $textField->toEntityPayload());
+    }
+}

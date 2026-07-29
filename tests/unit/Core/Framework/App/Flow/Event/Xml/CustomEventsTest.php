@@ -16,7 +16,7 @@ class CustomEventsTest extends TestCase
     public function testFromXml(): void
     {
         $doc = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../_fixtures/Resources/flow-event-with-events.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
@@ -24,5 +24,6 @@ class CustomEventsTest extends TestCase
         static::assertNotNull($events);
         $result = CustomEvents::fromXml($events)->toArray('en-GB');
         static::assertArrayHasKey('customEvent', $result);
+        static::assertCount(1, $result['customEvent']);
     }
 }

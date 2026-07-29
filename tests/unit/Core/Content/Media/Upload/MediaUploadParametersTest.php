@@ -106,8 +106,7 @@ class MediaUploadParametersTest extends TestCase
     {
         $parameters = new MediaUploadParameters();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $parameters->getFileNameWithoutExtension();
     }
@@ -152,8 +151,7 @@ class MediaUploadParametersTest extends TestCase
     {
         $parameters = new MediaUploadParameters();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $parameters->getFileNameExtension();
     }

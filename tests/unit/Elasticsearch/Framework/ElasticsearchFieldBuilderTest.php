@@ -52,7 +52,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
             'cf_baz' => 'int',
         ]]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $utils = new ElasticsearchIndexingUtils(
             $connection,
@@ -98,6 +98,74 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         'search' => [
                             'type' => 'text',
                             'analyzer' => 'sw_english_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+            ],
+        ], $result);
+    }
+
+    public function testBuildTranslatedTechnicalField(): void
+    {
+        $deLanguageId = Uuid::randomHex();
+        $enLanguageId = Uuid::randomHex();
+
+        $languageLoader = new StaticLanguageLoader([
+            $deLanguageId => [
+                'id' => $deLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'de-DE',
+            ],
+            $enLanguageId => [
+                'id' => $enLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+
+        $connection = static::createStub(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
+            'en' => 'sw_english_analyzer',
+            'de' => 'sw_german_analyzer',
+        ]);
+
+        $result = $builder->translated(AbstractElasticsearchDefinition::TECHNICAL_TERM_SEARCH_FIELD);
+
+        static::assertSame([
+            'properties' => [
+                $deLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_german_technical_term_index_analyzer',
+                            'search_analyzer' => 'sw_german_technical_term_search_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+                $enLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_english_technical_term_index_analyzer',
+                            'search_analyzer' => 'sw_english_technical_term_search_analyzer',
                         ],
                         'ngram' => [
                             'type' => 'text',

@@ -31,8 +31,8 @@ class EntityWriteEventTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $command = new DeleteCommand(
@@ -59,8 +59,8 @@ class EntityWriteEventTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition(), new MediaDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $productDelete = new DeleteCommand(

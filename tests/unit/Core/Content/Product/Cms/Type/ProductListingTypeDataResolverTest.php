@@ -31,7 +31,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $mock = $this->createMock(ProductListingRoute::class);
+        $mock = static::createStub(ProductListingRoute::class);
         $mock->method('load')->willReturn(
             new ProductListingRouteResponse(
                 new ProductListingResult('product', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext())
@@ -51,7 +51,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -64,7 +64,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithoutListingContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();

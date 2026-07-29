@@ -29,7 +29,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 7 = 5 should be false' => [7, 5, false];
         yield 'Numeric: 0.0 = 0.0 should be true' => [0.0, 0.0, true];
         yield 'Numeric: -5.1 = 5.1 should be false' => [-5.1, 5.1, false];
-
         yield 'Numeric: 5.1 = null should be false' => [5.1, null, false];
         yield 'Numeric: null = 5.1 should be false' => [null, 5.1, false];
         yield 'Numeric: null = null should be false' => [null, null, false];
@@ -46,7 +45,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 7.1 != 5.1 should be true' => [7.1, 5.1, true];
         yield 'Numeric: 0.0 != 0.0 should be false' => [0.0, 0.0, false];
         yield 'Numeric: -5.1 != 5.1 should be true' => [-5.1, 5.1, true];
-
         yield 'Numeric: 5.1 != null should be true' => [5.1, null, true];
         yield 'Numeric: null != 5.1 should be true' => [null, 5.1, true];
         yield 'Numeric: null != null should be true' => [null, null, true];
@@ -66,7 +64,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 0.0 > 0.0 should be false' => [0.0, 0.0, false];
         yield 'Numeric: -7.1 > 5.1 should be false' => [-7.1, 5.1, false];
         yield 'Numeric: 5.1 > -7.1 should be true' => [5.1, -7.1, true];
-
         yield 'Numeric: 5.1 > null should be false' => [5.1, null, false];
         yield 'Numeric: null > 5.1 should be false' => [null, 5.1, false];
         yield 'Numeric: null > null should be false' => [null, null, false];
@@ -84,7 +81,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 1.0 <= 2.0 should be true' => [1.0, 2.0, true];
         yield 'Numeric: -1.0 <= 2.0 should be true' => [-1.0, 2.0, true];
         yield 'Numeric: -1.0 <= -2.0 should be false' => [-1.0, -2.0, false];
-
         yield 'Numeric: null <= null should be false' => [null, null, false];
         yield 'Numeric: 1.0 <= null should be false' => [1.0, null, false];
         yield 'Numeric: null <= 1.0 should be false' => [null, 1.0, false];
@@ -104,7 +100,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 1.0 >= 2.0 should be false' => [1.0, 2.0, false];
         yield 'Numeric: -1.0 >= 2.0 should be false' => [-1.0, 2.0, false];
         yield 'Numeric: -1.0 >= -2.0 should be true' => [-1.0, -2.0, true];
-
         yield 'Numeric: null >= null should be false' => [null, null, false];
         yield 'Numeric: 1.0 >= null should be false' => [1.0, null, false];
         yield 'Numeric: null >= 1.0 should be false' => [null, 1.0, false];
@@ -124,7 +119,6 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: 1.0 < 2.0 should be true' => [1.0, 2.0, true];
         yield 'Numeric: -1.0 < 2.0 should be true' => [-1.0, 2.0, true];
         yield 'Numeric: -1.0 < -2.0 should be false' => [-1.0, -2.0, false];
-
         yield 'Numeric: null < null should be false' => [null, null, false];
         yield 'Numeric: 1.0 < null should be false' => [1.0, null, false];
         yield 'Numeric: null < 1.0 should be false' => [null, 1.0, false];
@@ -382,6 +376,288 @@ class RuleComparisonTest extends TestCase
             new \DateTime('2025-02-27'),
             false,
             Rule::OPERATOR_LTE,
+        ];
+    }
+
+    /**
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
+     */
+    #[DataProvider('dateValueProvider')]
+    public function testDateValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, bool $expectedDate, bool $expectedDatetime, string $operator): void
+    {
+        static::assertSame($expectedDate, RuleComparison::dateValue($itemValue, $ruleValue, $operator));
+    }
+
+    /**
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
+     */
+    #[DataProvider('dateValueProvider')]
+    public function testDatetimeValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, bool $expectedDate, bool $expectedDatetime, string $operator): void
+    {
+        static::assertSame($expectedDatetime, RuleComparison::datetimeValue($itemValue, $ruleValue, $operator));
+    }
+
+    public static function dateValueProvider(): iterable
+    {
+        yield 'eq - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-27 00:00:00'),
+            'ruleValue' => new \DateTime('2025-02-27 00:00:00'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_EQ,
+        ];
+        yield 'eq - DateTime - false' => [
+            'itemValue' => new \DateTime('2025-02-27'),
+            'ruleValue' => new \DateTime('2025-02-28'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_EQ,
+        ];
+        yield 'eq - string - true' => [
+            'itemValue' => new \DateTime('2025-02-27 00:00:00'),
+            'ruleValue' => '2025-02-27 00:00:00',
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_EQ,
+        ];
+        yield 'eq - same day, different time' => [
+            'itemValue' => new \DateTime('2025-02-27 10:00:00'),
+            'ruleValue' => new \DateTime('2025-02-27 15:00:00'),
+            'expectedDate' => true,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_EQ,
+        ];
+
+        yield 'neq - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-27'),
+            'ruleValue' => new \DateTime('2025-02-28'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+        ];
+        yield 'neq - DateTime - false' => [
+            'itemValue' => new \DateTime('2025-02-27 00:00:00'),
+            'ruleValue' => new \DateTime('2025-02-27 00:00:00'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_NEQ,
+        ];
+        yield 'neq - same day, different time' => [
+            'itemValue' => new \DateTime('2025-02-27 10:00:00'),
+            'ruleValue' => new \DateTime('2025-02-27 15:00:00'),
+            'expectedDate' => false,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+        ];
+
+        yield 'gt - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-29'),
+            'ruleValue' => new \DateTime('2025-02-28'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_GT,
+        ];
+        yield 'gt - DateTime - false (equal)' => [
+            'itemValue' => new \DateTime('2025-02-28'),
+            'ruleValue' => new \DateTime('2025-02-28'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_GT,
+        ];
+        yield 'gt - string - true' => [
+            'itemValue' => new \DateTime('2025-02-29'),
+            'ruleValue' => '2025-02-28',
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_GT,
+        ];
+
+        yield 'lt - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-26'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_LT,
+        ];
+        yield 'lt - DateTime - false (equal)' => [
+            'itemValue' => new \DateTime('2025-02-27'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_LT,
+        ];
+        yield 'lt - string - true' => [
+            'itemValue' => new \DateTime('2025-02-26'),
+            'ruleValue' => '2025-02-27',
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_LT,
+        ];
+
+        yield 'gte - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-28'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_GTE,
+        ];
+        yield 'gte - DateTime - true (equal)' => [
+            'itemValue' => new \DateTime('2025-02-27'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_GTE,
+        ];
+        yield 'gte - DateTime - false' => [
+            'itemValue' => new \DateTime('2025-02-26'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_GTE,
+        ];
+
+        yield 'lte - DateTime - true' => [
+            'itemValue' => new \DateTime('2025-02-26'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_LTE,
+        ];
+        yield 'lte - DateTime - true (equal)' => [
+            'itemValue' => new \DateTime('2025-02-27'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_LTE,
+        ];
+        yield 'lte - DateTime - false' => [
+            'itemValue' => new \DateTime('2025-02-28'),
+            'ruleValue' => new \DateTime('2025-02-27'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_LTE,
+        ];
+
+        yield 'between - DateTime range - inside' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - DateTime range - on lower bound' => [
+            'itemValue' => new \DateTime('2025-02-01'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - DateTime range - on upper bound' => [
+            'itemValue' => new \DateTime('2025-02-28'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - date range - on upper bound with later time' => [
+            'itemValue' => new \DateTime('2025-02-28 12:00:00'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - DateTime range - before lower' => [
+            'itemValue' => new \DateTime('2025-01-31'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - DateTime range - after upper' => [
+            'itemValue' => new \DateTime('2025-03-01'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - string range - inside' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => '2025-02-01', 'to' => '2025-02-28'],
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - string range - outside' => [
+            'itemValue' => new \DateTime('2025-03-15'),
+            'ruleValue' => ['from' => '2025-02-01', 'to' => '2025-02-28'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - mixed range - inside' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => '2025-02-01', 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => true,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - missing from - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['to' => '2025-02-28'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - missing to - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => '2025-02-01'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - string rule value - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => '2025-02-15',
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - DateTime rule value - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => new \DateTime('2025-02-15'),
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+        yield 'between - unparseable from - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => 'not-a-date', 'to' => '2025-02-28'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
+
+        yield 'array rule value with non-between operator - false (eq)' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => '2025-02-01', 'to' => '2025-02-28'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_EQ,
+        ];
+        yield 'array rule value with non-between operator - false (gt)' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => ['from' => '2025-02-01', 'to' => '2025-02-28'],
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_GT,
+        ];
+
+        yield 'unparseable string - false' => [
+            'itemValue' => new \DateTime('2025-02-15'),
+            'ruleValue' => 'not-a-date',
+            'expectedDate' => false,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_EQ,
         ];
     }
 }

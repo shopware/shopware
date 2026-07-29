@@ -19,7 +19,7 @@ class InstallServicesHandlerTest extends TestCase
     {
         $lifecycleManager = $this->createMock(LifecycleManager::class);
         $lifecycleManager->expects($this->once())
-            ->method('install')
+            ->method('reconcile')
             ->with(static::isInstanceOf(Context::class));
 
         $handler = new InstallServicesHandler($lifecycleManager);

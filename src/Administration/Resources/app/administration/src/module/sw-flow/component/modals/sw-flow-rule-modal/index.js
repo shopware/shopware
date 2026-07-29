@@ -102,11 +102,12 @@ export default {
             return awarenessConfig?.scopes ?? undefined;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
-         */
-        showProductStateConditionWarning() {
-            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
+        deprecatedConditionsInUse() {
+            if (!this.conditions) {
+                return [];
+            }
+
+            return this.ruleConditionDataProviderService.getDeprecationsInTree(this.conditions);
         },
 
         ...mapState(() => Store.get('swFlow'), ['flow']),
@@ -221,23 +222,6 @@ export default {
                 ...this.deletedIds,
                 ...deletedIds,
             ];
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
-         */
-        hasConditionType(conditions, conditionType) {
-            return conditions.some((condition) => {
-                if (condition.type === conditionType) {
-                    return true;
-                }
-
-                return (
-                    condition.children &&
-                    Array.isArray(condition.children) &&
-                    this.hasConditionType(condition.children, conditionType)
-                );
-            });
         },
 
         getRuleDetail() {

@@ -30,7 +30,7 @@ class RequestFacadeFactoryTest extends TestCase
 
         $script = new Script('foo', 'bar', new \DateTimeImmutable());
 
-        $facade = $factory->factory($this->createMock(Hook::class), $script);
+        $facade = $factory->factory(static::createStub(Hook::class), $script);
 
         static::assertSame('https://example.com/foo/bar', $facade->uri());
     }

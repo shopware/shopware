@@ -50,6 +50,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartLocker">
@@ -134,6 +135,18 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute" public="true">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -271,6 +284,7 @@
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
@@ -546,6 +560,7 @@
             <argument>%shopware.cart.expire_days%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 

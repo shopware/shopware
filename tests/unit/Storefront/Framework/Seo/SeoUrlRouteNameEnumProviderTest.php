@@ -18,7 +18,7 @@ class SeoUrlRouteNameEnumProviderTest extends TestCase
 {
     public function testIsSupported(): void
     {
-        $provider = new SeoUrlRouteNameEnumProvider($this->createMock(SeoUrlRouteRegistry::class));
+        $provider = new SeoUrlRouteNameEnumProvider(static::createStub(SeoUrlRouteRegistry::class));
 
         static::assertTrue($provider->isSupported(SeoUrlDefinition::ENTITY_NAME, 'routeName'));
         static::assertFalse($provider->isSupported('product', 'routeName'));
@@ -27,7 +27,7 @@ class SeoUrlRouteNameEnumProviderTest extends TestCase
 
     public function testGetEnumValues(): void
     {
-        $registry = $this->createMock(SeoUrlRouteRegistry::class);
+        $registry = static::createStub(SeoUrlRouteRegistry::class);
         $registry->method('getSeoUrlRoutes')->willReturn([
             'frontend.detail.page' => new \stdClass(),
             'frontend.navigation.page' => new \stdClass(),

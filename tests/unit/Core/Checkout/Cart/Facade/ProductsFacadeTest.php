@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
@@ -24,15 +24,15 @@ class ProductsFacadeTest extends TestCase
 {
     private ScriptPriceStubs $stubs;
 
-    private CartFacadeHelper&MockObject $helper;
+    private CartFacadeHelper&Stub $helper;
 
     private SalesChannelContext $context;
 
     protected function setUp(): void
     {
-        $this->stubs = $this->createMock(ScriptPriceStubs::class);
-        $this->helper = $this->createMock(CartFacadeHelper::class);
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->stubs = static::createStub(ScriptPriceStubs::class);
+        $this->helper = static::createStub(CartFacadeHelper::class);
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     public function testGetWithNonExistingProduct(): void

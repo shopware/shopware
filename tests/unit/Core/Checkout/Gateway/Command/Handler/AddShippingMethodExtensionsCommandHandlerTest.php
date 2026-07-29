@@ -51,7 +51,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
             new ErrorCollection()
         );
 
-        $handler = new AddShippingMethodExtensionsCommandHandler($this->createMock(ExceptionLogger::class));
+        $handler = new AddShippingMethodExtensionsCommandHandler(static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(2, $response->getAvailableShippingMethods());

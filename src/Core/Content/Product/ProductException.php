@@ -22,6 +22,7 @@ class ProductException extends HttpException
     public const PRODUCT_VARIANT_NOT_FOUND = 'CONTENT__PRODUCT_VARIANT_NOT_FOUND';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
+    public const LISTING_PAGE_OUT_OF_RANGE = 'PRODUCT__LISTING_PAGE_OUT_OF_RANGE';
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
     public const PRODUCT_INVALID_OPTIONS_PARAMETER = 'PRODUCT_INVALID_OPTIONS_PARAMETER';
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
@@ -45,6 +46,16 @@ class ProductException extends HttpException
             self::SORTING_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'sorting', 'field' => 'key', 'value' => $key]
+        );
+    }
+
+    public static function pageOutOfRange(int $requestedPage, int $lastPage): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::LISTING_PAGE_OUT_OF_RANGE,
+            'Requested listing page {{ requestedPage }} is out of range (last page: {{ lastPage }}).',
+            ['requestedPage' => $requestedPage, 'lastPage' => $lastPage]
         );
     }
 

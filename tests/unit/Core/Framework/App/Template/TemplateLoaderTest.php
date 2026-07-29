@@ -34,7 +34,13 @@ class TemplateLoaderTest extends TestCase
         \sort($templates);
 
         static::assertSame(
-            ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig', 'storefront/page/sitemap/sitemap.xml.twig'],
+            [
+                'components/Demo/Badge.html.twig',
+                'files/agentic/.well-known/ucp.json.twig',
+                'storefront/layout/header/header.html.twig',
+                'storefront/layout/header/logo.html.twig',
+                'storefront/page/sitemap/sitemap.xml.twig',
+            ],
             $templates
         );
     }

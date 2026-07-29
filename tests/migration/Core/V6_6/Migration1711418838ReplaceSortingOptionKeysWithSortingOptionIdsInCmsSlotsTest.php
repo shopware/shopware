@@ -29,6 +29,11 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsT
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1711418838, (new Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $sortingIds = $this->getSortingIds();

@@ -45,8 +45,8 @@ class SalesChannelCustomerAddressDefinitionTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $definition->compile($registry);

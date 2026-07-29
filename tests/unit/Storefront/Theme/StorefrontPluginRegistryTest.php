@@ -46,7 +46,7 @@ class StorefrontPluginRegistryTest extends TestCase
             ->willReturn($config);
 
         $registry = new StorefrontPluginRegistry(
-            $this->createMock(KernelInterface::class),
+            static::createStub(KernelInterface::class),
             $pluginFactory,
             $appLoader
         );
@@ -79,7 +79,7 @@ class StorefrontPluginRegistryTest extends TestCase
         $registry = new StorefrontPluginRegistry(
             $kernel,
             $pluginFactory,
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(ActiveAppsLoader::class)
         );
 
         static::assertSame(

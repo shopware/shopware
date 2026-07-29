@@ -189,8 +189,10 @@ class RuleValidator implements EventSubscriberInterface
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
         $value = $condition !== null ? $condition->getValue() : [];
-        if (isset($payload['value'])) {
-            $value = json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR);
+        if (\array_key_exists('value', $payload)) {
+            $value = $payload['value'] !== null
+                ? json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR)
+                : [];
         }
 
         return $value ?? [];
@@ -294,7 +296,7 @@ class RuleValidator implements EventSubscriberInterface
         $script = null;
         if (isset($payload['script_id'])) {
             $scriptId = Uuid::fromBytesToHex($payload['script_id']);
-            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->get($scriptId);
+            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->getEntities()->get($scriptId);
         } elseif ($condition && $condition->getAppScriptCondition()) {
             $script = $condition->getAppScriptCondition();
         }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Maintenance\User\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,6 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
@@ -41,7 +41,7 @@ class UserCreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $username = $input->getArgument('username');
         $password = $input->getOption('password');

@@ -23,7 +23,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 {
     public function testSendsMessage(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
@@ -44,7 +44,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testSendsMessageWithoutOptions(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
@@ -65,7 +65,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testSendsMessageToSynchronousPostUpdaterIndexer(): void
     {
-        $pathPostUpdater = $this->createMock(MediaPathPostUpdater::class);
+        $pathPostUpdater = static::createStub(MediaPathPostUpdater::class);
 
         $queuer = $this->createMock(IndexerQueuer::class);
         $queuer->expects($this->once())->method('getIndexers')->willReturn(['media.path.post_update' => []]);
@@ -91,7 +91,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
         $subscriber = new RegisteredIndexerSubscriber(
             $queuer,
-            $this->createMock(EntityIndexerRegistry::class)
+            static::createStub(EntityIndexerRegistry::class)
         );
 
         $subscriber->runRegisteredIndexers();
@@ -99,7 +99,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testIgnoresUnknownIndexer(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);

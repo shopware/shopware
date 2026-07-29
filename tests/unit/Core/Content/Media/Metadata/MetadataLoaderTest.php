@@ -16,7 +16,9 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
+use Shopware\Core\Content\Media\Metadata\MetadataLoader\ImageMetadataLoader;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
@@ -173,5 +175,90 @@ class MetadataLoaderTest extends TestCase
         $metadata = $metadataLoader->loadFromFile($file, $type);
 
         static::assertSame($expected, $metadata);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function realFileDataProvider(): iterable
+    {
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
+        yield 'jpg' => [
+            $filePath,
+            [
+                'width' => 1530,
+                'height' => 1021,
+                'type' => \IMAGETYPE_JPEG,
+                'hash' => Hasher::hashFile($filePath, 'md5'),
+            ],
+        ];
+
+        $filePath = __DIR__ . '/../fixtures/logo.gif';
+        yield 'gif' => [
+            $filePath,
+            [
+                'width' => 142,
+                'height' => 37,
+                'type' => \IMAGETYPE_GIF,
+                'hash' => Hasher::hashFile($filePath, 'md5'),
+            ],
+        ];
+
+        $filePath = __DIR__ . '/../fixtures/shopware-logo.png';
+        yield 'png' => [
+            $filePath,
+            [
+                'width' => 499,
+                'height' => 266,
+                'type' => \IMAGETYPE_PNG,
+                'hash' => Hasher::hashFile($filePath, 'md5'),
+            ],
+        ];
+
+        $filePath = __DIR__ . '/../fixtures/logo-version-professionalplus.svg';
+        yield 'svg' => [
+            $filePath,
+            [
+                'hash' => Hasher::hashFile($filePath, 'md5'),
+            ],
+        ];
+
+        $filePath = __DIR__ . '/../fixtures/small.pdf';
+        yield 'pdf' => [
+            $filePath,
+            [
+                'hash' => Hasher::hashFile($filePath, 'md5'),
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('realFileDataProvider')]
+    public function testLoadFromRealFile(string $filePath, array $expected): void
+    {
+        $metadataLoader = new MetadataLoader(new \ArrayIterator([new ImageMetadataLoader()]));
+
+        $metadata = $metadataLoader->loadFromFile($this->createMediaFile($filePath), new ImageType());
+
+        static::assertSame($expected, $metadata);
+    }
+
+    private function createMediaFile(string $filePath): MediaFile
+    {
+        $mimeType = mime_content_type($filePath);
+        static::assertIsString($mimeType);
+
+        $fileSize = filesize($filePath);
+        static::assertIsInt($fileSize);
+
+        return new MediaFile(
+            $filePath,
+            $mimeType,
+            pathinfo($filePath, \PATHINFO_EXTENSION),
+            $fileSize,
+            Hasher::hashFile($filePath, 'md5')
+        );
     }
 }

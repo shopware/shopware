@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
+use Symfony\Component\Config\Util\XmlUtils;
 
 #[Package('framework')]
 class ConfigReader extends XmlReader
@@ -51,7 +52,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
+     * @return array<array{title: array<string, string|null>, subtitle?: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
      */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
@@ -63,6 +64,10 @@ class ConfigReader extends XmlReader
                 'name' => $this->getCardName($element),
                 'elements' => $this->getElements($element),
             ];
+
+            if ($this->getCardSubtitles($element) !== []) {
+                $cardDefinition['subtitle'] = $this->getCardSubtitles($element);
+            }
 
             if ($this->getCardFlag($element) !== null) {
                 $cardDefinition['flag'] = $this->getCardFlag($element);
@@ -88,6 +93,19 @@ class ConfigReader extends XmlReader
     }
 
     /**
+     * @return array<string, string|null>
+     */
+    private function getCardSubtitles(\DOMElement $element): array
+    {
+        $subtitles = [];
+        foreach ($element->getElementsByTagName('subtitle') as $subtitle) {
+            $subtitles[$this->getLocaleCodeFromElement($subtitle)] = $subtitle->nodeValue;
+        }
+
+        return $subtitles;
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     private function getElements(\DOMElement $xml): array
@@ -95,7 +113,7 @@ class ConfigReader extends XmlReader
         $elements = [];
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
-            if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
+            if (\in_array($nodeName, ['title', 'subtitle', 'name', 'flag'], true)) {
                 continue;
             }
 
@@ -158,6 +176,8 @@ class ConfigReader extends XmlReader
             'componentName' => $element->getAttribute('name'),
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
     }
 
@@ -174,7 +194,25 @@ class ConfigReader extends XmlReader
             'type' => $swFieldType,
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
+    }
+
+    /**
+     * @param array<string, mixed> $elementData
+     *
+     * @return array<string, mixed>
+     */
+    private function addCacheRelevantAttribute(\DOMElement $element, array $elementData): array
+    {
+        if (!$element->hasAttribute('cache-relevant')) {
+            return $elementData;
+        }
+
+        $elementData['cacheRelevant'] = XmlUtils::phpize($element->getAttribute('cache-relevant'));
+
+        return $elementData;
     }
 
     /**

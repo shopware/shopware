@@ -45,7 +45,7 @@ class NewsletterConfirmEvent extends Event implements SalesChannelAware, MailAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getNewsletterRecipient(): NewsletterRecipientEntity

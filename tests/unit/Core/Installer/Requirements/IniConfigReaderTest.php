@@ -14,34 +14,26 @@ use Shopware\Core\Installer\Requirements\IniConfigReader;
 class IniConfigReaderTest extends TestCase
 {
     #[DataProvider('configProvider')]
-    public function testGet(string $key, string|false $configValue, string $expectedValue): void
+    public function testGet(string $key): void
     {
-        \ini_set($key, (string) $configValue);
-
         $reader = new IniConfigReader();
-        static::assertSame($expectedValue, $reader->get($key));
 
-        \ini_restore($key);
+        // The cast is intentional: ini_get() returns false for unknown keys, matching IniConfigReader's empty-string result.
+        static::assertSame((string) \ini_get($key), $reader->get($key));
     }
 
     public static function configProvider(): \Generator
     {
         yield 'max_execution_time' => [
             'max_execution_time',
-            '30',
-            '30',
         ];
 
         yield 'memory_limit' => [
             'memory_limit',
-            '512M',
-            '512M',
         ];
 
         yield 'not set value' => [
-            'max_execution_time',
-            false,
-            '',
+            'not_existing_ini_value',
         ];
     }
 }

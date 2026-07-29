@@ -6,7 +6,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\Docs\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
@@ -21,7 +21,7 @@ use Twig\Environment;
 #[CoversClass(ServiceReferenceGenerator::class)]
 class ServiceReferenceGeneratorTest extends TestCase
 {
-    private Environment&MockObject $twig;
+    private Environment&Stub $twig;
 
     private string $projectDir;
 
@@ -63,7 +63,7 @@ class ServiceReferenceGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->twig = $this->createMock(Environment::class);
+        $this->twig = static::createStub(Environment::class);
         $this->twig->method('render')->willReturnCallback(static fn ($template, $data) => print_r($data, true));
         $this->projectDir = '/project/root';
         $this->generator = new ServiceReferenceGenerator($this->twig, $this->projectDir);

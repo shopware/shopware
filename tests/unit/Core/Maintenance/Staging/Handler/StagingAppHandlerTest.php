@@ -19,7 +19,7 @@ class StagingAppHandlerTest extends TestCase
 {
     public function testDeletion(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchAllAssociative')
             ->willReturn([
@@ -45,7 +45,7 @@ class StagingAppHandlerTest extends TestCase
         $handler = new StagingAppHandler($connection, $shopIdProvider);
         $handler->__invoke(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             []
         ));

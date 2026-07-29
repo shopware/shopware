@@ -24,7 +24,7 @@ class RouteParamsCleanupListenerTest extends TestCase
     public function testListener(Request $request, array $attributes): void
     {
         $listener = new RouteParamsCleanupListener();
-        $listener(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
+        $listener(new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
         static::assertSame($attributes, $request->attributes->all());
     }

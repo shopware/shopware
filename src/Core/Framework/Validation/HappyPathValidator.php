@@ -110,7 +110,7 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        if (empty($constraint->normalizer)) {
+        if ($constraint->normalizer === null) {
             return $value;
         }
 
@@ -143,7 +143,8 @@ class HappyPathValidator implements ValidatorInterface
 
                 break;
             case $constraint instanceof NotBlank:
-                if ($value === false || (empty($value) && $value !== '0')) {
+                // NotBlank rejects all falsy values except the string '0'
+                if ($value === false || (!$value && $value !== '0')) {
                     return false;
                 }
 

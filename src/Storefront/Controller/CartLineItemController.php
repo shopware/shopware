@@ -131,7 +131,9 @@ class CartLineItemController extends StorefrontController
                 $code = mb_trim((string) $request->request->get('code'));
 
                 if ($code === '') {
-                    throw RoutingException::missingRequestParameter('code');
+                    $this->addFlash(self::DANGER, $this->trans('error.VIOLATION::IS_BLANK_ERROR'));
+
+                    return $this->createActionResponse($request);
                 }
 
                 $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
@@ -222,8 +224,10 @@ class CartLineItemController extends StorefrontController
         return Profiler::trace('cart::add-product-by-number', function () use ($request, $context) {
             $number = (string) $request->request->get('number');
 
-            if (!$number) {
-                throw RoutingException::missingRequestParameter('number');
+            if (mb_trim($number) === '') {
+                $this->addFlash(self::DANGER, $this->trans('error.VIOLATION::IS_BLANK_ERROR'));
+
+                return $this->createActionResponse($request);
             }
 
             $criteria = new Criteria();

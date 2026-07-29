@@ -79,7 +79,7 @@ class RefreshIndexCommandTest extends TestCase
         $seoUrl = $repo->search(
             (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryA))),
             $context
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($seoUrl);
 
@@ -92,7 +92,7 @@ class RefreshIndexCommandTest extends TestCase
         $seoUrl = $repo->search(
             (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryB))),
             $context
-        )->first();
+        )->getEntities()->first();
 
         static::assertNull($seoUrl);
     }

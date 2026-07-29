@@ -29,7 +29,7 @@ class FeatureFlagExtensionTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Exception> $exceptionClass
      */
     #[DataProvider('invalidNamespaceDataProvider')]
     public function testAddingInvalidNamespaceWillThrowException(
@@ -37,8 +37,7 @@ class FeatureFlagExtensionTest extends TestCase
         string $exceptionClass,
         string $exceptionMessage
     ): void {
-        $this->expectException($exceptionClass);
-        $this->expectExceptionMessage($exceptionMessage);
+        $this->expectExceptionObject(new $exceptionClass($exceptionMessage));
 
         FeatureFlagExtension::addTestNamespace($namespace);
 

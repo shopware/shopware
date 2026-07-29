@@ -13,6 +13,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher);
+        $this->shopConfigurator = new ShopConfigurator($this->connection, $this->eventDispatcher, new NativeClock());
     }
 
     public function testUpdateBasicInformation(): void
@@ -64,8 +65,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testSetDefaultLanguageWithoutCurrentLocale(): void
     {
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('Default language locale not found');
+        $this->expectExceptionObject(MaintenanceException::shopConfigurationNotValid('Default language locale not found'));
 
         $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(static function (string $sql, array $parameters): false {
             static::assertSame(
@@ -127,8 +127,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testSetDefaultLanguageWithUnavailableIso(): void
     {
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('Locale with iso-code "vi-VN" not found');
+        $this->expectExceptionObject(MaintenanceException::shopConfigurationNotValid('Locale with iso-code "vi-VN" not found'));
 
         $currentLocaleId = Uuid::randomBytes();
 

@@ -137,8 +137,8 @@ class ExtendsTokenParserTest extends TestCase
         static::assertSame(
             'sw_extends',
             (new ExtendsTokenParser(
-                $this->createMock(TemplateFinderInterface::class),
-                $this->createMock(TemplateScopeDetector::class),
+                static::createStub(TemplateFinderInterface::class),
+                static::createStub(TemplateScopeDetector::class),
             ))->getTag()
         );
     }

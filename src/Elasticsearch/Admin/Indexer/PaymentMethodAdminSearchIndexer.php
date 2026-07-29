@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -105,17 +104,13 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter($row));
+            $completion = $this->buildCompletion([\is_string($row['name'] ?? null) ? $row['name'] : null]);
 
-            if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-                $mapped[$id] = [
-                    'id' => $id,
-                    'text' => \strtolower($text),
-                ];
-
-                continue;
-            }
-
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'completion' => $completion,
+            ];
         }
 
         return $mapped;

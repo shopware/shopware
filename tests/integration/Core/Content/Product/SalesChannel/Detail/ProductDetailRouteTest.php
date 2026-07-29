@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -502,6 +503,7 @@ class ProductDetailRouteTest extends TestCase
             'productNumber' => 'translated-parent-product',
             'stock' => 10,
             'active' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
@@ -547,6 +549,7 @@ class ProductDetailRouteTest extends TestCase
                 'productNumber' => 'translated-variant-product',
                 'stock' => 10,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'options' => [],
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -84,7 +85,8 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         return new NewsletterRecipientTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
-            static::getContainer()->get('newsletter_recipient.repository')
+            static::getContainer()->get('newsletter_recipient.repository'),
+            new NativeClock()
         );
     }
 }

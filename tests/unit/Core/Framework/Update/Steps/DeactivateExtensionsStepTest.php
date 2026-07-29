@@ -28,9 +28,9 @@ class DeactivateExtensionsStepTest extends TestCase
         $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $version,
             ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL,
-            $this->createMock(ExtensionCompatibility::class),
-            $this->createMock(ExtensionLifecycleService::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(ExtensionLifecycleService::class),
+            static::createStub(SystemConfigService::class),
             Context::createDefaultContext()
         );
 
@@ -51,7 +51,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension]);
@@ -96,7 +96,7 @@ class DeactivateExtensionsStepTest extends TestCase
         $extension->setName('TestApp');
         $extension->setType(ExtensionStruct::EXTENSION_TYPE_APP);
 
-        $pluginCompatibility = $this->createMock(ExtensionCompatibility::class);
+        $pluginCompatibility = static::createStub(ExtensionCompatibility::class);
         $pluginCompatibility
             ->method('getExtensionsToDeactivate')
             ->willReturn([$extension, $extension]);

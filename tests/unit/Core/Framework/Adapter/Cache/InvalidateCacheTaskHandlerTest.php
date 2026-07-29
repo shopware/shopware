@@ -21,8 +21,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $cacheInvalidator->expects($this->once())->method('invalidateExpired');
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();
@@ -34,8 +34,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $cacheInvalidator->expects($this->once())->method('invalidateExpired');
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();
@@ -49,8 +49,8 @@ class InvalidateCacheTaskHandlerTest extends TestCase
             ->willThrowException(new \Exception());
 
         $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cacheInvalidator
         );
         $handler->run();

@@ -127,9 +127,13 @@ export default {
 
             const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
             const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
+            const defaultUserPrivileges = this.privileges.getDefaultUserPrivileges();
 
             this.detailedPrivileges = this.role.privileges.filter((privilege) => {
-                return !allGeneralPrivileges.includes(privilege);
+                return ![
+                    ...allGeneralPrivileges,
+                    ...defaultUserPrivileges,
+                ].includes(privilege);
             });
             this.role.privileges = filteredPrivileges;
         },

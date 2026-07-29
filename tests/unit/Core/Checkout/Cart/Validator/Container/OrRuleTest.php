@@ -28,7 +28,7 @@ class OrRuleTest extends TestCase
         static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );
@@ -44,7 +44,7 @@ class OrRuleTest extends TestCase
         static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );

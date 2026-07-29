@@ -102,7 +102,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             }
         }
 
-        if ($struct instanceof Collection) {
+        /** @deprecated tag:v6.8.0 - Remove the EntitySearchResult exclusion once it no longer extends Collection. */
+        if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
             foreach ($struct as $item) {
                 $this->findStruct($data, $item);
             }
@@ -154,7 +155,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
+            foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $url) {
                 $entities = $data->getAll($definition, $url->getForeignKey());
 
                 foreach ($entities as $entity) {

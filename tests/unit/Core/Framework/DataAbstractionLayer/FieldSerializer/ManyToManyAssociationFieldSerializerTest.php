@@ -40,15 +40,15 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
                 'MediaGallery' => new MediaGalleryDefinition(),
                 'MediaGalleryMapping' => new MediaGalleryMappingDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $mediaDefinition->getField('galleries');
 
         static::assertInstanceOf(ManyToManyAssociationField::class, $field);
 
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $mediaDefinition,
@@ -57,8 +57,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $this->expectException(ExpectedArrayException::class);
-        $this->expectExceptionMessage('Expected data at /galleries/0 to be an array.');
+        $this->expectExceptionObject(new ExpectedArrayException('/galleries/0'));
 
         $serializer->normalize($field, [
             'galleries' => [
@@ -69,21 +68,19 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
 
     public function testDecodeThrowsException(): void
     {
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage(\sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class));
-
-        $serializer->decode(
-            new ManyToManyAssociationField(
-                'galleries',
-                'MediaGallery',
-                'MediaGalleryMapping',
-                'media_id',
-                'gallery_id',
-            ),
-            []
+        $field = new ManyToManyAssociationField(
+            'galleries',
+            'MediaGallery',
+            'MediaGalleryMapping',
+            'media_id',
+            'gallery_id',
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::decodeHandledByHydrator($field));
+
+        $serializer->decode($field, []);
     }
 
     public function testNormalizeThrowsExceptionIfMappingDefinitionHasNoForeignKeys(): void
@@ -98,15 +95,15 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
                 'MediaGallery' => $mediaGalleryDefinition,
                 'MediaGalleryMapping' => $mediaGalleryMappingDefinition,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $field = $mediaDefinition->getField('galleries');
 
         static::assertInstanceOf(ManyToManyAssociationField::class, $field);
 
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $mediaDefinition,
@@ -115,8 +112,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage(\sprintf('Foreign key for association "galleries" not found. Please add one to "%s"', MediaGalleryMappingDefinition::class));
+        $this->expectExceptionObject(DataAbstractionLayerException::foreignKeyNotFoundInDefinition('galleries', MediaGalleryMappingDefinition::class));
         $serializer->normalize($field, [
             'galleries' => [
                 ['id' => 'gallery-id-1'],

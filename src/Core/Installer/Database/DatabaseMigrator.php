@@ -3,7 +3,10 @@
 namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
@@ -15,7 +18,9 @@ class DatabaseMigrator
     public function __construct(
         private readonly SetupDatabaseAdapter $adapter,
         private readonly MigrationCollectionFactory $migrationFactory,
-        private readonly string $version
+        private readonly string $version,
+        private readonly IniConfigReader $iniConfigReader,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -34,14 +39,15 @@ class DatabaseMigrator
             $coreMigrations->sync();
         }
 
-        // use 7 s as max execution time, so the UI stays responsive
-        $maxExecutionTime = min(\ini_get('max_execution_time'), 7);
-        $startTime = microtime(true);
+        // Use 7s as request cap so the UI stays responsive; 0/-1 mean unlimited PHP runtime.
+        $configuredMaxExecutionTime = (int) $this->iniConfigReader->get('max_execution_time');
+        $maxExecutionTime = $configuredMaxExecutionTime <= 0 ? 7 : min($configuredMaxExecutionTime, 7);
+        $startTime = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
         $executedMigrations = $offset;
 
         $stopped = false;
         while (iterator_count($coreMigrations->migrateInSteps(null, 1)) === 1) {
-            $runningSince = microtime(true) - $startTime;
+            $runningSince = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $startTime;
             ++$executedMigrations;
 
             // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result
@@ -54,7 +60,7 @@ class DatabaseMigrator
         }
 
         while (!$stopped && iterator_count($coreMigrations->migrateDestructiveInSteps(null, 1)) === 1) {
-            $runningSince = microtime(true) - $startTime;
+            $runningSince = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $startTime;
             ++$executedMigrations;
 
             // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result

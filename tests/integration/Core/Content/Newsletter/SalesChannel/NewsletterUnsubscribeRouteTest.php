@@ -51,7 +51,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(1, $count);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');

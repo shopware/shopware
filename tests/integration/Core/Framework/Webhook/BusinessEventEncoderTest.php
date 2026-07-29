@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -94,22 +95,31 @@ class BusinessEventEncoderTest extends TestCase
 
     public function testEncodeWithInvalidObjectOrData(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(\RuntimeException::class);
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
+        $this->expectExceptionObject(WebhookException::invalidDataMapping('invalid', InvalidTypeBusinessEvent::class));
+        $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
+    }
 
-            return;
+    public function testRegisteredBusinessEventsExposeWebhookPayloadGetters(): void
+    {
+        $registry = static::getContainer()->get(BusinessEventRegistry::class);
+
+        foreach ($registry->getClasses() as $eventClass) {
+            $missing = [];
+
+            foreach (array_keys($eventClass::getAvailableData()->toArray()) as $key) {
+                $getter = 'get' . $key;
+                $isser = 'is' . $key;
+
+                if (!method_exists($eventClass, $getter) && !method_exists($eventClass, $isser)) {
+                    $missing[] = $key;
+                }
+            }
+
+            static::assertSame([], $missing, \sprintf(
+                'Event %s is missing webhook payload getter(s) for: %s',
+                $eventClass,
+                implode(', ', $missing)
+            ));
         }
-
-        try {
-            $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
-        } catch (WebhookException $exception) {
-            static::assertSame('Unknown EventDataType: invalid', $exception->getMessage());
-            static::assertSame(WebhookException::UNKNOWN_DATA_TYPE, $exception->getErrorCode());
-
-            return;
-        }
-
-        static::fail('Exception should have been thrown');
     }
 }

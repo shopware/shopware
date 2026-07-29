@@ -160,7 +160,7 @@ class StoreController extends AbstractController
         }
 
         /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        $user = $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
 
         if ($user === null) {
             throw StoreException::storeTokenMissing();

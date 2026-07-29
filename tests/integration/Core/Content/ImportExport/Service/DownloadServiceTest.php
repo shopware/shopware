@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -151,15 +152,14 @@ class DownloadServiceTest extends TestCase
      */
     private function createDownloadService(Filesystem $fileSystem, EntityRepository $fileRepository): DownloadService
     {
-        /** @var RateLimiter $rateLimiter */
-        $rateLimiter = static::getContainer()->get(RateLimiter::class);
-
         return new DownloadService(
             $fileSystem,
             $fileRepository,
             $this->createMock(LoggerInterface::class),
             self::DEFAULT_STRATEGY,
-            $rateLimiter,
+            new RateLimiter(),
+            '',
+            new NativeClock(),
         );
     }
 }

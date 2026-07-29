@@ -112,11 +112,29 @@
                 {% block sw_flow_rule_modal_tab_rule_content %}
                 <div v-show="active === 'rule'">
                     <mt-banner
-                        v-if="showProductStateConditionWarning"
+                        v-if="deprecatedConditionsInUse.length > 0"
                         class="sw-flow-rule-modal__product-type-warning"
                         variant="attention"
                     >
-                        {{ $t('sw-flow.modals.rule.productStatesConditionWarning') }}
+                        <span
+                            v-for="deprecation in deprecatedConditionsInUse"
+                            :key="deprecation.type"
+                        >
+                            <template v-if="deprecation.replacement">
+                                {{ $t('sw-flow.modals.rule.deprecatedConditionWarning', {
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
+                                replacement: $t(deprecation.replacement.label),
+                                }) }}
+                            </template>
+
+                            <template v-else>
+                                {{ $t('sw-flow.modals.rule.deprecatedConditionWarningNoReplacement', {
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
+                                }) }}
+                            </template>
+                        </span>
                     </mt-banner>
 
                     {% block sw_flow_rule_modal_conditions_card %}

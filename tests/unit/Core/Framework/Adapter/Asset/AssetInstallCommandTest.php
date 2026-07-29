@@ -36,13 +36,13 @@ class AssetInstallCommandTest extends TestCase
         $fs->mkdir($tmpDir . '/public');
         $fs->dumpFile($tmpDir . '/public/.htaccess.dist', 'FOO');
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getProjectDir')->willReturn($tmpDir);
 
         $command = new AssetInstallCommand(
             $kernel,
-            $this->createMock(AssetService::class),
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(AssetService::class),
+            static::createStub(ActiveAppsLoader::class)
         );
 
         $runner = new CommandTester($command);
@@ -58,11 +58,11 @@ class AssetInstallCommandTest extends TestCase
     public function testForceOptionIsForwardedToService(): void
     {
         $exampleBundle = $this->getBundle();
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getBundles')->willReturn([$exampleBundle]);
 
         $service = $this->createMock(AssetService::class);
-        $appLoader = $this->createMock(ActiveAppsLoader::class);
+        $appLoader = static::createStub(ActiveAppsLoader::class);
         $appLoader->method('getActiveApps')->willReturn([]);
 
         $invokedCount = $this->exactly(2);
@@ -108,17 +108,17 @@ class AssetInstallCommandTest extends TestCase
                 ],
             ]);
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $command = new AssetInstallCommand(
             $kernel,
             new AssetService(
                 $testAssetFilesystem,
                 new Flysystem(new InMemoryFilesystemAdapter()),
                 $kernel,
-                $this->createMock(KernelPluginLoader::class),
-                $this->createMock(CacheInvalidator::class),
+                static::createStub(KernelPluginLoader::class),
+                static::createStub(CacheInvalidator::class),
                 new StaticSourceResolver(['test' => new UtilFilesystem($fixturePath)]),
-                $this->createMock(ParameterBagInterface::class),
+                static::createStub(ParameterBagInterface::class),
                 new EventDispatcher()
             ),
             $activeAppsLoaderMock

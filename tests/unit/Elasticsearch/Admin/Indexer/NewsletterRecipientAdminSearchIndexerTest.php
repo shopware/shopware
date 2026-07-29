@@ -32,9 +32,9 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new NewsletterRecipientAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
     }
@@ -42,9 +42,9 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new NewsletterRecipientAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -82,7 +82,7 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $newsletterRecipient = new NewsletterRecipientEntity();
         $newsletterRecipient->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -97,8 +97,8 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new NewsletterRecipientAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -121,8 +121,8 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
 
         $indexer = new NewsletterRecipientAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -147,7 +147,7 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

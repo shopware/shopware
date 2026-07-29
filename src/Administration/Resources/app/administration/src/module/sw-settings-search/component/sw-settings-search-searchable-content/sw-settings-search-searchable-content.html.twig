@@ -5,27 +5,21 @@
     :title="$t('sw-settings-search.generalTab.labelSearchableContent')"
 >
     {% block sw_settings_search_searchable_content_title %}
-    <span class="sw-field sw-settings-search__searchable-content-title">
+    <p class="sw-settings-search__searchable-content-title">
         {{ $t('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
-    </span>
+    </p>
     {% endblock %}
 
     {% block sw_settings_search_searchable_actions %}
-    <sw-container
-        class="sw-field"
-        columns="repeat(auto-fit, minmax(calc(var(--scale-size-96) + var(--scale-size-4)), 1fr))"
-        align="center"
-        gap="0 var(--scale-size-30)"
-    >
+    <div class="sw-settings-search__searchable-content-actions">
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
             <mt-button
                 v-if="defaultTab !== tabNames.generalTab"
                 class="sw-settings-search__searchable-content-add-button"
-                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
-                variant="secondary"
+                variant="primary"
                 @click="onAddNewConfig"
             >
                 {{ $t('sw-settings-search.generalTab.buttonAddContent') }}
@@ -38,46 +32,37 @@
                 class="sw-settings-search__searchable-content-reset-button"
                 size="small"
                 :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
-                variant="secondary"
+                variant="critical"
                 @click="onResetToDefault"
             >
                 {{ $t('sw-settings-search.generalTab.buttonResetDefault') }}
             </mt-button>
             {% endblock %}
-        </div>
 
-        {% block sw_settings_search_searchable_show_example %}
-        {% block sw_settings_search_searchable_show_example_link %}
-        <div class="sw-settings-search__searchable-content-link-text">
-
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
+            {% block sw_settings_search_searchable_show_example %}
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_settings_search_searchable_show_example_link_element %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-            <a
+            {% block sw_settings_search_searchable_show_example_link %}
+            <mt-button
                 class="sw-settings-search__searchable-content-show-example-link"
-                role="button"
-                tabindex="0"
+                variant="secondary"
                 @click="onShowExampleModal"
             >
                 {{ $t('sw-settings-search.generalTab.linkExample') }}
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="var(--scale-size-16)"
-                />
-            </a>
+            </mt-button>
             {% endblock %}
-
-            <router-link
-                :to="{ name: 'sw.settings.search.index.liveSearch' }"
-                class="sw-settings-search__searchable-content-rebuild-link"
-            >
-                {{ $t('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="var(--scale-size-16)"
-                />
-            </router-link>
+            {% endblock %}
+            {% endblock %}
         </div>
-        {% endblock %}
+
+        <mt-link
+            :to="{ name: 'sw.settings.search.index.liveSearch' }"
+            type="internal"
+            class="sw-settings-search__searchable-content-rebuild-link"
+        >
+            {{ $t('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+        </mt-link>
 
         {% block sw_settings_search_searchable_show_example_modal %}
         <sw-settings-search-example-modal
@@ -85,12 +70,12 @@
             @modal-close="onCloseExampleModal"
         />
         {% endblock %}
-        {% endblock %}
-    </sw-container>
+    </div>
     {% endblock %}
 
     {% block sw_settings_search_searchable_content_tabs %}
     <sw-tabs
+        class="sw-settings-search__searchable-content-tabs"
         :default-item="defaultTab"
         position-identifier="sw-settings-search-searchable-content"
     >

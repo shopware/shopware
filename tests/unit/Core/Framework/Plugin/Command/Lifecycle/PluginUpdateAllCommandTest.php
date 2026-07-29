@@ -77,7 +77,7 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
@@ -113,7 +113,7 @@ class PluginUpdateAllCommandTest extends TestCase
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService

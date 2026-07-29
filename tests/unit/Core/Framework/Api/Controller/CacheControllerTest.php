@@ -29,9 +29,9 @@ class CacheControllerTest extends TestCase
 
         $controller = new CacheController(
             $cacheClearerMock,
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInvalidator::class),
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
             new EventDispatcher()
         );
 
@@ -53,10 +53,10 @@ class CacheControllerTest extends TestCase
         ]);
 
         $controller = new CacheController(
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             $cacheInvalidatorMock,
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
             $eventDispatcher,
         );
 

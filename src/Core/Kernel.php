@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
 class Kernel extends HttpKernel
@@ -112,6 +113,11 @@ class Kernel extends HttpKernel
                     yield $additionalBundle;
                 }
             }
+        }
+
+        if (!Feature::isActive('v6.8.0.0') && !isset($bundles[TwigComponentBundle::class])) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The %s bundle should be added to config/bundles.php', TwigComponentBundle::class));
+            yield new TwigComponentBundle();
         }
 
         yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);

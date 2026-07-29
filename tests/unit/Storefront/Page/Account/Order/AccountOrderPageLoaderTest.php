@@ -102,7 +102,7 @@ class AccountOrderPageLoaderTest extends TestCase
 
         $page = $this->pageLoader->load(new Request(['email' => 'test@example.com', 'zipcode' => '12345']), $context);
 
-        static::assertSame($order, $page->getOrders()->first());
+        static::assertSame($order, $page->getOrders()->getEntities()->first());
         $metaInformation = $page->getMetaInformation();
         static::assertNotNull($metaInformation);
         static::assertSame('translated | testshop', $metaInformation->getMetaTitle());

@@ -1,10 +1,8 @@
-/**
- * @sw-package framework
- */
 import template from './sw-settings-services-dashboard-banner.html.twig';
 import './sw-settings-services-dashboard-banner.scss';
 
 /**
+ * @sw-package framework
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

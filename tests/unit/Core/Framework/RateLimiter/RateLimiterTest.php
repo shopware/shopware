@@ -31,8 +31,8 @@ class RateLimiterTest extends TestCase
 
         $limiter = new FixedWindowLimiter('test', 1, new \DateInterval('PT1M'), new InMemoryStorage());
 
-        $factory = $this->createMock(RateLimiterFactory::class);
-        $factory->method('create')->with('some-key')->willReturn($limiter);
+        $factory = static::createStub(RateLimiterFactory::class);
+        $factory->method('create')->willReturn($limiter);
 
         $rateLimiter = new RateLimiter();
         $rateLimiter->registerLimiterFactory('some-route', $factory);

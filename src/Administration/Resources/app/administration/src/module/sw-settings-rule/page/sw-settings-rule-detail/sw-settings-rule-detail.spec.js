@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 import { config, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -70,6 +72,8 @@ const ruleConditionDataProviderServiceMock = {
     getModuleTypes: jest.fn(() => []),
     addScriptConditions: jest.fn(() => {}),
     getAwarenessKeysWithEqualsAnyConfig: jest.fn(() => []),
+    getDeprecationsInTree: jest.fn(() => []),
+    getFlowOnlyTypesInTree: jest.fn(() => []),
 };
 
 const ruleConditionsConfigApiServiceMock = {
@@ -354,6 +358,79 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(call[0].aggregations.map((a) => a.name)).toEqual(aggregations);
     });
 
+    it('should skip rule awareness for incomplete aggregations without association counts', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const awarenessFunc = jest.fn(() => ({
+            isRestricted: false,
+        }));
+
+        ruleRepositoryMock.search.mockResolvedValueOnce(
+            getCollection('rule', [ruleMock], {
+                personaPromotions: {
+                    buckets: [{}],
+                },
+                orderPromotions: {
+                    buckets: [],
+                },
+                cartPromotions: {},
+            }),
+        );
+
+        const wrapper = await createWrapper(defaultProps, {
+            ruleConditionDataProviderService: {
+                getModuleTypes: () => [],
+                addScriptConditions: () => {},
+                getRestrictionsByAssociation: awarenessFunc,
+                getAwarenessKeysWithEqualsAnyConfig: () => [
+                    'personaPromotions',
+                    'orderPromotions',
+                    'cartPromotions',
+                ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
+            },
+        });
+        await flushPromises();
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(awarenessFunc).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not load conditions when the rule does not exist', async () => {
+        ruleRepositoryMock.search.mockResolvedValueOnce(getCollection('rule'));
+
+        await createWrapper();
+        await flushPromises();
+
+        expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(0);
+    });
+
+    it('should search only by the current rule id when the route id changes', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        ruleRepositoryMock.search.mockClear();
+
+        await wrapper.setProps({
+            ruleId: 'duplicated-rule-id',
+        });
+        await flushPromises();
+
+        const criteria = ruleRepositoryMock.search.mock.calls[0][0];
+        const idFilters = criteria.filters.filter((filter) => filter.field === 'id');
+
+        expect(idFilters).toEqual([
+            {
+                type: 'equals',
+                field: 'id',
+                value: 'duplicated-rule-id',
+            },
+        ]);
+    });
+
     it('should create rule condition repository: $name', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -459,8 +536,18 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await wrapper.find('.sw-settings-rule-detail__save-action').trigger('click');
         await flushPromises();
 
+        const expectedCallPayload = [
+            [
+                {
+                    name: 'sw.settings.rule.detail.base',
+                    params: { id: ruleMock.id },
+                },
+            ],
+        ];
+
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
         expect(routerSpy).toHaveBeenCalledTimes(fails ? 0 : 1);
+        expect(routerSpy.mock.calls).toEqual(fails ? [] : expectedCallPayload);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(fails ? 1 : 0);
     });
 
@@ -595,13 +682,18 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await wrapper.find('.sw-settings-rule-detail__button-context-menu').trigger('click');
         await flushPromises();
 
+        ruleRepositoryMock.search.mockClear();
+
         await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
         await flushPromises();
 
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(0);
         expect(ruleRepositoryMock.clone).toHaveBeenCalledTimes(1);
+
+        expect(wrapper.find('sw-skeleton-stub').exists()).toBe(true);
         expect(routerSpy).toHaveBeenNthCalledWith(1, {
-            name: 'sw.settings.rule.detail',
+            name: 'sw.settings.rule.detail.base',
             params: { id: 'duplicated-rule-id' },
         });
     });
@@ -833,6 +925,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     isRestricted: true,
                 }),
                 getTranslatedConditionViolationList: () => ['someSnippetPath'],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -853,6 +947,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getAwarenessKeysWithEqualsAnyConfig: () => [],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -881,6 +977,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -909,6 +1007,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -932,6 +1032,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
         await flushPromises();
@@ -1071,5 +1173,102 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not flag date range conditions with empty bounds as invalid', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'date-range-condition-empty',
+                    type: 'dateRange',
+                    value: { fromDate: null, toDate: null },
+                    children: [],
+                },
+                {
+                    id: 'date-range-condition-partial',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: null },
+                    children: [],
+                },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+
+        const dateRangeErrorCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeErrorCalls).toHaveLength(0);
+
+        addApiErrorSpy.mockRestore();
+    });
+
+    it('attaches an API error to value.toDate of every reversed date range condition', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'first-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                    children: [],
+                },
+                {
+                    id: 'second-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2024-06-01', toDate: '2024-05-01' },
+                    children: [],
+                },
+                {
+                    id: 'valid',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                    children: [],
+                },
+            ],
+            conditions: [
+                { id: 'first-reversed' },
+                { id: 'second-reversed' },
+                { id: 'valid' },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(0);
+
+        const dateRangeCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeCalls).toHaveLength(2);
+        expect(dateRangeCalls.map(([call]) => call.expression)).toEqual([
+            'rule_condition.first-reversed.value.toDate',
+            'rule_condition.second-reversed.value.toDate',
+        ]);
+
+        addApiErrorSpy.mockRestore();
     });
 });

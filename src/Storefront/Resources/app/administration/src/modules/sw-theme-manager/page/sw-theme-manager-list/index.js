@@ -1,14 +1,14 @@
 import template from './sw-theme-manager-list.html.twig';
 import './sw-theme-manager-list.scss';
 
-/**
- * @package discovery
- */
-
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
-Component.register('sw-theme-manager-list', {
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ * @sw-package discovery
+ */
+export default {
     template,
 
     inject: ['acl'],
@@ -16,7 +16,7 @@ Component.register('sw-theme-manager-list', {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),
-        Mixin.getByName('theme')
+        Mixin.getByName('theme'),
     ],
 
     data() {
@@ -30,13 +30,13 @@ Component.register('sw-theme-manager-list', {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             limit: 9,
-            term: null
+            term: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -54,7 +54,7 @@ Component.register('sw-theme-manager-list', {
                 { value: 'createdAt:DESC', label: this.$t('sw-theme-manager.sorting.labelSortByCreatedDsc') },
                 { value: 'createdAt:ASC', label: this.$t('sw-theme-manager.sorting.labelSortByCreatedAsc') },
                 { value: 'updatedAt:DESC', label: this.$t('sw-theme-manager.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', label: this.$t('sw-theme-manager.sorting.labelSortByUpdatedAsc') }
+                { value: 'updatedAt:ASC', label: this.$t('sw-theme-manager.sorting.labelSortByUpdatedAsc') },
             ];
         },
 
@@ -65,7 +65,7 @@ Component.register('sw-theme-manager-list', {
         lockToolTip() {
             return {
                 showDelay: 100,
-                message: this.$t('sw-theme-manager.general.lockedToolTip')
+                message: this.$t('sw-theme-manager.general.lockedToolTip'),
             };
         },
 
@@ -92,15 +92,18 @@ Component.register('sw-theme-manager-list', {
                 criteria.setTerm(this.term);
             }
 
-            return this.themeRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
-                this.total = searchResult.total;
-                this.themes = searchResult;
-                this.isLoading = false;
+            return this.themeRepository
+                .search(criteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.themes = searchResult;
+                    this.isLoading = false;
 
-                return this.pages;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return this.pages;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         resetList() {
@@ -111,7 +114,7 @@ Component.register('sw-theme-manager-list', {
                 limit: this.limit,
                 term: this.term,
                 sortBy: this.sortBy,
-                sortDirection: this.sortDirection
+                sortDirection: this.sortDirection,
             });
 
             this.getList();
@@ -127,7 +130,10 @@ Component.register('sw-theme-manager-list', {
         },
 
         onSortingChanged(value) {
-            [this.sortBy, this.sortDirection] = value.split(':');
+            [
+                this.sortBy,
+                this.sortDirection,
+            ] = value.split(':');
             this.resetList();
         },
 
@@ -144,13 +150,13 @@ Component.register('sw-theme-manager-list', {
             this.getList();
             this.updateRoute({
                 page: this.page,
-                limit: this.limit
+                limit: this.limit,
             });
         },
 
         onListModeChange() {
-            this.listMode = (this.listMode === 'grid') ? 'list' : 'grid';
-            this.limit = (this.listMode === 'grid') ? 9 : 10;
+            this.listMode = this.listMode === 'grid' ? 'list' : 'grid';
+            this.limit = this.listMode === 'grid' ? 9 : 10;
 
             this.resetList();
         },
@@ -187,36 +193,41 @@ Component.register('sw-theme-manager-list', {
 
         saveTheme(theme) {
             this.isLoading = true;
-            return this.themeRepository.save(theme, Shopware.Context.api).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.themeRepository
+                .save(theme, Shopware.Context.api)
+                .then(() => {
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         getColumnConfig() {
-            return [{
-                property: 'name',
-                label: this.$t('sw-theme-manager.list.gridHeaderName'),
-                primary: true
-            },
-            {
-                property: 'salesChannels.length',
-                label: this.$t('sw-theme-manager.list.gridHeaderAssignment'),
-                sortable: false,
-            },
-            {
-                property: 'createdAt',
-                label: this.$t('sw-theme-manager.list.gridHeaderCreated')
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$t('sw-theme-manager.list.gridHeaderName'),
+                    primary: true,
+                },
+                {
+                    property: 'salesChannels.length',
+                    label: this.$t('sw-theme-manager.list.gridHeaderAssignment'),
+                    sortable: false,
+                },
+                {
+                    property: 'createdAt',
+                    label: this.$t('sw-theme-manager.list.gridHeaderCreated'),
+                },
+            ];
         },
 
         deleteDisabledToolTip(theme) {
             return {
                 showDelay: 300,
                 message: this.$t('sw-theme-manager.actions.deleteDisabledToolTip'),
-                disabled: theme.salesChannels.length === 0
+                disabled: theme.salesChannels.length === 0,
             };
-        }
-    }
-});
+        },
+    },
+};

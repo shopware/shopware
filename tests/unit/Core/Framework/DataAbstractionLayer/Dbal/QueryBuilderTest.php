@@ -21,7 +21,7 @@ class QueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $driver = $this->createMock(Driver::class);
+        $driver = static::createStub(Driver::class);
         $driver->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $this->queryBuilder = new QueryBuilder(new Connection([], $driver));

@@ -80,7 +80,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
+        $worker->run();
 
         $consumerLock->release();
 

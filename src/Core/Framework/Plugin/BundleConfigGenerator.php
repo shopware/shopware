@@ -7,9 +7,8 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -25,7 +24,8 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     public function __construct(
         private readonly Kernel $kernel,
-        private readonly ActiveAppsLoader $activeAppsLoader
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly BundleConfigStyleFileResolver $styleFileResolver
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
@@ -84,6 +84,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/storefront/src'),
                     'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($bundle->getName(), $this->stripProjectDir($bundle->getPath())),
+                    'hasComponentAssets' => $this->hasStorefrontComponentAssets($bundle->getPath()),
                 ],
             ];
         }
@@ -110,6 +111,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
                     'webpack' => $this->getWebpackConfig($absolutePath, 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($app['name'], $app['path']),
+                    'hasComponentAssets' => $this->hasStorefrontComponentAssets($absolutePath),
                 ],
             ];
         }
@@ -162,31 +164,40 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
-        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        if ($registry === null) {
-            return [];
-        }
-
-        $config = $registry->getConfigurations()->getByTechnicalName($technicalName);
-
-        if (!$config) {
-            return [];
-        }
-
-        return array_map(
-            static fn (string $path) => Path::join($basePath, 'Resources', $path),
-            $config->getStyleFiles()->getFilepaths()
-        );
+        return $this->styleFileResolver->resolveStyleFiles($technicalName, $basePath);
     }
 
     private function asSnakeCase(string $string): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($string);
+    }
+
+    private function hasStorefrontComponentAssets(string $rootPath): bool
+    {
+        $componentPath = Path::join($rootPath, 'Resources', 'views', 'components');
+        if (!is_dir($componentPath)) {
+            return false;
+        }
+
+        $finder = (new Finder())
+            ->files()
+            ->in($componentPath)
+            ->name('/\.(js|ts|scss|css)$/')
+            ->notPath('#(^|/)node_modules/#')
+            ->notPath('/\.stories\./')
+            ->notPath('/\.test\.(js|ts)$/');
+
+        foreach ($finder as $file) {
+            if ($file->isFile()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

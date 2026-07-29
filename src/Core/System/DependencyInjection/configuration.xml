@@ -53,6 +53,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

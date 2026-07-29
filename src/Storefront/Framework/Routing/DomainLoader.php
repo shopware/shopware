@@ -5,8 +5,10 @@ namespace Shopware\Storefront\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
@@ -27,9 +29,29 @@ class DomainLoader extends AbstractDomainLoader
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use loadDomains() instead
+     *
      * @return array<string, Domain>
      */
     public function load(): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'loadDomains()')
+        );
+
+        return $this->fetch();
+    }
+
+    public function loadDomains(): DomainCollection
+    {
+        return DomainCollection::fromArray($this->fetch());
+    }
+
+    /**
+     * @return array<string, Domain>
+     */
+    private function fetch(): array
     {
         $query = $this->connection->createQueryBuilder();
 
@@ -44,7 +66,8 @@ class DomainLoader extends AbstractDomainLoader
             'LOWER(HEX(domain.language_id)) languageId',
             'LOWER(HEX(theme.id)) themeId',
             'sales_channel.maintenance maintenance',
-            'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
+            // @deprecated tag:v6.8.0 - remove the COALESCE fallback to the deprecated `maintenance_ip_whitelist` column
+            'COALESCE(sales_channel.maintenance_ip_allowlist, sales_channel.maintenance_ip_whitelist) maintenanceIpAllowlist',
             'snippet_set.iso as locale',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',

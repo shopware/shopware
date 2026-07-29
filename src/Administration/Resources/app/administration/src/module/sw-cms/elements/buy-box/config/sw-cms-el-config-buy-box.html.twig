@@ -64,6 +64,8 @@
                             :disabled="isInherited"
                             @update:value="onProductChange"
                         >
+                            {% block sw_cms_element_buy_box_config_product_selection_label %}
+                            {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_buy_box_config_product_selection_label` instead. #}
                             {% block sw_cms_element_buy_box_config_product_variant_label %}
                             <template #selection-label-property="{ item }">
                                 <sw-product-variant-info :variations="item.variation">
@@ -71,17 +73,21 @@
                                 </sw-product-variant-info>
                             </template>
                             {% endblock %}
+                            {% endblock %}
 
                             {% block sw_cms_element_buy_box_config_product_select_result_item %}
                             <template #result-item="{ item, index }">
                                 <sw-select-result v-bind="{ item, index }">
-                                        {% block sw_entity_single_select_base_results_list_result_label %}
+                                    {% block sw_cms_element_buy_box_config_product_select_result_item_inner %}
+                                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_buy_box_config_product_select_result_item_inner` instead. #}
+                                    {% block sw_entity_single_select_base_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
                                         <sw-product-variant-info :variations="item.variation">
                                             {{ item.translated.name || item.name }}
                                         </sw-product-variant-info>
                                     </span>
-                                        {% endblock %}
+                                    {% endblock %}
+                                    {% endblock %}
                                 </sw-select-result>
                             </template>
                             {% endblock %}

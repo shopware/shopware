@@ -12,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -24,10 +25,9 @@ class TaskRunnerTest extends TestCase
     {
         /** @var StaticEntityRepository<ScheduledTaskCollection> $scheduledTaskRepository */
         $scheduledTaskRepository = new StaticEntityRepository([new ScheduledTaskCollection()]);
-        $taskRunner = new TaskRunner([], $scheduledTaskRepository);
+        $taskRunner = new TaskRunner([], $scheduledTaskRepository, new NativeClock());
 
-        $this->expectException(MessageQueueException::class);
-        $this->expectExceptionMessage('Could not find scheduled task with name "non-existing-task"');
+        $this->expectExceptionObject(MessageQueueException::cannotFindTaskByName('non-existing-task'));
         $taskRunner->runSingleTask('non-existing-task', Context::createDefaultContext());
     }
 
@@ -38,7 +38,7 @@ class TaskRunnerTest extends TestCase
         $invalid = $this->createMock(StaticEntityRepository::class);
         $invalid->expects($this->never())->method(static::anything());
 
-        $taskRunner = new TaskRunner([$handler, $handler2, $invalid], $this->getRepository());
+        $taskRunner = new TaskRunner([$handler, $handler2, $invalid], $this->getRepository(), new NativeClock());
         $taskRunner->runSingleTask('task-id', Context::createDefaultContext());
 
         static::assertTrue($handler->called);

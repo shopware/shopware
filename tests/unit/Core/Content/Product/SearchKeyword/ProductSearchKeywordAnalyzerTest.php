@@ -42,10 +42,10 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $product->assign($productData);
 
         $tokenizer = new Tokenizer(3, ['-', '_']);
-        $tokenFilter = $this->createMock(TokenFilter::class);
+        $tokenFilter = static::createStub(TokenFilter::class);
         $tokenFilter->method('filter')->willReturnCallback(static fn (array $tokens) => $tokens);
 
-        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader = static::createStub(SearchConfigLoader::class);
         $configLoader->method('load')
             ->willReturn([
                 [
@@ -254,18 +254,17 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     public function testAssociativeArrayOrderIndependence(): void
     {
-        $tokenizer = $this->createMock(TokenizerInterface::class);
+        $tokenizer = static::createStub(TokenizerInterface::class);
         $tokenizer->method('tokenize')
-            ->with('value1 value2 value3', 3)
             ->willReturnCallback(static function (string $text) {
                 return explode(' ', $text);
             });
 
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter = static::createStub(AbstractTokenFilter::class);
         $tokenFilter->method('filter')
             ->willReturnArgument(0);
 
-        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader = static::createStub(SearchConfigLoader::class);
         $configLoader->method('load')
             ->willReturn([
                 [

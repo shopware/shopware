@@ -20,7 +20,7 @@ class IndexMappingProviderTest extends TestCase
             'foo' => 'bar',
         ];
 
-        $definition = $this->createMock(AbstractElasticsearchDefinition::class);
+        $definition = static::createStub(AbstractElasticsearchDefinition::class);
         $definition->method('getMapping')->willReturn([
             'bar' => 'foo',
         ]);

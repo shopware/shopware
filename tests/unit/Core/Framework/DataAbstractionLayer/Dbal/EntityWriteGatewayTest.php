@@ -98,8 +98,8 @@ class EntityWriteGatewayTest extends TestCase
             100,
             new FakeConnection([]),
             $this->dispatcher,
-            $this->createMock(ExceptionHandlerRegistry::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ExceptionHandlerRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 
@@ -123,7 +123,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(ValidatorInterface::class),
             $this->createGateway()
         );
 

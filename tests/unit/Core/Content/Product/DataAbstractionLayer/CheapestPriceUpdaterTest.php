@@ -126,10 +126,10 @@ class CheapestPriceUpdaterTest extends TestCase
      */
     private function createMockedUpdater(array $dataResults, array $defaultsResults, array $visibilityResults, ?EventDispatcherInterface $dispatcher = null): CheapestPriceUpdater
     {
-        $result1 = $this->createMock(Result::class);
+        $result1 = static::createStub(Result::class);
         $result1->method('fetchAllAssociative')->willReturn($dataResults);
 
-        $result2 = $this->createMock(Result::class);
+        $result2 = static::createStub(Result::class);
         $result2->method('fetchAllAssociative')->willReturn($defaultsResults);
 
         $this->queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls($result1, $result2);
@@ -140,7 +140,7 @@ class CheapestPriceUpdaterTest extends TestCase
         return new CheapestPriceUpdater(
             $this->connection,
             $this->quantitySelector,
-            $dispatcher ?? $this->createMock(EventDispatcherInterface::class)
+            $dispatcher ?? static::createStub(EventDispatcherInterface::class)
         );
     }
 

@@ -1,0 +1,23 @@
+{% block element_category_name %}
+    {% set config = element.fieldConfig.elements %}
+
+    <div class="cms-element-{{ element.type }} cms-element-text{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_category_name_alignment %}
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% endif %}
+            {% block element_category_name_inner %}
+                {% if config.content.isStatic %}
+                    {{ element.data.content|raw }}
+                {% else %}
+                    <h1 class="cms-element-category-name-headline">
+                        {{ element.data.content|raw }}
+                    </h1>
+                {% endif %}
+            {% endblock %}
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

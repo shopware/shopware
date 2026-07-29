@@ -32,6 +32,8 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->connection->expects($this->never())->method('executeStatement');
+
         $events = CustomFieldSearchableSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(EntityWrittenContainerEvent::class, $events);

@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -96,7 +97,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -111,7 +112,7 @@ class OrderServiceTest extends TestCase
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $updatedOrder->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -141,7 +142,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -170,6 +171,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -195,7 +197,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -261,7 +263,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -289,6 +291,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             Context::createDefaultContext() // DefaultContext is intended to test if the language of the order is used
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -310,7 +313,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('transactions.stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -323,7 +326,7 @@ class OrderServiceTest extends TestCase
         );
 
         /** @var OrderEntity $updatedOrder */
-        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $updatedOrder->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         static::assertNotNull($transaction->getStateMachineState());
@@ -350,7 +353,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -377,6 +380,7 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -401,7 +405,7 @@ class OrderServiceTest extends TestCase
         ]);
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -450,7 +454,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -482,7 +486,7 @@ class OrderServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         /** @var OrderEntity $newlyCreatedOrder */
-        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
@@ -515,6 +519,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -532,7 +537,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $cancelledOrder */
-        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         $state = $cancelledOrder->getStateMachineState();
 
         static::assertNotNull($state);
@@ -559,7 +564,7 @@ class OrderServiceTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
@@ -572,6 +577,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -622,6 +628,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
@@ -654,6 +661,7 @@ class OrderServiceTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

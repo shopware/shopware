@@ -493,34 +493,13 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.primaryOrderTransaction?.stateMachineState.technicalName;
-
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                technicalName = order.transactions.last().stateMachineState.technicalName;
-
-                // set the payment status to the first transaction that is not cancelled
-                for (let i = 0; i < order.transactions.length; i += 1) {
-                    if (
-                        ![
-                            'cancelled',
-                            'failed',
-                        ].includes(order.transactions[i].stateMachineState.technicalName)
-                    ) {
-                        technicalName = order.transactions[i].stateMachineState.technicalName;
-                        break;
-                    }
-                }
-            }
+            const technicalName = this.getTransactionState(order)?.technicalName;
 
             return this.stateStyleDataProviderService.getStyle('order_transaction.state', technicalName).colorCode;
         },
 
         getVariantFromDeliveryState(order) {
-            let technicalName = order.primaryOrderDelivery?.stateMachineState.technicalName;
-
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                technicalName = this.getDelivery(order).stateMachineState.technicalName;
-            }
+            const technicalName = this.getDeliveryState(order)?.technicalName;
 
             return this.stateStyleDataProviderService.getStyle('order_delivery.state', technicalName).colorCode;
         },
@@ -581,22 +560,27 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction instead
          */
         transaction(order) {
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.primaryOrderTransaction;
-            }
-
-            for (let i = 0; i < order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return order.transactions[i];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                if (order.primaryOrderTransaction) {
+                    return order.primaryOrderTransaction;
                 }
+
+                const transactions = order.transactions ?? [];
+                for (let i = 0; i < transactions.length; i += 1) {
+                    if (
+                        ![
+                            'cancelled',
+                            'failed',
+                        ].includes(transactions[i].stateMachineState?.technicalName)
+                    ) {
+                        return transactions[i];
+                    }
+                }
+
+                return transactions.last?.() ?? transactions[transactions.length - 1] ?? null;
             }
 
-            return order.transactions.last();
+            return order.primaryOrderTransaction ?? null;
         },
 
         /**
@@ -604,10 +588,31 @@ export default {
          */
         getDelivery(order) {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return order.deliveries[0];
+                return order.primaryOrderDelivery ?? order.deliveries?.[0] ?? null;
             }
 
-            return order.primaryOrderDelivery;
+            return order.primaryOrderDelivery ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.shippingOrderAddress instead
+         */
+        getDeliveryAddress(order) {
+            return this.getDelivery(order)?.shippingOrderAddress ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderDelivery.stateMachineState instead
+         */
+        getDeliveryState(order) {
+            return this.getDelivery(order)?.stateMachineState ?? null;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use order.primaryOrderTransaction.stateMachineState instead
+         */
+        getTransactionState(order) {
+            return this.transaction(order)?.stateMachineState ?? null;
         },
     },
 };

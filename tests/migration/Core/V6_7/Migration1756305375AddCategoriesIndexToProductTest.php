@@ -24,6 +24,11 @@ class Migration1756305375AddCategoriesIndexToProductTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1756305375, (new Migration1756305375AddCategoriesIndexToProduct())->getCreationTimestamp());
+    }
+
     public function testIndexIsCreated(): void
     {
         if (TableHelper::indexExists($this->connection, 'product', 'idx.product.categories')) {

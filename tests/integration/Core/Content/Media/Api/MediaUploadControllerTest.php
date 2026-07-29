@@ -109,7 +109,7 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromBinaryUsesFileName(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -187,12 +187,17 @@ class MediaUploadControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         static::assertSame('CONTENT__MEDIA_INVALID_FILE', $responseData['errors'][0]['code']);
-        static::assertSame('Provided file is invalid: SVG files with active content are not allowed..', $responseData['errors'][0]['detail']);
+        static::assertSame(
+            'Provided file is invalid: SVG files with active content are not allowed.'
+            . \PHP_EOL . 'Event handler attributes not allowed: onload'
+            . \PHP_EOL . 'Attributes not allowed: onload.',
+            $responseData['errors'][0]['detail']
+        );
         static::assertEmpty($media->getPath());
         static::assertNull($this->thrownMediaEvent);
     }
@@ -200,7 +205,7 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromURL(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -221,7 +226,7 @@ class MediaUploadControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
@@ -242,7 +247,7 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -286,7 +291,7 @@ class MediaUploadControllerTest extends TestCase
         ];
 
         $this->mediaRepository->create([$data], $context);
-        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $media = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertNotEmpty($media->getPath());
@@ -310,7 +315,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(204, $response->getStatusCode());
 
-        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $updated = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $updated);
         static::assertNotSame($media->getFileName(), $updated->getFileName());
@@ -372,7 +377,7 @@ class MediaUploadControllerTest extends TestCase
 
     private function getMediaEntity(): MediaEntity
     {
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
         $response = $this->getBrowser()->getResponse();
 

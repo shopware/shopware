@@ -58,8 +58,7 @@ class TranslationSerializerTest extends TestCase
 
         $field = new BlobField('foo', 'bar');
 
-        static::expectException(ImportExportException::class);
-        static::expectExceptionMessage('Expected "associationField" to be an instance of "Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField".');
+        $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', TranslationsAssociationField::class));
 
         $translations = \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
 
@@ -136,8 +135,7 @@ class TranslationSerializerTest extends TestCase
 
         $field = new BlobField('foo', 'bar');
 
-        static::expectException(ImportExportException::class);
-        static::expectExceptionMessage('Expected "associationField" to be an instance of "*ToOneField".');
+        $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', '*ToOneField'));
 
         $translations = $translationsSerializer->deserialize($this->getConfig(), $field, []);
 

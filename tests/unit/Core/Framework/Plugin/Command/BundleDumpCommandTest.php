@@ -19,7 +19,7 @@ class BundleDumpCommandTest extends TestCase
 {
     public function testDumperWritesFile(): void
     {
-        $generator = $this->createMock(BundleConfigGenerator::class);
+        $generator = static::createStub(BundleConfigGenerator::class);
         $generator->method('getConfig')->willReturn([]);
         $tempDir = \sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
         (new Filesystem())->mkdir([$tempDir, $tempDir . '/var/']);
@@ -37,7 +37,7 @@ class BundleDumpCommandTest extends TestCase
 
     public function testDumperWritesFileToSpecifiedFilePath(): void
     {
-        $generator = $this->createMock(BundleConfigGenerator::class);
+        $generator = static::createStub(BundleConfigGenerator::class);
         $generator->method('getConfig')->willReturn([]);
         $tempDir = \sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
         (new Filesystem())->mkdir([$tempDir, $tempDir . '/var/']);

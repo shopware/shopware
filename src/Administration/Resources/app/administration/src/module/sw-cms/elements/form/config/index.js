@@ -30,6 +30,7 @@ export default {
                     id: 1,
                     value: '',
                     label: this.$t('sw-cms.elements.form.config.label.type'),
+                    disabled: true,
                 },
                 {
                     id: 2,

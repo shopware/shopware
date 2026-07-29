@@ -26,6 +26,11 @@ class Migration1749644517AddListingVariantNameSystemConfigOptionTest extends Tes
         $this->connection->delete('system_config', ['configuration_key' => 'core.listing.showVariantOptionInSearchSuggestionResult']);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1749644517, (new Migration1749644517AddListingVariantNameSystemConfigOption())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertEmpty($this->getConfig());

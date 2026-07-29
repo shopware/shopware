@@ -34,7 +34,7 @@ class InstallerLocaleListenerTest extends TestCase
 
         $listener->setInstallerLocale(
             new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
+                static::createStub(HttpKernelInterface::class),
                 $request,
                 HttpKernelInterface::MAIN_REQUEST
             )
@@ -173,7 +173,7 @@ class InstallerLocaleListenerTest extends TestCase
 
         $listener->setInstallerLocale(
             new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
+                static::createStub(HttpKernelInterface::class),
                 $request,
                 HttpKernelInterface::MAIN_REQUEST
             )

@@ -24,7 +24,7 @@ class StagingMailHandlerTest extends TestCase
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             []
         ));
@@ -39,7 +39,7 @@ class StagingMailHandlerTest extends TestCase
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             true,
             []
         ));

@@ -44,7 +44,8 @@ class PluginCreateCommand extends Command
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)')
             ->addArgument('plugin-namespace', InputArgument::OPTIONAL, 'Plugin namespace (PascalCase)')
-            ->addOption('static', null, null, 'Plugin will be created in the static-plugins folder');
+            ->addOption('static', null, null, 'Plugin will be created in the static-plugins folder')
+            ->addOption('no-scaffold', null, null, 'Create only the required plugin files, skip all optional scaffold files');
 
         foreach ($this->generators as $generator) {
             if (!$generator->hasCommandOption()) {
@@ -103,7 +104,17 @@ class PluginCreateCommand extends Command
                 $directory
             );
 
+            $noScaffold = (bool) $input->getOption('no-scaffold');
+
+            if (!$noScaffold && $input->isInteractive()) {
+                $noScaffold = !$io->confirm('Would you like to scaffold optional plugin files?', true);
+            }
+
             foreach ($this->generators as $generator) {
+                if ($noScaffold && $generator->hasCommandOption()) {
+                    continue;
+                }
+
                 $generator->addScaffoldConfig($configuration, $input, $io);
             }
 

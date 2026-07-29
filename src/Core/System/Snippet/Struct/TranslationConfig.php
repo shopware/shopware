@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\SnippetException;
 
 #[Package('discovery')]
 class TranslationConfig extends Struct
@@ -35,5 +36,29 @@ class TranslationConfig extends Struct
         $pluginName = $plugin->getName();
 
         return $this->pluginMapping->get($pluginName)->snippetName ?? $pluginName;
+    }
+
+    /**
+     * Asserts that the given locales are part of the translation set Shopware is configured to offer (translation.yaml).
+     *
+     * @param list<string> $locales
+     *
+     * @throws SnippetException when no locales are given or a locale is not configured
+     */
+    public function assertLocalesAreConfigured(array $locales): void
+    {
+        if ($locales === []) {
+            throw SnippetException::noLocalesArgumentProvided();
+        }
+
+        $invalid = array_values(array_diff($locales, $this->locales));
+        if ($invalid === []) {
+            return;
+        }
+
+        throw SnippetException::invalidLocalesProvided(
+            implode(', ', $invalid),
+            implode(', ', $this->locales)
+        );
     }
 }

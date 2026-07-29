@@ -68,8 +68,8 @@ class EntityHydratorTest extends TestCase
                 SingleEntityDependencyTestDependencySubDefinition::class,
                 ToManyAssociationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 

@@ -34,7 +34,7 @@ class IconTemplateLoaderTest extends TestCase
         $this->templateLoader = new IconTemplateLoader(
             new TemplateLoader($sourceResolver),
             new StorefrontPluginConfigurationFactory(
-                $this->createMock(KernelPluginLoader::class),
+                static::createStub(KernelPluginLoader::class),
                 $sourceResolver,
                 new SymfonyFilesystem(),
             ),

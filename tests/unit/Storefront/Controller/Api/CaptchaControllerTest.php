@@ -21,7 +21,7 @@ class CaptchaControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $captchaMock = static::getMockBuilder(AbstractCaptcha::class)->getMock();
+        $captchaMock = static::createStub(AbstractCaptcha::class);
         $captchaMock->method('getName')->willReturn(self::CAPTCHA_NAME);
 
         $this->captchaController = new CaptchaController([$captchaMock]);

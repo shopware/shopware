@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 use Lcobucci\JWT\Configuration;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
@@ -34,16 +35,16 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
 
     private ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator;
 
-    private DataValidator&MockObject $dataValidator;
+    private DataValidator&Stub $dataValidator;
 
     private Configuration $jwtConfiguration;
 
     protected function setUp(): void
     {
-        $this->dataValidator = $this->createMock(DataValidator::class);
+        $this->dataValidator = static::createStub(DataValidator::class);
         $this->jwtConfiguration = JWTConfigurationFactory::createJWTConfiguration();
 
-        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->jwtConfiguration, $this->dataValidator);
+        $this->imitateCustomerTokenGenerator = $this->createTokenGenerator();
     }
 
     /**
@@ -102,7 +103,8 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
         $tokenStruct = new ImitateCustomerToken();
         $token = $this->imitateCustomerTokenGenerator->encode($tokenStruct);
 
-        $this->dataValidator
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
             ->expects($this->once())
             ->method('validate')
             ->with(static::isArray(), static::callback(static function (DataValidationDefinition $constraints): bool {
@@ -112,7 +114,12 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
                 return true;
             }));
 
-        $this->imitateCustomerTokenGenerator->decode($token);
+        $this->createTokenGenerator($dataValidator)->decode($token);
+    }
+
+    private function createTokenGenerator(?DataValidator $dataValidator = null): ImitateCustomerTokenGenerator
+    {
+        return new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->jwtConfiguration, $dataValidator ?? $this->dataValidator, new NativeClock());
     }
 
     private function generate(string $salesChannelId, string $customerId, string $userId, int $time): string

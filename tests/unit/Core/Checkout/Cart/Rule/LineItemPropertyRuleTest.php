@@ -28,7 +28,7 @@ class LineItemPropertyRuleTest extends TestCase
     {
         $cart = $this->createCart(new LineItemCollection($case->lineItems));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
@@ -39,15 +39,15 @@ class LineItemPropertyRuleTest extends TestCase
         $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
 
     /**
-     * @return array<array<CartRuleScopeCase>>
+     * @return iterable<string, array<CartRuleScopeCase>>
      */
-    public static function cartRuleScopeProvider(): array
+    public static function cartRuleScopeProvider(): iterable
     {
         $emptyItem = self::createLineItemWithVariantOptions();
         $redItem = self::createLineItemWithVariantOptions(['red']);
@@ -78,7 +78,9 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return array_map(static fn ($case) => [$case], $cases);
+        foreach ($cases as $case) {
+            yield \sprintf('%s %s', $case->description, $case->match ? 'matches' : 'does not match') => [$case];
+        }
     }
 
     /**

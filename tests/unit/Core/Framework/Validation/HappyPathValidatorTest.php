@@ -28,7 +28,7 @@ class HappyPathValidatorTest extends TestCase
             $inner->expects($this->never())->method('validate');
         } else {
             $inner->expects($this->atLeastOnce())->method('validate')->willReturn(new ConstraintViolationList([
-                $this->createMock(ConstraintViolationInterface::class),
+                static::createStub(ConstraintViolationInterface::class),
             ]));
         }
 

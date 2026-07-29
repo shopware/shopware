@@ -38,13 +38,13 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($mainRequest->hasSession() === false) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
         $session = $mainRequest->getSession();
 
-        if (!method_exists($session, 'getFlashBag')) {
+        if (!$session->isStarted() || !method_exists($session, 'getFlashBag')) {
             return;
         }
 

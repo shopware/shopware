@@ -47,7 +47,6 @@ export default Component.wrapComponentConfig({
                 })
                 .catch((error: unknown) => {
                     // @ts-expect-error
-                    // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                     this.displayRecoveryInfo(error.response.data);
                 });

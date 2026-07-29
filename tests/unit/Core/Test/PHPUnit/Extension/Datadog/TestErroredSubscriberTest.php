@@ -63,14 +63,14 @@ class TestErroredSubscriberTest extends TestCase
             0,
             0,
             0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            false,
+            false,
+            false,
+            0,
         );
         $snap = new Snapshot($time, $memory, $memory, $gc);
 

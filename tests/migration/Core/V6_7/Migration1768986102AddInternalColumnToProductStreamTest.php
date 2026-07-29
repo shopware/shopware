@@ -22,6 +22,11 @@ class Migration1768986102AddInternalColumnToProductStreamTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768986102, (new Migration1768986102AddInternalColumnToProductStream())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1768986102AddInternalColumnToProductStream();

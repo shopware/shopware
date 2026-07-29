@@ -10,16 +10,20 @@ use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheCont
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with the AdministrationCacheControlListener.
  */
 #[CoversClass(AdministrationCacheControlListener::class)]
 class AdministrationCacheControlListenerTest extends TestCase
 {
     #[DataProvider('shouldSkipCacheControlProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testShouldSkipCacheControl(
         Request $request,
         Response $response,

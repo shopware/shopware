@@ -38,8 +38,8 @@ class BusinessEventEncoderTest extends TestCase
             'string' => 'test',
         ];
 
-        $entityEncoder = $this->createMock(JsonEntityEncoder::class);
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $entityEncoder = static::createStub(JsonEntityEncoder::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $businessEventEncoder = new BusinessEventEncoder($entityEncoder, $definitionRegistry);
 
         $data = $businessEventEncoder->encodeData($data, $stored);

@@ -42,9 +42,9 @@ class LoadProductStockSubscriberTest extends TestCase
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             [$p1, $p2],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $subscriber->salesChannelLoaded($event);
@@ -82,9 +82,9 @@ class LoadProductStockSubscriberTest extends TestCase
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             [$p1, $p2],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $subscriber->salesChannelLoaded($event);

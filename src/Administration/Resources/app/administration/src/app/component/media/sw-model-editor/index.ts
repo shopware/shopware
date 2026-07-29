@@ -5,7 +5,6 @@ import { type DIVEModel, DIVEMath } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Euler, type Vector3 } from 'three';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';

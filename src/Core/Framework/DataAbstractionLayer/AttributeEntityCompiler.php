@@ -173,6 +173,7 @@ class AttributeEntityCompiler
             'type' => 'entity',
             'since' => $instance->since,
             'parent' => $instance->parent,
+            'inheritance_aware' => $instance->inheritanceAware,
             'entity_class' => $class,
             'entity_name' => $instance->name,
             'hydrator_class' => $instance->hydratorClass,

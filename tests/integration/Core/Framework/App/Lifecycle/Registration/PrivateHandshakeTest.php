@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -22,7 +23,7 @@ class PrivateHandshakeTest extends TestCase
         $appEndpoint = 'https://test.com/install';
         $shopId = Random::getAlphanumericString(12);
 
-        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, '', $shopId, Kernel::SHOPWARE_FALLBACK_VERSION);
+        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, '', $shopId, Kernel::SHOPWARE_FALLBACK_VERSION, new NativeClock());
 
         $request = $handshake->assembleRequest();
         static::assertStringStartsWith($appEndpoint, (string) $request->getUri());
@@ -57,7 +58,7 @@ class PrivateHandshakeTest extends TestCase
         $appName = 'testapp';
         $shopId = Random::getAlphanumericString(12);
 
-        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, $appName, $shopId, Kernel::SHOPWARE_FALLBACK_VERSION);
+        $handshake = new PrivateHandshake($shopUrl, $secret, $appEndpoint, $appName, $shopId, Kernel::SHOPWARE_FALLBACK_VERSION, new NativeClock());
 
         $appProof = $handshake->fetchAppProof();
 

@@ -66,7 +66,7 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(FlowMailVariables::EMAIL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

@@ -22,7 +22,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('getSchema');
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'schema');
@@ -54,7 +54,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('generate')->with('openapi-3', DefinitionService::API);
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
@@ -67,7 +67,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('generate')->with('openapi-3', DefinitionService::STORE_API);
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);

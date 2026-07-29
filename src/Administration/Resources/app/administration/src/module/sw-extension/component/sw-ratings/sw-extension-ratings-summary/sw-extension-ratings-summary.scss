@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-extension-ratings-summary {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     max-width: 450px;
 
     &__grid {
@@ -16,18 +14,18 @@
         grid-template-columns: auto 1fr;
         grid-gap: 12px;
         align-items: center;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
 
         .mt-progress-bar {
             height: 4px;
             row-gap: 0;
 
             .mt-progress-bar__fill {
-                background: #667f99;
+                background: var(--color-background-brand-default);
             }
 
             .mt-progress-bar__track {
-                background: $color-gray-200;
+                background: var(--color-background-tertiary-default);
             }
 
             .mt-field-label,

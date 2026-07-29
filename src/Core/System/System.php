@@ -8,7 +8,6 @@ use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\DependencyInjection\CompilerPass\NumberRangeIncrementerCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -56,8 +55,12 @@ class System extends Bundle
         $phpLoader->load('consent.php');
         $phpLoader->load('usage_data.php');
 
-        $container->addCompilerPass(new SalesChannelEntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new NumberRangeIncrementerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $phpLoader->load('services_test.php');
+        }
+
+        $container->addCompilerPass(new SalesChannelEntityCompilerPass());
+        $container->addCompilerPass(new NumberRangeIncrementerCompilerPass());
     }
 
     public function boot(): void

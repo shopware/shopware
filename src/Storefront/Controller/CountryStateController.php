@@ -43,7 +43,7 @@ class CountryStateController extends StorefrontController
     )]
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
-        $countryId = (string) $request->get('countryId');
+        $countryId = $request->query->getString('countryId', $request->request->getString('countryId'));
 
         if (!$countryId) {
             throw RoutingException::missingRequestParameter('countryId');

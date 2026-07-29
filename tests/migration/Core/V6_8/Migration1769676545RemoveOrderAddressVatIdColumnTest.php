@@ -24,6 +24,11 @@ class Migration1769676545RemoveOrderAddressVatIdColumnTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1769676545, (new Migration1769676545RemoveOrderAddressVatIdColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesVatIdColumn(): void
     {
         $this->ensureVatIdColumnExists();

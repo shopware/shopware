@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -53,10 +53,7 @@ class CategoryUrlExtension extends AbstractExtension
             return $category->getSeoUrl();
         }
 
-        $salesChannel = null;
-        if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
-            $salesChannel = $twigContext['context']->getSalesChannel();
-        }
+        $salesChannel = TwigContextHelper::getSalesChannelContext($twigContext)?->getSalesChannel();
 
         return $this->categoryUrlGenerator->generate($category, $salesChannel);
     }

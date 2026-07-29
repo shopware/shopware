@@ -29,7 +29,7 @@ class ScheduleProviderTest extends TestCase
 
         $scheduleProvider = new ScheduleProvider(
             $tasks,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new ArrayAdapter(),
             new LockFactory(new InMemoryStore()),
         );
@@ -63,7 +63,7 @@ class ScheduleProviderTest extends TestCase
             new TestTask3(),
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociativeIndexed')->willReturn(
             [
                 'test_task_1' => [

@@ -56,8 +56,8 @@ class RequestCriteriaBuilderTest extends TestCase
                 new ProductCategoryDefinition(),
                 new CategoryDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->requestCriteriaBuilder = new RequestCriteriaBuilder(
@@ -553,8 +553,7 @@ class RequestCriteriaBuilderTest extends TestCase
             ],
         ];
 
-        static::expectException(FrameworkException::class);
-        static::expectExceptionMessage('Can not find association by name 1');
+        $this->expectExceptionObject(FrameworkException::associationNotFound('1'));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }

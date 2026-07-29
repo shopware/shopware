@@ -20,7 +20,7 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient([new MockResponse('{"messages": [], "schemaValidationMessages": []}', [])]),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -52,7 +52,7 @@ class OpenApiValidationCommandTest extends TestCase
                     'messages' => [],
                 ], \JSON_THROW_ON_ERROR), [])]
             ),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -65,7 +65,7 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient(),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 
@@ -81,7 +81,7 @@ class OpenApiValidationCommandTest extends TestCase
                 new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
                 new MockResponse('{"messages": [], "schemaValidationMessages": []}', []),
             ]),
-            $this->createMock(DefinitionService::class)
+            static::createStub(DefinitionService::class)
         );
         $tester = new CommandTester($command);
 

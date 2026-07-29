@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ class DatabaseLogTest extends TestCase
 
         $connection->executeStatement('DELETE FROM consent_log');
 
-        $logger = new DatabaseLog($connection);
+        $logger = new DatabaseLog($connection, new NativeClock());
 
         $logger->log(
             ConsentStatus::ACCEPTED,

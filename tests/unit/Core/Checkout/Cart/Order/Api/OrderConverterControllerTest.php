@@ -27,11 +27,10 @@ class OrderConverterControllerTest extends TestCase
     public function testOrderNotFoundException(): void
     {
         $orderId = Uuid::randomHex();
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage("Order $orderId could not be found.");
+        $this->expectExceptionObject(CartException::orderNotFound($orderId));
 
-        $converter = $this->createMock(OrderConverter::class);
-        $persister = $this->createMock(AbstractCartPersister::class);
+        $converter = static::createStub(OrderConverter::class);
+        $persister = static::createStub(AbstractCartPersister::class);
 
         /** @var StaticEntityRepository<OrderCollection> */
         $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
@@ -58,7 +57,7 @@ class OrderConverterControllerTest extends TestCase
         $converter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn(static::createStub(SalesChannelContext::class));
 
         $persister
             ->expects($this->once())

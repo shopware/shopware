@@ -22,8 +22,8 @@ class SystemSetupStagingCommandTest extends TestCase
     public function testCancelPrompt(): void
     {
         $command = new SystemSetupStagingCommand(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             true,
             [],
             [],
@@ -108,8 +108,8 @@ class SystemSetupStagingCommandTest extends TestCase
     public function testRunNoInteractionWithoutForce(): void
     {
         $command = new SystemSetupStagingCommand(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
             true,
             [],
             [],

@@ -42,4 +42,17 @@ class CollectingEventDispatcherTest extends TestCase
         static::assertSame($event1, $events['event.one']);
         static::assertSame($event2, $events[0]);
     }
+
+    public function testFiltersEventsByClass(): void
+    {
+        $dispatcher = new CollectingEventDispatcher();
+
+        $event = new class {};
+        $eventClass = $event::class;
+
+        $dispatcher->dispatch(new \stdClass());
+        $dispatcher->dispatch($event);
+
+        static::assertSame([$event], $dispatcher->getEventsOfClass($eventClass));
+    }
 }

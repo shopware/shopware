@@ -23,7 +23,7 @@ class DoubleOptInGuestOrderEventTest extends TestCase
     {
         $event = new DoubleOptInGuestOrderEvent(
             new CustomerEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-confirm-url'
         );
 

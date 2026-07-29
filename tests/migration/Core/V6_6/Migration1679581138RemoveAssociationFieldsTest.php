@@ -22,6 +22,11 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1679581138, (new Migration1679581138RemoveAssociationFields())->getCreationTimestamp());
+    }
+
     public function testUpdateMakesColumnNullable(): void
     {
         $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');

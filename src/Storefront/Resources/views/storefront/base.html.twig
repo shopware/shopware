@@ -10,8 +10,11 @@
       {% endif %}>
 {% endblock %}
 
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
+{# @deprecated tag:v6.8.0 - Will be removed. Use the Vite dev server instead. #}
+{% if not feature('v6.8.0.0') %}
+    {# Set variable to "true" to enable HMR (hot page reloading) mode #}
+    {% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
+{% endif %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}

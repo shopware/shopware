@@ -19,7 +19,7 @@ class AclFacadeHookFactoryTest extends TestCase
     public function testFactory(): void
     {
         $appContextCreator = $this->createMock(AppContextCreator::class);
-        $hook = $this->createMock(Hook::class);
+        $hook = static::createStub(Hook::class);
 
         $script = new Script('my-script', '', new \DateTimeImmutable());
         $context = Context::createCLIContext();

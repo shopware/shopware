@@ -14,6 +14,11 @@ use Shopware\Core\Migration\V6_6\Migration1676367607RemoveIntegrationWriteAccess
 #[CoversClass(Migration1676367607RemoveIntegrationWriteAccessColumn::class)]
 class Migration1676367607RemoveIntegrationWriteAccessColumnTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1676367607, (new Migration1676367607RemoveIntegrationWriteAccessColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $connection = KernelLifecycleManager::getConnection();

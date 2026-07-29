@@ -47,7 +47,7 @@ class BlueGreenDeploymentServiceTest extends TestCase
         $connection->expects($this->exactly(2))
             ->method('executeQuery')
             ->willReturnOnConsecutiveCalls(
-                $this->createMock(Result::class),
+                static::createStub(Result::class),
                 static::throwException(TestExceptionFactory::createException('test')),
             );
 

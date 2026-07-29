@@ -52,6 +52,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPerItemQuantityRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule">
             <tag name="shopware.rule.definition"/>
         </service>

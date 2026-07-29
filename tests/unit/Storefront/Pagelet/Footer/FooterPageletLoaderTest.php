@@ -38,8 +38,8 @@ class FooterPageletLoaderTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->getSalesChannel()->setServiceCategoryId($serviceMenuId);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
 
         $categoryId1 = Uuid::randomHex();
         $categoryId2 = Uuid::randomHex();
@@ -58,7 +58,7 @@ class FooterPageletLoaderTest extends TestCase
         );
 
         $paymentMethodCollection = new PaymentMethodCollection();
-        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute->method('load')->willReturn(new PaymentMethodRouteResponse(
             new EntitySearchResult(
                 PaymentMethodDefinition::ENTITY_NAME,
@@ -71,7 +71,7 @@ class FooterPageletLoaderTest extends TestCase
         ));
 
         $shippingMethodCollection = new ShippingMethodCollection();
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $shippingMethodRoute->method('load')->willReturn(new ShippingMethodRouteResponse(
             new EntitySearchResult(
                 ShippingMethodDefinition::ENTITY_NAME,

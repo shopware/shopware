@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Provider;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -15,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Handles common functionality like tracking.
  * Concrete providers only need to implement {@see buildProviderContext()} for their format-specific fields.
  *
- * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
  */
 #[Package('discovery')]
 abstract class AbstractAgenticCommerceProductExportProvider
@@ -32,6 +33,8 @@ abstract class AbstractAgenticCommerceProductExportProvider
         SalesChannelContext $salesChannelContext,
         array $renderContext,
     ): array {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         $agenticConfig = $productExport->getSalesChannel()?->getConfiguration() ?? [];
 
         $renderContext['provider'] = new ArrayStruct(array_merge(

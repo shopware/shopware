@@ -186,6 +186,14 @@
         margin-bottom: 0;
     }
 
+    .sw-field-id-sw-default-checkbox,
+    .sw-field-id-sw-custom-checkbox {
+        .mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
+            margin-top: var(--scale-size-24);
+            margin-bottom: var(--scale-size-22);
+        }
+    }
+
     .sw-field-id-sw-default-switch,
     .sw-field-id-sw-custom-switch {
         .sw-field--switch {

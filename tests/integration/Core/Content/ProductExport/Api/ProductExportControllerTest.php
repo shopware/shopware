@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -107,6 +108,9 @@ class ProductExportControllerTest extends TestCase
 
     public function testValidateReturnsStructuredProviderErrors(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $content = json_encode([
@@ -196,6 +200,9 @@ TWIG,
 
     public function testPreview(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $url = '/api/_action/product-export/preview';
@@ -237,6 +244,9 @@ TWIG,
 
     public function testPreviewProvidesConfiguredProviderInTransientExportEntity(): void
     {
+        // the agentic-commerce providers (open-ai/google) move to SwagAgenticCommerce with 6.8
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->createProductStream();
 
         $content = json_encode([
@@ -273,6 +283,46 @@ TWIG,
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertIsString($responseContent);
         static::assertStringContainsString('open-ai', $responseContent);
+    }
+
+    public function testPreviewRendersFeedLabelFromRequestPayload(): void
+    {
+        $this->createProductStream();
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.feedLabel|default("none") }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+            'feedLabel' => 'SUMMER-2026',
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/preview',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('SUMMER-2026', $response);
+        static::assertStringNotContainsString('none', $response);
     }
 
     public function testPreviewFalseDomain(): void

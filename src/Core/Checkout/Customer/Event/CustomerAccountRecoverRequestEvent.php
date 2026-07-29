@@ -17,14 +17,14 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
-use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ScalarValuesAware, FlowEventAware
+class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelContextAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
@@ -74,10 +74,10 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customerRecovery', new EntityType(CustomerRecoveryDefinition::class))
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('resetUrl', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('shopName', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerRecoveryAware::CUSTOMER_RECOVERY, new EntityType(CustomerRecoveryDefinition::class))
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::RESET_URL, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(FlowMailVariables::SHOP_NAME, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

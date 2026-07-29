@@ -24,6 +24,11 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1774345867, (new Migration1774345867AddProductOpenGraphFields())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1774345867AddProductOpenGraphFields();

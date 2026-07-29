@@ -25,6 +25,11 @@ class Migration1763125892RemoveProductStatesColumnTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763125892, (new Migration1763125892RemoveProductStatesColumn())->getCreationTimestamp());
+    }
+
     public function testRuleIndexerIsRegistered(): void
     {
         $migration = new Migration1763125892RemoveProductStatesColumn();

@@ -389,6 +389,7 @@ class AttributeEntityCompilerTest extends TestCase
                 'type' => 'entity',
                 'since' => '6.6.3.0',
                 'parent' => null,
+                'inheritance_aware' => false,
                 'entity_class' => AttributeEntity::class,
                 'entity_name' => 'attribute_entity',
                 'hydrator_class' => EntityHydrator::class,

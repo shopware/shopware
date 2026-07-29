@@ -326,7 +326,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+        static::assertEqualsCanonicalizing(['admin', 'write'], array_values($accessTokenScopes));
     }
 
     public function testUniqueAccessTokenScopes(): void
@@ -351,7 +351,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedAccessToken);
         $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+        static::assertEqualsCanonicalizing(['admin', 'write'], array_values($accessTokenScopes));
     }
 
     public function testAccessTokenScopesChangedAfterRefreshGrant(): void
@@ -468,7 +468,7 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
-        static::assertEqualsCanonicalizing($oldAccessTokenScopes, $newAccessTokenScopes);
+        static::assertEqualsCanonicalizing(array_values($oldAccessTokenScopes), array_values($newAccessTokenScopes));
     }
 
     public function testIntegrationAuth(): void

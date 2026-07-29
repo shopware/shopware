@@ -80,12 +80,17 @@ framework:
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
+            webhook:
+                dsn: 'shopware-webhook://default'
+                retry_strategy:
+                    max_retries: 0
         buses:
             messenger.bus.default:
                 middleware:
                     - Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware
 
         routing:
+            'Shopware\Core\Framework\Webhook\Message\WebhookEventMessage': webhook
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
             'Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface': low_priority
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async

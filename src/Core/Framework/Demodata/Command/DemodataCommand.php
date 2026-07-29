@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
@@ -33,6 +32,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -86,7 +86,7 @@ class DemodataCommand extends Command
             return self::INVALID;
         }
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $io->title('Demodata Generator');
 
         if (!$this->ensureAllDependenciesArePresent($io)) {
@@ -168,7 +168,7 @@ class DemodataCommand extends Command
         return $this->defaults[$name] ?? 0;
     }
 
-    private function ensureAllDependenciesArePresent(ShopwareStyle $io): bool
+    private function ensureAllDependenciesArePresent(SymfonyStyle $io): bool
     {
         foreach ($this->requiredClasses as $class) {
             if (!class_exists($class)) {

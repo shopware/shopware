@@ -27,6 +27,7 @@
             <argument>%shopware.auto_update.enabled%</argument>
             <argument>%kernel.shopware_version%</argument>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\ExtensionCompatibility">

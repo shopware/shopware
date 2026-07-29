@@ -75,6 +75,9 @@ describe('CookieConfiguration plugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         // Create a proper mock for CookiePermission plugin
@@ -431,6 +434,59 @@ describe('CookieConfiguration plugin tests', () => {
 
         setItemSpy.mockRestore();
         global.fetch.mockRestore();
+    });
+
+    test('COOKIE_CONFIGURATION_UPDATE fires with all active cookies when offcanvas was never opened', done => {
+        // Simulate the bug scenario: user clicks "Accept all" in the cookie bar
+        // without ever opening the offcanvas, so lastState remains empty
+        const freshPlugin = new CookieConfiguration(document.createElement('div'));
+        expect(freshPlugin.lastState.active).toHaveLength(0);
+        expect(freshPlugin.lastState.inactive).toHaveLength(0);
+
+        const mockResponse = {
+            hash: 'test-hash',
+            languageId: 'test-lang-id',
+            elements: [
+                {
+                    isRequired: true,
+                    entries: [
+                        { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                    ],
+                },
+                {
+                    isRequired: false,
+                    entries: [
+                        { cookie: 'analytics', value: '1', expiration: 30 },
+                        { cookie: 'marketing', value: '1', expiration: 30 },
+                    ],
+                },
+            ],
+        };
+
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue(mockResponse),
+        });
+
+        function cb(event) {
+            try {
+                // All active cookies (PHP-managed + from API) must appear as true
+                expect(event.detail['cookie-preference']).toBe(true);
+                expect(event.detail['analytics']).toBe(true);
+                expect(event.detail['marketing']).toBe(true);
+                // PHP-managed cookies are also reported
+                expect(event.detail['session-']).toBe(true);
+                expect(event.detail['timezone']).toBe(true);
+                done();
+            } catch (err) {
+                done(err);
+            } finally {
+                document.$emitter.unsubscribe(COOKIE_CONFIGURATION_UPDATE, cb);
+                global.fetch.mockRestore();
+            }
+        }
+
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, cb);
+        freshPlugin._acceptAllCookiesFromCookieBar().catch(done);
     });
 
     test('openRequestConsentOffCanvas sets lastTriggerElement and calls AjaxOffCanvas.open', () => {

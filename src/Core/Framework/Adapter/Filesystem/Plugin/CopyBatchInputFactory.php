@@ -11,7 +11,9 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactoryTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactoryTest
  */
 #[Package('framework')]
 class CopyBatchInputFactory

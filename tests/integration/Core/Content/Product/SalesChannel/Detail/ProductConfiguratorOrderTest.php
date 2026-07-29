@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -140,7 +141,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = new Criteria([$variantId]);
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 
@@ -239,6 +240,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
                 'stock' => 10,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
                 'configuratorSettings' => $configuratorSettings,
                 'variantListingConfig' => [
@@ -266,7 +268,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);

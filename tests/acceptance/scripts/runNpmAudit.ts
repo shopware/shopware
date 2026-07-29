@@ -15,11 +15,14 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  *
  * Example:
  *   'https://github.com/advisories/GHSA-xxxx-xxxx-xxxx', // pkg-name issue, severity, devDep only, no fix available
+ *
+ * Current package.json pins address these advisories in the acceptance suite
+ * dependency tree:
+ * - GHSA-8988-4f7v-96qf by pinning lighthouse to 12.6.1
+ * - GHSA-hmw2-7cc7-3qxx by pinning form-data to 4.0.6
+ * - GHSA-h67p-54hq-rp68 by pinning js-yaml to 4.2.0
+ * - GHSA-7c78-jf6q-g5cm by pinning tmp to 0.2.7
  */
 runNpmAudit({
-    ignoredGHSAs: [
-        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios HTTP/2 cleanup issue, legacy compatibility setup intentionally allows older axios while newer axios is used where migrated
-        'https://github.com/advisories/GHSA-3p68-rc4w-qgx5', // axios NO_PROXY SSRF advisory, ignored for the same legacy compatibility reason
-        'https://github.com/advisories/GHSA-fvcv-3m26-pcqx', // axios header injection/cloud metadata advisory, ignored for the same legacy compatibility reason
-    ],
+    ignoredGHSAs: [],
 });

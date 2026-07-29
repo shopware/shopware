@@ -23,9 +23,9 @@ class BundleSchemaPathCollectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->bundleWithSchemas = $this->createMock(Bundle::class);
+        $this->bundleWithSchemas = static::createStub(Bundle::class);
         $this->bundleWithSchemas->method('getPath')->willReturn(__DIR__ . '/_fixtures/BundleWithApiSchema');
-        $this->bundleWithoutSchemas = $this->createMock(Bundle::class);
+        $this->bundleWithoutSchemas = static::createStub(Bundle::class);
         $this->bundleWithoutSchemas->method('getPath')->willReturn(__DIR__ . '/_fixtures/BundleWithoutApiSchema');
         $this->customBundleSchemas = new ShopwareBundleWithName();
     }

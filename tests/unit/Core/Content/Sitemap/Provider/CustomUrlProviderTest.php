@@ -25,14 +25,14 @@ class CustomUrlProviderTest extends TestCase
 
         $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::assertSame([], $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     public function testGetUrlsReturnsAllUrlsForSalesChannel(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $configHandlerStub = $this->createMock(ConfigHandler::class);
         $configHandlerStub->method('get')
@@ -60,7 +60,7 @@ class CustomUrlProviderTest extends TestCase
 
     public function testGetUrlsReturnsAllUrlsForSalesChannelIdNull(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $configHandlerStub = $this->createMock(ConfigHandler::class);
         $configHandlerStub->method('get')
@@ -99,7 +99,7 @@ class CustomUrlProviderTest extends TestCase
 
     public function testGetUrlsReturnsNoUrlsWrongSalesChannelId(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $configHandlerStub = $this->createMock(ConfigHandler::class);
         $configHandlerStub->method('get')

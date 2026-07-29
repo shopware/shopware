@@ -17,8 +17,8 @@ class DefinitionServiceTest extends TestCase
     public function testConversionFromStringToApiType(): void
     {
         $definitionService = new DefinitionService(
-            $this->createMock(DefinitionInstanceRegistry::class),
-            $this->createMock(SalesChannelDefinitionInstanceRegistry::class)
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class)
         );
 
         static::assertNull($definitionService->toApiType('foobar'));

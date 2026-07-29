@@ -28,7 +28,7 @@ class UsageDataAllowListServiceTest extends TestCase
 
     public function testItFiltersEntity(): void
     {
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')
             ->willReturn('not_allowed_entity');
 
@@ -44,8 +44,8 @@ class UsageDataAllowListServiceTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $fields = new FieldCollection([
@@ -70,8 +70,8 @@ class UsageDataAllowListServiceTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $definition->setFields(new CompiledFieldCollection($registry, $fields));

@@ -32,9 +32,9 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new PaymentMethodAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
     }
@@ -42,9 +42,9 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new PaymentMethodAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -82,7 +82,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -97,8 +97,8 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new PaymentMethodAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -121,8 +121,8 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
 
         $indexer = new PaymentMethodAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -139,7 +139,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

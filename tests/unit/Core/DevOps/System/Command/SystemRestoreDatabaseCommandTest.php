@@ -7,6 +7,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SystemRestoreDatabaseCommand;
 use Symfony\Component\Console\Command\Command;
@@ -26,13 +27,13 @@ class SystemRestoreDatabaseCommandTest extends TestCase
     private const DB_NAME = 'shopware';
     private const DB_PARAMS = ['user' => 'root', 'host' => 'localhost', 'port' => 3306];
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private Filesystem&MockObject $filesystem;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabase')->willReturn(self::DB_NAME);
         $this->connection->method('getParams')->willReturn(self::DB_PARAMS);
 
@@ -62,7 +63,7 @@ class SystemRestoreDatabaseCommandTest extends TestCase
             return $restoreProcess;
         };
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabase')->willReturn($dbName);
         $this->connection->method('getParams')->willReturn($connectionParams);
 

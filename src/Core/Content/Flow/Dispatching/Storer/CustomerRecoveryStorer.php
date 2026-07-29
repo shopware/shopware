@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +25,8 @@ class CustomerRecoveryStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $customerRecoveryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CustomerRecoveryProvider $customerRecoveryProvider,
     ) {
     }
 
@@ -64,29 +65,26 @@ class CustomerRecoveryStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->customerRecoveryProvider->getCriteria($id, $storableFlow->getContext());
 
-        return $this->loadCustomerRecovery($criteria, $storableFlow->getContext(), $id);
-    }
+            $event = new BeforeLoadStorableFlowDataEvent(
+                CustomerRecoveryDefinition::ENTITY_NAME,
+                $criteria,
+                $storableFlow->getContext(),
+            );
 
-    private function loadCustomerRecovery(Criteria $criteria, Context $context, string $id): ?CustomerRecoveryEntity
-    {
-        $criteria->addAssociation('customer.salutation');
+            $this->dispatcher->dispatch($event, $event->getName());
 
-        $event = new BeforeLoadStorableFlowDataEvent(
-            CustomerRecoveryDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+            $customerRecovery = $this->customerRecoveryRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            if ($customerRecovery) {
+                return $customerRecovery;
+            }
 
-        $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
-
-        if ($customerRecovery) {
-            return $customerRecovery;
+            return null;
         }
 
-        return null;
+        return $this->customerRecoveryProvider->getData($id, $storableFlow->getContext());
     }
 }

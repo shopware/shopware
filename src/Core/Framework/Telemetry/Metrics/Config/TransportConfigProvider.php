@@ -3,22 +3,24 @@
 namespace Shopware\Core\Framework\Telemetry\Metrics\Config;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 
 /**
  * @internal
- *
- * @phpstan-import-type MetricDefinition from MetricConfig
  */
 #[Package('framework')]
 class TransportConfigProvider
 {
-    public function __construct(private readonly MetricConfigProvider $metricConfigProvider)
-    {
+    public function __construct(
+        private readonly MetricConfigProvider $metricConfigProvider,
+        private readonly ?string $namespace = null,
+    ) {
     }
 
     public function getTransportConfig(): TransportConfig
     {
-        return new TransportConfig(metricsConfig: $this->metricConfigProvider->all());
+        return new TransportConfig(
+            metricsConfig: $this->metricConfigProvider->all(),
+            namespace: $this->namespace,
+        );
     }
 }

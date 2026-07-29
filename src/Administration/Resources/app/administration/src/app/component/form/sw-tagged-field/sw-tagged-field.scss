@@ -4,6 +4,7 @@
         flex-wrap: wrap;
         list-style: none;
         padding: 8px 8px 0;
+        background: var(--color-elevation-surface-raised);
     }
 
     .sw-tagged-field__input-list-entry {
@@ -12,6 +13,16 @@
 
     .sw-tagged-field__input {
         padding: 4px 8px 12px;
+        background: transparent;
+        color: var(--color-text-primary-default);
+
+        &::placeholder {
+            color: var(--color-text-secondary-default);
+        }
+
+        &:disabled {
+            background: transparent;
+        }
     }
 
     .sw-label {

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
@@ -43,6 +44,7 @@ class SystemConfigService implements ResetInterface
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -293,7 +295,7 @@ class SystemConfigService implements ResetInterface
                     'system_config',
                     [
                         'configuration_value' => Json::encode(['_value' => $value]),
-                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ],
                     [
                         'id' => $existingIds[$key],
@@ -312,7 +314,7 @@ class SystemConfigService implements ResetInterface
                     'configuration_key' => $key,
                     'configuration_value' => Json::encode(['_value' => $value]),
                     'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             );
 

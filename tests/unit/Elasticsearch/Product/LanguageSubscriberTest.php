@@ -37,8 +37,8 @@ class LanguageSubscriberTest extends TestCase
 
         $subscriber = new LanguageSubscriber(
             $esHelper,
-            $this->createMock(ElasticsearchRegistry::class),
-            $this->createMock(Client::class),
+            static::createStub(ElasticsearchRegistry::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -58,8 +58,8 @@ class LanguageSubscriberTest extends TestCase
 
         $subscriber = new LanguageSubscriber(
             $esHelper,
-            $this->createMock(ElasticsearchRegistry::class),
-            $this->createMock(Client::class),
+            static::createStub(ElasticsearchRegistry::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -82,7 +82,7 @@ class LanguageSubscriberTest extends TestCase
         $subscriber = new LanguageSubscriber(
             $esHelper,
             $registry,
-            $this->createMock(Client::class),
+            static::createStub(Client::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -105,7 +105,7 @@ class LanguageSubscriberTest extends TestCase
         $esProductDefinition->expects($this->once())->method('getEntityDefinition')->willReturn(new ProductDefinition());
         $registry->expects($this->once())->method('getDefinitions')->willReturn([$esProductDefinition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $namespace = $this->createMock(IndicesNamespace::class);
         $namespace->expects($this->once())->method('exists')->with(['index' => 'sw_product'])->willReturn(false);
 
@@ -132,7 +132,7 @@ class LanguageSubscriberTest extends TestCase
         $esHelper->expects($this->once())->method('getIndexName')->willReturn('sw_product');
 
         $writeResult = new EntityWriteResult(Uuid::randomHex(), [], LanguageDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT);
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $registry = $this->createMock(ElasticsearchRegistry::class);
         $esProductDefinition = $this->createMock(ElasticsearchProductDefinition::class);
         $esProductDefinition->expects($this->once())->method('getEntityDefinition')->willReturn(new ProductDefinition());

@@ -35,6 +35,51 @@ class DocumentBaseConfigEntity extends Entity
      */
     protected ?array $config = null;
 
+    /**
+     * @internal
+     */
+    protected ?string $pageSize = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageOrientation = null;
+
+    /**
+     * @internal
+     */
+    protected ?int $itemsPerPage = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayHeader = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayFooter = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayPageCount = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCompanyAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayReturnAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCustomerVatId = null;
+
     protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
 
     protected ?DocumentTypeEntity $documentType = null;
@@ -155,5 +200,149 @@ class DocumentBaseConfigEntity extends Entity
     public function setFilenameSuffix(?string $filenameSuffix): void
     {
         $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageSize(): ?string
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageSize(?string $pageSize): void
+    {
+        $this->pageSize = $pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageOrientation(): ?string
+    {
+        return $this->pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageOrientation(?string $pageOrientation): void
+    {
+        $this->pageOrientation = $pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function getItemsPerPage(): ?int
+    {
+        return $this->itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function setItemsPerPage(?int $itemsPerPage): void
+    {
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayHeader(): ?bool
+    {
+        return $this->displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayHeader(?bool $displayHeader): void
+    {
+        $this->displayHeader = $displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayFooter(): ?bool
+    {
+        return $this->displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayFooter(?bool $displayFooter): void
+    {
+        $this->displayFooter = $displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayPageCount(): ?bool
+    {
+        return $this->displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayPageCount(?bool $displayPageCount): void
+    {
+        $this->displayPageCount = $displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCompanyAddress(): ?bool
+    {
+        return $this->displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCompanyAddress(?bool $displayCompanyAddress): void
+    {
+        $this->displayCompanyAddress = $displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayReturnAddress(): ?bool
+    {
+        return $this->displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayReturnAddress(?bool $displayReturnAddress): void
+    {
+        $this->displayReturnAddress = $displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCustomerVatId(): ?bool
+    {
+        return $this->displayCustomerVatId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCustomerVatId(?bool $displayCustomerVatId): void
+    {
+        $this->displayCustomerVatId = $displayCustomerVatId;
     }
 }

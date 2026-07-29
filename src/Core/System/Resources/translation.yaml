@@ -20,6 +20,8 @@ plugin-mapping:
     name: 'PluginPublisher'
 
 languages:
+  - name: 'Acholi (Pseudo Language)'
+    locale: 'ach-UG'
   - name: 'Afrikaans'
     locale: 'af-ZA'
   - name: 'العربية'

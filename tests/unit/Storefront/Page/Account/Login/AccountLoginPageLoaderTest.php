@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Login;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
@@ -39,36 +39,25 @@ class AccountLoginPageLoaderTest extends TestCase
 {
     private CollectingEventDispatcher $eventDispatcher;
 
-    private CountryRoute&MockObject $countryRoute;
+    private CountryRoute&Stub $countryRoute;
 
-    private AccountLoginPageLoader $pageLoader;
+    private SalutationRoute&Stub $salutationRoute;
 
-    private SalutationRoute&MockObject $salutationRoute;
+    private SalutationSorter&Stub $salutationSorter;
 
-    private SalutationSorter&MockObject $salutationSorter;
+    private AbstractTranslator&Stub $translator;
 
-    private AbstractTranslator&MockObject $translator;
-
-    private GenericPageLoader&MockObject $genericLoader;
+    private GenericPageLoader&Stub $genericLoader;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
 
-        $this->countryRoute = $this->createMock(CountryRoute::class);
-        $this->salutationRoute = $this->createMock(SalutationRoute::class);
-        $this->salutationSorter = $this->createMock(SalutationSorter::class);
-        $this->translator = $this->createMock(AbstractTranslator::class);
-        $this->genericLoader = $this->createMock(GenericPageLoader::class);
-
-        $this->pageLoader = new AccountLoginPageLoader(
-            $this->genericLoader,
-            $this->eventDispatcher,
-            $this->countryRoute,
-            $this->salutationRoute,
-            $this->salutationSorter,
-            $this->translator
-        );
+        $this->countryRoute = static::createStub(CountryRoute::class);
+        $this->salutationRoute = static::createStub(SalutationRoute::class);
+        $this->salutationSorter = static::createStub(SalutationSorter::class);
+        $this->translator = static::createStub(AbstractTranslator::class);
+        $this->genericLoader = static::createStub(GenericPageLoader::class);
     }
 
     public function testLoad(): void
@@ -93,7 +82,8 @@ class AccountLoginPageLoaderTest extends TestCase
             )
         );
 
-        $this->countryRoute
+        $countryRoute = $this->createMock(CountryRoute::class);
+        $countryRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn($countryResponse);
@@ -119,12 +109,14 @@ class AccountLoginPageLoaderTest extends TestCase
 
         $salutationsSorted = new SalutationCollection([$salutation2, $salutation]);
 
-        $this->salutationRoute
+        $salutationRoute = $this->createMock(SalutationRoute::class);
+        $salutationRoute
             ->expects($this->once())
             ->method('load')
             ->willReturn($salutationResponse);
 
-        $this->salutationSorter
+        $salutationSorter = $this->createMock(SalutationSorter::class);
+        $salutationSorter
             ->expects($this->once())
             ->method('sort')
             ->willReturn($salutationsSorted);
@@ -132,17 +124,28 @@ class AccountLoginPageLoaderTest extends TestCase
         $page = new Page();
         $page->setMetaInformation(new MetaInformation());
         $page->getMetaInformation()?->setMetaTitle('testshop');
-        $this->genericLoader
+        $genericLoader = $this->createMock(GenericPageLoader::class);
+        $genericLoader
             ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
-        $this->translator
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
             ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
-        $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class));
+        $pageLoader = new AccountLoginPageLoader(
+            $genericLoader,
+            $this->eventDispatcher,
+            $countryRoute,
+            $salutationRoute,
+            $salutationSorter,
+            $translator
+        );
+
+        $page = $pageLoader->load(new Request(), static::createStub(SalesChannelContext::class));
 
         static::assertSame($countries, $page->getCountries());
         static::assertSame($salutationsSorted, $page->getSalutations());

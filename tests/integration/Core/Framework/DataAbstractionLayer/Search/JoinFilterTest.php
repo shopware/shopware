@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -764,7 +767,14 @@ class JoinFilterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('unmappedField', null));
 
-        static::expectException(UnmappedFieldException::class);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::unmappedField(
+                'unmappedField',
+                static::getContainer()->get(ProductDefinition::class)
+            ));
+        } else {
+            static::expectException(UnmappedFieldException::class);
+        }
         static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
     }

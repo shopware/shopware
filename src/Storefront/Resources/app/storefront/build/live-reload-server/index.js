@@ -4,6 +4,7 @@
  * This module creates a live reload server for the Shopware storefront.
  *
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - The HMR mode will be removed. Use the Vite dev server instead.
  */
 module.exports = function createLiveReloadServer(sslOptions) {
     return new Promise((resolve, reject) => {

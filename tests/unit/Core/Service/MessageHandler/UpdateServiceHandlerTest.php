@@ -16,10 +16,10 @@ class UpdateServiceHandlerTest extends TestCase
 {
     public function testHandlerDelegatesToServiceLifecycle(): void
     {
-        $lifecycle = $this->createMock(ServiceLifecycle::class);
-        $lifecycle->expects($this->once())->method('update')->with('MyCoolService');
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle->expects($this->once())->method('update')->with('MyCoolService');
 
-        $handler = new UpdateServiceHandler($lifecycle);
+        $handler = new UpdateServiceHandler($serviceLifecycle);
         $handler->__invoke(new UpdateServiceMessage('MyCoolService'));
     }
 }

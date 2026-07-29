@@ -27,7 +27,7 @@ class JsonRequestTransformerListenerTest extends TestCase
     public function testXmlRequestDoesNothing(): void
     {
         $listener = new JsonRequestTransformerListener();
-        $event = new RequestEvent($this->createMock(HttpKernelInterface::class), new Request([], [], [], [], [], [], '<xml></xml>'), HttpKernelInterface::MAIN_REQUEST);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), new Request([], [], [], [], [], [], '<xml></xml>'), HttpKernelInterface::MAIN_REQUEST);
 
         $listener->onRequest($event);
 
@@ -37,7 +37,7 @@ class JsonRequestTransformerListenerTest extends TestCase
     public function testJsonValid(): void
     {
         $listener = new JsonRequestTransformerListener();
-        $event = new RequestEvent($this->createMock(HttpKernelInterface::class), new Request([], [], [], [], [], ['HTTP_Content-Type' => 'application/json'], '{"yes":1}'), HttpKernelInterface::MAIN_REQUEST);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), new Request([], [], [], [], [], ['HTTP_Content-Type' => 'application/json'], '{"yes":1}'), HttpKernelInterface::MAIN_REQUEST);
 
         $listener->onRequest($event);
 
@@ -47,7 +47,7 @@ class JsonRequestTransformerListenerTest extends TestCase
     public function testJsonInvalid(): void
     {
         $listener = new JsonRequestTransformerListener();
-        $event = new RequestEvent($this->createMock(HttpKernelInterface::class), new Request([], [], [], [], [], ['HTTP_Content-Type' => 'application/json'], '{'), HttpKernelInterface::MAIN_REQUEST);
+        $event = new RequestEvent(static::createStub(HttpKernelInterface::class), new Request([], [], [], [], [], ['HTTP_Content-Type' => 'application/json'], '{'), HttpKernelInterface::MAIN_REQUEST);
 
         static::expectException(BadRequestHttpException::class);
         $listener->onRequest($event);

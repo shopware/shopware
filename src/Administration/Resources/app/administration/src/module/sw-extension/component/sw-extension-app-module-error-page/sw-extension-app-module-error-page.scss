@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-extension-app-module-error-page {
     width: 100%;
     height: 100%;
@@ -13,7 +11,7 @@
 
         h3 {
             font-size: 32px;
-            font-weight: $font-weight-regular;
+            font-weight: var(--font-weight-regular);
             margin-block-end: 24px;
         }
 

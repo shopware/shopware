@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -69,7 +68,7 @@ class MigrationCommand extends Command
 
         $until = (int) $input->getOption('until');
 
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         if (!$until && !$input->getOption('all')) {
             throw MigrationException::invalidArgument('missing timestamp cap or --all option');

@@ -22,7 +22,7 @@ class ElasticsearchLanguageProviderTest extends TestCase
 {
     public function testGetLanguages(): void
     {
-        $languageRepository = $this->createMock(EntityRepository::class);
+        $languageRepository = static::createStub(EntityRepository::class);
 
         $languageRepository
             ->method('search')

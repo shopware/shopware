@@ -90,7 +90,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $handler = new AddShippingMethodCommandHandler($repo, $this->createMock(ExceptionLogger::class));
+        $handler = new AddShippingMethodCommandHandler($repo, static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, $context);
 
         static::assertSame($shippingMethod, $response->getAvailableShippingMethods()->first());

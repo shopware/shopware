@@ -106,7 +106,7 @@ const coreConfig = {
         }
 
         if (isProdMode) {
-            return false;
+            return process.env.GENERATE_SOURCEMAPS === 'true' ? 'source-map' : false;
         }
 
         return 'inline-cheap-source-map';

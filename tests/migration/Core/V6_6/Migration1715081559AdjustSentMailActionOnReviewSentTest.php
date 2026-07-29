@@ -28,6 +28,11 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
         $this->migration = new Migration1715081559AdjustSentMailActionOnReviewSent();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1715081559, (new Migration1715081559AdjustSentMailActionOnReviewSent())->getCreationTimestamp());
+    }
+
     /**
      * @param array<string, mixed>|null $expectedConfig
      */

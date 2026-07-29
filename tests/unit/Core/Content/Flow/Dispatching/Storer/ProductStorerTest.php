@@ -3,18 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Log\Package;
@@ -30,23 +28,21 @@ class ProductStorerTest extends TestCase
 {
     private ProductStorer $storer;
 
-    /**
-     * @var MockObject&EntityRepository<ProductCollection>
-     */
-    private MockObject&EntityRepository $repository;
-
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private Stub&ProductProvider $productProvider;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->storer = new ProductStorer($this->repository, $this->dispatcher);
+        $this->productProvider = static::createStub(ProductProvider::class);
+
+        $this->storer = $this->createStorer($this->productProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = new ReviewFormEvent(Context::createDefaultContext(), '', new MailRecipientStruct([]), new DataBag(), '', '');
+        $product = new ProductEntity();
+        $product->setId('product-id');
+
+        $event = new ReviewFormEvent(Context::createDefaultContext(), '', new MailRecipientStruct([]), new DataBag(), 'product-id', '', $product);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(ProductAware::PRODUCT_ID, $stored);
@@ -54,7 +50,7 @@ class ProductStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ProductAware::PRODUCT_ID, $stored);
@@ -80,14 +76,15 @@ class ProductStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $productProvider = $this->createMock(ProductProvider::class);
+        $storer = $this->createStorer($productProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new ProductEntity();
         $entity->setId('id');
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('getEntities')->willReturn(new ProductCollection([$entity]));
 
-        $this->repository->expects($this->once())->method('search')->willReturn($result);
+        $productProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('product');
 
         static::assertSame($res, $entity);
@@ -95,12 +92,13 @@ class ProductStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
-        $this->storer->restore($storable);
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('getEntities')->willReturn(new ProductCollection());
+        $productProvider = $this->createMock(ProductProvider::class);
+        $storer = $this->createStorer($productProvider);
 
-        $this->repository->expects($this->once())->method('search')->willReturn($result);
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
+        $storer->restore($storable);
+        $productProvider->expects($this->once())->method('getData')->willReturn(null);
+
         $res = $storable->getData('product');
 
         static::assertNull($res);
@@ -110,23 +108,17 @@ class ProductStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => null], []);
         $this->storer->restore($storable);
-        $customerGroup = $storable->getData('product');
+        $product = $storable->getData('product');
 
-        static::assertNull($customerGroup);
+        static::assertNull($product);
     }
 
-    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
+    private function createStorer(ProductProvider $productProvider): ProductStorer
     {
-        $this->dispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.product.criteria.event'
-            );
-
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
-        $this->storer->restore($storable);
-        $storable->getData('product');
+        return new ProductStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $productProvider,
+        );
     }
 }

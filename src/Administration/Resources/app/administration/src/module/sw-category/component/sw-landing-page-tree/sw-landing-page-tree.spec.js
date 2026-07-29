@@ -96,7 +96,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         });
 
         const tree = wrapper.find('.sw-tree');
-        expect(tree.attributes().sortable).toBeUndefined();
+        expect(tree.attributes().sortable).toBe('false');
     });
 
     it('should be able to delete the items in sw-tree', async () => {

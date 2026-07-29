@@ -35,7 +35,7 @@ class RepairDigitalProductStatesSubscriberTest extends TestCase
             $connection,
             $statesUpdater,
             $storage,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $subscriber->repair($this->createEvent());

@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Produkte",
       "textHeadline": "Produkte",
       "description": "Verwalte hier die Anzeige von Produkte.",
-      "buttonSave": "Speichern",
       "messageSaveSuccess": "Konfiguration gespeichert.",
       "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden. \"{message}\"",
       "messageSaveDefaultValuesEmpty": "Standardwert ist erforderlich",

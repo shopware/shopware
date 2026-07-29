@@ -17,7 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @codeCoverageIgnore
- * covered with integration tests/integration/Storefront/Framework/HealthCheck/SaleChannelsReadinessCheckTest.php
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Framework\HealthCheck\SalesChannelsReadinessCheckTest
  */
 #[Package('framework')]
 class SalesChannelsReadinessCheck extends BaseCheck

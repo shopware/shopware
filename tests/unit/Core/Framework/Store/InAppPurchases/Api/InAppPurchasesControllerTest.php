@@ -34,8 +34,7 @@ class InAppPurchasesControllerTest extends TestCase
 
     public function testActiveInAppPurchasesWithIncorrectContext(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('Expected context source to be "Shopware\Core\Framework\Api\Context\AdminApiSource" but got "Shopware\Core\Framework\Api\Context\ShopApiSource".');
+        $this->expectExceptionObject(StoreException::invalidContextSource(AdminApiSource::class, ShopApiSource::class));
 
         $this->createController()->activeExtensionInAppPurchases(
             Context::createDefaultContext(new ShopApiSource('test-channel'))
@@ -44,8 +43,7 @@ class InAppPurchasesControllerTest extends TestCase
 
     public function testActiveInAppPurchasesWithNoIntegrationId(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('No integration available in context source "Shopware\Core\Framework\Api\Context\AdminApiSource"');
+        $this->expectExceptionObject(StoreException::missingIntegrationInContextSource(AdminApiSource::class));
 
         $this->createController()->activeExtensionInAppPurchases(
             $this->context = Context::createDefaultContext(new AdminApiSource('test-user'))
@@ -103,8 +101,7 @@ class InAppPurchasesControllerTest extends TestCase
 
     public function testCheckInAppPurchaseActiveWithoutRequiredParameterThrowsError(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('Parameter "identifier" is missing.');
+        $this->expectExceptionObject(StoreException::missingRequestParameter('identifier'));
 
         $request = new RequestDataBag();
 

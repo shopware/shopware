@@ -6,7 +6,6 @@ use Composer\InstalledVersions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Tests\DevOps\Core\Installer\InstallerKernelTest;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -42,7 +41,7 @@ class InstallerKernel extends HttpKernel
     /**
      * @codeCoverageIgnore
      *
-     * @see InstallerKernelTest
+     * @see \Shopware\Tests\DevOps\Core\Installer\InstallerKernelTest
      */
     public function boot(): void
     {

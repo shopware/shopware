@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
@@ -15,6 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -53,7 +53,7 @@ class ElasticsearchIndexingCommand extends Command
     {
         $stopwatch = new Stopwatch();
         $stopwatch->start('es-indexing');
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         if (!$this->enabled) {
             $this->io->error('Elasticsearch indexing is disabled');

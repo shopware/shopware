@@ -53,7 +53,7 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class));
     }
 
     public function getMailStruct(): MailRecipientStruct

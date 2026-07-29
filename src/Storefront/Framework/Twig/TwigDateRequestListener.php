@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -42,7 +43,12 @@ class TwigDateRequestListener
             return;
         }
 
-        $coreExtension = $twig->getExtension(CoreExtension::class);
-        $coreExtension->setTimezone($timezone);
+        if ($twig instanceof TwigEnvironment) {
+            $twig->overrideTimezone($timezone);
+
+            return;
+        }
+
+        $twig->getExtension(CoreExtension::class)->setTimezone($timezone);
     }
 }

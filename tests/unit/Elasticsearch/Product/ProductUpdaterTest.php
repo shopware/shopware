@@ -28,7 +28,7 @@ class ProductUpdaterTest extends TestCase
     public function testUpdate(): void
     {
         $indexer = $this->createMock(ElasticsearchIndexer::class);
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $indexer->expects($this->once())->method('updateIds')->with($definition, ['id1', 'id2']);
 
@@ -41,7 +41,7 @@ class ProductUpdaterTest extends TestCase
     public function testStockUpdate(): void
     {
         $indexer = $this->createMock(ElasticsearchIndexer::class);
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $indexer->expects($this->once())->method('updateIds')->with($definition, ['id1', 'id2']);
 

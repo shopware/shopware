@@ -7,6 +7,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand;
 use Symfony\Component\Console\Command\Command;
@@ -26,13 +27,13 @@ class SystemDumpDatabaseCommandTest extends TestCase
     private const DB_NAME = 'shopware';
     private const DB_PARAMS = ['user' => 'root', 'host' => 'localhost', 'port' => 3306];
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private Filesystem&MockObject $filesystem;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabase')->willReturn(self::DB_NAME);
         $this->connection->method('getParams')->willReturn(self::DB_PARAMS);
 
@@ -53,10 +54,10 @@ class SystemDumpDatabaseCommandTest extends TestCase
     ): void {
         $capturedCommands = [];
 
-        $mkdirProcess = $this->createMock(Process::class);
+        $mkdirProcess = static::createStub(Process::class);
         $mkdirProcess->method('mustRun')->willReturnSelf();
 
-        $dumpProcess = $this->createMock(Process::class);
+        $dumpProcess = static::createStub(Process::class);
         $dumpProcess->method('mustRun')->willReturnSelf();
         $dumpProcess->method('getOutput')->willReturn('-- SQL dump content');
 
@@ -66,9 +67,11 @@ class SystemDumpDatabaseCommandTest extends TestCase
             return $cmd[0] === 'mkdir' ? $mkdirProcess : $dumpProcess;
         };
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('getDatabase')->willReturn($dbName);
         $this->connection->method('getParams')->willReturn($connectionParams);
+
+        $this->filesystem->expects($this->once())->method('dumpFile');
 
         $tester = new CommandTester(new SystemDumpDatabaseCommand(self::DUMP_DIR, $this->connection, $processFactory, $this->filesystem));
         $tester->execute(['--ignore-table' => $ignoreTables]);
@@ -111,6 +114,9 @@ class SystemDumpDatabaseCommandTest extends TestCase
 
     public function testDefaultProcessFactoryIsUsedWhenNotProvided(): void
     {
+        // This test never executes the command, so the shared filesystem mock is unused here.
+        $this->filesystem->expects($this->never())->method('dumpFile');
+
         $command = new SystemDumpDatabaseCommand(
             self::DUMP_DIR,
             $this->connection,
@@ -124,11 +130,11 @@ class SystemDumpDatabaseCommandTest extends TestCase
         $expectedPath = self::DUMP_DIR . '/localhost_' . self::DB_NAME . '.sql';
         $dumpOutput = '-- dump';
 
-        $dumpProcess = $this->createMock(Process::class);
+        $dumpProcess = static::createStub(Process::class);
         $dumpProcess->method('mustRun')->willReturnSelf();
         $dumpProcess->method('getOutput')->willReturn($dumpOutput);
 
-        $mkdirProcess = $this->createMock(Process::class);
+        $mkdirProcess = static::createStub(Process::class);
         $mkdirProcess->method('mustRun')->willReturnSelf();
 
         $this->filesystem->expects($this->once())

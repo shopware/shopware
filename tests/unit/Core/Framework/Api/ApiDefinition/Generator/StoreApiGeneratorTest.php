@@ -14,8 +14,12 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\BundleWithPredeclaredSwLanguageId\BundleWithPredeclaredSwLanguageId;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginBundleWithSchema\PluginBundleWithSchema;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginExtensionForJsonOverride;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -29,6 +33,8 @@ class StoreApiGeneratorTest extends TestCase
     private StoreApiGenerator $generator;
 
     private StoreApiGenerator $customApiGenerator;
+
+    private StoreApiGenerator $pluginApiGenerator;
 
     private Bundle $customBundleSchemas;
 
@@ -56,13 +62,26 @@ class StoreApiGeneratorTest extends TestCase
             ],
             $customBundlePathCollection,
         );
+        $pluginBundle = new PluginBundleWithSchema();
+        $pluginBundlePathCollection = new BundleSchemaPathCollection([$pluginBundle]);
+
+        $this->pluginApiGenerator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            $pluginBundlePathCollection,
+        );
+
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
                 SimpleDefinition::class,
                 DefinitionWithAssociations::class,
+                DefinitionWithJsonOverride::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -124,20 +143,16 @@ class StoreApiGeneratorTest extends TestCase
 
     public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
     {
-        $schema = $this->customApiGenerator->generate(
-            $this->definitionRegistry->getDefinitions(),
-            DefinitionService::STORE_API,
-            DefinitionService::TYPE_JSON_API,
-            $this->customBundleSchemas->getName()
-        );
+        $schema = $this->generateSchema($this->customApiGenerator, $this->customBundleSchemas->getName());
 
         $entities = $schema['components']['schemas'];
 
+        // Simple schema exists from JSON, but PHP schema was skipped (deprecated)
         static::assertArrayHasKey('Simple', $entities);
         static::assertArrayHasKey('required', $entities['Simple']);
-        static::assertCount(2, $entities['Simple']['required']);
-        static::assertContains('requiredField', $entities['Simple']['required']);
+        static::assertCount(1, $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
+        static::assertNotContains('requiredField', $entities['Simple']['required']);
     }
 
     public function testGroupsParametersParsing(): void
@@ -164,17 +179,80 @@ class StoreApiGeneratorTest extends TestCase
 
         // Schema should contain all defined parameters
         $parameterNames = array_column($operation['parameters'], 'name');
-        static::assertContains('sw-language-id', $parameterNames);
         static::assertContains('page', $parameterNames);
         static::assertContains('limit', $parameterNames);
+        // sw-language-id is injected as a $ref by the generator, not as an inline parameter
+        $parameterRefs = array_column($operation['parameters'], '$ref');
+        static::assertContains('#/components/parameters/swLanguageId', $parameterRefs);
         // but not left-overs of replaced parameter groups
         static::assertCount(3, $operation['parameters']);
+    }
 
-        foreach ($operation['parameters'] as $parameter) {
-            static::assertArrayHasKey('name', $parameter);
-            static::assertArrayHasKey('in', $parameter);
-            static::assertArrayHasKey('schema', $parameter);
+    public function testSwLanguageIdIsInjectedIntoEveryNonDeleteOperationOutsideInfo(): void
+    {
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([$bundle]),
+        );
+
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundle->getName(),
+        );
+
+        static::assertArrayHasKey('swLanguageId', $schema['components']['parameters']);
+
+        $assertedInjectedOperation = false;
+        $assertedSkippedOperation = false;
+
+        foreach ($schema['paths'] as $path => $pathDefinition) {
+            foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                $operationId = $pathDefinition[$method]['operationId'] ?? 'no-operation-id';
+                $parameters = $pathDefinition[$method]['parameters'] ?? [];
+                $hasHeader = false;
+                foreach ($parameters as $parameter) {
+                    if (
+                        (isset($parameter['name']) && strtolower((string) $parameter['name']) === 'sw-language-id')
+                        || (isset($parameter['$ref']) && $parameter['$ref'] === '#/components/parameters/swLanguageId')
+                    ) {
+                        $hasHeader = true;
+
+                        break;
+                    }
+                }
+
+                $shouldBeInjected = $method !== 'delete'
+                    && !str_starts_with((string) $path, '/_info/');
+
+                if ($shouldBeInjected) {
+                    $assertedInjectedOperation = true;
+                    static::assertTrue(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) should advertise sw-language-id', strtoupper($method), $path, $operationId)
+                    );
+                } else {
+                    $assertedSkippedOperation = true;
+                    static::assertFalse(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) must not advertise sw-language-id', strtoupper($method), $path, $operationId)
+                    );
+                }
+            }
         }
+
+        static::assertTrue($assertedInjectedOperation, 'Schema should contain at least one non-DELETE operation outside /_info/ to test');
+        static::assertTrue($assertedSkippedOperation, 'Schema should contain at least one DELETE or /_info/ operation to test');
     }
 
     public function testGetSchemaThrowsUnsupportedException(): void
@@ -1053,6 +1131,90 @@ class StoreApiGeneratorTest extends TestCase
         static::assertGreaterThanOrEqual(4, $associationCount);
     }
 
+    public function testSwLanguageIdHeaderIsInjectedOrKeptWithoutDuplicationPerOperation(): void
+    {
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([$bundle]),
+        );
+
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundle->getName(),
+        );
+
+        static::assertArrayHasKey('swLanguageId', $schema['components']['parameters']);
+
+        $noHeader = $schema['paths']['/no-header']['get'];
+        $noHeaderRefs = array_filter(
+            array_column($noHeader['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $noHeaderRefs, 'sw-language-id should be injected exactly once into operations without it');
+
+        $noParametersKey = $schema['paths']['/no-parameters-key']['get'];
+        static::assertIsArray($noParametersKey['parameters']);
+        $noParametersKeyRefs = array_filter(
+            array_column($noParametersKey['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $noParametersKeyRefs, 'sw-language-id should be injected when the operation omits the parameters key');
+
+        $inline = $schema['paths']['/predeclared-by-name']['get'];
+        $inlineNames = array_filter(
+            $inline['parameters'],
+            static fn (array $param): bool => ($param['name'] ?? null) === 'sw-language-id'
+        );
+        $inlineRefs = array_filter(
+            $inline['parameters'],
+            static fn (array $param): bool => ($param['$ref'] ?? null) === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $inlineNames, 'Inline sw-language-id declaration should remain');
+        static::assertCount(0, $inlineRefs, 'No $ref should be injected next to an existing inline sw-language-id');
+
+        $byRef = $schema['paths']['/predeclared-by-ref']['get'];
+        $byRefMatches = array_filter(
+            array_column($byRef['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $byRefMatches, 'sw-language-id $ref should not be duplicated when already present');
+
+        $mixedCase = $schema['paths']['/predeclared-by-name-mixed-case']['get'];
+        $mixedCaseNames = array_filter(
+            $mixedCase['parameters'],
+            static fn (array $param): bool => isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id'
+        );
+        $mixedCaseRefs = array_filter(
+            $mixedCase['parameters'],
+            static fn (array $param): bool => ($param['$ref'] ?? null) === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $mixedCaseNames, 'Mixed-case sw-language-id declaration should remain');
+        static::assertCount(0, $mixedCaseRefs, 'No $ref should be injected next to a mixed-case sw-language-id declaration');
+
+        $mutation = $schema['paths']['/mutation']['delete'];
+        $mutationRefs = array_column($mutation['parameters'] ?? [], '$ref');
+        static::assertNotContains(
+            '#/components/parameters/swLanguageId',
+            $mutationRefs,
+            'sw-language-id should not be injected into non-GET operations',
+        );
+
+        $infoSample = $schema['paths']['/_info/sample']['get'];
+        $infoRefs = array_column($infoSample['parameters'] ?? [], '$ref');
+        static::assertNotContains(
+            '#/components/parameters/swLanguageId',
+            $infoRefs,
+            'sw-language-id should not be injected into /_info/* GET operations',
+        );
+    }
+
     public function testGetAssociationsDocumentationSupportsOptionalDescription(): void
     {
         $reflection = new \ReflectionClass($this->generator);
@@ -1072,5 +1234,155 @@ class StoreApiGeneratorTest extends TestCase
 
         // Verify that category DOES have a description (for contrast)
         static::assertStringContainsString('`category` - ', $result);
+    }
+
+    public function testPhpSchemaIsSkippedWhenJsonSchemaExists(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        $entities = $schema['components']['schemas'];
+
+        // JsonOverrideEntity should exist in output (from JSON file)
+        static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+        // JSON-defined field should be present
+        static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+        static::assertSame(
+            'This field only exists in the JSON schema',
+            $entities['JsonOverrideEntity']['properties']['jsonOnlyField']['description']
+        );
+
+        // PHP-defined field should NOT be present (PHP schema was skipped)
+        static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+    }
+
+    public function testPhpSchemaIsKeptWhenNoJsonSchemaExists(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        $entities = $schema['components']['schemas'];
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('stringField', $entities['Simple']['properties']);
+    }
+
+    public function testJsonSchemaOverridesPhpSchemaInCustomBundle(): void
+    {
+        $schema = $this->generateSchema($this->customApiGenerator, $this->customBundleSchemas->getName());
+
+        $entities = $schema['components']['schemas'];
+
+        // Simple exists from JSON but PHP generation was skipped
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('apiAlias', $entities['Simple']['properties']);
+
+        // PHP-only fields should NOT be present
+        static::assertArrayNotHasKey('stringField', $entities['Simple']['properties']);
+        static::assertArrayNotHasKey('intField', $entities['Simple']['properties']);
+    }
+
+    public function testPluginExtensionFieldsSurviveJsonSchemaOverride(): void
+    {
+        $definition = $this->definitionRegistry->getByEntityName(DefinitionWithJsonOverride::ENTITY_NAME);
+        $extension = new PluginExtensionForJsonOverride();
+        $definition->addExtension($extension);
+
+        try {
+            $schema = $this->generateSchema($this->generator, null);
+
+            $entities = $schema['components']['schemas'];
+
+            static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+            // JSON-defined field should be present
+            static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP base field should NOT be present (PHP schema was skipped)
+            static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // Plugin extension association SHOULD be present under extensions
+            static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
+            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+        } finally {
+            $definition->removeExtension($extension);
+        }
+    }
+
+    public function testPluginJsonAddsFieldToCoreJsonEntity(): void
+    {
+        $schema = $this->generateSchema($this->pluginApiGenerator, null);
+
+        $entities = $schema['components']['schemas'];
+
+        static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+        // Core JSON fields are present
+        static::assertArrayHasKey('jsonOnlyField', $entities['JsonOverrideEntity']['properties']);
+        static::assertArrayHasKey('name', $entities['JsonOverrideEntity']['properties']);
+        static::assertArrayHasKey('status', $entities['JsonOverrideEntity']['properties']);
+
+        // Plugin-added JSON field is present
+        static::assertArrayHasKey('pluginAddedField', $entities['JsonOverrideEntity']['properties']);
+        static::assertSame(
+            'Field added by a plugin via JSON schema',
+            $entities['JsonOverrideEntity']['properties']['pluginAddedField']['description']
+        );
+
+        // PHP-only field is NOT present (PHP schema was skipped)
+        static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+    }
+
+    public function testPluginJsonExtendsEnumWithDeduplication(): void
+    {
+        $schema = $this->generateSchema($this->pluginApiGenerator, null);
+
+        $entities = $schema['components']['schemas'];
+        $statusEnum = $entities['JsonOverrideEntity']['properties']['status']['enum'];
+
+        // Core defines ["active", "inactive"], plugin adds ["active", "draft"]
+        // After deduplication: ["active", "inactive", "draft"] — no duplicates
+        static::assertCount(3, $statusEnum);
+        static::assertContains('active', $statusEnum);
+        static::assertContains('inactive', $statusEnum);
+        static::assertContains('draft', $statusEnum);
+    }
+
+    public function testPluginExtensionFieldsSurviveWithPluginJsonSchema(): void
+    {
+        $definition = $this->definitionRegistry->getByEntityName(DefinitionWithJsonOverride::ENTITY_NAME);
+        $extension = new PluginExtensionForJsonOverride();
+        $definition->addExtension($extension);
+
+        try {
+            $schema = $this->generateSchema($this->pluginApiGenerator, null);
+
+            $entities = $schema['components']['schemas'];
+
+            static::assertArrayHasKey('JsonOverrideEntity', $entities);
+
+            // Plugin JSON field is present
+            static::assertArrayHasKey('pluginAddedField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP base field is NOT present
+            static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
+
+            // PHP extension association IS preserved
+            static::assertArrayHasKey('extensions', $entities['JsonOverrideEntity']['properties']);
+            static::assertArrayHasKey('pluginEntities', $entities['JsonOverrideEntity']['properties']['extensions']['properties']);
+        } finally {
+            $definition->removeExtension($extension);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function generateSchema(StoreApiGenerator $generator, ?string $bundleName): array
+    {
+        return $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundleName
+        );
     }
 }

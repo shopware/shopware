@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
@@ -52,7 +53,8 @@ final readonly class ProductExportPartialGenerationHandler
         private SalesChannelContextPersister $contextPersister,
         private Connection $connection,
         private int $readBufferSize,
-        private LanguageLocaleCodeProvider $languageLocaleProvider
+        private LanguageLocaleCodeProvider $languageLocaleProvider,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -204,7 +206,7 @@ final readonly class ProductExportPartialGenerationHandler
             [
                 [
                     'id' => $productExport->getId(),
-                    'generatedAt' => new \DateTime(),
+                    'generatedAt' => $this->clock->now(),
                     'isRunning' => false,
                 ],
             ],

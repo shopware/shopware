@@ -78,11 +78,11 @@ class WriteCommandExtractorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $extractor = new WriteCommandExtractor(
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(EntityWriteGateway::class),
             $registry
         );
         $context = Context::createDefaultContext($scope);
@@ -158,8 +158,8 @@ class WriteCommandExtractorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $existenceGateway = $this->createMock(EntityWriteGatewayInterface::class);

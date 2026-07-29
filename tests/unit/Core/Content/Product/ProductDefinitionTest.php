@@ -22,8 +22,8 @@ class ProductDefinitionTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class)
         );
 
         $definition = $registry->getByEntityName('product');

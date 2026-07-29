@@ -23,7 +23,7 @@ class OpenApiFileLoaderTest extends TestCase
         static::assertArrayHasKey('components', $spec);
         static::assertArrayHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $spec['paths']);
         static::assertArrayHasKey('schemas', $spec['components']);
-        static::assertCount(2, $spec['components']['schemas']);
+        static::assertCount(3, $spec['components']['schemas']);
     }
 
     public function testEmptyFileLoader(): void

@@ -60,7 +60,7 @@ class DumpSchemaCommand extends Command
             $output = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
         }
         $formatType = $input->getOption('schema-format');
-        $bundleName = (empty($input->getOption('bundle-name'))) ? '' : $input->getOption('bundle-name');
+        $bundleName = $input->getOption('bundle-name') ?? '';
 
         switch ($formatType) {
             case 'simple':

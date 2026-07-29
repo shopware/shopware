@@ -27,7 +27,7 @@ class OrderPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertCount(0, $page->getOrders());
+        static::assertCount(0, $page->getOrders()->getEntities());
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
@@ -51,7 +51,7 @@ class OrderPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertCount(1, $page->getOrders());
+        static::assertCount(1, $page->getOrders()->getEntities());
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

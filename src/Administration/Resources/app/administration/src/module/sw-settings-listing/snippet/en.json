@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Products",
       "textHeadline": "Products",
       "description": "Manage the display of products here.",
-      "buttonSave": "Save",
       "messageSaveSuccess": "Configuration saved.",
       "messageSaveError": "Configuration could not be saved due to: \"{message}\"",
       "messageSaveDefaultValuesEmpty": "Default value is required",

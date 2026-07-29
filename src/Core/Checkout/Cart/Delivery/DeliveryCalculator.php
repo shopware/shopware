@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -42,7 +43,8 @@ class DeliveryCalculator
      */
     public function __construct(
         private readonly QuantityPriceCalculator $priceCalculator,
-        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
+        private readonly CashRounding $cashRounding
     ) {
     }
 
@@ -188,7 +190,7 @@ class DeliveryCalculator
             default:
                 $rules = $this->percentageTaxRuleBuilder->buildCollectionRules(
                     $calculatedLineItems->getPrices()->getCalculatedTaxes(),
-                    $calculatedLineItems->getPrices()->getTotalPriceAmount(),
+                    $this->cashRounding->mathRound($calculatedLineItems->getPrices()->getTotalPriceAmount(), $context->getTotalRounding()),
                 );
         }
 

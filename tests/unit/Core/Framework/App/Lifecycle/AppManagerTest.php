@@ -1,0 +1,615 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
+use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
+use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
+use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\Integration\IntegrationCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
+use Symfony\Component\Clock\NativeClock;
+
+/**
+ * @internal
+ */
+#[CoversClass(AppManager::class)]
+class AppManagerTest extends TestCase
+{
+    private CollectingEventDispatcher $eventDispatcher;
+
+    private PermissionLifecycleService $permissionLifecycle;
+
+    private AppRegistrationService $registrationService;
+
+    private AppSecretRotationService $appSecretRotationService;
+
+    private ManifestFactory $manifestFactory;
+
+    private ActiveAppsLoader $activeAppsLoader;
+
+    private SystemConfigService $systemConfigService;
+
+    /**
+     * @var StaticEntityRepository<IntegrationCollection>
+     */
+    private StaticEntityRepository $integrationRepository;
+
+    private AssetService $assetService;
+
+    private ScriptExecutor $scriptExecutor;
+
+    private CustomEntityLifecycleService $customEntityLifecycleService;
+
+    private SourceResolver $sourceResolver;
+
+    private ConfigReader $configReader;
+
+    private AppRequirementsValidator $requirementsValidator;
+
+    protected function setUp(): void
+    {
+        $this->eventDispatcher = new CollectingEventDispatcher();
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        $this->registrationService = $this->createMock(AppRegistrationService::class);
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->assetService = $this->createMock(AssetService::class);
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->customEntityLifecycleService = $this->createDefaultCustomEntityLifecycleService();
+        $this->sourceResolver = new StaticSourceResolver();
+        $this->configReader = $this->createMock(ConfigReader::class);
+        $this->requirementsValidator = static::createStub(AppRequirementsValidator::class);
+    }
+
+    public function testInstallThrowsIfAppIsNotCompatible(): void
+    {
+        $manifest = ManifestFixture::empty();
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $this->expectExceptionObject(AppException::notCompatible('test'));
+
+        $this->createAppManager(AppFixture::createAppRepository())
+            ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testUpdateThrowsIfAppIsNotCompatible(): void
+    {
+        $manifest = ManifestFixture::empty();
+        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $this->expectExceptionObject(AppException::notCompatible('test'));
+
+        $this->createAppManager(AppFixture::createAppRepository())
+            ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
+    }
+
+    public function testInstallThrowsWhenRequirementsAreNotMet(): void
+    {
+        $manifest = ManifestFixture::empty();
+        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
+
+        $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
+        $requirementsValidator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([$violation]);
+
+        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+
+        $this->requirementsValidator = $requirementsValidator;
+
+        $this->createAppManager(AppFixture::createAppRepository())
+            ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testUpdateThrowsWhenRequirementsAreNotMet(): void
+    {
+        $manifest = ManifestFixture::empty();
+        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
+
+        $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
+        $requirementsValidator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([$violation]);
+
+        $this->expectExceptionObject(AppException::requirementsNotMet($violation));
+
+        $this->requirementsValidator = $requirementsValidator;
+
+        $this->createAppManager(AppFixture::createAppRepository())
+            ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
+    }
+
+    public function testInstallThrowsIfAppAlreadyExists(): void
+    {
+        $existingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($existingApp);
+
+        $this->expectExceptionObject(AppException::alreadyInstalled('test'));
+
+        $this->createAppManager($appRepository)
+            ->install(ManifestFixture::empty(), new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testInstallRollsBackAppDataWhenRegistrationFails(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $appRepository = AppFixture::createAppRepository();
+        $installedApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $appRepository->addSearch(new AppCollection([$installedApp]));
+
+        $this->registrationService = $this->createMock(AppRegistrationService::class);
+        $this->registrationService->expects($this->once())
+            ->method('registerApp')
+            ->willThrowException(AppException::registrationFailed('test', 'registration failed'));
+
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        $this->permissionLifecycle->expects($this->once())->method('removeRole');
+
+        try {
+            $this->createAppManager($appRepository)
+                ->install($manifest, new AppInstallParameters(), $context);
+            static::fail('Expected app registration to fail');
+        } catch (AppRegistrationException) {
+            static::assertCount(1, $appRepository->getPayloads(StaticEntityRepository::UPSERT));
+            static::assertSame([['id' => $installedApp->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
+            static::assertSame([['id' => 'integration-id']], $this->integrationRepository->getPayloads(StaticEntityRepository::DELETE));
+        }
+    }
+
+    public function testRefreshRegistrationRefreshesRemoteRegistrationWithoutLifecycleEvents(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+
+        $appManager->refreshRegistration($app, $context);
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testRefreshRegistrationSkipsAppsWithoutSetup(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn(ManifestFixture::empty());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
+    }
+
+    public function testReregisterReplaysInstallAndActivationForActiveApps(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+        $aclRole = new AclRoleEntity();
+        $aclRole->setId($app->getAclRoleId());
+        $aclRole->setPrivileges(['customer:read', 'order:read', 'product:read']);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app), aclRole: $aclRole);
+
+        $appManager->reregister($app, $context);
+        $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
+        static::assertCount(1, $installedEvents);
+        static::assertSame($app, $installedEvents[0]->getApp());
+
+        $permissionEvents = $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class);
+        static::assertCount(1, $permissionEvents);
+        static::assertSame($app->getId(), $permissionEvents[0]->appId);
+        static::assertSame(['customer:read', 'order:read', 'product:read'], $permissionEvents[0]->permissions);
+        static::assertSame($context, $permissionEvents[0]->getContext());
+
+        $activatedEvents = $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class);
+        static::assertCount(1, $activatedEvents);
+        static::assertSame($app, $activatedEvents[0]->getApp());
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertInstanceOf(AppInstalledEvent::class, $events[0]);
+        static::assertInstanceOf(AppPermissionsUpdated::class, $events[1]);
+        static::assertInstanceOf(AppActivatedEvent::class, $events[2]);
+    }
+
+    public function testReregisterDoesNotReplayActivationForInactiveApps(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+
+        $appManager->reregister($app, $context);
+        $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
+        static::assertCount(1, $installedEvents);
+        static::assertSame($app, $installedEvents[0]->getApp());
+
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testReregisterSkipsAppsWithoutSetup(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn(ManifestFixture::empty());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppPermissionsUpdated::class));
+    }
+
+    public function testActivateDoesNothingIfAppIsAlreadyActive(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true);
+        $appRepository = AppFixture::createAppRepository($app);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->never())->method('activate');
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->activate($app, Context::createDefaultContext());
+
+        static::assertSame([], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testActivateUpdatesAppAndPersisters(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->once())
+            ->method('activate');
+
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->activate($app, $context);
+
+        static::assertTrue($app->isActive());
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertSame([
+            ['id' => $app->getId(), 'active' => true],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testDeactivateDoesNothingIfAppIsAlreadyInactive(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->never())->method('deactivate');
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->deactivate($app, Context::createDefaultContext());
+
+        static::assertSame([], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testDeactivateUpdatesAppAndPersisters(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true);
+        $appRepository = AppFixture::createAppRepository($app);
+
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->once())
+            ->method('deactivate');
+
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->deactivate($app, $context);
+
+        static::assertFalse($app->isActive());
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
+        static::assertSame([
+            ['id' => $app->getId(), 'active' => false],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
+    public function testDeactivateThrowsIfDisableIsNotAllowed(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
+
+        $this->expectException(AppException::class);
+
+        $this->createAppManager(AppFixture::createAppRepository($app))
+            ->deactivate($app, Context::createDefaultContext());
+    }
+
+    public function testUninstallDeactivatesActiveAppBeforeRemovingData(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
+        $appRepository = AppFixture::createAppRepository($app);
+
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->once())
+            ->method('deactivate');
+        $persister->expects($this->once())
+            ->method('uninstall');
+
+        $this->customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
+        $this->customEntityLifecycleService->expects($this->once())
+            ->method('canRemoveAppData')
+            ->with($app)
+            ->willReturn(true);
+        $this->customEntityLifecycleService->expects($this->once())
+            ->method('removeApp')
+            ->with($app, $context, true);
+
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        $this->permissionLifecycle->expects($this->once())->method('softDeleteRole')->with($app->getAclRoleId());
+
+        $this->assetService = $this->createMock(AssetService::class);
+        $this->assetService->expects($this->once())->method('removeAssets')->with($app->getName());
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->uninstall($app, $context, true);
+
+        static::assertSame([
+            ['id' => $app->getId(), 'active' => false],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertSame([['id' => $app->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppDeletedEvent::class));
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(PostAppDeletedEvent::class));
+
+        $integrationUpdates = $this->integrationRepository->getPayloads(StaticEntityRepository::UPDATE);
+        static::assertCount(1, $integrationUpdates);
+        static::assertSame($app->getIntegrationId(), $integrationUpdates[0]['id']);
+        static::assertInstanceOf(\DateTimeImmutable::class, $integrationUpdates[0]['deletedAt']);
+    }
+
+    public function testDeleteRemovesAppLocallyWithoutLifecycleEvents(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
+        $appRepository = AppFixture::createAppRepository($app);
+
+        $persister = $this->createMock(AbstractLifecycleHandler::class);
+        $persister->expects($this->once())
+            ->method('delete');
+        $persister->expects($this->never())->method('deactivate');
+
+        $this->integrationRepository = new StaticEntityRepository([]);
+        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
+        $this->permissionLifecycle->expects($this->once())->method('softDeleteRole')->with($app->getAclRoleId());
+
+        $this->assetService = $this->createMock(AssetService::class);
+        $this->assetService->expects($this->once())->method('removeAssets')->with($app->getName());
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(
+            $appRepository,
+            persisters: [$persister],
+        )->delete($app, $context);
+
+        // the app server is never informed: no deactivation, no app.deleted webhook
+        static::assertSame([], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeletedEvent::class));
+
+        static::assertSame([['id' => $app->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(PostAppDeletedEvent::class));
+    }
+
+    public function testDeleteRemovesConfigOnlyWhenUserDataIsNotKept(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $app->setPath('');
+        $appRepository = AppFixture::createAppRepository();
+        $this->sourceResolver = new StaticSourceResolver([
+            'test' => new StaticFilesystem([
+                'Resources/config/config.xml' => <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <card>
+        <input-field type="text">
+            <name>email</name>
+            <label>Email</label>
+        </input-field>
+    </card>
+</config>
+XML,
+            ]),
+        ]);
+        $config = [['name' => 'email']];
+        $this->configReader = $this->createMock(ConfigReader::class);
+        $this->configReader->expects($this->once())->method('read')->willReturn($config);
+
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->systemConfigService->expects($this->once())
+            ->method('deleteExtensionConfiguration')
+            ->with('test', $config);
+
+        $this->createAppManager($appRepository)->delete($app, $context);
+
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+
+        $this->createAppManager(AppFixture::createAppRepository())->delete($app, $context, true);
+    }
+
+    /**
+     * @param StaticEntityRepository<AppCollection> $appRepository
+     * @param list<AbstractLifecycleHandler> $persisters
+     */
+    private function createAppManager(
+        StaticEntityRepository $appRepository,
+        array $persisters = [],
+        ?AclRoleEntity $aclRole = null,
+    ): AppManager {
+        /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepository */
+        $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
+
+        return new AppManager(
+            $persisters,
+            $appRepository,
+            $this->permissionLifecycle,
+            $this->eventDispatcher,
+            $this->registrationService,
+            $this->appSecretRotationService,
+            $this->manifestFactory,
+            $this->activeAppsLoader,
+            AppFixture::createLanguageRepository(),
+            $this->systemConfigService,
+            static::createStub(ConfigValidator::class),
+            $this->integrationRepository,
+            $aclRoleRepository,
+            $this->assetService,
+            $this->scriptExecutor,
+            __DIR__,
+            $this->customEntityLifecycleService,
+            '6.5.0.0',
+            static::createStub(AppFeatureValidator::class),
+            $this->sourceResolver,
+            $this->configReader,
+            static::createStub(DeletedAppsGateway::class),
+            $this->requirementsValidator,
+            new NativeClock()
+        );
+    }
+
+    private function createDefaultCustomEntityLifecycleService(): CustomEntityLifecycleService
+    {
+        $customEntityLifecycleService = static::createStub(CustomEntityLifecycleService::class);
+        $customEntityLifecycleService->method('allowsDisabling')->willReturn(true);
+
+        return $customEntityLifecycleService;
+    }
+}

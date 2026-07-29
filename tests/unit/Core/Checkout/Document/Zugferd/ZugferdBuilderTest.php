@@ -205,7 +205,7 @@ class ZugferdBuilderTest extends TestCase
     private function createZugferdBuilder(): ZugferdBuilder
     {
         return new ZugferdBuilder(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
         );
     }

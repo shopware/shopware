@@ -28,7 +28,7 @@ class ProductListingCriteriaExtensionTest extends TestCase
 
         $extension = new ProductListingCriteriaExtension(
             new Criteria(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'categoryId'
         );
 

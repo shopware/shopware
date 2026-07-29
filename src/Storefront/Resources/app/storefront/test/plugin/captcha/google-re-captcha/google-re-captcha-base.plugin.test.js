@@ -351,9 +351,13 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         test('does not call onFormSubmit when form is already submitting', () => {
             googleReCaptchaBasePlugin._formSubmitting = true;
             const submitEvent = new Event('submit');
+            jest.spyOn(submitEvent, 'preventDefault');
+            jest.spyOn(submitEvent, 'stopImmediatePropagation');
 
             googleReCaptchaBasePlugin._onFormSubmitCallback(submitEvent);
 
+            expect(submitEvent.preventDefault).toHaveBeenCalled();
+            expect(submitEvent.stopImmediatePropagation).toHaveBeenCalled();
             expect(googleReCaptchaBasePlugin.onFormSubmit).not.toHaveBeenCalled();
         });
 

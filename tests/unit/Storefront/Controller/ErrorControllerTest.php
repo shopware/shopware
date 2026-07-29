@@ -35,9 +35,9 @@ class ErrorControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->errorTemplateResolver = $this->createMock(ErrorTemplateResolver::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->errorPageLoader = $this->createMock(ErrorPageLoaderInterface::class);
+        $this->errorTemplateResolver = static::createStub(ErrorTemplateResolver::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->errorPageLoader = static::createStub(ErrorPageLoaderInterface::class);
 
         $this->controller = new ErrorControllerTestClass(
             $this->errorTemplateResolver,

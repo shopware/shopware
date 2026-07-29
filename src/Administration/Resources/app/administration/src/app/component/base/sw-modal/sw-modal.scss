@@ -2,12 +2,7 @@
 @import "~scss/mixins";
 @import "~scss/variables";
 
-$sw-modal-color-backdrop: rgba(0, 0, 0, 40%);
 $sw-modal-gap: var(--scale-size-64);
-$sw-modal-loader-z-index: $z-index-modal + 1;
-$sw-modal-title-font-size: var(--font-size-m);
-$sw-modal-transition-duration: 0.4s;
-$sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
 .sw-modal {
     position: fixed;
@@ -19,7 +14,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: $sw-modal-color-backdrop;
+    background-color: var(--color-elevation-backdrop-default);
     z-index: $z-index-modal;
     outline: none;
     display: flex;
@@ -33,6 +28,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
         background-color: var(--color-elevation-surface-raised);
         border-radius: var(--border-radius-card);
+        border: 1px solid var(--color-border-secondary-default);
         color: var(--color-text-primary-default);
         max-height: calc(100vh - #{$sw-modal-gap});
         min-height: 200px;
@@ -90,7 +86,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-modal__header {
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
         display: flex;
         flex-shrink: 0;
         flex-direction: row;
@@ -119,8 +115,8 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         margin: 0;
         color: var(--color-text-secondary-default);
         font-size: var(--font-size-xs);
-        font-weight: var(--font-size-regular);
-        line-height: var(--line-height-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-xs);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -147,7 +143,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
         }
     }
@@ -172,7 +168,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     .sw-modal__footer {
         border-radius: 0 0 var(--border-radius-card) var(--border-radius-card);
         background-color: var(--color-elevation-surface-raised);
-        border-top: 1px solid var(--color-border-primary-default);
+        border-top: 1px solid var(--color-border-secondary-default);
         display: grid;
         grid-auto-columns: min-content;
         grid-auto-flow: column;
@@ -185,17 +181,17 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-loader {
-        z-index: $sw-modal-loader-z-index;
+        z-index: $z-index-modal + 1;
     }
 }
 
 // Vue.js Transitions
 .sw-modal-fade-enter-active,
 .sw-modal-fade-leave-active {
-    transition: opacity $sw-modal-transition-duration $sw-modal-transition-timing-function;
+    transition: opacity 0.4s cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__dialog {
-        transition: transform $sw-modal-transition-duration $sw-modal-transition-timing-function;
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.26, 1.55);
         transform: scale(1);
     }
 }

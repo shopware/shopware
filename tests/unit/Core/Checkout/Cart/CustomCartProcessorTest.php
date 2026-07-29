@@ -35,7 +35,7 @@ class CustomCartProcessorTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
 
-        $processor = new CustomCartProcessor($this->createMock(QuantityPriceCalculator::class));
+        $processor = new CustomCartProcessor(static::createStub(QuantityPriceCalculator::class));
         $processor->collect($data, $original, $context, $behavior);
 
         static::assertCount(4, $original->getLineItems());

@@ -1,20 +1,25 @@
 import template from './sw-theme-modal.html.twig';
 import './sw-theme-modal.scss';
 
-/**
- * @package discovery
- */
-
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
-Component.register('sw-theme-modal', {
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ * @sw-package discovery
+ */
+export default {
     template,
 
     inject: ['repositoryFactory'],
 
+    emits: [
+        'modal-theme-select',
+        'modal-close',
+    ],
+
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     props: {
@@ -33,14 +38,14 @@ Component.register('sw-theme-modal', {
             sortDirection: 'DESC',
             term: '',
             total: null,
-            themes: []
+            themes: [],
         };
     },
 
     computed: {
         themeRepository() {
             return this.repositoryFactory.create('theme');
-        }
+        },
     },
 
     created() {
@@ -62,15 +67,18 @@ Component.register('sw-theme-modal', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.setTerm(this.term);
 
-            return this.themeRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
-                this.total = searchResult.total;
-                this.themes = searchResult;
-                this.isLoading = false;
+            return this.themeRepository
+                .search(criteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.themes = searchResult;
+                    this.isLoading = false;
 
-                return this.themes;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return this.themes;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         selectLayout() {
@@ -96,6 +104,6 @@ Component.register('sw-theme-modal', {
             this.$emit('modal-close');
             this.selected = null;
             this.term = null;
-        }
-    }
-});
+        },
+    },
+};

@@ -52,7 +52,7 @@ class SitemapRoute extends AbstractSitemapRoute
         }
 
         // Close session to prevent session locking from waiting in case there is another request coming in
-        if ($request->hasSession() && session_status() === \PHP_SESSION_ACTIVE) {
+        if ($request->hasSession(true) && session_status() === \PHP_SESSION_ACTIVE) {
             $request->getSession()->save();
         }
 

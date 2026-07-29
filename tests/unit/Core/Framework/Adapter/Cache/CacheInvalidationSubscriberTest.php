@@ -12,13 +12,19 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -53,7 +59,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
@@ -407,6 +413,263 @@ class CacheInvalidationSubscriberTest extends TestCase
             });
 
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, false));
+    }
+
+    public function testInvalidateStreamIdsWithProductStreamFilterWrites(): void
+    {
+        $streamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([
+                EntityCacheKeyGenerator::buildStreamTag($streamId),
+                EntityCacheKeyGenerator::buildStreamTag($deletedStreamId),
+            ]);
+
+        $subscriber->invalidateStreamIds(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    'product_stream_filter',
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            ['productStreamId' => $streamId],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_DELETE,
+                            new EntityExistence(
+                                'product_stream_filter',
+                                ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                                true,
+                                false,
+                                false,
+                                ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                            ),
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingInvalidatesOwningProduct(): void
+    {
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $subscriber->invalidateProductCrossSelling(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductCrossSellingDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $crossSellingId,
+                            ['active' => true],
+                            ProductCrossSellingDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingInvalidatesAssignedProductOwner(): void
+    {
+        $assignedProductId = Uuid::randomHex();
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls([$crossSellingId], [$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $subscriber->invalidateProductCrossSelling(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $assignedProductId,
+                            ['productId' => Uuid::randomHex()],
+                            ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_INSERT,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingUsesAssignedProductPayload(): void
+    {
+        $assignedProductId = Uuid::randomHex();
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls([$crossSellingId], [$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $subscriber->invalidateProductCrossSelling(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $assignedProductId,
+                            ['crossSellingId' => $crossSellingId],
+                            ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_INSERT,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingNormalizesBinaryTranslationPrimaryKey(): void
+    {
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $subscriber->invalidateProductCrossSelling(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductCrossSellingTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            [
+                                'productCrossSellingId' => Uuid::fromHexToBytes($crossSellingId),
+                                'languageId' => Uuid::randomHex(),
+                            ],
+                            ['name' => 'Accessories'],
+                            ProductCrossSellingTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_DELETE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingInvalidatesTranslationOwner(): void
+    {
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $subscriber->invalidateProductCrossSelling(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductCrossSellingTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            [
+                                'productCrossSellingId' => $crossSellingId,
+                                'languageId' => Uuid::randomHex(),
+                            ],
+                            ['name' => 'Accessories'],
+                            ProductCrossSellingTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testInvalidateProductCrossSellingBeforeDeletionInvalidatesAfterSuccessfulDelete(): void
+    {
+        $assignedProductId = Uuid::randomHex();
+        $crossSellingId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $subscriber = $this->createSubscriber();
+        $event = $this->createMock(EntityDeleteEvent::class);
+
+        $event->method('getIds')
+            ->willReturnMap([
+                [ProductCrossSellingDefinition::ENTITY_NAME, []],
+                [ProductCrossSellingAssignedProductsDefinition::ENTITY_NAME, [$assignedProductId]],
+                [ProductCrossSellingTranslationDefinition::ENTITY_NAME, []],
+            ]);
+
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls([$crossSellingId], [$productId]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([ProductDetailRoute::buildName($productId)], true);
+
+        $event->expects($this->once())
+            ->method('addSuccess')
+            ->willReturnCallback(static function (\Closure $callback): void {
+                $callback();
+            });
+
+        $subscriber->invalidateProductCrossSellingBeforeDeletion($event);
     }
 
     public function createSnippetEvent(): EntityWrittenContainerEvent

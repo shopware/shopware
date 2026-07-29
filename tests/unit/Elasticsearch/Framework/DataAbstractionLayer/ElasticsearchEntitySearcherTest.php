@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -39,7 +39,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->never())
             ->method('search');
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -49,10 +49,10 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -81,17 +81,17 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->never())
             ->method('search');
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '5s',
             'dfs_query_then_fetch'
@@ -120,26 +120,26 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => true,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -168,26 +168,26 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -215,7 +215,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'include_named_queries_score' => true,
                 'track_scores' => true,
                 'body' => [
@@ -223,21 +222,22 @@ class ElasticsearchEntitySearcherTest extends TestCase
                     'from' => 0,
                     'size' => 10,
                     'explain' => true,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch'
@@ -268,11 +268,11 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([
@@ -281,7 +281,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
                 ],
             ]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper
             ->method('allowSearch')
             ->willReturn(true);
@@ -300,10 +300,10 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(CriteriaParser::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             $dispatcher,
             '10s',
             'dfs_query_then_fetch'
@@ -328,7 +328,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         // client should not be used if limit is 0
         $client->expects($this->once())
             ->method('search')
-            ->willThrowException(new NoNodesAvailableException());
+            ->willThrowException(new RuntimeException());
 
         $helper = $this->createMock(ElasticsearchHelper::class);
         $helper->expects($this->once())->method('logAndThrowException');
@@ -336,10 +336,10 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])),
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), static::createStub(CustomFieldService::class), new ArrayKeyValueStorage([])),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '5s',
             'dfs_query_then_fetch'
@@ -376,19 +376,19 @@ class ElasticsearchEntitySearcherTest extends TestCase
             }))
             ->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowSearch')->willReturn(true);
         $helper->method('getIndexName')->willReturn('');
 
-        $criteriaParser = $this->createMock(CriteriaParser::class);
+        $criteriaParser = static::createStub(CriteriaParser::class);
         $criteriaParser->method('buildAccessor')->willReturn('id');
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
             $criteriaParser,
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch',
@@ -419,19 +419,19 @@ class ElasticsearchEntitySearcherTest extends TestCase
             }))
             ->willReturn([]);
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowSearch')->willReturn(true);
         $helper->method('getIndexName')->willReturn('');
 
-        $criteriaParser = $this->createMock(CriteriaParser::class);
+        $criteriaParser = static::createStub(CriteriaParser::class);
         $criteriaParser->method('buildAccessor')->willReturn('id');
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->createMock(EntitySearcherInterface::class),
+            static::createStub(EntitySearcherInterface::class),
             $helper,
             $criteriaParser,
-            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            static::createStub(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '10s',
             'dfs_query_then_fetch',

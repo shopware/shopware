@@ -77,7 +77,7 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
         $salesChannelCriteria = (new Criteria())
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $salesChannelIds = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getIds();
+        $salesChannelIds = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getEntities()->getIds();
 
         foreach ($salesChannelIds as $id) {
             $this->themeService->compileTheme($id, $theme->getId(), $context);

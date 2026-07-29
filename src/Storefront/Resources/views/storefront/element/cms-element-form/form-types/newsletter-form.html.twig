@@ -32,6 +32,8 @@
                             'data-form-field-toggle': 'true',
                             'data-form-field-toggle-target': '.js-field-toggle-newsletter-additional',
                             'data-form-field-toggle-value': 'subscribe',
+                            'data-form-field-toggle-button-target': '[data-newsletter-submit-button]',
+                            'data-form-field-toggle-button-text': 'newsletter.formSubmitUnsubscribe'|trans|sw_sanitize,
                         },
                     } %}
                 {% endblock %}
@@ -104,7 +106,11 @@
             {% endblock %}
 
             {% block cms_form_newsletter_submit %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' with {
+                    attributes: {
+                        'data-newsletter-submit-button': 'true',
+                    },
+                } %}
             {% endblock %}
         </div>
 

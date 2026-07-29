@@ -41,7 +41,7 @@ class UserRepository implements UserRepositoryInterface
         }
 
         $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select('user.id', 'user.password')
+        $user = $builder->select('user.id', 'user.password', 'user.active')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
@@ -54,6 +54,10 @@ class UserRepository implements UserRepositoryInterface
         }
 
         if (!password_verify($password, (string) $user['password'])) {
+            return null;
+        }
+
+        if (!(bool) $user['active']) {
             return null;
         }
 

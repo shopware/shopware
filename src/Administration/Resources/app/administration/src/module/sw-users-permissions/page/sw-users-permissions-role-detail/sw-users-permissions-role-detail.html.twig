@@ -1,15 +1,16 @@
 {% block sw_users_permissions_role_detail %}
 <sw-page class="sw-users-permissions-role-detail">
-
     {% block sw_users_permissions_role_detail_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_users_permissions_role_detail_smart_bar_header_title %}
         <h2 v-if="role && role.isNew() && role.name.length <= 0">
             {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
         </h2>
+
         <h2 v-else-if="role">
             {{ role.name }}
         </h2>
+
         <h2 v-else>
             {{ $t('sw-users-permissions.roles.detail.role') }}
         </h2>
@@ -74,22 +75,16 @@
             </sw-tabs>
             {% endblock %}
 
-            <template v-if="isLoading">
-                <sw-skeleton variant="detail-bold" />
-                <sw-skeleton />
-            </template>
-
-            <template v-else>
-                <router-view
-                    v-slot="{ Component }"
-                >
-                    <component
-                        :is="Component"
-                        :role="role"
-                        :detailed-privileges="detailedPrivileges"
-                    />
-                </router-view>
-            </template>
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    :role="role"
+                    :is-loading="isLoading"
+                    :detailed-privileges="detailedPrivileges"
+                />
+            </router-view>
         </sw-card-view>
         {% endblock %}
 

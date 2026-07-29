@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -23,6 +24,7 @@ readonly class HandshakeFactory
         private ShopIdProvider $shopIdProvider,
         private StoreClient $storeClient,
         private string $shopwareVersion,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -61,7 +63,8 @@ readonly class HandshakeFactory
                 $metadata->getName(),
                 $shopId,
                 $this->shopwareVersion,
-                $currentAppSecret
+                $this->clock,
+                $currentAppSecret,
             );
         }
 
@@ -72,7 +75,8 @@ readonly class HandshakeFactory
             $shopId,
             $this->storeClient,
             $this->shopwareVersion,
-            $currentAppSecret
+            $this->clock,
+            $currentAppSecret,
         );
     }
 }

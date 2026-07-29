@@ -7,7 +7,7 @@
         ref="landingPageTree"
         class="sw-landing-page-tree__inner"
         :items="landingPages"
-        :sortable="false || undefined"
+        :sortable="false"
         :searchable="false"
         :translation-context="translationContext"
         :on-change-route="changeLandingPage"
@@ -50,7 +50,7 @@
                 :active="item.active"
                 :translation-context="translationContext"
                 :on-change-route="onChangeRoute"
-                :sortable="sortable || undefined"
+                :sortable="sortable"
                 :dragged-item="draggedItem"
                 :disable-context-menu="disableContextMenu"
                 :display-checkbox="allowEdit || undefined"
@@ -129,7 +129,6 @@
         <mt-button
             class="sw-landing-page-tree__add-button-button"
             size="small"
-            ghost
             :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
             variant="secondary"
             @click="$router.push(newLandingPageUrl())"

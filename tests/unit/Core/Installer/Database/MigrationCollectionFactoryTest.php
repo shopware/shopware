@@ -18,7 +18,7 @@ class MigrationCollectionFactoryTest extends TestCase
     {
         $factory = new MigrationCollectionFactory((new TestBootstrapper())->getProjectDir());
         $loader = $factory->getMigrationCollectionLoader(
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         static::assertArrayHasKey('core', $loader->collectAll());

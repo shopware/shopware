@@ -197,7 +197,7 @@ class ProductTypeImmutableTest extends TestCase
 
     private function verifyProductAfterUpdate(string $id, string $expectedType, string $expectedName, int $expectedStock): void
     {
-        $product = $this->getRepository()->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
+        $product = $this->getRepository()->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($expectedType, $product->getType());

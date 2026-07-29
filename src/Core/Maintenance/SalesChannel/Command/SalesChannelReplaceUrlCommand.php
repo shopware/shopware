@@ -98,6 +98,6 @@ class SalesChannelReplaceUrlCommand extends Command
         $criteria->addFilter(new EqualsFilter('url', $url));
         $criteria->setLimit(1);
 
-        return $this->salesChannelDomainRepository->search($criteria, $context)->first();
+        return $this->salesChannelDomainRepository->search($criteria, $context)->getEntities()->first();
     }
 }

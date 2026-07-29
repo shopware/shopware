@@ -19,11 +19,11 @@ class InstallServicesTaskHandlerTest extends TestCase
     {
         $manager = $this->createMock(LifecycleManager::class);
         $manager->expects($this->once())
-            ->method('install');
+            ->method('reconcile');
 
         $handler = new InstallServicesTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $manager,
         );
 

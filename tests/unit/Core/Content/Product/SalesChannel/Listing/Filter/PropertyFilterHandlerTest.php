@@ -44,7 +44,7 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['property-filter' => false]);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -61,7 +61,7 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['properties' => '']);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -98,7 +98,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -131,7 +131,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -159,7 +159,7 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request([], [PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM => ['color', 'size']]);
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
@@ -197,7 +197,7 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
         /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
@@ -259,7 +259,7 @@ class PropertyFilterHandlerTest extends TestCase
         $handler = new PropertyListingFilterHandler(
             $groupRepository,
             $repository,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $result = new ProductListingResult(

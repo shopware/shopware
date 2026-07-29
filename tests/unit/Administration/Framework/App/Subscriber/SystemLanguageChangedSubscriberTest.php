@@ -53,8 +53,8 @@ class SystemLanguageChangedSubscriberTest extends TestCase
 
     public function testOnSystemLanguageChangedThrowsExceptionWhenNewLocaleDoesNotExist(): void
     {
-        $localeRepository = $this->createMock(EntityRepository::class);
-        $snippetRepository = $this->createMock(EntityRepository::class);
+        $localeRepository = static::createStub(EntityRepository::class);
+        $snippetRepository = static::createStub(EntityRepository::class);
 
         $snippetCollection = new AppAdministrationSnippetCollection([
             (new AppAdministrationSnippetEntity())->assign([
@@ -63,12 +63,12 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             ]),
         ]);
 
-        $snippetSearchResult = $this->createMock(EntitySearchResult::class);
+        $snippetSearchResult = static::createStub(EntitySearchResult::class);
         $snippetSearchResult->method('getEntities')->willReturn($snippetCollection);
 
         $snippetRepository->method('search')->willReturn($snippetSearchResult);
 
-        $localeSearchResult = $this->createMock(EntitySearchResult::class);
+        $localeSearchResult = static::createStub(EntitySearchResult::class);
         $localeSearchResult->method('first')->willReturn(null);
 
         $localeRepository->method('search')->willReturn($localeSearchResult);

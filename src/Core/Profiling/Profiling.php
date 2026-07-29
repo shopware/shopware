@@ -54,7 +54,7 @@ class Profiling extends Bundle
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
         // The profiler registers all profiler integrations in the constructor
-        // Therefor we need to get the service once to initialize it
+        // Therefore we need to get the service once to initialize it
         $this->container->get(Profiler::class);
     }
 

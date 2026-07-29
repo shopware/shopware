@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
@@ -150,6 +151,48 @@ class FeatureTest extends TestCase
         static::assertArrayNotHasKey('v6.4.5.0', $_SERVER);
     }
 
+    public function testWithFeatureEnabledPreservesOtherEnvFlags(): void
+    {
+        $this->setEnvVars([
+            'V6_7_0_0' => true,
+            'FEATURE_NEXT_0000' => true,
+        ]);
+
+        Feature::withFeatureEnabled('v6.4.5.0', static function (): void {
+            static::assertTrue(Feature::isActive('v6.4.5.0'));
+            static::assertTrue(Feature::isActive('v6.7.0.0'));
+            static::assertTrue(Feature::isActive('FEATURE_NEXT_0000'));
+        });
+
+        static::assertArrayNotHasKey('V6_4_5_0', $_SERVER);
+        static::assertTrue(Feature::isActive('v6.7.0.0'));
+    }
+
+    public function testWithFeatureDisabledPreservesOtherEnvFlags(): void
+    {
+        $this->setEnvVars([
+            'V6_7_0_0' => true,
+            'V6_8_0_0' => true,
+        ]);
+
+        Feature::withFeatureDisabled('v6.8.0.0', static function (): void {
+            static::assertFalse(Feature::isActive('v6.8.0.0'));
+            static::assertTrue(Feature::isActive('v6.7.0.0'));
+        });
+
+        static::assertTrue(Feature::isActive('v6.8.0.0'));
+        static::assertTrue(Feature::isActive('v6.7.0.0'));
+    }
+
+    public function testWithFeatureHelpersReturnClosureResult(): void
+    {
+        $result = Feature::withFeatureEnabled('v6.4.5.0', static fn (): string => 'enabled');
+        static::assertSame('enabled', $result);
+
+        $result = Feature::withFeatureDisabled('v6.4.5.0', static fn (): string => 'disabled');
+        static::assertSame('disabled', $result);
+    }
+
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
@@ -186,8 +229,7 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        $this->expectException(FeatureException::class);
-        $this->expectExceptionMessage('Feature "FEATURE_TWO" is not registered.');
+        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
@@ -210,24 +252,35 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
-    #[IgnoreDeprecations]
+    #[TestDox('Feature::callSilentIfInactive suppresses Feature::triggerDeprecationOrThrow for the same inactive flag, so no E_USER_DEPRECATED is emitted')]
     #[DisabledFeatures(['v6.5.0.0'])]
-    #[DataProvider('callSilentIfInactiveProvider')]
-    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, bool $shouldTriggerDeprecation): void
+    public function testCallSilentIfInactiveSuppressesDeprecationForInactiveFeature(): void
     {
         // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        if ($shouldTriggerDeprecation) {
-            $this->expectUserDeprecationMessageMatches('/deprecated message/');
-        }
+        $this->expectNotToPerformAssertions();
 
-        if (!$shouldTriggerDeprecation) {
-            $this->expectNotToPerformAssertions();
-        }
+        Feature::callSilentIfInactive('v6.5.0.0', static function (): void {
+            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'deprecated message');
+        });
+    }
 
-        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
-            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
+    /**
+     * @param non-empty-string $expectedDeprecation
+     */
+    #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.5.0.0'])]
+    #[DataProvider('callSilentIfInactiveProvider')]
+    public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn, string $expectedDeprecation): void
+    {
+        // Deprecation warnings are suppressed in test mode by default
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        $this->expectUserDeprecationMessage($expectedDeprecation);
+
+        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
+            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
         });
     }
 
@@ -289,13 +342,13 @@ class FeatureTest extends TestCase
 
     public static function callSilentIfInactiveProvider(): \Generator
     {
-        yield 'Execute a callable with inactivated feature flag in silent' => [
-            'v6.5.0.0', 'deprecated message', false,
+        yield 'Execute a callable with inactivated feature flag and throw a bare deprecation when introducedIn is omitted' => [
+            // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
+            'v6.4.0.0', 'deprecated message', null, 'deprecated message',
         ];
 
-        yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
-            // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
-            'v6.4.0.0', 'deprecated message', true,
+        yield 'Execute a callable with inactivated feature flag and throw a deprecation prefixed with the introduction version' => [
+            'v6.4.0.0', 'deprecated message', 'v6.3.0.0', 'Since shopware/core v6.3.0.0: deprecated message',
         ];
     }
 }

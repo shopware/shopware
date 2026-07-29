@@ -189,6 +189,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             /** @var ThemeEntity $parentTheme */
             $parentTheme = $this->themeRepository
                 ->search($criteria, $context)
+                ->getEntities()
                 ->first();
 
             if (!\is_string($parentTheme->getTechnicalName())) {
@@ -232,7 +233,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-            if (isset($configValue['value'])) {
+            if (\array_key_exists('value', $configValue)) {
                 $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
             }
         }

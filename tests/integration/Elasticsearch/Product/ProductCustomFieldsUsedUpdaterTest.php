@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,6 +36,13 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * The ES index is created once for the whole class by the first run of setUp() and shared across
+     * tests (this class has no transaction isolation). The first-test-creates-the-index pattern was
+     * replaced by guarded setUp so the suite no longer depends on test execution order.
+     */
+    private static bool $indexReady = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,6 +51,11 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $this->client = static::getContainer()->get(Client::class);
         $this->indexDetector = static::getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
         $this->connection = static::getContainer()->get(Connection::class);
+
+        if (!self::$indexReady) {
+            $this->createIndex();
+            self::$indexReady = true;
+        }
     }
 
     protected function tearDown(): void
@@ -71,24 +82,9 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     public function testCreateIndicesWithElasticsearchEnabled(): void
     {
-        $this->clearElasticsearch();
-
-        $this->connection->executeStatement('DELETE FROM custom_field');
-
-        // Create the ES index first (empty, no custom fields yet)
-        $command = new ElasticsearchIndexingCommand(
-            static::getContainer()->get(ElasticsearchIndexer::class),
-            static::getContainer()->get('messenger.default_bus'),
-            static::getContainer()->get(CreateAliasTaskHandler::class),
-            true
-        );
-
-        $command->run(new ArrayInput([]), new NullOutput());
-
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }
 
-    #[Depends('testCreateIndicesWithElasticsearchEnabled')]
     public function testProductSortingWithCustomFieldCreatesMappingWhenEnabled(): void
     {
         $this->createCustomFields();
@@ -120,7 +116,6 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         static::assertSame('long', $languageProperties['sorting_stream_test_int']['type']);
     }
 
-    #[Depends('testProductSortingWithCustomFieldCreatesMappingWhenEnabled')]
     public function testProductSortingWithMultipleCustomFieldTypes(): void
     {
         $this->createCustomFields();
@@ -157,7 +152,6 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         static::assertSame('keyword', $languageProperties['sorting_stream_test_text']['type']);
     }
 
-    #[Depends('testProductSortingWithMultipleCustomFieldTypes')]
     public function testProductStreamFilterWithCustomFieldCreatesMapping(): void
     {
         $this->createCustomFields();
@@ -192,7 +186,6 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         static::assertSame('boolean', $languageProperties['sorting_stream_test_bool']['type']);
     }
 
-    #[Depends('testProductStreamFilterWithCustomFieldCreatesMapping')]
     public function testProductSortingDoesNotCreateMappingWhenDisabledElasticsearch(): void
     {
         $this->createCustomFields();
@@ -221,14 +214,13 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
         $properties = $indices['mappings']['properties']['customFields']['properties'] ?? [];
 
-        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
-        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
-        static::assertIsArray($languageProperties);
+        // ES was disabled while the sorting/stream was created, so the field must not be mapped -
+        // independent of whether an enabled test already established the customFields mapping structure.
+        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'] ?? [];
 
         static::assertArrayNotHasKey('sorting_stream_test_datetime', $languageProperties);
     }
 
-    #[Depends('testProductSortingDoesNotCreateMappingWhenDisabledElasticsearch')]
     public function testProductStreamFilterDoesNotCreateMappingWhenDisabledElasticsearch(): void
     {
         $this->createCustomFields();
@@ -259,19 +251,11 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
         $properties = $indices['mappings']['properties']['customFields']['properties'] ?? [];
 
-        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
-        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
-        static::assertIsArray($languageProperties);
+        // ES was disabled while the sorting/stream was created, so the field must not be mapped -
+        // independent of whether an enabled test already established the customFields mapping structure.
+        $languageProperties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'] ?? [];
 
         static::assertArrayNotHasKey('sorting_stream_test_datetime', $languageProperties);
-    }
-
-    #[Depends('testProductStreamFilterDoesNotCreateMappingWhenDisabledElasticsearch')]
-    public function testCleanup(): void
-    {
-        $this->clearElasticsearch();
-
-        static::assertEmpty($this->indexDetector->getAllUsedIndices());
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -281,6 +265,23 @@ class ProductCustomFieldsUsedUpdaterTest extends TestCase
 
     protected function runWorker(): void
     {
+    }
+
+    private function createIndex(): void
+    {
+        $this->clearElasticsearch();
+
+        $this->connection->executeStatement('DELETE FROM custom_field');
+
+        // Create the ES index first (empty, no custom fields yet)
+        $command = new ElasticsearchIndexingCommand(
+            static::getContainer()->get(ElasticsearchIndexer::class),
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get(CreateAliasTaskHandler::class),
+            true
+        );
+
+        $command->run(new ArrayInput([]), new NullOutput());
     }
 
     private function createCustomFields(): void

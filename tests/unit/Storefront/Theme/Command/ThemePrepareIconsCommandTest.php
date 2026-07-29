@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\Command\ThemePrepareIconsCommand;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -36,7 +37,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
     public function testThemePrepareIconsCommandMissingPackageArg(): void
     {
-        static::expectExceptionMessage('Not enough arguments (missing: "package")');
+        $this->expectExceptionObject(new RuntimeException('Not enough arguments (missing: "package")'));
         $this->commandTester->execute([
             'path' => $this->testDir,
         ]);
@@ -44,7 +45,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
     public function testThemePrepareIconsCommandMissingPathArg(): void
     {
-        static::expectExceptionMessage('Not enough arguments (missing: "path")');
+        $this->expectExceptionObject(new RuntimeException('Not enough arguments (missing: "path")'));
         $this->commandTester->execute([
             'package' => 'default',
         ]);

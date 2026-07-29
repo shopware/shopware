@@ -118,14 +118,14 @@ class AvailableCombinationLoaderTest extends TestCase
 
         return new AvailableCombinationLoader(
             $connection,
-            $stockStorage ?? $this->createMock(AbstractStockStorage::class),
-            $systemConfigService ?? $this->createMock(SystemConfigService::class),
+            $stockStorage ?? static::createStub(AbstractStockStorage::class),
+            $systemConfigService ?? static::createStub(SystemConfigService::class),
         );
     }
 
     private function getMockedConnection(): Connection
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn([
             [
                 'id' => 'product-1',
@@ -152,10 +152,10 @@ class AvailableCombinationLoaderTest extends TestCase
             ],
         ]);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('executeQuery')->willReturn($result);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
         return $connection;

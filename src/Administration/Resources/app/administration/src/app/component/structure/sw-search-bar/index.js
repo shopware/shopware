@@ -1,7 +1,7 @@
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Application, Context } = Shopware;
+const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
@@ -281,10 +281,12 @@ export default {
 
         destroyedComponent() {
             document.removeEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         onMouseOver(index, column) {
@@ -469,6 +471,10 @@ export default {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+        },
+
+        onOffCanvasToggle(state) {
+            this.isOffCanvasShown = state;
         },
 
         resetSearchType() {
@@ -947,6 +953,19 @@ export default {
         getSalesChannelTypesBySearchTerm(regex) {
             return this.salesChannelTypes.reduce((salesChannelTypes, saleChannelType) => {
                 if (!saleChannelType?.translated.name.toLowerCase().match(regex)) {
+                    return salesChannelTypes;
+                }
+
+                /**
+                 * @deprecated tag:v6.8.0 - condition can be removed.
+                 *
+                 * Only reveal the agentic commerce sales channel as a search result
+                 * if the SwagAgenticCommerce plugin is installed.
+                 */
+                if (
+                    saleChannelType.id === Defaults.agenticCommerceTypeId &&
+                    !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
+                ) {
                     return salesChannelTypes;
                 }
 

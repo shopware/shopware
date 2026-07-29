@@ -51,6 +51,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
+    public const VERSION_MERGE_SAME_VERSION = 'FRAMEWORK__VERSION_MERGE_SAME_VERSION';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
@@ -147,6 +148,39 @@ class DataAbstractionLayerException extends HttpException
     public const ASSOCIATION_NOT_INHERITED = 'FRAMEWORK__DAL_ASSOCIATION_NOT_INHERITED';
     public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
     public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
+
+    public const CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE = 'FRAMEWORK__DAL_CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE';
+    public const FIELD_CANNOT_BE_EXCLUDED = 'FRAMEWORK__DAL_FIELD_CANNOT_BE_EXCLUDED';
+    public const CANNOT_EXCLUDE_UNKNOWN_FIELD = 'FRAMEWORK__DAL_CANNOT_EXCLUDE_UNKNOWN_FIELD';
+
+    public static function criteriaFieldsAndExcludedFieldsAreMutuallyExclusive(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CRITERIA_FIELDS_AND_EXCLUDED_FIELDS_MUTUALLY_EXCLUSIVE,
+            'Criteria::addFields() (allowlist) and Criteria::excludeFields() (denylist) cannot be combined on the same criteria.',
+        );
+    }
+
+    public static function fieldCannotBeExcluded(string $field, string $entity, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FIELD_CANNOT_BE_EXCLUDED,
+            'Field "{{ field }}" of entity "{{ entity }}" cannot be excluded because {{ reason }}.',
+            ['field' => $field, 'entity' => $entity, 'reason' => $reason],
+        );
+    }
+
+    public static function cannotExcludeUnknownField(string $field, string $entity): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CANNOT_EXCLUDE_UNKNOWN_FIELD,
+            'Field "{{ field }}" cannot be excluded: it is not a top-level field of entity "{{ entity }}".',
+            ['field' => $field, 'entity' => $entity],
+        );
+    }
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -299,6 +333,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,
             'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionMergeSameVersion(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_MERGE_SAME_VERSION,
+            'Cannot merge version {{ versionId }} into itself.',
             ['versionId' => $versionId]
         );
     }
@@ -941,7 +985,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return Exception\UnmappedFieldException
      */
     public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
     {
@@ -949,15 +993,7 @@ class DataAbstractionLayerException extends HttpException
             return new UnmappedFieldException($field, $definition);
         }
 
-        $fieldParts = explode('.', $field);
-        $name = array_pop($fieldParts);
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DBAL_UNMAPPED_FIELD,
-            'Field "{{ field }}" in entity "{{ entity }}" was not found.',
-            ['field' => $name, 'entity' => $definition->getEntityName()]
-        );
+        return new Exception\UnmappedFieldException($field, $definition);
     }
 
     /**
@@ -1159,7 +1195,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @param array<string, list<string>> $restrictions
+     * @param array<string, list<array<string, mixed>>> $restrictions
      */
     public static function restrictDeleteViolations(EntityDefinition $definition, array $restrictions): RestrictDeleteViolationException
     {

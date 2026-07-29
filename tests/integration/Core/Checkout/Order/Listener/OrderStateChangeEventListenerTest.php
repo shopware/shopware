@@ -109,7 +109,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     private function assertEvent(string $event): void
     {
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         static::getContainer()

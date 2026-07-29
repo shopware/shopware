@@ -100,6 +100,7 @@
         <sw-custom-field-set-renderer
             :entity="category"
             :sets="customFieldSetsArray"
+            :disabled="!acl.can('category.editor')"
         />
     </mt-card>
     {% endblock %}

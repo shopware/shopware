@@ -22,7 +22,7 @@ class CompositeProcessorTest extends TestCase
     {
         $request = new Request();
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new CompositeListingProcessor([
             $dummy = new DummyListingProcessor(),
@@ -36,8 +36,8 @@ class CompositeProcessorTest extends TestCase
     public function testProcess(): void
     {
         $request = new Request();
-        $result = $this->createMock(ProductListingResult::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $result = static::createStub(ProductListingResult::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new CompositeListingProcessor([
             $dummy = new DummyListingProcessor(),

@@ -113,6 +113,7 @@ class StaticProductProcessorTest extends TestCase
     {
         $this->hideUnavailableProducts(false);
 
+        $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
 
@@ -134,10 +135,41 @@ class StaticProductProcessorTest extends TestCase
         static::assertTrue($products->has('product-2'));
     }
 
+    public function testEnrichRestoresConfiguredProductOrder(): void
+    {
+        $this->hideUnavailableProducts(false);
+
+        // Configure the slot with products in order [product-2, product-1]
+        $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-2', 'product-1']));
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        // Simulate the DB returning products in a different order (e.g. as merged from another slider)
+        $products = $this->getProducts(); // returns [product-1, product-2]
+        $searchResult = $this->getEntitySearchResult($products);
+        $searchResult->assign(['criteria' => new Criteria(['product-1', 'product-2', 'product-2', 'product-1'])]);
+
+        $data = new ElementDataCollection();
+        $data->add('product-slider_id', $searchResult);
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $enrichedData = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $enrichedData);
+
+        $enrichedProducts = $enrichedData->getProducts();
+        static::assertInstanceOf(ProductCollection::class, $enrichedProducts);
+        static::assertCount(2, $enrichedProducts);
+
+        $ids = array_values($enrichedProducts->getIds());
+        static::assertSame(['product-2', 'product-1'], $ids, 'Products must be in the configured slider order, not DB order');
+    }
+
     public function testEnrichHideUnavailableProducts(): void
     {
         $this->hideUnavailableProducts(true);
 
+        $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
 

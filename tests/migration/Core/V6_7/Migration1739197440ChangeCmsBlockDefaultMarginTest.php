@@ -31,6 +31,11 @@ class Migration1739197440ChangeCmsBlockDefaultMarginTest extends TestCase
     /**
      * @throws Exception
      */
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1739197440, (new Migration1739197440ChangeCmsBlockDefaultMargin())->getCreationTimestamp());
+    }
+
     public function testChangeCmsBlockDefaultMargin(): void
     {
         $migration = new Migration1739197440ChangeCmsBlockDefaultMargin();

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
@@ -188,6 +189,7 @@ class ProductReviewSaveRouteTest extends TestCase
             $data,
             $salesChannelContext
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $this->resetEventDispatcher();
 

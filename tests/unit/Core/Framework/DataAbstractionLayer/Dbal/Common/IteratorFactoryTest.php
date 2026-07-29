@@ -21,8 +21,8 @@ class IteratorFactoryTest extends TestCase
 {
     public function testCreateIteratorAddsVersionFilterWhenVersionAwareAndProvided(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $connection = static::createStub(Connection::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $definition = new class extends EntityDefinition {
             public function getEntityName(): string

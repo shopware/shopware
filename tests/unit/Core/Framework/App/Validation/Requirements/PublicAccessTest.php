@@ -192,7 +192,7 @@ class PublicAccessTest extends TestCase
 
     private function createManifestMock(string $appName = 'test-app'): Manifest
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $metadata = Metadata::fromArray([
             'name' => $appName,
             'label' => [],

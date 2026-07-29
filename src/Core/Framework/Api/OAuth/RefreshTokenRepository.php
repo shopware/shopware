@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\OAuth;
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,8 +16,10 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     /**
@@ -49,7 +52,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
                     'id' => Uuid::randomBytes(),
                     'userId' => Uuid::fromHexToBytes($userIdentifier),
                     'tokenId' => $refreshTokenEntity->getIdentifier(),
-                    'issuedAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'issuedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ])
                 ->executeStatement();
@@ -106,7 +109,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 
     private function cleanUpExpiredRefreshTokens(): void
     {
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->connection->createQueryBuilder()
             ->delete('refresh_token')

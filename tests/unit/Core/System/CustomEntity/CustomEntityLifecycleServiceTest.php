@@ -275,7 +275,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );
@@ -298,7 +298,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater,
             $clock
@@ -327,7 +327,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );

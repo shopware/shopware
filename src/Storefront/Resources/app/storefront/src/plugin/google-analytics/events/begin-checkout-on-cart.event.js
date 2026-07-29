@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
@@ -27,6 +28,9 @@ export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
         if (!this.active) {
             return;
         }
+
+        // a new checkout starts, so its shipping and payment steps are reported again
+        CheckoutStepHelper.reset();
 
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 

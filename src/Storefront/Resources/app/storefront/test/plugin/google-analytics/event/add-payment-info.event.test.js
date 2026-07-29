@@ -4,11 +4,34 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
         window.activeRoute = 'frontend.checkout.confirm.page';
+        window.sessionStorage.clear();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         jest.clearAllMocks();
+    });
+
+    test('fires only once per checkout when the auto-submit form reloads the page', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="49.99">
+                </span>
+            </div>
+        `;
+
+        // selecting a payment method auto-submits and reloads the confirm page,
+        // which runs the event again for the same checkout
+        new AddPaymentInfoEvent().execute();
+        new AddPaymentInfoEvent().execute();
+        new AddPaymentInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
     test('supports returns true on checkout confirm page', () => {

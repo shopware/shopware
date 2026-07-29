@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddShippingInfoEvent extends AnalyticsEvent
@@ -19,11 +20,19 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
      * auto-submit (data-form-auto-submit), which reloads the page after selection.
      * Listening to both change and page load would result in duplicate events.
      *
+     * The auto-submit reload runs this route again, so the event is reported at most once
+     * per checkout. Without that guard, changing the shipping method would report it again
+     * and push the count above `begin_checkout`.
+     *
      * This event only fires when shipping is available (physical products).
      * For digital-only orders, no shipping form exists and the event is skipped.
      */
     execute() {
         if (!this.active) {
+            return;
+        }
+
+        if (CheckoutStepHelper.hasReported('add_shipping_info')) {
             return;
         }
 
@@ -46,6 +55,8 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             'shipping_tier': shippingTier,
             'items': lineItems,
         });
+
+        CheckoutStepHelper.markReported('add_shipping_info');
     }
 
     /**

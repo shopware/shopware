@@ -1,9 +1,11 @@
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 
 describe('plugin/google-analytics/events/purchase.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
         window.trackOrders = true;
+        window.sessionStorage.clear();
     });
 
     afterEach(() => {
@@ -24,6 +26,21 @@ describe('plugin/google-analytics/events/purchase.event', () => {
 
     test('supports returns false on other pages', () => {
         expect(new PurchaseEvent().supports('', '', 'frontend.checkout.confirm.page')).toBe(false);
+    });
+
+    test('clears the reported checkout steps so the next checkout reports them again', () => {
+        CheckoutStepHelper.markReported('add_shipping_info');
+        CheckoutStepHelper.markReported('add_payment_info');
+
+        document.body.innerHTML = `
+            <div class="finish-ordernumber" data-order-number="10001"></div>
+            <div class="hidden-line-items-information" data-currency="EUR"></div>
+        `;
+
+        new PurchaseEvent().execute();
+
+        expect(CheckoutStepHelper.hasReported('add_shipping_info')).toBe(false);
+        expect(CheckoutStepHelper.hasReported('add_payment_info')).toBe(false);
     });
 
     test('fires purchase event with order number and line items', () => {

@@ -36,6 +36,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -870,6 +871,39 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(-0.5, $newPromotionDelivery?->getShippingCosts()->getTotalPrice());
 
         static::assertNotSame($newPromotionDelivery->getId(), $promotionDelivery->getId());
+    }
+
+    public function testEditOrderWithFreeShippingPromotionKeepsDeliveryPositions(): void
+    {
+        // checkout an order with a 100% shipping discount promotion (shipping delivery + discount delivery)
+        $this->createShippingDiscount(100, 'FREESHIP');
+        $cart = $this->generateDemoCart();
+        $cart->add(static::getContainer()->get(PromotionItemBuilder::class)->buildPlaceholderItem('FREESHIP'));
+        $cart = static::getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        // admin edit: add a product and save (recalculate)
+        $versionContext = $this->context->createWithVersionId($this->createVersionedOrder($orderId));
+        $productId = $this->createProduct('new product', 10.0, 19.0);
+        static::getContainer()->get(RecalculationService::class)->addProductToOrder($orderId, $productId, 1, $versionContext);
+
+        $order = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addAssociation('deliveries.positions'),
+            $versionContext
+        )->getEntities()->first();
+        static::assertNotNull($order);
+        $deliveries = $order->getDeliveries();
+        static::assertNotNull($deliveries);
+        static::assertCount(2, $deliveries);
+
+        $shipping = $deliveries->filter(static fn (OrderDeliveryEntity $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0)->first();
+        $discount = $deliveries->filter(static fn (OrderDeliveryEntity $delivery) => $delivery->getShippingCosts()->getTotalPrice() < 0)->first();
+        static::assertNotNull($shipping);
+        static::assertNotNull($discount);
+
+        // both initial products plus the newly added one keep a shipping position; the discount delivery has none
+        static::assertCount(3, $shipping->getPositions() ?? []);
+        static::assertCount(0, $discount->getPositions() ?? []);
     }
 
     public function testRecalculationOfPinnedDisabledPromotion(): void

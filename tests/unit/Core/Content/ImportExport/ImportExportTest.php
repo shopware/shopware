@@ -68,7 +68,7 @@ class ImportExportTest extends TestCase
             'records' => 5,
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
         /** @var StaticEntityRepository<OrderCollection> */
@@ -77,15 +77,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             new EventDispatcher(),
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')
@@ -155,10 +155,10 @@ class ImportExportTest extends TestCase
             }
         );
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
-        $importStrategyService = $this->createMock(ImportStrategyService::class);
+        $importStrategyService = static::createStub(ImportStrategyService::class);
         $importStrategyService->method('import')->willReturn(new ImportResult([], []));
         $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
 
@@ -168,14 +168,14 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
+            static::createStub(FileService::class),
             $importStrategyService
         );
 
@@ -202,7 +202,7 @@ class ImportExportTest extends TestCase
             'id' => Uuid::randomHex(),
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('getProgress')
             ->willReturnCallback(
                 static fn () => new Progress($logEntity->getId(), $logEntity->getState())
@@ -226,15 +226,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -266,7 +266,7 @@ class ImportExportTest extends TestCase
             ]),
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('getProgress')
             ->willReturnCallback(
                 static fn () => new Progress($logEntity->getId(), $logEntity->getState())
@@ -333,15 +333,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -377,7 +377,7 @@ class ImportExportTest extends TestCase
             ]),
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('getProgress')
             ->willReturnCallback(
                 static fn () => new Progress($logEntity->getId(), $logEntity->getState())
@@ -462,15 +462,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -598,15 +598,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();
@@ -713,15 +713,15 @@ class ImportExportTest extends TestCase
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             $eventDispatcher,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $repository,
             $pipe,
             $reader,
             $writer,
-            $this->createMock(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(FileService::class),
+            static::createStub(ImportStrategyService::class)
         );
 
         $context = Context::createDefaultContext();

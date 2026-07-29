@@ -35,16 +35,22 @@ class SsoUserInvitationMailServiceTest extends TestCase
     public function testSendInvitationMailToUser(): void
     {
         $abstractMailService = $this->createMock(AbstractMailService::class);
-        $abstractMailService->expects($this->once())->method('send');
+        $abstractMailService->expects($this->once())
+            ->method('send')
+            ->with(static::callback(function (array $data) {
+                self::assertNull($data['senderEmail']);
+                self::assertSame('ShopName', $data['senderName']);
+
+                return true;
+            }));
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->exactly(2))->method('get')
-            ->willReturnOnConsecutiveCalls('ShopName', 'sender@name.foo');
+        $systemConfigService->expects($this->once())->method('get')
+            ->willReturn('ShopName');
 
         $mailTemplateEntity = new MailTemplateEntity();
         $mailTemplateEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([
             new MailTemplateCollection([$mailTemplateEntity]),
         ], new MailTemplateDefinition());
@@ -52,18 +58,15 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $mailTemplateTypeEntity = new MailTemplateTypeEntity();
         $mailTemplateTypeEntity->setUniqueIdentifier(Uuid::randomHex());
         $mailTemplateTypeEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
         $mailTemplateTypeRepository = new StaticEntityRepository([
             new MailTemplateTypeCollection([$mailTemplateTypeEntity]),
         ], new MailTemplateDefinition());
 
         $userEntity = new UserEntity();
         $userEntity->setUniqueIdentifier(Uuid::randomHex());
-        $userEntity->setEmail('test@example.foo');
         $userEntity->setFirstName('FirstName');
         $userEntity->setLastName('LastName');
         $userEntity->setUsername('UserName');
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$userEntity]),
         ], new UserDefinition());
@@ -71,7 +74,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $languageEntity = new LanguageEntity();
         $languageEntity->setUniqueIdentifier(Uuid::randomHex());
         $languageEntity->setId(Uuid::randomHex());
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([
             new LanguageCollection([$languageEntity]),
         ], new LanguageDefinition());

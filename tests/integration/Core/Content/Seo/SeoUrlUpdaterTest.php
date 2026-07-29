@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SeoUrlUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -145,7 +147,7 @@ class SeoUrlUpdaterTest extends TestCase
         $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         // Check if seo url was created
         static::assertNotNull($seoUrl);
@@ -160,38 +162,32 @@ class SeoUrlUpdaterTest extends TestCase
         $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         // Check that no seo url was created.
         static::assertNull($seoUrl);
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
+     * @return iterable<string, array{translations: list<string>, pathInfo: non-empty-string}>
      */
-    public static function seoLanguageDataProvider(): array
+    public static function seoLanguageDataProvider(): iterable
     {
-        return [
-            [
-                // All translations available > expected to use child translation
-                'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Parent translation missing > expected to use child translation
-                'translations' => [self::DEFAULT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Child translation missing > expected to use parent translation
-                'translations' => [self::DEFAULT, self::PARENT],
-                'pathInfo' => self::PARENT,
-            ],
-            [
-                // Parent and child translations missing > expected to use default translation
-                'translations' => [self::DEFAULT],
-                'pathInfo' => self::DEFAULT,
-            ],
+        yield 'child path info is used when all translations are available' => [
+            'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'child path info is used when parent translation is missing' => [
+            'translations' => [self::DEFAULT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'parent path info is used when child translation is missing' => [
+            'translations' => [self::DEFAULT, self::PARENT],
+            'pathInfo' => self::PARENT,
+        ];
+        yield 'default path info is used when parent and child translations are missing' => [
+            'translations' => [self::DEFAULT],
+            'pathInfo' => self::DEFAULT,
         ];
     }
 }

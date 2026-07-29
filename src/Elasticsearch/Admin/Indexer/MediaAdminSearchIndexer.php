@@ -207,17 +207,23 @@ SQL,
                 $id,
             ]));
 
+            $translatedTitles = $this->decodeTranslatedValues((string) ($row['translatedFields'] ?? ''), 'title');
+            $translatedAlts = $this->decodeTranslatedValues((string) ($row['translatedFields'] ?? ''), 'alt');
+            $completion = $this->buildCompletion([
+                ...array_values($translatedTitles),
+                ...array_values($translatedAlts),
+                \is_string($row['file_name'] ?? null) ? $row['file_name'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
             }
-
-            $translatedTitles = $this->decodeTranslatedValues((string) $row['translatedFields'], 'title');
-            $translatedAlts = $this->decodeTranslatedValues((string) $row['translatedFields'], 'alt');
 
             $mediaFolder = [];
 

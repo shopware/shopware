@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocument;
@@ -16,6 +17,7 @@ use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocu
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(Migration1736824370MigrationMailTemplateForDocument::class)]
 class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
 {
@@ -26,6 +28,11 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736824370, (new Migration1736824370MigrationMailTemplateForDocument())->getCreationTimestamp());
     }
 
     public function testDuplicateMigration(): void
@@ -87,16 +94,14 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return iterable<string, array<string>>
      */
-    public static function mailTypeProvider(): array
+    public static function mailTypeProvider(): iterable
     {
-        return [
-            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE],
-        ];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE];
     }
 
     private function executeMigration(): void

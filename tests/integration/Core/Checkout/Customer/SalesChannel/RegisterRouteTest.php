@@ -315,23 +315,18 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}
+     * @return iterable<string, array{array{domain: string, expectDomain: string}}>
      */
-    public static function registerWithDomainAndLeadingSlashProvider(): array
+    public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
-        return [
-            // test without leading slash
-            [
-                ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with leading slash
-            [
-                ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with double leading slash
-            [
-                ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
-            ],
+        yield 'domain without trailing slash is used unchanged' => [
+            ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        yield 'domain with trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        yield 'domain with double trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
 
@@ -381,7 +376,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -451,7 +446,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => Hasher::hash('teg-reg@example.com', 'sha1')], \JSON_THROW_ON_ERROR));
@@ -571,7 +566,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -631,7 +626,7 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
 
-        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
@@ -649,71 +644,80 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
+     * @return iterable<string, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
      */
-    public static function customerBoundToSalesChannelProvider(): array
+    public static function customerBoundToSalesChannelProvider(): iterable
     {
-        return [[
+        yield 'scoped customer cannot reuse a bound account on the same sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
-            'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
+            'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400, // Email existed status
-        ], [
+            'expectedStatus' => 400,
+        ];
+        yield 'scoped customer can reuse a bound account on another sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 200, // Success status
-        ], [
+            'expectedStatus' => 200,
+        ];
+        yield 'scoped customer cannot reuse a global account on the same sales channel' => [
             'isCustomerScoped' => true,
-            'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
+            'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'scoped customer cannot reuse a global account on another sales channel' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'scoped customer can register without an existing account' => [
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 200,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a bound account on the same sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a bound account on another sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a global account on the same sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer cannot reuse a global account on another sales channel' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => true,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => false,
             'expectedStatus' => 400,
-        ], [
+        ];
+        yield 'unscoped customer can register without an existing account' => [
             'isCustomerScoped' => false,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => false,
             'requestOnSameSalesChannel' => true,
             'expectedStatus' => 200,
-        ]];
+        ];
     }
 
     public function testRegistrationWithAllowedAccountType(): void
@@ -1155,7 +1159,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('addresses');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -1417,7 +1421,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('salutation');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 

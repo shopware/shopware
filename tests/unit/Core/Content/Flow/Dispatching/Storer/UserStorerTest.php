@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -26,22 +26,18 @@ class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
 
-    private MockObject&UserRecoveryProvider $userRecoveryProvider;
+    private Stub&UserRecoveryProvider $userRecoveryProvider;
 
     protected function setUp(): void
     {
-        $this->userRecoveryProvider = $this->createMock(UserRecoveryProvider::class);
+        $this->userRecoveryProvider = static::createStub(UserRecoveryProvider::class);
 
-        $this->storer = new UserStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->userRecoveryProvider
-        );
+        $this->storer = $this->createStorer($this->userRecoveryProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(UserRecoveryRequestEvent::class);
+        $event = static::createStub(UserRecoveryRequestEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(UserAware::USER_RECOVERY_ID, $stored);
@@ -49,7 +45,7 @@ class UserStorerTest extends TestCase
 
     public function testStore(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(UserAware::USER_RECOVERY_ID, $stored);
@@ -77,12 +73,15 @@ class UserStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $userRecoveryProvider = $this->createMock(UserRecoveryProvider::class);
+        $storer = $this->createStorer($userRecoveryProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new UserRecoveryEntity();
         $entity->setId('id');
 
-        $this->userRecoveryProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $userRecoveryProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('userRecovery');
 
         static::assertSame($res, $entity);
@@ -90,10 +89,13 @@ class UserStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
-        $this->storer->restore($storable);
+        $userRecoveryProvider = $this->createMock(UserRecoveryProvider::class);
+        $storer = $this->createStorer($userRecoveryProvider);
 
-        $this->userRecoveryProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
+        $storer->restore($storable);
+
+        $userRecoveryProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('userRecovery');
 
         static::assertNull($res);
@@ -106,5 +108,14 @@ class UserStorerTest extends TestCase
         $customerGroup = $storable->getData('userRecovery');
 
         static::assertNull($customerGroup);
+    }
+
+    private function createStorer(UserRecoveryProvider $userRecoveryProvider): UserStorer
+    {
+        return new UserStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $userRecoveryProvider,
+        );
     }
 }

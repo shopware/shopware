@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type SearchConfig array{and_logic: string, excluded_terms: array<string>, min_search_length: int, field: string, tokenize: int, ranking: float}
+ * @phpstan-type SearchConfig array{and_logic: string, excluded_terms: array<string>, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield: int}
  */
 #[Package('framework')]
 class SearchConfigLoader
@@ -40,7 +40,8 @@ LOWER(product_search_config.excluded_terms) as `excluded_terms`,
 product_search_config.`min_search_length`,
 product_search_config_field.field,
 product_search_config_field.tokenize,
-product_search_config_field.ranking
+product_search_config_field.ranking,
+product_search_config_field.use_exact_subfield
 
 FROM product_search_config
 INNER JOIN product_search_config_field ON(product_search_config_field.product_search_config_id = product_search_config.id)
@@ -63,6 +64,7 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
                         'field' => $item['field'],
                         'tokenize' => (int) $item['tokenize'],
                         'ranking' => (float) $item['ranking'],
+                        'use_exact_subfield' => (int) $item['use_exact_subfield'],
                     ];
                 }, $config);
             }

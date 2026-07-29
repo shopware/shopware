@@ -31,8 +31,8 @@ class LocaleValidatorTest extends TestCase
     {
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [LocaleDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -49,7 +49,7 @@ class LocaleValidatorTest extends TestCase
                     [
                         'id' => Uuid::randomBytes(),
                     ],
-                    $this->createMock(EntityExistence::class)
+                    static::createStub(EntityExistence::class)
                 ),
                 new InsertCommand(
                     $localeDefinition,
@@ -57,7 +57,7 @@ class LocaleValidatorTest extends TestCase
                         'name' => 'foobar',
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
                 new InsertCommand(
@@ -66,7 +66,7 @@ class LocaleValidatorTest extends TestCase
                         'code' => 'de-DE',
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
                 new InsertCommand(
@@ -75,7 +75,7 @@ class LocaleValidatorTest extends TestCase
                         'code' => 'foo-BAR',
                     ],
                     ['id' => Uuid::randomBytes()],
-                    $this->createMock(EntityExistence::class),
+                    static::createStub(EntityExistence::class),
                     '/0/'
                 ),
             ]

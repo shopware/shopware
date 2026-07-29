@@ -20,8 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(MailDataProvider::class)]
 #[Package('after-sales')]
+#[CoversClass(MailDataProvider::class)]
 class MailDataProviderTest extends TestCase
 {
     public function testGetTemplateDataFiltersUnavailableEntitiesAndUsesProviderEntityName(): void

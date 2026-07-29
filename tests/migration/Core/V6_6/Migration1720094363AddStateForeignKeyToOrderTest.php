@@ -21,8 +21,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(Migration1720094363AddStateForeignKeyToOrder::class)]
 #[Package('checkout')]
+#[CoversClass(Migration1720094363AddStateForeignKeyToOrder::class)]
 class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -32,6 +32,11 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720094363, (new Migration1720094363AddStateForeignKeyToOrder())->getCreationTimestamp());
     }
 
     public function testMigrate(): void

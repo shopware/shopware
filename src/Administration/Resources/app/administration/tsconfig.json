@@ -33,7 +33,10 @@
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
     "./build/plugins.vite.ts",
-    "./test/**/*.d.ts"
+    "./eslint-rules/**/*.ts",
+    "./test/**/*.d.ts",
+    "./test/**/*.ts",
+    "./twigVuePlugin/**/*.ts"
   ],
   "exclude": ["node_modules"],
   "files": ["node_modules/jest-expect-message/types/index.d.ts"]

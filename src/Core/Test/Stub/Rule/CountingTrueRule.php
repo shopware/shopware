@@ -17,4 +17,9 @@ class CountingTrueRule extends TrueRule
 
         return parent::match($matchContext);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'rule_counting_true';
+    }
 }

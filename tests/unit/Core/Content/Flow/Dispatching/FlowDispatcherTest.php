@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\PDO\Exception as DbalPdoException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -40,26 +40,26 @@ class FlowDispatcherTest extends TestCase
 {
     private ContainerInterface $container;
 
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private Stub&EventDispatcherInterface $dispatcher;
 
-    private MockObject&FlowFactory $flowFactory;
+    private Stub&FlowFactory $flowFactory;
 
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
-    private MockObject&LoggerInterface $logger;
+    private Stub&LoggerInterface $logger;
 
-    private MockObject&BufferedFlowQueue $bufferedFlowQueue;
+    private Stub&BufferedFlowQueue $bufferedFlowQueue;
 
     private FlowDispatcher $flowDispatcher;
 
     protected function setUp(): void
     {
         $this->container = new ContainerBuilder();
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->flowFactory = $this->createMock(FlowFactory::class);
-        $this->connection = $this->createMock(Connection::class);
-        $this->bufferedFlowQueue = $this->createMock(BufferedFlowQueue::class);
+        $this->dispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
+        $this->flowFactory = static::createStub(FlowFactory::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->bufferedFlowQueue = static::createStub(BufferedFlowQueue::class);
 
         $this->container->set('logger', $this->logger);
         $this->container->set(FlowFactory::class, $this->flowFactory);
@@ -73,8 +73,11 @@ class FlowDispatcherTest extends TestCase
     {
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
-        $this->dispatcher->expects($this->once())->method('dispatch');
-        $this->flowDispatcher->dispatch($event);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->once())->method('dispatch');
+        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
+
+        $flowDispatcher->dispatch($event);
     }
 
     public function testDispatchSkipTrigger(): void
@@ -85,11 +88,13 @@ class FlowDispatcherTest extends TestCase
         $context->addState('skipTriggerFlow');
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-        $this->dispatcher->expects($this->exactly(2))
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
+        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
 
-        $this->flowDispatcher->dispatch($event);
+        $flowDispatcher->dispatch($event);
     }
 
     public function testDispatchWithoutFlows(): void
@@ -97,22 +102,29 @@ class FlowDispatcherTest extends TestCase
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-        $this->dispatcher->expects($this->exactly(2))
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
+        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
+
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $this->container->set(FlowFactory::class, $flowFactory);
 
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
-            $this->flowFactory->expects($this->once())
+            $flowFactory->expects($this->once())
                 ->method('createBuffered')
                 ->with($event)
                 ->willReturn($bufferedFlow);
-            $this->bufferedFlowQueue->expects($this->once())
+            $bufferedFlowQueue = $this->createMock(BufferedFlowQueue::class);
+            $bufferedFlowQueue->expects($this->once())
                 ->method('queueFlow')
                 ->with($bufferedFlow);
+            $this->container->set(BufferedFlowQueue::class, $bufferedFlowQueue);
         } else {
             $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-            $this->flowFactory->expects($this->once())
+            $flowFactory->expects($this->once())
                 ->method('create')
                 ->willReturn($flow);
 
@@ -123,7 +135,7 @@ class FlowDispatcherTest extends TestCase
                 ->willReturn([]);
         }
 
-        $this->flowDispatcher->dispatch($event);
+        $flowDispatcher->dispatch($event);
     }
 
     /**
@@ -136,22 +148,28 @@ class FlowDispatcherTest extends TestCase
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
 
-        $this->dispatcher->expects($this->exactly(2))
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
+        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
 
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
-            $this->flowFactory->expects($this->once())
+            $flowFactory = $this->createMock(FlowFactory::class);
+            $flowFactory->expects($this->once())
                 ->method('createBuffered')
                 ->with($event)
                 ->willReturn($bufferedFlow);
-            $this->bufferedFlowQueue->expects($this->once())
+            $this->container->set(FlowFactory::class, $flowFactory);
+            $bufferedFlowQueue = $this->createMock(BufferedFlowQueue::class);
+            $bufferedFlowQueue->expects($this->once())
                 ->method('queueFlow')
                 ->with($bufferedFlow);
+            $this->container->set(BufferedFlowQueue::class, $bufferedFlowQueue);
         }
 
-        $this->flowDispatcher->dispatch($event);
+        $flowDispatcher->dispatch($event);
     }
 
     public function testNestedTransactionExceptionsAreRethrownWhenSavePointsAreNotEnabled(): void
@@ -161,16 +179,20 @@ class FlowDispatcherTest extends TestCase
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-        $this->dispatcher->expects($this->exactly(2))
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
+        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
 
         $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-        $this->flowFactory->expects($this->once())
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $flowFactory->expects($this->once())
             ->method('create')
             ->willReturn($flow);
+        $this->container->set(FlowFactory::class, $flowFactory);
 
-        $flowLoader = $this->createMock(FlowLoader::class);
+        $flowLoader = static::createStub(FlowLoader::class);
         $flowLoader->method('load')->willReturn([
             'state_enter.order.state.in_progress' => [
                 [
@@ -200,10 +222,10 @@ class FlowDispatcherTest extends TestCase
         $this->container->set(FlowLoader::class, $flowLoader);
         $this->container->set(FlowExecutor::class, $flowExecutor);
 
-        $this->expectException(FlowException::class);
-        $this->expectExceptionMessage('Flow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found');
+        $this->expectExceptionObject($internalException);
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('warning')
             ->with(
                 "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
@@ -211,8 +233,9 @@ class FlowDispatcherTest extends TestCase
                     return $context['exception'] instanceof ExecuteSequenceException;
                 })
             );
+        $this->container->set('logger', $logger);
 
-        $this->flowDispatcher->dispatch($event);
+        $flowDispatcher->dispatch($event);
     }
 
     public function testExceptionsAreLoggedAndExecutionContinuesWhenNestedTransactionsWithSavePointsIsEnabled(): void
@@ -229,7 +252,7 @@ class FlowDispatcherTest extends TestCase
         $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
         $this->flowFactory->method('create')->willReturn($flow);
 
-        $flowLoader = $this->createMock(FlowLoader::class);
+        $flowLoader = static::createStub(FlowLoader::class);
         $flowLoader->method('load')->willReturn([
             'state_enter.order.state.in_progress' => [
                 [
@@ -259,7 +282,8 @@ class FlowDispatcherTest extends TestCase
         $this->container->set(FlowLoader::class, $flowLoader);
         $this->container->set(FlowExecutor::class, $flowExecutor);
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('warning')
             ->with(
                 "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
@@ -267,6 +291,7 @@ class FlowDispatcherTest extends TestCase
                     return $context['exception'] instanceof ExecuteSequenceException;
                 })
             );
+        $this->container->set('logger', $logger);
 
         $this->flowDispatcher->dispatch($event);
     }

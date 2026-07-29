@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -35,22 +35,22 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(EnumFieldSerializer::class)]
 #[Package('framework')]
+#[CoversClass(EnumFieldSerializer::class)]
 #[Group('FieldSerializer')]
 #[Group('DAL')]
 class EnumFieldSerializerTest extends TestCase
 {
     private EnumFieldSerializer $enumFieldSerializer;
 
-    private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry&Stub $definitionInstanceRegistry;
 
     protected function setUp(): void
     {
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $validator = new RecursiveValidator(
             new ExecutionContextFactory(
-                $this->createMock(TranslatorInterface::class)
+                static::createStub(TranslatorInterface::class)
             ),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()

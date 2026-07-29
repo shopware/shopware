@@ -37,15 +37,14 @@ class PaymentRecurringProcessorTest extends TestCase
 
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(false),
-            $this->createMock(InitialStateIdLoader::class),
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(PaymentHandlerRegistry::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(OrderTransactionStateHandler::class),
+            static::createStub(PaymentHandlerRegistry::class),
             new PaymentTransactionStructFactory(),
             new NullLogger(),
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The order with id foo is invalid or could not be found.');
+        $this->expectExceptionObject(PaymentException::invalidOrder('foo'));
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -85,14 +84,13 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(true),
             $stateLoader,
-            $this->createMock(OrderTransactionStateHandler::class),
+            static::createStub(OrderTransactionStateHandler::class),
             $registry,
             new PaymentTransactionStructFactory(),
             new NullLogger(),
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "bar"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('bar'));
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -139,14 +137,13 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor = new PaymentRecurringProcessor(
             $this->getOrderTransactionRepository(true),
             $stateLoader,
-            $this->createMock(OrderTransactionStateHandler::class),
+            static::createStub(OrderTransactionStateHandler::class),
             $registry,
             new PaymentTransactionStructFactory(),
             new NullLogger(),
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The payment method with id bar does not support the payment handler type RECURRING.');
+        $this->expectExceptionObject(PaymentException::paymentTypeUnsupported('bar', PaymentHandlerType::RECURRING));
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -212,8 +209,7 @@ class PaymentRecurringProcessorTest extends TestCase
             new NullLogger(),
         );
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('error_foo');
+        $this->expectExceptionObject(PaymentException::recurringInterrupted($transaction->getId(), 'error_foo'));
 
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
@@ -227,7 +223,6 @@ class PaymentRecurringProcessorTest extends TestCase
         $entity->setId('foo');
         $entity->setPaymentMethodId('bar');
 
-        /** @var StaticEntityRepository<OrderTransactionCollection> $repository */
         $repository = new StaticEntityRepository([
             new OrderTransactionCollection($returnEntity ? [$entity] : []),
         ]);

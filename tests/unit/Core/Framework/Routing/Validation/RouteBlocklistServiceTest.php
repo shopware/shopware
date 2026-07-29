@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RouteBlocklistService::class)]
 class RouteBlocklistServiceTest extends TestCase
 {
@@ -34,21 +36,19 @@ class RouteBlocklistServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, bool}>
+     * @return iterable<string, array{string, bool}>
      */
-    public static function pathBlockedDataProvider(): array
+    public static function pathBlockedDataProvider(): iterable
     {
-        return [
-            'maintenance route blocked' => ['maintenance', true],
-            'maintenance with slash blocked' => ['/maintenance', true],
-            'maintenance with trailing slash blocked' => ['maintenance/', true],
-            'maintenance sub-path not blocked' => ['maintenance/singlepage/123', false],
-            'custom category allowed' => ['my-custom-category', false],
-            'products category allowed' => ['products', false],
-            'empty string not allowed' => ['', true],
-            'nested custom path allowed' => ['custom/nested/path', false],
-            'in use by other methods not allowed' => ['api/test', true],
-        ];
+        yield 'maintenance route blocked' => ['maintenance', true];
+        yield 'maintenance with slash blocked' => ['/maintenance', true];
+        yield 'maintenance with trailing slash blocked' => ['maintenance/', true];
+        yield 'maintenance sub-path not blocked' => ['maintenance/singlepage/123', false];
+        yield 'custom category allowed' => ['my-custom-category', false];
+        yield 'products category allowed' => ['products', false];
+        yield 'empty string not allowed' => ['', true];
+        yield 'nested custom path allowed' => ['custom/nested/path', false];
+        yield 'in use by other methods not allowed' => ['api/test', true];
     }
 
     public function testHttpMethodIsResetAfterIsPathBlocked(): void

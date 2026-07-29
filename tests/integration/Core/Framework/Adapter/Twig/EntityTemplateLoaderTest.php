@@ -2,12 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
@@ -15,6 +15,7 @@ use Twig\Error\LoaderError;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityTemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,14 +52,6 @@ class EntityTemplateLoaderTest extends TestCase
         $this->templateLoader = static::getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
         $this->template2Id = Uuid::randomHex();
-    }
-
-    public function testGetSubscribedEvents(): void
-    {
-        static::assertSame(
-            ['app_template.written' => 'reset'],
-            EntityTemplateLoader::getSubscribedEvents()
-        );
     }
 
     public function testGetSourceContextThrowsExceptionIfTemplateIsNotFound(): void
@@ -155,19 +148,6 @@ class EntityTemplateLoaderTest extends TestCase
         static::assertFalse(
             $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
         );
-    }
-
-    public function testTemplateLoadingIsCachedWithoutDatabaseTemplates(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([]);
-
-        $templateLoader = new EntityTemplateLoader($connection, 'prod');
-
-        static::assertFalse($templateLoader->exists('@Storefront/storefront/base.html.twig'));
-        static::assertFalse($templateLoader->exists('@Storefront/storefront/test.html.twig'));
     }
 
     private function importTemplates(): void

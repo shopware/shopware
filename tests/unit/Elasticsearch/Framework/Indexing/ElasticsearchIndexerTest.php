@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -26,44 +27,46 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEv
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchIndexer::class)]
 class ElasticsearchIndexerTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private MockObject&ElasticsearchHelper $helper;
+    private ElasticsearchHelper&Stub $helper;
 
     private ElasticsearchRegistry $registry;
 
-    private MockObject&IndexCreator $indexCreator;
+    private IndexCreator&Stub $indexCreator;
 
-    private MockObject&IteratorFactory $iteratorFactory;
+    private IteratorFactory&Stub $iteratorFactory;
 
-    private Client&MockObject $client;
+    private Client&Stub $client;
 
-    private IndicesNamespace&MockObject $indices;
+    private IndicesNamespace&Stub $indices;
 
-    private EventDispatcherInterface $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->helper = $this->createMock(ElasticsearchHelper::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->helper = static::createStub(ElasticsearchHelper::class);
         $this->registry = new ElasticsearchRegistry([$this->createDefinition('product')]);
-        $this->indexCreator = $this->createMock(IndexCreator::class);
-        $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->client = $this->createMock(Client::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->indexCreator = static::createStub(IndexCreator::class);
+        $this->iteratorFactory = static::createStub(IteratorFactory::class);
+        $this->client = static::createStub(Client::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $this->helper->method('allowIndexing')->willReturn(true);
 
-        $this->indices = $this->createMock(IndicesNamespace::class);
+        $this->indices = static::createStub(IndicesNamespace::class);
         $this->client->method('indices')->willReturn($this->indices);
 
         parent::setUp();
@@ -71,7 +74,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateESDisabled(): void
     {
-        $this->helper = $this->createMock(ElasticsearchHelper::class);
+        $this->helper = static::createStub(ElasticsearchHelper::class);
         $indexer = $this->getIndexer();
 
         static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
@@ -79,11 +82,12 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateTillLastMsgCreatesIndices(): void
     {
-        $indexer = $this->getIndexer();
-
-        $this->indexCreator
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator
             ->expects($this->once())
             ->method('createIndex');
+
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
 
         $msg = $indexer->iterate();
 
@@ -92,20 +96,22 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
-        $indexer = $this->getIndexer();
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
 
-        $this->indexCreator
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator
             ->method('aliasExists')
             ->willReturn(true);
 
-        $this
-            ->indexCreator
+        $indexCreator
             ->expects($this->once())
             ->method('createIndex');
+
+        $indexer = $this->getIndexer(connection: $connection, indexCreator: $indexCreator);
 
         $msg = $indexer->iterate();
 
@@ -117,7 +123,7 @@ class ElasticsearchIndexerTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatched = false;
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn(['1', '2']);
 
         $this->iteratorFactory
@@ -145,7 +151,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $indexer = $this->getIndexer();
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('fetch')->willReturn(['1', '2']);
 
         $this->iteratorFactory
@@ -154,8 +160,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $offset = new IndexerOffset(['foo'], null);
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition foo not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('foo'));
 
         $indexer->iterate($offset);
     }
@@ -176,34 +181,36 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testUpdateIdsESDisabled(): void
     {
-        $this->helper = $this->createMock(ElasticsearchHelper::class);
-        $this->helper
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper
             ->expects($this->never())
             ->method('getIndexName');
 
-        $indexer = $this->getIndexer();
+        $indexer = $this->getIndexer(helper: $helper);
 
-        $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
+        $indexer->updateIds(static::createStub(EntityDefinition::class), ['1', '2']);
     }
 
     public function testUpdateIndexDoesNotExistsCreatesThem(): void
     {
-        $this->indexCreator
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator
             ->expects($this->once())
             ->method('createIndex');
 
-        $indexer = $this->getIndexer();
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
 
-        $indexer->updateIds($this->createMock(EntityDefinition::class), ['1', '2']);
+        $indexer->updateIds(static::createStub(EntityDefinition::class), ['1', '2']);
     }
 
     public function testHandleESDisabled(): void
     {
-        $this->helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
 
-        $this->connection->expects($this->never())->method('executeStatement');
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
 
-        $indexer = $this->getIndexer();
+        $indexer = $this->getIndexer(connection: $connection, helper: $helper);
 
         $indexer(new ElasticsearchIndexingMessage(new IndexingDto([Uuid::randomHex()], 'foo', 'not_existing'), null, Context::createDefaultContext()));
     }
@@ -217,13 +224,11 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition not_existing not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('not_existing'));
 
         $indexer($message);
     }
@@ -237,13 +242,11 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty indexing request provided');
+        $this->expectExceptionObject(ElasticsearchException::emptyIndexingRequest());
 
         $indexer($message);
     }
@@ -275,10 +278,15 @@ class ElasticsearchIndexerTest extends TestCase
         );
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
-        $indexer = $this->getIndexer();
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($this->indices);
+        $client->expects($this->once())
+            ->method('bulk')
+            ->willReturn(['errors' => false, 'items' => []]);
+
+        $indexer = $this->getIndexer(client: $client);
 
         $indexer($message);
     }
@@ -317,7 +325,6 @@ class ElasticsearchIndexerTest extends TestCase
             ]);
 
         $this->indices
-            ->expects($this->once())
             ->method('exists')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -326,7 +333,9 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('error')
             ->with('failed to parse');
 
-        $this->helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::indexingError([
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowIndexing')->willReturn(true);
+        $helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::indexingError([
             [
                 'index' => 'foo',
                 'id' => '1',
@@ -335,7 +344,7 @@ class ElasticsearchIndexerTest extends TestCase
             ],
         ]));
 
-        $indexer = $this->getIndexer($logger);
+        $indexer = $this->getIndexer($logger, helper: $helper);
 
         $indexer($message);
     }
@@ -348,9 +357,8 @@ class ElasticsearchIndexerTest extends TestCase
             $eventDispatched = true;
         });
 
-        $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
-
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
@@ -358,6 +366,8 @@ class ElasticsearchIndexerTest extends TestCase
         $this->indexCreator
             ->method('aliasExists')
             ->willReturn(true);
+
+        $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher, connection: $connection);
 
         $entities = ['product'];
 
@@ -372,9 +382,8 @@ class ElasticsearchIndexerTest extends TestCase
             $this->createDefinition('category'),
         ]);
 
-        $indexer = $this->getIndexer();
-
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->exactly(2))
             ->method('insert')
             ->with('elasticsearch_index_task');
@@ -383,6 +392,8 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('aliasExists')
             ->willReturn(true);
 
+        $indexer = $this->getIndexer(connection: $connection);
+
         $entities = ['product', 'category'];
 
         $indexer->iterate(null, $entities);
@@ -390,10 +401,10 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateLogErrorForInvalidEntity(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $indexer = $this->getIndexer($logger);
+        $logger = static::createStub(LoggerInterface::class);
 
-        $this->connection
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->once())
             ->method('insert')
             ->with('elasticsearch_index_task');
@@ -402,39 +413,49 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('aliasExists')
             ->willReturn(true);
 
-        $this->helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('category'));
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowIndexing')->willReturn(true);
+        $helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('category'));
+
+        $indexer = $this->getIndexer($logger, connection: $connection, helper: $helper);
 
         $entities = ['product', 'category'];
 
         $indexer->iterate(null, $entities);
     }
 
-    private function getIndexer(?LoggerInterface $logger = null, ?EventDispatcherInterface $eventDispatcher = null): ElasticsearchIndexer
+    private function getIndexer(?LoggerInterface $logger = null, ?EventDispatcherInterface $eventDispatcher = null, ?Connection $connection = null, ?ElasticsearchHelper $helper = null, ?IndexCreator $indexCreator = null, ?Client $client = null): ElasticsearchIndexer
     {
         $logger ??= new NullLogger();
         $eventDispatcher ??= $this->eventDispatcher;
+        $connection ??= $this->connection;
+        $helper ??= $this->helper;
+        $indexCreator ??= $this->indexCreator;
+        $client ??= $this->client;
 
         return new ElasticsearchIndexer(
-            $this->connection,
-            $this->helper,
+            $connection,
+            $helper,
             $this->registry,
-            $this->indexCreator,
+            $indexCreator,
             $this->iteratorFactory,
-            $this->client,
+            $client,
             $logger,
             $eventDispatcher,
             1,
+            new NativeClock(),
+            true
         );
     }
 
     /**
-     * @return AbstractElasticsearchDefinition&MockObject
+     * @return AbstractElasticsearchDefinition&Stub
      */
     private function createDefinition(string $name): AbstractElasticsearchDefinition
     {
-        $es = $this->createMock(AbstractElasticsearchDefinition::class);
+        $es = static::createStub(AbstractElasticsearchDefinition::class);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn($name);
 
         $es->method('getEntityDefinition')->willReturn($definition);

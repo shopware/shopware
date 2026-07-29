@@ -91,7 +91,7 @@
                         :disabled="!acl.can('product_feature_sets.editor') || undefined"
                         class="sw-product-feature-sets-list__edit-action"
                     >
-                        {{ $t('sw-settings-product-feature-sets.list.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -102,7 +102,7 @@
                         class="sw-product-feature-sets-list__delete-action"
                         @click="onDelete(item.id)"
                     >
-                        {{ $t('sw-settings-product-feature-sets.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -145,7 +145,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $t('sw-settings-product-feature-sets.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
 

@@ -434,6 +434,11 @@ abstract class EntityDefinition
         return $this->getFields()->getExtensionFields();
     }
 
+    public function getRestrictDeleteMetaFields(): FieldCollection
+    {
+        return new FieldCollection([]);
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return null;

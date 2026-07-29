@@ -23,8 +23,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 {
     /**
@@ -45,7 +45,15 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/handle-payment',
+        name: 'store-api.payment.handle',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
         $data = [...$request->query->all(), ...$request->request->all()];

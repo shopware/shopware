@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-internal-link {
     display: flex;
     gap: 6px;
     align-items: center;
     text-decoration: underline;
     color: var(--color-text-brand-default);
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
 
     &:hover,
     &:focus {
@@ -18,6 +16,6 @@
     }
 
     &--disabled {
-        color: $color-gray-500;
+        color: var(--color-text-primary-disabled);
     }
 }

@@ -5,14 +5,11 @@ namespace Shopware\Core\Framework\App\TaxProvider\Response;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @phpstan-type TaxResponse = array{ tax: float, taxRate: float, price: float }
- * @phpstan-type CalculatedTaxesCollectionResponse  array<string, TaxResponse[]>
- * @phpstan-type CartPriceTaxesResponse             array<TaxResponse>
  */
 #[Package('checkout')]
 class TaxProviderResponse extends TaxProviderResult
@@ -51,50 +48,78 @@ class TaxProviderResponse extends TaxProviderResult
     }
 
     /**
-     * @param array{
-     *     lineItemTaxes: CalculatedTaxesCollectionResponse,
-     *     deliveryTaxes: CalculatedTaxesCollectionResponse,
-     *     cartPriceTaxes: CartPriceTaxesResponse
-     * } $data
+     * @param array<array-key, mixed> $data
      */
     public static function create(array $data): self
     {
         $response = new self();
 
         if (isset($data['lineItemTaxes'])) {
-            foreach ($data['lineItemTaxes'] as $lineItemId => $taxes) {
-                $lineItemTax = new CalculatedTaxCollection();
-
-                foreach ($taxes as $tax) {
-                    $lineItemTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
-                }
-
-                $response->lineItemTaxes[$lineItemId] = $lineItemTax;
-            }
+            $response->lineItemTaxes = self::createTaxCollectionMap($data['lineItemTaxes']);
         }
 
         if (isset($data['deliveryTaxes'])) {
-            foreach ($data['deliveryTaxes'] as $deliveryId => $taxes) {
-                $deliveryTax = new CalculatedTaxCollection();
-
-                foreach ($taxes as $tax) {
-                    $deliveryTax->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
-                }
-
-                $response->deliveryTaxes[$deliveryId] = $deliveryTax;
-            }
+            $response->deliveryTaxes = self::createTaxCollectionMap($data['deliveryTaxes']);
         }
 
         if (isset($data['cartPriceTaxes'])) {
-            $cartPriceTaxes = new CalculatedTaxCollection();
-
-            foreach ($data['cartPriceTaxes'] as $tax) {
-                $cartPriceTaxes->add(new CalculatedTax($tax['tax'], $tax['taxRate'], $tax['price'], $tax['label'] ?? null));
-            }
-
-            $response->cartPriceTaxes = $cartPriceTaxes;
+            $response->cartPriceTaxes = self::createTaxCollection($data['cartPriceTaxes']);
         }
 
         return $response;
+    }
+
+    /**
+     * @return array<string, CalculatedTaxCollection>
+     */
+    private static function createTaxCollectionMap(mixed $taxesByKey): array
+    {
+        if (!\is_array($taxesByKey)) {
+            throw AppException::invalidTaxProviderResponse();
+        }
+
+        $taxCollectionMap = [];
+
+        foreach ($taxesByKey as $key => $taxes) {
+            $taxCollectionMap[(string) $key] = self::createTaxCollection($taxes);
+        }
+
+        return $taxCollectionMap;
+    }
+
+    private static function createTaxCollection(mixed $taxes): CalculatedTaxCollection
+    {
+        if (!\is_array($taxes)) {
+            throw AppException::invalidTaxProviderResponse();
+        }
+
+        $taxCollection = new CalculatedTaxCollection();
+
+        foreach ($taxes as $tax) {
+            $taxCollection->add(self::createTax($tax));
+        }
+
+        return $taxCollection;
+    }
+
+    private static function createTax(mixed $tax): CalculatedTax
+    {
+        if (!\is_array($tax)) {
+            throw AppException::invalidTaxProviderResponse();
+        }
+
+        foreach (['tax', 'taxRate', 'price'] as $key) {
+            if (!isset($tax[$key]) || (!\is_float($tax[$key]) && !\is_int($tax[$key]))) {
+                throw AppException::invalidTaxProviderResponse();
+            }
+        }
+
+        $label = $tax['label'] ?? null;
+
+        if ($label !== null && !\is_string($label)) {
+            throw AppException::invalidTaxProviderResponse();
+        }
+
+        return new CalculatedTax((float) $tax['tax'], (float) $tax['taxRate'], (float) $tax['price'], $label);
     }
 }

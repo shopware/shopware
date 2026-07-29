@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -19,10 +21,11 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-Shopware.Utils.debounce = function debounce(fn) {
-    return function execFunction(...args) {
-        fn.apply(this, args);
-    };
+Shopware.Utils.debounce = function debounce() {
+    const execFunction = jest.fn();
+    execFunction.cancel = jest.fn();
+
+    return execFunction;
 };
 
 const createWrapper = async (componentOverride = {}) => {
@@ -88,6 +91,107 @@ describe('app/plugins/shortcut.plugin', () => {
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
+    });
+
+    it('String sequence: should call the shortcut method', async () => {
+        const openFiltersMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                OF: 'openFilters',
+            },
+            methods: {
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+
+        expect(openFiltersMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
+
+    it('String sequence: should prefer the shortcut sequence over a single key shortcut', async () => {
+        const openFiltersMock = jest.fn();
+        const focusSearchMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                f: 'focusSearch',
+                OF: 'openFilters',
+            },
+            methods: {
+                focusSearch() {
+                    focusSearchMock();
+                },
+
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+        expect(focusSearchMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(focusSearchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call the shortcut method when keyboard shortcuts are disabled', async () => {
+        const onSaveMock = jest.fn();
+        const originalService = Shopware.Service.bind(Shopware);
+        const serviceSpy = jest.spyOn(Shopware, 'Service').mockImplementation((serviceName) => {
+            if (serviceName === 'shortcutService') {
+                return {
+                    isShortcutsDisabled: () => true,
+                };
+            }
+
+            return originalService(serviceName);
+        });
+
+        try {
+            wrapper = await createWrapper({
+                shortcuts: {
+                    s: 'onSave',
+                },
+                methods: {
+                    onSave() {
+                        onSaveMock();
+                    },
+                },
+            });
+
+            await wrapper.trigger('keydown', {
+                key: 's',
+            });
+
+            expect(onSaveMock).not.toHaveBeenCalled();
+        } finally {
+            serviceSpy.mockRestore();
+        }
     });
 
     it('Object with boolean active: should call the onSave method', async () => {
@@ -399,6 +503,54 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).toHaveBeenCalledWith();
         expect(testString).toBe('foobar');
+    });
+
+    it('Number field component: should be blurred on save shortcut to react to content changes', async () => {
+        const onSaveMock = jest.fn();
+        let savedPosition = 1;
+
+        wrapper = await createWrapper({
+            template: `
+                <mt-number-field
+                    v-model="position"
+                    name="position"
+                />
+            `,
+            shortcuts: {
+                'SYSTEMKEY+S': 'onSave',
+            },
+            data() {
+                return {
+                    position: savedPosition,
+                };
+            },
+            methods: {
+                onSave() {
+                    onSaveMock();
+                    savedPosition = this.position;
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const numberInput = wrapper.get('input');
+        numberInput.element.blur = () => {
+            numberInput.element.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        await numberInput.setValue('2');
+
+        expect(onSaveMock).not.toHaveBeenCalled();
+        expect(savedPosition).toBe(1);
+
+        await numberInput.trigger('keydown', {
+            key: 's',
+            ctrlKey: true,
+        });
+
+        expect(onSaveMock).toHaveBeenCalledWith();
+        expect(savedPosition).toBe(2);
     });
 
     it('should call the onEsc method when Escape key is pressed outside a modal', async () => {

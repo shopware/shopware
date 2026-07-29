@@ -24,10 +24,20 @@
 
         <input-field type="bool">
             <name>buildBreadcrumbByReferrerCategory</name>
+            <flag>BREADCRUMB_REWORK</flag>
             <label>Build breadcrumb based on referrer category</label>
             <label lang="de-DE">Breadcrumb anhand der Referrer-Kategorie aufbauen</label>
-            <helpText>Build the product breadcrumb based on the linking category if available. Feature flag BREADCRUMB_REWORK has to be active.</helpText>
-            <helpText lang="de-DE">Produkt-Breadcrumb basierend auf der verlinkenden Kategorie aufbauen, falls verfügbar. Feature-Flag BREADCRUMB_REWORK muss dafür aktiv sein.</helpText>
+            <helpText>Build the product breadcrumb based on the linking category if available.</helpText>
+            <helpText lang="de-DE">Produkt-Breadcrumb basierend auf der verlinkenden Kategorie aufbauen, falls verfügbar.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>partialDataLoading</name>
+            <label>Load reduced product data in listings</label>
+            <label lang="de-DE">Reduzierte Produktdaten in Listings laden</label>
+            <helpText>Product listings only load the data required by the default product boxes, including a shortened description. This reduces database load and memory usage for products with large descriptions. Only enable this if your theme and extensions work with the reduced product data in listings.</helpText>
+            <helpText lang="de-DE">Produktlistings laden nur die Daten, die die Standard-Produktboxen benötigen, inklusive einer gekürzten Beschreibung. Das reduziert Datenbanklast und Speicherverbrauch bei Produkten mit umfangreichen Beschreibungen. Nur aktivieren, wenn Theme und Erweiterungen mit den reduzierten Produktdaten in Listings funktionieren.</helpText>
             <defaultValue>false</defaultValue>
         </input-field>
 
@@ -96,6 +106,22 @@
             <helpText>The number of products displayed on a search page or in a product list per page in the storefront.</helpText>
             <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
             <min>1</min>
+        </input-field>
+
+        <input-field type="text">
+            <name>beforeListPriceSnippetKey</name>
+            <label>Snippet key for content before list prices</label>
+            <label lang="de-DE">Snippet-Key für Inhalt vor Streichpreisen</label>
+            <helpText>The content of this translation snippet is displayed before every list price in the Storefront. Leave empty to display nothing.</helpText>
+            <helpText lang="de-DE">Der Inhalt dieses Übersetzungs-Snippets wird in der Storefront vor jedem Streichpreis angezeigt. Leer lassen, um nichts anzuzeigen.</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>afterListPriceSnippetKey</name>
+            <label>Snippet key for content after list prices</label>
+            <label lang="de-DE">Snippet-Key für Inhalt nach Streichpreisen</label>
+            <helpText>The content of this translation snippet is displayed after every list price in the Storefront. Leave empty to display nothing.</helpText>
+            <helpText lang="de-DE">Der Inhalt dieses Übersetzungs-Snippets wird in der Storefront nach jedem Streichpreis angezeigt. Leer lassen, um nichts anzuzeigen.</helpText>
         </input-field>
     </card>
 </config>

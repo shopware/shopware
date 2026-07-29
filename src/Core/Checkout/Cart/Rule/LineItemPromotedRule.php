@@ -54,7 +54,9 @@ class LineItemPromotedRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->booleanField('isPromoted');
+            ->booleanField('isPromoted', [
+                'isMatchAny' => true,
+            ]);
     }
 
     private function isItemMatching(LineItem $lineItem): bool

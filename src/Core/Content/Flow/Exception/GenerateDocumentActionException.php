@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Flow\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class GenerateDocumentActionException extends ShopwareHttpException
 {

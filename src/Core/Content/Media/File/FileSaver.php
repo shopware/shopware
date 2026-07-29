@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
@@ -40,6 +41,7 @@ class FileSaver
         private readonly EntityRepository $mediaRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
+        private readonly FileContentValidationStrategy $fileContentValidationStrategy,
         private readonly MetadataLoader $metadataLoader,
         private readonly TypeDetector $typeDetector,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -47,6 +49,7 @@ class FileSaver
         private readonly AbstractMediaPathStrategy $mediaPathStrategy,
         private readonly MediaFileCleanupService $cleanup,
         private readonly MediaFileExtensionValidator $extensionValidator,
+        private readonly ClockInterface $clock,
         private readonly bool $remoteThumbnailsEnable = false,
     ) {
         $this->fileNameValidator = new FileNameValidator();
@@ -71,6 +74,7 @@ class FileSaver
         );
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
+        $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);
 
@@ -221,7 +225,13 @@ class FileSaver
         $event->mediaWithMimeType(mediaId: $media->getId(), path: $path, mimeType: $media->getMimeType());
 
         try {
-            $this->getFileSystem($media)->writeStream($path, $stream);
+            // Pass an explicit ContentType so text-based files keep their charset when served directly from S3/CDN.
+            // Without it the S3 adapter auto-detects a bare `text/plain`, breaking umlauts in the browser.
+            // Non-S3 adapters ignore this config key.
+            $mimeType = $media->getMimeType();
+            $config = $mimeType !== null ? ['ContentType' => FileInfoHelper::addCharset($mimeType)] : [];
+
+            $this->getFileSystem($media)->writeStream($path, $stream, $config);
 
             $this->eventDispatcher->dispatch($event);
         } finally {
@@ -262,7 +272,7 @@ class FileSaver
             'fileName' => $destination,
             'metaData' => $metadata,
             'mediaTypeRaw' => serialize($mediaType),
-            'uploadedAt' => new \DateTime(),
+            'uploadedAt' => $this->clock->now(),
         ];
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {

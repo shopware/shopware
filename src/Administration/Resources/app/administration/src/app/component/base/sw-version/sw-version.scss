@@ -1,8 +1,6 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-version-font-size-info: 12px;
-
 .sw-version {
     white-space: nowrap;
     width: 100%;
@@ -11,9 +9,9 @@ $sw-version-font-size-info: 12px;
         @include truncate;
 
         max-width: 200px;
-        color: $color-white;
-        font-size: $font-size-s;
-        font-weight: $font-weight-bold;
+        color: var(--color-static-white);
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-bold);
         margin: 0;
         vertical-align: top;
     }
@@ -37,6 +35,6 @@ $sw-version-font-size-info: 12px;
 
         max-width: 200px;
         color: $color-gray-300;
-        font-size: $sw-version-font-size-info;
+        font-size: var(--font-size-2xs);
     }
 }

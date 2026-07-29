@@ -43,7 +43,7 @@ describe('components/sw-select-rule-create', () => {
         },
     });
 
-    async function createWrapper() {
+    async function createWrapper(customProps = {}) {
         return mount(await wrapTestComponent('sw-select-rule-create', { sync: true }), {
             global: {
                 provide: {
@@ -94,6 +94,7 @@ describe('components/sw-select-rule-create', () => {
                 ruleId: 'random-rule-id',
                 restrictedRuleIds: ['restrictedId'],
                 restrictedRuleIdsTooltipLabel: 'myRestrictedLabelText',
+                ...customProps,
             },
         });
     }
@@ -148,5 +149,52 @@ describe('components/sw-select-rule-create', () => {
 
         expect(tooltipConfig.disabled).toBeFalsy();
         expect(tooltipConfig.message).toBe('ruleAwarenessRestrictionLabelText');
+    });
+
+    it('should emit updated rules collection when saving a rule from the modal', async () => {
+        const { Criteria, EntityCollection } = Shopware.Data;
+        const rules = new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25));
+        const rule = {
+            id: 'created-rule-id',
+            name: 'Created rule',
+            conditions: [],
+        };
+
+        const wrapper = await createWrapper({ rules });
+
+        wrapper.vm.onSaveRule(rule.id, rule);
+
+        const [
+            updatedRules,
+        ] = wrapper.emitted('update:rules')[0];
+
+        expect(updatedRules).not.toBe(rules);
+        expect(updatedRules.has(rule.id)).toBe(true);
+        expect(rules.has(rule.id)).toBe(false);
+        expect(wrapper.emitted('save-rule')[0]).toEqual([
+            rule.id,
+            rule,
+        ]);
+    });
+
+    it('should not duplicate an already selected rule when saving from the modal', async () => {
+        const { Criteria, EntityCollection } = Shopware.Data;
+        const rule = {
+            id: 'created-rule-id',
+            name: 'Created rule',
+            conditions: [],
+        };
+        const rules = new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25), [rule]);
+
+        const wrapper = await createWrapper({ rules });
+
+        wrapper.vm.onSaveRule(rule.id, rule);
+
+        const [
+            updatedRules,
+        ] = wrapper.emitted('update:rules')[0];
+
+        expect(updatedRules).toHaveLength(1);
+        expect(updatedRules.get(rule.id).id).toBe(rule.id);
     });
 });

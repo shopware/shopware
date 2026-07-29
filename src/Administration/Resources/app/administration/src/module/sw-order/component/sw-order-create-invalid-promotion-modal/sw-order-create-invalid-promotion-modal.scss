@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-order-create-invalid-promotion-modal {
     &__description {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-secondary-default);
         margin-bottom: 22px;
     }

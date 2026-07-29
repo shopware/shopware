@@ -21,11 +21,17 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\StoreApiMcpServerBuilderCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TelemetrySubscriberCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
@@ -41,7 +47,7 @@ use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * @internal
@@ -66,42 +72,46 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-        $loader->load('acl.xml');
-        $loader->load('cache.xml');
-        $loader->load('api.xml');
-        $loader->load('app.xml');
-        $loader->load('custom-field.xml');
-        $loader->load('data-abstraction-layer.xml');
-        $loader->load('demodata.xml');
-        $loader->load('event.xml');
-        $loader->load('hydrator.xml');
-        $loader->load('filesystem.xml');
-        $loader->load('message-queue.xml');
-        $loader->load('plugin.xml');
-        $loader->load('rule.xml');
-        $loader->load('scheduled-task.xml');
-        $loader->load('store.xml');
-        $loader->load('script.xml');
-        $loader->load('language.xml');
-        $loader->load('update.xml');
-        $loader->load('validation.xml');
-        $loader->load('seo.xml');
-        $loader->load('webhook.xml');
-        $loader->load('rate-limiter.xml');
-        $loader->load('increment.xml');
-        $loader->load('flag.xml');
-        $loader->load('health.xml');
-        $loader->load('telemetry.xml');
-        $loader->load('notification.xml');
-        $loader->load('sso.xml');
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+
+        $phpLoader->load('http_discovery.php');
+        $phpLoader->load('acl.php');
+        $phpLoader->load('api.php');
+        $phpLoader->load('services.php');
+        $phpLoader->load('cache.php');
+        $phpLoader->load('app.php');
+        $phpLoader->load('custom-field.php');
+        $phpLoader->load('data-abstraction-layer.php');
+        $phpLoader->load('demodata.php');
+        $phpLoader->load('event.php');
+        $phpLoader->load('hydrator.php');
+        $phpLoader->load('filesystem.php');
+        $phpLoader->load('message-queue.php');
+        $phpLoader->load('plugin.php');
+        $phpLoader->load('rule.php');
+        $phpLoader->load('store.php');
+        $phpLoader->load('scheduled-task.php');
+        $phpLoader->load('script.php');
+        $phpLoader->load('language.php');
+        $phpLoader->load('validation.php');
+        $phpLoader->load('update.php');
+        $phpLoader->load('seo.php');
+        $phpLoader->load('rate-limiter.php');
+        $phpLoader->load('webhook.php');
+        $phpLoader->load('increment.php');
+        $phpLoader->load('flag.php');
+        $phpLoader->load('health.php');
+        $phpLoader->load('telemetry.php');
+        $phpLoader->load('notification.php');
+        $phpLoader->load('sso.php');
+
+        $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
-            $loader->load('store_test.xml');
-            $loader->load('seo_test.xml');
-            $loader->load('app_test.xml');
+            $phpLoader->load('services_test.php');
+            $phpLoader->load('store_test.php');
+            $phpLoader->load('seo_test.php');
+            $phpLoader->load('app_test.php');
         }
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
@@ -127,8 +137,10 @@ class Framework extends Bundle
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $container->addCompilerPass(new ScheduledTaskExecutorCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
+        $container->addCompilerPass(new TelemetrySubscriberCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());
@@ -136,6 +148,10 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
+        $container->addCompilerPass(new McpToolDiscoveryCompilerPass());
+        $container->addCompilerPass(new McpToolAnalysisCompilerPass());
+        $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
 
@@ -149,7 +165,6 @@ class Framework extends Bundle
 
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
-        /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
 
@@ -158,11 +173,10 @@ class Framework extends Bundle
             MeterProvider::bindMeter($this->container);
         }
 
-        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
-        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
+        CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.compress');
+        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.compression_method');
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
 
-        /** @var StampedeProtectionConfigurator $stampedeProtectionConfigurator */
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
         $stampedeProtectionConfigurator->apply();
     }

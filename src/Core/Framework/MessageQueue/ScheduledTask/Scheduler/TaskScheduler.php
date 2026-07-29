@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -43,6 +44,7 @@ readonly class TaskScheduler
         private ParameterBagInterface $parameterBag,
         private LoggerInterface $logger,
         private int $requeueTimeout,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -118,7 +120,7 @@ readonly class TaskScheduler
                             new RangeFilter(
                                 'nextExecutionTime',
                                 [
-                                    RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                    RangeFilter::LT => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
                             ),
                             new EqualsAnyFilter('status', [
@@ -134,7 +136,7 @@ readonly class TaskScheduler
                             new RangeFilter(
                                 'updatedAt',
                                 [
-                                    RangeFilter::LT => (new \DateTime())
+                                    RangeFilter::LT => $this->clock->now()
                                         ->modify(\sprintf('-%d hours', $this->requeueTimeout))
                                         ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
@@ -227,7 +229,7 @@ readonly class TaskScheduler
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);

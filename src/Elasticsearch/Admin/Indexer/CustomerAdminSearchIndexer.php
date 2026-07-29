@@ -253,10 +253,18 @@ SQL,
                 $id,
             ]));
 
+            $completion = $this->buildCompletion([
+                \is_string($row['first_name'] ?? null) ? $row['first_name'] : null,
+                \is_string($row['last_name'] ?? null) ? $row['last_name'] : null,
+                \is_string($row['email'] ?? null) ? $row['email'] : null,
+                \is_string($row['company'] ?? null) ? $row['company'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
@@ -265,6 +273,7 @@ SQL,
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
+                'completion' => $completion,
                 'active' => (bool) $row['active'],
                 'email' => $row['email'] ?? null,
                 'firstName' => $row['first_name'] ?? null,

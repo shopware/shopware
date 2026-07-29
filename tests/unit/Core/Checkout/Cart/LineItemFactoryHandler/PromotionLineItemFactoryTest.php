@@ -15,8 +15,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(PromotionLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionLineItemFactory::class)]
 class PromotionLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void
@@ -59,8 +59,7 @@ class PromotionLineItemFactoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Line item type "promotion" cannot be updated.');
+        $this->expectExceptionObject(CartException::lineItemTypeNotUpdatable('promotion'));
 
         $factory = new PromotionLineItemFactory();
 

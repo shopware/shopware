@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\System\Consent\Api\ConsentController;
 use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentRepository;
@@ -30,6 +31,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ConsentRepository::class)
         ->args([
             new Reference(Connection::class),
+            new Reference(ClockInterface::class),
         ]);
 
     $services->set(ConsentDefinitionRegistry::class)
@@ -62,6 +64,7 @@ return static function (ContainerConfigurator $container): void {
         ->class(DatabaseLog::class)
         ->args([
             new Reference(Connection::class),
+            new Reference(ClockInterface::class),
         ]);
 
     $services->set(ConsentChangedSubscriber::class)

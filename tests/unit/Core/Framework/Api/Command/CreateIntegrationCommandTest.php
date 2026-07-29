@@ -7,24 +7,24 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateIntegrationCommand::class)]
 class CreateIntegrationCommandTest extends TestCase
 {
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function createIntegrationDataProvider(): array
+    public static function createIntegrationDataProvider(): iterable
     {
-        return [
-            ['adminOption' => false],
-            ['adminOption' => true],
-        ];
+        yield 'integration is created without admin privileges' => ['adminOption' => false];
+        yield 'integration is created with admin privileges' => ['adminOption' => true];
     }
 
     #[DataProvider('createIntegrationDataProvider')]

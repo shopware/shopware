@@ -5,12 +5,18 @@
     hide-icon
     @close="hideBanner"
 >
-    <h3>{{  $t('sw-settings-services.dashboard-banner.title') }}</h3>
-    <div class="sw-settings-services-dashboard-banner__content">
-        <div>
-            <p>{{  $t('sw-settings-services.dashboard-banner.description') }}</p>
+    <div class="sw-settings-services-dashboard-banner__container">
+        <div class="sw-settings-services-dashboard-banner__text">
+            <h3 class="sw-settings-services-dashboard-banner__title">
+                {{  $t('sw-settings-services.dashboard-banner.title') }}
+            </h3>
+
+            <p class="sw-settings-services-dashboard-banner__description">
+                {{  $t('sw-settings-services.dashboard-banner.description') }}
+            </p>
 
             <mt-button
+                class="sw-settings-services-dashboard-banner__button"
                 variant="primary"
                 @click="$router.push({ name: 'sw.settings.services.index' })"
             >
@@ -25,15 +31,18 @@
             </mt-button>
         </div>
 
-        <img
-            class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--light"
-            :src="servicesGraphicLight"
-            alt=""
-        >
-        <img
-            class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--dark"
-            :src="servicesGraphicDark"
-            alt=""
-        >
+        <div class="sw-settings-services-dashboard-banner__graphics">
+            <img
+                class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--light"
+                :src="servicesGraphicLight"
+                alt=""
+            >
+
+            <img
+                class="sw-settings-services-dashboard-banner__graphic sw-settings-services-dashboard-banner__graphic--dark"
+                :src="servicesGraphicDark"
+                alt=""
+            >
+        </div>
     </div>
 </mt-banner>

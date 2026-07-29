@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -22,8 +23,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(OrderPersister::class)]
 #[Package('checkout')]
+#[CoversClass(OrderPersister::class)]
 class OrderPersisterTest extends TestCase
 {
     public function testPersist(): void
@@ -51,7 +52,7 @@ class OrderPersisterTest extends TestCase
             ->method('create')
             ->with([['id' => $order->getId()]], $context->getContext());
 
-        $persister = new OrderPersister($repo, $orderConverter, $this->createMock(CartSerializationCleaner::class));
+        $persister = new OrderPersister($repo, $orderConverter, static::createStub(CartSerializationCleaner::class));
         $id = $persister->persist($cart, $context);
 
         static::assertSame('test-id', $id);
@@ -76,9 +77,9 @@ class OrderPersisterTest extends TestCase
         );
 
         $persister = new OrderPersister(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(OrderConverter::class),
-            $this->createMock(CartSerializationCleaner::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartSerializationCleaner::class),
         );
 
         $this->expectException(CartException::class);
@@ -95,13 +96,12 @@ class OrderPersisterTest extends TestCase
         $cart->add(new LineItem('hatoken', 'product'));
 
         $persister = new OrderPersister(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(OrderConverter::class),
-            $this->createMock(CartSerializationCleaner::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartSerializationCleaner::class),
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CartException::customerNotLoggedIn());
 
         $persister->persist($cart, $context);
     }
@@ -113,13 +113,12 @@ class OrderPersisterTest extends TestCase
         $cart = new Cart('hatoken');
 
         $persister = new OrderPersister(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(OrderConverter::class),
-            $this->createMock(CartSerializationCleaner::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartSerializationCleaner::class),
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Cart is empty');
+        $this->expectExceptionObject(new EmptyCartException());
 
         $persister->persist($cart, $context);
     }
@@ -144,8 +143,8 @@ class OrderPersisterTest extends TestCase
         ]);
 
         $cartSerializationCleaner = new CartSerializationCleaner(
-            $this->createMock(Connection::class),
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(Connection::class),
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $orderConverter = $this->createMock(OrderConverter::class);
@@ -155,7 +154,7 @@ class OrderPersisterTest extends TestCase
             ->willReturn(['id' => $order->getId()]);
 
         $persister = new OrderPersister(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $orderConverter,
             $cartSerializationCleaner,
         );

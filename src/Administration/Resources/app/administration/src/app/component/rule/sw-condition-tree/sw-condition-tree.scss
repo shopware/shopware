@@ -16,22 +16,11 @@
         border-radius: 0;
     }
 
-    .mt-block-field__block {
-        min-height: unset;
-        height: 100%;
-    }
-
-    .sw-entity-multi-select .sw-block-field__block {
-        min-height: unset;
-        height: unset;
-    }
-
     .mt-datepicker__hint {
         display: none;
     }
 
     .wrapper .dp__input {
-        height: 100%;
         padding: var(--scale-size-10) !important;
     }
 

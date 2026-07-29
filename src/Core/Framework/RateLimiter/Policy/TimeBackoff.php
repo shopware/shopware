@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
 
@@ -32,7 +33,7 @@ class TimeBackoff implements LimiterStateInterface
         private array $limits,
         ?int $timer = null
     ) {
-        $this->timer = $timer ?? time();
+        $this->timer = $timer ?? Clock::get()->now()->getTimestamp();
         $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;
     }
 
@@ -107,7 +108,7 @@ class TimeBackoff implements LimiterStateInterface
         $limit = $this->getLimit($this->attempts + 1);
 
         if ($limit === null) {
-            $retryAfter = time();
+            $retryAfter = Clock::get()->now()->getTimestamp();
         } else {
             $retryAfter = $this->timer + $this->intervalToSeconds($limit['interval']);
         }

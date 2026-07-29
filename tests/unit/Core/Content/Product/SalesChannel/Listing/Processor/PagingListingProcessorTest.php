@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PagingListingProcessor::class)]
 class PagingListingProcessorTest extends TestCase
 {
@@ -218,7 +220,7 @@ class PagingListingProcessorTest extends TestCase
     #[DataProvider('provideTestPrepare')]
     public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit, int $maxLimit = PagingListingProcessor::DEFAULT_MAX_LIMIT, ?int $configLimit = null): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService([
@@ -238,7 +240,7 @@ class PagingListingProcessorTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $request = new Request(['p' => 2]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService([
@@ -258,7 +260,7 @@ class PagingListingProcessorTest extends TestCase
     {
         $criteria = (new Criteria())->setLimit(24);
         $request = new Request(['p' => 99]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
@@ -274,8 +276,7 @@ class PagingListingProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Requested listing page 99 is out of range (last page: 3).');
+        $this->expectExceptionObject(ProductException::pageOutOfRange(99, 3));
 
         $processor->process($request, $result, $context);
     }
@@ -337,7 +338,7 @@ class PagingListingProcessorTest extends TestCase
     {
         $criteria = (new Criteria())->setLimit($limit);
         $request = new Request(['p' => $page]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => $limit])
@@ -354,12 +355,7 @@ class PagingListingProcessorTest extends TestCase
 
         if ($shouldThrow) {
             $expectedLastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
-            $this->expectException(ProductException::class);
-            $this->expectExceptionMessage(\sprintf(
-                'Requested listing page %d is out of range (last page: %d).',
-                $page,
-                $expectedLastPage
-            ));
+            $this->expectExceptionObject(ProductException::pageOutOfRange($page, $expectedLastPage));
         }
 
         $processor->process($request, $result, $context);
@@ -381,7 +377,7 @@ class PagingListingProcessorTest extends TestCase
     {
         $criteria = (new Criteria())->setLimit(24);
         $request = $p === null ? new Request() : new Request(['p' => $p]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
@@ -413,7 +409,7 @@ class PagingListingProcessorTest extends TestCase
         $criteria = (new Criteria())->setLimit(0);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $request = new Request(['p' => 3, 'only-aggregations' => 1]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])

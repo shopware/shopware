@@ -4,6 +4,10 @@ import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
+const PRODUCT_SEARCH_PERFORMED_EVENT = 'product:search-performed';
+const PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT = 'product:search-suggestion-shown';
+const PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT = 'product:search-suggestion-product-viewed';
+
 export default class SearchWidgetPlugin extends Plugin {
 
     static options = {
@@ -77,7 +81,12 @@ export default class SearchWidgetPlugin extends Plugin {
         if (value.length < this.options.searchWidgetMinChars) {
             event.preventDefault();
             event.stopPropagation();
+            return;
         }
+
+        document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_PERFORMED_EVENT, {
+            detail: { term: value },
+        }));
     }
 
     /**
@@ -207,8 +216,6 @@ export default class SearchWidgetPlugin extends Plugin {
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
                 this._setAccessibilityAttributes();
-                this._inputField.setAttribute('aria-expanded', 'true');
-
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
 
                 this.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
@@ -216,6 +223,12 @@ export default class SearchWidgetPlugin extends Plugin {
                 this.searchSuggestLinks.forEach((item, index) => {
                     item.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this, index));
                 });
+
+                searchSuggest.addEventListener('click', this._handleSuggestResultClick.bind(this));
+
+                document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT, {
+                    detail: { term: value },
+                }));
 
                 this.$emitter.publish('afterSuggest');
             })
@@ -229,6 +242,29 @@ export default class SearchWidgetPlugin extends Plugin {
     }
 
     /**
+     * Delegated click handler on the rendered suggest dropdown. Fires a
+     * product:search-performed event when the user clicks the "show all
+     * results" link, or a product:search-suggestion-product-viewed event
+     * when the user clicks a product result.
+     * @param {Event} event
+     * @private
+     */
+    _handleSuggestResultClick(event) {
+        if (!event.target.closest('a[href]')) {
+            return;
+        }
+
+        const term = this._inputField.value.trim();
+        const eventName = event.target.closest('.search-suggest-total')
+            ? PRODUCT_SEARCH_PERFORMED_EVENT
+            : PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT;
+
+        document.dispatchEvent(new CustomEvent(eventName, {
+            detail: { term },
+        }));
+    }
+
+    /**
      * Remove existing search results popover from DOM
      * @private
      */
@@ -238,7 +274,6 @@ export default class SearchWidgetPlugin extends Plugin {
         results.forEach(result => result.remove());
 
         this._removeAccessibilityAttributes();
-        this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
     }

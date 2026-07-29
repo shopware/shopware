@@ -33,25 +33,21 @@ class ValidationControllerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, int|array<string, string>>>
+     * @return iterable<string, array<string, int|array<string, string>>>
      */
-    public static function emailPayloadProvider(): array
+    public static function emailPayloadProvider(): iterable
     {
-        return [
-            'valid email' => [
-                'emailPayload' => ['email' => 'valid@email.com'],
-                'expectedStatusCode' => 204,
-            ],
-
-            'invalid email' => [
-                'emailPayload' => ['email' => 'invalid@email'],
-                'expectedStatusCode' => 422,
-            ],
-
-            'no payload' => [
-                'emailPayload' => [],
-                'expectedStatusCode' => 400,
-            ],
+        yield 'valid email' => [
+            'emailPayload' => ['email' => 'valid@email.com'],
+            'expectedStatusCode' => 204,
+        ];
+        yield 'invalid email' => [
+            'emailPayload' => ['email' => 'invalid@email'],
+            'expectedStatusCode' => 422,
+        ];
+        yield 'no payload' => [
+            'emailPayload' => [],
+            'expectedStatusCode' => 400,
         ];
     }
 }

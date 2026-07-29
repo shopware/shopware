@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_8;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_8\Migration1773829004RegisterProductStreamIndexer;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_8\Migration1773829004RegisterProductStreamIndexer
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1773829004RegisterProductStreamIndexer::class)]
 class Migration1773829004RegisterProductStreamIndexerTest extends TestCase
 {
@@ -22,6 +24,11 @@ class Migration1773829004RegisterProductStreamIndexerTest extends TestCase
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773829004, (new Migration1773829004RegisterProductStreamIndexer())->getCreationTimestamp());
     }
 
     public function testRuleIndexerIsRegistered(): void

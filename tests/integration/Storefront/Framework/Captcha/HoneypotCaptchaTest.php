@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class HoneypotCaptchaTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -36,33 +38,31 @@ class HoneypotCaptchaTest extends TestCase
     }
 
     /**
-     * @return list<array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
-            [
-                self::getRequest(),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null,
-                ]),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => '',
-                ]),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                self::IS_INVALID,
-            ],
+        yield 'request get request is valid' => [
+            self::getRequest(),
+            self::IS_VALID,
+        ];
+        yield 'GET request with custom captcha field is valid' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null,
+            ]),
+            self::IS_VALID,
+        ];
+        yield 'GET request with empty captcha field is invalid' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => '',
+            ]),
+            self::IS_VALID,
+        ];
+        yield 'request get request is invalid' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            self::IS_INVALID,
         ];
     }
 

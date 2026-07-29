@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1716196653AddTechnicalNameToImportExpo
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1716196653AddTechnicalNameToImportExportProfile::class)]
 class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestCase
 {
@@ -43,6 +45,11 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716196653, (new Migration1716196653AddTechnicalNameToImportExportProfile())->getCreationTimestamp());
     }
 
     public function testMigration(): void

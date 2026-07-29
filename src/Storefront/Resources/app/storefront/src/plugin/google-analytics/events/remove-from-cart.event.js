@@ -50,13 +50,14 @@ export default class RemoveFromCart extends AnalyticsEvent
         const categories = LineItemHelper.getCategoriesFromElement(hiddenLineItem);
         const price = hiddenLineItem.getAttribute('data-price');
         const quantity = hiddenLineItem.getAttribute('data-quantity');
+        const sku = hiddenLineItem.getAttribute('data-sku');
         const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);
 
         gtag('event', 'remove_from_cart', {
             'currency': additionalProperties.currency,
             'value': value.toFixed(2),
             'items': [{
-                'id': productId,
+                'id': sku ?? productId,
                 'name': hiddenLineItem.getAttribute('data-name'),
                 'quantity': quantity,
                 'price': price,

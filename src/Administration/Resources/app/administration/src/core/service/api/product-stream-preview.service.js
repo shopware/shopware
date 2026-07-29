@@ -16,10 +16,11 @@ export default class ProductStreamPreviewService extends ApiService {
      * @param {Criteria} criteria
      * @param {Array} filter
      * @param {Object} additionalHeaders
+     * @param {boolean} displayAsGroup
      *
      * @returns Object
      */
-    preview(salesChannelId, criteria, filter, additionalHeaders = {}) {
+    preview(salesChannelId, criteria, filter, additionalHeaders = {}, displayAsGroup = true) {
         const body = deepMergeObject(criteria.parse(), {
             filter,
         });
@@ -27,6 +28,8 @@ export default class ProductStreamPreviewService extends ApiService {
         return this.httpClient
             .post(`_admin/product-stream-preview/${salesChannelId}`, body, {
                 headers: this.getBasicHeaders(additionalHeaders),
+                // controller mirrors the storefront's variant grouping when it is enabled.
+                params: { displayAsGroup },
             })
             .then((response) => ApiService.handleResponse(response));
     }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,8 +18,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 #[Package('inventory')]
+#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -31,6 +32,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         LoggerInterface $logger,
         private readonly Connection $connection,
         private readonly MessageBusInterface $messageBus,
+        private readonly ClockInterface $clock,
         private readonly int $staleMinSeconds = 300,
         private readonly float $staleIntervalFactor = 2.0
     ) {
@@ -46,7 +48,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $now = new \DateTimeImmutable('now');
+            $now = $this->clock->now();
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {
@@ -89,6 +91,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 SELECT
                     LOWER(HEX(product_export.id)) AS id,
                     product_export.generated_at,
+                    product_export.next_generation_at,
                     product_export.interval,
                     product_export.is_running,
                     product_export.updated_at,
@@ -146,6 +149,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
         if ($productExport['generated_at'] === null) {
             return true;
+        }
+
+        $nextGenerationAt = $productExport['next_generation_at'];
+        if (\is_string($nextGenerationAt)) {
+            return $now >= new \DateTimeImmutable($nextGenerationAt);
         }
 
         $generatedAt = new \DateTimeImmutable($productExport['generated_at']);

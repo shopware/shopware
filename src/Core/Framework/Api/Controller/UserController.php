@@ -27,8 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class UserController extends AbstractController
 {
     /**
@@ -218,10 +218,20 @@ class UserController extends AbstractController
         $data['id'] = $userId ?: $data['id'];
 
         $source = $context->getSource();
-        if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id'])
-        ) {
+        if (!$source instanceof AdminApiSource) {
+            throw new PermissionDeniedException();
+        }
+
+        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $canUpdateUsers = $source->isAllowed('user:update');
+
+        if (!$canUpdateUsers && !$isSelfUpdate) {
+            throw new PermissionDeniedException();
+        }
+
+        $isTryingToChangeAdmin = isset($data['admin']);
+
+        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
             throw new PermissionDeniedException();
         }
 

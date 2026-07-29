@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1714659357CanonicalProductVersion;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1714659357CanonicalProductVersion;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1714659357CanonicalProductVersion::class)]
 class Migration1714659357CanonicalProductVersionTest extends TestCase
 {
@@ -28,6 +30,11 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         if (!str_contains($version, 'mariadb') && version_compare($version, '8.4.0', '>=')) {
             static::markTestSkipped('Test is only relevant for MariaDB or MySQL < 8.4.0');
         }
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1714659357, (new Migration1714659357CanonicalProductVersion())->getCreationTimestamp());
     }
 
     public function testMigration(): void

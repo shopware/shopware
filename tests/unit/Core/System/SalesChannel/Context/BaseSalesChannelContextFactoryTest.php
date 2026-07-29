@@ -44,6 +44,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -68,30 +69,21 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         false|array $fetchDataResult,
         false|string $fetchParentLanguageResult,
         array $entitySearchResult,
-        ?string $exceptionMessage = null
+        ?\Exception $expectedException = null
     ): void {
-        if ($exceptionMessage !== null) {
-            $this->expectExceptionMessage($exceptionMessage);
+        if ($expectedException !== null) {
+            $this->expectExceptionObject($expectedException);
         }
 
-        /** @var StaticEntityRepository<CurrencyCollection> $currencyRepository */
-        $currencyRepository = new StaticEntityRepository([new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CustomerGroupCollection> $customerGroupRepository */
-        $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = new StaticEntityRepository([new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<TaxCollection> $taxRepository */
-        $taxRepository = new StaticEntityRepository([new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
-        $paymentMethodRepository = new StaticEntityRepository([new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<ShippingMethodCollection> $shippingMethodRepository */
-        $shippingMethodRepository = new StaticEntityRepository([new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryStateCollection> $countryStateRepository */
-        $countryStateRepository = new StaticEntityRepository([new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
-        $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
+        $currencyRepository = StaticEntityRepository::of(CurrencyCollection::class, [new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
+        $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
+        $countryRepository = StaticEntityRepository::of(CountryCollection::class, [new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
+        $taxRepository = StaticEntityRepository::of(TaxCollection::class, [new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
+        $paymentMethodRepository = StaticEntityRepository::of(PaymentMethodCollection::class, [new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
+        $shippingMethodRepository = StaticEntityRepository::of(ShippingMethodCollection::class, [new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
+        $countryStateRepository = StaticEntityRepository::of(CountryStateCollection::class, [new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
+        $currencyCountryRepository = StaticEntityRepository::of(CurrencyCountryRoundingCollection::class, [new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
         /** @var StaticEntityRepository<EntityCollection<PartialEntity>> $languageRepository */
         $languageRepository = new StaticEntityRepository([new EntityCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
 
@@ -205,7 +197,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'fetchDataResult' => false,
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => \sprintf('No context data found for SalesChannel "%s"', TestDefaults::SALES_CHANNEL),
+            'expectedException' => SalesChannelException::noContextData(TestDefaults::SALES_CHANNEL),
         ];
 
         yield 'provided language not available' => [
@@ -218,7 +210,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => \sprintf('Provided language "%s" is not in list of available languages: %s', $invalidSalesChannelId, Defaults::LANGUAGE_SYSTEM),
+            'expectedException' => SalesChannelException::providedLanguageNotAvailable($invalidSalesChannelId, [Defaults::LANGUAGE_SYSTEM]),
         ];
 
         yield 'language id is not uuid' => [
@@ -231,7 +223,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => 'Provided language ID is not a valid UUID',
+            'expectedException' => SalesChannelException::invalidLanguageId(),
         ];
 
         yield 'language id not found' => [
@@ -244,7 +236,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => 'Could not find language with id "3ebb5fe2e29a4d70aa5854ce7ce3e20b"',
+            'expectedException' => SalesChannelException::languageNotFound('3ebb5fe2e29a4d70aa5854ce7ce3e20b'),
         ];
 
         yield 'sales channel not found' => [
@@ -259,7 +251,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => Uuid::randomHex(),
             'entitySearchResult' => [],
-            'exceptionMessage' => \sprintf('Sales channel with id "%s" not found or not valid!.', TestDefaults::SALES_CHANNEL),
+            'expectedException' => SalesChannelException::salesChannelNotFound(TestDefaults::SALES_CHANNEL),
         ];
 
         yield 'currency id is not uuid' => [
@@ -279,7 +271,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
             ],
-            'exceptionMessage' => 'Provided currency ID is not a valid UUID',
+            'expectedException' => SalesChannelException::invalidCurrencyId(),
         ];
 
         yield 'currency not found' => [
@@ -299,7 +291,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
             ],
-            'exceptionMessage' => 'Could not find currency with id "3ebb5fe2e29a4d70aa5854ce7ce3e20b"',
+            'expectedException' => SalesChannelException::currencyNotFound('3ebb5fe2e29a4d70aa5854ce7ce3e20b'),
         ];
 
         yield 'currency not set in options and not in sales channel' => [
@@ -318,7 +310,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
             ],
-            'exceptionMessage' => 'Could not find currency with id "b7d2554b0ce847cd82f3ac9bd1c0dfca"',
+            'expectedException' => SalesChannelException::currencyNotFound('b7d2554b0ce847cd82f3ac9bd1c0dfca'),
         ];
 
         yield 'customer group not found' => [
@@ -345,7 +337,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $countryId => $country,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find customer group with id "%s"', $customerGroupId),
+            'expectedException' => SalesChannelException::customerGroupNotFound($customerGroupId),
         ];
 
         yield 'country state id is not uuid' => [
@@ -369,7 +361,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => 'Provided country state ID is not a valid UUID',
+            'expectedException' => SalesChannelException::invalidCountryStateId(),
         ];
 
         yield 'country state not found' => [
@@ -393,7 +385,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find country state with id "%s"', $countryStateId),
+            'expectedException' => SalesChannelException::countryStateNotFound($countryStateId),
         ];
 
         yield 'country not found if country state ID is given' => [
@@ -420,7 +412,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $countryStateId => $countryState,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find country with id "%s"', $countryId),
+            'expectedException' => SalesChannelException::countryNotFound($countryId),
         ];
 
         yield 'country id is not uuid' => [
@@ -444,7 +436,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => 'Provided country ID is not a valid UUID',
+            'expectedException' => SalesChannelException::invalidCountryId(),
         ];
 
         yield 'country not found' => [
@@ -468,7 +460,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find country with id "%s"', $countryId),
+            'expectedException' => SalesChannelException::countryNotFound($countryId),
         ];
 
         yield 'payment method not found' => [
@@ -498,7 +490,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $customerGroupId => $customerGroup,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find payment method with id "%s"', $paymentMethodId),
+            'expectedException' => SalesChannelException::unknownPaymentMethod($paymentMethodId),
         ];
 
         yield 'shipping method not found' => [
@@ -531,7 +523,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $customerGroupId => $customerGroup,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find shipping method with id "%s"', $shippingMethodId),
+            'expectedException' => SalesChannelException::shippingMethodNotFound($shippingMethodId),
         ];
 
         yield 'missing sales channel language' => [
@@ -567,7 +559,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     $customerGroupId => $customerGroup,
                 ],
             ],
-            'exceptionMessage' => \sprintf('Could not find language with id "%s"', $anotherLanguageId),
+            'expectedException' => SalesChannelException::languageNotFound($anotherLanguageId),
         ];
 
         yield 'create base context successfully' => [
@@ -606,7 +598,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     Defaults::LANGUAGE_SYSTEM => $language,
                 ],
             ],
-            'exceptionMessage' => null,
+            'expectedException' => null,
         ];
 
         yield 'create base context successfully with domain' => [
@@ -646,7 +638,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     Defaults::LANGUAGE_SYSTEM => $language,
                 ],
             ],
-            'exceptionMessage' => null,
+            'expectedException' => null,
         ];
     }
 }

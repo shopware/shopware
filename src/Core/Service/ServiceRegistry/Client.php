@@ -101,6 +101,7 @@ class Client implements ResetInterface
                 $service['host'],
                 $service['app-endpoint'],
                 (bool) ($service['activate-on-install'] ?? true),
+                /** @deprecated tag:v6.8.0 - remove registry `license-sync-endpoint` support. Use the `commercial_license.provided` webhook instead. */
                 $service['license-sync-endpoint'] ?? null
             ),
             $rawServices

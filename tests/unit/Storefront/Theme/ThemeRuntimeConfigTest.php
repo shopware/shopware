@@ -16,6 +16,13 @@ class ThemeRuntimeConfigTest extends TestCase
 {
     public function testFromArray(): void
     {
+        $importMap = [
+            'imports' => [
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
+            ],
+        ];
+
         $data = [
             'themeId' => '12345',
             'technicalName' => 'testTheme',
@@ -23,6 +30,7 @@ class ThemeRuntimeConfigTest extends TestCase
             'viewInheritance' => ['parentTheme'],
             'scriptFiles' => ['file1.js', 'file2.js'],
             'iconSets' => ['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => 'testTheme']],
+            'importMap' => $importMap,
             'updatedAt' => new \DateTimeImmutable(),
         ];
 
@@ -34,6 +42,7 @@ class ThemeRuntimeConfigTest extends TestCase
         static::assertSame($data['viewInheritance'], $config->viewInheritance);
         static::assertSame($data['scriptFiles'], $config->scriptFiles);
         static::assertSame($data['iconSets'], $config->iconSets);
+        static::assertSame($importMap, $config->importMap);
         static::assertEquals($data['updatedAt'], $config->updatedAt);
     }
 
@@ -54,6 +63,7 @@ class ThemeRuntimeConfigTest extends TestCase
         static::assertSame([], $config->viewInheritance);
         static::assertNull($config->scriptFiles);
         static::assertSame([], $config->iconSets);
+        static::assertNull($config->importMap);
 
         static::assertGreaterThanOrEqual($before, $config->updatedAt);
         static::assertLessThanOrEqual($after, $config->updatedAt);
@@ -74,6 +84,7 @@ class ThemeRuntimeConfigTest extends TestCase
         static::assertSame($originalConfig->viewInheritance, $newConfig->viewInheritance);
         static::assertSame($originalConfig->scriptFiles, $newConfig->scriptFiles);
         static::assertSame($originalConfig->iconSets, $newConfig->iconSets);
+        static::assertSame($originalConfig->importMap, $newConfig->importMap);
         static::assertSame($originalConfig->updatedAt, $newConfig->updatedAt);
     }
 
@@ -82,6 +93,10 @@ class ThemeRuntimeConfigTest extends TestCase
         $originalConfig = $this->getTestConfig();
 
         $newUpdatedAt = new \DateTimeImmutable('2024-01-01');
+        $newImportMap = [
+            'imports' => ['Sw:Alert' => 'js/components/Sw/Alert.js'],
+            'scopes' => ['js/components/MyPlugin/' => ['debounce' => 'js/components/MyPlugin/vendor/debounce-abc.js']],
+        ];
         $newConfig = $originalConfig->with([
             'themeId' => '67890',
             'technicalName' => 'newTheme',
@@ -89,6 +104,7 @@ class ThemeRuntimeConfigTest extends TestCase
             'viewInheritance' => ['newParentTheme'],
             'scriptFiles' => ['newFile.js'],
             'iconSets' => ['newIconSet' => ['path' => 'path/to/newIconSet', 'namespace' => 'newTheme']],
+            'importMap' => $newImportMap,
             'updatedAt' => $newUpdatedAt,
         ]);
 
@@ -98,7 +114,27 @@ class ThemeRuntimeConfigTest extends TestCase
         static::assertSame(['newParentTheme'], $newConfig->viewInheritance);
         static::assertSame(['newFile.js'], $newConfig->scriptFiles);
         static::assertSame(['newIconSet' => ['path' => 'path/to/newIconSet', 'namespace' => 'newTheme']], $newConfig->iconSets);
+        static::assertSame($newImportMap, $newConfig->importMap);
         static::assertSame($newUpdatedAt, $newConfig->updatedAt);
+    }
+
+    public function testWithMethodClearsImportMapWhenExplicitlySetToNull(): void
+    {
+        $originalConfig = $this->getTestConfigWithImportMap();
+
+        $newConfig = $originalConfig->with(['importMap' => null]);
+
+        static::assertNull($newConfig->importMap);
+        static::assertSame($originalConfig->scriptFiles, $newConfig->scriptFiles);
+    }
+
+    public function testWithMethodPreservesImportMapWhenKeyAbsent(): void
+    {
+        $originalConfig = $this->getTestConfigWithImportMap();
+
+        $newConfig = $originalConfig->with(['themeId' => 'other-id']);
+
+        static::assertSame($originalConfig->importMap, $newConfig->importMap);
     }
 
     private function getTestConfig(): ThemeRuntimeConfig
@@ -110,6 +146,22 @@ class ThemeRuntimeConfigTest extends TestCase
             'viewInheritance' => ['parentTheme'],
             'scriptFiles' => ['file1.js', 'file2.js'],
             'iconSets' => ['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => 'testTheme']],
+            'updatedAt' => new \DateTimeImmutable(),
+        ]);
+    }
+
+    private function getTestConfigWithImportMap(): ThemeRuntimeConfig
+    {
+        return ThemeRuntimeConfig::fromArray([
+            'themeId' => '12345',
+            'technicalName' => 'testTheme',
+            'resolvedConfig' => ['key' => 'value'],
+            'viewInheritance' => ['parentTheme'],
+            'scriptFiles' => ['file1.js'],
+            'iconSets' => [],
+            'importMap' => [
+                'imports' => ['shopware' => '/bundles/storefront/storefront/shopware/shopware.js'],
+            ],
             'updatedAt' => new \DateTimeImmutable(),
         ]);
     }

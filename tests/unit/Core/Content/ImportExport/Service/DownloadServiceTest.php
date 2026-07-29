@@ -7,12 +7,10 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
@@ -22,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,9 +38,7 @@ class DownloadServiceTest extends TestCase
     #[DataProvider('dataProviderInvalidAccessToken')]
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
     {
-        static::expectException(InvalidFileAccessTokenException::class);
-        static::expectExceptionMessage('Access to file denied due to invalid access token');
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
+        $this->expectExceptionObject(ImportExportException::invalidFileAccessToken());
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -52,10 +49,8 @@ class DownloadServiceTest extends TestCase
     #[DataProvider('dataProviderNotFoundFile')]
     public function testNotFoundFile(ImportExportFileEntity $fileEntity, string $accessToken, string $fileId): void
     {
-        static::expectException(FileNotFoundException::class);
-        static::expectExceptionMessage(\sprintf('Cannot find import/export file with id %s', $fileId));
+        $this->expectExceptionObject(ImportExportException::fileNotFound($fileId));
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -71,10 +66,10 @@ class DownloadServiceTest extends TestCase
         string $expectOutputFilename,
         string $expectedContentType
     ): void {
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
-        $fileSystem = $this->createFileSystem();
+        $fileSystem = $this->createMock(Filesystem::class);
+        $fileSystem->method('temporaryUrl')->willReturn('');
         $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
         $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
 
@@ -106,10 +101,9 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
-        $fileSystem = $this->createFileSystem();
+        $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
         $fileSystem->method('fileSize')->willReturn(100);
 
@@ -169,7 +163,6 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
@@ -377,12 +370,12 @@ class DownloadServiceTest extends TestCase
         }, Response::HTTP_OK, $headers);
     }
 
-    private function createFileSystem(): Filesystem&MockObject
+    private function createFileSystem(): Filesystem
     {
-        $fileSystemMock = $this->createMock(Filesystem::class);
-        $fileSystemMock->method('temporaryUrl')->willReturn('');
+        $fileSystem = static::createStub(Filesystem::class);
+        $fileSystem->method('temporaryUrl')->willReturn('');
 
-        return $fileSystemMock;
+        return $fileSystem;
     }
 
     /**
@@ -405,6 +398,7 @@ class DownloadServiceTest extends TestCase
             $logger,
             $localDownloadStrategy,
             $localPathPrefix,
+            new NativeClock()
         );
     }
 

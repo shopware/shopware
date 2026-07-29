@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExtensionDispatcher::class)]
 class ExtensionDispatcherTest extends TestCase
 {
@@ -87,8 +89,7 @@ class ExtensionDispatcherTest extends TestCase
 
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Test exception');
+        $this->expectExceptionObject(new \Exception('Test exception'));
 
         try {
             $extensionDispatcher->publish('eventName', $extension, $function);

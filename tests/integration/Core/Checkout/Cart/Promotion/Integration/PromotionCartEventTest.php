@@ -53,7 +53,7 @@ class PromotionCartEventTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $addListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $addListener = $this->createMock(CallableClass::class);
         $addListener->expects($this->exactly(1 + \count($codes)))->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, $addListener);
 
@@ -85,7 +85,7 @@ class PromotionCartEventTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $removeListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $removeListener = $this->createMock(CallableClass::class);
         $removeListener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $removeListener);
 

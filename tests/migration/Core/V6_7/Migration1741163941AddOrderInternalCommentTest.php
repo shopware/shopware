@@ -19,6 +19,11 @@ class Migration1741163941AddOrderInternalCommentTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1741163941, (new Migration1741163941AddOrderInternalComment())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

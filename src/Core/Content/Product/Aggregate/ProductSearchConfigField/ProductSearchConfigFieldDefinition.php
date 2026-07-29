@@ -46,6 +46,7 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return [
             'tokenize' => false,
             'searchable' => false,
+            'useExactSubfield' => false,
             'ranking' => 0,
         ];
     }
@@ -69,6 +70,7 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
             (new StringField('field', 'field'))->addFlags(new Required())->setDescription('Configuration of search field.'),
             (new BoolField('tokenize', 'tokenize'))->addFlags(new Required())->setDescription('To decide whether the text within the field should undergo tokenization, which involves splitting it into smaller chunks.'),
             (new BoolField('searchable', 'searchable'))->addFlags(new Required())->setDescription('To configure whether the field can be used for searching.'),
+            (new BoolField('use_exact_subfield', 'useExactSubfield'))->addFlags(new Required())->setDescription('To configure whether exact match queries should target the exact subfield, which uses the whitespace analyzer (lowercased, whitespace-tokenised) and bypasses the language analyzer (no stemming, no stop-word removal, no compound decomposition).'),
             (new IntField('ranking', 'ranking'))->addFlags(new Required())->setDescription('Search ranking.'),
             new ManyToOneAssociationField('searchConfig', 'product_search_config_id', ProductSearchConfigDefinition::class, 'id', false),
             new ManyToOneAssociationField('customField', 'custom_field_id', CustomFieldDefinition::class, 'id', false),

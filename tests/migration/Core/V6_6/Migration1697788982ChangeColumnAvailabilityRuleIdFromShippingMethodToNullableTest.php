@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRule
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable::class)]
 class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullableTest extends TestCase
 {
@@ -20,6 +22,11 @@ class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNulla
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1697788982, (new Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable())->getCreationTimestamp());
     }
 
     public function testMigration(): void

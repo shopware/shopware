@@ -40,7 +40,9 @@ export default {
     computed: {
         locales() {
             if (this.set.config.translated && this.set.config.translated === true) {
-                return Object.keys(this.$root.$i18n.messages.value);
+                // Only full locale codes (e.g. en-GB, de-DE) represent real admin languages.
+                // vue-i18n also registers short aliases (en, de) that must not become editable tabs.
+                return Object.keys(this.$root.$i18n.messages.value).filter((locale) => locale.includes('-'));
             }
 
             return [this.$root.$i18n.fallbackLocale.value];

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1711461579FixDefaultMailFooter;
 use Shopware\Tests\Migration\MigrationTestTrait;
@@ -15,6 +16,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1711461579FixDefaultMailFooter::class)]
 class Migration1711461579FixDefaultMailFooterTest extends TestCase
 {
@@ -33,6 +35,11 @@ class Migration1711461579FixDefaultMailFooterTest extends TestCase
         $germanLanguageId = $this->fetchLanguageId($this->connection, 'de-DE');
         static::assertIsString($germanLanguageId);
         $this->germanLanguageId = $germanLanguageId;
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1711461579, (new Migration1711461579FixDefaultMailFooter())->getCreationTimestamp());
     }
 
     public function testMigration(): void

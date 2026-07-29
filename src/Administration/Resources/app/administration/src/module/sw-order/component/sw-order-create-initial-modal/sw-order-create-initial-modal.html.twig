@@ -8,85 +8,136 @@
 >
     <template #default>
         {% block sw_order_create_modal_tabs %}
-        <sw-tabs
-            class="sw-order-create-initial-modal__tabs"
-            default-item="customer"
-            position-identifier="sw-order-create-initial-modal"
-        >
-            <template #default="{ active }">
+        <template v-if="feature.isActive('v6.8.0.0')">
+            {% block sw_order_create_modal_mt_tabs %}
+            <mt-tabs
+                class="sw-order-create-initial-modal__tabs"
+                position-identifier="sw-order-create-initial-modal"
+                :default-item="activeTab"
+                :items="orderCreateInitialModalTabs"
+                :small="true"
+                @new-item-active="activeTab = $event"
+            />
+            {% endblock %}
+
+            {% block sw_order_create_modal_mt_tabs_content %}
+            <div class="sw-order-create-initial-modal__content">
+                {% block sw_order_create_modal_mt_tabs_content_customer %}
+                <div v-show="activeTab === 'customer'">
+                    <sw-order-customer-grid />
+                </div>
+                {% endblock %}
+
+                {% block sw_order_create_modal_mt_tabs_content_products %}
+                <sw-order-line-items-grid-sales-channel
+                    v-show="activeTab === 'products'"
+                    :is-loading="isProductGridLoading"
+                    :sales-channel-id="salesChannelId"
+                    :cart="cart"
+                    :currency="currency"
+                    :is-customer-active="isCustomerActive"
+                    @on-save-item="onSaveItem"
+                    @on-remove-items="onRemoveItems"
+                />
+                {% endblock %}
+
+                {% block sw_order_create_modal_mt_tabs_content_options %}
+                <sw-order-create-options
+                    v-show="activeTab === 'options'"
+                    :disabled="!customer || undefined"
+                    :disabled-auto-promotion="disabledAutoPromotion"
+                    :promotion-codes="promotionCodes"
+                    :context="context"
+                    @promotions-change="updatePromotion"
+                    @auto-promotion-toggle="updateAutoPromotionToggle"
+                    @shipping-cost-change="updateShippingCost"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            <sw-tabs
+                class="sw-order-create-initial-modal__tabs"
+                default-item="customer"
+                position-identifier="sw-order-create-initial-modal"
+            >
+                <template #default="{ active }">
                 {% block sw_order_create_modal_tabs_customer %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-customer"
-                    name="customer"
-                    :active-tab="active"
-                >
-                    {{ $t('sw-order.initialModal.tabCustomer') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        class="sw-order-create-initial-modal__tab-customer"
+                        name="customer"
+                        :active-tab="active"
+                    >
+                        {{ $t('sw-order.initialModal.tabCustomer') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_order_create_modal_tabs_products %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-product"
-                    name="products"
-                    :active-tab="active"
-                    :disabled="!customer || undefined"
-                >
-                    {{ $t('sw-order.initialModal.tabProducts') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        class="sw-order-create-initial-modal__tab-product"
+                        name="products"
+                        :active-tab="active"
+                        :disabled="!customer || undefined"
+                    >
+                        {{ $t('sw-order.initialModal.tabProducts') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_order_create_modal_tabs_options %}
-                <sw-tabs-item
-                    class="sw-order-create-initial-modal__tab-options"
-                    name="options"
-                    :active-tab="active"
-                    :disabled="!customer || undefined"
-                >
-                    {{ $t('sw-order.initialModal.tabOptions') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        class="sw-order-create-initial-modal__tab-options"
+                        name="options"
+                        :active-tab="active"
+                        :disabled="!customer || undefined"
+                    >
+                        {{ $t('sw-order.initialModal.tabOptions') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_order_create_modal_tabs_extension %}{% endblock %}
-            </template>
+                </template>
 
-            <template #content="{ active }">
+                <template #content="{ active }">
                 {% block sw_order_create_modal_tabs_content %}
-                <div class="sw-order-create-initial-modal__content">
+                    <div class="sw-order-create-initial-modal__content">
                     {% block sw_order_create_modal_tabs_content_customer %}
-                    <div v-show="active === 'customer'">
-                        <sw-order-customer-grid />
-                    </div>
+                        <div v-show="active === 'customer'">
+                            <sw-order-customer-grid />
+                        </div>
                     {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_products %}
-                    <sw-order-line-items-grid-sales-channel
-                        v-show="active === 'products'"
-                        :is-loading="isProductGridLoading"
-                        :sales-channel-id="salesChannelId"
-                        :cart="cart"
-                        :currency="currency"
-                        :is-customer-active="isCustomerActive"
-                        @on-save-item="onSaveItem"
-                        @on-remove-items="onRemoveItems"
-                    />
+                        <sw-order-line-items-grid-sales-channel
+                            v-show="active === 'products'"
+                            :is-loading="isProductGridLoading"
+                            :sales-channel-id="salesChannelId"
+                            :cart="cart"
+                            :currency="currency"
+                            :is-customer-active="isCustomerActive"
+                            @on-save-item="onSaveItem"
+                            @on-remove-items="onRemoveItems"
+                        />
                     {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_options %}
-                    <sw-order-create-options
-                        v-show="active === 'options'"
-                        :disabled="!customer || undefined"
-                        :disabled-auto-promotion="disabledAutoPromotion"
-                        :promotion-codes="promotionCodes"
-                        :context="context"
-                        @promotions-change="updatePromotion"
-                        @auto-promotion-toggle="updateAutoPromotionToggle"
-                        @shipping-cost-change="updateShippingCost"
-                    />
+                        <sw-order-create-options
+                            v-show="active === 'options'"
+                            :disabled="!customer || undefined"
+                            :disabled-auto-promotion="disabledAutoPromotion"
+                            :promotion-codes="promotionCodes"
+                            :context="context"
+                            @promotions-change="updatePromotion"
+                            @auto-promotion-toggle="updateAutoPromotionToggle"
+                            @shipping-cost-change="updateShippingCost"
+                        />
                     {% endblock %}
-                </div>
+                    </div>
                 {% endblock %}
-            </template>
-        </sw-tabs>
+                </template>
+            </sw-tabs>
+        </template>
         {% endblock %}
     </template>
 

@@ -33,7 +33,6 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -44,7 +43,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 #[Package('after-sales')]
 class InvoiceRendererTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use DocumentTrait;
     use SnapshotTesting;
 
@@ -269,7 +267,7 @@ class InvoiceRendererTest extends TestCase
                 ]], Context::createDefaultContext());
 
                 $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
-                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($operation->getOrderId());
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->get($operation->getOrderId());
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 $context = clone Context::createDefaultContext();
@@ -371,7 +369,7 @@ class InvoiceRendererTest extends TestCase
             static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
-                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($orderId);
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
                 $country = $order->getDeliveries()?->getShippingAddress()->getCountries()->first();
                 self::assertNotNull($country);
@@ -430,7 +428,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -471,7 +469,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -522,7 +520,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -572,7 +570,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -695,7 +693,7 @@ class InvoiceRendererTest extends TestCase
         $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
         $order = static::getContainer()->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())->get($orderId);
+            ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         static::getContainer()->get('customer.repository')->update([[

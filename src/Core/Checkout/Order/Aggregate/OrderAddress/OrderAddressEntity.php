@@ -58,6 +58,8 @@ class OrderAddressEntity extends Entity
 
     protected ?OrderEntity $order = null;
 
+    protected ?OrderEntity $billingAddressOrder = null;
+
     protected ?SalutationEntity $salutation = null;
 
     protected ?OrderDeliveryCollection $orderDeliveries = null;
@@ -262,6 +264,16 @@ class OrderAddressEntity extends Entity
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function getBillingAddressOrder(): ?OrderEntity
+    {
+        return $this->billingAddressOrder;
+    }
+
+    public function setBillingAddressOrder(?OrderEntity $billingAddressOrder): void
+    {
+        $this->billingAddressOrder = $billingAddressOrder;
     }
 
     public function getSalutation(): ?SalutationEntity

@@ -16,11 +16,11 @@ use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -36,10 +36,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final - will be final (with @final, not actual final, for testing purposes)
- */
 #[Package('checkout')]
+#[BecomesFinal(version: 'v6.8.0', description: 'Will be @final for testing purposes, not actual final.')]
 class PaymentProcessor
 {
     /**
@@ -69,7 +67,7 @@ class PaymentProcessor
         ?string $finishUrl = null,
         ?string $errorUrl = null,
     ): ?RedirectResponse {
-        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext->getContext());
+        $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext);
         if (!$transaction) {
             return null;
         }
@@ -120,10 +118,8 @@ class PaymentProcessor
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - first parameter will become `PaymentToken $token` instead of being the last optional parameter
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will return `void` instead of `TokenStruct`
-     *
-     * new signature to copy: public function finalize(PaymentToken $token, Request $request, SalesChannelContext $context): void
+     * The signature will change in v6.8.0 to:
+     * `public function finalize(PaymentToken $token, Request $request, SalesChannelContext $context): void`
      */
     public function finalize(TokenStruct $token, Request $request, SalesChannelContext $context /* , ?PaymentToken $paymentToken = null */): TokenStruct
     {
@@ -200,29 +196,21 @@ class PaymentProcessor
         }
     }
 
-    private function getCurrentOrderTransaction(string $orderId, Context $context): ?OrderTransactionEntity
+    private function getCurrentOrderTransaction(string $orderId, SalesChannelContext $salesChannelContext): ?OrderTransactionEntity
     {
+        $initialStateId = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)))
             ->addFilter(new EqualsFilter('orderId', $orderId))
-            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
-            ->setLimit(1);
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $salesChannelContext->getCustomer()?->getId()))
+            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
+        $transactions = $this->orderTransactionRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
 
-        if (!$transaction) {
-            // check, if there are no transactions at all or just not with non-initial state
-            $criteria->resetFilters();
-            $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-
-            if ($this->orderTransactionRepository->searchIds($criteria, $context)->firstId()) {
-                return null;
-            }
-
+        if ($transactions->count() === 0) {
             throw PaymentException::invalidOrder($orderId);
         }
 
-        return $transaction;
+        return $transactions->filterByProperty('stateId', $initialStateId)->first();
     }
 
     private function getOldToken(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string

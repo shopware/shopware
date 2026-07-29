@@ -19,6 +19,11 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1742897274, (new Migration1742897274RegistrationSalutationToggleConfig())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

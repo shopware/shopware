@@ -39,6 +39,11 @@ class CustomerPasswordChangedEvent extends Event implements SalesChannelAware, S
         return $this->customer->getId();
     }
 
+    public function getCustomer(): CustomerEntity
+    {
+        return $this->customer;
+    }
+
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())

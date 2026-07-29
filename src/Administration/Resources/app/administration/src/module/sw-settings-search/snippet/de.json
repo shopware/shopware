@@ -10,18 +10,20 @@
     },
     "generalTab": {
       "labelSearchBehaviour": "Suchverhalten",
-      "textTitleSearchBehaviour": "Lege ein Suchverhalten für Deine Verkaufskanäle fest.",
-      "labelSearchAndCondition": "“UND”-Suche",
-      "textSearchAndConditionExplain": "Suchergebnisse beinhalten jeden einzelnen eingegebenen Suchbegriff.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die beide Suchbegriffe \"Jeans\" und \"Sommer\" enthalten.",
-      "labelSearchOrCondition": "“ODER”-Suche",
-      "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die entweder den Suchbegriff \"Jeans\" oder den Suchbegriff \"Sommer\" enthalten.",
+      "textTitleSearchBehaviour": "Wähle aus, wie streng eingegebene Suchbegriffe übereinstimmen müssen.",
+      "labelSearchAndCondition": "Exakte Suche (UND)",
+      "textSearchAndConditionExplain": "Zeigt nur Ergebnisse, die mit allen eingegebenen Suchbegriffen übereinstimmen.",
+      "labelSearchOrCondition": "Breite Suche (ODER)",
+      "textSearchOrConditionExplain": "Zeigt Ergebnisse, die mit einem beliebigen der eingegebenen Suchbegriffe übereinstimmen.",
       "labelMinimalSearchTerm": "Minimale Suchbegrifflänge",
       "labelExcludedSearchTerms": "Ausgeschlossene Suchbegriffe",
       "textEmptyStateExcludedSearchTerms": "Bisher keine Suchbegriffe ausgeschlossen",
+      "textEmptyStateExcludedSearchTermsDescription": "Schließe Suchbegriffe aus, damit sie nicht mehr in den Suchergebnissen Deiner Verkaufskanäle berücksichtigt werden.",
       "buttonAddExcludedSearch": "Suchbegriff ausschließen",
       "textPlaceholderTermsFilter": "Ausgeschlossene Suchbegriffe durchsuchen ...",
       "buttonAddExcludedSearchTerms" : "Suchbegriff ausschließen",
       "labelExcludedSearchTermsNoResults": "Keine Suchergebnisse gefunden.",
+      "labelExcludedSearchTermsNoResultsDescription": "Passe Deine Suche an, um das Gesuchte zu finden.",
       "labelSearchableContent": "Durchsuchbare Inhalte",
       "textDescriptionSearchableContent": "Alle durchsuchbaren Inhalte findest Du unten in der Tabelle. Du kannst die möglichen Suchergebnisse in Deinen Verkaufskanälen anpassen, indem Du Inhalte von der Suche ausschließt oder die Such-Rangfolge einzelner Elemente anpasst. Höher eingestufte Elemente haben einen höheren \"Suchwert\" und werden in den Suchergebnissen weiter oben angezeigt.",
       "buttonResetDefault": "Standardwerte wiederherstellen",
@@ -30,6 +32,7 @@
       "labelGeneralTab": "Allgemein",
       "labelCustomFieldsTab": "Zusatzfelder",
       "textEmptyStateSearchableContent": "Noch keine durchsuchbaren Inhalte hinzugefügt.",
+      "textEmptyStateSearchableContentDescription": "Füge durchsuchbare Inhalte hinzu, um zu steuern, was in der Suche Deiner Verkaufskanäle gefunden werden kann.",
       "titleExampleModal": "Suchrangfolgen-Beispiel",
       "textColumnSearchTerm": "Ausgeschlossene Suchbegriffe",
       "modal": {
@@ -59,11 +62,11 @@
         "columnRankingPoints": "Rangpunktzahl",
         "columnContent": "Inhalt",
         "columnSplitKeywords": "Suchbegriffe trennen",
-        "textResetRanking": "Rangpunktzahl zurücksetzen",
-        "textRemove": "Entfernen"
+        "textResetRanking": "Rangpunktzahl zurücksetzen"
       },
       "configFields": {
         "name": "Produktname",
+        "parentName": "Elternname",
         "description": "Produktbeschreibung",
         "productNumber": "Produktnummer",
         "manufacturerNumber": "Herstellernummer",
@@ -106,7 +109,8 @@
       "linkRebuildSearchIndex": "Suchindex neu aufbauen",
       "labelName": "Suchergebnis",
       "labelScore": "Rangpunktzahl",
-      "textNoResult": "Keine Ergebnisse gefunden. Versuche es noch einmal mit einem anderen Suchbegriff."
+      "textNoResult": "Keine Ergebnisse gefunden.",
+      "textNoResultDescription": "Versuche es noch einmal mit einem anderen Suchbegriff."
     },
     "textLeaveConfirm": "Du hast Änderungen an dieser Seite vorgenommen. Falls Du die Seite verlässt, ohne zu speichern, gehen Deine Änderungen verloren."
   },

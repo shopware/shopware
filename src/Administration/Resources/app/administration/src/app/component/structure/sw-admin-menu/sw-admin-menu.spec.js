@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -46,7 +48,7 @@ async function createWrapper(options = {}) {
             stubs: {
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'router-link': {
@@ -125,6 +127,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
 
         Shopware.Store.get('shopwareApps').apps = [];
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
 
         wrapper = await createWrapper();
         await flushPromises();
@@ -556,6 +559,75 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight}px`);
+    });
+
+    it('should position the existing third level submenu in an expanded menu item', async () => {
+        const topLevelEntry = wrapper.get('.navigation-list-item__sw-second-top-level');
+
+        await topLevelEntry.trigger('click');
+        await flushPromises();
+
+        const target = wrapper.get('.navigation-list-item__sw-second-level-last');
+        target.element.getBoundingClientRect = jest.fn(() => ({
+            top: 160,
+            right: 560,
+        }));
+
+        await target.trigger('mouseenter');
+
+        const subNavigationList = target.get('.sw-admin-menu__sub-navigation-list');
+
+        expect(wrapper.find('.sw-admin-menu_flyout-holder').exists()).toBe(false);
+        expect(target.classes()).toContain('is--flyout-enabled');
+        expect(subNavigationList.element.style.position).toBe('fixed');
+        expect(subNavigationList.element.style.top).toBe('160px');
+        expect(subNavigationList.element.style.left).toBe('560px');
+        expect(subNavigationList.element.style.maxHeight).toBe(`${window.innerHeight - 160}px`);
+        expect(subNavigationList.element.style.overflowY).toBe('auto');
+        expect(subNavigationList.element.style.transition).toBe('none');
+    });
+
+    it('should position and clean up the third level submenu in the primary flyout', async () => {
+        document.body.innerHTML = '<div id="app"></div>';
+        const app = document.getElementById('app');
+
+        wrapper = await createWrapper({
+            attachTo: app,
+        });
+        await flushPromises();
+
+        const topLevelEntry = wrapper.get('.navigation-list-item__sw-second-top-level');
+        topLevelEntry.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await topLevelEntry.trigger('mouseenter');
+        await flushPromises();
+
+        const flyout = wrapper.get('.sw-admin-menu_flyout-holder');
+        const target = flyout.get('.navigation-list-item__sw-second-level-last');
+        target.element.getBoundingClientRect = jest.fn(() => ({
+            top: 180,
+            right: 540,
+        }));
+
+        await target.trigger('mouseenter');
+
+        const subNavigationList = target.get('.sw-admin-menu__sub-navigation-list');
+
+        expect(target.classes()).toContain('is--flyout-enabled');
+        expect(subNavigationList.element.style.position).toBe('fixed');
+        expect(subNavigationList.element.style.top).toBe('180px');
+        expect(subNavigationList.element.style.left).toBe('540px');
+        expect(subNavigationList.element.style.maxHeight).toBe(`${window.innerHeight - 180}px`);
+        expect(subNavigationList.element.style.overflowY).toBe('auto');
+        expect(subNavigationList.element.style.transition).toBe('none');
+
+        const leafTarget = flyout.get('.navigation-list-item__sw-second-level-first');
+
+        await leafTarget.trigger('mouseenter');
+
+        expect(target.classes()).not.toContain('is--flyout-enabled');
+        expect(wrapper.find('.sw-admin-menu_flyout-holder').exists()).toBe(true);
     });
 
     it('should call logoutSso and clear stores on logout', async () => {

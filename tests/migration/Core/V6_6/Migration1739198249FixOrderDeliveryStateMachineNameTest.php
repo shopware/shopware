@@ -31,6 +31,11 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1739198249, (new Migration1739198249FixOrderDeliveryStateMachineName())->getCreationTimestamp());
+    }
+
     public function testStateMachineName(): void
     {
         $this->executeMigration();

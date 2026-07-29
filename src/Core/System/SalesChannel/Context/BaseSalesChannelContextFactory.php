@@ -104,7 +104,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $criteria = new Criteria([$currencyId]);
             $criteria->setTitle('base-context-factory::currency');
 
-            $currency = $this->currencyRepository->search($criteria, $context)->get($currencyId);
+            $currency = $this->currencyRepository->search($criteria, $context)->getEntities()->get($currencyId);
 
             if (!$currency instanceof CurrencyEntity) {
                 throw SalesChannelException::currencyNotFound($currencyId);
@@ -198,6 +198,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $paymentMethod = $this->paymentMethodRepository
             ->search($criteria, $context)
+            ->getEntities()
             ->get($id);
 
         if (!$paymentMethod instanceof PaymentMethodEntity) {
@@ -247,7 +248,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
             $criteria->setTitle('base-context-factory::country');
 
-            $state = $this->countryStateRepository->search($criteria, $context)->get($countryStateId);
+            $state = $this->countryStateRepository->search($criteria, $context)->getEntities()->get($countryStateId);
 
             if (!$state instanceof CountryStateEntity) {
                 throw SalesChannelException::countryStateNotFound($countryStateId);
@@ -269,7 +270,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria = new Criteria([$countryId]);
         $criteria->setTitle('base-context-factory::country');
 
-        $country = $this->countryRepository->search($criteria, $context)->get($countryId);
+        $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($countryId);
 
         if (!$country instanceof CountryEntity) {
             throw SalesChannelException::countryNotFound($countryId);
@@ -289,7 +290,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));
         $criteria->addFilter(new EqualsFilter('countryId', $shippingLocation->getCountry()->getId()));
 
-        $countryConfig = $this->currencyCountryRepository->search($criteria, $context)->first();
+        $countryConfig = $this->currencyCountryRepository->search($criteria, $context)->getEntities()->first();
 
         if ($countryConfig instanceof CurrencyCountryRoundingEntity) {
             return [$countryConfig->getItemRounding(), $countryConfig->getTotalRounding()];

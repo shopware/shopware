@@ -50,6 +50,11 @@ class Migration1697112043TemporaryPaymentAndShippingTechnicalNamesTest extends T
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1697112043, (new Migration1697112043TemporaryPaymentAndShippingTechnicalNames())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();

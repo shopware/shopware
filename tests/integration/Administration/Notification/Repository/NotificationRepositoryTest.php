@@ -9,6 +9,7 @@ use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * @internal
  */
+#[Package('framework')]
 class NotificationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,7 +74,7 @@ class NotificationRepositoryTest extends TestCase
             return;
         }
 
-        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context);
+        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context)->getEntities();
 
         /** @var NotificationEntity $notification */
         $notification = $result->get($id);
@@ -82,14 +84,12 @@ class NotificationRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string>>
+     * @return iterable<string, array<int, string>>
      */
-    public static function notificationProvider(): array
+    public static function notificationProvider(): iterable
     {
-        return [
-            [Context::USER_SCOPE, 'write'],
-            [Context::USER_SCOPE, 'read'],
-            [Context::SYSTEM_SCOPE, 'write'],
-        ];
+        yield 'notification context user scope write' => [Context::USER_SCOPE, 'write'];
+        yield 'notification context user scope read' => [Context::USER_SCOPE, 'read'];
+        yield 'notification context system scope write' => [Context::SYSTEM_SCOPE, 'write'];
     }
 }

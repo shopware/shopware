@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1777362745MigrateAgenticCommercePluginConfig;
@@ -15,6 +16,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1777362745MigrateAgenticCommercePluginConfig::class)]
 class Migration1777362745MigrateAgenticCommercePluginConfigTest extends TestCase
 {
@@ -32,6 +34,11 @@ class Migration1777362745MigrateAgenticCommercePluginConfigTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->migration = new Migration1777362745MigrateAgenticCommercePluginConfig();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1777362745, (new Migration1777362745MigrateAgenticCommercePluginConfig())->getCreationTimestamp());
     }
 
     public function testMigratesFullyConfiguredOpenAiProductExportSetup(): void

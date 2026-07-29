@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 #[Package('fundamentals@after-sales')]
+#[BecomesFinal(version: 'v6.8.0')]
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
@@ -88,12 +91,34 @@ class RuleComparison
         };
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'ruleValue', newType: '\DateTime|string|array', description: 'Will replace dateValue().')]
     public static function date(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
         return self::compareDate(Defaults::STORAGE_DATE_FORMAT, $itemValue, $ruleValue, $operator);
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'ruleValue', newType: '\DateTime|string|array', description: 'Will replace datetimeValue().')]
     public static function datetime(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
+    {
+        return self::compareDate(Defaults::STORAGE_DATE_TIME_FORMAT, $itemValue, $ruleValue, $operator);
+    }
+
+    /**
+     * @internal - will be removed in v6.8.0, when the original `date()` has extended type
+     *
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
+     */
+    public static function dateValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
+    {
+        return self::compareDate(Defaults::STORAGE_DATE_FORMAT, $itemValue, $ruleValue, $operator);
+    }
+
+    /**
+     * @internal - will be removed in v6.8.0, when the original `date()` has extended type
+     *
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
+     */
+    public static function datetimeValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
     {
         return self::compareDate(Defaults::STORAGE_DATE_TIME_FORMAT, $itemValue, $ruleValue, $operator);
     }
@@ -106,16 +131,54 @@ class RuleComparison
         ], true);
     }
 
-    private static function compareDate(string $format, \DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
+    /**
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
+     */
+    private static function compareDate(string $format, \DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
     {
+        try {
+            if ($operator === Rule::OPERATOR_BETWEEN) {
+                if (!\is_array($ruleValue) || !isset($ruleValue['from'], $ruleValue['to'])) {
+                    return false;
+                }
+
+                return self::isDateBetween(
+                    $format,
+                    $itemValue,
+                    self::toDateTime($ruleValue['from']),
+                    self::toDateTime($ruleValue['to']),
+                );
+            }
+
+            if (\is_array($ruleValue)) {
+                return false;
+            }
+
+            $parsed = self::toDateTime($ruleValue);
+        } catch (\Exception) {
+            return false;
+        }
+
         return match ($operator) {
-            Rule::OPERATOR_EQ => $itemValue->format($format) === $ruleValue->format($format),
-            Rule::OPERATOR_NEQ => $itemValue->format($format) !== $ruleValue->format($format),
-            Rule::OPERATOR_GT => $itemValue > $ruleValue,
-            Rule::OPERATOR_LT => $itemValue < $ruleValue,
-            Rule::OPERATOR_GTE => $itemValue >= $ruleValue,
-            Rule::OPERATOR_LTE => $itemValue <= $ruleValue,
+            Rule::OPERATOR_EQ => $itemValue->format($format) === $parsed->format($format),
+            Rule::OPERATOR_NEQ => $itemValue->format($format) !== $parsed->format($format),
+            Rule::OPERATOR_GT => $itemValue > $parsed,
+            Rule::OPERATOR_LT => $itemValue < $parsed,
+            Rule::OPERATOR_GTE => $itemValue >= $parsed,
+            Rule::OPERATOR_LTE => $itemValue <= $parsed,
             default => throw RuleException::unsupportedOperator($operator, self::class),
         };
+    }
+
+    private static function isDateBetween(string $format, \DateTime $itemValue, \DateTime $from, \DateTime $to): bool
+    {
+        $itemDate = $itemValue->format($format);
+
+        return $itemDate >= $from->format($format) && $itemDate <= $to->format($format);
+    }
+
+    private static function toDateTime(\DateTime|string $value): \DateTime
+    {
+        return $value instanceof \DateTime ? $value : new \DateTime($value);
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -31,8 +31,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('inventory')]
+#[AsMessageHandler]
 final readonly class ProductExportPartialGenerationHandler
 {
     /**
@@ -52,7 +52,8 @@ final readonly class ProductExportPartialGenerationHandler
         private SalesChannelContextPersister $contextPersister,
         private Connection $connection,
         private int $readBufferSize,
-        private LanguageLocaleCodeProvider $languageLocaleProvider
+        private LanguageLocaleCodeProvider $languageLocaleProvider,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -104,7 +105,7 @@ final readonly class ProductExportPartialGenerationHandler
         );
 
         if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
-            throw new SalesChannelNotFoundException();
+            throw ProductExportException::salesChannelNotFound();
         }
 
         return $context->getContext();
@@ -130,10 +131,16 @@ final readonly class ProductExportPartialGenerationHandler
         int $offset,
         Context $context
     ): ?ProductExportResult {
-        $this->productExportRepository->update([[
+        $update = [
             'id' => $productExport->getId(),
             'isRunning' => true,
-        ]], $context);
+        ];
+
+        if ($offset === 0) {
+            $update['nextGenerationAt'] = $this->clock->now()->modify(\sprintf('+%d seconds', $productExport->getInterval()));
+        }
+
+        $this->productExportRepository->update([$update], $context);
 
         return $this->productExportGenerator->generate(
             $productExport,
@@ -204,7 +211,7 @@ final readonly class ProductExportPartialGenerationHandler
             [
                 [
                     'id' => $productExport->getId(),
-                    'generatedAt' => new \DateTime(),
+                    'generatedAt' => $this->clock->now(),
                     'isRunning' => false,
                 ],
             ],

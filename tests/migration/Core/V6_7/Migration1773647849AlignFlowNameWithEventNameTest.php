@@ -27,6 +27,11 @@ class Migration1773647849AlignFlowNameWithEventNameTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773647849, (new Migration1773647849AlignFlowNameWithEventName())->getCreationTimestamp());
+    }
+
     public function testAlignFlowNameWithEventName(): void
     {
         $flowIds = [];

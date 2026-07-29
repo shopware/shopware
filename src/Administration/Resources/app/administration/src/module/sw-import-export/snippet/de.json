@@ -28,7 +28,6 @@
             },
             "logInfo": {
               "modalTitle": "Log-Informationen",
-              "labelClose": "Schließen",
               "labelFilename": "Dateiname",
               "labelType": "Typ",
               "labelExportRecords": "Exportierte Einträge",
@@ -118,9 +117,7 @@
             "addProfileLabel": "Profil hinzufügen",
             "addNewProfileLabel": "Neues Profil hinzufügen",
             "addNewProfileTooltipLanguage": "Profile können nur in der System-Standardsprache erstellt werden.",
-            "openLabel": "Bearbeiten",
             "indicatorHeadline" : "Feld-Indikatoren",
-            "duplicateLabel": "Duplizieren",
             "copyOfLabel": "Kopie von:",
             "saveProfileLabel": "Profil speichern",
             "closeProfileLabel": "Profil schließen",
@@ -202,7 +199,6 @@
             "exportLabel": "Export",
             "directExportVariantsLabel": "Varianten-Einstellungen exportieren",
             "directExportPropertiesLabel": "Eigenschaften exportieren",
-            "close": "Schließen",
             "variantsWarning": "Warnung: Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",
             "exportVariants": "Produktvarianten exportieren"
         },
@@ -220,7 +216,6 @@
             "importLabel": "Import",
             "directImportVariantsLabel": "Varianten-Einstellungen importieren",
             "directImportPropertiesLabel": "Eigenschaften importieren",
-            "close": "Schließen",
             "labelUploadCaption": "Wähle eine CSV-Datei zum Hochladen",
             "variantsWarning": "Achtung beim Import von Varianten: Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
             "importVariants": "Produktvarianten importieren"

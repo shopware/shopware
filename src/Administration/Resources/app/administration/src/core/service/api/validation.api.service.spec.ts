@@ -1,8 +1,6 @@
 /**
  * @sw-package fundamentals@framework
  */
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import type { AxiosInstance } from 'axios';
 import createHTTPClient from '../../factory/http.factory';

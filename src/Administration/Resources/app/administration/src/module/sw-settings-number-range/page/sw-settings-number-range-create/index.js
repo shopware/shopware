@@ -58,6 +58,10 @@ export default {
         disableNumberRangeTypeSelect() {
             return false;
         },
+
+        showNumberRangeStateFields() {
+            return false;
+        },
     },
 
     methods: {
@@ -72,6 +76,7 @@ export default {
             } else {
                 this.numberRange = this.numberRangeRepository.create();
             }
+            this.numberRangeId = this.numberRange.id;
             this.numberRange.start = 1;
             this.numberRange.global = false;
             this.numberRange.pattern = '';
@@ -80,7 +85,6 @@ export default {
             this.numberRange.type.global = this.hasProductNumberRange;
 
             this.$super('createdComponent');
-            this.getPreview();
             this.splitPattern();
             this.onChangePattern();
             this.numberRange.isLoading = false;

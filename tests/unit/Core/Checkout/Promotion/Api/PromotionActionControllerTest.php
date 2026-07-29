@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
@@ -20,29 +20,28 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(PromotionActionController::class)]
 class PromotionActionControllerTest extends TestCase
 {
-    private MockObject&FilterServiceRegistry $filterServiceRegistry;
+    private Stub&FilterServiceRegistry $filterServiceRegistry;
+
+    private LineItemGroupServiceRegistry $serviceRegistry;
 
     private PromotionActionController $promotionActionController;
 
     protected function setUp(): void
     {
-        $this->filterServiceRegistry = $this->createMock(FilterServiceRegistry::class);
+        $this->filterServiceRegistry = static::createStub(FilterServiceRegistry::class);
 
-        $packager = $this->createMock(LineItemGroupCountPackager::class);
+        $packager = static::createStub(LineItemGroupCountPackager::class);
         $packager->method('getKey')->willReturn('test-packager');
 
-        $sorter = $this->createMock(LineItemGroupPriceAscSorter::class);
+        $sorter = static::createStub(LineItemGroupPriceAscSorter::class);
         $sorter->method('getKey')->willReturn('test-sorter');
 
-        $serviceRegistry = new LineItemGroupServiceRegistry(
+        $this->serviceRegistry = new LineItemGroupServiceRegistry(
             [$packager],
             [$sorter],
         );
 
-        $this->promotionActionController = new PromotionActionController(
-            $serviceRegistry,
-            $this->filterServiceRegistry,
-        );
+        $this->promotionActionController = $this->buildController();
     }
 
     public function testSetGroupPackager(): void
@@ -81,12 +80,13 @@ class PromotionActionControllerTest extends TestCase
             ->method('getKey')
             ->willReturn('test-picker');
 
-        $this->filterServiceRegistry
+        $filterServiceRegistry = $this->createMock(FilterServiceRegistry::class);
+        $filterServiceRegistry
             ->expects($this->once())
             ->method('getPickers')
             ->willReturnCallback(static fn () => yield $picker);
 
-        $response = $this->promotionActionController->getDiscountFilterPickers();
+        $response = $this->buildController($filterServiceRegistry)->getDiscountFilterPickers();
 
         $content = $response->getContent();
         static::assertNotFalse($content);
@@ -95,5 +95,13 @@ class PromotionActionControllerTest extends TestCase
         static::assertIsArray($json);
         static::assertCount(1, $json);
         static::assertContains('test-picker', $json);
+    }
+
+    private function buildController(?FilterServiceRegistry $filterServiceRegistry = null): PromotionActionController
+    {
+        return new PromotionActionController(
+            $this->serviceRegistry,
+            $filterServiceRegistry ?? $this->filterServiceRegistry,
+        );
     }
 }

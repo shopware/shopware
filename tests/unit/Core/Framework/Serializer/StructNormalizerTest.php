@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Serializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Struct;
@@ -13,6 +14,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StructNormalizer::class)]
 class StructNormalizerTest extends TestCase
 {
@@ -96,17 +98,15 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<list<mixed>>
+     * @return iterable<list<mixed>>
      */
-    public static function denormalizeShouldReturnNonArraysProvider(): array
+    public static function denormalizeShouldReturnNonArraysProvider(): iterable
     {
-        return [
-            ['string'],
-            [1],
-            [null],
-            [false],
-            [new \stdClass()],
-        ];
+        yield 'string input is returned unchanged' => ['string'];
+        yield 'integer input is returned unchanged' => [1];
+        yield 'null input is returned unchanged' => [null];
+        yield 'false input is returned unchanged' => [false];
+        yield 'object input is returned unchanged' => [new \stdClass()];
     }
 
     #[DataProvider('denormalizeShouldReturnNonArraysProvider')]
@@ -117,8 +117,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowIfNonStructGiven(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unable to unserialize a non-struct class: stdClass');
+        $this->expectExceptionObject(new InvalidArgumentException('Unable to unserialize a non-struct class: stdClass'));
 
         $this->normalizer->denormalize(['_class' => 'stdClass']);
     }
@@ -137,8 +136,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowWithNonProvidedConstructorParameters(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Required constructor parameter missing: "$name".');
+        $this->expectExceptionObject(new InvalidArgumentException('Required constructor parameter missing: "$name".'));
 
         $this->normalizer->denormalize(['_class' => ConstructorStruct::class]);
     }
@@ -187,8 +185,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeWithNonExistingClass(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Class "ThisClass\DoesNot\Exists" does not exist');
+        $this->expectExceptionObject(new InvalidArgumentException('Class "ThisClass\DoesNot\Exists" does not exist'));
 
         $this->normalizer->denormalize(['_class' => 'ThisClass\DoesNot\Exists']);
     }

@@ -13,6 +13,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -25,14 +26,16 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -66,15 +69,18 @@ class TranslationLoaderTest extends TestCase
 
     private TranslationConfig $config;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
         $this->client = $this->createMock(ClientInterface::class);
         $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->context = Context::createDefaultContext();
+        $this->eventDispatcher = new EventDispatcher();
         $this->ids = new IdsCollection();
-        $this->languageRepository = new StaticEntityRepository([$this->getSearchResult('language')]);
-        $this->localeRepository = new StaticEntityRepository([$this->getSearchResult('locale')]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getSearchResult('snippet-set')]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getSearchResult('language')]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getSearchResult('locale')]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getSearchResult('snippet-set')]);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
             ['es-ES'],
@@ -97,12 +103,11 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadThrowsExceptionIfProvidedLocaleDoesNotExist(): void
     {
-        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
         $loader->load('es-ES', $this->context);
     }
 
@@ -185,8 +190,8 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadCreatesLanguageAndSnippetSet(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
@@ -236,6 +241,10 @@ class TranslationLoaderTest extends TestCase
         static::assertSame('/translation/locale/de-DE', $loader->getLocalePath('de-DE'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPluginTranslationExists(): void
     {
         $loader = $this->getTranslationLoader();
@@ -250,6 +259,69 @@ class TranslationLoaderTest extends TestCase
 
         static::assertTrue($loader->pluginTranslationExists($existingPlugin));
         static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
+    }
+
+    public function testPluginTranslationExistsForLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher');
+
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'en-GB'));
+    }
+
+    public function testGetLocalePathBypassesValidatorForAllowedPseudoLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+        static::assertSame('/translation/locale/ach-UG', $loader->getLocalePath('ach-UG'));
+    }
+
+    public function testLoadCreatesPseudoLocaleEntryWhenMissing(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['ach-UG'],
+            [],
+            new LanguageDtoCollection([new Language('ach-UG', 'Acholi (Pseudo Language)')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('locale'),
+        ]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('ach-UG', $this->context);
+
+        static::assertCount(1, $this->localeRepository->creates);
+        $createdLocales = $this->localeRepository->creates[0];
+        static::assertIsArray($createdLocales);
+        static::assertCount(1, $createdLocales);
+
+        $locale = $createdLocales[0];
+        static::assertIsArray($locale);
+        static::assertSame('ach-UG', $locale['code']);
+        static::assertArrayHasKey('translations', $locale);
+        $translation = $locale['translations'][Defaults::LANGUAGE_SYSTEM];
+        static::assertSame('Acholi', $translation['name']);
+        static::assertSame('Pseudo Language', $translation['territory']);
+    }
+
+    public function testLoadStillThrowsForUnknownNonPseudoLocale(): void
+    {
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('es-ES'));
+        $loader->load('es-ES', $this->context);
     }
 
     public function testPluginTranslationExistsWorksWithMappedPlugin(): void
@@ -271,16 +343,16 @@ class TranslationLoaderTest extends TestCase
         $mappedNamePlugin->setName('SwagPaypal');
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPaypal');
-        static::assertFalse($loader->pluginTranslationExists($mappedNamePlugin));
+        static::assertFalse($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
-        static::assertTrue($loader->pluginTranslationExists($mappedNamePlugin));
+        static::assertTrue($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
     }
 
     public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context, false); // activate = false
@@ -298,17 +370,17 @@ class TranslationLoaderTest extends TestCase
 
     public function testSnippetSetOnlyCreatedOnce(): void
     {
-        $this->localeRepository = new StaticEntityRepository([
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
             $this->getSearchResult('locale'),
             $this->getSearchResult('locale'),
         ]);
 
-        $this->languageRepository = new StaticEntityRepository([
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [
             $this->getSearchResult('language'),
             $this->getSearchResult('language'),
         ]);
 
-        $this->snippetSetRepository = new StaticEntityRepository([
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [
             $this->getEmptySearchResult(),
             $this->getSearchResult('snippet-set'),
         ]);
@@ -332,6 +404,23 @@ class TranslationLoaderTest extends TestCase
         $this->getTranslationLoader()->getDecorated();
     }
 
+    public function testLoadDispatchesEvent(): void
+    {
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationLoadedEvent::class,
+            static function (TranslationLoadedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->getTranslationLoader()->load('es-ES', $this->context);
+
+        static::assertInstanceOf(TranslationLoadedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
+        static::assertSame($this->context, $dispatched->getContext());
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(
@@ -341,7 +430,7 @@ class TranslationLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: $this->client,
             config: $this->config,
-            validator: Validation::createValidator(),
+            eventDispatcher: $this->eventDispatcher,
         );
     }
 

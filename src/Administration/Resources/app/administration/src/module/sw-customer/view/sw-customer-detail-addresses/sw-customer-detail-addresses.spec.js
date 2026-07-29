@@ -185,7 +185,7 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         const contextMenus = wrapper.findAll('.sw-context-menu-item');
 
         expect(contextMenus).toHaveLength(5);
-        expect(contextMenus.at(1).text()).toBe('sw-customer.detailAddresses.contextMenuDuplicate');
+        expect(contextMenus.at(1).text()).toBe('global.default.duplicate');
 
         await contextMenus.at(1).trigger('click');
         await flushPromises();

@@ -57,10 +57,9 @@ class JWTDecoderTest extends TestCase
     }
 
     #[DataProvider('provideInvalidJwts')]
-    public function testValidateWithInvalidToken(string $invalidJwt, string $expectedExceptionMessage): void
+    public function testValidateWithInvalidToken(string $invalidJwt, JWTException $expectedException): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectExceptionObject($expectedException);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->atMost(1))
@@ -81,20 +80,23 @@ class JWTDecoderTest extends TestCase
 
     public function testDecodeWithInvalidTokenThrowsException(): void
     {
-        $this->expectException(JWTException::class);
-        $this->expectExceptionMessage('Invalid JWT: Error while decoding from Base64Url, invalid base64 characters detected');
+        $this->expectExceptionObject(JWTException::invalidJwt('Error while decoding from Base64Url, invalid base64 characters detected'));
         $this->decoder->decode('invalid.jwt.token');
     }
 
     /**
-     * @return array<string, array<string, string>>
+     * @return iterable<string, array{0: string, 1: JWTException}>
      */
-    public static function provideInvalidJwts(): array
+    public static function provideInvalidJwts(): iterable
     {
         $jwts = \file_get_contents(__DIR__ . '/_fixtures/invalid-jwts.json');
         static::assertIsString($jwts);
+        $tokens = \json_decode($jwts, true, 512, \JSON_THROW_ON_ERROR);
 
-        return \json_decode($jwts, true, 512, \JSON_THROW_ON_ERROR);
+        yield 'wrong-algorithm' => [$tokens['wrong-algorithm'][0], JWTException::invalidJwt('Invalid algorithm (alg) in JWT header: "HS256"')];
+        yield 'missing-kid' => [$tokens['missing-kid'][0], JWTException::invalidJwt('Key ID (kid) missing from JWT header')];
+        yield 'not-found-kid' => [$tokens['not-found-kid'][0], JWTException::invalidJwt('Key ID (kid) could not be found')];
+        yield 'invalid-domain' => [$tokens['invalid-domain'][0], JWTException::invalidDomain('examples.com')];
     }
 
     private function getJwt(): string

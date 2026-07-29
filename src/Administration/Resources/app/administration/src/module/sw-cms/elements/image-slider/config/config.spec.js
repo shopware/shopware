@@ -6,7 +6,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
-async function createWrapper(activeTab = 'content', sliderItems = []) {
+async function createWrapper(activeTab = 'content', sliderItems = [], featureActive = false) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-image-slider', {
             sync: true,
@@ -17,6 +17,9 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                 renderStubDefaultSlot: true,
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -48,9 +51,29 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         data() {
                             return { active: activeTab };
                         },
-                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
@@ -151,6 +174,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
             },
             data() {
                 return {
+                    activeTab,
                     mediaItems: [
                         {
                             id: '0',
@@ -183,6 +207,45 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/image-slider');
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper('content', [], true);
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-image-slider');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'settings',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper('content', [], true);
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('settings');
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-settings').exists()).toBe(true);
     });
 
     it('should keep minHeight value when changing display mode', async () => {
@@ -351,5 +414,53 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         // Should still only have one item and the URL should be updated
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
+    });
+
+    it('should prefer the resolved media item url in the settings link preview', async () => {
+        const wrapper = await createWrapper('settings', [
+            {
+                mediaId: '1',
+                mediaUrl: 'http://shopware.com/image1-stale.jpg',
+                ariaLabel: null,
+                newTab: false,
+                url: null,
+            },
+        ]);
+        await flushPromises();
+
+        await wrapper.setData({
+            mediaItems: [
+                {
+                    id: '1',
+                    url: 'http://shopware.com/image1-current.jpg',
+                },
+            ],
+        });
+        await wrapper.vm.$nextTick();
+
+        const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
+
+        expect(previewImage.exists()).toBe(true);
+        expect(previewImage.attributes('src')).toBe('http://shopware.com/image1-current.jpg');
+    });
+
+    it('should not render a settings link preview when the media item cannot be resolved', async () => {
+        const wrapper = await createWrapper('settings', [
+            {
+                mediaId: 'missing-media',
+                mediaUrl: 'http://shopware.com/image1-stale.jpg',
+                ariaLabel: null,
+                newTab: false,
+                url: null,
+            },
+        ]);
+        await flushPromises();
+
+        await wrapper.setData({ mediaItems: [] });
+        await wrapper.vm.$nextTick();
+
+        const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
+
+        expect(previewImage.exists()).toBe(false);
     });
 });

@@ -28,6 +28,11 @@ class Migration1754295570DocumentActivateReturnAddressTest extends TestCase
         $this->connection->update('document_base_config', ['config' => null], ['name' => 'cancellation_invoice']);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1754295570, (new Migration1754295570DocumentActivateReturnAddress())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1754295570DocumentActivateReturnAddress();

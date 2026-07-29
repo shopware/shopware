@@ -33,12 +33,11 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService = new PromotionCodeService(
             $promotionRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class)
         );
 
-        static::expectException(PromotionException::class);
-        static::expectExceptionMessage('These promotions "promotionId" are not found');
+        $this->expectExceptionObject(PromotionException::promotionsNotFound(['promotionId']));
         $codeService->addIndividualCodes('promotionId', 10, $context);
     }
 
@@ -55,12 +54,11 @@ class PromotionCodeServiceTest extends TestCase
 
         $codeService = new PromotionCodeService(
             $promotionRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(Connection::class)
         );
 
-        static::expectException(PromotionException::class);
-        static::expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $codeService->addIndividualCodes('promotionId', 10, $context);
     }
 

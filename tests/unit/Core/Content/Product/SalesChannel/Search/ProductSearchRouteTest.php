@@ -74,7 +74,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(
@@ -105,7 +105,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(

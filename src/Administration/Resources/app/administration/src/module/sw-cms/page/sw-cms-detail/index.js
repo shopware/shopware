@@ -355,14 +355,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        this.cmsPageState.pageEntityName,
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         async loadPage(pageId) {
@@ -476,11 +483,12 @@ export default {
             this.cmsPageState.setBlock(block);
         },
 
-        onChangeLanguage() {
+        onChangeLanguage(languageId) {
             this.isLoading = true;
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             return this.loadPage(this.pageId);
         },
 

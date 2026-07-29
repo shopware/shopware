@@ -27,7 +27,7 @@ jobs:
       docs_only: ${{ steps.check.outputs.docs_only }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: check
         uses: ./.github/actions/markdown-only-changes
 
@@ -39,7 +39,7 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -137,7 +137,7 @@ jobs:
           keep-composer-tools: "true"
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: var/cache/rector
           key: "rector-result-cache-${{ github.run_id }}"
@@ -148,7 +148,7 @@ jobs:
         run: composer rector
 
       - name: "Save result cache"
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: var/cache/rector
@@ -162,7 +162,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: "0"
           fetch-tags: "1"
@@ -324,7 +324,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
@@ -334,14 +334,17 @@ jobs:
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
       - name: Run PHPUnit with coverage
+        id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
           coverage: "true"
       - name: Upload coverage and test results to Codecov
         uses: ./.github/actions/phpunit-upload
-        # !cancelled(): junit test results must upload even when the run failed
-        if: ${{ !cancelled() }}
+        # !cancelled(): junit test results must upload even when the run failed.
+        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
+        # failed), because then checkout never ran either and this local action cannot resolve.
+        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
         with:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
@@ -373,7 +376,7 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2

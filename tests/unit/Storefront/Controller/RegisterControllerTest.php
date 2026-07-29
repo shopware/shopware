@@ -133,7 +133,35 @@ class RegisterControllerTest extends TestCase
         static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
         static::assertSame('frontend.checkout.confirm.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
         static::assertSame('frontend.checkout.register.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertFalse($controller->renderStorefrontParameters['loginError'] ?? null);
         static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $controller->calledHook);
+    }
+
+    public function testCheckoutRegisterForwardsLoginError(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.checkout.register.page');
+        $request->attributes->set('loginError', true);
+        $request->attributes->set('waitTime', 5);
+        $dataBag = new RequestDataBag();
+        $page = new CheckoutRegisterPage();
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem('test', 'test'));
+
+        $checkoutRegisterPageLoader = static::createStub(CheckoutRegisterPageLoader::class);
+        $checkoutRegisterPageLoader->method('load')->willReturn($page);
+
+        $cartService = static::createStub(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+
+        $controller = $this->createController(cartService: $cartService, checkoutRegisterPageLoader: $checkoutRegisterPageLoader);
+
+        $controller->checkoutRegisterPage($request, $dataBag, $context);
+
+        static::assertTrue($controller->renderStorefrontParameters['loginError'] ?? null);
+        static::assertSame(5, $controller->renderStorefrontParameters['waitTime'] ?? null);
     }
 
     public function testCustomerGroupRegistration(): void

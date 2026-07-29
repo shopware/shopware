@@ -94,8 +94,8 @@ const count = 1;
 swDefineOverride({ count });
 </script>`;
         const sfc = parse(source, { filename: 'base-override.vue' }).descriptor;
-        expect(sfc.scriptSetup).not.toBeNull();
 
+        // Asserts the block is present AND narrows it non-null for the offset read below.
         if (!sfc.scriptSetup) {
             throw new Error('Expected script setup block.');
         }
@@ -166,8 +166,8 @@ const count = 1;
 swDefineOverride({ count });
 </script>`;
         const sfc = parse(source, { filename: 'base-override.vue' }).descriptor;
-        expect(sfc.scriptSetup).not.toBeNull();
 
+        // Asserts the block is present AND narrows it non-null for the offset read below.
         if (!sfc.scriptSetup) {
             throw new Error('Expected script setup block.');
         }

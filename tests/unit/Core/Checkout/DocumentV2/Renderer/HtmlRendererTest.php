@@ -125,7 +125,7 @@ class HtmlRendererTest extends TestCase
             ->with($expectedTemplate)
             ->willReturn($expectedTemplate);
 
-        $env = $this->createMock(TwigEnvironment::class);
+        $env = static::createStub(TwigEnvironment::class);
         $env->method('renderWithTimezoneOverride')->willReturn('<html>rendered</html>');
 
         $renderer = $this->createRenderer($finder, $env);

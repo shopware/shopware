@@ -162,24 +162,24 @@ class EntityToolAclCriteriaIntegrationTest extends TestCase
 
     private function criteriaBuilder(): RequestCriteriaBuilder
     {
-        /** @var RequestCriteriaBuilder $builder */
         $builder = static::getContainer()->get(RequestCriteriaBuilder::class);
+        \assert($builder instanceof RequestCriteriaBuilder);
 
         return $builder;
     }
 
     private function encoder(): JsonEntityEncoder
     {
-        /** @var JsonEntityEncoder $encoder */
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        \assert($encoder instanceof JsonEntityEncoder);
 
         return $encoder;
     }
 
     private function criteriaValidator(): AclCriteriaValidator
     {
-        /** @var AclCriteriaValidator $validator */
         $validator = static::getContainer()->get(AclCriteriaValidator::class);
+        \assert($validator instanceof AclCriteriaValidator);
 
         return $validator;
     }

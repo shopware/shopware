@@ -143,6 +143,13 @@ async function createWrapper({ aclCan = () => true, cardStub } = {}) {
                             'isLoading',
                         ],
                     },
+                    'sw-extension-bulk-deactivation-modal': {
+                        template: '<div class="sw-extension-bulk-deactivation-modal" />',
+                        props: [
+                            'extensions',
+                            'isLoading',
+                        ],
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -1026,33 +1033,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
             expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('A', 'app');
             expect(shopwareService.deactivateExtension).toHaveBeenCalledTimes(1);
-        });
-
-        it('should deactivate a rented store extension directly via the service', async () => {
-            setMyExtensions([
-                {
-                    name: 'Rented',
-                    label: 'Rented',
-                    type: 'app',
-                    source: 'store',
-                    installedAt: 'x',
-                    active: true,
-                    allowDisable: true,
-                    updatedAt: null,
-                    storeLicense: { variant: 'rent', expired: false },
-                },
-            ]);
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
-
-            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
-            await wrapper.vm.runBulkAction('deactivate');
-
-            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Rented', 'app');
-            expect(shopwareService.deactivateExtension).toHaveBeenCalledTimes(1);
-            expect(wrapper.vm.isBulkRunning).toBe(false);
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(false);
         });
 
         it('should surface per item errors and still reload after the batch completes', async () => {
@@ -1645,6 +1626,109 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         });
     });
 
+    describe('bulk operations: deactivation confirmation', () => {
+        function rentedExtension(name) {
+            return {
+                name,
+                label: name,
+                type: 'app',
+                source: 'store',
+                installedAt: 'x',
+                active: true,
+                allowDisable: true,
+                updatedAt: null,
+                storeLicense: { variant: 'rent', expired: false },
+            };
+        }
+
+        it('should open the deactivation modal for a rented extension and deactivate nothing before confirmation', async () => {
+            setMyExtensions([rentedExtension('Rented')]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(true);
+            expect(wrapper.vm.bulkDeactivationItems.map((item) => item.name)).toEqual(['Rented']);
+            expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+        });
+
+        it('should list only the rented extensions in the modal for a mixed batch', async () => {
+            setMyExtensions([
+                rentedExtension('Rented'),
+                { name: 'Free', label: 'Free', type: 'app', installedAt: 'x', active: true, allowDisable: true, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            wrapper.vm.onSelectChange({ name: 'Free' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(true);
+            expect(wrapper.vm.bulkDeactivationItems.map((item) => item.name)).toEqual([
+                'Rented',
+                'Free',
+            ]);
+            expect(wrapper.vm.rentedBulkDeactivationItems.map((item) => item.name)).toEqual(['Rented']);
+            expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+        });
+
+        it('should deactivate the whole batch on confirm, including the non-rented extensions', async () => {
+            setMyExtensions([
+                rentedExtension('Rented'),
+                { name: 'Free', label: 'Free', type: 'theme', installedAt: 'x', active: true, allowDisable: true, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            wrapper.vm.onSelectChange({ name: 'Free' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            await wrapper.vm.confirmBulkDeactivation();
+
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Rented', 'app');
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Free', 'theme');
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledTimes(2);
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(false);
+            expect(wrapper.vm.bulkDeactivationItems).toEqual([]);
+            expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should deactivate nothing and reset the run when the confirmation is cancelled', async () => {
+            setMyExtensions([rentedExtension('Rented')]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            wrapper.vm.cancelBulkDeactivation();
+
+            expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(false);
+            expect(wrapper.vm.bulkDeactivationItems).toEqual([]);
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+    });
+
     describe('bulk operations: template wiring', () => {
         it('should bind bulk loading to the per extension processing state on the cards', async () => {
             const cardStub = makeCardStub();
@@ -1755,6 +1839,54 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await flushPromises();
 
             expect(shopwareService.installAndActivateExtension).toHaveBeenCalledWith('A', 'app');
+        });
+
+        it('should render the deactivation modal with the rented extensions and wire its events to the handlers', async () => {
+            setMyExtensions([
+                {
+                    name: 'Rented',
+                    label: 'Rented',
+                    type: 'app',
+                    source: 'store',
+                    installedAt: 'x',
+                    active: true,
+                    allowDisable: true,
+                    updatedAt: null,
+                    storeLicense: { variant: 'rent', expired: false },
+                },
+                { name: 'Free', label: 'Free', type: 'app', installedAt: 'x', active: true, allowDisable: true, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            expect(wrapper.find('.sw-extension-bulk-deactivation-modal').exists()).toBe(false);
+
+            wrapper.vm.onSelectChange({ name: 'Rented' }, true);
+            wrapper.vm.onSelectChange({ name: 'Free' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+            await wrapper.vm.$nextTick();
+
+            const modal = wrapper.findComponent('.sw-extension-bulk-deactivation-modal');
+            expect(modal.exists()).toBe(true);
+            expect(modal.props('extensions').map((extension) => extension.name)).toEqual(['Rented']);
+
+            modal.vm.$emit('modal-close');
+            await flushPromises();
+
+            expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+
+            await wrapper.vm.runBulkAction('deactivate');
+            await wrapper.vm.$nextTick();
+
+            wrapper.findComponent('.sw-extension-bulk-deactivation-modal').vm.$emit('confirm');
+            await flushPromises();
+
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Rented', 'app');
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Free', 'app');
+            expect(reload).toHaveBeenCalledTimes(1);
         });
     });
 

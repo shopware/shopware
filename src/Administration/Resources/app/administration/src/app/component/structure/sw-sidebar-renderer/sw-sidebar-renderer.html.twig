@@ -13,7 +13,12 @@
     </transition>
 
     <aside
+        :ref="(element) => setSidebarElement(sidebar.locationId, element)"
         class="sw-sidebar-renderer"
+        tabindex="-1"
+        :role="isOverlayModal(sidebar.locationId) ? 'dialog' : null"
+        :aria-modal="isOverlayModal(sidebar.locationId) ? 'true' : null"
+        :aria-label="isOverlayModal(sidebar.locationId) ? $t(sidebar.title) : null"
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-closing': closingSidebar === sidebar.locationId,

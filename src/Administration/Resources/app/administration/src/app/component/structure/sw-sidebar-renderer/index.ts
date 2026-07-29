@@ -2,7 +2,10 @@
  * @sw-package framework
  */
 
-import { computed, ref, onMounted, onUnmounted, onUpdated } from 'vue';
+import { computed, nextTick, ref, shallowRef, onMounted, onUnmounted, onUpdated, watch } from 'vue';
+import type { ComponentPublicInstance } from 'vue';
+import { createFocusTrap } from 'focus-trap';
+import type { FocusTrap } from 'focus-trap';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 
@@ -61,6 +64,98 @@ export default Shopware.Component.wrapComponentConfig({
             localStorage.setItem('sw-sidebar-width', DEFAULT_SIDEBAR_WIDTH.toString());
         };
 
+        const sidebarElements = new Map<string, HTMLElement>();
+        const focusTrap = shallowRef<FocusTrap | null>(null);
+
+        const setSidebarElement = (locationId: string, element: Element | ComponentPublicInstance | null) => {
+            if (element instanceof HTMLElement) {
+                sidebarElements.set(locationId, element);
+            } else {
+                sidebarElements.delete(locationId);
+            }
+        };
+
+        // In overlay mode the panel behaves like a modal dialog: the backdrop only blocks
+        // pointer interaction, so a focus trap has to keep keyboard and screen reader
+        // users out of the visually obscured application behind it. Holds the location id
+        // of the panel that currently needs the trap, null otherwise.
+        const overlayTrapTarget = computed(() => {
+            const sidebar = activeSidebar.value;
+
+            if (!sidebar?.resizable || closingSidebar.value === sidebar.locationId) {
+                return null;
+            }
+
+            // While dragging, the trap would churn on every threshold crossing;
+            // it (re-)engages once the resize settles.
+            if (isResizing.value || !sidebarDisplayOptions.value.isOverlayMode) {
+                return null;
+            }
+
+            return sidebar.locationId;
+        });
+
+        const isOverlayModal = (locationId: string) => overlayTrapTarget.value === locationId;
+
+        const activateFocusTrap = () => {
+            void nextTick(() => {
+                const locationId = overlayTrapTarget.value;
+                const panelElement = locationId ? sidebarElements.get(locationId) : null;
+
+                if (!locationId || !panelElement || focusTrap.value) {
+                    return;
+                }
+
+                focusTrap.value = createFocusTrap(panelElement, {
+                    escapeDeactivates: true,
+                    // The backdrop owns outside clicks and closes the sidebar itself,
+                    // the trap only has to let them through.
+                    clickOutsideDeactivates: false,
+                    allowOutsideClick: true,
+                    returnFocusOnDeactivate: true,
+                    delayInitialFocus: false,
+                    fallbackFocus: panelElement,
+                    onDeactivate: () => {
+                        focusTrap.value = null;
+                        closeSidebar(locationId);
+                    },
+                });
+
+                focusTrap.value.activate();
+            });
+        };
+
+        const deactivateFocusTrap = (returnFocus: boolean) => {
+            if (!focusTrap.value) {
+                return;
+            }
+
+            const trap = focusTrap.value;
+            focusTrap.value = null;
+
+            // Override the configured onDeactivate: it requests the sidebar close,
+            // which is wrong for every deactivation not initiated by the trap itself.
+            trap.deactivate({ returnFocus, onDeactivate: () => {} });
+        };
+
+        watch(
+            overlayTrapTarget,
+            (locationId) => {
+                // Focus only returns to the previously focused element when the sidebar goes
+                // away. When the trap tears down while the panel stays open (overlay mode
+                // ended, panel switched), focus must stay where it is.
+                const sidebarGoesAway = !activeSidebar.value || closingSidebar.value !== null;
+                deactivateFocusTrap(sidebarGoesAway);
+
+                if (locationId) {
+                    activateFocusTrap();
+                }
+            },
+            // Immediate, so a remount while an overlay sidebar is already active in the
+            // store still engages the trap.
+            { immediate: true },
+        );
+
         const handleSidebarResize = (event: MouseEvent) => {
             if (!isResizing.value) return;
 
@@ -110,6 +205,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         onUnmounted(() => {
             window.removeEventListener('resize', handleWindowResize);
+            deactivateFocusTrap(false);
         });
 
         return {
@@ -121,6 +217,9 @@ export default Shopware.Component.wrapComponentConfig({
             closeSidebar,
             startSidebarResize,
             collapseSidebar,
+            focusTrap,
+            isOverlayModal,
+            setSidebarElement,
         };
     },
 });

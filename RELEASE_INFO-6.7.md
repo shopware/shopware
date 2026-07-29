@@ -4,6 +4,9 @@
 
 ## API
 
+### Template rendering endpoints require update privileges
+
+The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. The `POST /api/_action/mail-template/simulate` endpoint now requires `mail_template:update`. Admin API integrations and users that use these endpoints must be granted the respective existing privilege.
 ### Admin action endpoints now require ACL privileges
 
 Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:

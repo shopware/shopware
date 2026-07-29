@@ -46,8 +46,6 @@ class SnippetFinderTest extends TestCase
 
     private FakePlugin $plugin;
 
-    private SnippetFinder $snippetFinder;
-
     protected function setUp(): void
     {
         $this->localFilesystem = new Filesystem();
@@ -59,8 +57,6 @@ class SnippetFinderTest extends TestCase
 
         $this->translationLoader = static::getContainer()->get(TranslationLoader::class);
         $this->plugin = new FakePlugin(true, __DIR__);
-
-        $this->snippetFinder = $this->createSnippetFinder(self::getKernel());
     }
 
     public function testValidSnippetMergeWithOnlySameLanguageFiles(): void
@@ -173,7 +169,7 @@ class SnippetFinderTest extends TestCase
     public function testSnippetFinderSanitizesAppSnippets(): void
     {
         $this->createAppWithMalformedSnippet();
-        $snippets = $this->snippetFinder->findSnippets('en-GB');
+        $snippets = $this->createSnippetFinder(self::getKernel())->findSnippets('en-GB');
 
         $actualSnippet = $snippets['theme']['label'];
         static::assertSame('<h1>This app</h1> is really <b>safe</b>!)', $actualSnippet);

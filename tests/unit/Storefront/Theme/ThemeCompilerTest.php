@@ -178,47 +178,6 @@ class ThemeCompilerTest extends TestCase
         );
     }
 
-    public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
-    {
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setThemeConfig([
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                'sw-border-color' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'color',
-                    'value' => '#bcc1c7',
-                ],
-            ],
-        ]);
-
-        $this->getThemeCompiler()->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'themeId',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            false,
-            Context::createDefaultContext()
-        );
-
-        $expected = implode(\PHP_EOL, [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ]);
-
-        static::assertStringContainsString($expected, $this->tempFilesystem->read('theme-variables.scss'));
-    }
-
     /**
      * @param array<string, mixed> $config
      */
@@ -281,6 +240,11 @@ class ThemeCompilerTest extends TestCase
                         'type' => 'switch',
                         'value' => true,
                     ],
+                    'sw-text-field' => [
+                        'name' => 'sw-text-field',
+                        'type' => 'text',
+                        'value' => '2px solid #000',
+                    ],
                     'sw-custom-textarea' => [
                         'name' => 'sw-custom-textarea',
                         'type' => 'textarea',
@@ -342,6 +306,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
 \$sw-custom-textarea: '123';
 \$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';

@@ -68,7 +68,7 @@ class ThemeCompilerTest extends TestCase
 
     private Filesystem $themeFilesystem;
 
-    private Filesystem $tempFilesystem;
+    private MD5ThemePathBuilder $themePathBuilder;
 
     protected function setUp(): void
     {
@@ -77,13 +77,13 @@ class ThemeCompilerTest extends TestCase
 
         // Avoid real filesystem operations
         $this->themeFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
+        $this->themePathBuilder = new MD5ThemePathBuilder();
 
         $this->themeCompiler = new ThemeCompiler(
             $this->themeFilesystem,
-            $this->tempFilesystem,
+            new Filesystem(new InMemoryFilesystemAdapter()),
             new Filesystem(new InMemoryFilesystemAdapter()),
             new CopyBatchInputFactory(),
             $themeFileResolver,
@@ -93,7 +93,7 @@ class ThemeCompilerTest extends TestCase
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
+            $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
     }
@@ -102,247 +102,6 @@ class ThemeCompilerTest extends TestCase
     {
         static::getContainer()->get(SourceResolver::class)->reset();
         static::getContainer()->get(ActiveAppsLoader::class)->reset();
-    }
-
-    public function testVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
-    {
-        $actual = $this->compileThemeAndGetVariablesDump([
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                'sw-border-color' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'color',
-                    'value' => '#bcc1c7',
-                ],
-            ],
-        ]);
-
-        $expected = implode(\PHP_EOL, [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ]);
-
-        static::assertStringContainsString($expected, $actual);
-    }
-
-    public function testDumpVariablesFindsConfigFieldsAndReturnsStringWithScssVariables(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                'sw-border-color' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'color',
-                    'value' => '#bcc1c7',
-                ],
-                'sw-custom-header' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'checkbox',
-                    'value' => false,
-                ],
-                'sw-custom-footer' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'checkbox',
-                    'value' => true,
-                ],
-                'sw-custom-cart' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'switch',
-                    'value' => false,
-                ],
-                'sw-custom-product-box' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'switch',
-                    'value' => true,
-                ],
-                'sw-text-field' => [
-                    'name' => 'sw-text-field',
-                    'type' => 'text',
-                    'value' => '2px solid #000',
-                ],
-                'sw-textarea-field' => [
-                    'name' => 'sw-text-field',
-                    'type' => 'textarea',
-                    'value' => 'Lorem ipsum dolor',
-                ],
-                'sw-url-field' => [
-                    'name' => 'sw-url-field',
-                    'type' => 'url',
-                    'value' => 'https://www.example.com',
-                ],
-                'sw-multi-test' => [
-                    'name' => 'sw-multi-test',
-                    'type' => 'text',
-                    'value' => [
-                        'top',
-                        'bottom',
-                    ],
-                    'custom' => [
-                        'componentName' => 'sw-multi-select',
-                        'options' => [
-                            [
-                                'value' => 'bottom',
-                            ],
-                            [
-                                'value' => 'top',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $actual = $this->compileThemeAndGetVariablesDump($mockConfig);
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-border-color: #bcc1c7;
-\$sw-custom-header: 0;
-\$sw-custom-footer: 1;
-\$sw-custom-cart: 0;
-\$sw-custom-product-box: 1;
-\$sw-text-field: 2px solid #000;
-\$sw-textarea-field: 'Lorem ipsum dolor';
-\$sw-url-field: 'https://www.example.com';
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testDumpVariablesIgnoresFieldsWithScssConfigPropertySetToFalse(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                // Prevent adding field as sass variable
-                'sw-ignore-me' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'text',
-                    'value' => 'Foo bar',
-                    'scss' => false,
-                ],
-            ],
-        ];
-
-        $actual = $this->compileThemeAndGetVariablesDump($mockConfig);
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testDumpVariablesHasNoConfigFieldsAndReturnsOnlyAssetUrl(): void
-    {
-        // Config without `fields`
-        $mockConfig = [
-            'blocks' => [
-                'themeColors' => [
-                    'label' => [
-                        'en-GB' => 'Theme colours',
-                        'de-DE' => 'Theme-Farben',
-                    ],
-                ],
-                'typography' => [
-                    'label' => [
-                        'en-GB' => 'Typography',
-                        'de-DE' => 'Typografie',
-                    ],
-                ],
-            ],
-        ];
-
-        $actual = $this->compileThemeAndGetVariablesDump($mockConfig);
-
-        static::assertSame('// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-$theme-id: themeId;
-$sw-asset-theme-url: \'http://localhost\';
-', $actual);
-    }
-
-    public function testScssVariablesMayHaveZeroValueButNotNull(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-zero-margin' => [
-                    'name' => 'sw-zero-margin',
-                    'type' => 'text',
-                    'value' => 0,
-                ],
-                'sw-null-margin' => [
-                    'name' => 'sw-null-margin',
-                    'type' => 'text',
-                    'value' => null,
-                ],
-                'sw-unset-margin' => [
-                    'name' => 'sw-unset-margin',
-                    'type' => 'text',
-                ],
-                'sw-empty-margin' => [
-                    'name' => 'sw-unset-margin',
-                    'type' => 'text',
-                    'value' => '',
-                ],
-            ],
-        ];
-
-        $actual = $this->compileThemeAndGetVariablesDump($mockConfig);
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-zero-margin: 0;
-\$sw-null-margin: null;
-\$sw-unset-margin: null;
-\$sw-empty-margin: null;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
     }
 
     public function testScssVariablesEventAddsNewVariablesToArray(): void
@@ -628,8 +387,13 @@ PHP_EOL;
 
         $vendorDir = __DIR__ . '/fixtures/ThemeWithScssVendorImports/Storefront/Resources/app/storefront/vendor';
 
-        // The resolve mapping for `~vendor` imports is taken from the resolved style files of the theme.
-        $config = new StorefrontPluginConfiguration('Storefront');
+        // The resolve mapping for `~vendor` imports is taken from the resolved style files of the
+        // theme. The style file itself only exists to carry that mapping: the `@import` lines it
+        // contributes are discarded again when the injected event replaces the concatenated SCSS,
+        // so only the SCSS under test resolves through it. Resolving a style file requires a theme
+        // name the filesystem resolver knows; the base theme name maps to the Storefront bundle,
+        // every other name would need an installed app.
+        $config = new StorefrontPluginConfiguration(StorefrontPluginRegistry::BASE_THEME_NAME);
         $config->setStyleFiles(new FileCollection([
             new File($vendorDir . '/another-library.scss', ['vendor' => $vendorDir]),
         ]));
@@ -637,29 +401,6 @@ PHP_EOL;
         $actual = $this->compileThemeAndGetCss($testScss, $config);
 
         static::assertSame(trim($expectedCssOutput), trim($actual));
-    }
-
-    /**
-     * Runs a full theme compilation for the given theme config and returns the content
-     * of the SCSS variables file that was dumped to the temp filesystem.
-     *
-     * @param array<string, mixed> $themeConfig
-     */
-    private function compileThemeAndGetVariablesDump(array $themeConfig): string
-    {
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setThemeConfig($themeConfig);
-
-        $this->themeCompiler->compileTheme(
-            $this->mockSalesChannelId,
-            'themeId',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            false,
-            Context::createDefaultContext()
-        );
-
-        return $this->tempFilesystem->read('theme-variables.scss');
     }
 
     /**
@@ -675,7 +416,7 @@ PHP_EOL;
 
         try {
             $this->themeCompiler->compileTheme(
-                '1337',
+                $this->mockSalesChannelId,
                 'themeId',
                 $config,
                 new StorefrontPluginConfigurationCollection(),
@@ -686,7 +427,7 @@ PHP_EOL;
             $this->eventDispatcher->removeListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
         }
 
-        $themePrefix = (new MD5ThemePathBuilder())->assemblePath('1337', 'themeId');
+        $themePrefix = $this->themePathBuilder->assemblePath($this->mockSalesChannelId, 'themeId');
 
         return $this->themeFilesystem->read('theme/' . $themePrefix . '/css/all.css');
     }

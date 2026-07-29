@@ -32,6 +32,8 @@ class SalesChannelCreateCommandTest extends TestCase
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
+        $passedArguments = [];
+
         $salesChannelCreator = $this->createMock(SalesChannelCreator::class);
         $salesChannelCreator->expects($this->once())
             ->method('createSalesChannel')
@@ -46,17 +48,19 @@ class SalesChannelCreateCommandTest extends TestCase
                 ?string $countryId,
                 ?string $customerGroupId,
                 ?string $navigationCategoryId
-            ) use ($options, $accessKey): string {
-                $this->assertSame($options['--id'], $id);
-                $this->assertSame($options['--name'], $name);
-                $this->assertSame($options['--typeId'], $typeId);
-                $this->assertSame($options['--languageId'], $languageId);
-                $this->assertSame($options['--currencyId'], $currencyId);
-                $this->assertSame($options['--paymentMethodId'], $paymentMethodId);
-                $this->assertSame($options['--shippingMethodId'], $shippingMethodId);
-                $this->assertNull($countryId);
-                $this->assertSame($options['--customerGroupId'], $customerGroupId);
-                $this->assertSame($options['--navigationCategoryId'], $navigationCategoryId);
+            ) use (&$passedArguments, $accessKey): string {
+                $passedArguments = [
+                    'id' => $id,
+                    'name' => $name,
+                    'typeId' => $typeId,
+                    'languageId' => $languageId,
+                    'currencyId' => $currencyId,
+                    'paymentMethodId' => $paymentMethodId,
+                    'shippingMethodId' => $shippingMethodId,
+                    'countryId' => $countryId,
+                    'customerGroupId' => $customerGroupId,
+                    'navigationCategoryId' => $navigationCategoryId,
+                ];
 
                 return $accessKey;
             });
@@ -64,6 +68,20 @@ class SalesChannelCreateCommandTest extends TestCase
         $commandTester = new CommandTester(new SalesChannelCreateCommand($salesChannelCreator));
 
         static::assertSame(Command::SUCCESS, $commandTester->execute($options));
+
+        static::assertSame([
+            'id' => $options['--id'],
+            'name' => $options['--name'],
+            'typeId' => $options['--typeId'],
+            'languageId' => $options['--languageId'],
+            'currencyId' => $options['--currencyId'],
+            'paymentMethodId' => $options['--paymentMethodId'],
+            'shippingMethodId' => $options['--shippingMethodId'],
+            'countryId' => $options['--countryId'],
+            'customerGroupId' => $options['--customerGroupId'],
+            'navigationCategoryId' => $options['--navigationCategoryId'],
+        ], $passedArguments);
+
         static::assertStringContainsString('Sales channel has been created successfully.', $commandTester->getDisplay());
         static::assertStringContainsString($accessKey, $commandTester->getDisplay());
     }
@@ -115,6 +133,7 @@ class SalesChannelCreateCommandTest extends TestCase
                 '--currencyId' => Uuid::randomHex(),
                 '--paymentMethodId' => Uuid::randomHex(),
                 '--shippingMethodId' => Uuid::randomHex(),
+                '--countryId' => Uuid::randomHex(),
                 '--customerGroupId' => Uuid::randomHex(),
                 '--navigationCategoryId' => Uuid::randomHex(),
             ],

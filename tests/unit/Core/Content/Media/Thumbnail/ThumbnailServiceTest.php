@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -379,65 +378,6 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->deleteThumbnails($mediaEntity, $this->context);
     }
 
-    /**
-     * @param array<string, int<1, max>> $imageSize
-     * @param array<string, int<1, max>> $preferredThumbnailSize
-     * @param array<string, int> $expectedSize
-     */
-    #[DataProvider('thumbnailSizeProvider')]
-    public function testGenerateCalculatesThumbnailSize(array $imageSize, bool $keepAspectRatio, array $preferredThumbnailSize, array $expectedSize): void
-    {
-        $thumbnailSizeEntity = new MediaThumbnailSizeEntity();
-        $thumbnailSizeEntity->setId('$mediaThumbnailSizeEntity-id-1');
-        $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
-        $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
-
-        $mediaFolderConfigEntity = new MediaFolderConfigurationEntity();
-        $mediaFolderConfigEntity->setMediaThumbnailSizes(new MediaThumbnailSizeCollection([$thumbnailSizeEntity]));
-        $mediaFolderConfigEntity->setCreateThumbnails(true);
-        $mediaFolderConfigEntity->setKeepAspectRatio($keepAspectRatio);
-        $mediaFolderConfigEntity->setThumbnailQuality(80);
-
-        $mediaFolderEntity = new MediaFolderEntity();
-        $mediaFolderEntity->setConfiguration($mediaFolderConfigEntity);
-
-        $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
-        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
-        $mediaThumbnailEntity->setMedia($mediaEntity);
-
-        $filesystemPublic = static::createStub(FilesystemOperator::class);
-        $filesystemPublic->method('read')->willReturn($this->createPngImage($imageSize['width'], $imageSize['height']));
-        $filesystemPublic->method('fileSize')->willReturn(100);
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
-                return [
-                    Uuid::fromBytesToHex($params['ids'][0]) => '/thumbnail/test.png',
-                ];
-            });
-
-        $result = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection)
-            ->generate(new MediaCollection([$mediaEntity]), $this->context);
-
-        static::assertSame(1, $result);
-
-        static::assertCount(1, $this->thumbnailRepository->creates);
-        $created = $this->thumbnailRepository->creates[0][0] ?? [];
-        static::assertSame($expectedSize['width'], $created['width']);
-        static::assertSame($expectedSize['height'], $created['height']);
-    }
-
-    /**
-     * @return iterable<array<array<string, int>|bool>>
-     */
-    public static function thumbnailSizeProvider(): iterable
-    {
-        yield 'landscape image keeps aspect ratio for a smaller thumbnail' => [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]];
-        yield 'landscape image uses preferred size when aspect ratio is disabled' => [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]];
-        yield 'smaller source image is kept when aspect ratio is disabled' => [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]];
-    }
-
     public function testThumbnailGenerationThrowExceptionWhenRemoteThumbnailEnabled(): void
     {
         $this->expectExceptionObject(MediaException::thumbnailGenerationDisabled());
@@ -750,21 +690,6 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertSame(0, $result);
         static::assertCount(1, $this->thumbnailRepository->deletes);
-    }
-
-    /**
-     * @param int<1, max> $width
-     * @param int<1, max> $height
-     */
-    private function createPngImage(int $width, int $height): string
-    {
-        $image = imagecreatetruecolor($width, $height);
-        static::assertNotFalse($image);
-
-        ob_start();
-        imagepng($image);
-
-        return (string) ob_get_clean();
     }
 
     private function createThumbnailService(

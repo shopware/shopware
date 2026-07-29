@@ -209,7 +209,7 @@ class ThemeCompilerTest extends TestCase
             [],
             $this->createMock(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
+            $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
 

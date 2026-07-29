@@ -24,8 +24,10 @@ export default function viteOverridePlugin(options: Options): Plugin {
         name: 'shopware-vite-plugin-override-component',
 
         configResolved() {
-            // Find all override files
-            overrideFiles = findFilesRecursively(root, pattern);
+            // Find all override files. Sorted because the directory walk follows filesystem order, which
+            // differs between machines - and the generated entry numbers its imports in this order, so
+            // sorting is what keeps the emitted source byte-stable across builds.
+            overrideFiles = findFilesRecursively(root, pattern).sort();
         },
 
         transform(code, id) {
@@ -38,18 +40,21 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
             // Generate import statements for each override file
             const imports = overrideFiles
-                .map((file) => {
+                .map((file, index) => {
                     // Convert absolute path to relative path from entry file
                     const relativePath = path.relative(path.dirname(id), file);
 
                     // Ensure proper path separators
                     const importPath = relativePath.split(path.sep).join('/');
 
-                    // Derive the import identifier from the whole relative path, not just the basename:
-                    // several overrides of the same component share a basename (e.g.
-                    // first/sw-thing.override.vue and second/sw-thing.override.vue) and must not collide.
-                    const componentName = `_${importPath.replace(/\.override\.vue$/, '').replace(/[^A-Za-z0-9$]/g, '_')}`;
-                    componentNames.push(`${componentName}`);
+                    // The identifier is positional rather than derived from the path. Any mapping of a
+                    // path to an identifier has to drop characters that are illegal in identifiers, and
+                    // every such mapping is lossy: `foo-bar/sw-x` and `foo_bar/sw-x` would collapse to the
+                    // same name and emit a duplicate binding that fails to parse. Numbering sidesteps that
+                    // entirely - nothing about the path is encoded, so nothing can collide. The import
+                    // statement right above each registration still shows which file it is.
+                    const componentName = `_swOverride${index}`;
+                    componentNames.push(componentName);
 
                     return `import ${componentName} from './${importPath}';`;
                 })

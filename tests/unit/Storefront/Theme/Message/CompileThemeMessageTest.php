@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
@@ -12,6 +13,7 @@ use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CompileThemeMessage::class)]
 class CompileThemeMessageTest extends TestCase
 {

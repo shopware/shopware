@@ -160,8 +160,9 @@ class McpServerBuilderCompilerPassTest extends TestCase
         static::assertSame(McpBuilderTestResource::class, $args[0]);
         static::assertSame('plugin://builder-resource', $args[1]);
         static::assertSame('my-builder-resource', $args[2]);
-        static::assertSame('test plugin resource', $args[3]);
-        static::assertNull($args[4]);
+        static::assertNull($args[3]);
+        static::assertSame('test plugin resource', $args[4]);
+        static::assertNull($args[5]);
     }
 
     public function testPluginResourceWithMimeTypeIsRegisteredWithBuilder(): void
@@ -181,7 +182,7 @@ class McpServerBuilderCompilerPassTest extends TestCase
         static::assertNotEmpty($addResourceCalls);
 
         $args = array_values($addResourceCalls)[0][1];
-        static::assertSame('application/json', $args[4]);
+        static::assertSame('application/json', $args[5]);
     }
 
     public function testMethodLevelMcpToolAttributeIsDetected(): void
@@ -247,7 +248,8 @@ class McpServerBuilderCompilerPassTest extends TestCase
         $args = array_values($addResourceCalls)[0][1];
         static::assertSame('plugin://builder-method-resource', $args[1]);
         static::assertSame('builder-method-resource', $args[2]);
-        static::assertSame('method-level resource description', $args[3]);
+        static::assertNull($args[3]);
+        static::assertSame('method-level resource description', $args[4]);
     }
 
     public function testPluginToolTitleIsPassedToBuilder(): void

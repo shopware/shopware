@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductTypeRegistry::class)]
 class ProductTypeRegistryTest extends TestCase
 {

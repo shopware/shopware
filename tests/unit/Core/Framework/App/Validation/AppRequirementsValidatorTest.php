@@ -10,10 +10,12 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppRequirementsValidator::class)]
 class AppRequirementsValidatorTest extends TestCase
 {

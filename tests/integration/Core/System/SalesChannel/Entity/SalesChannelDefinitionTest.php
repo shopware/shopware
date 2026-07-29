@@ -137,7 +137,7 @@ class SalesChannelDefinitionTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('categories');
 
-        $products = $this->salesChannelProductRepository->search($criteria, $context);
+        $products = $this->salesChannelProductRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $products);
 
@@ -184,7 +184,7 @@ class SalesChannelDefinitionTest extends TestCase
      */
     private function getBusinessTimeZone(EntityRepository $repository, Context $context): ?string
     {
-        $salesChannel = $repository->search(new Criteria([TestDefaults::SALES_CHANNEL]), $context)->first();
+        $salesChannel = $repository->search(new Criteria([TestDefaults::SALES_CHANNEL]), $context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         return $salesChannel->getBusinessTimeZone();

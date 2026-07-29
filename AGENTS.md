@@ -44,7 +44,7 @@ shopware/
 
 ## AI Skills
 
-This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a symlink for Claude Code compatibility. Skills are **offered** to the agent and invoked when the task matches their `description` — best-effort and model-decided, **not guaranteed**. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
+This repo ships Agent Skills under `.agents/skills/`, with `.claude/skills` as a symlink for Claude Code compatibility. Skills normally match their `description` against the task — best-effort and model-decided, **not guaranteed** — while skills with unattended CI twins require explicit invocation. The mandatory steps below are therefore stated here, in the always-loaded file, so they apply even when no skill is triggered.
 
 ### Definition of Done — mandatory for every change
 
@@ -97,3 +97,4 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+| **GitHub Actions**     | `composer lint:actions`       | `composer lint:actions:fix`                  |

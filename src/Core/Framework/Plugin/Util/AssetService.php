@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -32,10 +33,8 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal with next major. Should then be moved to the `Shopware\Core\Framework\Adapter\Asset` namespace
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0', description: 'Will move to the Shopware\Core\Framework\Adapter\Asset namespace.')]
 class AssetService
 {
     private const EXTENSION_RESOURCES_DIRECTORY = 'Resources/public';

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @deprecated tag:v6.8.0 - This test is deprecated because the CacheControlListener is deprecated.
  */
+#[Package('framework')]
 #[CoversClass(CacheControlListener::class)]
 class CacheControlListenerTest extends TestCase
 {

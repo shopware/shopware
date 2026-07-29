@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Symfony\Component\Clock\MockClock;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RefreshMigrationCommand::class)]
 class RefreshMigrationCommandTest extends TestCase
 {

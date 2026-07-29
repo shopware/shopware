@@ -17,18 +17,19 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MoveShopPermanentlyStrategy::class)]
 class MoveShopPermanentlyStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -52,7 +53,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->never())->method('refreshRegistration');
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -88,7 +88,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -125,7 +124,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $logger = new TestHandler();
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new MoveShopPermanentlyStrategy(

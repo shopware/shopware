@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
@@ -20,6 +21,7 @@ use Twig\TemplateWrapper;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorybookController::class)]
 class StorybookControllerTest extends TestCase
 {

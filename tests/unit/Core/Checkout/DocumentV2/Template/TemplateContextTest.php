@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
@@ -15,6 +16,8 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\CollidingRenderData;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
 
 /**
  * @internal
@@ -50,7 +53,39 @@ class TemplateContextTest extends TestCase
         static::assertSame('date', $context->documentDate);
         static::assertSame('number', $context->documentNumber);
         static::assertSame('comment', $context->documentComment);
-        static::assertFalse($context->intraCommunityDelivery);
+        static::assertFalse($context->offsetGet('intraCommunityDelivery'));
+    }
+
+    public function testFlattensPublicFieldsOfAdditionalTypeDataIntoNamespace(): void
+    {
+        $meta = new DocumentMetaRenderData(
+            config: new DocumentConfig('a4', 'landscape', 10),
+            company: new DocumentCompanyInfo('company', 'street', '12345', 'city', new CountryEntity()),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: 'number',
+            documentComment: null,
+        );
+
+        $context = new TemplateContext($meta, [new StaticRenderData('from-plugin')]);
+
+        static::assertSame('from-plugin', $context->offsetGet('testData'));
+    }
+
+    public function testThrowsWhenTypeDataShadowsSharedProperty(): void
+    {
+        $meta = new DocumentMetaRenderData(
+            config: new DocumentConfig('a4', 'landscape', 10),
+            company: new DocumentCompanyInfo('company', 'street', '12345', 'city', new CountryEntity()),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: 'number',
+            documentComment: null,
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::templateContextPropertyCollision('companyName'));
+
+        new TemplateContext($meta, [new CollidingRenderData()]);
     }
 
     public function testFallsBackToLegacyConfigForKeysNotPromotedToTypedProperties(): void
@@ -121,13 +156,13 @@ class TemplateContextTest extends TestCase
      */
     private function createContext(array $legacyConfig = []): TemplateContext
     {
-        $renderData = new InvoiceRenderData(
-            new DocumentConfig(
+        $meta = new DocumentMetaRenderData(
+            config: new DocumentConfig(
                 'a4',
                 'landscape',
                 10
             ),
-            new DocumentCompanyInfo(
+            company: new DocumentCompanyInfo(
                 'company',
                 'example street 10',
                 '12345',
@@ -138,6 +173,10 @@ class TemplateContextTest extends TestCase
             documentDate: 'date',
             documentNumber: 'number',
             documentComment: 'comment',
+            legacyConfig: $legacyConfig,
+        );
+
+        $renderData = new InvoiceRenderData(
             typeCode: TypeCode::INVOICE,
             buyerReference: '',
             buyer: new TradePartyView(
@@ -171,9 +210,8 @@ class TemplateContextTest extends TestCase
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,
-            legacyConfig: $legacyConfig,
         );
 
-        return new TemplateContext($renderData);
+        return new TemplateContext($meta, [$renderData]);
     }
 }

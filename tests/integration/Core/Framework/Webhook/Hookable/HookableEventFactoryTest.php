@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
@@ -26,6 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -329,22 +331,25 @@ class HookableEventFactoryTest extends TestCase
 
         $event = $hookables[1];
         static::assertSame('product_price.written', $event->getName());
+        $payload = $event->getWebhookPayload();
+        // the write-result field order differs between the feature-flag states; only the set is contractual
+        sort($payload[0]['updatedFields']);
         static::assertSame([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $productPriceId,
             'updatedFields' => [
+                'createdAt',
                 'id',
-                'versionId',
+                'price',
                 'productId',
                 'productVersionId',
-                'ruleId',
-                'price',
                 'quantityStart',
-                'createdAt',
+                'ruleId',
+                'versionId',
             ],
             'versionId' => Defaults::LIVE_VERSION,
-        ]], $event->getWebhookPayload());
+        ]], $payload);
     }
 
     public function testDoesNotCreateMultipleHookablesForEmptyEvents(): void
@@ -383,22 +388,25 @@ class HookableEventFactoryTest extends TestCase
 
         $event = $hookables[0];
         static::assertSame('product_price.written', $event->getName());
+        $payload = $event->getWebhookPayload();
+        // the write-result field order differs between the feature-flag states; only the set is contractual
+        sort($payload[0]['updatedFields']);
         static::assertSame([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $id,
             'updatedFields' => [
+                'createdAt',
                 'id',
-                'versionId',
+                'price',
                 'productId',
                 'productVersionId',
-                'ruleId',
-                'price',
                 'quantityStart',
-                'createdAt',
+                'ruleId',
+                'versionId',
             ],
             'versionId' => Defaults::LIVE_VERSION,
-        ]], $event->getWebhookPayload());
+        ]], $payload);
     }
 
     public function testCreatesHookableEntityInsertWithoutVersionId(): void

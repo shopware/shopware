@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\LifecycleManager;
@@ -28,6 +29,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceController::class)]
 class ServiceControllerTest extends TestCase
 {
@@ -56,7 +58,6 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::notFound('integrationId', 'CCDD'));
 
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
         $bus = $this->createMock(MessageBusInterface::class);
@@ -430,7 +431,6 @@ class ServiceControllerTest extends TestCase
 
     public function testCategorizedPermissionsThrowsIfServiceIsNotFound(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
         $controller = $this->createController(new ServiceStorage($appRepo));

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
@@ -19,6 +20,7 @@ use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(StoreAppLifecycleService::class)]
 class StoreAppLifecycleServiceTest extends TestCase
 {
@@ -40,7 +42,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('activate')
             ->with('app-id', $context);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -74,7 +75,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deactivate')
             ->with('app-id', $context);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -125,7 +125,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deleteApp')
             ->with('TestApp');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -157,7 +156,6 @@ class StoreAppLifecycleServiceTest extends TestCase
 
         $this->expectExceptionObject(StoreException::extensionNotFoundFromId('missing-app-id'));
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(

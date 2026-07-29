@@ -78,7 +78,7 @@ class MailTemplateSendServiceTest extends TestCase
 
         /** @var EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
         $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
-        $mailTemplateType = $mailTemplateTypeRepository->search($typeCriteria, $this->context)->first();
+        $mailTemplateType = $mailTemplateTypeRepository->search($typeCriteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(MailTemplateTypeEntity::class, $mailTemplateType);
 
@@ -96,7 +96,7 @@ class MailTemplateSendServiceTest extends TestCase
         $mailTemplate = $this->mailTemplateRepository->search(
             new Criteria([$mailTemplateId]),
             $this->context
-        )->first();
+        )->getEntities()->first();
 
         static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
 

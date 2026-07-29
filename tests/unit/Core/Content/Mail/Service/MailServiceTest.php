@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -38,6 +39,7 @@ use Symfony\Component\Mime\Header\HeaderInterface;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailService::class)]
 class MailServiceTest extends TestCase
 {

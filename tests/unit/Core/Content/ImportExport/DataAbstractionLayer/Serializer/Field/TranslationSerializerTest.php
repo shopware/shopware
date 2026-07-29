@@ -37,7 +37,6 @@ class TranslationSerializerTest extends TestCase
 {
     public function testSerializationWithNullTranslations(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -51,7 +50,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testSerializationWithInvalidField(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -67,7 +65,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testSerialization(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'language',
@@ -116,7 +113,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testDeserializationWithEmptyTranslations(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -128,7 +124,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testDeserializationWithInvalidField(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -144,7 +139,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testDeserialization(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
         $translationsSerializer = $this->getTranslationSerializer($languageRepository);
@@ -173,7 +167,6 @@ class TranslationSerializerTest extends TestCase
 
     public function testSupports(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
         $translationsSerializer = new TranslationsSerializer($languageRepository);
 

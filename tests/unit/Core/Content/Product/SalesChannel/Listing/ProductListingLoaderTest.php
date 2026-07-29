@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,6 +35,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductListingLoader::class)]
 class ProductListingLoaderTest extends TestCase
 {
@@ -83,10 +85,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(1, $criteria->getGroupFields());
-                static::assertTrue(\count(array_filter(
+                static::assertTrue(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'red-l' => ['score' => 10.0],
@@ -146,10 +148,10 @@ class ProductListingLoaderTest extends TestCase
             ->method('searchIds')
             ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
                 static::assertCount(0, $criteria->getGroupFields());
-                static::assertFalse(\count(array_filter(
+                static::assertFalse(array_filter(
                     $criteria->getFilters(),
                     static fn ($filter): bool => $filter instanceof NotEqualsFilter && $filter->getField() === 'displayGroup'
-                )) > 0);
+                ) !== []);
 
                 return $this->createIdSearchResult($criteria, [
                     'variant-a' => ['score' => 10.0],

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
@@ -14,6 +15,7 @@ use Twig\Error\LoaderError;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityTemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +19,7 @@ use Shopware\Core\Migration\V6_7\Migration1775208486AddUniqueIndexToProductCross
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1775208486AddUniqueIndexToProductCrossSellingAssignedProducts::class)]
 class Migration1775208486AddUniqueIndexToProductCrossSellingAssignedProductsTest extends TestCase
 {

@@ -280,6 +280,7 @@ The admin menu only supports up to three levels of nesting.`,
             // Non-reactive instance properties; hold the active focus traps.
             this.flyoutFocusTrap = null;
             this.offCanvasFocusTrap = null;
+            this.hadOpenMenuDropdown = false;
 
             this.loginService.notifyOnLoginListener();
 
@@ -355,13 +356,25 @@ The admin menu only supports up to three levels of nesting.`,
                     return;
                 }
 
+                document.addEventListener('pointerdown', this.captureMenuDropdownState, true);
+                document.addEventListener('keydown', this.captureMenuDropdownState, true);
+
                 this.offCanvasFocusTrap = createFocusTrap(panelElement, {
-                    escapeDeactivates: true,
-                    clickOutsideDeactivates: true,
+                    // Stay active while a dropdown owned by the menu is open: its content is
+                    // teleported to the body, so the dismissing outside click, clicks on its
+                    // items and its Escape handling all happen outside the trap and would
+                    // close the whole panel along with the dropdown.
+                    escapeDeactivates: () => !this.hadOpenMenuDropdown,
+                    clickOutsideDeactivates: () => !this.hadOpenMenuDropdown,
+
+                    // Without this the trap swallows clicks on the teleported dropdown items.
+                    allowOutsideClick: (event) => !!event.target?.closest?.('[data-reka-popper-content-wrapper]'),
                     returnFocusOnDeactivate: true,
                     delayInitialFocus: false,
                     fallbackFocus: panelElement,
                     onDeactivate: () => {
+                        document.removeEventListener('pointerdown', this.captureMenuDropdownState, true);
+                        document.removeEventListener('keydown', this.captureMenuDropdownState, true);
                         this.offCanvasFocusTrap = null;
                         Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
                     },
@@ -369,6 +382,14 @@ The admin menu only supports up to three levels of nesting.`,
 
                 this.offCanvasFocusTrap.activate();
             });
+        },
+
+        // Captures whether a menu dropdown is open before anything reacts to the interaction:
+        // the dropdown dismisses itself on pointerdown/Escape already, at the time the focus
+        // trap runs its checks it is gone. Capture phase and registered before the trap, so
+        // this runs first.
+        captureMenuDropdownState() {
+            this.hadOpenMenuDropdown = !!this.$refs.swAdminMenu?.querySelector('[data-state="open"][aria-expanded="true"]');
         },
 
         // Focus only returns to the toggle when the trap closes itself, e.g. via Escape. On a

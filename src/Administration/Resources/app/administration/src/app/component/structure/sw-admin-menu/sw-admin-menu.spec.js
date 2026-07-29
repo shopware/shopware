@@ -369,6 +369,74 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         attachedWrapper.unmount();
     });
 
+    it('should keep the off-canvas menu open when an outside click dismisses an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        // an open dropdown is only visible through its trigger state, the content is teleported away
+        const dropdownTrigger = document.createElement('button');
+        dropdownTrigger.setAttribute('data-state', 'open');
+        dropdownTrigger.setAttribute('aria-expanded', 'true');
+        attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
+
+        document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+        expect(attachedWrapper.vm.isOffCanvasShown).toBe(true);
+
+        dropdownTrigger.remove();
+        attachedWrapper.unmount();
+    });
+
+    it('should close the off-canvas menu on outside click without an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
+    it('should keep the off-canvas menu open when Escape closes an open menu dropdown', async () => {
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        const dropdownTrigger = document.createElement('button');
+        dropdownTrigger.setAttribute('data-state', 'open');
+        dropdownTrigger.setAttribute('aria-expanded', 'true');
+        attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+
+        dropdownTrigger.remove();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+
+        attachedWrapper.unmount();
+    });
+
     it('should close the open off-canvas menu when the viewport grows past the breakpoint', async () => {
         wrapper.vm.viewportWidth = 1280;
         wrapper.vm.onToggleCanvas(true);

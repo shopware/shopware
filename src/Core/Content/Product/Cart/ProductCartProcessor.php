@@ -20,8 +20,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
@@ -77,7 +75,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ProductCategoryPathResolver $categoryPathResolver
     ) {
     }
 
@@ -406,7 +405,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'taxId' => $product->getTaxId(),
             'tagIds' => $product->getTagIds(),
             'categoryIds' => $product->getCategoryTree(),
-            'categoryNames' => $this->getCategoryNames($product, $context),
+            'categoryNames' => $this->categoryPathResolver->getPath($product, $context),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $product->getVariation(),
@@ -416,100 +415,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ];
 
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
-    }
-
-    /**
-     * Resolves the category path of the product as a list of names, ordered from the top level down.
-     *
-     * `categoryIds` cannot be used for this, because for a product assigned to multiple branches it
-     * is a union of those branches and therefore not a path. A single category is selected instead
-     * and its stored breadcrumb is used, which is always a path. Everything up to and including the
-     * sales channel entry point is stripped, so the list starts below the shop navigation root.
-     *
-     * @return list<string>
-     */
-    private function getCategoryNames(SalesChannelProductEntity $product, SalesChannelContext $context): array
-    {
-        $category = $this->getSeoCategory($product, $context);
-
-        if ($category === null) {
-            return [];
-        }
-
-        $breadcrumb = $category->getPlainBreadcrumb();
-        $ids = array_keys($breadcrumb);
-
-        foreach ($this->getSalesChannelEntryPoints($context) as $entryPoint) {
-            $position = array_search($entryPoint, $ids, true);
-
-            if ($position !== false) {
-                return array_values(\array_slice($breadcrumb, $position + 1));
-            }
-        }
-
-        return array_values($breadcrumb);
-    }
-
-    /**
-     * Mirrors the category selection of {@see CategoryBreadcrumbBuilder::getProductSeoCategory()} so
-     * the reported path matches the breadcrumb the storefront shows: the sales channel main category
-     * when one is assigned, otherwise the deepest assigned category. That service is not reused here
-     * because it queries per product whenever a product has no main category, while everything this
-     * needs is already loaded by {@see ProductGateway}.
-     */
-    private function getSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
-    {
-        $categoryIds = $product->getCategoryIds() ?? [];
-
-        $mainCategory = $product->getMainCategories()
-            ?->filterBySalesChannelId($context->getSalesChannelId())
-            ->first()
-            ?->getCategory();
-
-        if ($mainCategory !== null
-            && \in_array($mainCategory->getId(), $categoryIds, true)
-            && $this->isCategoryVisible($mainCategory, $context)
-        ) {
-            return $mainCategory;
-        }
-
-        $deepest = null;
-        foreach ($product->getCategories() ?? [] as $category) {
-            if (!$this->isCategoryVisible($category, $context)) {
-                continue;
-            }
-
-            if ($deepest === null || $category->getLevel() > $deepest->getLevel()) {
-                $deepest = $category;
-            }
-        }
-
-        return $deepest;
-    }
-
-    private function isCategoryVisible(CategoryEntity $category, SalesChannelContext $context): bool
-    {
-        if (!$category->getActive() || !$category->getVisible()) {
-            return false;
-        }
-
-        $path = \array_slice(explode('|', $category->getPath() ?? ''), 1, -1);
-
-        return array_intersect($path, $this->getSalesChannelEntryPoints($context)) !== [];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getSalesChannelEntryPoints(SalesChannelContext $context): array
-    {
-        $salesChannel = $context->getSalesChannel();
-
-        return array_values(array_filter([
-            $salesChannel->getNavigationCategoryId(),
-            $salesChannel->getServiceCategoryId(),
-            $salesChannel->getFooterCategoryId(),
-        ]));
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition

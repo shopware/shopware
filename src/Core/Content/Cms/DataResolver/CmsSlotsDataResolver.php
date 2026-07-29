@@ -359,9 +359,18 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $searchResult = $entities[$definition];
+                $filtered = $searchResult->getEntities()->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
-                $result->add($key, $filtered);
+                // ElementDataCollection expects the result wrapper, not the inner collection
+                $result->add($key, new EntitySearchResult(
+                    $this->definitionRegistry->get($definition)->getEntityName(),
+                    $filtered->count(),
+                    $filtered,
+                    $searchResult->getAggregations(),
+                    $searchResult->getCriteria(),
+                    $searchResult->getContext(),
+                ));
             }
         }
     }

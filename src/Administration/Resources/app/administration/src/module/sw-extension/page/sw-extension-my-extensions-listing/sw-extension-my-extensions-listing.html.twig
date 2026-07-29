@@ -166,5 +166,12 @@
             @modal-close="cancelBulkUninstall"
             @confirm="confirmBulkUninstall"
         />
+
+        <sw-extension-bulk-deactivation-modal
+            v-if="showBulkDeactivationModal"
+            :extensions="rentedBulkDeactivationItems"
+            @modal-close="cancelBulkDeactivation"
+            @confirm="confirmBulkDeactivation"
+        />
     </div>
 </div>

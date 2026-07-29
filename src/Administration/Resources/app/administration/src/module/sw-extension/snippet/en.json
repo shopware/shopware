@@ -40,6 +40,12 @@
           "labelRemovePluginData": "Also remove all data for every selected extension",
           "helpTextRemovePluginData": "Warning: If enabled, all data created by these extensions will be removed permanently."
         },
+        "deactivationModal": {
+          "title": "Deactivate {count} extension|Deactivate {count} extensions",
+          "description": "The following extensions have a monthly subscription fee. Deactivating them will not cancel your subscriptions and fees will continue to be collected:",
+          "alert": "Do you still want to deactivate the selected extensions?",
+          "buttonLabel": "Deactivate"
+        },
         "consent": {
           "extensionLabel": "{count} extension|{count} extensions",
           "installTitle": "Install {count} extension|Install {count} extensions",

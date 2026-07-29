@@ -28,6 +28,8 @@ export default {
             showBulkConsentModal: false,
             showBulkUninstallModal: false,
             bulkUninstallItems: [],
+            showBulkDeactivationModal: false,
+            bulkDeactivationItems: [],
         };
     },
 
@@ -203,6 +205,10 @@ export default {
                 { count: this.bulkConsentCount },
                 this.bulkConsentCount,
             );
+        },
+
+        rentedBulkDeactivationItems() {
+            return this.bulkDeactivationItems.filter((extension) => this.isRentedExtension(extension));
         },
     },
 
@@ -388,6 +394,10 @@ export default {
             this.selectedNames = [];
         },
 
+        isRentedExtension(extension) {
+            return extension.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+        },
+
         actionApplies(action, extension) {
             const installed = extension.installedAt !== null;
 
@@ -426,7 +436,8 @@ export default {
                 //  - install: gate on permissions up front: no permissions -> install and activate immediately.
                 //  - update: attempt the update first: only items the backend rejects for new privileges open a aggregated consent modal.
                 //  - uninstall: always confirm first with a data removal choice.
-                //  - activate/deactivate: no consent, run straight away.
+                //  - deactivate: batches containing rented extensions confirm first that subscription fees continue.
+                //  - activate: no consent, just run directly.
                 switch (action) {
                     case 'install':
                         await this.startBulkInstall(items);
@@ -438,6 +449,17 @@ export default {
                         this.bulkUninstallItems = items;
                         this.showBulkUninstallModal = true;
                         return;
+                    case 'deactivate': {
+                        if (items.some((extension) => this.isRentedExtension(extension))) {
+                            this.bulkDeactivationItems = items;
+                            this.showBulkDeactivationModal = true;
+                            return;
+                        }
+
+                        const results = await this.applyBulk(action, items);
+                        await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+                        return;
+                    }
                     default: {
                         const results = await this.applyBulk(action, items);
                         await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
@@ -676,6 +698,24 @@ export default {
         cancelBulkUninstall() {
             this.showBulkUninstallModal = false;
             this.bulkUninstallItems = [];
+            this.isBulkRunning = false;
+        },
+
+        async confirmBulkDeactivation() {
+            // Mirror the single deactivation modal: close it immediately, then run the deactivations.
+            this.showBulkDeactivationModal = false;
+
+            const items = this.bulkDeactivationItems;
+            this.bulkDeactivationItems = [];
+
+            const results = await this.applyBulk('deactivate', items);
+
+            await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+        },
+
+        cancelBulkDeactivation() {
+            this.showBulkDeactivationModal = false;
+            this.bulkDeactivationItems = [];
             this.isBulkRunning = false;
         },
 

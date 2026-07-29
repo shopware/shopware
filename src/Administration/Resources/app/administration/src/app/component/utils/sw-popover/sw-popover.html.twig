@@ -6,6 +6,7 @@
     v-bind="$attrs"
     :is-opened="isOpened"
     :match-reference-width="computedMatchReferenceWidth"
+    :auto-update-options="computedAutoUpdateOptions"
 >
     <template
         v-for="(index, name) in getSlots()"

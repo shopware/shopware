@@ -9,7 +9,11 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'sw-popover-deprecated': true,
-                'mt-floating-ui': true,
+                'mt-floating-ui': {
+                    name: 'mt-floating-ui',
+                    props: ['autoUpdateOptions'],
+                    template: '<div><slot /></div>',
+                },
             },
         },
         props: {},
@@ -32,7 +36,7 @@ describe('src/app/component/base/sw-popover', () => {
 
         const wrapper = await createWrapper();
 
-        expect(wrapper.html()).toContain('mt-floating-ui');
+        expect(wrapper.findComponent({ name: 'mt-floating-ui' }).exists()).toBe(true);
     });
 
     it('should pass the "resizeWidth" prop to the "matchReferenceWidth" property in mt-floating-ui with true', async () => {
@@ -159,5 +163,48 @@ describe('src/app/component/base/sw-popover', () => {
 
         const deprecatedPopover = wrapper.findComponent({ name: 'sw-popover-deprecated' });
         expect(deprecatedPopover.attributes('resize-width')).toBe('true');
+    });
+
+    it('should use the legacy auto-update options by default', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'mt-floating-ui' }).props('autoUpdateOptions')).toEqual({
+            ancestorScroll: false,
+        });
+    });
+
+    it('should merge custom auto-update options with the legacy default', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            attrs: {
+                'auto-update-options': {
+                    elementResize: false,
+                },
+            },
+        });
+
+        expect(wrapper.findComponent({ name: 'mt-floating-ui' }).props('autoUpdateOptions')).toEqual({
+            ancestorScroll: false,
+            elementResize: false,
+        });
+    });
+
+    it('should allow custom auto-update options to override the legacy default', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            attrs: {
+                autoUpdateOptions: {
+                    ancestorScroll: true,
+                },
+            },
+        });
+
+        expect(wrapper.findComponent({ name: 'mt-floating-ui' }).props('autoUpdateOptions')).toEqual({
+            ancestorScroll: true,
+        });
     });
 });

@@ -11,6 +11,12 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
+        autoUpdateOptions: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
+
         isOpened: {
             type: Boolean,
             required: false,
@@ -50,6 +56,13 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Fallback to deprecated prop
             return this.resizeWidth;
+        },
+
+        computedAutoUpdateOptions() {
+            return {
+                ancestorScroll: false,
+                ...this.autoUpdateOptions,
+            };
         },
     },
 

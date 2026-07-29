@@ -299,6 +299,39 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## App System
 
+### Apps can register custom fields on media folders
+
+Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.
+
+Relating a custom field set to `media_folder_configuration` is particularly useful because it inherits Shopware's existing folder configuration inheritance: folders that inherit their parent's configuration (`useParentConfiguration`) automatically share these custom field values.
+
+Define the fields in `Resources/config/custom-fields.xml` (the inline `<custom-fields>` element in `manifest.xml` is deprecated since 6.7.13.0):
+
+```xml
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>my_app_folder_settings</name>
+        <label>My App</label>
+        <related-entities>
+            <media_folder_configuration/>
+        </related-entities>
+        <fields>
+            <bool name="my_app_enabled">
+                <label>Enabled</label>
+            </bool>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+### Media folder settings modal publishes its data sets for app extensions
+
+The administration media folder settings modal (`sw-media-modal-folder-settings`) now publishes its `mediaFolder` and `configuration` entities as data sets. Meteor Admin SDK apps that add a tab or component section to the modal can read and modify them — for example to render folder-level settings and persist them (as custom fields on `media_folder_configuration`) through the modal's native save:
+
+* `sw-media-modal-folder-settings__mediaFolder`
+* `sw-media-modal-folder-settings__configuration`
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout

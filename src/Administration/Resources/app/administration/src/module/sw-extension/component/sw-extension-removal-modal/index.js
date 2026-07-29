@@ -28,12 +28,6 @@ export default {
         },
     },
 
-    data() {
-        return {
-            removePluginData: false,
-        };
-    },
-
     computed: {
         title() {
             return this.isLicensed

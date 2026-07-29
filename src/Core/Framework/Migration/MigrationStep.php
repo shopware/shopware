@@ -101,11 +101,9 @@ abstract class MigrationStep
     }
 
     /**
-     * Executes a DDL statement, retrying with `restrict_fk_on_non_standard_key` relaxed when
-     * MySQL 8.4 rejects it because of bug #118151 (non-standard foreign key drift against the
-     * table). Use it for raw `ALTER TABLE` / `CREATE INDEX` statements in migrations; the
-     * `addColumn()`, `dropColumnIfExists()`, `dropForeignKeyIfExists()`, `dropIndexIfExists()`
-     * and `updateInheritance()` helpers already run through it.
+     * Executes a raw DDL statement, retrying with the FK guard relaxed when MySQL 8.4 rejects it
+     * through bug #118151. The addColumn() / drop*IfExists() / updateInheritance() helpers
+     * already run through it.
      *
      * @see NonStandardFkGuard
      *

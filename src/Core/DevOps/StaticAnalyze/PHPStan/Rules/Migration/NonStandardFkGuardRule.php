@@ -14,14 +14,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Requires raw DDL against {@see self::TABLES_WITH_KNOWN_DRIFT} to go through
  * {@see \Shopware\Core\Framework\Migration\MigrationStep::executeDdlStatement()}, which retries
- * with the FK guard relaxed when MySQL 8.4 rejects the statement (bug #118151). The MigrationStep
- * DDL helpers (addColumn, dropColumnIfExists, dropForeignKeyIfExists, dropIndexIfExists,
- * updateInheritance) already run through it and need no attention.
- *
- * Whether a shop is affected depends on its schema history, which static analysis cannot see, so
- * the rule guards the tables where drift has been reported rather than a derived category.
- *
- * The MySQL 8.4 regression test in the devops suite covers the behaviour itself.
+ * when MySQL 8.4 rejects the statement (bug #118151). The MigrationStep DDL helpers retry
+ * themselves. Which shops are affected depends on schema history, so the rule guards the tables
+ * with reported drift; the MySQL 8.4 devops test covers the behaviour itself.
  *
  * @internal
  *

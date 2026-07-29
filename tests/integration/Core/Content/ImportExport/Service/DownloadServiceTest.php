@@ -157,7 +157,7 @@ class DownloadServiceTest extends TestCase
             $fileRepository,
             $this->createMock(LoggerInterface::class),
             self::DEFAULT_STRATEGY,
-            new RateLimiter(),
+            static::createStub(RateLimiter::class),
             '',
             new NativeClock(),
         );

@@ -349,6 +349,7 @@ jobs:
         with:
           test-testsuite: ${{ matrix.suite }}
           coverage: "true"
+          phpunit-options: ${{ matrix.phpunit == '12' && '--display-phpunit-notices' || '' }}
       - name: Upload coverage and test results to Codecov
         uses: ./.github/actions/phpunit-upload
         # !cancelled(): junit test results must upload even when the run failed.

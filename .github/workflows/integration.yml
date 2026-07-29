@@ -105,6 +105,7 @@ jobs:
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
+          phpunit-options: ${{ matrix.phpunit == '12' && '--display-phpunit-notices' || '' }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
         # !cancelled(): junit test results must upload even when the run failed.

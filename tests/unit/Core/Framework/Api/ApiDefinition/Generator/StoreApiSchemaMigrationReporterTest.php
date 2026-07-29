@@ -169,9 +169,9 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportFailsWhenAllowlistCannotBeRead(): void
     {
         $allowlistPath = $this->temporaryDirectory . '/allowlist.json';
-        $filesystem = static::createMock(Filesystem::class);
-        $filesystem->method('exists')->with($allowlistPath)->willReturn(true);
-        $filesystem->method('readFile')->with($allowlistPath)->willThrowException(new IOException('Could not read file.', 0, null, $allowlistPath));
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->method('readFile')->willThrowException(new IOException('Could not read file.', 0, null, $allowlistPath));
 
         $this->expectExceptionObject(ApiException::schemaDefinitionNotReadable($allowlistPath));
 

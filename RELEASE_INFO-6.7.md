@@ -76,7 +76,7 @@ Cron-driven product export generation no longer derives the next run from `gener
 ### Request-scoped memoization on bootstrap, template and ES hot paths
 
 Several functions that run very frequently per request now avoid repeated work:
-`EnvironmentHelper::getVariable()` skips allocating a transformer DTO when no transformers are registered (the production default); `Feature::normalizeName()` memoizes its pure transform; `Package::getPackageName()` caches the immutable per-class attribute reflection; `TemplateFinder::find()` memoizes resolved template names per request (cleared on `kernel.reset`), removing the thousands of identical `sw_include`/`sw_icon`/`sw_thumbnails` lookups on a rendered page; the Elasticsearch `CriteriaParser` caches the Groovy script file contents instead of re-reading them from disk on every cheapest-price sort/filter/aggregation; and `SeoUrlPlaceholderHandler::replace()` skips the full-body regex when the response contains no placeholder.
+`Feature::normalizeName()` memoizes its pure transform; `Package::getPackageName()` caches the immutable per-class attribute reflection; `TemplateFinder::find()` memoizes resolved template names per request (cleared on `kernel.reset`), removing the thousands of identical `sw_include`/`sw_icon`/`sw_thumbnails` lookups on a rendered page; the Elasticsearch `CriteriaParser` caches the Groovy script file contents instead of re-reading them from disk on every cheapest-price sort/filter/aggregation; and `SeoUrlPlaceholderHandler::replace()` skips the full-body regex when the response contains no placeholder.
 All of these are backwards-compatible and produce identical results.
 
 ## Administration

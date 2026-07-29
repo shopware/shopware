@@ -274,7 +274,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
-        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations || (self::$silent[$majorFlag] ?? false)) {
             return;
         }
 

@@ -208,6 +208,23 @@ test('As a customer, I must be able to change my email via account.', { tag: '@A
 });
 ```
 
+#### Avoid time bombs
+
+A test run involves three clocks: the Node test process (`new Date()` in expectations), the browser (date pickers resolving "today"), and the backend, which stores and renders UTC. A date computed with one clock and asserted against another fails exactly during the hours where the local calendar date differs from the UTC date, and only then: the test passes all day and fails at night.
+
+- Pin the browser to the backend timezone with `timezoneId: 'UTC'` in the Playwright config; never override it per test.
+- Format every date expectation with `{ timeZone: 'UTC' }` (`toLocaleDateString`, `Intl.DateTimeFormat`) and derive date parts with the `getUTC*` accessors, never `getDate()` or `getMonth()`.
+- Instants are safe, calendar dates are not: `new Date().toISOString()` in an API payload is fine, a formatted "today" compared against rendered output is where the bomb lives.
+- Data created "valid from today" is evaluated by the server in UTC: a date picked in another timezone can land on the previous UTC day and not be valid yet.
+
+```JavaScript
+// Fails between 00:00 local and 00:00 UTC when the runner is not in UTC:
+const today = new Date().toLocaleDateString('en-GB');
+
+// Stable at any hour on any runner:
+const today = new Date().toLocaleDateString('en-GB', { timeZone: 'UTC' });
+```
+
 ### The Actor Pattern
 
 With the actor pattern we create tests in a readable language that follows a user-centric approach where a specific user / persona, called actor, performs several specific actions, called tasks. In addition, we use other types of artifacts that help to extract the actual test logic and make it reusable. There are these different artifacts that we use to simplify the test scenario:

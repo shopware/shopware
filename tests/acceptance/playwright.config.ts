@@ -67,6 +67,8 @@ export default defineConfig({
         trace: 'retain-on-failure',
         video: 'off',
         ignoreHTTPSErrors,
+        /* Pin the browser clock to the server timezone; see "Avoid time bombs" in the README. */
+        timezoneId: 'UTC',
     },
 
     // We abuse this to wait for the external webserver

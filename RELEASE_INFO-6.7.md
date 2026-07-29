@@ -275,16 +275,14 @@ Plugin activation now restores the plugin's `active` flag when a post-activation
 
 ### Product export pagination changed to keyset; `getTotal()` deprecated
 
-The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, and no longer computes an exact product count per batch. This removes the `getTotalCount()` timeout on large catalogs and makes per-batch cost independent of how far the export has progressed. When a subscriber sorts the product criteria via `ProductExportProductCriteriaEvent`, the export falls back to deterministic, resumable offset pagination for that order.
+The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, removing the `getTotalCount()` timeout on large catalogs.
 
-- `Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated and will be removed in 6.8. The export no longer computes a grand total; use `hasNextBatch()` to drive pagination and `getOffset()` for the resume position.
-- `ProductExportPartialGeneration::getOffset()` and `ProductExportResult::getOffset()` keep the historical `offset` name; the value is now an opaque resume position — an `autoIncrement` keyset cursor for unsorted exports, or a row offset for sorted ones.
-- The product export read buffer size is now configurable via `shopware.product_export.read_buffer_size` (products read and rendered per batch). The default was raised from 100 to **500**, which lowers per-batch overhead (fewer messages, context rebuilds and template parses) at the cost of higher per-batch memory/runtime. Lower it if a batch approaches the message time or memory limit.
+- `ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated; the export no longer computes a grand total. Use `hasNextBatch()` and `getOffset()` instead.
+- The read buffer size is now configurable via `shopware.product_export.read_buffer_size` (default 200). Raise it to reduce per-batch overhead, lower it if a batch hits the worker memory limit.
 
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
 
-- `Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator` now iterates by an `autoIncrement` keyset (seek) instead of `OFFSET` when the entity has an autoIncrement field **and the criteria defines no sorting** (keyset requires `autoIncrement` to be the primary order), mirroring `RepositoryIterator`. A criteria with its own sorting keeps using offset iteration. It accepts an optional resume position and exposes the current one via `getOffset()`.
-- `Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository::getDefinition()` was added (parity with `EntityRepository`).
+`SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 

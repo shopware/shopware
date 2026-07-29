@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,10 +12,8 @@ class ProductExportResult
 {
     /**
      * @param list<Error> $errors
-     *
-     * @deprecated tag:v6.8.0 - The $total argument is deprecated and will be removed in v6.8.0.0;
-     * the export no longer computes a grand total.
      */
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'total', description: 'The export no longer computes a grand total; use hasNextBatch() and getOffset() instead.')]
     public function __construct(
         private readonly string $content,
         private readonly array $errors,

@@ -230,6 +230,7 @@ export default {
             showDeleteModal: false,
             toDeleteItem: null,
             checkedElementsChildCount: 0,
+            focusInByMouse: false,
         };
     },
 
@@ -326,14 +327,33 @@ export default {
             // Focus handling
             this.$el.addEventListener('focusin', this.handleFocusIn);
             this.$el.addEventListener('keydown', this.handleKeyDown);
+            this.$el.addEventListener('mousedown', this.handleMouseDown);
+            this.$el.addEventListener('mouseup', this.handleMouseUp);
         },
 
         beforeUnmountedComponent() {
             this.$el.removeEventListener('focusin', this.handleFocusIn);
             this.$el.removeEventListener('keydown', this.handleKeyDown);
+            this.$el.removeEventListener('mousedown', this.handleMouseDown);
+            this.$el.removeEventListener('mouseup', this.handleMouseUp);
+        },
+
+        handleMouseDown() {
+            this.focusInByMouse = true;
+        },
+
+        handleMouseUp() {
+            // A click that did not move the focus must not affect the next keyboard focus
+            this.focusInByMouse = false;
         },
 
         handleFocusIn(event) {
+            /* Scrolling the tree while the mouse button is still down moves the clicked element away
+             * from the cursor, which swallows the click. Keyboard focus must stay visible though.
+             */
+            const preventScroll = this.focusInByMouse;
+            this.focusInByMouse = false;
+
             // Check if focus in already in the tree on any tree item
             if (event.target.classList.contains('sw-tree-item') || event.target.classList.contains('sw-tree-item__toggle')) {
                 // If focus is already on a tree item, do nothing
@@ -359,11 +379,11 @@ export default {
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
             if (activeTreeItem) {
-                activeTreeItem.focus();
+                activeTreeItem.focus({ preventScroll });
             } else {
                 const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
 
-                closestTreeItem?.focus();
+                closestTreeItem?.focus({ preventScroll });
             }
         },
 

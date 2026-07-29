@@ -306,6 +306,36 @@ class RegisterControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutLoginWithWrongCredentialsStaysOnCheckoutRegister(): void
+    {
+        $productNumber = 'test-checkout-login';
+        $this->createProduct(Uuid::randomHex(), $productNumber);
+
+        // Add a product to the cart, then submit the checkout login form with wrong credentials.
+        $this->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            $this->tokenize('frontend.checkout.product.add-by-number', ['number' => $productNumber])
+        );
+
+        $response = $this->request(
+            'POST',
+            '/account/login',
+            $this->tokenize('frontend.account.login', [
+                'username' => 'does-not-exist@example.com',
+                'password' => 'wrong-password',
+                'redirectTo' => 'frontend.checkout.confirm.page',
+            ])
+        );
+
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        $content = (string) $response->getContent();
+
+        // Error shown on the checkout register page, with the login panel expanded.
+        static::assertStringContainsString('Could not find an account', $content);
+        static::assertStringContainsString('class="collapse show" id="loginCollapse"', $content);
+    }
+
     /**
      * @param array<string|int, mixed> $customerData
      */

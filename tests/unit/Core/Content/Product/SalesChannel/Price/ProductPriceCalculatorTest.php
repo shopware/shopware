@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -43,6 +44,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductPriceCalculator::class)]
 class ProductPriceCalculatorTest extends TestCase
 {
@@ -54,7 +56,6 @@ class ProductPriceCalculatorTest extends TestCase
     {
         $this->eventDispatcher = new EventDispatcher();
 
-        /** @var StaticEntityRepository<UnitCollection> $unitRepository */
         $unitRepository = new StaticEntityRepository([
             new UnitCollection([(
             new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),

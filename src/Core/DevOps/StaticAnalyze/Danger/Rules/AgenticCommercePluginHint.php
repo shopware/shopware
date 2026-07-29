@@ -43,7 +43,7 @@ class AgenticCommercePluginHint
             }
         }
 
-        if (\count($matched) === 0) {
+        if ($matched === []) {
             return;
         }
 

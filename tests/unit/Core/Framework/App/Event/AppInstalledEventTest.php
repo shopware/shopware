@@ -8,12 +8,14 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppInstalledEvent::class)]
 class AppInstalledEventTest extends TestCase
 {

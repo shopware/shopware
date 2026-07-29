@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockData;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(StockData::class)]
 class StockDataTest extends TestCase
 {

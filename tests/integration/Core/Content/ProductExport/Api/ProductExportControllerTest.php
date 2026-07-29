@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -20,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductExportControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -35,6 +38,10 @@ class ProductExportControllerTest extends TestCase
     public function testValidate(): void
     {
         $this->createProductStream();
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['product_export:update']
+        )->authorizeBrowser($this->getBrowser());
 
         $url = '/api/_action/product-export/validate';
 
@@ -67,6 +74,21 @@ class ProductExportControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testPreviewAndValidateRequireProductExportUpdatePrivilege(): void
+    {
+        foreach (['preview', 'validate'] as $action) {
+            $browser = $this->getBrowser();
+            TestUser::createNewTestUser(
+                $browser->getContainer()->get(Connection::class),
+                []
+            )->authorizeBrowser($browser);
+
+            $browser->request('POST', \sprintf('/api/_action/product-export/%s', $action));
+
+            static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        }
     }
 
     public function testValidateFailure(): void
@@ -204,6 +226,10 @@ TWIG,
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $this->createProductStream();
+        TestUser::createNewTestUser(
+            $this->getBrowser()->getContainer()->get(Connection::class),
+            ['product_export:update']
+        )->authorizeBrowser($this->getBrowser());
 
         $url = '/api/_action/product-export/preview';
 

@@ -38,7 +38,7 @@ class RemovedTwigBlocks
             }
         }
 
-        if (\count($patched) === 0) {
+        if ($patched === []) {
             return;
         }
 

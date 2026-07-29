@@ -114,7 +114,7 @@ final class AppFixture
     {
         $app = $this->appRepository
             ->search(new Criteria([$appId]), Context::createDefaultContext())
-            ->first();
+            ->getEntities()->first();
 
         \assert($app instanceof AppEntity);
 

@@ -36,8 +36,8 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[CoversClass(OrderService::class)]
 #[Package('checkout')]
+#[CoversClass(OrderService::class)]
 class OrderServiceTest extends TestCase
 {
     private Stub&CartService $cartService;

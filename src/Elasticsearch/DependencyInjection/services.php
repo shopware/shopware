@@ -388,7 +388,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SearchConfigLoader::class),
             service(AbstractTokenQueryBuilder::class),
             service(ElasticsearchTokenizer::class),
-            param('elasticsearch.search.dismax_tie_breaker'),
         ]);
 
     $services->set(AbstractFieldQueryBuilder::class, FieldQueryBuilder::class)
@@ -396,6 +395,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('elasticsearch.analysis.filter.sw_ngram_filter.min_gram'),
             param('elasticsearch.use_language_analyzer'),
             param('elasticsearch.search.dismax_tie_breaker'),
+            param('elasticsearch.search.boost.exact'),
+            param('elasticsearch.search.boost.phrase'),
+            param('elasticsearch.search.boost.fuzzy'),
+            param('elasticsearch.search.boost.prefix'),
+            param('elasticsearch.search.boost.partial'),
         ]);
 
     $services->set(TranslatedFieldQueryBuilder::class)

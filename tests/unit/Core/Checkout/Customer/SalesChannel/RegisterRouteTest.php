@@ -150,8 +150,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -213,8 +213,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -276,8 +276,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -402,8 +402,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -456,8 +455,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -518,8 +516,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -581,8 +579,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -643,8 +641,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -766,8 +764,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -880,8 +878,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -1742,8 +1740,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $repository */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );

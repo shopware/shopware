@@ -331,6 +331,54 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         ]);
     });
 
+    it('should keep id on options for addresses where id is not enumerable via spread', async () => {
+        await flushPromises();
+
+        const newAddressId = 'new-customer-address-without-enumerable-id';
+        const draft = {
+            street: 'Ada Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            hash: 'brandNewAddress',
+            getEntityName: () => 'customer_address',
+        };
+        // Mimic Entity proxy: id is readable but missing from Object spread / own keys
+        const entityLikeAddress = new Proxy(draft, {
+            get(target, property) {
+                if (property === 'id') {
+                    return newAddressId;
+                }
+
+                return target[property];
+            },
+        });
+
+        wrapper.vm.customer.addresses.push(entityLikeAddress);
+
+        const option = wrapper.vm.addressOptions.find((item) => item.street === 'Ada Street 1');
+
+        expect(option).toBeDefined();
+        expect(option.id).toBe(newAddressId);
+        // Selecting uses option.id as customerAddressId; without the explicit assignment this is undefined
+        expect({ ...draft }.id).toBeUndefined();
+
+        wrapper.vm.onAddressChange(option.id);
+
+        expect(wrapper.emitted('change-address').at(-1)).toEqual([
+            {
+                orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                customerAddressId: newAddressId,
+                type: 'billing',
+                edited: false,
+            },
+        ]);
+    });
+
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 

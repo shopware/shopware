@@ -104,7 +104,7 @@ class MissingUnitTests
             }
         }
 
-        if (\count($missingUnitTests) > 0) {
+        if ($missingUnitTests !== []) {
             $context->failure(
                 'Please be kind and add unit tests for your new code in these files: <br/><br/>'
                 . implode('<br/>', $missingUnitTests)

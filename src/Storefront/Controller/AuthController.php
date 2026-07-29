@@ -51,8 +51,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class AuthController extends StorefrontController
 {
     /**
@@ -236,8 +236,14 @@ class AuthController extends StorefrontController
             $data->set('password', null);
         }
 
+        // Keep a failed login within the checkout flow instead of forwarding to the account login page.
+        $redirectTo = $request->request->getString('redirectTo');
+        $errorRoute = str_starts_with($redirectTo, 'frontend.checkout')
+            ? 'frontend.checkout.register.page'
+            : 'frontend.account.login.page';
+
         return $this->forwardToRoute(
-            'frontend.account.login.page',
+            $errorRoute,
             [
                 'loginError' => true,
                 'errorSnippet' => $errorSnippet ?? null,

@@ -8,7 +8,7 @@ import { mount } from '@vue/test-utils';
 import getTreeItems from './fixtures/treeItems';
 
 async function createWrapper(
-    { props, route } = {
+    { props, route, slots } = {
         props: {},
     },
 ) {
@@ -26,6 +26,7 @@ async function createWrapper(
             items: getTreeItems(),
             ...props,
         },
+        slots: slots ?? {},
         global: {
             stubs: {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -602,5 +603,54 @@ describe('src/app/component/tree/sw-tree', () => {
         // Check if tree item has checked value
         treeItem = wrapper.get('.sw-tree-item[aria-label="Shoes"] input[type="checkbox"]');
         expect(treeItem.element.checked).toBe(true);
+    });
+
+    it('should keep the focus on the confirm button while naming a new element', async () => {
+        const homeItem = getTreeItems().find((item) => item.name === 'Home');
+        const shoesId = homeItem.children.find((item) => item.name === 'Shoes').id;
+        const healthId = homeItem.children.find((item) => item.name === 'Health & Games').id;
+
+        const wrapper = await createWrapper({
+            props: {
+                activeTreeItemId: shoesId,
+                initiallyExpandedRoot: true,
+            },
+            route: {
+                params: {
+                    id: shoesId,
+                },
+            },
+            slots: {
+                items: `
+                    <sw-tree-item
+                        v-for="item in params.treeItems"
+                        :key="item.id"
+                        :item="item"
+                        :new-element-id="params.newElementId"
+                        :on-change-route="params.onChangeRoute"
+                    />
+                `,
+            },
+        });
+        await flushPromises();
+
+        // The new element is in naming mode
+        wrapper.vm.newElementId = healthId;
+        await flushPromises();
+
+        const nameInput = wrapper.get('.sw-tree-detail__edit-tree-item input');
+        nameInput.element.focus();
+        await nameInput.trigger('focusin');
+        await flushPromises();
+
+        expect(document.activeElement).toBe(nameInput.element);
+
+        // Clicking the confirm button focuses it, the tree must not pull the focus away
+        const submitButton = wrapper.get('.sw-confirm-field__button--submit');
+        submitButton.element.focus();
+        await submitButton.trigger('focusin');
+        await flushPromises();
+
+        expect(document.activeElement).toBe(submitButton.element);
     });
 });

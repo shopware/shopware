@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -44,6 +45,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -77,6 +79,22 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
+    }
+
+    public function testExportEncodesMediaUrls(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.cover.media.url }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString('product%20image.jpg', $exportResult->getContent());
     }
 
     public function testProductExportGenerationEvents(): void
@@ -434,6 +452,8 @@ class ProductExportGeneratorTest extends TestCase
 
         for ($i = 0; $i < 10; ++$i) {
             $groupId = Uuid::randomHex();
+            $productMediaId = Uuid::randomHex();
+            $mediaId = Uuid::randomHex();
 
             $products[] = [
                 'id' => Uuid::randomHex(),
@@ -445,6 +465,20 @@ class ProductExportGeneratorTest extends TestCase
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'coverId' => $productMediaId,
+                'media' => [
+                    [
+                        'id' => $productMediaId,
+                        'position' => 1,
+                        'media' => [
+                            'id' => $mediaId,
+                            'fileName' => 'product image',
+                            'fileExtension' => 'jpg',
+                            'mimeType' => 'image/jpeg',
+                            'path' => 'media/product image.jpg',
+                        ],
+                    ],
                 ],
                 'options' => [
                     [

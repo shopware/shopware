@@ -29,7 +29,7 @@ class LegacyTestsInSrc
             }
         }
 
-        if (\count($addedLegacyTests) > 0) {
+        if ($addedLegacyTests !== []) {
             $context->failure(
                 'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`:<br/>'
                 . implode('<br>', $addedLegacyTests)

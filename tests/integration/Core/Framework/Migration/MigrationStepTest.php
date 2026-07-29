@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 /**
  * @internal
  */
+#[Package('framework')]
 class MigrationStepTest extends TestCase
 {
     use KernelTestBehaviour;

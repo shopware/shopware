@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Examples\GetSitemapFileExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SitemapFileRoute::class)]
 class SitemapFileRouteTest extends TestCase
 {

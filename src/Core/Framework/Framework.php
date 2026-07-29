@@ -48,7 +48,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -73,50 +72,47 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
-        // @codeCoverageIgnoreStart
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
-        $loader->load('services.xml');
-        $loader->load('acl.xml');
-        $loader->load('cache.xml');
-        $loader->load('api.xml');
+        $phpLoader->load('http_discovery.php');
+        $phpLoader->load('acl.php');
+        $phpLoader->load('api.php');
+        $phpLoader->load('services.php');
+        $phpLoader->load('cache.php');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
-        $loader->load('demodata.xml');
-        $loader->load('event.xml');
+        $phpLoader->load('demodata.php');
+        $phpLoader->load('event.php');
         $phpLoader->load('hydrator.php');
-        $loader->load('filesystem.xml');
-        $loader->load('message-queue.xml');
+        $phpLoader->load('filesystem.php');
+        $phpLoader->load('message-queue.php');
         $phpLoader->load('plugin.php');
-        $loader->load('rule.xml');
-        $loader->load('scheduled-task.xml');
-        $loader->load('store.xml');
+        $phpLoader->load('rule.php');
+        $phpLoader->load('store.php');
+        $phpLoader->load('scheduled-task.php');
         $phpLoader->load('script.php');
-        $loader->load('language.xml');
-        $loader->load('update.xml');
-        $loader->load('validation.xml');
-        $loader->load('seo.xml');
+        $phpLoader->load('language.php');
+        $phpLoader->load('validation.php');
+        $phpLoader->load('update.php');
+        $phpLoader->load('seo.php');
+        $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
-        $loader->load('rate-limiter.xml');
-        $loader->load('increment.xml');
-        $loader->load('flag.xml');
-        $loader->load('health.xml');
-        $loader->load('telemetry.xml');
-        $loader->load('notification.xml');
-        $loader->load('sso.xml');
+        $phpLoader->load('increment.php');
+        $phpLoader->load('flag.php');
+        $phpLoader->load('health.php');
+        $phpLoader->load('telemetry.php');
+        $phpLoader->load('notification.php');
+        $phpLoader->load('sso.php');
 
-        // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
-            $loader->load('store_test.xml');
-            $loader->load('seo_test.xml');
+            $phpLoader->load('services_test.php');
+            $phpLoader->load('store_test.php');
+            $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
-        // @codeCoverageIgnoreEnd
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);
@@ -152,10 +148,10 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
-        $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new McpToolDiscoveryCompilerPass());
+        $container->addCompilerPass(new McpToolAnalysisCompilerPass());
+        $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

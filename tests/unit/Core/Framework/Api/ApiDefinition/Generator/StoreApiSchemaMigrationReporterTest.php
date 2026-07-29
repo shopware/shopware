@@ -29,8 +29,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(AllStoreApiSchemaMigrationScopeProvider::class)]
-#[CoversClass(CoreStoreApiSchemaMigrationScopeProvider::class)]
 #[CoversClass(StoreApiSchemaMigrationReporter::class)]
 class StoreApiSchemaMigrationReporterTest extends TestCase
 {

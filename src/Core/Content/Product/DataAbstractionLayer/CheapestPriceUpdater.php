@@ -56,13 +56,11 @@ class CheapestPriceUpdater
         // query, keyed by parent id, instead of issuing one SELECT per parent inside the loop below.
         $existingAccessorsByParent = [];
         if ($all !== []) {
-            $parentIdBytes = array_map(static fn (string $id): string => Uuid::fromHexToBytes($id), array_keys($all));
-
             $rows = $this->connection->fetchAllAssociative(
                 'SELECT LOWER(HEX(`parent_id`)) AS parentId, `id` AS id, `cheapest_price_accessor` AS accessor
                  FROM product
                  WHERE `parent_id` IN (:ids) AND `version_id` = :version',
-                ['ids' => $parentIdBytes, 'version' => $versionId],
+                ['ids' => Uuid::fromHexToBytesList(array_keys($all)), 'version' => $versionId],
                 ['ids' => ArrayParameterType::BINARY]
             );
 

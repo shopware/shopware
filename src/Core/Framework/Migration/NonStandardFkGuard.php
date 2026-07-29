@@ -8,11 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Executes DDL, retrying once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4
- * rejects the statement with error 1553 through bug #118151 (non-standard FK drift against the
- * table). The statement always runs unmodified first and the guard is restored after the retry,
- * so behaviour only changes for statements the bug would otherwise reject: legitimate 1553
- * failures fail the retry as well, and without the variable (MariaDB, MySQL < 8.4) there is no
- * retry.
+ * rejects the statement with error 1553 through bug #118151. Legitimate 1553 failures fail the
+ * retry as well; without the variable (MariaDB, MySQL < 8.4) there is no retry.
  *
  * @see https://bugs.mysql.com/bug.php?id=118151
  *

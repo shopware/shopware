@@ -36,8 +36,12 @@ use Shopware\Core\Framework\Log\Package;
  * `self::`/`static::` call is skipped unless the callee is a method of the same class whose matching parameter
  * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
  * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
- * Properties touched by a helper are still skipped wholesale. The reverse — converting a real mock — is caught
- * for free by phpstan-phpunit (`Stub::expects()` is undefined).
+ * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
+ * stub (`$this->dep->method(...)`) or forwards it into a constructor keeps it analysable; any other helper
+ * use (an `->expects()`, an unresolvable call) skips the property wholesale (see
+ * {@see self::propertyIsNeverExpectedInHelper()}). Helper-read properties are only ever reported as pure
+ * stubs, never as mixed usage — mixed attribution would need to know which tests invoke which helper. The
+ * reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is undefined).
  *
  * @implements Rule<InClassNode>
  *
@@ -283,6 +287,13 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
+            // For a property that helpers read (transparently: stub configuration or SUT forwarding), only the
+            // provably-never-expected case is reported. Mixed usage would attribute "bare in test X" without
+            // knowing which tests invoke which helper — too weak a proof to block CI on.
+            if ($hasExpects && $this->isPropertyTouchedByHelpers($finder, $helperMethods, $name)) {
+                continue;
+            }
+
             $message = $hasExpects ? self::ERROR_MIXED : self::ERROR_STUB;
             foreach ($propAssignments as $assign) {
                 $errors[] = [$assign, $message];
@@ -311,6 +322,20 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         foreach ($helperMethods as $helper) {
+            if (!$this->propertyIsNeverExpectedInHelper($helper, $name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<ClassMethod> $helperMethods
+     */
+    private function isPropertyTouchedByHelpers(NodeFinder $finder, array $helperMethods, string $name): bool
+    {
+        foreach ($helperMethods as $helper) {
             foreach ($finder->findInstanceOf((array) $helper->stmts, PropertyFetch::class) as $fetch) {
                 if ($this->propertyName($fetch) === $name) {
                     return true;
@@ -319,6 +344,92 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         return false;
+    }
+
+    /**
+     * True when every read of `$this->$name` inside $helper is provably harmless: receiving a non-`expects()`
+     * call (stub configuration such as `->method()->willReturn()`) or being handed to a constructor — the
+     * fixture helper forwarding the double into the SUT. Any other use (an `->expects()`, a `return`, a call
+     * this rule cannot resolve) answers false and keeps the property off limits.
+     */
+    private function propertyIsNeverExpectedInHelper(ClassMethod $helper, string $name): bool
+    {
+        $finder = new NodeFinder();
+        $stmts = (array) $helper->stmts;
+
+        $uses = [];
+        foreach ($finder->findInstanceOf($stmts, PropertyFetch::class) as $fetch) {
+            if ($this->propertyName($fetch) === $name) {
+                $uses[spl_object_id($fetch)] = true;
+            }
+        }
+
+        if ($uses === []) {
+            return true;
+        }
+
+        $harmless = [];
+
+        // `$this->prop->method(...)` — stub configuration is fine, `$this->prop->expects(...)` is not, and a
+        // dynamic method name could be either.
+        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if ($this->propertyName($call->var) !== $name) {
+                continue;
+            }
+
+            if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
+                return false;
+            }
+
+            $harmless[spl_object_id($call->var)] = true;
+        }
+
+        // `new Sut($this->prop)` — production code, it cannot configure expectations.
+        foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
+            if ($new->isFirstClassCallable()) {
+                continue;
+            }
+
+            foreach ($new->getArgs() as $arg) {
+                foreach ($this->passedThroughProperties($arg->value, $name) as $fetch) {
+                    $harmless[spl_object_id($fetch)] = true;
+                }
+            }
+        }
+
+        foreach (array_keys($uses) as $id) {
+            if (!isset($harmless[$id])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The `$this->$name` occurrences that $expr passes on unchanged — the bare property fetch, or one behind
+     * the defaulting wrappers fixture helpers use (`$this->prop ?? $fallback`, `$cond ? $this->prop : $other`).
+     *
+     * @return list<PropertyFetch>
+     */
+    private function passedThroughProperties(Expr $expr, string $name): array
+    {
+        if ($expr instanceof PropertyFetch) {
+            return $this->propertyName($expr) === $name ? [$expr] : [];
+        }
+
+        if ($expr instanceof Coalesce) {
+            return [...$this->passedThroughProperties($expr->left, $name), ...$this->passedThroughProperties($expr->right, $name)];
+        }
+
+        if ($expr instanceof Ternary) {
+            return [
+                ...$this->passedThroughProperties($expr->if ?? $expr->cond, $name),
+                ...$this->passedThroughProperties($expr->else, $name),
+            ];
+        }
+
+        return [];
     }
 
     private function methodExpectsProperty(NodeFinder $finder, ClassMethod $method, string $name): bool

@@ -11,7 +11,7 @@ use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\Filesystem as FlySystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -44,7 +44,7 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(TranslationLoader::class)]
 class TranslationLoaderTest extends TestCase
 {
-    private ClientInterface&MockObject $client;
+    private ClientInterface&Stub $client;
 
     private FlySystem $flysystem;
 
@@ -73,7 +73,7 @@ class TranslationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->context = Context::createDefaultContext();
         $this->eventDispatcher = new EventDispatcher();
@@ -117,7 +117,7 @@ class TranslationLoaderTest extends TestCase
         $request = new Request('GET', 'http://localhost:8000');
         $requestException = new RequestException('Server Error', $request, $response500);
 
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->client->method('request')->willThrowException($requestException);
 
         $loader = $this->getTranslationLoader();
@@ -133,7 +133,7 @@ class TranslationLoaderTest extends TestCase
         $request = new Request('GET', 'http://localhost:8000');
         $requestException = new RequestException('Not Found', $request, $response404);
 
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
             if (str_contains($url, 'administration.json')) {
                 throw $requestException;

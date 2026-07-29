@@ -76,7 +76,7 @@ class PluginLifecycleServiceTest extends TestCase
      */
     private Stub&EntityRepository $pluginRepoMock;
 
-    private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
+    private Stub&KernelPluginCollection $kernelPluginCollectionMock;
 
     private Container $container;
 
@@ -102,7 +102,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $this->pluginRepoMock = static::createStub(EntityRepository::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->kernelPluginCollectionMock = $this->createMock(KernelPluginCollection::class);
+        $this->kernelPluginCollectionMock = static::createStub(KernelPluginCollection::class);
         $this->container = new ContainerBuilder();
         $this->migrationLoaderMock = static::createStub(MigrationCollectionLoader::class);
         $this->requirementsValidatorMock = static::createStub(RequirementsValidator::class);

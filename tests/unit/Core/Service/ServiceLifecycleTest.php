@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -60,11 +61,11 @@ class ServiceLifecycleTest extends TestCase
 
     private RequirementsValidator&MockObject $requirementsValidator;
 
-    private Client&MockObject $registryClient;
+    private Client&Stub $registryClient;
 
     private ServiceClient&MockObject $serviceClient;
 
-    private ServiceClientFactory&MockObject $serviceClientFactory;
+    private ServiceClientFactory&Stub $serviceClientFactory;
 
     protected function setUp(): void
     {
@@ -76,9 +77,9 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver = $this->createMock(ServiceSourceResolver::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
-        $this->registryClient = $this->createMock(Client::class);
+        $this->registryClient = static::createStub(Client::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
-        $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $this->serviceClientFactory = static::createStub(ServiceClientFactory::class);
     }
 
     public function testInstallInstallsWhenInstallationRequirementsAreMet(): void

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,19 +26,19 @@ use Symfony\Component\Console\Tester\CommandTester;
 class PluginListCommandTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<PluginCollection>
+     * @var Stub&EntityRepository<PluginCollection>
      */
-    private MockObject&EntityRepository $pluginRepoMock;
+    private Stub&EntityRepository $pluginRepoMock;
 
-    private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
+    private Stub&ComposerPluginLoader $composerPluginLoaderMock;
 
     private PluginListCommand $command;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pluginRepoMock = $this->createMock(EntityRepository::class);
-        $this->composerPluginLoaderMock = $this->createMock(ComposerPluginLoader::class);
+        $this->pluginRepoMock = static::createStub(EntityRepository::class);
+        $this->composerPluginLoaderMock = static::createStub(ComposerPluginLoader::class);
 
         $this->command = new PluginListCommand($this->pluginRepoMock, $this->composerPluginLoaderMock);
     }

@@ -57,7 +57,12 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class'),
                 51, // mixed property (->expects() in one test, bare in another)
             ],
-            // NOT flagged: 78 (expected in every test), 105 (configured via a helper)
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'PropertyDependency::class', 'PropertyDependency::class'),
+                132, // helper only stub-configures the property and forwards it into the SUT constructor
+            ],
+            // NOT flagged: 78 (expected in every test), 105 (->expects()-ed via a helper),
+            // 159 (a helper hands the property to a call the rule cannot resolve)
         ]);
     }
 

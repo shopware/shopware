@@ -93,6 +93,40 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
+    it('should prevent the default keystroke action when a shortcut is triggered', async () => {
+        const onFocusMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                f: 'onFocus',
+            },
+            methods: {
+                onFocus() {
+                    onFocusMock();
+                },
+            },
+        });
+
+        const matchedEvent = new KeyboardEvent('keydown', {
+            key: 'f',
+            bubbles: true,
+            cancelable: true,
+        });
+        wrapper.element.dispatchEvent(matchedEvent);
+
+        expect(onFocusMock).toHaveBeenCalled();
+        expect(matchedEvent.defaultPrevented).toBe(true);
+
+        const unmatchedEvent = new KeyboardEvent('keydown', {
+            key: 'x',
+            bubbles: true,
+            cancelable: true,
+        });
+        wrapper.element.dispatchEvent(unmatchedEvent);
+
+        expect(unmatchedEvent.defaultPrevented).toBe(false);
+    });
+
     it('String sequence: should call the shortcut method', async () => {
         const openFiltersMock = jest.fn();
 

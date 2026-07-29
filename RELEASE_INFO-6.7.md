@@ -37,6 +37,9 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
 
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
 ### Built-in translation system configurable via `shopware.translation`
 
@@ -142,6 +145,12 @@ Note that `PluginManager.override()` still requires the exact selector the plugi
 ### `PluginManager.extend()` can extend plugins under a new name again
 
 `PluginManager.extend(fromName, newName, ...)` threw a `TypeError` for every plugin, because it assigned to the non-writable `prototype` property of the generated class. Extending a lazily loaded plugin additionally failed because the unloaded plugin cannot be used as a base class. Both cases now work; for a lazily loaded parent, the extended class is built once the parent has been loaded.
+
+### Storefront extension bundles use their own webpack chunk loading global
+
+Every storefront extension build inherits the core storefront webpack context and therefore used the default `webpackChunk` chunk loading global, the same one the core storefront and all other extensions use. Sharing that global lets one build's webpack runtime process another build's chunks, so a dynamic `import()` can resolve to a module from a different bundle when chunk ids collide.
+
+Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
 
 ## App System
 

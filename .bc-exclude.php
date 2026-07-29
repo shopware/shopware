@@ -170,5 +170,9 @@ return [
 
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
+
+        // intended to be internal on release
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
     ],
 ];

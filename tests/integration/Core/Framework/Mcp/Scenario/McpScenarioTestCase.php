@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Scenario;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -64,10 +65,13 @@ abstract class McpScenarioTestCase extends TestCase
         /** @var JsonEntityEncoder $encoder */
         $encoder = $container->get(JsonEntityEncoder::class);
 
-        $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
-        $this->entityAggregateTool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        /** @var AclCriteriaValidator $criteriaValidator */
+        $criteriaValidator = $container->get(AclCriteriaValidator::class);
+
+        $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
+        $this->entityAggregateTool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, $criteriaValidator);
         $this->entitySchemaTool = new EntitySchemaTool($registry);
-        $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
 
         /** @var Connection $connection */
         $connection = $container->get(Connection::class);

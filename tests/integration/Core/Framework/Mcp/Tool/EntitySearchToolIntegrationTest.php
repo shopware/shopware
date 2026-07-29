@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -38,7 +39,10 @@ class EntitySearchToolIntegrationTest extends TestCase
         /** @var JsonEntityEncoder $encoder */
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);
 
-        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        /** @var AclCriteriaValidator $criteriaValidator */
+        $criteriaValidator = static::getContainer()->get(AclCriteriaValidator::class);
+
+        $this->tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
     }
 
     public function testSearchCurrencyReturnsResults(): void

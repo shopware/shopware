@@ -70,6 +70,10 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Administration
 
+### `@shopware-ag/meteor-admin-sdk` updated to 6.10.0
+
+The bundled `@shopware-ag/meteor-admin-sdk` dependency was updated from `6.9.1` to `6.10.0`. This version adds an optional `visible` flag to `ui.tabs().addTabItem()` so an extension can register its tab hidden, and a new `ui.tabs().setVisibility()` method to show or hide a previously registered tab afterwards. Extensions that do not pass `visible` are unaffected; their tabs continue to render as before.
+
 ## Storefront
 
 ## App System

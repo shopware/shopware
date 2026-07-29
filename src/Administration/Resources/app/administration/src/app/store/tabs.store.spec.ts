@@ -83,4 +83,56 @@ describe('tabs.store', () => {
 
         expect(store.tabItems.examplePositionId).toHaveLength(2);
     });
+
+    it('toggles the visibility of an existing tab item', () => {
+        store.addTabItem({
+            label: 'Tab',
+            positionId: 'examplePositionId',
+            componentSectionId: 'exampleComponentSectionId',
+            visible: true,
+        });
+
+        store.setVisibility({
+            positionId: 'examplePositionId',
+            componentSectionId: 'exampleComponentSectionId',
+            visible: false,
+        });
+
+        expect(store.tabItems.examplePositionId).toStrictEqual([
+            {
+                label: 'Tab',
+                componentSectionId: 'exampleComponentSectionId',
+                visible: false,
+            },
+        ]);
+    });
+
+    it('does nothing when setting visibility for an unknown tab item', () => {
+        store.addTabItem({
+            label: 'Tab',
+            positionId: 'examplePositionId',
+            componentSectionId: 'exampleComponentSectionId',
+            visible: true,
+        });
+
+        store.setVisibility({
+            positionId: 'examplePositionId',
+            componentSectionId: 'unknownComponentSectionId',
+            visible: false,
+        });
+
+        store.setVisibility({
+            positionId: 'unknownPositionId',
+            componentSectionId: 'exampleComponentSectionId',
+            visible: false,
+        });
+
+        expect(store.tabItems.examplePositionId).toStrictEqual([
+            {
+                label: 'Tab',
+                componentSectionId: 'exampleComponentSectionId',
+                visible: true,
+            },
+        ]);
+    });
 });

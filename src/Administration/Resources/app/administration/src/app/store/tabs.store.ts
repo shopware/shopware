@@ -1,15 +1,12 @@
 /**
  * @sw-package framework
  */
-import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
+import type { uiTabsAddTabItem, uiTabsSetVisibility } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
 
-// `visible` lets an extension show/hide its own registered tab (e.g. based on the currently
-// opened entity). It is optional and defaults to visible; renderers hide an entry only when it
-// is explicitly `false`. Declared locally until it lands on the SDK `uiTabsAddTabItem` type.
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'> & {
-    visible?: boolean;
-};
+/**
+ * @private
+ */
+export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>;
 
 interface TabsState {
     tabItems: {
@@ -25,12 +22,7 @@ const tabsStore = Shopware.Store.register({
     }),
 
     actions: {
-        addTabItem({
-            label,
-            componentSectionId,
-            positionId,
-            visible,
-        }: Omit<uiTabsAddTabItem, 'responseType'> & { visible?: boolean }): void {
+        addTabItem({ label, componentSectionId, positionId, visible }: Omit<uiTabsAddTabItem, 'responseType'>): void {
             if (!this.tabItems[positionId]) {
                 this.tabItems[positionId] = [];
             }
@@ -51,6 +43,14 @@ const tabsStore = Shopware.Store.register({
                 componentSectionId,
                 visible,
             });
+        },
+
+        setVisibility({ positionId, componentSectionId, visible }: Omit<uiTabsSetVisibility, 'responseType'>): void {
+            const existing = this.tabItems[positionId]?.find((item) => item.componentSectionId === componentSectionId);
+
+            if (existing) {
+                existing.visible = visible;
+            }
         },
     },
 });

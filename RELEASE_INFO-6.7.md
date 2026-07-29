@@ -1,3 +1,170 @@
+# 6.7.14.0 (upcoming)
+
+## Features
+
+## API
+
+### Increment and queue-stats admin endpoints now require ACL privileges
+
+Seven admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST|GET /api/_action/increment/{pool}`, `POST /api/_action/decrement/{pool}`, `POST /api/_action/reset-increment/{pool}`, and `DELETE /api/_action/delete-increment/{pool}` require the new `increment:manage` privilege.
+* `GET /api/_info/queue.json` and `GET /api/_info/message-stats.json` require the existing `message_queue_stats:read` privilege.
+
+Administration users are not affected: `increment:manage` is granted to every authenticated Administration user at runtime (the endpoints back module-usage tracking, which runs in every admin session), and `message_queue_stats:read` already is such a default privilege. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only.
+### Media action routes now enforce ACL privileges
+
+The Admin API media action routes now enforce their corresponding ACL privileges. Clients must have `media:create` to upload new media, upload from a URL, or create an external media link; `media:update` to upload content to existing media or rename media; `media_thumbnail:create` or `media_thumbnail:delete` to add or remove external thumbnails; and `media:read` to use the media filename lookup route.
+
+The V2 upload and upload-from-URL routes already required `media:create` through their media repository write, and the filename lookup route already required `media:read` through its repository query. The external-link, legacy upload and rename, and external-thumbnail add and delete routes now enforce permissions that their system-scoped DAL writes did not previously require. Integrations and users that call those routes must update their ACL role.
+### Template rendering endpoints require update privileges
+
+The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. The `POST /api/_action/mail-template/simulate` endpoint now requires `mail_template:update`. Admin API integrations and users that use these endpoints must be granted the respective existing privilege.
+### Admin action endpoints now require ACL privileges
+
+Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/sso/invite-user` requires the existing `user:create` privilege.
+* `POST /api/app-system/shop-id/change` requires the new `system:app:change` privilege.
+* `POST /api/_action/trigger-event/{eventName}` requires the new `flow:dispatch` privilege.
+* `POST /api/_action/extension-sdk/run-action` requires `app.all` or the app-specific `app.{appName}` privilege.
+
+The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
+
+## Core
+
+### `product-export:generate --force` now regenerates scheduler-managed exports
+
+`--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
+
+### Built-in translation system configurable via `shopware.translation`
+
+The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:
+
+```yaml
+# config/packages/translation.yaml
+shopware:
+    translation:
+        repository_url: 'https://example.com/translations'
+        metadata_url: 'https://example.com/crowdin-metadata.json'
+        plugins:
+            - 'MyPlugin'
+        excluded_locales:
+            - 'de-DE'
+            - 'en-GB'
+        plugin_mapping:
+            - plugin: 'MyPlugin'
+              name: 'MySnippetName'
+        languages:
+            - name: 'Deutsch'
+              locale: 'de-DE'
+```
+
+List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+
+### Polyfill packages are installed as declared dependencies
+
+The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
+
+### OpenAPI generation uses swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 for OpenAPI 3.2 generation.
+Most extensions are not affected: OpenAPI annotations and attributes continue to be read by swagger-php 6, and extensions that only define `OpenApi\Annotations` or `OpenApi\Attributes` metadata usually do not need code changes.
+
+Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
+The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
+See `UPGRADE-6.7.md` for concrete examples.
+### Locale-aware sorting for product property group options
+
+`Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
+
+### MCP server no longer requires the `MCP_SERVER` feature flag
+
+The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+### New BC-change attributes for planned API changes
+
+Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
+
+Such changes are now documented with dedicated PHP attributes under `Shopware\Core\Framework\Deprecation\BCChange`, for example `#[ReturnTypeNarrowing]`, `#[NewOptionalParameter]`, or `#[BecomesFinal]`. For your project this means:
+
+* Static analysis no longer reports deprecation errors for core methods that merely carry a BC-planning note, so these errors disappear from your pipelines without configuration changes.
+* A `@deprecated` annotation on core code is now always an actual deprecation: the functionality will be removed or replaced, and you should migrate as described in the annotation.
+* When a core symbol you use carries a BC-change attribute, the attribute tells you whether your project can be affected: attributes implementing `CallSiteCompatibilityChange` concern code *calling* the symbol (for example a parameter type being narrowed, or a parameter you pass as a named argument being renamed), attributes implementing `ExtenderCompatibilityChange` concern classes in your project that *extend or override* the symbol (for example a return type being narrowed or a class becoming final). Each attribute states the version in which the change happens and the new declaration, so you can prepare ahead of the next major.
+* If your code does not use the annotated symbol in the affected way, there is nothing to do.
+
+All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
+
+### Product export scheduling decoupled from the cache timestamp
+
+Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
+
+## Administration
+
+## Storefront
+
+### `theme:create` gains `--full` and granular scaffold flags
+
+`bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
+
+### `PluginManager.override()` now works for async plugins
+
+Overriding a lazily loaded core storefront plugin no longer silently falls back to the core class. Three defects caused the override to be registered but never applied:
+
+* A core plugin class that finished loading after the override was registered overwrote the override in the registry.
+* An element kept the plugin instance it was first initialized with, even after the registered class had changed.
+* Re-registering an async plugin with a plain (non-lazy) class left it flagged as async, so it was never initialized at all.
+
+Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. This replacement happens whenever the class registered under a plugin name differs from the class an existing instance was built with, so it is not limited to `PluginManager.override()` and it can happen during any later initialization pass, for example the one that runs after AJAX-loaded content.
+
+Before an outdated instance is replaced, the PluginManager calls its `destroy()` method and resets its `$emitter`.
+
+**Be aware of the current limitation:** the instance being replaced is the previously registered class, which is usually a core plugin, and most core plugins do not implement `destroy()` yet. Anything such an instance registered outside of itself — most importantly listeners added with `addEventListener` — therefore stays active, and both the replaced and the new instance react to the same event. The PluginManager logs a `console.warn` naming every plugin that is replaced without implementing `destroy()`. Registering your override before the storefront initializes its plugins, which is what a theme entry file does by default, avoids the replacement entirely and is the recommended way to override a plugin.
+
+`PluginBaseClass` now declares a `destroy()` method. Implement it in your own plugins to clean up anything `init()` registered outside the instance:
+
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    init() {
+        this._onClick = this._onClick.bind(this);
+        this.el.addEventListener('click', this._onClick);
+    }
+
+    destroy() {
+        this.el.removeEventListener('click', this._onClick);
+    }
+}
+```
+
+Note that `PluginManager.override()` still requires the exact selector the plugin was registered with. Overriding `FormCmsHandler` for example only takes effect with the selector `.cms-element-form form`.
+
+### `PluginManager.extend()` can extend plugins under a new name again
+
+`PluginManager.extend(fromName, newName, ...)` threw a `TypeError` for every plugin, because it assigned to the non-writable `prototype` property of the generated class. Extending a lazily loaded plugin additionally failed because the unloaded plugin cannot be used as a base class. Both cases now work; for a lazily loaded parent, the extended class is built once the parent has been loaded.
+
+## App System
+
+## Hosting & Configuration
+
+### Fallback thumbnail sizes for remote thumbnails
+
+When remote thumbnails are enabled, operators can optionally configure `shopware.media.remote_thumbnails.fallback_sizes`. It defaults to `[]` and accepts entries with `width` and `height`:
+
+```yaml
+# config/packages/shopware.yaml
+shopware:
+    media:
+        remote_thumbnails:
+            fallback_sizes:
+                - { width: 400, height: 400 }
+```
+
+Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
+
 # 6.7.13.0
 
 ## Critical Fixes

@@ -38,9 +38,18 @@ module.exports = {
                         throw error;
                     }
 
+                    const clampIndex = (index) => Math.min(index ?? 0, sourceCode.text.length);
+                    const start = sourceCode.getLocFromIndex(clampIndex(error.index));
+                    // When the thrower gave a full node range, report start+end so the editor underlines
+                    // the whole offending token; otherwise fall back to a single-point location.
+                    const loc =
+                        error.endIndex === null
+                            ? start
+                            : { start, end: sourceCode.getLocFromIndex(clampIndex(error.endIndex)) };
+
                     context.report({
                         node,
-                        loc: sourceCode.getLocFromIndex(Math.min(error.index, sourceCode.text.length)),
+                        loc,
                         message: error.message,
                     });
                 }

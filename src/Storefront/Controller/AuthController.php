@@ -236,8 +236,14 @@ class AuthController extends StorefrontController
             $data->set('password', null);
         }
 
+        // Keep a failed login within the checkout flow instead of forwarding to the account login page.
+        $redirectTo = $request->request->getString('redirectTo');
+        $errorRoute = str_starts_with($redirectTo, 'frontend.checkout')
+            ? 'frontend.checkout.register.page'
+            : 'frontend.account.login.page';
+
         return $this->forwardToRoute(
-            'frontend.account.login.page',
+            $errorRoute,
             [
                 'loginError' => true,
                 'errorSnippet' => $errorSnippet ?? null,

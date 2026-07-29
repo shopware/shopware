@@ -176,6 +176,22 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
     });
 
+    it('should have sw-modal--overflow-hidden class if overflowHidden option is true', async () => {
+        await wrapper.setProps({
+            overflowHidden: true,
+        });
+
+        expect(wrapper.get('.sw-modal').classes('sw-modal--overflow-hidden')).toBe(true);
+    });
+
+    it('should not have sw-modal--overflow-hidden class if overflowHidden option is false', async () => {
+        await wrapper.setProps({
+            overflowHidden: false,
+        });
+
+        expect(wrapper.get('.sw-modal').classes('sw-modal--overflow-hidden')).toBe(false);
+    });
+
     it('should add classes for the modal body correctly', async () => {
         await wrapper.setProps({
             showFooter: false,

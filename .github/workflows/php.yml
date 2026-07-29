@@ -334,14 +334,17 @@ jobs:
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
       - name: Run PHPUnit with coverage
+        id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
           coverage: "true"
       - name: Upload coverage and test results to Codecov
         uses: ./.github/actions/phpunit-upload
-        # !cancelled(): junit test results must upload even when the run failed
-        if: ${{ !cancelled() }}
+        # !cancelled(): junit test results must upload even when the run failed.
+        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
+        # failed), because then checkout never ran either and this local action cannot resolve.
+        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
         with:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}

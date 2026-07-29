@@ -3,12 +3,15 @@
 namespace Shopware\Tests\Unit\Administration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Administration;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -51,143 +54,123 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         static::assertStringContainsString('All unnecessary files of the administration after the build process have been deleted.', $commandTester->getDisplay());
     }
 
-    public function testDeleteEmptyDirectoriesSkipsNonExistentDirectory(): void
+    #[TestDox('snippet directories and their contents survive the cleanup')]
+    public function testSnippetDirectoriesAreNeverDeleted(): void
     {
-        $this->filesystem->expects($this->never())
-            ->method('remove');
+        $snippetDirectories = $this->findSnippetDirectories();
+        static::assertNotEmpty(
+            $snippetDirectories,
+            'The administration components must ship at least one snippet directory, otherwise this test proves nothing.'
+        );
 
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('deleteEmptyDirectories');
+        $deleted = $this->runCommandRecordingDeletions();
 
-        $method->invoke($command, '/non/existent/directory');
+        foreach ($snippetDirectories as $snippetDirectory) {
+            static::assertNotContains($snippetDirectory, $deleted);
+            static::assertSame([], array_values(array_filter(
+                $deleted,
+                static fn (string $path): bool => str_starts_with($path, $snippetDirectory . '/')
+            )));
+            static::assertNotContains(
+                \dirname($snippetDirectory),
+                $deleted,
+                'A directory keeping a snippet directory alive must not be deleted itself.'
+            );
+            static::assertNotSame([], array_values(array_filter(
+                $deleted,
+                static fn (string $path): bool => str_starts_with($path, \dirname($snippetDirectory) . '/')
+            )), 'The files around the snippet directory are cleaned up, so the snippet guard was really hit.');
+        }
     }
 
-    public function testDeleteEmptyDirectoriesRemovesSingleEmptyDirectory(): void
+    #[TestDox('directories that do not exist are not passed to the filesystem')]
+    public function testNonExistingDirectoriesAreSkipped(): void
     {
-        $testDir = sys_get_temp_dir() . '/test_empty_dir_' . uniqid();
-        $fs = new Filesystem();
-        $fs->mkdir($testDir);
+        $missingDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/asyncComponent';
+        $existingDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/adapter';
 
-        $this->filesystem->expects($this->once())
-            ->method('remove')
-            ->with($testDir);
+        static::assertDirectoryDoesNotExist($missingDirectory);
 
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('deleteEmptyDirectories');
+        $deleted = $this->runCommandRecordingDeletions();
 
-        $method->invoke($command, $testDir);
-
-        $fs->remove($testDir);
+        static::assertNotContains($missingDirectory, $deleted);
+        static::assertContains($existingDirectory, $deleted);
     }
 
-    public function testDeleteEmptyDirectoriesRemovesNestedEmptyDirectories(): void
+    #[TestDox('a directory whose cleanup throws is kept and the run continues')]
+    public function testThrowingDirectoryCleanupIsKeptAndTheRunContinues(): void
     {
-        $testDir = sys_get_temp_dir() . '/test_nested_' . uniqid();
-        $level1 = $testDir . '/level1';
-        $level2 = $level1 . '/level2';
-        $level3 = $level2 . '/level3';
+        $adapterDirectory = $this->administrationDirectory() . '/Resources/app/administration/src/app/adapter';
+        $packageLock = $this->administrationDirectory() . '/Resources/app/administration/package-lock.json';
 
-        $fs = new Filesystem();
-        $fs->mkdir($level3);
-
-        $this->filesystem->expects($this->exactly(4))
+        $deleted = [];
+        $this->filesystem->expects($this->atLeastOnce())
             ->method('remove')
-            ->willReturnCallback(function ($dir) use ($level3, $level2, $level1, $testDir, $fs): void {
-                static $callCount = 0;
-                $expectedDirs = [$level3, $level2, $level1, $testDir];
-
-                $this->assertStringContainsString($expectedDirs[$callCount], $dir);
-                $fs->remove($dir);
-                ++$callCount;
+            ->willReturnCallback(static function (string|iterable $files) use ($adapterDirectory, &$deleted): void {
+                foreach (\is_iterable($files) ? $files : [$files] as $file) {
+                    if (str_starts_with((string) $file, $adapterDirectory . '/')) {
+                        throw new \UnexpectedValueException('cannot be traversed');
+                    }
+                    $deleted[] = (string) $file;
+                }
             });
 
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('deleteEmptyDirectories');
+        $commandTester = new CommandTester($this->command);
+        $commandTester->setInputs(['yes']);
+        $commandTester->execute([]);
 
-        $method->invoke($command, $testDir);
-        static::assertDirectoryDoesNotExist($testDir);
+        $commandTester->assertCommandIsSuccessful();
+        static::assertNotContains($adapterDirectory, $deleted, 'A directory whose cleanup failed must not be deleted itself.');
+        static::assertContains($packageLock, $deleted, 'The cleanup continues after the failed directory.');
     }
 
-    public function testDeleteEmptyDirectoriesSkipsUnreadableDirectory(): void
+    /**
+     * Runs the command through its public interface. The filesystem double records the requested
+     * deletions instead of performing them, so the real administration sources stay untouched.
+     *
+     * @return list<string>
+     */
+    private function runCommandRecordingDeletions(): array
     {
-        $testDir = sys_get_temp_dir() . '/test_empty_dir_' . uniqid();
-        $fs = new Filesystem();
-        $fs->mkdir($testDir, 0000);
+        $deleted = [];
 
-        $this->filesystem->expects($this->never())
+        $this->filesystem->expects($this->atLeastOnce())
             ->method('remove')
-            ->with($testDir);
+            ->willReturnCallback(function (string|iterable $files) use (&$deleted): void {
+                foreach (\is_iterable($files) ? $files : [$files] as $file) {
+                    $deleted[] = (string) $file;
+                }
+            });
 
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('deleteEmptyDirectories');
+        $commandTester = new CommandTester($this->command);
+        $commandTester->setInputs(['yes']);
+        $commandTester->execute([]);
 
-        $method->invoke($command, $testDir);
+        $commandTester->assertCommandIsSuccessful();
 
-        $fs->chmod($testDir, 0755);
-        $fs->remove($testDir);
+        return $deleted;
     }
 
-    public function testRemoveDirectorySkipsUnreadableDirectory(): void
+    /**
+     * @return list<string>
+     */
+    private function findSnippetDirectories(): array
     {
-        $testDir = sys_get_temp_dir() . '/test_empty_dir_' . uniqid();
-        $fs = new Filesystem();
-        $fs->mkdir($testDir, 0000);
+        $finder = new Finder();
+        $finder->in($this->administrationDirectory() . '/Resources/app/administration/src/app/component')
+            ->directories()
+            ->name('snippet');
 
-        $this->filesystem->expects($this->never())
-            ->method('remove')
-            ->with($testDir);
+        $snippetDirectories = [];
+        foreach ($finder as $snippetDirectory) {
+            $snippetDirectories[] = (string) $snippetDirectory->getRealPath();
+        }
 
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('removeDirectory');
-
-        $method->invoke($command, $testDir);
-
-        $fs->chmod($testDir, 0755);
-        $fs->remove($testDir);
+        return $snippetDirectories;
     }
 
-    public function testRemoveDirectorySkipsSnippetDirectory(): void
+    private function administrationDirectory(): string
     {
-        $testDir = sys_get_temp_dir() . '/test_dir_' . uniqid();
-        $snippetDir = $testDir . '/snippet';
-        $fs = new Filesystem();
-        $fs->mkdir($snippetDir);
-
-        $this->filesystem->expects($this->never())
-            ->method('remove');
-
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('removeDirectory');
-
-        $method->invoke($command, $snippetDir);
-
-        static::assertDirectoryExists($snippetDir);
-        $fs->remove($testDir);
-    }
-
-    public function testRemoveDirectorySkipsNestedSnippetDirectory(): void
-    {
-        $testDir = sys_get_temp_dir() . '/test_nested_snippet_' . uniqid();
-        $nestedSnippet = $testDir . '/some/path/snippet';
-        $fs = new Filesystem();
-        $fs->mkdir($nestedSnippet);
-
-        $this->filesystem->expects($this->never())
-            ->method('remove');
-
-        $command = new DeleteAdminFilesAfterBuildCommand($this->filesystem);
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('removeDirectory');
-
-        $method->invoke($command, $nestedSnippet);
-
-        static::assertDirectoryExists($nestedSnippet);
-        $fs->remove($testDir);
+        return (new Administration())->getPath();
     }
 }

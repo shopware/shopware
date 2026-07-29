@@ -89,6 +89,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelExceptionHandler;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator;
+use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -497,4 +498,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SalesChannelMaintenanceIpAllowlistSyncSubscriber::class)
         ->tag('kernel.event_subscriber');
+
+    // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
+    $services->set(SalesChannelTypeResolver::class);
 };

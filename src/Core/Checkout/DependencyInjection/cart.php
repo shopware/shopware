@@ -104,10 +104,10 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
+use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -521,12 +521,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductPriceCalculator::class),
             service(EntityCacheKeyGenerator::class),
             service(Connection::class),
-            service(ProductCategoryPathResolver::class),
+            service(ProductTypeRegistry::class),
         ])
         ->tag('shopware.cart.processor', ['priority' => 5000])
         ->tag('shopware.cart.collector', ['priority' => 5000]);
-
-    $services->set(ProductCategoryPathResolver::class);
 
     $services->set(ProductFeatureBuilder::class)
         ->args([

@@ -67,6 +67,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     final public const KEEP_INACTIVE_PRODUCT = CheckoutPermissions::KEEP_INACTIVE_PRODUCT;
 
     /**
+     * Not a constructor argument, because the resolver is stateless and has no dependencies of its
+     * own, while adding an argument would break every service definition that instantiates this
+     * processor, including those outside this repository.
+     */
+    private readonly ProductCategoryPathResolver $categoryPathResolver;
+
+    /**
      * @internal
      */
     public function __construct(
@@ -75,9 +82,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
-        private readonly Connection $connection,
-        private readonly ProductCategoryPathResolver $categoryPathResolver
+        private readonly Connection $connection
     ) {
+        $this->categoryPathResolver = new ProductCategoryPathResolver();
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void

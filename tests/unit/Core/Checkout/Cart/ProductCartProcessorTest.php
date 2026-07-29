@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -143,7 +144,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -212,7 +214,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             $calculator,
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -260,7 +263,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -301,7 +305,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $originalCart = new Cart('test');
@@ -356,7 +361,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -407,7 +413,8 @@ class ProductCartProcessorTest extends TestCase
             static::createStub(ProductFeatureBuilder::class),
             static::createStub(ProductPriceCalculator::class),
             static::createStub(EntityCacheKeyGenerator::class),
-            static::createStub(Connection::class)
+            static::createStub(Connection::class),
+            new ProductCategoryPathResolver()
         );
 
         $context = static::createStub(SalesChannelContext::class);

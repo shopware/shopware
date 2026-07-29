@@ -1,5 +1,6 @@
 {
     "require-dev": {
+        "frosh/shopware-rector": "^0.5.10",
         "rector/rector": "^2.3.6"
     },
     "sort-packages": true

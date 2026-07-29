@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Api\ApiException;
@@ -27,6 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
+#[CoversClass(AllStoreApiSchemaMigrationScopeProvider::class)]
+#[CoversClass(CoreStoreApiSchemaMigrationScopeProvider::class)]
 #[CoversClass(StoreApiSchemaMigrationReporter::class)]
 class StoreApiSchemaMigrationReporterTest extends TestCase
 {
@@ -69,16 +73,34 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $reporter = $this->createReporter(new BundleSchemaPathCollection([new ShopwareBundleWithName()]));
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
-        $coreReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_CORE);
+        $coreReport = $reporter->report($definitions, CoreStoreApiSchemaMigrationScopeProvider::SCOPE);
         static::assertContains('GroupByTest', $coreReport->phpGeneratedOnly);
         static::assertContains('AppAdministrationSnippet', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Extension', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Presentation', $coreReport->jsonWithoutPhpGenerated);
 
-        $allReport = $reporter->report($definitions, StoreApiSchemaMigrationReporter::SCOPE_ALL);
+        $allReport = $reporter->report($definitions, AllStoreApiSchemaMigrationScopeProvider::SCOPE);
         static::assertContains('GroupByTest', $allReport->phpGeneratedOnly);
         static::assertContains('Extension', $allReport->phpGeneratedOnly);
         static::assertContains('Presentation', $allReport->jsonWithoutPhpGenerated);
+    }
+
+    public function testReportExposesSupportedScopes(): void
+    {
+        static::assertSame([
+            CoreStoreApiSchemaMigrationScopeProvider::SCOPE,
+            AllStoreApiSchemaMigrationScopeProvider::SCOPE,
+        ], $this->createReporter()->getSupportedScopes());
+    }
+
+    public function testReportFailsForUnsupportedScope(): void
+    {
+        $this->expectExceptionObject(ApiException::unsupportedStoreApiSchemaMigrationScope('extension', [
+            CoreStoreApiSchemaMigrationScopeProvider::SCOPE,
+            AllStoreApiSchemaMigrationScopeProvider::SCOPE,
+        ]));
+
+        $this->createReporter()->report([], 'extension');
     }
 
     public function testReportIgnoresTranslationAndVersionDefinitions(): void
@@ -93,7 +115,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         )->report([
             'example_translation' => $this->createDefinition('example_translation'),
             'version_example' => $this->createDefinition('version_example'),
-        ], StoreApiSchemaMigrationReporter::SCOPE_ALL);
+        ], AllStoreApiSchemaMigrationScopeProvider::SCOPE);
 
         static::assertSame([], $report->phpGeneratedOnly);
     }
@@ -197,10 +219,11 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     ): StoreApiSchemaMigrationReporter {
         return new StoreApiSchemaMigrationReporter(
             $definitionSchemaBuilder ?? new OpenApiDefinitionSchemaBuilder(),
-            $bundleSchemaPathCollection ?? new BundleSchemaPathCollection([]),
+            [
+                new CoreStoreApiSchemaMigrationScopeProvider($schemaPath, $allowlistPath),
+                new AllStoreApiSchemaMigrationScopeProvider($bundleSchemaPathCollection ?? new BundleSchemaPathCollection([]), $schemaPath, $allowlistPath),
+            ],
             $filesystem ?? new Filesystem(),
-            $schemaPath,
-            $allowlistPath,
         );
     }
 

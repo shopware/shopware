@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReport;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
@@ -99,6 +101,10 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
     {
         $reporter = static::createStub(StoreApiSchemaMigrationReporter::class);
         $reporter->method('report')->willReturn($report);
+        $reporter->method('getSupportedScopes')->willReturn([
+            CoreStoreApiSchemaMigrationScopeProvider::SCOPE,
+            AllStoreApiSchemaMigrationScopeProvider::SCOPE,
+        ]);
 
         return $reporter;
     }

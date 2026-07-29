@@ -15,8 +15,10 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBui
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationScopeProviderInterface;
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
@@ -269,10 +272,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(BundleSchemaPathCollection::class),
         ]);
 
+    $services->set(CoreStoreApiSchemaMigrationScopeProvider::class)
+        ->tag(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG);
+
+    $services->set(AllStoreApiSchemaMigrationScopeProvider::class)
+        ->args([
+            service(BundleSchemaPathCollection::class),
+        ])
+        ->tag(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG);
+
     $services->set(StoreApiSchemaMigrationReporter::class)
         ->args([
             service(OpenApiDefinitionSchemaBuilder::class),
-            service(BundleSchemaPathCollection::class),
+            tagged_iterator(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG),
         ]);
 
     $services->set(EntitySchemaGenerator::class);

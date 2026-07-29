@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Command;
 
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -37,15 +38,19 @@ class StoreApiSchemaMigrationReportCommand extends Command
         OutputInterface $output,
         #[Argument(description: 'Path to the output file. "-" writes to stdout.')]
         string $outfile = '-',
-        #[Option(description: 'Schema ownership scope to report. Supported values: core, all.')]
-        string $scope = StoreApiSchemaMigrationReporter::SCOPE_CORE,
+        #[Option(description: 'Schema ownership scope to report.')]
+        string $scope = CoreStoreApiSchemaMigrationScopeProvider::SCOPE,
         #[Option(description: 'Dumps the output in a human-readable form.', shortcut: 'p')]
         bool $pretty = false,
         #[Option(description: 'Returns a failure code when the report contains migration mismatches.')]
         bool $failOnMismatch = false,
     ): int {
-        if (!\in_array($scope, [StoreApiSchemaMigrationReporter::SCOPE_CORE, StoreApiSchemaMigrationReporter::SCOPE_ALL], true)) {
-            $output->writeln('<error>The scope option must be one of: core, all.</error>');
+        $supportedScopes = $this->reporter->getSupportedScopes();
+        if (!\in_array($scope, $supportedScopes, true)) {
+            $output->writeln(\sprintf(
+                '<error>The scope option must be one of: %s.</error>',
+                implode(', ', $supportedScopes),
+            ));
 
             return self::FAILURE;
         }

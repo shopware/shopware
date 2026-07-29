@@ -442,15 +442,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         discardCategoryChanges() {
-            const categories = this.page.categories!;
-            const originCategories = this.page.getOrigin().categories!;
-
             this.page.categories = new EntityCollection(
-                originCategories.source || categories.source,
-                originCategories.entity || categories.entity,
+                this.page.categories!.source,
+                this.page.categories!.entity,
                 Shopware.Context.api,
                 null,
-                [...originCategories],
+                [...this.page.getOrigin().categories],
             );
             this.removedCategoryIds = [];
         },

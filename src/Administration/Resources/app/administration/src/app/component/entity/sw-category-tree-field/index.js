@@ -218,8 +218,8 @@ export default {
 
             if (this.pageId) {
                 this.globalCategoryRepository.searchIds(this.pageCategoryCriteria).then((result) => {
-                    this.selectedCategories = result?.data ?? [];
-                    this.selectedCategoriesTotal = result?.total ?? 0;
+                    this.selectedCategories = result.data;
+                    this.selectedCategoriesTotal = result.total;
                 });
             }
         },
@@ -245,10 +245,12 @@ export default {
                     this.categories = searchResult;
                     this.isFetching = false;
 
-                    if (this.pageId && searchResult[0].cmsPageId === this.pageId) {
-                        if (!this.selectedCategories.includes(searchResult[0].id)) {
-                            this.selectedCategories.push(searchResult[0].id);
-                        }
+                    if (
+                        this.pageId &&
+                        searchResult[0].cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(searchResult[0].id)
+                    ) {
+                        this.selectedCategories.push(searchResult[0].id);
                     }
 
                     return Promise.resolve();
@@ -258,10 +260,12 @@ export default {
                 searchResult.forEach((category) => {
                     this.categories.add(category);
 
-                    if (this.pageId && category.cmsPageId === this.pageId) {
-                        if (!this.selectedCategories.includes(category.id)) {
-                            this.selectedCategories.push(category.id);
-                        }
+                    if (
+                        this.pageId &&
+                        category.cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(category.id)
+                    ) {
+                        this.selectedCategories.push(category.id);
                     }
                 });
 

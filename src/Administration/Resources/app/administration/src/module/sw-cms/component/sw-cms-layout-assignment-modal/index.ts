@@ -447,7 +447,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.page.categories!.entity,
                 Shopware.Context.api,
                 null,
-                [...this.page.getOrigin().categories],
+                [...this.page.getOrigin().categories!],
             );
             this.removedCategoryIds = [];
         },

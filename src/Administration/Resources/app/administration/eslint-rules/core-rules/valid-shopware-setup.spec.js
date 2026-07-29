@@ -204,29 +204,6 @@ swDefinePublic({ count });
     ],
 
     invalid: [
-        // Written for the removed macro-argument guard, but it is still rejected - for an unrelated
-        // reason. The local shorthand happens to share the declared prop's name, which the runtime would
-        // strip from returned state.
-        {
-            filename: 'base-with-defaults-local-shorthand.vue',
-            code: `<script setup lang="ts">
-const initialCount = 1;
-const props = withDefaults(defineProps<{ initialCount?: number }>(), {
-    initialCount,
-});
-const count = props.initialCount;
-swDefinePublic({ count });
-</script>`,
-            errors: [
-                {
-                    message:
-                        'Setup binding "initialCount" has the same name as a declared prop. The extendable setup runtime '
-                        + 'removes declared prop keys from returned state, so this binding would be deleted and its '
-                        + 'template reference would read undefined. Rename the binding and read the prop through the '
-                        + 'props object (props.initialCount).',
-                },
-            ],
-        },
         {
             filename: 'override-props.override.vue',
             code: `<script setup>

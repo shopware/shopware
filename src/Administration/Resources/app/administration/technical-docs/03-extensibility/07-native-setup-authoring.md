@@ -68,6 +68,14 @@ const count = ref(0);   // collides with the declared prop `count`
 
 Native Vue lets the setup binding shadow the prop in the template; the extendable setup runtime does the opposite — it strips declared prop keys from returned state, so the binding would be deleted and `{{ count }}` would read `undefined`. Rename the local and read the prop through `props.count`.
 
+This is caught by the [`vue/no-dupe-keys` ESLint rule](#editor-integration), not the build-time transform — so it surfaces in your editor and in `composer eslint:admin`, across **every** prop form, including a named type (`defineProps<Props>()`) that no build-time check can resolve:
+
+```ts
+interface Props { count: number }
+const props = defineProps<Props>();   // vue/no-dupe-keys still flags the `count` collision below
+const count = ref(0);
+```
+
 ## Setup markers
 
 `swDefinePublic({...})` (base) marks the public override API; `swDefineOverride({...})` (override) marks the override payload. Both accept **only shorthand bindings**, so a key always equals its local binding name:
@@ -121,4 +129,6 @@ All parser-sensitive behaviour lives in `build/vue-setup-transform`, with smalle
 
 ## Editor integration
 
-Every rejection above surfaces in your editor, not only at build time. The `valid-shopware-setup` ESLint rule (`eslint-rules/core-rules`) runs the *same* shared transform against the file and reports its errors on the offending line — so a reserved binding name, a renamed marker key, or a setup binding colliding with a declared prop is flagged as you type. There is one validator; the build enforces it and the ESLint rule mirrors it into the editor.
+Every transform rejection above surfaces in your editor, not only at build time. The `valid-shopware-setup` ESLint rule (`eslint-rules/core-rules`) runs the *same* shared transform against the file and reports its errors on the offending line — so a reserved binding name, a renamed marker key, or a wrong-mode macro is flagged as you type. There is one validator; the build enforces it and this rule mirrors it into the editor.
+
+The prop/binding name collision is the one detection that is **not** a transform rejection: it is caught by the standard `vue/no-dupe-keys` ESLint rule instead, which resolves prop names across every form — including a named type (`defineProps<Props>()`) the transform cannot see through. So it too is flagged in the editor and in `composer eslint:admin`, just via a different rule.

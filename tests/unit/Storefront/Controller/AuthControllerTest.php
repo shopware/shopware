@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
@@ -168,6 +170,41 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey('frontend.account.logout.page', $this->controller->redirected);
     }
 
+    #[DataProvider('loginRedirectProvider')]
+    public function testLoginWithBadCredentialsForwardsToCorrectRoute(?string $redirectTo, string $expectedRoute): void
+    {
+        $loginRoute = static::createStub(AbstractLoginRoute::class);
+        $loginRoute->method('login')->willThrowException(new BadCredentialsException());
+
+        $controller = $this->createController(loginRoute: $loginRoute);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        if ($redirectTo !== null) {
+            $request->request->set('redirectTo', $redirectTo);
+        }
+
+        $controller->login($request, new RequestDataBag(), $context);
+
+        static::assertSame($expectedRoute, $controller->forwardToRoute);
+        static::assertTrue($controller->forwardToRouteAttributes['loginError']);
+    }
+
+    /**
+     * @return array<string, array{0: string|null, 1: string}>
+     */
+    public static function loginRedirectProvider(): array
+    {
+        return [
+            'from checkout' => ['frontend.checkout.confirm.page', 'frontend.checkout.register.page'],
+            'unexpected route (wishlist)' => ['frontend.account.wishlist.page', 'frontend.account.login.page'],
+            'external url attack' => ['https://www.shopware.com', 'frontend.account.login.page'],
+            'empty/null fallback' => [null, 'frontend.account.login.page'],
+        ];
+    }
+
     public function testLogoutOptsTheResponseIntoClearSiteData(): void
     {
         $request = new Request();
@@ -267,9 +304,10 @@ class AuthControllerTest extends TestCase
     private function createController(
         ?AccountLoginPageLoader $accountLoginPageLoader = null,
         ?AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader = null,
+        ?AbstractLoginRoute $loginRoute = null,
     ): AuthControllerTestClass {
         $resetPasswordRoute = static::createStub(AbstractResetPasswordRoute::class);
-        $loginRoute = static::createStub(AbstractLoginRoute::class);
+        $loginRoute ??= static::createStub(AbstractLoginRoute::class);
         $logoutRoute = static::createStub(AbstractLogoutRoute::class);
         $imitateCustomerRoute = static::createStub(AbstractImitateCustomerRoute::class);
         $cartFacade = static::createStub(StorefrontCartFacade::class);

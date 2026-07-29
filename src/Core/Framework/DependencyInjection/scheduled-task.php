@@ -18,6 +18,8 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthCollector;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthGateway;
 use Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\MessageQueue\Subscriber\UpdatePostFinishSubscriber;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -31,6 +33,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ScheduledTaskDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(ScheduledTaskHealthGateway::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(ScheduledTaskHealthCollector::class)
+        ->args([
+            service(ScheduledTaskHealthGateway::class),
+            service(ClockInterface::class),
+        ])
+        ->tag('shopware.telemetry.periodic_metric_collector');
 
     $services->set(ScheduledTaskExecutor::class)
         ->args([

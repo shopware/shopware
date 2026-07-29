@@ -42,7 +42,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('activate')
             ->with('app-id', $context);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -76,7 +75,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deactivate')
             ->with('app-id', $context);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -127,7 +125,6 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deleteApp')
             ->with('TestApp');
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -159,7 +156,6 @@ class StoreAppLifecycleServiceTest extends TestCase
 
         $this->expectExceptionObject(StoreException::extensionNotFoundFromId('missing-app-id'));
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(

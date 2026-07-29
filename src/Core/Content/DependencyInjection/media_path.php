@@ -53,6 +53,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.public'),
             service(ExtensionDispatcher::class),
             param('shopware.media.remote_thumbnails.pattern'),
+            param('shopware.media.remote_thumbnails.fallback_sizes'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

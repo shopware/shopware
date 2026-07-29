@@ -162,6 +162,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(TranslationUpdater::class),
+            service('language.repository'),
         ])
         ->tag('messenger.message_handler');
 

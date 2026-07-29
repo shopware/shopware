@@ -125,6 +125,7 @@ class LanguageDefinition extends EntityDefinition
 
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required())->setDescription('Name of the language.'),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('translation_auto_update', 'translationAutoUpdate'))->addFlags(new ApiAware())->setDescription('Whether the scheduled task keeps the community translations of this language up to date. Enabled by default; only applied to linked languages.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware())->setDescription('Unique identity of language.'),
             (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Locale defining regional settings (date, time, number formats)'),

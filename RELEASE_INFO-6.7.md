@@ -147,6 +147,13 @@ List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) repl
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+### Community translations auto-update can be configured per language
+
+The `translation.update` scheduled task (`UpdateTranslationsTaskHandler`) refreshes the community translations of installed languages. It can now be controlled per language via the new `translationAutoUpdate` flag.
+
+* The `language` entity gains a boolean `translationAutoUpdate` field (API-aware, **enabled by default**). A migration adds the `language.translation_auto_update` column automatically, defaulting to on, so existing languages keep being updated as before.
+* Only linked languages are considered: a language flagged for auto-update whose translation is not installed, or whose locale is not part of the translation set (for example built-in or custom languages), is ignored and never triggers a request.
+* The flag can be toggled per language on the Administration language detail page ("Snippet updates" card), letting shops opt individual languages out of automatic updates.
 
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 

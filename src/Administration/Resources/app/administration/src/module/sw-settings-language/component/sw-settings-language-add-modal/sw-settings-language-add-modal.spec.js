@@ -8,7 +8,10 @@ async function createWrapper(existingLanguages = []) {
     const getList = jest.fn().mockResolvedValue({
         total: 2,
         meta: {
-            builtInLocales: ['de-DE', 'en-GB'],
+            builtInLocales: [
+                'de-DE',
+                'en-GB',
+            ],
             communityTranslationsUrl: 'https://translate.shopware.com',
             documentationUrl: 'https://developer.shopware.com/docs/concepts/translations/',
             completenessThreshold: 90,

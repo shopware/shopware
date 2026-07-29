@@ -53,7 +53,6 @@ export default {
             customFieldSets: null,
             parentTranslationCodeId: null,
             showAllSalesChannels: false,
-            snippetAutoUpdate: false,
             justCreated: false,
             snippetMetadata: null,
             builtInLocales: [],
@@ -229,6 +228,12 @@ export default {
                 'updateAvailable',
                 'updating',
             ].includes(this.snippetUpdateState);
+        },
+
+        salesChannelsEmptyHint() {
+            return this.language?.active
+                ? 'sw-settings-language.detail.salesChannels.assignHint'
+                : 'sw-settings-language.detail.salesChannels.activateHint';
         },
 
         salesChannelsCardTitle() {

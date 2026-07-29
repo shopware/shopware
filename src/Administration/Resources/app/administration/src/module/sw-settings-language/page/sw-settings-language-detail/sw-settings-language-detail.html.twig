@@ -307,8 +307,8 @@
                             @click="showAllSalesChannels = !showAllSalesChannels"
                         >
                             {{ showAllSalesChannels
-                                ? $t('sw-settings-language.detail.salesChannels.showLess')
-                                : $t('sw-settings-language.detail.salesChannels.showAll')
+                            ? $t('sw-settings-language.detail.salesChannels.showLess')
+                            : $t('sw-settings-language.detail.salesChannels.showAll')
                             }}
                         </mt-button>
                     </template>
@@ -317,10 +317,7 @@
                     {% block sw_settings_language_detail_sales_channels_empty %}
                     <template v-else>
                         <p class="sw-settings-language-detail__sales-channels-intro">
-                            {{ language.active
-                                ? $t('sw-settings-language.detail.salesChannels.assignHint')
-                                : $t('sw-settings-language.detail.salesChannels.activateHint')
-                            }}
+                            {{ $t(salesChannelsEmptyHint) }}
                         </p>
 
                         <mt-button
@@ -373,8 +370,8 @@
 
                         <mt-switch
                             v-if="showSnippetAutoUpdate"
-                            v-model="snippetAutoUpdate"
-                            disabled
+                            v-model="language.translationAutoUpdate"
+                            :disabled="!acl.can('language.editor') || undefined"
                             :label="$t('sw-settings-language.detail.snippetUpdates.autoUpdate')"
                             :help-text="$t('sw-settings-language.detail.snippetUpdates.autoUpdateHelpText')"
                         />

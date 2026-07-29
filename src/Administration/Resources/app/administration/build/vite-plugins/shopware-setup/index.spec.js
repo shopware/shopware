@@ -8,10 +8,6 @@ const pluginOptions = {
     administrationRoot: process.cwd(),
 };
 
-async function transformVueSource(plugin, source, fileName = '/example/component.vue') {
-    return plugin.transform(source, fileName);
-}
-
 describe('build/vite-plugins/shopware-setup', () => {
     it('returns a pre-transform Vite plugin', () => {
         /** @type {import('vite').Plugin} */
@@ -30,7 +26,7 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        const result = await transformVueSource(plugin, source, '/example/sw-my-component.vue');
+        const result = await plugin.transform(source, '/example/sw-my-component.vue');
 
         expect(result).toHaveProperty('code');
         expect(result.code).toContain('Shopware.Component.attachOverrides(');
@@ -47,7 +43,7 @@ const count = 1;
 swDefineOverride({});
 </script>`;
 
-        const result = await transformVueSource(plugin, source, '/example/sw-my-component.override.vue');
+        const result = await plugin.transform(source, '/example/sw-my-component.override.vue');
 
         expect(result).toHaveProperty('code');
         expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
@@ -61,9 +57,9 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        await transformVueSource(plugin, source, '/a/sw-my-component.vue');
+        await plugin.transform(source, '/a/sw-my-component.vue');
 
-        await expect(transformVueSource(plugin, source, '/b/sw-my-component.vue')).rejects.toThrow(
+        await expect(plugin.transform(source, '/b/sw-my-component.vue')).rejects.toThrow(
             'Duplicate native setup base component name "sw-my-component"',
         );
     });
@@ -72,8 +68,7 @@ swDefinePublic({ count });
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);
 
-        await transformVueSource(
-            plugin,
+        await plugin.transform(
             `<script setup>
 const count = 1;
 swDefinePublic({ count });
@@ -82,8 +77,7 @@ swDefinePublic({ count });
         );
 
         await expect(
-            transformVueSource(
-                plugin,
+            plugin.transform(
                 `<script setup>
 swDefineOverride({});
 </script>`,
@@ -100,18 +94,16 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        await transformVueSource(plugin, source, '/example/sw-my-component.vue');
+        await plugin.transform(source, '/example/sw-my-component.vue');
 
-        await expect(transformVueSource(plugin, source, '/example/sw-my-component.vue')).resolves.toHaveProperty(
-            'code',
-        );
+        await expect(plugin.transform(source, '/example/sw-my-component.vue')).resolves.toHaveProperty('code');
     });
 
     it('ignores Vue files without Shopware setup blocks', async () => {
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);
 
-        await expect(transformVueSource(plugin, '<script>const count = 1;</script>')).resolves.toBeNull();
+        await expect(plugin.transform('<script>const count = 1;</script>', '/example/component.vue')).resolves.toBeNull();
     });
 
     it('ignores files without Shopware setup blocks', async () => {

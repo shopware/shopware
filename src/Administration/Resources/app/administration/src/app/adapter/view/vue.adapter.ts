@@ -32,6 +32,7 @@ import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPa
 import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
 import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
 import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtText from '@shopware-ag/meteor-component-library/dist/esm/MtText';
 import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
@@ -447,6 +448,7 @@ export default class VueAdapter extends ViewAdapter {
             MtSelect,
             MtSlider,
             MtSwitch,
+            MtText,
             MtTextField,
             MtTextarea,
             MtIcon,
@@ -473,14 +475,6 @@ export default class VueAdapter extends ViewAdapter {
             MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
             MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
-            MtActionMenu: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenu'),
-            MtActionMenuGroup: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup'),
-            MtActionMenuItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem'),
-            MtDropdownMenuRoot: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuRoot),
-            MtDropdownMenuPortal: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuPortal),
-            MtDropdownMenuTrigger: () =>
-                import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuTrigger),
-            MtDropdownMenuSub: () => import('@shopware-ag/meteor-component-library').then((m) => m.MtDropdownMenuSub),
         };
 
         Object.entries(meteorComponents).forEach(

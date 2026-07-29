@@ -1,24 +1,73 @@
 .sw-cms-toolbar {
-    padding: 0 20px;
-    min-height: 81px;
-    border-bottom: 2px solid var(--color-border-secondary-default);
+    padding: 0 var(--scale-size-12);
+    min-height: var(--scale-size-72);
+    border-bottom: 1px solid var(--color-border-secondary-default);
     display: grid;
-    grid-template-columns: 1fr 1fr auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    column-gap: var(--scale-size-8);
     align-items: center;
     align-content: center;
     z-index: 251;
     background-color: var(--color-elevation-surface-raised);
 
-    .sw-cms-toolbar__back-btn {
-        padding: 10px 20px;
+    // The tools overlay the full row and center themselves on the actual bar center -
+    // no column arrangement can do that with different content on either side. The title
+    // cannot collide: it is bounded to a fixed maximum while the toolbar is only shown
+    // this way above the fluid breakpoint.
+    // Bounded against the centered tools, which know nothing about their neighbors: half the
+    // container width minus the tools half (94px), clearance and the bar padding. Container
+    // units on purpose - an open app sidebar squeezes the bar without a viewport change.
+    .sw-cms-toolbar__title {
+        grid-area: 1 / 1;
+        max-width: calc(50cqw - 120px);
+    }
 
-        .mt-icon {
-            color: var(--color-icon-secondary-default);
-            transform: rotate(180deg);
+    .sw-cms-toolbar__tools {
+        grid-area: 1 / 1 / 2 / -1;
+        justify-self: center;
+    }
+
+    .sw-cms-toolbar__language-selection {
+        grid-area: 1 / 2;
+    }
+
+    // The app actions bring their own spacing and collapse without registered actions.
+    .sw-cms-toolbar__actions {
+        grid-area: 1 / 3;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-cms-toolbar__sidebar {
+        grid-area: 1 / 4;
+        margin-inline-start: var(--scale-size-8);
+    }
+
+    // Narrow: the tools line up with the other controls on the right, the title takes the
+    // remaining space. A media query on purpose: the page is fullscreen, so the viewport is
+    // the container and this stays aligned with the other 1280px viewport breakpoints.
+    @media screen and (max-width: 1280px) {
+        grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+
+        .sw-cms-toolbar__title {
+            max-width: none;
         }
 
-        a:hover .mt-icon {
-            color: var(--color-text-primary-default);
+        .sw-cms-toolbar__tools {
+            grid-area: 1 / 2;
+            justify-self: end;
+        }
+
+        .sw-cms-toolbar__language-selection {
+            grid-area: 1 / 3;
+        }
+
+        .sw-cms-toolbar__actions {
+            grid-area: 1 / 4;
+        }
+
+        .sw-cms-toolbar__sidebar {
+            grid-area: 1 / 5;
         }
     }
 
@@ -32,11 +81,8 @@
         margin-bottom: 0;
     }
 
-    .sw-cms-toolbar__actions {
-        text-align: center;
-
-        .sw-app-actions {
-            float: left;
-        }
+    // The column gap provides the spacing, the switch's own trailing margin would double it.
+    .sw-cms-toolbar__language-selection .sw-language-switch {
+        margin-right: 0;
     }
 }

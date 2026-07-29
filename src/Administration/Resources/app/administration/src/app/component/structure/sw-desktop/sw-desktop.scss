@@ -23,19 +23,8 @@
         overflow: hidden;
     }
 
-    @media screen and (max-width: 500px) {
-        display: block;
-
-        .sw-desktop__content {
-            height: 100%;
-            margin: 0;
-            border: 0;
-            border-radius: 0;
-        }
-    }
-
     .sw-staging-bar {
-        grid-column: 1 / 4;
+        grid-column: 1 / -1;
         display: flex;
         justify-content: center;
         background: rgb(61, 68, 77);
@@ -43,5 +32,18 @@
         font-weight: bold;
         padding: 1rem;
         position: sticky;
+    }
+
+    // The admin menu overlays as an off-canvas panel here, so its column goes - the auto placed
+    // content would collapse into it otherwise.
+    @media screen and (max-width: 1280px) {
+        grid-template-columns: 1fr auto;
+
+        .sw-desktop__content {
+            height: 100%;
+            margin: 0;
+            border: 0;
+            border-radius: 0;
+        }
     }
 }

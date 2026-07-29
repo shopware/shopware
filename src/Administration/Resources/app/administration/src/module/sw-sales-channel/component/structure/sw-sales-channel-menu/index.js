@@ -45,6 +45,10 @@ export default {
             return this.acl.can('sales_channel.creator');
         },
 
+        showAddChannelMenuItem() {
+            return !this.isLoading && this.buildMenuTree.length === 0 && this.canCreateSalesChannels;
+        },
+
         salesChannelCriteria() {
             const criteria = new Criteria(1, 7);
 
@@ -87,7 +91,6 @@ export default {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: 'var(--color-zinc-200)',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
@@ -104,13 +107,10 @@ export default {
 
         moreItemsEntry() {
             return {
-                active: true,
                 children: [],
-                color: 'var(--color-zinc-200)',
-                icon: 'regular-ellipsis-v',
+                icon: 'regular-eye',
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
-                position: -1, // use last position
             };
         },
 
@@ -184,23 +184,6 @@ export default {
 
         openStorefrontLink(storeFrontLink) {
             window.open(storeFrontLink, '_blank');
-        },
-
-        getEntryLabel(entry) {
-            if (entry.label instanceof Object) {
-                return entry.label.translated ? entry.label.label : this.$tc(entry.label.label);
-            }
-
-            return this.$tc(entry.label);
-        },
-
-        getEntryTooltipConfig(entry) {
-            const shouldShowTooltip = !this.isSidebarExpanded && entry.children.length === 0;
-
-            return {
-                message: shouldShowTooltip ? this.getEntryLabel(entry) : '',
-                disabled: !shouldShowTooltip,
-            };
         },
     },
 };

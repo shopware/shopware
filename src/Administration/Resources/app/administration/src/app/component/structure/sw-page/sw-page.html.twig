@@ -9,40 +9,42 @@
         class="sw-page__head-area"
     >
         {% block sw_page_search_bar %}
-        <div
-            v-if="showSearchBar"
-            class="sw-page__search-bar"
-        >
-            <slot name="search-bar">
-                {% block sw_page_slot_search_bar %}
-                <sw-search-bar />
-                {% endblock %}
-            </slot>
-        </div>
-
-        {% block sw_page_top_bar_actions %}
-        <div
-            class="sw-page__top-bar-actions"
-            :style="topBarActionStyles"
-        >
-            <sw-app-topbar-button />
-            <div class="sw-page__sidebar-container">
-                <sw-help-center-v2 />
+        <div class="sw-page__top-bar">
+            <div
+                v-if="showSearchBar"
+                class="sw-page__search-bar"
+            >
+                <slot name="search-bar">
+                    {% block sw_page_slot_search_bar %}
+                    <sw-search-bar />
+                    {% endblock %}
+                </slot>
             </div>
 
-            {% block sw_page_notification_center %}
-            <div class="sw-page__sidebar-container">
-                <sw-notification-center />
+            {% block sw_page_top_bar_actions %}
+            <div class="sw-page__top-bar-actions">
+                <sw-app-topbar-button />
+                <div class="sw-page__sidebar-container">
+                    <sw-help-center-v2 />
+                </div>
+
+                {% block sw_page_notification_center %}
+                <div class="sw-page__sidebar-container">
+                    <sw-notification-center />
+                </div>
+                {% endblock %}
+
+                <sw-app-topbar-sidebar />
             </div>
             {% endblock %}
-
-            <sw-app-topbar-sidebar />
         </div>
-        {% endblock %}
         {% endblock %}
 
         {% block sw_page_smart_bar %}
-        <template v-if="showSmartBar">
+        <div
+            v-if="showSmartBar"
+            class="sw-page__smart-bar"
+        >
             {% block sw_page_smart_bar_divider %}
             <div
                 v-if="showSmartBar && showSearchBar"
@@ -53,7 +55,6 @@
             {% block sw_page_smart_bar_back_btn %}
             <div
                 class="sw-page__back-btn-container"
-                :style="smartBarContentStyle"
             >
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
@@ -80,7 +81,6 @@
             {% block sw_page_smart_bar_content %}
             <div
                 class="smart-bar__content"
-                :style="smartBarContentStyle"
             >
                 {% block sw_page_smart_bar_content_header %}
                 <div class="smart-bar__header">
@@ -115,7 +115,7 @@
                 {% endblock %}
             </div>
             {% endblock %}
-        </template>
+        </div>
         {% endblock %}
     </div>
     {% endblock %}

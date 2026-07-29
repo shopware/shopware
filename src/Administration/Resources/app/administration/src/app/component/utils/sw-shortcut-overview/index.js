@@ -143,6 +143,11 @@ export default {
                 navigation: [
                     {
                         id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionToggleMainMenu'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutToggleMainMenu'),
+                    },
+                    {
+                        id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionGoToDashboard'),
                         content: this.$t('sw-shortcut-overview.keyboardShortcutGoToDashboard'),
                     },

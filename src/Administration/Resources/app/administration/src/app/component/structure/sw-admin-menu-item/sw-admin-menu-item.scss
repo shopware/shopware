@@ -4,7 +4,13 @@ $nesting-line-offset: 18px;
 $nesting-line-indent: 36px;
 
 .sw-admin-menu__navigation-list-item {
-    border-radius: var(--border-radius-s, 6px);
+    border-radius: var(--border-radius-s);
+
+    .mt-collapsible-content[data-state="open"],
+    .mt-collapsible-content[data-state="closed"] {
+        animation-duration: 0.3s;
+        animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
 }
 
 .sw-admin-menu__navigation-link {
@@ -47,7 +53,7 @@ $nesting-line-indent: 36px;
 
         flex-grow: 1;
         text-align: left;
-        min-width: max-content;
+        min-width: 0;
     }
 }
 
@@ -64,12 +70,12 @@ $nesting-line-indent: 36px;
 
 .sw-admin-menu__navigation-link-expand-icon {
     flex-shrink: 0;
-    color: var(--color-text-primary-default);
+    color: var(--color-icon-primary-default);
 }
 
 .sw-admin-menu__navigation-link-expand-icon-box {
-    width: var(--scale-size-24, 24px);
-    height: var(--scale-size-24, 24px);
+    width: var(--scale-size-24);
+    height: var(--scale-size-24);
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
@@ -152,33 +158,34 @@ $nesting-line-indent: 36px;
     }
 }
 
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
-    opacity: 1;
-    background: var(--color-border-primary-default);
-    outline-color: var(--color-elevation-surface-default);
+.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::after {
+        opacity: 1;
+        background: var(--color-border-primary-default);
+        outline-color: var(--color-elevation-surface-sunken);
+    }
+
+    > .sw-admin-menu__navigation-link:hover::after {
+        outline-color: var(--color-interaction-secondary-hover);
+    }
 }
 
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link:hover::after {
-    outline-color: var(--color-interaction-secondary-hover);
+.navigation-list-item--nested:first-child > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::before {
+        top: var(--scale-size-12);
+    }
 }
 
-.navigation-list-item--nested:first-child > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before {
-    top: var(--scale-size-12);
+.navigation-list-item--nested:last-child:not(.is--entry-expanded) > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::before {
+        bottom: var(--scale-size-12);
+    }
 }
 
-.navigation-list-item--nested:last-child:not(.is--entry-expanded) > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before {
-    bottom: var(--scale-size-12);
-}
-
-.sw-admin-menu__sub-navigation-headline {
-    color: var(--color-text-primary-default);
-    padding: 15px 30px;
-    font-size: var(--font-size-xs);
-    font-weight: bold;
-}
-
-.navigation-list-item__level-1 > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active {
-    background: var(--color-background-brand-default);
+.navigation-list-item__level-1 > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-background-brand-default);
+    }
 }
 
 .sw-admin-menu__navigation-link.router-link-active {
@@ -198,9 +205,11 @@ $nesting-line-indent: 36px;
     background: var(--color-background-brand-default);
 }
 
-.sw-admin-menu__navigation-list-item.is--flyout-enabled > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link {
-    color: var(--color-text-primary-default);
-    background: var(--color-interaction-secondary-hover);
+.sw-admin-menu__navigation-list-item.is--flyout-enabled > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link {
+        color: var(--color-text-primary-default);
+        background: var(--color-interaction-secondary-hover);
+    }
 }
 
 .sw-admin-menu__navigation-list-item.is--entry-expanded {
@@ -220,5 +229,33 @@ $nesting-line-indent: 36px;
 
     .sw-admin-menu__navigation-list-item {
         background: none;
+    }
+}
+
+// The nesting tree lines and item indicators (pseudo elements) follow the same
+// timing as .hide-on-collapse: hidden almost instantly when collapsing, fading
+// back in delayed while the sidebar opens. The transition is scoped to the
+// toggle window (.is--toggling) so the hover/active indicator keeps reacting
+// instantly during normal interaction. Flyouts render detached from
+// .sw-admin-menu and stay unaffected.
+.sw-admin-menu.is--toggling .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        transition:
+            opacity 0.3s ease-in-out 0.1s,
+            visibility 0.3s ease-in-out 0.1s;
+    }
+}
+
+.sw-admin-menu.is--collapsed .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.05s ease-out,
+            visibility 0.05s ease-out;
     }
 }

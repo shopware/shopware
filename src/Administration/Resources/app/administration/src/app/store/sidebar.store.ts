@@ -98,9 +98,8 @@ const sidebarsStore = Shopware.Store.register({
             }
 
             // The panel is already open when another sidebar is active and not mid-close.
-            this.switchedWhileOpen = this.sidebars.some(
-                (item) => item.active && item.locationId !== locationId && this.closingSidebar === null,
-            );
+            this.switchedWhileOpen =
+                this.closingSidebar === null && this.sidebars.some((item) => item.active && item.locationId !== locationId);
 
             // cancel any pending close animation
             this.closingSidebar = null;

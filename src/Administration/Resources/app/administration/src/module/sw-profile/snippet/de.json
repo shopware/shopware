@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Profile",
       "description": "Verwaltung Deines Profils.",
-      "headlineProfile": "Dein Profil"
+      "headlineProfile": "Profileinstellungen"
     },
     "index": {
       "titleInfoCard": "Profil-Informationen",

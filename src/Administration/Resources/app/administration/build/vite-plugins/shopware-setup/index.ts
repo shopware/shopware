@@ -27,10 +27,10 @@ function withoutQuery(id: string): string {
 /**
  * Keep the CommonJS transform out of Vite's config bundle.
  *
- * The shared transform is intentionally still CommonJS because Jest, ESLint, and
- * Volar consume it synchronously. Vite bundles `vite.config.mts` with esbuild by
- * default; if the transform is statically imported there, its `require()` calls
- * are inlined into an ESM config bundle and fail at runtime.
+ * The shared transform is intentionally still CommonJS because the Jest transformer and
+ * the ESLint rule consume it synchronously. Vite bundles `vite.config.mts` with esbuild
+ * by default; if the transform is statically imported there, its `require()` calls are
+ * inlined into an ESM config bundle and fail at runtime.
  */
 async function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
     const transformImport = (await import(

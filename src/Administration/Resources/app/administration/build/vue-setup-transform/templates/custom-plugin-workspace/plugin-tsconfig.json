@@ -29,11 +29,6 @@
     "skipLibCheck": true,
     "noErrorTruncation": false
   },
-  "vueCompilerOptions": {
-    "plugins": [
-      "../../../src/Administration/Resources/app/administration/build/vue-setup-transform/volar-language-plugin.js"
-    ]
-  },
   "files": [
     "../../../src/Administration/Resources/app/administration/src/html-shim.d.ts",
     "../../../src/Administration/Resources/app/administration/src/global.types.ts",

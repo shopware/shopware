@@ -66,6 +66,12 @@ shopware:
 
 List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
+### Product export body media URLs are RFC 3986 encoded
+
+Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
+
+Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.

@@ -21,7 +21,6 @@ import {
     VUE_BUILTIN_MACRO_NAMES,
     getWrongModeWalkChecks,
 } from './macro-registry';
-import type { RuntimeBinding } from './runtime-bindings';
 
 /**
  * Carries a declared or imported name with the AST node used for diagnostics.
@@ -206,41 +205,10 @@ function assertStaticObjectEntries(
 }
 
 /**
- * Rejects a setup binding that shares a declared prop's name.
- *
- * Native `<script setup>` allows this (the template resolves to the setup binding), but the extendable
- * setup runtime strips declared prop keys from returned state, so the binding would be deleted and the
- * template read `undefined`. Reject it at compile time, consistent with the fail-loudly philosophy. The
- * declared prop itself stays available to the template as a reactive prop; authors read it through the
- * props object (`props.<name>`) and rename the local binding.
- */
-function assertNoRuntimeBindingPropCollision(
-    declaredPropNames: string[],
-    runtimeBindings: RuntimeBinding[],
-    scriptOffset: number,
-): void {
-    const propNames = new Set(declaredPropNames);
-
-    runtimeBindings.forEach((binding) => {
-        if (!propNames.has(binding.name)) {
-            return;
-        }
-
-        throw new ShopwareSetupTransformError(
-            `Setup binding "${binding.name}" has the same name as a declared prop. The extendable setup runtime removes ` +
-                `declared prop keys from returned state, so this binding would be deleted and its template reference would ` +
-                `read undefined. Rename the binding and read the prop through the props object (props.${binding.name}).`,
-            absoluteRange(binding.node, scriptOffset),
-        );
-    });
-}
-
-/**
  * @private
  */
 export {
     type NamedBinding,
-    assertNoRuntimeBindingPropCollision,
     assertNoUnsupportedSyntax,
     assertReservedMacroNames,
     assertStaticObjectEntries,

@@ -51,12 +51,6 @@ type MacroRule = {
     modes: ShopwareSetupMode[];
     /** Error for a top-level call in a mode not listed in `modes` (or for empty `modes`). */
     wrongModeMessage: string;
-    /**
-     * Lookup group for macros that are interchangeable to a consumer; defineProps/withDefaults share
-     * `props` so `getMacroGroupEntry(entries, 'props')` finds either. Lookup only - multiplicity is
-     * counted per name, so do not reach for this to express "only one of these two".
-     */
-    group?: string;
     /** Error for the second top-level call of this name. Omit for no multiplicity limit. */
     duplicateMessage?: string;
     /** Requires exactly one top-level call of this name in the listed modes, with its error. */
@@ -80,7 +74,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'defineProps() is only supported in base Shopware setup blocks.',
-        group: 'props',
         setupInput: true,
         exposable: true,
     },
@@ -88,7 +81,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         vueBuiltin: true,
         modes: ['base'],
         wrongModeMessage: 'withDefaults() is only supported in base Shopware setup blocks.',
-        group: 'props',
         setupInput: true,
         exposable: true,
     },
@@ -279,14 +271,6 @@ function getMacroEntries(entries: MacroCallEntry[], name: MacroName, form?: Macr
     return entries.filter((entry) => entry.name === name && (!form || entry.form === form));
 }
 
-/**
- * Returns the first entry of one multiplicity group, or null. (A duplicate would be rejected by Vue's
- * own compiler downstream for the Vue macros, and by assertMacroRules for the swDefine* markers.)
- */
-function getMacroGroupEntry(entries: MacroCallEntry[], group: string): MacroCallEntry | null {
-    return entries.find((entry) => (MACRO_RULES[entry.name].group ?? entry.name) === group) ?? null;
-}
-
 // The derived views below are pure functions of the frozen-in-practice MACRO_RULES constant, so they
 // are computed once as module-level constants rather than rebuilt per call. Only the two mode-dependent
 // views stay functions.
@@ -339,7 +323,6 @@ export {
     assertMacroRules,
     collectMacroCallEntries,
     getMacroEntries,
-    getMacroGroupEntry,
     getRuntimeInputAliasNames,
     getWrongModeWalkChecks,
 };

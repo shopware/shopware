@@ -379,7 +379,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).not.toContain('props: __swSetupAuthor_props');
     });
 
-    it('rejects a setup binding that shares a declared prop name (object form)', () => {
+    it('does not reject a setup binding that shares a declared prop name', () => {
         const source = stripIndent`
             <script setup>
             const props = defineProps({ title: String });
@@ -388,25 +388,11 @@ describe('build/vue-setup-transform base defineProps macro', () => {
             </script>
         `;
 
-        // Native Vue allows this, but the extendable setup runtime strips declared prop keys from
-        // returned state, so the binding would be deleted and the template read undefined.
-        expect(() => transformShopwareSetupSfc(source, 'base-prop-name-collision.vue')).toThrow(
-            'Setup binding "title" has the same name as a declared prop.',
-        );
-    });
-
-    it('rejects a setup binding that shares a declared prop name (type-literal form)', () => {
-        const source = stripIndent`
-            <script setup lang="ts">
-            const props = defineProps<{ title?: string }>();
-            const title = 'local';
-            swDefinePublic({ title });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'base-prop-name-collision-type.vue')).toThrow(
-            'Setup binding "title" has the same name as a declared prop.',
-        );
+        // Colliding with a declared prop is an authoring mistake (the runtime strips declared prop keys
+        // from returned state, so the template would read undefined), but the transform deliberately does
+        // not police it: the `vue/no-dupe-keys` ESLint rule catches it across all prop forms, including
+        // `defineProps<Props>()` which no build-time type check can resolve. So lowering must not throw.
+        expect(() => transformShopwareSetupSfc(source, 'base-prop-name-collision.vue')).not.toThrow();
     });
 
     it('resolves a props type referencing a runtime enum to its runtime shape', () => {

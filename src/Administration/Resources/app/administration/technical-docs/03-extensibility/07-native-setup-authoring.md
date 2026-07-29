@@ -57,24 +57,14 @@ Override-local bindings are returned under deterministic private aliases only wh
 
 Base components declare props with Vue's native `defineProps(...)` or `withDefaults(defineProps(...), ...)`. The macro stays where you wrote it and Vue compiles it — the transform never moves or rewrites it, so prop defaults, reactive destructuring, and `withDefaults` behave exactly as in any Vue 3.5 component. Read props through the props object (`props.count`) or a reactive destructure so access stays reactive, and keep defaults on the prop (a destructure default or `withDefaults`) rather than on a separate local, because the template reads the prop and not the local.
 
-**One Shopware-specific rule:** a top-level setup binding may not share a declared prop's name.
+**One Shopware-specific rule:** a top-level setup binding must not share a declared prop's name.
 
 ```ts
 const props = defineProps<{ count: number }>();
-const count = ref(0);   // rejected: same name as the declared prop `count`
+const count = ref(0);   // collides with the declared prop `count`
 ```
 
-Native Vue lets the setup binding shadow the prop in the template; the extendable setup runtime does the opposite — it strips declared prop keys from returned state, so the binding would be deleted and `{{ count }}` would read `undefined`. The transform rejects this rather than let it fail silently. Rename the local and read the prop through `props.count`.
-
-The check needs the prop names to be statically readable: a runtime argument (`defineProps({ count: Number })`, `defineProps(['count'])`) or an inline type literal (`defineProps<{ count: number }>()`), including through `withDefaults(...)`. It cannot see through a named type:
-
-```ts
-interface Props { count: number }
-const props = defineProps<Props>();
-const count = ref(0);   // NOT rejected — resolving `Props` needs a type resolver the transform lacks
-```
-
-That form reaches the runtime instead, which logs a warning and leaves the template reading `undefined`. Prefer an inline type literal when a prop name is at risk of colliding.
+Native Vue lets the setup binding shadow the prop in the template; the extendable setup runtime does the opposite — it strips declared prop keys from returned state, so the binding would be deleted and `{{ count }}` would read `undefined`. Rename the local and read the prop through `props.count`.
 
 ## Setup markers
 
@@ -109,7 +99,6 @@ The transform rejects these at build time:
 - Top-level `await`
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` / `swDefineOverride()` usage — and a missing `swDefineOverride()` in override mode
 - Authored `#default`, `data`, or `v-bind` bindings on `<sw-block>`
-- A top-level setup binding sharing a declared prop's name, when the prop names are statically readable (see [Props](#props))
 - Template writes to a forwarded override binding inside `<sw-block extends>` content
 - Reserved top-level binding names:
   - the `__swSetup` prefix, used for the transform's generated bindings

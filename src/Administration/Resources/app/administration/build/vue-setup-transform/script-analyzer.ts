@@ -19,7 +19,6 @@ import {
     assertMacroRules,
     collectMacroCallEntries,
     getMacroEntries,
-    getMacroGroupEntry,
 } from './script-analyzer/macro-registry';
 import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
 import {
@@ -30,13 +29,11 @@ import {
     collectRuntimeBinding,
 } from './script-analyzer/runtime-bindings';
 import {
-    assertNoRuntimeBindingPropCollision,
     assertNoUnsupportedSyntax,
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
 import { collectSetupRenameTargets } from './flow-analysis';
-import { collectDeclaredPropNames } from './script-analyzer/setup-inputs';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
     'js',
@@ -276,9 +273,9 @@ function assertScriptRules(
     assertNoUnsupportedSyntax(ast, mode, scriptOffset, collectTopLevelMarkerCalls(classified));
     assertMacroRules(classified.macroEntries, mode, scriptOffset);
 
-    // assertMacroRules already enforced modes, so the props macro resolves to at most one entry here.
-    const declaredPropNames = collectDeclaredPropNames(getMacroGroupEntry(classified.macroEntries, 'props'));
-    assertNoRuntimeBindingPropCollision(declaredPropNames, classified.bindings.bindings, scriptOffset);
+    // A setup binding sharing a declared prop's name is deliberately not rejected here: the
+    // `vue/no-dupe-keys` ESLint rule flags it across all prop forms (incl. `defineProps<Props>()`,
+    // which a build-time type check cannot resolve), so detection lives in lint rather than here.
 }
 
 /**

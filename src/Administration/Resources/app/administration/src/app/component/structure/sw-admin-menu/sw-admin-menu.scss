@@ -363,12 +363,20 @@
 
         &:hover {
             background-color: var(--color-interaction-secondary-hover);
+
+            .sw-admin-menu__user-actions-toggle-icon-wrapper {
+                gap: var(--scale-size-8);
+            }
         }
 
         &:active,
         &.is--active,
         &.is--active:hover {
             background-color: var(--color-interaction-secondary-pressed);
+
+            .sw-admin-menu__user-actions-toggle-icon-wrapper {
+                gap: var(--scale-size-8);
+            }
         }
 
         .mt-loader {
@@ -392,7 +400,9 @@
 
             // Collapse via width instead of `display: none` (see .sw-admin-menu__headline_text).
             // The fade lives on the inner icons (hide-on-collapse).
-            transition: width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
+            transition:
+                width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+                gap 0.15s ease;
         }
     }
 

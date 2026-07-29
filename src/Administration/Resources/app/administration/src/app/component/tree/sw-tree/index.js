@@ -355,10 +355,7 @@ export default {
         },
 
         handleFocusIn(event) {
-            /* Scrolling the tree while the mouse button is still down moves the clicked element away
-             * from the cursor, which swallows the click. Keyboard focus must stay visible though.
-             */
-            const preventScroll = this.focusInByMouse;
+            const byMouse = this.focusInByMouse;
             this.focusInByMouse = false;
 
             // Check if focus in already in the tree on any tree item
@@ -380,18 +377,23 @@ export default {
                 return;
             }
 
-            /* Check recursively if any tree item is active, if yes, focus on it.
-             * If no tree item is active, focus on the tree item closest to the event target.
-             */
+            const closestTreeItem = event.target.closest('.sw-tree-item');
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
-            if (activeTreeItem) {
-                activeTreeItem.focus({ preventScroll });
-            } else {
-                const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
+            /* A mouse press has to keep the focus on the item it hit, because the active item is
+             * still the previously opened one and its focus ring would stay behind on it. Keyboard
+             * focus enters the tree at the active item instead, to mark the current position.
+             */
+            const treeItem =
+                (byMouse ? closestTreeItem : null) ??
+                activeTreeItem ??
+                closestTreeItem ??
+                this.$el.querySelector('.sw-tree-item');
 
-                closestTreeItem?.focus({ preventScroll });
-            }
+            /* Scrolling the tree while the mouse button is still down moves the clicked element away
+             * from the cursor, which swallows the click. Keyboard focus must stay visible though.
+             */
+            treeItem?.focus({ preventScroll: byMouse });
         },
 
         handleKeyDown(event) {

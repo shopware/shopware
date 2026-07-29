@@ -697,6 +697,24 @@ describe('src/app/component/tree/sw-tree', () => {
             expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
         });
 
+        it('should keep the focus on the tree item that was clicked', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const clickedTreeItem = wrapper
+                .findAll('.sw-tree-item')
+                .find((treeItem) => treeItem.element !== activeTreeItem.element);
+
+            const activeFocusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+            const clickedFocusSpy = jest.spyOn(clickedTreeItem.element, 'focus');
+
+            await clickedTreeItem.get('.sw-tree-item__element').trigger('mousedown');
+            await clickedTreeItem.get('.sw-tree-item__element').trigger('focusin');
+            await flushPromises();
+
+            expect(clickedFocusSpy).toHaveBeenCalledWith({ preventScroll: true });
+            expect(activeFocusSpy).not.toHaveBeenCalled();
+        });
+
         it('should forget a mouse interaction that did not move the focus', async () => {
             const wrapper = await createActiveWrapper();
             const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');

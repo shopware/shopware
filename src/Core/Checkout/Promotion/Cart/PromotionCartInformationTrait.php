@@ -30,6 +30,14 @@ trait PromotionCartInformationTrait
     }
 
     /**
+     * Adds a persistent error when a promotion exists but has reached its redemption limit.
+     */
+    private function addPromotionAlreadyRedeemedError(string $code, Cart $cart): void
+    {
+        $cart->addErrors(new PromotionNotEligibleError($code, 'already-redeemed', [], true));
+    }
+
+    /**
      * function checks if the Original Cart contains the lineItem.
      * if not, an PromotionCartAddedInformationError is set in the calculated cart
      */

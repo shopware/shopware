@@ -466,7 +466,10 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSessionAfterRegistrationReplay(): void
     {
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+        ]);
         $session = new Session(new MockArraySessionStorage());
         $session->start();
         $request->setSession($session);

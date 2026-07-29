@@ -22,13 +22,12 @@ class EntityGenerator implements ScaffoldingGenerator
     public const OPTION_NAME = 'entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition">
-                <tag name="shopware.entity.definition" entity="{{ tableName }}" />
-            </service>
+    $services->set(\{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition::class)
+        ->tag('shopware.entity.definition', ['entity' => '{{ tableName }}']);
 
-    EOL;
+EOL;
 
     public function __construct(private readonly ClockInterface $clock)
     {
@@ -74,11 +73,11 @@ class EntityGenerator implements ScaffoldingGenerator
             $stubCollection->add($this->createEntityCollection($configuration, $entityName));
 
             $stubCollection->append(
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 str_replace(
                     ['{{ namespace }}', '{{ entityName }}', '{{ tableName }}'],
                     [$configuration->namespace, $entityName, $this->getTableName($entityName)],
-                    $this->servicesXmlEntry
+                    $this->servicesPhpEntry
                 )
             );
         }

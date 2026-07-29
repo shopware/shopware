@@ -32,7 +32,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter->expects($this->once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
-                $stub = $stubCollection->get('src/Resources/config/services.xml');
+                $stub = $stubCollection->get('src/Resources/config/services.php');
 
                 return $stub !== null && str_contains($stub->getContent() ?? '', 'Dummy content');
             }), static::callback(static function (PluginScaffoldConfiguration $configuration) {
@@ -184,6 +184,6 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
             return;
         }
 
-        $stubCollection->append('src/Resources/config/services.xml', 'Dummy content');
+        $stubCollection->append('src/Resources/config/services.php', 'Dummy content');
     }
 }

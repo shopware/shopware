@@ -50,6 +50,10 @@ $sw-modal-gap: var(--scale-size-64);
         max-width: 500px;
     }
 
+    &.sw-modal--overflow-hidden .sw-modal__dialog {
+        overflow: hidden;
+    }
+
     &--has-sidebar {
         z-index: $z-index-help-sidebar + 1;
     }

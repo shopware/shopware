@@ -101,10 +101,6 @@ abstract class MigrationStep
     }
 
     /**
-     * Executes a raw DDL statement, retrying with the FK guard relaxed when MySQL 8.4 rejects it
-     * through bug #118151. The addColumn() / drop*IfExists() / updateInheritance() helpers
-     * already run through it.
-     *
      * @see NonStandardFkGuard
      *
      * @internal Temporary workaround, will be removed once MySQL fixes bug #118151; safe to call

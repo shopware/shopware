@@ -22,7 +22,7 @@ class IncrementApiController
     {
     }
 
-    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', methods: ['POST'])]
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function increment(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
@@ -40,7 +40,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', methods: ['POST'])]
+    #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function decrement(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
@@ -61,7 +61,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', methods: ['GET'])]
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['GET'])]
     public function getIncrement(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);
@@ -76,7 +76,7 @@ class IncrementApiController
         return new JsonResponse($result);
     }
 
-    #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', methods: ['POST'])]
+    #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function reset(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);
@@ -91,6 +91,23 @@ class IncrementApiController
         $poolGateway->reset($cluster, $key);
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['DELETE'])]
+    public function delete(string $pool, Request $request): Response
+    {
+        $keys = RequestParamHelper::get($request, 'keys', []);
+
+        if (!\is_array($keys)) {
+            throw IncrementException::invalidKeysParameter();
+        }
+
+        $cluster = $this->getCluster($request);
+        $poolGateway = $this->gatewayRegistry->get($pool);
+
+        $poolGateway->delete($cluster, $keys);
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
     }
 
     private function getCluster(Request $request): string

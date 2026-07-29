@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -19,9 +22,10 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
-use Shopware\Core\Test\Stub\Symfony\StubKernel;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Asset\Packages;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,7 +132,92 @@ class InfoControllerTest extends TestCase
         static::assertSame('bar', $data['foo']);
     }
 
-    private function createController(): InfoController
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime(), 1.00, new MessageTypeStatsCollection())
+            )
+        );
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertNull($data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
+    {
+        $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('firstMigrationDate', $data['settings']);
+        static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+    }
+
+    #[DataProvider('aclProtectedRouteProvider')]
+    public function testRouteRequiresMessageQueueStatsReadPrivilege(string $routeName): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $route = (new AttributeRouteControllerLoader())->load(InfoController::class)->get($routeName);
+
+        static::assertNotNull($route, \sprintf('Route "%s" is not defined on %s', $routeName, InfoController::class));
+        static::assertSame(['message_queue_stats:read'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    public static function aclProtectedRouteProvider(): \Generator
+    {
+        yield 'queue stats' => ['api.info.queue'];
+        yield 'message stats' => ['api.info.message-stats'];
+    }
+
+    /**
+     * @param list<string> $adminWorkerTransports
+     */
+    private function createController(array $adminWorkerTransports = ['slow']): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,

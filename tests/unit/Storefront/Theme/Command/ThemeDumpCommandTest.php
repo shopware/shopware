@@ -45,23 +45,35 @@ class ThemeDumpCommandTest extends TestCase
 
     private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
-    private StaticFileConfigDumper&Stub $staticFileConfigDumper;
-
     private CommandTester $commandTester;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $dumpedConfig = null;
 
     protected function setUp(): void
     {
         $this->pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
         $this->themeFileResolver = static::createStub(ThemeFileResolver::class);
         $this->themeRepository = static::createStub(EntityRepository::class);
-        $this->staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
+        $staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
         $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
+
+        $staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
+            /**
+             * @param array<string, mixed> $dump
+             */
+            function (string $filePath, array $dump): void {
+                $this->dumpedConfig = $dump;
+            }
+        );
 
         $command = new ThemeDumpCommand(
             $this->pluginRegistry,
             $this->themeFileResolver,
             $this->themeRepository,
-            $this->staticFileConfigDumper,
+            $staticFileConfigDumper,
             $this->themeFilesystemResolver
         );
 
@@ -197,49 +209,61 @@ class ThemeDumpCommandTest extends TestCase
 
     public function testResolvesSingleDomainAutomaticallyWithoutInteraction(): void
     {
-        $themeEntity = $this->createThemeEntityWithDomains(['http://single.example.com']);
-
-        $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('count')->willReturn(1);
-        $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
-
-        $this->themeRepository->method('search')->willReturn($searchResult);
-
-        $this->pluginRegistry->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection([
-                new StorefrontPluginConfiguration('technical-name'),
-            ])
-        );
-
-        $this->themeFileResolver->method('resolveFiles')->willReturn(['resolved' => 'files']);
-        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
-            new Filesystem('')
-        );
-
-        $dumpedConfig = null;
-        $this->staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
-            /**
-             * @param array<string, mixed> $dump
-             */
-            function (string $filePath, array $dump) use (&$dumpedConfig): void {
-                $dumpedConfig = $dump;
-            }
-        );
+        $this->arrangeThemeDump($this->createThemeEntityWithDomains(['http://single.example.com']));
 
         $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
 
         static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
-        static::assertIsArray($dumpedConfig);
-        static::assertSame('http://single.example.com', $dumpedConfig['domainUrl']);
+        static::assertIsArray($this->dumpedConfig);
+        static::assertSame('http://single.example.com', $this->dumpedConfig['domainUrl']);
     }
 
-    public function testFailsWithoutInteractionWhenMoreThanOneDomainExists(): void
+    public function testResolvesDomainWithoutInteractionWhenDomainUrlArgumentIsEmpty(): void
     {
-        $themeEntity = $this->createThemeEntityWithDomains([
+        $this->arrangeThemeDump($this->createThemeEntityWithDomains(['http://single.example.com']));
+
+        $this->commandTester->execute(
+            ['theme-id' => 'theme-id', 'domain-url' => ''],
+            ['interactive' => false]
+        );
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertIsArray($this->dumpedConfig);
+        static::assertSame('http://single.example.com', $this->dumpedConfig['domainUrl']);
+    }
+
+    public function testUsesFirstDomainAndWarnsWithoutInteractionWhenMoreThanOneDomainExists(): void
+    {
+        $this->arrangeThemeDump($this->createThemeEntityWithDomains([
             'http://first.example.com',
             'http://second.example.com',
-        ]);
+        ]));
 
+        $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->getStatusCode());
+        static::assertIsArray($this->dumpedConfig);
+        static::assertSame('http://first.example.com', $this->dumpedConfig['domainUrl']);
+        static::assertStringContainsString(
+            'More than one domain URL is available',
+            $this->commandTester->getDisplay()
+        );
+        static::assertStringContainsString('http://first.example.com', $this->commandTester->getDisplay());
+    }
+
+    public function testFailsWithoutInteractionWhenNoDomainExists(): void
+    {
+        $this->arrangeThemeDump($this->createThemeEntityWithDomains([]));
+
+        $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
+
+        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
+        static::assertStringContainsString('No domain URL for theme', $this->commandTester->getDisplay());
+        static::assertNull($this->dumpedConfig);
+    }
+
+    private function arrangeThemeDump(ThemeEntity $themeEntity): void
+    {
         $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('count')->willReturn(1);
         $searchResult->method('getEntities')->willReturn(new ThemeCollection([$themeEntity]));
@@ -256,11 +280,6 @@ class ThemeDumpCommandTest extends TestCase
         $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(
             new Filesystem('')
         );
-
-        $this->commandTester->execute(['theme-id' => 'theme-id'], ['interactive' => false]);
-
-        static::assertSame(Command::FAILURE, $this->commandTester->getStatusCode());
-        static::assertStringContainsString('More than one domain URL is available', $this->commandTester->getDisplay());
     }
 
     /**

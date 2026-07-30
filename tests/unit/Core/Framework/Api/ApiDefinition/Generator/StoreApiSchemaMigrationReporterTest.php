@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\Schema;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByT
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_extensionFixtures\ExtensionDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -60,10 +62,65 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         static::assertContains('GroupByTest', $report->phpGeneratedOnlyWithoutAllowlist);
         static::assertContains('CalculatedPrice', $report->jsonWithoutPhpGenerated);
         static::assertSame([], $report->jsonOverridesPhpGenerated);
-        static::assertNotContains('Category', $report->jsonOverridesPhpGeneratedWithoutAllowlist);
-        static::assertContains('Category', $report->allowlistWithoutJsonOverridesPhpGeneratedSchema);
-        static::assertContains('Currency', $report->allowlistWithoutPhpGeneratedOnlySchema);
-        static::assertContains('Currency', $report->allowlistWithoutPhpGeneratedSchema);
+    }
+
+    public function testJsonSchemaWithPhpDefinitionIsTreatedAsJsonOnly(): void
+    {
+        $report = $this->createReporter(
+            schemaPath: $this->createSchemaPath([
+                'components' => [
+                    'schemas' => [
+                        'GroupByTest' => ['type' => 'object'],
+                    ],
+                ],
+            ]),
+            allowlistPath: $this->createAllowlistPath(['AppAdministrationSnippet']),
+        )->report($this->createDefinitions());
+
+        static::assertContains('GroupByTest', $report->jsonWithoutPhpGenerated);
+        static::assertNotContains('GroupByTest', $report->phpGeneratedOnly);
+        static::assertSame([], $report->jsonOverridesPhpGenerated);
+        static::assertFalse($report->hasMismatches());
+    }
+
+    public function testReportTracksLegacyJsonApiSchemaForPhpOwnedDefinition(): void
+    {
+        $report = $this->createReporter(
+            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            allowlistPath: $this->createAllowlistPath(),
+        )->report(
+            $this->createDefinitions([SalesChannelSimpleDefinition::class]),
+            AllStoreApiSchemaMigrationScopeProvider::SCOPE,
+        );
+
+        static::assertContains('Simple', $report->phpGeneratedOnly);
+        static::assertContains('SimpleJsonApi', $report->phpGeneratedOnly);
+    }
+
+    public function testReportStillDetectsUnexpectedPhpGeneratedJsonSchemaOverlap(): void
+    {
+        $definitionSchemaBuilder = static::createStub(OpenApiDefinitionSchemaBuilder::class);
+        $definitionSchemaBuilder->method('getSchemaName')->willReturn('DifferentSchema');
+        $definitionSchemaBuilder->method('getSchemaByDefinition')->willReturn([
+            'GroupByTest' => new Schema(['schema' => 'GroupByTest', 'type' => 'object']),
+        ]);
+
+        $report = $this->createReporter(
+            definitionSchemaBuilder: $definitionSchemaBuilder,
+            schemaPath: $this->createSchemaPath([
+                'components' => [
+                    'schemas' => [
+                        'GroupByTest' => ['type' => 'object'],
+                    ],
+                ],
+            ]),
+            allowlistPath: $this->createAllowlistPath(),
+        )->report([
+            'group_by_test' => $this->createDefinition('group_by_test'),
+        ], AllStoreApiSchemaMigrationScopeProvider::SCOPE);
+
+        static::assertSame(['GroupByTest'], $report->jsonOverridesPhpGenerated);
+        static::assertTrue($report->hasMismatches());
     }
 
     public function testCoreScopeIgnoresExtensionDefinitionsAndSchemaFiles(): void
@@ -199,11 +256,11 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
         yield 'missing list' => [
             '{}',
-            'The "jsonOverridesPhpGeneratedSchemas" list is missing.',
+            'The "phpGeneratedStoreApiSchemas" list is missing.',
         ];
 
         yield 'non-string schema name' => [
-            '{"jsonOverridesPhpGeneratedSchemas":[],"phpGeneratedStoreApiSchemas":[1]}',
+            '{"phpGeneratedStoreApiSchemas":[1]}',
             'The "phpGeneratedStoreApiSchemas" list must contain only schema names.',
         ];
     }
@@ -255,14 +312,12 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     }
 
     /**
-     * @param list<string> $jsonOverridesPhpGeneratedSchemas
      * @param list<string> $phpGeneratedStoreApiSchemas
      */
-    private function createAllowlistPath(array $jsonOverridesPhpGeneratedSchemas = [], array $phpGeneratedStoreApiSchemas = []): string
+    private function createAllowlistPath(array $phpGeneratedStoreApiSchemas = []): string
     {
         $allowlistPath = $this->temporaryDirectory . '/allowlist-' . bin2hex(random_bytes(4)) . '.json';
         $this->filesystem->dumpFile($allowlistPath, json_encode([
-            'jsonOverridesPhpGeneratedSchemas' => $jsonOverridesPhpGeneratedSchemas,
             'phpGeneratedStoreApiSchemas' => $phpGeneratedStoreApiSchemas,
         ], \JSON_THROW_ON_ERROR));
 

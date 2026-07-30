@@ -8,10 +8,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -26,6 +29,10 @@ use Symfony\UX\TwigComponent\TwigComponentBundle;
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
+    private const EMPTY_SERVICES_XML = '<?xml version="1.0" ?><container xmlns="http://symfony.com/schema/dic/services"></container>';
+
+    private const EMPTY_ROUTES_XML = '<?xml version="1.0" ?><routes xmlns="http://symfony.com/schema/routing"></routes>';
+
     private string $tmpProjectDir;
 
     private Filesystem $filesystem;
@@ -137,6 +144,93 @@ class KernelTest extends TestCase
         static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
+    public function testConfigureContainerTriggersDeprecationForXmlPackageConfiguration(): void
+    {
+        $path = $this->tmpProjectDir . '/config/packages/unit_test.xml';
+        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the package configuration to YAML or PHP format.',
+            $path,
+        )));
+
+        $this->captureContainerLoads('fooBar');
+    }
+
+    public function testConfigureContainerTriggersDeprecationForXmlServiceDefinitions(): void
+    {
+        $path = $this->tmpProjectDir . '/config/services.xml';
+        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the service definitions to PHP format (services.php).',
+            $path,
+        )));
+
+        $this->captureContainerLoads('fooBar');
+    }
+
+    public function testConfigureContainerTriggersDeprecationForEnvironmentSpecificXmlServiceDefinitions(): void
+    {
+        $path = $this->tmpProjectDir . '/config/services_fooBar.xml';
+        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the service definitions to PHP format (services_fooBar.php).',
+            $path,
+        )));
+
+        $this->captureContainerLoads('fooBar');
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigureContainerStillLoadsConfigGlobsWhenDeprecationsAreDisabled(): void
+    {
+        $confDir = $this->tmpProjectDir . '/config';
+        $this->filesystem->dumpFile($confDir . '/services.xml', self::EMPTY_SERVICES_XML);
+
+        $captured = $this->captureContainerLoads('fooBar');
+
+        static::assertContains([$confDir . '/{services}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(): void
+    {
+        $path = $this->tmpProjectDir . '/config/routes.xml';
+        $this->filesystem->dumpFile($path, self::EMPTY_ROUTES_XML);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes.php).',
+            $path,
+        )));
+
+        $this->captureRouteImports('test');
+    }
+
+    public function testConfigureRoutesTriggersDeprecationForXmlFilesInRoutesDirectory(): void
+    {
+        $path = $this->tmpProjectDir . '/config/routes/nested.xml';
+        $this->filesystem->dumpFile($path, self::EMPTY_ROUTES_XML);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (nested.php).',
+            $path,
+        )));
+
+        $this->captureRouteImports('test');
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigureRoutesStillReachesRouteImportWhenDeprecationsAreDisabled(): void
+    {
+        $confDir = $this->tmpProjectDir . '/config';
+        $this->filesystem->dumpFile($confDir . '/routes.xml', self::EMPTY_ROUTES_XML);
+
+        $captured = $this->captureRouteImports('test');
+
+        static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
     private function createKernel(string $environment = 'fooBar'): Kernel
     {
         return new Kernel(
@@ -148,6 +242,30 @@ class KernelTest extends TestCase
             static::createStub(Connection::class),
             $this->tmpProjectDir,
         );
+    }
+
+    /**
+     * @return list<array{0: mixed, 1: ?string}>
+     */
+    private function captureContainerLoads(string $environment): array
+    {
+        $captured = [];
+        $loader = static::createStub(LoaderInterface::class);
+        $loader->method('load')->willReturnCallback(
+            function (mixed $resource, ?string $type = null) use (&$captured): mixed {
+                $captured[] = [$resource, $type];
+
+                return null;
+            }
+        );
+
+        (new \ReflectionMethod(Kernel::class, 'configureContainer'))->invoke(
+            $this->createKernel($environment),
+            new ContainerBuilder(),
+            $loader,
+        );
+
+        return $captured;
     }
 
     /**

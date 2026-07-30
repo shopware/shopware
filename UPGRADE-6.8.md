@@ -253,9 +253,9 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## XML configuration for bundles and plugins is no longer supported
+## XML configuration is no longer supported
 
-Symfony 8 removes support for XML configuration, and loading it for Shopware bundles and plugins is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`), route definitions (`Resources/config/routes*.xml` and XML files below `Resources/config/routes/`), and package configuration (`Resources/config/packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
+Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
 
 Migrate service definitions to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
 

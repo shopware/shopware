@@ -84,7 +84,7 @@ abstract class Bundle extends SymfonyBundle
             // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
             foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml', $confDir . '/routes_' . $environment . '.xml'] as $path) {
                 if (is_file($path)) {
-                    $this->triggerXmlConfigDeprecation($path, 'route definitions', 'Migrate the file to PHP format (routes.php).');
+                    $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the route definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
                 }
             }
 
@@ -111,7 +111,7 @@ abstract class Bundle extends SymfonyBundle
         if ($fileSystem->exists($confDir)) {
             // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
             if (is_file($confDir . '/routes_overwrite.xml')) {
-                $this->triggerXmlConfigDeprecation($confDir . '/routes_overwrite.xml', 'route definitions', 'Migrate the file to PHP format (routes_overwrite.php).');
+                $this->triggerXmlConfigDeprecation($confDir . '/routes_overwrite.xml', 'Migrate the route definitions to PHP format (routes_overwrite.php).');
             }
 
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
@@ -176,7 +176,7 @@ abstract class Bundle extends SymfonyBundle
 
         // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
         foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
-            $this->triggerXmlConfigDeprecation($path, 'package configuration', 'Migrate the file to YAML or PHP format.');
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the package configuration to YAML or PHP format.');
         }
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
@@ -241,21 +241,21 @@ abstract class Bundle extends SymfonyBundle
 
         foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {
             // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
-            $this->triggerXmlConfigDeprecation($path, 'service definitions', 'Migrate the file to PHP format (services.php).');
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the service definitions to PHP format (services.php).');
             $delegatingLoader->load($path);
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {
             foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
                 // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
-                $this->triggerXmlConfigDeprecation($testPath, 'service definitions', 'Migrate the file to PHP format (services.php).');
+                $this->triggerXmlConfigDeprecation($testPath, 'Migrate the service definitions to PHP format (services_test.php).');
                 $delegatingLoader->load($testPath);
             }
         }
     }
 
     // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
-    private function triggerXmlConfigDeprecation(string $path, string $configType, string $migrationHint): void
+    private function triggerXmlConfigDeprecation(string $path, string $migrationHint): void
     {
         if (!str_ends_with($path, '.xml')) {
             return;
@@ -264,8 +264,7 @@ abstract class Bundle extends SymfonyBundle
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             \sprintf(
-                'Loading %s from XML file "%s" in bundle "%s" is deprecated and will be removed in v6.8.0.0. %s',
-                $configType,
+                'The XML configuration file "%s" in bundle "%s" is deprecated and will not be loaded in v6.8.0.0. %s',
                 $path,
                 $this->getName(),
                 $migrationHint,

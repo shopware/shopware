@@ -48,7 +48,7 @@ class BundleTest extends TestCase
         $bundlePath = self::FIXTURES_DIR . '/with-xml-services';
 
         $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Loading service definitions from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (services.php).',
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the service definitions to PHP format (services.php).',
             $bundlePath . '/Resources/config/services.xml',
         )));
 
@@ -79,15 +79,39 @@ class BundleTest extends TestCase
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
 
         $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Loading route definitions from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (routes.php).',
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes.php).',
             $bundlePath . '/Resources/config/routes.xml',
         )));
 
         $this->captureRouteImports($bundlePath, 'test');
     }
 
+    public function testConfigureRoutesTriggersDeprecationForXmlFilesInRoutesDirectory(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes-dir';
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (nested.php).',
+            $bundlePath . '/Resources/config/routes/nested.xml',
+        )));
+
+        $this->captureRouteImports($bundlePath, 'test');
+    }
+
+    public function testConfigureRoutesTriggersDeprecationForEnvironmentSpecificXmlRouteDefinitions(): void
+    {
+        $bundlePath = self::FIXTURES_DIR . '/with-xml-env-routes';
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes_test.php).',
+            $bundlePath . '/Resources/config/routes_test.xml',
+        )));
+
+        $this->captureRouteImports($bundlePath, 'test');
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigureRoutesStillImportsXmlRouteDefinitionsWhenDeprecationsAreDisabled(): void
+    public function testConfigureRoutesStillReachesRouteImportWhenDeprecationsAreDisabled(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
         $confDir = $bundlePath . '/Resources/config';
@@ -102,7 +126,7 @@ class BundleTest extends TestCase
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
 
         $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Loading route definitions from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to PHP format (routes_overwrite.php).',
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes_overwrite.php).',
             $bundlePath . '/Resources/config/routes_overwrite.xml',
         )));
 
@@ -117,7 +141,7 @@ class BundleTest extends TestCase
         $bundlePath = self::FIXTURES_DIR . '/with-xml-packages';
 
         $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Loading package configuration from XML file "%s" in bundle "BundleStub" is deprecated and will be removed in v6.8.0.0. Migrate the file to YAML or PHP format.',
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the package configuration to YAML or PHP format.',
             $bundlePath . '/Resources/config/packages/unit_test.xml',
         )));
 

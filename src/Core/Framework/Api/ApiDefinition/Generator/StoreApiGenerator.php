@@ -342,10 +342,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function resolveParameterGroups(array &$specs): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // this is a custom extension that is not supported by the OpenAPI spec
         // it has to be processed and removed before the final output
         $parameterGroups = $specs['components']['x-parameter-groups'] ?? [];
@@ -437,10 +433,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function enrichPathsWithAssociations(array &$specs, array $definitions): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // Build a map of entity names to their association documentation
         $associationDocs = [];
         foreach ($definitions as $def) {

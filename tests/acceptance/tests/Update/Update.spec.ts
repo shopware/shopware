@@ -45,13 +45,15 @@ test(
         expect(versionResponse.ok(), '/_info/config request failed').toBeTruthy();
         const config = (await versionResponse.json()) as { version: string };
 
-        await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
-            timeout: 60000,
-        });
-
         // test admin login
         // Wait until the page is loaded
         await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
+            timeout: 60000,
+        });
+
+        // The version is shown inside the user actions menu in the admin menu footer.
+        await page.locator('css=.sw-admin-menu__user-actions-toggle').click();
+        await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
             timeout: 60000,
         });
     },

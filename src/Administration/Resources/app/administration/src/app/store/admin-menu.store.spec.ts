@@ -5,6 +5,15 @@
 import { createPinia, setActivePinia } from 'pinia';
 import type { AdminMenuStore } from './admin-menu.store';
 import type { AppModuleDefinition } from '../../core/service/api/app-modules.service';
+import type { ModuleManifest } from '../../core/factory/module.factory';
+
+type NavigationEntry = Exclude<ModuleManifest['navigation'], undefined>[number];
+
+// Path-only entries are valid at runtime (the store keys them by path), but the
+// Navigation type declares `id` as required — hence the cast.
+function pathOnlyEntry(path: string): NavigationEntry {
+    return { path } as NavigationEntry;
+}
 
 describe('admin-menu.store', () => {
     let store: AdminMenuStore;
@@ -62,11 +71,11 @@ describe('admin-menu.store', () => {
     });
 
     it('keys entries without an id by their path', () => {
-        store.expandMenuEntry({ path: 'sw.first.index' });
-        store.expandMenuEntry({ path: 'sw.second.index' });
+        store.expandMenuEntry(pathOnlyEntry('sw.first.index'));
+        store.expandMenuEntry(pathOnlyEntry('sw.second.index'));
         expect(store.expandedEntries).toHaveLength(2);
 
-        store.collapseMenuEntry({ path: 'sw.first.index' });
+        store.collapseMenuEntry(pathOnlyEntry('sw.first.index'));
 
         expect(store.expandedEntries).toStrictEqual([{ path: 'sw.second.index' }]);
     });

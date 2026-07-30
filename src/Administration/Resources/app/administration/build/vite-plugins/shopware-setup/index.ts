@@ -73,6 +73,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
     // the matching load(). One-shot: load() deletes on read, so it can never serve stale output.
     const resolvedTransforms = new Map<string, ShopwareSetupTransformResult>();
+    // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
+    let sourcemapsEnabled = true;
     // Lazy so a bad `administrationRoot` surfaces on a real `.vue` file; an eager rejection would go
     // unhandled in builds that never reach one. Rejections are cached too - the failure is a config
     // error, so one error beats one per file.
@@ -229,7 +231,18 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             }
         },
 
+        configResolved(config) {
+            // Sourcemaps follow the build's own setting, which vite.config.mts and plugins.vite.ts derive
+            // from GENERATE_SOURCEMAPS / SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION. Reading it here keeps
+            // this plugin on par with the rest of the build instead of re-interpreting those variables.
+            sourcemapsEnabled = Boolean(config.build?.sourcemap);
+        },
+
         generateBundle(outputOptions, bundle) {
+            if (!sourcemapsEnabled) {
+                return;
+            }
+
             virtualSourcemap.remapBundle(outputOptions, bundle);
         },
     };

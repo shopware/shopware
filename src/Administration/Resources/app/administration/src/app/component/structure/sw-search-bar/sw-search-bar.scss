@@ -76,7 +76,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         position: relative;
         display: flex;
         flex-wrap: nowrap;
-        gap: var(--scale-size-8);
+        gap: var(--scale-size-10);
         height: 50px;
 
         &.is--active {

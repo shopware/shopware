@@ -34,7 +34,7 @@ function isTheme(value: unknown): value is Theme {
 
 async function loadUserTheme(): Promise<void> {
     const response = await Shopware.Service('userConfigService').search([USER_THEME_CONFIG_KEY]);
-    const value = response?.data?.[USER_THEME_CONFIG_KEY] as unknown as { theme?: unknown } | undefined;
+    const value = response?.data?.[USER_THEME_CONFIG_KEY] as { theme?: unknown } | undefined;
 
     if (value && isTheme(value.theme)) {
         useTheme().setTheme(value.theme);
@@ -46,7 +46,7 @@ async function saveUserTheme(theme: Theme): Promise<void> {
 
     await Shopware.Service('userConfigService').upsert({
         [USER_THEME_CONFIG_KEY]: { theme },
-    } as unknown as Record<string, unknown[]>);
+    });
 }
 
 /**

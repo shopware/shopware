@@ -1,10 +1,12 @@
 html,
 body {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
     background: var(--color-elevation-surface-default, #ffffff);
 }
 
 html[data-theme='dark'],
 html[data-theme='dark'] body {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
     background: var(--color-elevation-surface-default, #101013);
 }
 
@@ -20,6 +22,7 @@ html[data-theme='dark'] body {
     top: 0;
     left: 0;
     z-index: 400;
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
     background: var(--color-elevation-surface-default, #ffffff);
     opacity: 0;
     /* `animation-delay` matches `DELAY` that is used in `vue.adapter.ts` > `createApp({ mounted() {...} })` */
@@ -27,6 +30,7 @@ html[data-theme='dark'] body {
 }
 
 html[data-theme='dark'] #page-loading-screen {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
     background: var(--color-elevation-surface-default, #101013);
 }
 

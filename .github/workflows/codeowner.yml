@@ -1,29 +1,22 @@
 name: 'Code Owners'
 
-# `pull_request_target` instead of `pull_request` so the job also works for PRs from forks:
-# on `pull_request` a fork PR only gets a read-only GITHUB_TOKEN regardless of the `permissions`
-# block below, so codeowners-plus could not request reviewers — it failed silently and community
-# PRs ended up with no owner at all.
-#
-# This is safe here because nothing from the fork is executed: we check out the *base* branch
-# (the default ref for `pull_request_target`) and only fetch the PR head as data so that
-# codeowners-plus can run `git diff base...head` locally. codeowners-plus itself reads
-# `codeowners.toml` and `.codeowners` from the base SHA on purpose, so a PR cannot change the
-# ownership rules that apply to it (`require_both_branch_reviewers` defaults to false, and that
-# setting is read from the base ref as well).
-#
-# Do NOT add `ref:` to the checkout below and do NOT run any build, install or script step from
-# the PR head — that would give fork code access to a privileged token.
+# `pull_request_target`, not `pull_request`: fork PRs only get a read-only GITHUB_TOKEN on
+# `pull_request`, so codeowners-plus could not request reviewers and failed silently.
+# Never add `ref:` to the checkout and never run a build, install or script step from the PR head —
+# that would hand fork code a writable token.
 
 concurrency:
-  # keyed by PR number, not `github.ref`: for `pull_request_target` `github.ref` is the base branch,
-  # so every open PR would share one group and cancel the others
+  # by PR number, not `github.ref` — that is the base branch here, so all PRs would share one group
   group: codeowners-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
   pull_request_target:
     types: [opened, reopened, ready_for_review, synchronize]
+  # GitHub drops a team from the reviewer list as soon as one member reviews; re-run so
+  # codeowners-plus requests the still-missing owners again
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
@@ -39,13 +32,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          # the workspace only needs to be readable by git; not persisting the token keeps the
-          # privileged credential out of a checkout that also holds fetched fork commits
           persist-credentials: false
 
-      # codeowners-plus diffs with local git (`git diff -U0 base...head`), so the PR head commit
-      # has to exist in the clone. For fork PRs it is not part of the base checkout.
-      # The repository is public, so this fetch needs no credentials.
+      # codeowners-plus diffs with local git (`git diff base...head`), and the PR head is not part
+      # of the base checkout. The repository is public, so this needs no credentials.
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

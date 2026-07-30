@@ -4,8 +4,10 @@
 >
 > This toolchain is shipped early to gather feedback while it is still being
 > shaped, so it can be refactored in any release — including a patch — without a
-> deprecation cycle. No stable version is targeted yet; the marker is removed
-> once the surfaces below have settled in practice.
+> deprecation cycle. Stabilization is targeted for v6.8.0 (annotated
+> `@experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING` in the
+> source); the marker is removed once the surfaces below have settled in
+> practice.
 >
 > **What can change without notice**
 >

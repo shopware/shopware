@@ -1,16 +1,17 @@
 /**
  * @sw-package framework
  *
- * EXPERIMENTAL — the whole extension tooling is shipped for feedback and is not
- * covered by the backwards-compatibility promise. Nothing here is a stable
- * contract: the command name, its flags, the module boundaries below, the layout
- * of the generated files and the manifest schema can all change in any release,
- * so the implementation can be reshaped once real-world usage shows what does
- * not hold. Consumers are expected to re-run setup rather than to depend on the
- * generated output, which is why the manifest is versioned and every generated
- * file is either tool-owned or marker-owned. Deliberately no `stableVersion` is
- * declared yet — the marker is dropped from the code, the README and the release
- * note together once the surfaces have settled.
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
+ *
+ * The whole extension tooling is shipped for feedback and is not covered by
+ * the backwards-compatibility promise until it stabilizes (targeted for
+ * v6.8.0). Nothing here is a stable contract: the command name, its flags, the
+ * module boundaries below, the layout of the generated files and the manifest
+ * schema can all change in any release, so the implementation can be reshaped
+ * once real-world usage shows what does not hold. Consumers are expected to
+ * re-run setup rather than to depend on the generated output, which is why the
+ * manifest is versioned and every generated file is either tool-owned or
+ * marker-owned.
  *
  * Orchestrator and CLI entrypoint for the Administration extension tooling
  * ("Connected Toolchain"). The generation steps live in sibling modules:

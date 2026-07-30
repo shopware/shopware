@@ -8,8 +8,10 @@ use Symfony\Component\Console\Attribute\AsCommand;
 /**
  * @internal
  *
- * EXPERIMENTAL — see AbstractExtensionToolingCommand: neither this command's name
- * nor its options are a stable contract yet.
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
+ *
+ * See AbstractExtensionToolingCommand: neither this command's name nor its
+ * options are a stable contract yet.
  */
 #[Package('framework')]
 #[AsCommand(

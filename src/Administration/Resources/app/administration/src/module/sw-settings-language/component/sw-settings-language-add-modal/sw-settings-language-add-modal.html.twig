@@ -31,7 +31,10 @@
             <mt-link
                 v-if="documentationUrl"
                 type="external"
+                as="a"
                 :href="documentationUrl"
+                target="_blank"
+                rel="noopener"
             >
                 {{ $t('sw-settings-language.addModal.docsLinkLabel') }}
             </mt-link>

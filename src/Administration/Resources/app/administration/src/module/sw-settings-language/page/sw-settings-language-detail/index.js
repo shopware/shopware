@@ -335,12 +335,20 @@ export default {
 
             this.isSnippetMetadataLoading = true;
 
-            return this.translationService
-                .getList()
-                .then((response) => {
-                    this.builtInLocales = response?.meta?.builtInLocales ?? this.builtInLocales;
-                    this.snippetMetadata = (response?.items ?? []).find((item) => item.locale === localeCode) ?? null;
-                })
+            return Promise.all([
+                this.translationService.getList(),
+                this.translationService.getMeta(),
+            ])
+                .then(
+                    ([
+                        listResponse,
+                        metaResponse,
+                    ]) => {
+                        this.builtInLocales = metaResponse?.builtInLocales ?? this.builtInLocales;
+                        this.snippetMetadata =
+                            (listResponse?.items ?? []).find((item) => item.locale === localeCode) ?? null;
+                    },
+                )
                 .catch(() => {
                     this.snippetMetadata = null;
                     this.createNotificationError({

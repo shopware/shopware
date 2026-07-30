@@ -93,18 +93,24 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            const [response] = await Promise.all([
-                this.translationService.getList().catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('sw-settings-language.addModal.messageTranslationsLoadError'),
-                    });
-                    return null;
-                }),
+            const [
+                listResponse,
+                metaResponse,
+            ] = await Promise.all([
+                this.translationService.getList().catch(() => null),
+                this.translationService.getMeta().catch(() => null),
                 this.loadExistingLanguageLocales(),
             ]);
-            this.translations = response?.items ?? [];
-            this.documentationUrl = response?.meta?.documentationUrl ?? null;
-            this.completenessThreshold = response?.meta?.completenessThreshold ?? null;
+
+            if (listResponse === null || metaResponse === null) {
+                this.createNotificationError({
+                    message: this.$t('sw-settings-language.addModal.messageTranslationsLoadError'),
+                });
+            }
+
+            this.translations = listResponse?.items ?? [];
+            this.documentationUrl = metaResponse?.documentationUrl ?? null;
+            this.completenessThreshold = metaResponse?.completenessThreshold ?? null;
 
             this.isLoading = false;
         },

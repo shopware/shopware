@@ -379,6 +379,8 @@ export default {
             });
 
             this.updatingLocales = this.updatingLocales.filter((localeCode) => !locales.includes(localeCode));
+            this.snippetSelection = {};
+            this.$refs.languageGrid?.resetSelection();
             await this.loadTranslationMetadata();
         },
 

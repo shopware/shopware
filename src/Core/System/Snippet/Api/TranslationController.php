@@ -42,36 +42,28 @@ class TranslationController extends AbstractController
     )]
     public function list(): Response
     {
-        $installed = $this->metadataStore->getLocalMetadata();
-        $remote = $this->getRemoteMetadata();
-
-        $items = [];
-        foreach ($this->config->languages as $language) {
-            $installedEntry = $installed->get($language->locale);
-            $remoteEntry = $remote->get($language->locale);
-
-            $items[] = [
-                'locale' => $language->locale,
-                'name' => $language->name,
-                'lastUpdate' => $installedEntry?->updatedAt->format(\DateTimeInterface::ATOM),
-                'progress' => $remoteEntry?->progress,
-                'updateAvailable' => $installedEntry !== null
-                    && $remoteEntry !== null
-                    && $installedEntry->updatedAt->getTimestamp() !== $remoteEntry->updatedAt->getTimestamp(),
-                'isPseudoLanguage' => \in_array($language->locale, $this->config->pseudoLocales, true),
-            ];
-        }
+        $items = $this->metadataStore->getTranslationList();
 
         return new JsonResponse([
             'total' => \count($items),
             'items' => $items,
-            'meta' => [
-                // Built-in languages are exactly the locales excluded from the community translation download
-                'builtInLocales' => $this->config->excludedLocales,
-                'communityTranslationsUrl' => $this->config->communityTranslationsUrl?->__toString(),
-                'documentationUrl' => $this->config->documentationUrl?->__toString(),
-                'completenessThreshold' => $this->config->completenessThreshold,
-            ],
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/translation/meta',
+        name: 'api.action.translation.meta',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:translation:read']],
+        methods: ['GET'],
+    )]
+    public function meta(): Response
+    {
+        return new JsonResponse([
+            // Built-in languages are exactly the locales excluded from the community translation download
+            'builtInLocales' => $this->config->excludedLocales,
+            'communityTranslationsUrl' => $this->config->communityTranslationsUrl?->__toString(),
+            'documentationUrl' => $this->config->documentationUrl?->__toString(),
+            'completenessThreshold' => $this->config->completenessThreshold,
         ]);
     }
 
@@ -124,15 +116,6 @@ class TranslationController extends AbstractController
         $this->translationRemover->remove($locale);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    private function getRemoteMetadata(): MetadataCollection
-    {
-        try {
-            return $this->metadataStore->getRemoteMetadata();
-        } catch (\Throwable) {
-            return new MetadataCollection();
-        }
     }
 
     /**

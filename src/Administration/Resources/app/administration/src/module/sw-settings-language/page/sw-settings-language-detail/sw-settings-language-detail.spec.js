@@ -96,13 +96,14 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 },
                 translationService: {
                     getList: jest.fn().mockResolvedValue({
+                        total: 0,
                         items: [],
-                        meta: {
-                            builtInLocales: [
-                                'de-DE',
-                                'en-GB',
-                            ],
-                        },
+                    }),
+                    getMeta: jest.fn().mockResolvedValue({
+                        builtInLocales: [
+                            'de-DE',
+                            'en-GB',
+                        ],
                     }),
                     install: jest.fn().mockResolvedValue(undefined),
                 },

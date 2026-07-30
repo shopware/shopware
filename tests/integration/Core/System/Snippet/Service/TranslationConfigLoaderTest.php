@@ -22,8 +22,12 @@ class TranslationConfigLoaderTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
         ], static::getContainer()->getParameter('shopware.translation'));

@@ -1,7 +1,7 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
 community-translations-url: https://translate.shopware.com
-documentation-url: https://developer.shopware.com/docs/concepts/translations/
+documentation-url: https://developer.shopware.com/docs/concepts/framework/translations/built-in-translation-system.html
 completeness-threshold: 90
 
 plugins: [

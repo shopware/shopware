@@ -37,8 +37,12 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
     private const OVERRIDE_KEY_MAP = [
         'repository_url' => self::REPOSITORY_URL,
         'metadata_url' => self::METADATA_URL,
+        'community_translations_url' => self::COMMUNITY_TRANSLATIONS_URL,
+        'documentation_url' => self::DOCUMENTATION_URL,
+        'completeness_threshold' => 'completeness-threshold',
         'plugins' => 'plugins',
         'excluded_locales' => 'excluded-locales',
+        'pseudo_locales' => 'pseudo-locales',
         'plugin_mapping' => 'plugin-mapping',
         'languages' => 'languages',
     ];

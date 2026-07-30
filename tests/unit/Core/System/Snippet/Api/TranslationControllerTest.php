@@ -53,94 +53,32 @@ class TranslationControllerTest extends TestCase
         );
     }
 
-    public function testListReturnsRemoteProgressAndUpdateState(): void
+    public function testListWrapsTheItemsBuiltByTheMetadataStore(): void
     {
+        $items = [
+            ['locale' => 'fr-FR', 'name' => 'Français', 'lastUpdate' => null, 'progress' => 100, 'updateAvailable' => false, 'isPseudoLanguage' => false],
+            ['locale' => 'ach-UG', 'name' => 'Acholi (Pseudo Language)', 'lastUpdate' => null, 'progress' => 42, 'updateAvailable' => true, 'isPseudoLanguage' => true],
+        ];
+
         $metadataStore = static::createStub(TranslationMetadataStore::class);
-        // fr-FR is installed at an older version than the remote offers
-        $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
-            MetadataEntry::create([
-                'locale' => 'fr-FR',
-                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
-                'progress' => 90,
-            ]),
-        ]));
-        $metadataStore->method('getRemoteMetadata')->willReturn(new MetadataCollection([
-            MetadataEntry::create([
-                'locale' => 'fr-FR',
-                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
-                'progress' => 100,
-            ]),
-            MetadataEntry::create([
-                'locale' => 'es-ES',
-                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
-                'progress' => 80,
-            ]),
-        ]));
+        $metadataStore->method('getTranslationList')->willReturn($items);
 
         $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
-        static::assertSame(3, $content['total']);
-        static::assertSame('https://translate.shopware.com', $content['meta']['communityTranslationsUrl']);
-        static::assertSame('https://developer.shopware.com/docs/concepts/translations/', $content['meta']['documentationUrl']);
-        static::assertSame(90, $content['meta']['completenessThreshold']);
-        static::assertSame(['de-DE', 'en-GB'], $content['meta']['builtInLocales']);
 
-        $byLocale = array_column($content['items'], null, 'locale');
-
-        // fr-FR: progress comes from remote, installed => lastUpdate set, remote newer => updateAvailable
-        static::assertSame(100, $byLocale['fr-FR']['progress']);
-        static::assertNotNull($byLocale['fr-FR']['lastUpdate']);
-        static::assertTrue($byLocale['fr-FR']['updateAvailable']);
-
-        // es-ES: remote progress is reported even though it is not installed
-        static::assertSame(80, $byLocale['es-ES']['progress']);
-        static::assertNull($byLocale['es-ES']['lastUpdate']);
-        static::assertFalse($byLocale['es-ES']['updateAvailable']);
-
-        // ach-UG is configured as a pseudo language, the real locales are not
-        static::assertTrue($byLocale['ach-UG']['isPseudoLanguage']);
-        static::assertFalse($byLocale['fr-FR']['isPseudoLanguage']);
-        static::assertFalse($byLocale['es-ES']['isPseudoLanguage']);
+        static::assertSame(2, $content['total']);
+        static::assertSame($items, $content['items']);
+        // meta moved to a dedicated endpoint and must no longer be part of the list response
+        static::assertArrayNotHasKey('meta', $content);
     }
 
-    public function testListReportsRemoteProgressWhenNothingInstalled(): void
+    public function testMetaReturnsTheConfiguredMetaInformation(): void
     {
-        $metadataStore = static::createStub(TranslationMetadataStore::class);
-        $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection());
-        $metadataStore->method('getRemoteMetadata')->willReturn(new MetadataCollection([
-            MetadataEntry::create([
-                'locale' => 'fr-FR',
-                'updatedAt' => '2026-01-01T00:00:00.000+00:00',
-                'progress' => 100,
-            ]),
-        ]));
+        $content = $this->decode($this->createController()->meta());
 
-        $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
-        $byLocale = array_column($content['items'], null, 'locale');
-
-        static::assertSame(100, $byLocale['fr-FR']['progress']);
-        static::assertNull($byLocale['fr-FR']['lastUpdate']);
-        static::assertFalse($byLocale['fr-FR']['updateAvailable']);
-    }
-
-    public function testListDegradesWhenRemoteMetadataUnavailable(): void
-    {
-        $metadataStore = static::createStub(TranslationMetadataStore::class);
-        $metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
-            MetadataEntry::create([
-                'locale' => 'fr-FR',
-                'updatedAt' => '2025-08-07T11:26:28.974+00:00',
-                'progress' => 90,
-            ]),
-        ]));
-        $metadataStore->method('getRemoteMetadata')->willThrowException(new \RuntimeException('remote unavailable'));
-
-        $content = $this->decode($this->createController(metadataStore: $metadataStore)->list());
-        $byLocale = array_column($content['items'], null, 'locale');
-
-        // remote down => no progress, no update flag; local install marker (lastUpdate) stays
-        static::assertNull($byLocale['fr-FR']['progress']);
-        static::assertFalse($byLocale['fr-FR']['updateAvailable']);
-        static::assertNotNull($byLocale['fr-FR']['lastUpdate']);
+        static::assertSame(['de-DE', 'en-GB'], $content['builtInLocales']);
+        static::assertSame('https://translate.shopware.com', $content['communityTranslationsUrl']);
+        static::assertSame('https://developer.shopware.com/docs/concepts/translations/', $content['documentationUrl']);
+        static::assertSame(90, $content['completenessThreshold']);
     }
 
     public function testInstallLoadsRequestedLocalesAndSavesMetadata(): void

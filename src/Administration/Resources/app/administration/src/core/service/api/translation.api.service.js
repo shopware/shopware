@@ -6,7 +6,7 @@ import ApiService from '../api.service';
  * every method maps 1:1 to one of its routes (list, install, update, delete).
  * @class
  * @extends ApiService
- * @sw-package fundamentals@discovery
+ * @sw-package discovery
  * @private
  */
 class TranslationApiService extends ApiService {
@@ -29,6 +29,28 @@ class TranslationApiService extends ApiService {
 
         return this.httpClient
             .get(`/_action/${this.apiEndpoint}/list`, {
+                params,
+                headers,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * Get the translation meta information (built-in locales, documentation and community
+     * translation URLs, completeness threshold) that is independent of the configured locales.
+     *
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<T>}
+     */
+    getMeta(additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .get(`/_action/${this.apiEndpoint}/meta`, {
                 params,
                 headers,
             })

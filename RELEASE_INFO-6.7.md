@@ -147,6 +147,7 @@ List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) repl
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
 ### Community translations auto-update can be configured per language
 
 The `translation.update` scheduled task (`UpdateTranslationsTaskHandler`) refreshes the community translations of installed languages. It can now be controlled per language via the new `translationAutoUpdate` flag.

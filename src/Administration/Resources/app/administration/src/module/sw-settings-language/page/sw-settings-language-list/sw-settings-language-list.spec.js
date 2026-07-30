@@ -104,6 +104,9 @@ async function createWrapper(privileges = [], customStubs = {}) {
                     'sw-context-menu-item': true,
                     'sw-entity-listing': {
                         inject: ['detailPageLinkText'],
+                        methods: {
+                            resetSelection: jest.fn(),
+                        },
                         props: [
                             'items',
                             'dataSource',
@@ -538,5 +541,9 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
             locales: ['es-ES'],
             activate: true,
         });
+
+        // the grid selection is cleared once the bulk update finishes
+        expect(wrapper.vm.snippetSelection).toEqual({});
+        expect(wrapper.vm.selectedUpdatableLocales).toEqual([]);
     });
 });

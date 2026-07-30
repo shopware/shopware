@@ -81,6 +81,38 @@ class TranslationMetadataStore
         $this->save($metadata);
     }
 
+    /**
+     * Builds the per-language translation list by merging the configured languages with their locally
+     * installed and remotely available metadata, exposing install state, progress and update availability.
+     * When the remote source is unreachable the list still renders from local metadata only.
+     *
+     * @return list<array{locale: string, name: string, lastUpdate: string|null, progress: int|null, updateAvailable: bool, isPseudoLanguage: bool}>
+     */
+    public function getTranslationList(): array
+    {
+        $installed = $this->getLocalMetadata();
+        $remote = $this->getRemoteMetadataOrEmpty();
+
+        $items = [];
+        foreach ($this->config->languages as $language) {
+            $installedEntry = $installed->get($language->locale);
+            $remoteEntry = $remote->get($language->locale);
+
+            $items[] = [
+                'locale' => $language->locale,
+                'name' => $language->name,
+                'lastUpdate' => $installedEntry?->updatedAt->format(\DateTimeInterface::ATOM),
+                'progress' => $remoteEntry?->progress,
+                'updateAvailable' => $installedEntry !== null
+                    && $remoteEntry !== null
+                    && $installedEntry->updatedAt->getTimestamp() !== $remoteEntry->updatedAt->getTimestamp(),
+                'isPseudoLanguage' => \in_array($language->locale, $this->config->pseudoLocales, true),
+            ];
+        }
+
+        return $items;
+    }
+
     public function getRemoteMetadata(): MetadataCollection
     {
         $elements = [];
@@ -114,6 +146,15 @@ class TranslationMetadataStore
     protected function getPath(): string
     {
         return Path::join(AbstractTranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
+    }
+
+    private function getRemoteMetadataOrEmpty(): MetadataCollection
+    {
+        try {
+            return $this->getRemoteMetadata();
+        } catch (\Throwable) {
+            return new MetadataCollection();
+        }
     }
 
     private function downloadFile(): ResponseInterface

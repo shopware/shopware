@@ -5,17 +5,10 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(existingLanguages = []) {
     const install = jest.fn().mockResolvedValue(undefined);
+    const languageSearch = jest.fn().mockResolvedValue(existingLanguages.map((code) => ({ locale: { code } })));
+
     const getList = jest.fn().mockResolvedValue({
         total: 2,
-        meta: {
-            builtInLocales: [
-                'de-DE',
-                'en-GB',
-            ],
-            communityTranslationsUrl: 'https://translate.shopware.com',
-            documentationUrl: 'https://developer.shopware.com/docs/concepts/translations/',
-            completenessThreshold: 90,
-        },
         items: [
             { locale: 'fr-FR', name: 'Français', lastUpdate: null, progress: 90, isPseudoLanguage: false },
             {
@@ -27,12 +20,21 @@ async function createWrapper(existingLanguages = []) {
             },
         ],
     });
-    const languageSearch = jest.fn().mockResolvedValue(existingLanguages.map((code) => ({ locale: { code } })));
+
+    const getMeta = jest.fn().mockResolvedValue({
+        builtInLocales: [
+            'de-DE',
+            'en-GB',
+        ],
+        communityTranslationsUrl: 'https://translate.shopware.com',
+        documentationUrl: 'https://developer.shopware.com/docs/concepts/translations/',
+        completenessThreshold: 90,
+    });
 
     const wrapper = mount(await wrapTestComponent('sw-settings-language-add-modal', { sync: true }), {
         global: {
             provide: {
-                translationService: { getList, install },
+                translationService: { getList, getMeta, install },
                 repositoryFactory: {
                     create: () => ({ search: languageSearch }),
                 },

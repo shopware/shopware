@@ -43,9 +43,62 @@
                                                     "progress": {
                                                         "description": "Translation completeness in percent, or null if not installed.",
                                                         "type": "integer"
+                                                    },
+                                                    "updateAvailable": {
+                                                        "description": "Whether a newer translation than the installed one is available.",
+                                                        "type": "boolean"
+                                                    },
+                                                    "isPseudoLanguage": {
+                                                        "description": "Whether the locale is a pseudo-language used for translation testing.",
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/meta": {
+            "get": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Get translation meta information",
+                "description": "Returns translation meta information that is independent of the configured locales: the built-in locales, the community translation and documentation URLs and the completeness threshold.",
+                "operationId": "translationMeta",
+                "responses": {
+                    "200": {
+                        "description": "The translation meta information.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "builtInLocales": {
+                                            "description": "Locale codes shipped with the platform and excluded from the community translation download.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "communityTranslationsUrl": {
+                                            "description": "URL of the community translation platform, or null if not configured.",
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "documentationUrl": {
+                                            "description": "URL of the translation documentation, or null if not configured.",
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "completenessThreshold": {
+                                            "description": "Minimum translation completeness in percent considered sufficient.",
+                                            "type": "integer"
                                         }
                                     }
                                 }

@@ -96,10 +96,9 @@ skip notice and touches nothing.
 
 Setup discovers every installed extension with Administration sources (from
 `var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or
-activating a plugin), generates one tsconfig per extension under
-`var/admin-extension-tooling/`, plus root `tsconfig.json` / `eslint.config.mjs`
-projections so IDEs see exactly what the check command checks. The generated root files
-are covered by a marker-fenced block that setup manages in the project `.gitignore`
+activating a plugin) and generates root `tsconfig.json` / `eslint.config.mjs`
+projections so IDEs and a shop-wide `eslint .` see every extension. The generated root
+files are covered by a marker-fenced block that setup manages in the project `.gitignore`
 (skipped when the entries are already covered; opt out permanently with `--no-gitignore`).
 
 Every discovered extension is **bridged automatically** in the same run — custom and
@@ -126,13 +125,13 @@ Administration only work through the generated configs; there is no bridge-less 
   only: a composer update removes them and re-running setup restores them.
 - Existing configs are never overwritten: setup leaves them alone and prints the one
   line to add so they compose the preset too.
-- A multi-bundle package whose shared config governs several Administration roots is
-  bridged once beside that config (auto-detected). When two candidate configs tie, setup
-  warns and skips the extension; pick one with `-- --root-config=<Extension>:<dir>` —
-  the choice is persisted for later plain runs.
+- One bridge is written per directory that owns a config, so a multi-bundle package whose
+  shared config governs several Administration roots gets a single shared bridge, while
+  genuinely independent per-root configs get one each. `-- --root-config=<Extension>:<dir>`
+  forces one shared bridge for a layout the grouping cannot infer; the config scaffolded
+  there makes the choice self-perpetuating, so nothing has to remember it.
 - A bridge that cannot be written (e.g. a read-only vendor directory) degrades to a
-  warning; the extension stays covered through host-owned fallback configs under
-  `var/admin-extension-tooling/`.
+  warning; the extension's sources stay covered by the root `tsconfig.json` projection.
 
 ## Own path aliases (`tsconfig.aliases.json`)
 
@@ -159,9 +158,9 @@ removes those files, re-running setup restores them):
 
 | File | Kind | Commit? | Notes |
 | --- | --- | --- | --- |
-| `var/admin-extension-tooling/**` (leaf tsconfigs, manifest) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
-| Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
-| `<plugin>/…/.shopware/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining (generated README). One per bridged root, or one beside the package config in root-config mode. |
+| `var/admin-extension-tooling/manifest.json` | disposable host state | no | Rewritten every run; git-ignored in a shop. |
+| Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; the tsconfig covers whatever no extension config governs. Marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
+| `<plugin>/…/.shopware/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining (generated README). One per directory that owns a config. |
 | `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** (custom/plugins) | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. Under `vendor/` they are local only — restored by re-running setup. |
 | `<plugin>/tsconfig.aliases.json` | committable plugin config | **yes** | Your path aliases; merged into the bridge. |
 

@@ -150,6 +150,18 @@ swDefinePublic({ count });
         await expect(plugin.transform('const count = 1;', '/example/component.ts')).resolves.toBeNull();
     });
 
+    it.each([
+        '/project/node_modules/some-package/src/Widget.vue',
+        'C:\\project\\node_modules\\some-package\\src\\Widget.vue',
+    ])('leaves a dependency Vue file alone: %s', async (dependencyFile) => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+
+        // An installed package's SFC is not an extendable component and cannot be made one - the extension
+        // author does not own the file. Rejecting it would fail their build with no way to fix it.
+        await expect(plugin.transform('<script>export default {};</script>', dependencyFile)).resolves.toBeNull();
+    });
+
     it('loads the shared transform once for the whole process', async () => {
         // The memo is module state, and every test above already loaded the real transform through it, so
         // this needs its own module instance to observe the first load at all.

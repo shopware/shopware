@@ -25,6 +25,18 @@ function withoutQuery(id: string): string {
     return id.split('?')[0];
 }
 
+/**
+ * Whether a resolved file belongs to an installed dependency rather than to authored source.
+ *
+ * Every authored `.vue` file must be a native setup component, and a missing `<script setup>` is a build
+ * error. A dependency's `.vue` files are outside that contract: an extension author cannot add
+ * `swDefinePublic()` to a package they do not own, so applying the rule there would fail their build with
+ * no way out. Backslashes are normalized because Windows ids arrive with them.
+ */
+function isDependencyFile(fileName: string): boolean {
+    return fileName.replace(/\\/g, '/').includes('/node_modules/');
+}
+
 // One load for the whole process, shared by every plugin instance - `administrationRoot` is this directory
 // at both call sites (`vite.config.mts` and `build/plugins.vite.ts`), so there is only ever one transform
 // to load. Without this the load is re-entered for every `.vue` file: the module cache makes that cheap,
@@ -127,7 +139,7 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
         async transform(code, id) {
             const fileName = withoutQuery(id);
 
-            if (!fileName.endsWith('.vue')) {
+            if (!fileName.endsWith('.vue') || isDependencyFile(fileName)) {
                 return null;
             }
 

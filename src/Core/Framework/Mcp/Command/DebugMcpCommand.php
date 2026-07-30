@@ -24,6 +24,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
+ * @phpstan-type McpScope array{name: string, label: string, builder: Builder, registry: RegistryInterface, catalog: McpCapabilityCatalog}
+ *
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
@@ -130,20 +132,20 @@ class DebugMcpCommand extends Command
 
         $noFilter = !$tools && !$prompts && !$resources;
 
-        foreach ($scopes as $scopeName => $scope) {
+        foreach ($scopes as $scopeId => $scope) {
             $io->title($scope['label']);
 
-            $scopeAllowlist = $scopeName === ApiRouteScope::ID ? $toolsAllowlist : null;
+            $scopeAllowlist = $scopeId === ApiRouteScope::ID ? $toolsAllowlist : null;
 
             if ($tools || $noFilter) {
-                $this->renderTools($io, $scope['registry'], $scope['catalog'], $scopeAllowlist);
+                $this->renderTools($io, $scope, $scopeAllowlist);
             }
             if ($prompts || $noFilter) {
-                $this->renderPrompts($io, $scope['registry']);
+                $this->renderPrompts($io, $scope);
             }
             if ($resources || $noFilter) {
-                $this->renderResources($io, $scope['registry']);
-                $this->renderResourceTemplates($io, $scope['registry']);
+                $this->renderResources($io, $scope);
+                $this->renderResourceTemplates($io, $scope);
             }
         }
 
@@ -157,12 +159,13 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * Returns the requested scopes that are actually available, keyed by scope name and always
-     * ordered admin before store-api.
+     * Returns the requested scopes that are actually available, keyed by route scope ID and always
+     * ordered admin before store-api. 'name' prefixes every section heading, 'label' titles the
+     * scope block and names the owning server in the detail view.
      *
      * @param list<string> $requestedScopes
      *
-     * @return array<string, array{label: string, builder: Builder, registry: RegistryInterface, catalog: McpCapabilityCatalog}>
+     * @return array<string, McpScope>
      */
     private function resolveScopes(array $requestedScopes): array
     {
@@ -170,6 +173,7 @@ class DebugMcpCommand extends Command
 
         if ($this->builder !== null && $this->registry !== null) {
             $available[ApiRouteScope::ID] = [
+                'name' => 'Admin API',
                 'label' => 'Admin API (/api/_mcp)',
                 'builder' => $this->builder,
                 'registry' => $this->registry,
@@ -179,6 +183,7 @@ class DebugMcpCommand extends Command
 
         if ($this->storeApiBuilder !== null && $this->storeApiRegistry !== null && $this->storeApiCatalog !== null) {
             $available[StoreApiRouteScope::ID] = [
+                'name' => 'Store API',
                 'label' => 'Store API (/store-api/_mcp)',
                 'builder' => $this->storeApiBuilder,
                 'registry' => $this->storeApiRegistry,
@@ -190,7 +195,7 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * @param array<string, array{label: string, builder: Builder, registry: RegistryInterface, catalog: McpCapabilityCatalog}> $scopes
+     * @param array<string, McpScope> $scopes
      */
     private function renderDetail(SymfonyStyle $io, string $name, array $scopes): int
     {
@@ -364,16 +369,18 @@ class DebugMcpCommand extends Command
     }
 
     /**
+     * @param McpScope $scope
      * @param list<string>|null $allowlist
      */
-    private function renderTools(SymfonyStyle $io, RegistryInterface $registry, McpCapabilityCatalog $catalog, ?array $allowlist = null): void
+    private function renderTools(SymfonyStyle $io, array $scope, ?array $allowlist = null): void
     {
-        $enrichedTools = $catalog->enrichedTools($allowlist);
-        $total = $catalog->totalToolCount();
+        $registry = $scope['registry'];
+        $enrichedTools = $scope['catalog']->enrichedTools($allowlist);
+        $total = $scope['catalog']->totalToolCount();
 
         $heading = $allowlist !== null
-            ? \sprintf('Tools (%d/%d allowed)', \count($enrichedTools), $total)
-            : \sprintf('Tools (%d)', $total);
+            ? \sprintf('%s: Tools (%d/%d allowed)', $scope['name'], \count($enrichedTools), $total)
+            : \sprintf('%s: Tools (%d)', $scope['name'], $total);
 
         $io->section($heading);
 
@@ -403,10 +410,14 @@ class DebugMcpCommand extends Command
         $io->newLine();
     }
 
-    private function renderPrompts(SymfonyStyle $io, RegistryInterface $registry): void
+    /**
+     * @param McpScope $scope
+     */
+    private function renderPrompts(SymfonyStyle $io, array $scope): void
     {
+        $registry = $scope['registry'];
         $page = $registry->getPrompts();
-        $io->section(\sprintf('Prompts (%d)', $page->count()));
+        $io->section(\sprintf('%s: Prompts (%d)', $scope['name'], $page->count()));
 
         if ($page->count() === 0) {
             $io->text('No prompts registered.');
@@ -425,10 +436,14 @@ class DebugMcpCommand extends Command
         $io->newLine();
     }
 
-    private function renderResources(SymfonyStyle $io, RegistryInterface $registry): void
+    /**
+     * @param McpScope $scope
+     */
+    private function renderResources(SymfonyStyle $io, array $scope): void
     {
+        $registry = $scope['registry'];
         $page = $registry->getResources();
-        $io->section(\sprintf('Resources (%d)', $page->count()));
+        $io->section(\sprintf('%s: Resources (%d)', $scope['name'], $page->count()));
 
         if ($page->count() === 0) {
             $io->text('No resources registered.');
@@ -448,10 +463,14 @@ class DebugMcpCommand extends Command
         $io->newLine();
     }
 
-    private function renderResourceTemplates(SymfonyStyle $io, RegistryInterface $registry): void
+    /**
+     * @param McpScope $scope
+     */
+    private function renderResourceTemplates(SymfonyStyle $io, array $scope): void
     {
+        $registry = $scope['registry'];
         $page = $registry->getResourceTemplates();
-        $io->section(\sprintf('Resource Templates (%d)', $page->count()));
+        $io->section(\sprintf('%s: Resource Templates (%d)', $scope['name'], $page->count()));
 
         if ($page->count() === 0) {
             $io->text('No resource templates registered.');

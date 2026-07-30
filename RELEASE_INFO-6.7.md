@@ -117,7 +117,7 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 `bin/console debug:mcp` was wired to the Admin MCP server only, so no capability of the Store API MCP server (`/store-api/_mcp`) appeared in its output, and looking one up by name reported "No capability found". Store API tools registered with `shopware.store_api_mcp.tool` were therefore invisible to the standard debugging command.
 
-The command now inspects both MCP servers and groups the output per server. A new `--scope` option limits it to one of them:
+The command now inspects both MCP servers and groups the output per server, with every section heading naming the server it belongs to (`Store API: Tools (17)`). A new `--scope` option limits it to one of them:
 
 ```bash
 bin/console debug:mcp                          # both servers

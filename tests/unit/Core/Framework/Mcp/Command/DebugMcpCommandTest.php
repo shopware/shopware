@@ -576,6 +576,46 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
+    public function testSectionHeadingsNameTheirScope(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1)', $output);
+        static::assertStringContainsString('Admin API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+        static::assertStringContainsString('Store API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Resources (0)', $output);
+        static::assertStringContainsString('Store API: Resource Templates (0)', $output);
+    }
+
+    public function testAllowlistCountsStayOnTheAdminSectionHeading(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+
+        $tester = new CommandTester($this->makeCommand($registry, $allowlistProvider, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--integration' => 'SWIA-restricted']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1/2 allowed)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+    }
+
     public function testScopeOptionLimitsOutputToStoreApi(): void
     {
         $registry = new Registry();

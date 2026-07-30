@@ -24,6 +24,8 @@ bin/console debug:mcp --integration=SWIA...       # restrict the tool list to wh
 
 Shopware runs two independent MCP servers, each with its own builder and registry: the Admin server (`mcp.server.builder` / `mcp.registry`, tag `mcp.tool`) and the Store API server (`mcp.store_api.server.builder` / `mcp.store_api.registry`, tag `shopware.store_api_mcp.tool`). `debug:mcp` builds both and prints one block per server, so a tool registered on either endpoint is visible without knowing which one it belongs to.
 
+Every section heading is prefixed with the server it belongs to (`Store API: Tools (17)`, `Admin API: Prompts (4)`). The block title alone is not enough: with a few dozen tools it scrolls out of view long before the reader reaches the prompts or resources of that same server. Keep the prefix when adding sections.
+
 `--scope` takes the route scope ID of the endpoint (`ApiRouteScope::ID` = `api`, `StoreApiRouteScope::ID` = `store-api`), matching the `_routeScope` the two controllers declare. Omitting it inspects both. A capability lookup by name searches the selected servers in order and the detail view shows a **Scope** row naming the owning server.
 
 `--integration` filters the Admin server only: integration allowlists are resolved from the `sw-access-key` of an Admin integration and are not evaluated for Store API requests. When both servers are listed, the command prints a note saying so instead of silently applying the filter to one half of the output.

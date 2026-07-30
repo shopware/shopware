@@ -1,5 +1,4 @@
 {% block sw_admin_menu_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <mt-collapsible
     v-if="showMenuItem && hasCollapsibleSubtree"
     as="li"
@@ -21,7 +20,7 @@
                 :aria-expanded="collapsibleOpen"
                 :aria-label="collapsedAriaLabel"
                 v-bind="collapsedFlyoutAria"
-                @click="toggleSubmenu"
+                @click="onNavigationLinkClick"
             >
                 {% block sw_admin_menu_item_icon %}
                 <mt-icon
@@ -112,12 +111,12 @@
             :collapsible-text="collapsibleText"
             :icon-size="iconSize"
             @menu-item-hover="forwardMenuItemHover"
+            @flyout-navigate="forwardFlyoutNavigate"
         />
     </mt-collapsible-content>
     {% endblock %}
 </mt-collapsible>
 
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
     v-else-if="showMenuItem"
     :class="leafLiClass"
@@ -143,6 +142,7 @@
                     :active-class="routerLinkActiveClass"
                     :exact-active-class="routerLinkExactActiveClass"
                     :aria-label="collapsedAriaLabel"
+                    @click="onNavigationLinkClick"
                 >
                     <mt-icon
                         v-if="displayIcon"

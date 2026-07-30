@@ -613,6 +613,23 @@ export default [
             'vue/no-multi-spaces': 'off',
         },
     },
+    {
+        // The admin menu tracks hover on containers to drive the collapsed flyout. Every mouse
+        // handler has a focus counterpart (@focusin/@focusout) and the collapsed rows handle
+        // ArrowRight/Enter/Escape via @keydown, which the rules do not recognise as equivalents.
+        // The off-canvas backdrop is a redundant convenience: Escape and a dedicated close button
+        // already close the panel.
+        // Scoped to `src/app`, not `src/**`: the module extensions override the same file names.
+        files: [
+            'src/app/**/sw-admin-menu/sw-admin-menu.html.twig',
+            'src/app/**/sw-admin-menu-item/sw-admin-menu-item.html.twig',
+        ],
+        rules: {
+            'vuejs-accessibility/click-events-have-key-events': 'off',
+            'vuejs-accessibility/mouse-events-have-key-events': 'off',
+            'vuejs-accessibility/no-static-element-interactions': 'off',
+        },
+    },
 
     // Test files
     {

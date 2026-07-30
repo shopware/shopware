@@ -1,7 +1,6 @@
 {% block sw_admin_menu %}
 {% block sw_admin_menu_off_canvas_backdrop %}
 <transition name="sw-admin-menu__backdrop">
-    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions, vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="isMobileViewport && isOffCanvasShown"
         class="sw-admin-menu__backdrop"
@@ -117,7 +116,6 @@
     <div class="sw-admin-menu__body-container">
 
         {% block sw_admin_menu_body %}
-        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             ref="swAdminMenuBody"
             class="sw-admin-menu__body"
@@ -137,7 +135,6 @@
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
-                <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                 <ul
                     class="sw-admin-menu__navigation-list"
                     @mouseenter="cancelFlyoutClose"
@@ -145,7 +142,6 @@
                     @mouseleave="onNavigationListMouseLeave"
                     @focusout="onNavigationListMouseLeave"
                 >
-                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
                     <sw-admin-menu-item
                         v-for="entry in mainMenuEntries"
@@ -158,6 +154,7 @@
                         @branch-toggle="onMenuBranchToggle"
                         @flyout-focus-request="onFlyoutFocusRequest"
                         @flyout-close-request="onFlyoutLeave"
+                        @flyout-navigate="onFlyoutNavigate"
                     />
                     {% endblock %}
                 </ul>
@@ -284,7 +281,6 @@
         detached
         @close="onFlyoutLeave"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             id="sw-admin-menu-flyout"
             ref="swAdminMenuFlyout"
@@ -316,6 +312,7 @@
                     :sidebar-expanded="isExpanded"
                     :display-icon="false"
                     :collapsible-text="false"
+                    @flyout-navigate="onFlyoutNavigate"
                 />
             </ul>
         </div>

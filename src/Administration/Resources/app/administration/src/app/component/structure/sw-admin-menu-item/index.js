@@ -4,9 +4,6 @@ import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from
 import './sw-admin-menu-item.scss';
 
 /**
- * The mt-tooltip trigger props that open the tooltip or tie it to the trigger.
- * Stripped from the trigger when the collapsed tooltip must stay silent —
- * see collapsedTooltipTriggerProps.
  *
  * @private
  */
@@ -40,6 +37,7 @@ export default {
         'branch-toggle',
         'flyout-focus-request',
         'flyout-close-request',
+        'flyout-navigate',
     ],
 
     props: {
@@ -85,13 +83,11 @@ export default {
             default: false,
             required: false,
         },
-        /** Set to false for entries that must never show the "current page" highlight. */
         showActiveState: {
             type: Boolean,
             default: true,
             required: false,
         },
-        /** Whether the collapsed sidebar currently shows this entry's children in the flyout. */
         flyoutActive: {
             type: Boolean,
             default: false,
@@ -107,18 +103,17 @@ export default {
     },
 
     computed: {
-        /** Admin menu supports at most three levels; level-3 rows are leaf items only */
         isLeafDepth() {
+            // Admin menu supports at most three levels; level-3 rows are leaf items only
             return this.menuDepth >= 3;
         },
 
-        /** Route names that count as "current": the resolved chain + the parentPath bridge. */
         activeRouteNames() {
             return getActiveRouteNames(this.$route, this.$router);
         },
 
-        /** The entry with its children reduced to the ones the user may see. */
         aclFilteredEntry() {
+            // The entry with its children reduced to the ones the user may see.
             return { ...this.entry, children: this.children };
         },
 
@@ -126,11 +121,6 @@ export default {
             return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
         },
 
-        /**
-         * Whether this row should show the "current page" highlight (`router-link-active`).
-         * True when the entry (or a visible descendant) is on the active route, except that
-         * an open parent yields the highlight to its active child.
-         */
         rowActive() {
             if (!this.showActiveState) {
                 return false;
@@ -205,11 +195,8 @@ export default {
             });
         },
 
-        // Collapsible items stay on the same <mt-collapsible> template branch whether the
-        // sidebar is expanded or collapsed. Switching branches on collapse remounts the row
-        // and makes the navigation icons flash; the collapsed appearance is handled purely
-        // via CSS and the forced-closed collapsibleOpen state instead.
         hasCollapsibleSubtree() {
+            // Ignores the sidebar state on purpose — switching template branch on collapse makes the icons flash
             return this.children.length > 0 && !this.isLeafDepth;
         },
 
@@ -227,9 +214,6 @@ export default {
                     return false;
                 }
 
-                // Once any branch was explicitly expanded, the store-driven expansion state
-                // (isExpanded) is the single source of truth; route-driven auto-open only
-                // applies while no branch is open.
                 const hasExpandedBranches = Shopware.Store.get('adminMenu').expandedEntries.length > 0;
 
                 return hasExpandedBranches ? this.isExpanded : this.isExpanded || this.routeKeepsFolderOpen;
@@ -276,17 +260,12 @@ export default {
             return this.children.length > 0 && this.submenuVisuallyOpen && this.hasActiveChild;
         },
 
-        /**
-         * Collapsed top-level parents act as disclosure triggers for the flyout:
-         * aria-expanded reflects the flyout state instead of the (forced closed)
-         * collapsible. Empty while expanded, so the collapsible semantics apply.
-         */
         collapsedFlyoutAria() {
             if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
                 return {};
             }
 
-            // aria-controls only while open — the flyout element does not exist otherwise.
+            // aria-controls only while open
             if (!this.flyoutActive) {
                 return { 'aria-expanded': 'false' };
             }
@@ -297,18 +276,11 @@ export default {
             };
         },
 
-        /**
-         * Collapsed top-level rows hide their label (visibility: hidden removes it
-         * from the accessibility tree), so the accessible name needs an aria-label.
-         */
         collapsedAriaLabel() {
+            // Collapsed top-level rows hide their label, so the accessible name needs an aria-label.
             return !this.sidebarExpanded && this.menuDepth === 1 ? this.getEntryLabel : null;
         },
 
-        /**
-         * Vue Router adds its active classes on matching links by itself, so they
-         * must be suppressed explicitly when the active state is disabled.
-         */
         routerLinkActiveClass() {
             return this.showActiveState ? 'router-link-active' : '';
         },
@@ -317,11 +289,8 @@ export default {
             return this.showActiveState ? 'router-link-exact-active' : '';
         },
 
-        /**
-         * Top-level entries without children have no flyout, so their label is only
-         * accessible via a tooltip while the sidebar is collapsed.
-         */
         showsCollapsedTooltip() {
+            // Top-level entries without children have no flyout, label is accessible via a tooltip
             return !this.sidebarExpanded && this.menuDepth === 1 && this.children.length === 0;
         },
     },
@@ -338,17 +307,6 @@ export default {
                 return tooltipProps;
             }
 
-            // The wrapping <mt-tooltip> stays mounted even when the tooltip must not open,
-            // because unmounting the row on sidebar toggle makes the navigation icons flash
-            // (see hasCollapsibleSubtree). The trigger id also has to stay bound; mt-tooltip
-            // errors when it cannot find its trigger element. Only the handlers that open the
-            // tooltip are dropped — the closing handlers keep an already visible tooltip
-            // hidable when the sidebar expands while it is hovered.
-            //
-            // These are mt-tooltip's internal trigger prop names rather than a documented API:
-            // a meteor upgrade that renames or adds an opening handler would silently re-enable
-            // the tooltip. TOOLTIP_OPEN_TRIGGER_PROPS is asserted against the real component in
-            // sw-admin-menu-item.spec/collapsed-sidebar.spec.js so the drift fails a test.
             return Object.fromEntries(
                 Object.entries(tooltipProps).filter(([key]) => !TOOLTIP_OPEN_TRIGGER_PROPS.includes(key)),
             );
@@ -405,6 +363,19 @@ export default {
             this.onCollapsibleOpenUpdate(!this.collapsibleOpen);
         },
 
+        onNavigationLinkClick() {
+            if (!this.sidebarExpanded) {
+                this.$emit('flyout-navigate', { disclosesChildren: this.hasCollapsibleSubtree });
+            }
+
+            // No-op unless this row has a collapsible subtree.
+            this.toggleSubmenu();
+        },
+
+        forwardFlyoutNavigate(payload) {
+            this.$emit('flyout-navigate', payload);
+        },
+
         onCollapsibleOpenUpdate(open) {
             this.suppressRouteKeepsFolderOpen = !open;
 
@@ -420,12 +391,8 @@ export default {
             }
         },
 
-        /**
-         * Keyboard access to the collapsed flyout (disclosure navigation pattern):
-         * ArrowRight — and Enter/Space on entries without an own route — opens the
-         * flyout and moves focus into it; Escape or ArrowLeft closes an open flyout.
-         */
         onCollapsedParentKeydown(event) {
+            // Keyboard access to the collapsed flyout - disclosure navigation pattern
             if (this.sidebarExpanded || this.menuDepth !== 1 || this.children.length === 0) {
                 return;
             }

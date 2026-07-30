@@ -3,13 +3,103 @@
  */
 
 import { TOOLTIP_OPEN_TRIGGER_PROPS } from 'src/app/component/structure/sw-admin-menu-item';
-import createWrapper from '../_sw-admin-menu-item/create-wrapper';
-import catalogues from '../_sw-admin-menu-item/catalogues';
+import createWrapper from './create-wrapper';
+import catalogues from './catalogues';
 
 describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', () => {
     beforeEach(async () => {
         Shopware.Store.get('settingsItems').settingsGroups.shop = [];
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
+    });
+
+    describe('collapsed flyout branch navigation', () => {
+        // Level-2 row that is a collapsible *and* a route, the shape that navigates and
+        // discloses its children on one click (e.g. "Product Reviews" under Catalogues).
+        const branchEntry = {
+            id: 'sw-product-reviews',
+            moduleType: 'core',
+            label: 'Product Reviews',
+            path: 'sw.product.reviews.overview',
+            parent: 'sw-catalogue',
+            position: 15,
+            level: 2,
+            children: [
+                {
+                    id: 'sw-product-reviews-all',
+                    moduleType: 'core',
+                    label: 'All Reviews',
+                    path: 'sw.product.reviews.index',
+                    parent: 'sw-product-reviews',
+                    position: 10,
+                    children: [],
+                    level: 3,
+                },
+            ],
+        };
+
+        it('should announce the navigation and open the subtree when clicked in the flyout', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: branchEntry,
+                    menuDepth: 2,
+                    sidebarExpanded: false,
+                },
+            });
+
+            await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+            // Must be emitted from this very click listener: router-link's navigation
+            // resolves in the microtask checkpoint at its end, and the admin menu closes
+            // the flyout on the resulting route change unless it already knows.
+            expect(wrapper.emitted('flyout-navigate')).toEqual([[{ disclosesChildren: true }]]);
+            expect(wrapper.vm.collapsibleOpen).toBe(true);
+        });
+
+        it('should not announce a navigation while the sidebar is expanded', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: branchEntry,
+                    menuDepth: 2,
+                    sidebarExpanded: true,
+                },
+            });
+
+            await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+            // No flyout exists in the expanded sidebar, so nothing needs suppressing.
+            expect(wrapper.emitted('flyout-navigate')).toBeUndefined();
+        });
+
+        it('should not announce a navigation for a folder without an own route', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: catalogues,
+                    sidebarExpanded: false,
+                },
+            });
+
+            await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+            // Renders the collapsible trigger instead of a router-link and never navigates,
+            // so the flyout is never at risk.
+            expect(wrapper.emitted('flyout-navigate')).toBeUndefined();
+        });
+
+        it('should report a leaf click as not disclosing children', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: branchEntry.children[0],
+                    menuDepth: 3,
+                    sidebarExpanded: false,
+                },
+            });
+
+            await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+            // Releases the pin, so the navigation closes the flyout again. Has to be known
+            // as early as the pin itself — the route change lands before the click bubbles.
+            expect(wrapper.emitted('flyout-navigate')).toEqual([[{ disclosesChildren: false }]]);
+        });
     });
 
     describe('collapsed flyout keyboard access', () => {

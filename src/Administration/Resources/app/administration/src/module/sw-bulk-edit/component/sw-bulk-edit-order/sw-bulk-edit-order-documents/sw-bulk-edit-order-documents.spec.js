@@ -18,6 +18,15 @@ async function createWrapper() {
                         };
                     },
                 },
+                documentV2Service: {
+                    getAvailableTypes: jest.fn().mockResolvedValue({
+                        data: {
+                            documentTypes: {
+                                invoice: { formats: ['pdf'] },
+                            },
+                        },
+                    }),
+                },
             },
         },
         props: {
@@ -36,6 +45,7 @@ describe('sw-bulk-edit-order-documents', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
     });
 
@@ -73,5 +83,20 @@ describe('sw-bulk-edit-order-documents', () => {
         });
         expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(false);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeUndefined();
+    });
+
+    it('fetches document types from the available types endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.documentTypes).toEqual([
+            {
+                id: 'invoice',
+                technicalName: 'invoice',
+                name: 'invoice',
+            },
+        ]);
     });
 });

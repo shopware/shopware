@@ -52,6 +52,12 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
+import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
+import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
+import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
+import { MtDropdownMenuRoot, MtDropdownMenuTrigger, MtDropdownMenuPortal } from '@shopware-ag/meteor-component-library';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -468,6 +474,14 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtTooltip,
+            MtBadge,
+            MtPromoBadge,
+            MtActionMenu,
+            MtActionMenuItem,
+            MtActionMenuGroup,
+            MtDropdownMenuRoot,
+            MtDropdownMenuTrigger,
+            MtDropdownMenuPortal,
         } as const;
 
         const lazyMeteorComponents = {

@@ -522,8 +522,9 @@ The admin menu only supports up to three levels of nesting.`,
             this.flyoutEntries = [];
         },
 
-        onLogoutUser() {
-            this.loginService.logout();
+        async onLogoutUser() {
+            await this.loginService.logoutSso();
+
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();

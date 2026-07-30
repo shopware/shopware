@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
+<svg width="66px" height="58px" viewBox="0 0 66 58" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>C3EB1D5C-6A81-4B97-B579-7F64610720DE@1.00x</title>
+    <g id="List" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Folders" transform="translate(-676.000000, -291.000000)" fill="#EBFAF4" fill-rule="nonzero" stroke="#57D9A3">
+            <g id="Product-Media" transform="translate(609.000000, 240.000000)">
+                <path d="M72,52 L88.3232709,52 C89.2063906,52 90.044649,52.3891079 90.6146638,53.0636326 L96.1920744,59.6636401 C96.7620891,60.3381649 97.6003475,60.7272727 98.4834673,60.7272727 L128,60.7272727 C130.209139,60.7272727 132,62.5181337 132,64.7272727 L132,104 C132,106.209139 130.209139,108 128,108 L72,108 C69.790861,108 68,106.209139 68,104 L68,56 C68,53.790861 69.790861,52 72,52 Z" id="folder--green"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
+<svg width="64px" height="56px" viewBox="0 0 64 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>179051A3-9AAA-4CFD-86DB-1ADBD1226E87@1.00x</title>
+    <g id="List" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Folders" transform="translate(-1425.000000, -292.000000)" fill="#EDF8FF" stroke="#189EFF">
+            <g id="Folder" transform="translate(1365.000000, 248.000000)">
+                <path d="M80.3232709,44.5 L64,44.5 C63.0335017,44.5 62.1585017,44.8917508 61.5251263,45.5251263 C60.8917508,46.1585017 60.5,47.0335017 60.5,48 L60.5,96 C60.5,96.9664983 60.8917508,97.8414983 61.5251263,98.4748737 C62.1585017,99.1082492 63.0335017,99.5 64,99.5 L120,99.5 C120.966498,99.5 121.841498,99.1082492 122.474874,98.4748737 C123.108249,97.8414983 123.5,96.9664983 123.5,96 L123.5,56.7272727 C123.5,55.7607744 123.108249,54.8857744 122.474874,54.252399 C121.841498,53.6190236 120.966498,53.2272727 120,53.2272727 L90.4834673,53.2272727 C89.4531609,53.2272727 88.4751928,52.7733136 87.8101755,51.986368 L82.232765,45.3863605 C81.7577527,44.8242566 81.059204,44.5 80.3232709,44.5 Z" id="folder--blue"></path>
+            </g>
+        </g>
+    </g>
+</svg>

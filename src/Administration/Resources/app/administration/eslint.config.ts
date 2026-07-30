@@ -136,8 +136,9 @@ const baseRules = {
         {
             // The option matches component names, and `sw-thing/index.vue` is a documented native-setup
             // form where the name comes from the directory - so the rule would otherwise report the
-            // literal name "index" for a component actually called `sw-thing`. The directory-derived name
-            // is still validated by the transform.
+            // literal name "index" for a component actually called `sw-thing`. Nothing is lost by
+            // ignoring it: `sw-core-rules/native-setup-filename` holds every `.vue` file to a multi-word
+            // kebab-case name, and unlike this rule it resolves the directory-derived name.
             ignores: ['index.html', 'index'],
         },
     ],
@@ -693,12 +694,6 @@ export default [
     {
         files: ['build/vue-setup-transform/**/*.ts'],
         rules: {
-            '@typescript-eslint/no-require-imports': 'off',
-            '@typescript-eslint/no-unsafe-member-access': 'off',
-            '@typescript-eslint/no-unsafe-call': 'off',
-            '@typescript-eslint/no-unsafe-assignment': 'off',
-            '@typescript-eslint/no-unsafe-return': 'off',
-            '@typescript-eslint/no-unsafe-argument': 'off',
             'sw-deprecation-rules/private-feature-declarations': 'off',
         },
     },

@@ -207,9 +207,4 @@ function assertStaticObjectEntries(
 /**
  * @private
  */
-export {
-    type NamedBinding,
-    assertNoUnsupportedSyntax,
-    assertReservedMacroNames,
-    assertStaticObjectEntries,
-};
+export { type NamedBinding, assertNoUnsupportedSyntax, assertReservedMacroNames, assertStaticObjectEntries };

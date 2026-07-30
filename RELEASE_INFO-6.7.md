@@ -1680,6 +1680,12 @@ To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and a
 
 ## API
 
+### Store API breadcrumbs include non-navigable folder categories
+
+`GET /store-api/breadcrumb/{id}` now includes folder categories in the returned hierarchy. Folder entries use `type: "folder"`, an empty `path`, and no SEO URLs.
+
+Headless storefronts and integrations must not assume every breadcrumb item is navigable; render folder entries as labels.
+
 ### SEO URL paths reject characters that are not URL-allowed on write
 
 Writes to `seo_url.seoPathInfo` now reject strings containing sequences that are not allowed in URLs: a stray `%` that does not form a valid percent-escape (`%XX`), the fragment marker `#`, backslashes, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).

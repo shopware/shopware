@@ -147,6 +147,30 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertSame(self::WINNER_TOKEN, $this->mainRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    public function testAMarkerWrittenWhileWaitingForTheLockStillSuppressesTheRegistration(): void
+    {
+        $cache = new ArrayAdapter();
+
+        // the competing registration finishes while this request waits for the lock, so the marker
+        // is absent before the lock and present after it
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->willReturnCallback(function () use ($cache): bool {
+                $this->seedMarker($cache, self::WINNER_TOKEN);
+
+                return true;
+            });
+        $lock->expects($this->once())->method('release');
+
+        $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())
+            ->guard($this->createContext(), static function (): void {
+                static::fail('The registration must not run a second time.');
+            });
+
+        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
     public function testAdoptingTheWinnerTokenMigratesTheSessionAndWritesTheDefaultTokenKeyOnly(): void
     {
         $cache = new ArrayAdapter();

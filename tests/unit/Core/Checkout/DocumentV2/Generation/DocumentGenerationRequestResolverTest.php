@@ -9,12 +9,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Validation;
@@ -88,8 +88,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -111,8 +111,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -134,10 +134,10 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
     private function resolveRequest(
         Request $request,
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequest {
         $result = iterator_to_array(
-            $this->createResolver($documentRendererRegistry)->resolve(
+            $this->createResolver($documentTypeRegistry)->resolve(
                 $request,
                 new ArgumentMetadata('generationRequest', DocumentGenerationRequest::class, false, false, null)
             )
@@ -149,13 +149,15 @@ class DocumentGenerationRequestResolverTest extends TestCase
     }
 
     private function createResolver(
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequestResolver {
         return new DocumentGenerationRequestResolver(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            $documentRendererRegistry ?? new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-                new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            $documentTypeRegistry ?? new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ]),
             ]),
         );
     }

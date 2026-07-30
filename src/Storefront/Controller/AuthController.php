@@ -192,6 +192,8 @@ class AuthController extends StorefrontController
             $this->logoutRoute->logout($context, $dataBag);
             $this->addFlash(self::SUCCESS, $this->trans('account.logoutSucceeded'));
 
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA, true);
+
             $parameters = [];
         } catch (ConstraintViolationException $formViolations) {
             $parameters = ['formViolations' => $formViolations];

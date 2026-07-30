@@ -368,8 +368,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service('cache.registration'),
             service('logger'),
-            service('request_stack'),
-            service(SystemConfigService::class),
         ]);
 
     $services->set(ScriptController::class)

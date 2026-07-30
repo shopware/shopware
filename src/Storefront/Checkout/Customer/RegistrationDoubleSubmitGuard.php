@@ -6,10 +6,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
@@ -17,7 +14,12 @@ use Symfony\Component\Lock\SharedLockInterface;
  * Suppresses a storefront registration that re-submits an already consumed context token.
  *
  * A successful registration rotates the context token, so a request still presenting the old one is
- * a resubmission. It is skipped, and its session is pointed at the token the first request produced.
+ * a resubmission and is skipped.
+ *
+ * The marker only records that the token is spent, never what it became. A stale context token is
+ * exactly what a fixated session presents, so anything derived from it would be available to an
+ * attacker on the same terms as to the genuine sender, and handing back the rotated token would undo
+ * the session migration that login performs.
  *
  * Best effort: needs a lock and a cache shared by the competing requests and registers unguarded
  * when either is unavailable. Registrations that do not rotate the token are not covered.
@@ -43,8 +45,6 @@ class RegistrationDoubleSubmitGuard
         private readonly LockFactory $lockFactory,
         private readonly CacheItemPoolInterface $cache,
         private readonly LoggerInterface $logger,
-        private readonly RequestStack $requestStack,
-        private readonly SystemConfigService $systemConfigService,
         private readonly float $lockWaitTimeout = self::LOCK_WAIT_TIMEOUT,
     ) {
     }
@@ -59,10 +59,7 @@ class RegistrationDoubleSubmitGuard
         $token = $context->getToken();
         $markerKey = $this->markerKey($token);
 
-        $winner = $this->consumedBy($markerKey);
-        if ($winner !== null) {
-            $this->adoptWinnerSession($winner);
-
+        if ($this->claimMarker($markerKey)) {
             return;
         }
 
@@ -95,10 +92,7 @@ class RegistrationDoubleSubmitGuard
 
         if (!$acquired) {
             // the holder may have finished while we waited
-            $winner = $this->consumedBy($markerKey);
-            if ($winner !== null) {
-                $this->adoptWinnerSession($winner);
-
+            if ($this->claimMarker($markerKey)) {
                 return;
             }
 
@@ -110,20 +104,18 @@ class RegistrationDoubleSubmitGuard
         }
 
         try {
-            $winner = $this->consumedBy($markerKey);
-            if ($winner !== null) {
-                $this->adoptWinnerSession($winner);
-
+            if ($this->claimMarker($markerKey)) {
                 return;
             }
 
             $register();
-
-            // only a rotated token is spent
-            if ($context->getToken() !== $token) {
-                $this->markConsumed($markerKey, $context->getToken());
-            }
         } finally {
+            // only a rotated token is spent, and it stays spent even if something threw after the
+            // rotation - the customer exists either way from that point on
+            if ($context->getToken() !== $token) {
+                $this->markConsumed($markerKey);
+            }
+
             $this->releaseSilently($lock);
         }
     }
@@ -134,33 +126,37 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * The token a completed registration rotated this one into, or null when it is unconsumed.
+     * Answers whether the token is spent, and clears the marker in the same step.
+     *
+     * The marker absorbs one resubmission, which is what a double submit produces. Leaving it in
+     * place would also swallow the registration the visitor then makes deliberately, because a
+     * suppressed request stays anonymous and keeps presenting the same token.
+     *
+     * @phpstan-impure the marker is cleared as it is read, so repeated calls do not agree
      */
-    private function consumedBy(string $markerKey): ?string
+    private function claimMarker(string $markerKey): bool
     {
         try {
-            $item = $this->cache->getItem($markerKey);
-
-            if (!$item->isHit()) {
-                return null;
+            if (!$this->cache->getItem($markerKey)->isHit()) {
+                return false;
             }
 
-            $winner = $item->get();
+            $this->cache->deleteItem($markerKey);
+
+            return true;
         } catch (\Throwable $e) {
             // a broken cache must not skip the lock
             $this->logger->warning('Registration marker could not be read.', ['exception' => $e]);
 
-            return null;
+            return false;
         }
-
-        return \is_string($winner) && $winner !== '' ? $winner : null;
     }
 
-    private function markConsumed(string $markerKey, string $winnerToken): void
+    private function markConsumed(string $markerKey): void
     {
         try {
             $item = $this->cache->getItem($markerKey);
-            $item->set($winnerToken);
+            $item->set(true);
             $item->expiresAfter(self::MARKER_TTL);
 
             if (!$this->cache->save($item)) {
@@ -169,33 +165,6 @@ class RegistrationDoubleSubmitGuard
         } catch (\Throwable $e) {
             $this->logger->warning('Registration marker could not be saved.', ['exception' => $e]);
         }
-    }
-
-    /**
-     * Points the session at the given context token, mirroring StorefrontSubscriber::updateSession():
-     * migrate first, so the anonymous session id cannot reach the logged-in context.
-     */
-    private function adoptWinnerSession(string $winnerToken): void
-    {
-        $mainRequest = $this->requestStack->getMainRequest();
-        if ($mainRequest === null || !$mainRequest->hasSession(true)) {
-            return;
-        }
-
-        $session = $mainRequest->getSession();
-        $session->migrate();
-        $session->set('sessionId', $session->getId());
-
-        if ($this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
-            $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-            if ($salesChannelId) {
-                $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId, $winnerToken);
-            }
-        }
-
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $winnerToken);
-        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $winnerToken);
     }
 
     /**

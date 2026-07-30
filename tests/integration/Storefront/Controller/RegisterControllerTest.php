@@ -145,7 +145,7 @@ class RegisterControllerTest extends TestCase
         static::assertTrue($firstRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
         // the double tap resolves its context from the token the first request already consumed,
-        // and is still anonymous because the winner never touched its session
+        // which carries no customer because the registration renamed that context to the new token
         $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create($consumedToken, TestDefaults::SALES_CHANNEL);
 
@@ -211,7 +211,7 @@ class RegisterControllerTest extends TestCase
         static::assertCount(1, $winnerCart->getLineItems());
     }
 
-    public function testSuppressedDoubleSubmitPointsTheSessionAtTheWinnerToken(): void
+    public function testSuppressedDoubleSubmitLeavesTheDuplicateSessionAnonymous(): void
     {
         $registerController = static::getContainer()->get(RegisterController::class);
 
@@ -223,8 +223,7 @@ class RegisterControllerTest extends TestCase
         $winnerToken = $this->salesChannelContext->getToken();
         static::assertSame($winnerToken, $firstRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        // the duplicate still carries the session the visitor had while anonymous, so without the
-        // repair it would answer into a checkout it is not logged into
+        // the duplicate carries the session the visitor had while anonymous
         $duplicateRequest = $this->createMainRequest();
         $duplicateRequest->getSession()->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $consumedToken);
 
@@ -233,8 +232,16 @@ class RegisterControllerTest extends TestCase
 
         $registerController->register($duplicateRequest, $this->getRegistrationData(), $duplicateContext);
 
-        static::assertSame($winnerToken, $duplicateRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($winnerToken, $duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse(
+            $duplicateRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT),
+            'the duplicate submission must be suppressed instead of registering again'
+        );
+
+        // suppression must never log the sender in: anybody who holds a pre-registration session
+        // cookie can replay its token, so handing back the rotated one would undo the session
+        // migration that login performs
+        static::assertSame($consumedToken, $duplicateRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNull($duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testRejectedRegistrationDoesNotConsumeTheContextToken(): void

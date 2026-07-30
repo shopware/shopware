@@ -12,16 +12,10 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
@@ -35,27 +29,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
     private const TOKEN = 'context-token';
 
     private const WINNER_TOKEN = 'winner-context-token';
-
-    private const SALES_CHANNEL_ID = 'sales-channel-id';
-
-    private const CHANNEL_TOKEN_KEY = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . self::SALES_CHANNEL_ID;
-
-    private Session $session;
-
-    private Request $mainRequest;
-
-    private RequestStack $requestStack;
-
-    protected function setUp(): void
-    {
-        $this->session = new Session(new MockArraySessionStorage());
-        $this->session->start();
-
-        $this->mainRequest = new Request(attributes: [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => self::SALES_CHANNEL_ID]);
-        $this->mainRequest->setSession($this->session);
-
-        $this->requestStack = new RequestStack([$this->mainRequest]);
-    }
 
     public function testFirstSubmissionRegistersUnderTheLock(): void
     {
@@ -78,14 +51,14 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(1, $registerCalls);
-        static::assertSame(self::WINNER_TOKEN, $cache->getItem(self::markerKey())->get());
+        static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
-    public function testTheRotatedTokenIsStoredAsTheMarkerWithTheMarkerTtl(): void
+    public function testTheSpentTokenIsMarkedWithTheMarkerTtl(): void
     {
         $marker = $this->createMock(CacheItemInterface::class);
         $marker->method('isHit')->willReturn(false);
-        $marker->expects($this->once())->method('set')->with(self::WINNER_TOKEN);
+        $marker->expects($this->once())->method('set')->with(true);
         $marker->expects($this->once())->method('expiresAfter')->with(30);
 
         $cache = $this->createMock(CacheItemPoolInterface::class);
@@ -105,6 +78,28 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(self::WINNER_TOKEN, $context->getToken());
+    }
+
+    public function testTheMarkerNeverCarriesTheRotatedToken(): void
+    {
+        $cache = new ArrayAdapter();
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $context = $this->createContext();
+
+        $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+            $context,
+            static function () use ($context): void {
+                $context->assign(['token' => self::WINNER_TOKEN]);
+            }
+        );
+
+        // a stale context token is exactly what a fixated session presents, so handing back what it
+        // became would undo the session migration that login performs
+        static::assertTrue($cache->getItem(self::markerKey())->get());
+        static::assertSame([self::markerKey()], array_keys($cache->getValues()));
+        static::assertNotContains(self::WINNER_TOKEN, $cache->getValues());
     }
 
     public function testADoubleOptInRegistrationKeepsItsTokenUsable(): void
@@ -128,10 +123,10 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testAConsumedTokenSuppressesTheRegistrationAndAdoptsTheWinnerToken(): void
+    public function testAConsumedTokenSuppressesTheRegistration(): void
     {
         $cache = new ArrayAdapter();
-        $this->seedMarker($cache, self::WINNER_TOKEN);
+        $this->seedMarker($cache);
 
         $registerCalls = 0;
 
@@ -143,8 +138,33 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(0, $registerCalls);
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame(self::WINNER_TOKEN, $this->mainRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testASuppressedSubmissionSpendsTheMarkerSoTheNextRegistrationRunsAgain(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->seedMarker($cache);
+
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $guard = $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger());
+
+        $guard->guard($this->createContext(), static function (): void {
+            static::fail('The double submit must not register a second time.');
+        });
+
+        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+
+        // the suppressed request stayed anonymous and still presents the same token, a marker that
+        // outlived the double submit would also swallow the registration the visitor now retries
+        $registerCalls = 0;
+
+        $guard->guard($this->createContext(), static function () use (&$registerCalls): void {
+            ++$registerCalls;
+        });
+
+        static::assertSame(1, $registerCalls);
     }
 
     public function testAMarkerWrittenWhileWaitingForTheLockStillSuppressesTheRegistration(): void
@@ -157,7 +177,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())
             ->method('acquire')
             ->willReturnCallback(function () use ($cache): bool {
-                $this->seedMarker($cache, self::WINNER_TOKEN);
+                $this->seedMarker($cache);
 
                 return true;
             });
@@ -168,75 +188,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
                 static::fail('The registration must not run a second time.');
             });
 
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testAdoptingTheWinnerTokenMigratesTheSessionAndWritesTheDefaultTokenKeyOnly(): void
-    {
-        $cache = new ArrayAdapter();
-        $this->seedMarker($cache, self::WINNER_TOKEN);
-
-        $anonymousSessionId = $this->session->getId();
-
-        $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run again.');
-            });
-
-        static::assertNotSame($anonymousSessionId, $this->session->getId());
-        static::assertSame($this->session->getId(), $this->session->get('sessionId'));
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertFalse($this->session->has(self::CHANNEL_TOKEN_KEY));
-    }
-
-    public function testAdoptingTheWinnerTokenAlsoWritesTheSalesChannelBoundTokenKeyWhenCustomerBindingIsEnabled(): void
-    {
-        $cache = new ArrayAdapter();
-        $this->seedMarker($cache, self::WINNER_TOKEN);
-
-        $anonymousSessionId = $this->session->getId();
-
-        $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger(), customerBoundToSalesChannel: true)
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run again.');
-            });
-
-        static::assertNotSame($anonymousSessionId, $this->session->getId());
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(self::CHANNEL_TOKEN_KEY));
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testSuppressionWithoutAMainRequestLeavesTheSessionAlone(): void
-    {
-        $cache = new ArrayAdapter();
-        $this->seedMarker($cache, self::WINNER_TOKEN);
-
-        $this->requestStack = new RequestStack();
-
-        $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run again.');
-            });
-
-        static::assertFalse($this->session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testSuppressionWithAnUninitializedSessionLeavesTheSessionAlone(): void
-    {
-        $cache = new ArrayAdapter();
-        $this->seedMarker($cache, self::WINNER_TOKEN);
-
-        $this->mainRequest = new Request(attributes: [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => self::SALES_CHANNEL_ID]);
-        $this->mainRequest->setSessionFactory(fn (): Session => $this->session);
-        $this->requestStack = new RequestStack([$this->mainRequest]);
-
-        $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run again.');
-            });
-
-        static::assertFalse($this->session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertNull($this->mainRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
     public function testAnUncreatableLockRegistersUnguarded(): void
@@ -284,13 +236,14 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertContains('Registration lock could not be acquired, registering unguarded.', $warnings);
     }
 
-    public function testAMarkerWrittenWhileWaitingForTheLockSuppressesTheRegistration(): void
+    public function testAMarkerWrittenWhileTheLockDeadlineExpiresSuppressesTheRegistration(): void
     {
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->expects($this->exactly(2))
             ->method('getItem')
             ->with(self::markerKey())
-            ->willReturnOnConsecutiveCalls($this->createMissedMarker(), $this->createMarker(self::WINNER_TOKEN));
+            ->willReturnOnConsecutiveCalls($this->createMissedMarker(), $this->createHitMarker());
+        $cache->expects($this->once())->method('deleteItem')->with(self::markerKey())->willReturn(true);
 
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())->method('acquire')->willReturn(false);
@@ -306,7 +259,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(0, $registerCalls);
-        static::assertSame(self::WINNER_TOKEN, $this->session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testAMissedLockDeadlineWithoutAMarkerRegistersUnguarded(): void
@@ -429,38 +381,35 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertContains('Registration marker could not be saved.', $warnings);
     }
 
-    #[DataProvider('corruptMarkerProvider')]
-    public function testACorruptMarkerIsTreatedAsAnUnconsumedToken(mixed $storedValue): void
+    #[DataProvider('oddMarkerPayloadProvider')]
+    public function testAMarkerPayloadIsNeverInterpreted(mixed $storedValue): void
     {
-        $cache = static::createStub(CacheItemPoolInterface::class);
-        $cache->method('getItem')->willReturn($this->createMarker($storedValue));
+        $cache = new ArrayAdapter();
+        $item = $cache->getItem(self::markerKey());
+        $item->set($storedValue);
+        $cache->save($item);
 
-        $lock = $this->createAcquiredLock();
-        $lock->expects($this->once())->method('release');
+        // the presence of the marker is the whole signal, a payload left by an older format neither
+        // keeps the token usable nor is read back for anything
+        $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
+            ->guard($this->createContext(), static function (): void {
+                static::fail('The registration must not run a second time.');
+            });
 
-        $registerCalls = 0;
-
-        $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
-            $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
-            }
-        );
-
-        static::assertSame(1, $registerCalls);
-        // a value that cannot be a context token must never be adopted as one
-        static::assertFalse($this->session->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
-    public static function corruptMarkerProvider(): \Generator
+    public static function oddMarkerPayloadProvider(): \Generator
     {
-        yield 'an empty string cannot address a context' => [''];
+        yield 'an empty string' => [''];
 
-        yield 'a null payload is indistinguishable from an unwritten marker' => [null];
+        yield 'a null payload, indistinguishable from an unwritten marker for a reader of the value' => [null];
+
+        yield 'a winner token as written by an older marker format' => [self::WINNER_TOKEN];
 
         yield 'a structured payload from an older marker format' => [['newContextToken' => self::WINNER_TOKEN]];
 
-        yield 'a numeric payload cannot address a context' => [42];
+        yield 'a numeric payload' => [42];
     }
 
     public function testTheLockIsReleasedWhenTheRegistrationThrows(): void
@@ -477,6 +426,34 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $guard->guard($this->createContext(), static function () use ($exception): void {
             throw $exception;
         });
+    }
+
+    public function testATokenRotatedBeforeTheRegistrationThrewIsStillSpent(): void
+    {
+        $cache = new ArrayAdapter();
+
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $context = $this->createContext();
+        $exception = new \RuntimeException('the confirmation mail could not be sent');
+
+        $guard = $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger());
+
+        try {
+            $guard->guard($context, static function () use ($context, $exception): void {
+                $context->assign(['token' => self::WINNER_TOKEN]);
+
+                throw $exception;
+            });
+
+            static::fail('The failure must reach the caller.');
+        } catch (\RuntimeException $caught) {
+            static::assertSame($exception, $caught);
+        }
+
+        // the customer exists from the rotation on, whatever failed afterwards
+        static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
     public function testAFailingReleaseAfterASuccessfulRegistrationIsLoggedOnly(): void
@@ -500,7 +477,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         static::assertSame(1, $registerCalls);
         static::assertContains('Registration lock could not be released.', $warnings);
-        static::assertSame(self::WINNER_TOKEN, $cache->getItem(self::markerKey())->get());
+        static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
     private static function markerKey(): string
@@ -522,19 +499,9 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         LockFactory $lockFactory,
         CacheItemPoolInterface $cache,
         LoggerInterface $logger,
-        bool $customerBoundToSalesChannel = false,
         float $lockWaitTimeout = 0.0,
     ): RegistrationDoubleSubmitGuard {
-        return new RegistrationDoubleSubmitGuard(
-            $lockFactory,
-            $cache,
-            $logger,
-            $this->requestStack,
-            new StaticSystemConfigService([
-                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $customerBoundToSalesChannel,
-            ]),
-            $lockWaitTimeout,
-        );
+        return new RegistrationDoubleSubmitGuard($lockFactory, $cache, $logger, $lockWaitTimeout);
     }
 
     private function createLockFactory(SharedLockInterface $lock): LockFactory
@@ -564,10 +531,10 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         return $lock;
     }
 
-    private function seedMarker(ArrayAdapter $cache, string $winnerToken): void
+    private function seedMarker(ArrayAdapter $cache): void
     {
         $item = $cache->getItem(self::markerKey());
-        $item->set($winnerToken);
+        $item->set(true);
         $cache->save($item);
     }
 
@@ -579,11 +546,11 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         return $item;
     }
 
-    private function createMarker(mixed $storedValue): CacheItemInterface&Stub
+    private function createHitMarker(): CacheItemInterface&Stub
     {
         $item = static::createStub(CacheItemInterface::class);
         $item->method('isHit')->willReturn(true);
-        $item->method('get')->willReturn($storedValue);
+        $item->method('get')->willReturn(true);
 
         return $item;
     }

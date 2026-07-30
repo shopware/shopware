@@ -39,7 +39,6 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -395,8 +394,6 @@ class RegisterControllerTest extends TestCase
             new LockFactory(new InMemoryStore()),
             new ArrayAdapter(),
             new NullLogger(),
-            new RequestStack(),
-            $this->systemConfigService,
         );
 
         return new RegisterControllerTestClass(

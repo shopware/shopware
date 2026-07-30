@@ -1,0 +1,50 @@
+name: Check milestone label
+# Fails a PR whose milestone/* label contradicts its base branch, so a change cannot
+# be announced under a release it will not ship in. The rule and the reasoning behind
+# it live in .github/bin/js/milestone-label.ts.
+#
+# Runs on both events on purpose. The pull_request run is feedback while the PR is
+# open; the merge_group run is what actually prevents the merge, because GitHub
+# retargets a stacked PR to trunk when its parent merges without emitting any
+# pull_request event — so the PR-level run can still be green from before the
+# retarget, while the merge group is always evaluated against the final base.
+#
+# Both runs report the same job name, so a single required status check covers the PR
+# and the queue.
+#
+# Reports only, never relabels: the repair lives in milestone.yml, so a check run
+# cannot silently change what it is checking.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+      - labeled
+      - unlabeled
+  merge_group:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    name: Milestone label
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that judges it. Sparse, because only the module is needed.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          sparse-checkout: .github/bin/js
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { checkMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await checkMilestoneLabel({ github, core, context })

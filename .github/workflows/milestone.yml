@@ -6,7 +6,9 @@ on:
       - opened
       - reopened
       - ready_for_review
+      - edited
       - closed
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +18,7 @@ permissions:
 jobs:
   set_milestone_label:
     name: Set milestone label
-    if: ${{ github.event.action != 'closed' && !contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action != 'closed' && !contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Get versions
@@ -96,9 +98,49 @@ jobs:
               }
             });
 
+  fix_milestone_label_on_base_change:
+    name: Fix milestone label after a base branch change
+    # The base moved, so the label was chosen for a different release. Only manual
+    # base changes arrive here — GitHub's own retargeting emits no event, which is
+    # what reconcile_milestone_labels below is for.
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'edited' && github.event.changes.base != null }}
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that relabels it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { reconcileMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await reconcileMilestoneLabel({ github, core, context })
+
+  reconcile_milestone_labels:
+    name: Reconcile milestone labels on open PRs
+    # Manual repair for a whole branch of PRs at once, e.g. when a branch-off left
+    # labels behind. Not scheduled: milestone-check.yml gates the merge, so nothing
+    # depends on this running periodically.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          # Set the repository variable to "false" to let it actually relabel.
+          DRY_RUN: ${{ vars.MILESTONE_RECONCILE_DRY_RUN || 'true' }}
+        with:
+          script: |
+            const { reconcileOpenMilestoneLabels } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await reconcileOpenMilestoneLabels({ github, core, context }, process.env.DRY_RUN !== 'false')
+
   set_milestone:
     name: Set milestone
-    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

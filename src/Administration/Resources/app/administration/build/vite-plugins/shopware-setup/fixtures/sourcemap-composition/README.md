@@ -7,7 +7,7 @@ The shared transform has focused unit coverage for the sourcemap it returns dire
 This fixture keeps that integration visible:
 
 - `vite.config.js` wires the same pre-transform order used by the Administration plugin pipeline.
-- `src/NestedComponent.vue` contains authored `<script setup>` code whose generated output is moved by the Shopware setup transform and then compiled by Vue.
+- `src/sw-nested-component.vue` contains authored `<script setup>` code whose generated output is moved by the Shopware setup transform and then compiled by Vue.
 - `probe.js` runs the fixture build and reports the generated bundle position together with its final composed original source position.
 - The spec checks that a position in the final bundled code still maps back to the original `.vue` source line and column.
 

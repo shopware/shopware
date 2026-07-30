@@ -258,7 +258,7 @@ swDefinePublic({ count });
 
         await fs.cp(fixtureDirectory, root, { recursive: true });
 
-        const componentSource = await fs.readFile(path.join(sourceDirectory, 'NestedComponent.vue'), 'utf8');
+        const componentSource = await fs.readFile(path.join(sourceDirectory, 'sw-nested-component.vue'), 'utf8');
         const { stdout } = await execFileAsync(process.execPath, [path.join(root, 'probe.js')], {
             cwd: process.cwd(),
             env: {
@@ -272,7 +272,7 @@ swDefinePublic({ count });
 
         expect(generatedIndex).toBeGreaterThanOrEqual(0);
         expect(originalIndex).toBeGreaterThanOrEqual(0);
-        expect(mappedPosition.source).toContain('src/NestedComponent.vue');
+        expect(mappedPosition.source).toContain('src/sw-nested-component.vue');
         // The intermediate virtual module must be collapsed away: its `.shopware-setup.vue` id must not
         // survive into the shipped map.
         expect(mappedPosition.source).not.toContain('.shopware-setup.vue');

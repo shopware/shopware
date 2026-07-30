@@ -1,3 +1,3 @@
-import Component from './NestedComponent.vue';
+import Component from './sw-nested-component.vue';
 
 console.log(Component);

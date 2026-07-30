@@ -133,11 +133,13 @@ swDefinePublic({ count });
         );
     });
 
-    it('ignores Vue files without Shopware setup blocks', async () => {
+    it('rejects Vue files without a script setup block', async () => {
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);
 
-        await expect(plugin.transform('<script>const count = 1;</script>', '/example/component.vue')).resolves.toBeNull();
+        await expect(plugin.transform('<script>const count = 1;</script>', '/example/sw-component.vue')).rejects.toThrow(
+            'A Shopware setup component needs a <script setup> block.',
+        );
     });
 
     it('ignores files without Shopware setup blocks', async () => {
@@ -145,5 +147,23 @@ swDefinePublic({ count });
         const plugin = ShopwareSetupPlugin(pluginOptions);
 
         await expect(plugin.transform('const count = 1;', '/example/component.ts')).resolves.toBeNull();
+    });
+
+    it('loads the shared transform once per administration root', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin({ administrationRoot: '/definitely/not/an/administration/root' });
+        const source = `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        // A bad `administrationRoot` is a config error, not a per-file one. The loader caches its promise,
+        // so both files reject with the *same* error object - which is what proves the module import
+        // happened once rather than once per `.vue` file.
+        const first = await plugin.transform(source, '/example/sw-first.vue').catch((error) => error);
+        const second = await plugin.transform(source, '/example/sw-second.vue').catch((error) => error);
+
+        expect(first.message).toContain('build/vue-setup-transform/index.js');
+        expect(second).toBe(first);
     });
 });

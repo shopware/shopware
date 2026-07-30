@@ -4,6 +4,7 @@
 
 import type { Plugin } from 'vite';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 
 type ShopwareSetupTransformModule = {
@@ -24,6 +25,11 @@ function withoutQuery(id: string): string {
     return id.split('?')[0];
 }
 
+// One in-flight/settled import per administration root, shared by every plugin instance. Without it the
+// import is re-entered for every `.vue` file: the ESM registry makes that cheap, but a bad
+// `administrationRoot` then fails once per file and reads like a transform bug instead of a config error.
+const transformModulePromises = new Map<string, Promise<typeof transformShopwareSetupSfcRuntime>>();
+
 /**
  * Keep the CommonJS transform out of Vite's config bundle.
  *
@@ -32,13 +38,26 @@ function withoutQuery(id: string): string {
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
-async function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    const transformImport = (await import(
-        path.join(administrationRoot, 'build/vue-setup-transform/index.js')
-    )) as ShopwareSetupTransformImport;
+async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
+    // A dynamic `import()` takes a URL, not a path. `path.join` yields a platform path, and on Windows
+    // Node's ESM resolver reads the `C:` drive letter as a URL scheme and rejects it outright with
+    // ERR_UNSUPPORTED_ESM_URL_SCHEME - so the file: URL is what makes this work off POSIX.
+    const transformUrl = pathToFileURL(path.join(administrationRoot, 'build/vue-setup-transform/index.js')).href;
+    const transformImport = (await import(transformUrl)) as ShopwareSetupTransformImport;
     const transformModule = 'default' in transformImport ? transformImport.default : transformImport;
 
     return transformModule.transformShopwareSetupSfc;
+}
+
+function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
+    let transformPromise = transformModulePromises.get(administrationRoot);
+
+    if (!transformPromise) {
+        transformPromise = importShopwareSetupTransform(administrationRoot);
+        transformModulePromises.set(administrationRoot, transformPromise);
+    }
+
+    return transformPromise;
 }
 
 /**
@@ -53,6 +72,11 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
     // filename and is the public override target, so two base components must not resolve to the same
     // name. Overrides intentionally reuse the base name, so only base components are tracked. This is
     // the per-compilation cross-file uniqueness check the transform's componentName seam enables.
+    //
+    // Scope is one plugin instance, and `getBaseConfig()` in build/plugins.vite.ts builds one per
+    // extension - so this catches two base components colliding inside a build, not two extensions each
+    // shipping the same name. Cross-extension collisions are invisible at build time (an extension
+    // cannot see the others) and surface in the runtime component registry instead.
     const baseComponentFiles = new Map<string, string>();
 
     async function transformCode(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
@@ -72,7 +96,7 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
             throw new Error(
                 `Duplicate native setup base component name "${result.componentName}": "${existing}" and ` +
                     `"${fileName}" resolve to the same extendable component. Component names are derived from ` +
-                    'filenames and must be unique.',
+                    'filenames and must be unique within a build.',
             );
         }
 
@@ -123,6 +147,12 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
             // A rename reaches us as a delete of the old path plus a create of the new one, so releasing
             // the name on delete is what lets the new path claim it instead of colliding with a file that
             // no longer exists. An update keeps its claim: same path, same name.
+            //
+            // Releasing here rather than resetting the whole registry in `buildStart` is deliberate.
+            // `buildStart` runs per environment in Vite 6 (client and ssr share this plugin instance), so
+            // a reset there would drop claims the previous environment made, and in `build --watch`
+            // Rollup re-uses cached modules - the unchanged files would never re-register and real
+            // duplicates would stop being reported.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
             }

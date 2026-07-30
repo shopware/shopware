@@ -1,4 +1,8 @@
 .sw-settings-user-detail {
+    .sw-settings-user-detail__cards {
+        container: sw-user-detail-cards / inline-size;
+    }
+
     .sw-settings-user-detail__grid {
         width: 100%;
         display: grid;
@@ -9,7 +13,8 @@
 
     .sw-settings-user-detail__information-grid {
         grid-template-areas:
-            "FirstName LastName"
+            "FirstName ProfilePicture"
+            "LastName ProfilePicture"
             "EMail EMail"
             "Username Password"
             "Active Active";
@@ -17,8 +22,8 @@
 
     .sw-settings-user-detail__user-interface-grid {
         grid-template-areas:
-            "Language ProfilePicture"
-            "Timezone ProfilePicture";
+            "Language Timezone"
+            "Theme .";
     }
 
     .sw-settings-user-detail__roles-permissions-grid {
@@ -51,8 +56,13 @@
         grid-area: Language;
     }
 
+    .sw-settings-user-detail__grid-theme {
+        grid-area: Theme;
+    }
+
     .sw-settings-user-detail__grid-profile-picture {
         grid-area: ProfilePicture;
+        margin-bottom: var(--scale-size-32);
     }
 
     .sw-settings-user-detail__grid-jobTitle {
@@ -79,5 +89,37 @@
     &__grid-timezone {
         grid-area: Timezone;
         margin-top: 0;
+    }
+}
+
+// Stack every field to full width once the cards get too narrow for two columns.
+@container sw-user-detail-cards (max-width: 600px) {
+    .sw-settings-user-detail .sw-settings-user-detail__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sw-settings-user-detail .sw-settings-user-detail__information-grid {
+        grid-template-areas:
+            "ProfilePicture"
+            "FirstName"
+            "LastName"
+            "EMail"
+            "Username"
+            "Password"
+            "Active";
+    }
+
+    .sw-settings-user-detail .sw-settings-user-detail__user-interface-grid {
+        grid-template-areas:
+            "Language"
+            "Timezone"
+            "Theme";
+    }
+
+    .sw-settings-user-detail .sw-settings-user-detail__roles-permissions-grid {
+        grid-template-areas:
+            "AclRoles"
+            "JobTitle"
+            "IsAdmin";
     }
 }

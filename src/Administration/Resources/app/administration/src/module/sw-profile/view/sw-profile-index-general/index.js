@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-profile-index-general.html.twig';
+import './sw-profile-index-general.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 

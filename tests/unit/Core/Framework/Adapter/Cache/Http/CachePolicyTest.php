@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
+use Shopware\Core\Framework\Adapter\Cache\Http\NoVarySearchDirectives;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -68,6 +69,56 @@ class CachePolicyTest extends TestCase
         static::assertSame($cacheControl, $newPolicy->cacheControl);
     }
 
+    public function testWithKeepsNoVarySearch(): void
+    {
+        $noVarySearch = new NoVarySearchDirectives(keyOrder: true);
+
+        $policy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(public: true),
+            noVarySearch: $noVarySearch,
+        );
+
+        $newPolicy = $policy->with(cacheControl: new CacheControlDirectives(maxAge: 600));
+
+        static::assertSame($noVarySearch, $newPolicy->noVarySearch);
+    }
+
+    public function testWithOverridesNoVarySearch(): void
+    {
+        $policy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(public: true),
+            noVarySearch: new NoVarySearchDirectives(keyOrder: true),
+        );
+
+        $noVarySearch = new NoVarySearchDirectives(params: true);
+
+        static::assertSame($noVarySearch, $policy->with(noVarySearch: $noVarySearch)->noVarySearch);
+    }
+
+    public function testFromArrayWithNoVarySearch(): void
+    {
+        $policy = CachePolicy::fromArray([
+            'headers' => [
+                'cache_control' => ['public' => true],
+                'no_vary_search' => ['key_order' => true],
+            ],
+        ]);
+
+        static::assertNotNull($policy->noVarySearch);
+        static::assertSame('key-order', $policy->noVarySearch->toHeaderValue());
+    }
+
+    public function testFromArrayWithoutNoVarySearch(): void
+    {
+        $policy = CachePolicy::fromArray([
+            'headers' => [
+                'cache_control' => ['public' => true],
+            ],
+        ]);
+
+        static::assertNull($policy->noVarySearch);
+    }
+
     public function testNoStore(): void
     {
         $policy = CachePolicy::noStore();
@@ -78,5 +129,7 @@ class CachePolicyTest extends TestCase
         static::assertNull($policy->cacheControl->public);
         static::assertNull($policy->cacheControl->private);
         static::assertNull($policy->cacheControl->sMaxAge); // in other case symfony will set response as public
+        // a response that must not be stored must not advertise cache matching relaxations
+        static::assertNull($policy->noVarySearch);
     }
 }

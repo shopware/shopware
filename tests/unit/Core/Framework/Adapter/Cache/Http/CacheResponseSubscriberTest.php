@@ -953,6 +953,109 @@ class CacheResponseSubscriberTest extends TestCase
         ];
     }
 
+    public function testNoVarySearchHeaderIsAppliedForCacheableResponse(): void
+    {
+        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true]);
+
+        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
+    }
+
+    public function testNoVarySearchHeaderIsNotAppliedWhenPolicyHasNone(): void
+    {
+        $response = $this->dispatchWithNoVarySearchPolicy(null);
+
+        static::assertFalse($response->headers->has('No-Vary-Search'));
+    }
+
+    public function testExistingNoVarySearchHeaderIsKeptWhenPolicyHasNone(): void
+    {
+        $response = new Response();
+        $response->headers->set('No-Vary-Search', 'params=("ref")');
+
+        $this->dispatchWithNoVarySearchPolicy(null, response: $response);
+
+        static::assertSame('params=("ref")', $response->headers->get('No-Vary-Search'));
+    }
+
+    public function testExistingNoVarySearchHeaderIsOverriddenByPolicy(): void
+    {
+        $response = new Response();
+        $response->headers->set('No-Vary-Search', 'params=("ref")');
+
+        $this->dispatchWithNoVarySearchPolicy(['key_order' => true], response: $response);
+
+        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
+    }
+
+    public function testNoVarySearchHeaderIsNotAppliedForUncacheableRequest(): void
+    {
+        // POST responses are never cacheable, so there is nothing to match against
+        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true], method: Request::METHOD_POST);
+
+        static::assertFalse($response->headers->has('No-Vary-Search'));
+    }
+
+    public function testNoVarySearchHeaderIsNotAppliedForUncacheableRoute(): void
+    {
+        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true], httpCacheRoute: false);
+
+        static::assertFalse($response->headers->has('No-Vary-Search'));
+    }
+
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
+    public function testNoVarySearchHeaderIsNotAppliedWithoutCacheRework(): void
+    {
+        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true]);
+
+        static::assertFalse($response->headers->has('No-Vary-Search'));
+    }
+
+    /**
+     * Dispatches a storefront GET response through the subscriber using a cacheable policy that
+     * optionally declares `no_vary_search`.
+     *
+     * @param array<string, mixed>|null $noVarySearch
+     */
+    private function dispatchWithNoVarySearchPolicy(
+        ?array $noVarySearch,
+        string $method = Request::METHOD_GET,
+        bool $httpCacheRoute = true,
+        ?Response $response = null,
+    ): Response {
+        $headers = ['cache_control' => ['public' => true, 's_maxage' => 100]];
+        if ($noVarySearch !== null) {
+            $headers['no_vary_search'] = $noVarySearch;
+        }
+
+        $subscriber = new CacheResponseSubscriber(
+            static::createStub(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            null,
+            null,
+            $this->cacheHeadersService,
+            $this->createCachePolicyProvider(
+                ['cacheable' => ['headers' => $headers], 'uncacheable' => ['headers' => ['cache_control' => ['private' => true]]]],
+                ['storefront' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
+            ),
+        );
+
+        $request = new Request();
+        $request->setMethod($method);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        if ($httpCacheRoute) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        }
+
+        $response ??= new Response();
+
+        $subscriber->setResponseCache($this->createResponseEvent($request, $response));
+
+        return $response;
+    }
+
     /**
      * @param array<string, CachePolicyConfig> $policiesConfig
      * @param array<string, string> $routePoliciesConfig

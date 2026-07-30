@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-import-type CacheControlDirectivesConfig from CacheControlDirectives
+ * @phpstan-import-type NoVarySearchDirectivesConfig from NoVarySearchDirectives
  *
  * @phpstan-type CachePolicyConfig array{
  *     headers: array{
- *         cache_control: CacheControlDirectivesConfig
+ *         cache_control: CacheControlDirectivesConfig,
+ *         no_vary_search?: NoVarySearchDirectivesConfig
  *     }
  * }
  */
@@ -23,6 +25,7 @@ readonly class CachePolicy
 {
     public function __construct(
         public CacheControlDirectives $cacheControl,
+        public ?NoVarySearchDirectives $noVarySearch = null,
     ) {
     }
 
@@ -39,14 +42,20 @@ readonly class CachePolicy
 
         $cacheControl = CacheControlDirectives::fromArray($data['headers']['cache_control']);
 
-        return new self(cacheControl: $cacheControl);
+        $noVarySearch = isset($data['headers']['no_vary_search'])
+            ? NoVarySearchDirectives::fromArray($data['headers']['no_vary_search'])
+            : null;
+
+        return new self(cacheControl: $cacheControl, noVarySearch: $noVarySearch);
     }
 
     public function with(
         ?CacheControlDirectives $cacheControl = null,
+        ?NoVarySearchDirectives $noVarySearch = null,
     ): self {
         return new self(
             cacheControl: $cacheControl ?? $this->cacheControl,
+            noVarySearch: $noVarySearch ?? $this->noVarySearch,
         );
     }
 

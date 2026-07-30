@@ -43,6 +43,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -413,6 +414,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             service(ActiveAppsLoader::class),
             service(ThemeRuntimeConfigService::class),
+            service(CachePolicyProvider::class),
+            param('shopware.http.cache.enabled'),
         ])
         ->tag('kernel.event_subscriber');
 

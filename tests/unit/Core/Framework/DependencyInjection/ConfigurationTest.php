@@ -90,6 +90,96 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testNoVarySearchConfigTreeNode(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => [
+                                    'key_order' => true,
+                                    'params' => ['utm_source', 'gclid'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([
+            'key_order' => true,
+            'params' => ['utm_source', 'gclid'],
+            'except' => [],
+            'include_ignored_url_parameters' => false,
+        ], $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    public function testNoVarySearchConfigAcceptsBooleanParams(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => ['params' => true, 'except' => ['q']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $noVarySearch = $config['http_cache']['policies']['my_policy']['headers']['no_vary_search'];
+
+        static::assertTrue($noVarySearch['params']);
+        static::assertSame(['q'], $noVarySearch['except']);
+    }
+
+    /**
+     * @param mixed $params
+     */
+    #[DataProvider('invalidNoVarySearchParamsProvider')]
+    public function testNoVarySearchConfigRejectsInvalidParams($params, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search.params": '
+            . 'The "params" option must be a boolean or a list of query parameter names, %s given.',
+            $given
+        )));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => ['params' => $params],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @return iterable<string, array{0: mixed, 1: string}>
+     */
+    public static function invalidNoVarySearchParamsProvider(): iterable
+    {
+        yield 'integer' => [5, '5'];
+        yield 'string' => ['utm_source', '"utm_source"'];
+        yield 'hash map' => [['a' => 'utm_source'], '{"a":"utm_source"}'];
+        yield 'list of integers' => [[1, 2], '[1,2]'];
+    }
+
     public function testTranslationConfigDefaultsToNull(): void
     {
         $configuration = new Configuration();

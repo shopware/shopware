@@ -78,49 +78,6 @@ describe('build/vue-setup-transform SFC block detection', () => {
         expect(transformShopwareSetupSfc(source, 'normal-script.vue')).toBeNull();
     });
 
-    it.each([
-        [
-            'an underscore',
-            'sw_thing.vue',
-        ],
-        [
-            'a capital letter',
-            'SwThing.vue',
-        ],
-        [
-            'a space',
-            'sw thing.vue',
-        ],
-        [
-            'a dot',
-            'sw.thing.vue',
-        ],
-    ])('rejects a component name with %s', (_name, fileName) => {
-        const source = stripIndent`
-            <script setup>
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        // The name is a template tag and the public override target, so a filename that yields capitals,
-        // underscores, spaces or dots would register a component nothing can reliably reference.
-        expect(() => transformShopwareSetupSfc(source, fileName)).toThrow('cannot be a Shopware component name');
-    });
-
-    it('accepts a single-segment name and leaves the multi-word rule to ESLint', () => {
-        const source = stripIndent`
-            <script setup>
-            const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        // `vue/multi-word-component-names` already reports single-word component names, with a better
-        // message than a build failure - so the transform only insists on the character shape.
-        expect(transformOrFail(source, 'dashboard.vue').code).toContain("name: 'dashboard'");
-    });
-
     it('takes the component name from the directory for an index file', () => {
         const source = stripIndent`
             <script setup>

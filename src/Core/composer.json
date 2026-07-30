@@ -32,21 +32,6 @@
             "dev-trunk": "6.7.x-dev"
         }
     },
-    "replace": {
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-mbstring": "*",
-        "symfony/polyfill-intl-grapheme": "*",
-        "symfony/polyfill-intl-idn": "*",
-        "symfony/polyfill-intl-normalizer": "*",
-        "symfony/polyfill-php72": "*",
-        "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php74": "*",
-        "symfony/polyfill-php80": "*",
-        "symfony/polyfill-php81": "*",
-        "symfony/polyfill-php82": "*",
-        "paragonie/random_compat": ">=2"
-    },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "ext-ctype": "*",
@@ -76,7 +61,7 @@
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~4.4.0",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "3.1.4",
+        "dompdf/dompdf": "~3.1.6",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
@@ -93,6 +78,7 @@
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
+        "php-http/discovery": "^1.20",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
         "psr/container": "^2.0.2",
@@ -139,6 +125,7 @@
         "symfony/monolog-bundle": "~3.11.0",
         "symfony/options-resolver": "~7.4.0",
         "symfony/password-hasher": "~7.4.0",
+        "symfony/polyfill-mbstring": ">=1.34.0",
         "symfony/polyfill-php83": ">=1.34.0",
         "symfony/polyfill-php84": ">=1.34.0",
         "symfony/polyfill-php85": ">=1.34.0",
@@ -182,7 +169,7 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "symfony/runtime": true
         }
     }

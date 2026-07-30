@@ -65,6 +65,90 @@ class McpCapabilityCatalogTest extends TestCase
         );
     }
 
+    public function testEnrichedToolsIncludesConfiguredGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'shopware-entity-search', 'Search');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            [],
+            [],
+            ['shopware-entity-search' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testEnrichedToolsDerivesGroupFromLongestCommonNamePrefix(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+        $this->registerTool($registry, 'swag-other-plugin-customers', 'List customers');
+        $this->registerTool($registry, 'swag-other-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame([
+            'swag-my-plugin',
+            'swag-my-plugin',
+            'swag-other-plugin',
+            'swag-other-plugin',
+        ], array_column($catalog->enrichedTools(), 'group'));
+    }
+
+    public function testEnrichedToolsUsesFirstNameSegmentForSingleUnconfiguredTool(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-order-export', 'Export orders');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testFindToolUsesGroupDerivedFromAllRegisteredTools(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'swag-my-plugin-orders', 'List orders');
+        $this->registerTool($registry, 'swag-my-plugin-products', 'List products');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertSame('swag-my-plugin', $catalog->findTool('swag-my-plugin-orders')['group'] ?? null);
+    }
+
+    public function testEnrichedToolsUsesRuntimeAppGroupWhenNoCompileTimeGroupExists(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'my-erp-sync-orders', 'Sync orders');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([], ['my-erp-sync-orders' => 'my-erp']),
+        );
+
+        static::assertSame('my-erp', $catalog->enrichedTools()[0]['group']);
+    }
+
+    public function testCompileTimeGroupTakesPrecedenceOverRuntimeAppGroup(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'my-erp-sync-orders', 'Sync orders');
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider([], ['my-erp-sync-orders' => 'my-erp']),
+            [],
+            [],
+            ['my-erp-sync-orders' => 'catalogue'],
+        );
+
+        static::assertSame('catalogue', $catalog->enrichedTools()[0]['group']);
+    }
+
     public function testEnrichedToolsFallsBackToAppPrivilegesWhenNoCorePrivilegesDeclared(): void
     {
         $registry = new Registry();
@@ -338,11 +422,13 @@ class McpCapabilityCatalogTest extends TestCase
 
     /**
      * @param array<string, list<string>> $appPrivileges
+     * @param array<string, string> $appGroups
      */
-    private function stubPrivilegeProvider(array $appPrivileges = []): AppMcpPrivilegeProvider
+    private function stubPrivilegeProvider(array $appPrivileges = [], array $appGroups = []): AppMcpPrivilegeProvider
     {
         $stub = static::createStub(AppMcpPrivilegeProvider::class);
         $stub->method('getAppToolPrivileges')->willReturn($appPrivileges);
+        $stub->method('getAppToolGroups')->willReturn($appGroups);
 
         return $stub;
     }

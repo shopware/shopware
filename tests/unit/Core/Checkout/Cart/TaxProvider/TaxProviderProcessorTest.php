@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
+use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Privileges\AppCapability;
@@ -70,7 +71,8 @@ class TaxProviderProcessorTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxAdjustmentCalculator()
             ),
-            new CashRounding()
+            new CashRounding(),
+            new TransactionProcessor()
         );
     }
 

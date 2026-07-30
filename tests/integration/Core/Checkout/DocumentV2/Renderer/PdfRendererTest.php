@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,11 +31,6 @@ class PdfRendererTest extends TestCase
     use DocumentV2Trait;
 
     private DocumentGenerator $documentGenerator;
-
-    /**
-     * @var EntityRepository<OrderCollection>
-     */
-    private EntityRepository $orderRepository;
 
     /**
      * @var EntityRepository<DocumentFileCollection>
@@ -63,7 +57,6 @@ class PdfRendererTest extends TestCase
         );
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
-        $this->orderRepository = static::getContainer()->get('order.repository');
         $this->documentFileRepository = static::getContainer()->get('document_file.repository');
         $this->mediaService = static::getContainer()->get(MediaService::class);
     }
@@ -78,11 +71,8 @@ class PdfRendererTest extends TestCase
         $orderId = $this->persistCart($cart);
         $this->enrichOrderForRendering($orderId);
 
-        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
-
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
-            orderVersionId: $orderVersionId,
             documentType: $documentType,
             requestedFormats: [DocumentFormat::PDF],
             deliveryDate: '2026-05-08T09:30:00+00:00',
@@ -120,12 +110,10 @@ class PdfRendererTest extends TestCase
         $orderId = $this->persistCart($cart);
         $this->enrichOrderForRendering($orderId);
 
-        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
         $documentFileCount = $this->documentFileRepository->search(new Criteria(), $this->context)->getEntities()->count();
 
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
-            orderVersionId: $orderVersionId,
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::PDF],
         );
@@ -153,11 +141,8 @@ class PdfRendererTest extends TestCase
         $this->enrichOrderForRendering($orderId);
         $this->seedReferenceInvoice($orderId, '1000');
 
-        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
-
         $request = new DocumentGenerationRequest(
             orderId: $orderId,
-            orderVersionId: $orderVersionId,
             documentType: DocumentType::CANCELLATION_INVOICE,
             requestedFormats: [DocumentFormat::PDF],
         );

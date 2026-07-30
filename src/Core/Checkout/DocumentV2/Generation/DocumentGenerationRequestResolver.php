@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -23,7 +23,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 {
     public function __construct(
         private DataValidator $dataValidator,
-        private DocumentRendererRegistry $documentRendererRegistry,
+        private DocumentTypeRegistry $documentTypeRegistry,
     ) {
     }
 
@@ -38,7 +38,6 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         /** @var array{
          *     orderId: string,
-         *     orderVersionId: string,
          *     documentType: string,
          *     format?: mixed,
          *     formats?: mixed,
@@ -51,11 +50,10 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
         $this->validate($payload);
 
         $formats = $this->extractFormats($payload);
-        $this->documentRendererRegistry->validateFormats($payload['documentType'], $formats);
+        $this->documentTypeRegistry->validateFormats($payload['documentType'], $formats);
 
         yield new DocumentGenerationRequest(
             orderId: $payload['orderId'],
-            orderVersionId: $payload['orderVersionId'],
             documentType: $payload['documentType'],
             requestedFormats: $formats,
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
@@ -73,7 +71,6 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         $definition
             ->add('orderId', new NotBlank(), new Type('string'), new Uuid())
-            ->add('orderVersionId', new NotBlank(), new Type('string'), new Uuid())
             ->add('documentType', new NotBlank(), new Type('string'))
             ->add('documentNumber', new Type('string'))
             ->add('documentComment', new Type('string'))

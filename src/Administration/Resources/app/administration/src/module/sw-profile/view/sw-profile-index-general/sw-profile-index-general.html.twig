@@ -39,19 +39,6 @@
             />
             {% endblock %}
 
-            {% block sw_profile_index_general_information_language %}
-            <mt-select
-                v-model="user.localeId"
-                name="sw-field--user-localeId"
-                :label="$t('sw-users-permissions.users.user-detail.labelLanguage')"
-                :disabled="!acl.can('user.update_profile')"
-                :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-                :options="localeOptions"
-            />
-            {% endblock %}
-        </sw-container>
-
-        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
             {% block sw_profile_index_general_information_email %}
 
@@ -62,6 +49,27 @@
                 required
                 :label="$t('sw-profile.index.labelEmailField')"
                 :disabled="!acl.can('user.update_profile')"
+            />
+            {% endblock %}
+        </sw-container>
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_profile_index_general_user_interface %}
+    <mt-card
+        position-identifier="sw-profile-index-general-user-interface"
+        :title="$t('sw-users-permissions.users.user-detail.labelUserInterface')"
+        :is-loading="isUserLoading || !languageId"
+    >
+        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
+            {% block sw_profile_index_general_information_language %}
+            <mt-select
+                v-model="user.localeId"
+                name="sw-field--user-localeId"
+                :label="$t('sw-users-permissions.users.user-detail.labelLanguage')"
+                :disabled="!acl.can('user.update_profile')"
+                :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
+                :options="localeOptions"
             />
             {% endblock %}
 
@@ -89,35 +97,28 @@
             />
             {% endblock %}
         </sw-container>
-    </mt-card>
-    {% endblock %}
 
-    {% block sw_profile_index_general_image %}
-    <mt-card
-        v-if="acl.can('media.creator')"
-        position-identifier="sw-profile-index-general-image"
-        :title="$t('sw-profile.index.titleImageCard')"
-        :is-loading="isUserLoading || !languageId"
-    >
-        {% block sw_profile_index_general_image_content %}
-        <sw-upload-listener
-            auto-upload
-            upload-tag="sw-profile-upload-tag"
-            @media-upload-finish="onUploadMedia"
-        />
-        <sw-media-upload-v2
-            upload-tag="sw-profile-upload-tag"
-            :source="avatarMediaItem"
-            :source-context="user"
-            :default-folder="userRepository.schema.entity"
-            :label="$t('sw-profile.index.labelUploadAvatar')"
-            :disabled="!acl.can('user.update_profile')"
-            :allow-multi-select="false"
-            @media-drop="onDropMedia"
-            @media-upload-sidebar-open="onOpenMedia"
-            @media-upload-remove-image="onRemoveMedia"
-        />
-        {% endblock %}
+        <template v-if="acl.can('media.creator')">
+            {% block sw_profile_index_general_image_content %}
+            <sw-upload-listener
+                auto-upload
+                upload-tag="sw-profile-upload-tag"
+                @media-upload-finish="onUploadMedia"
+            />
+            <sw-media-upload-v2
+                upload-tag="sw-profile-upload-tag"
+                :source="avatarMediaItem"
+                :source-context="user"
+                :default-folder="userRepository.schema.entity"
+                :label="$t('sw-profile.index.labelUploadAvatar')"
+                :disabled="!acl.can('user.update_profile')"
+                :allow-multi-select="false"
+                @media-drop="onDropMedia"
+                @media-upload-sidebar-open="onOpenMedia"
+                @media-upload-remove-image="onRemoveMedia"
+            />
+            {% endblock %}
+        </template>
     </mt-card>
     {% endblock %}
 

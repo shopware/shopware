@@ -7,7 +7,6 @@
     },
     "index": {
       "titleInfoCard": "Profile information",
-      "titleImageCard": "Profile image",
       "titlePasswordCard": "Password",
       "labelFirstNameField": "First name",
       "labelLastNameField": "Last name",

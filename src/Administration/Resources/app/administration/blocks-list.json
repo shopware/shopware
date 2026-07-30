@@ -3526,6 +3526,7 @@
  "sw_media_quickinfo_metadata_content",
  "sw_media_quickinfo_metadata_content_base",
  "sw_media_quickinfo_metadata_content_image",
+ "sw_media_quickinfo_metadata_extension",
  "sw_media_quickinfo_metadata_specific_meta_data",
  "sw_media_quickinfo_modal_delete",
  "sw_media_quickinfo_modal_replace",

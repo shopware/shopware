@@ -6,7 +6,6 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -42,15 +41,6 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     public function getFileExtension(): string
     {
         return self::FORMAT->fileExtension();
-    }
-
-    public function getDocumentTypes(): array
-    {
-        return [
-            DocumentType::INVOICE->value,
-            DocumentType::CANCELLATION_INVOICE->value,
-            DocumentType::DELIVERY_NOTE->value,
-        ];
     }
 
     public function getDependencies(): array

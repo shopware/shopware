@@ -231,9 +231,9 @@ class KernelTest extends TestCase
         static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
-    private function createKernel(string $environment = 'fooBar'): Kernel
+    private function createKernel(string $environment = 'fooBar'): KernelStub
     {
-        return new Kernel(
+        return new KernelStub(
             $environment,
             true,
             static::createStub(StaticKernelPluginLoader::class),
@@ -259,11 +259,7 @@ class KernelTest extends TestCase
             }
         );
 
-        (new \ReflectionMethod(Kernel::class, 'configureContainer'))->invoke(
-            $this->createKernel($environment),
-            new ContainerBuilder(),
-            $loader,
-        );
+        $this->createKernel($environment)->runConfigureContainer(new ContainerBuilder(), $loader);
 
         return $captured;
     }
@@ -283,8 +279,7 @@ class KernelTest extends TestCase
             }
         );
 
-        (new \ReflectionMethod(Kernel::class, 'configureRoutes'))->invoke(
-            $this->createKernel($environment),
+        $this->createKernel($environment)->runConfigureRoutes(
             new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
         );
 
@@ -302,5 +297,21 @@ class KernelTest extends TestCase
             $configDir . '/bundles.php',
             "<?php\n\nreturn " . var_export($bundles, true) . ";\n"
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class KernelStub extends Kernel
+{
+    public function runConfigureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $this->configureContainer($container, $loader);
+    }
+
+    public function runConfigureRoutes(RoutingConfigurator $routes): void
+    {
+        $this->configureRoutes($routes);
     }
 }

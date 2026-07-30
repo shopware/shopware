@@ -483,7 +483,7 @@ class DocumentRouteTest extends TestCase
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
-        $rateLimitExceededException = $this->createMock(RateLimitExceededException::class);
+        $rateLimitExceededException = $this->createStub(RateLimitExceededException::class);
         $rateLimitExceededException->method('getWaitTime')->willReturn(60);
 
         $rateLimiter = $this->createMock(RateLimiter::class);

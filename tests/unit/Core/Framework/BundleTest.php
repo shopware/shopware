@@ -43,6 +43,9 @@ class BundleTest extends TestCase
         static::assertSame([], $captured);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testBuildTriggersDeprecationForXmlServiceDefinitions(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-services';
@@ -55,6 +58,9 @@ class BundleTest extends TestCase
         (new BundleStub($bundlePath))->build($this->createContainerBuilder());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildStillLoadsXmlServiceDefinitionsWhenDeprecationsAreDisabled(): void
     {
@@ -74,6 +80,9 @@ class BundleTest extends TestCase
         static::assertTrue($container->hasDefinition('unit_test.bundle.php_service'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
@@ -86,6 +95,9 @@ class BundleTest extends TestCase
         $this->captureRouteImports($bundlePath, 'test');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testConfigureRoutesTriggersDeprecationForXmlFilesInRoutesDirectory(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes-dir';
@@ -98,6 +110,9 @@ class BundleTest extends TestCase
         $this->captureRouteImports($bundlePath, 'test');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testConfigureRoutesTriggersDeprecationForEnvironmentSpecificXmlRouteDefinitions(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-env-routes';
@@ -110,6 +125,9 @@ class BundleTest extends TestCase
         $this->captureRouteImports($bundlePath, 'test');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigureRoutesStillReachesRouteImportWhenDeprecationsAreDisabled(): void
     {
@@ -121,6 +139,9 @@ class BundleTest extends TestCase
         static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testConfigureRouteOverwritesTriggersDeprecationForXmlRouteDefinitions(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
@@ -136,6 +157,9 @@ class BundleTest extends TestCase
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     public function testBuildDefaultConfigTriggersDeprecationForXmlPackageConfiguration(): void
     {
         $bundlePath = self::FIXTURES_DIR . '/with-xml-packages';
@@ -148,6 +172,9 @@ class BundleTest extends TestCase
         (new BundleStub($bundlePath))->runBuildDefaultConfig($this->createContainerBuilder());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testBuildDefaultConfigStillLoadsXmlPackageConfigurationWhenDeprecationsAreDisabled(): void
     {

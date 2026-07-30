@@ -21,7 +21,8 @@ class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if ($data->getValue() !== null) {
+        // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
+        if (\is_array($data->getValue())) {
             $value = $data->getValue();
             unset($value['extensions']);
 

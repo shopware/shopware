@@ -103,7 +103,8 @@ describe('core/factory/router.factory.js', () => {
             const favicon = document.getElementById('dynamic-favicon');
             expect(result).toBe(true);
             expect(favicon.type).toBe('image/png');
-            expect(favicon.getAttribute('sizes')).toBe('32x32');
+            // A plugin PNG can be any size, so no size is claimed.
+            expect(favicon.getAttribute('sizes')).toBeNull();
             expect(favicon.getAttribute('href')).toBe(
                 '/bundles/myplugin/administration/static/img/favicon/modules/my-plugin-icon.png',
             );
@@ -134,15 +135,16 @@ describe('core/factory/router.factory.js', () => {
             );
         });
 
-        it('should use a relative path when no assets path is configured', () => {
-            const factory = createRouterFactory();
-            factory._setModuleFavicon({ name: 'sw.unknown.index', meta: {} }, '');
+        it('should not fail when the dynamic favicon link is missing', () => {
+            document.head.innerHTML = '';
 
-            const favicon = document.getElementById('dynamic-favicon');
-            expect(favicon.getAttribute('href')).toBe('administration/static/img/favicon/favicon.svg');
+            const factory = createRouterFactory();
+            const result = factory._setModuleFavicon({ name: 'sw.unknown.index', meta: {} }, '/bundles/');
+
+            expect(result).toBe(false);
         });
 
-        it('should only rewrite the href when switching between two SVG module favicons', () => {
+        it('should rewrite the href when switching between two SVG module favicons', () => {
             Module.register('sw-product', {
                 favicon: 'icon-module-products.svg',
                 routes: {

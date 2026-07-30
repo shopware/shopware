@@ -93,6 +93,10 @@ function renderRun(run: ToolRun): string[] {
         );
     }
 
+    if (run.unresolvedHostModules > 0) {
+        lines.push(`    Run "npm ci" in the Administration, then re-run. If it persists, this is a bug in the checker.`);
+    }
+
     for (const error of run.errors) {
         lines.push(`    tool error: ${error}`);
     }

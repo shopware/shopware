@@ -70,6 +70,13 @@ export interface ToolRun {
      * author cannot act on them, so they must not decide the exit code.
      */
     externalFindings: number;
+    /**
+     * Unresolved modules (TS2307) in the host sources. Any number above zero
+     * means the Administration's type surface did not resolve, which makes the
+     * global `Shopware` an error type that absorbs every property access — the
+     * type check would then pass without checking anything.
+     */
+    unresolvedHostModules: number;
     /** Tool-level failures: a missing binary, an unparseable report, a crash. */
     errors: string[];
 }

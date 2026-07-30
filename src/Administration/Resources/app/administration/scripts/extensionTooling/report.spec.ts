@@ -30,6 +30,7 @@ const run = (overrides: Partial<ToolRun> = {}): ToolRun => ({
     filesChecked: 12,
     findings: [],
     externalFindings: 0,
+    unresolvedHostModules: 0,
     errors: [],
     ...overrides,
 });
@@ -100,6 +101,24 @@ describe('scripts/extensionTooling/report', () => {
             expect(output).toContain('types: 12 files type-checked, 0 errors, 0 warnings');
             expect(output).toContain('lint: 47 files linted, 0 errors, 1 warnings');
             expect(output).toContain('Summary: 1 source roots, 47 files checked, 0 errors, 1 warnings');
+        });
+
+        it('tells the reader what to do about a broken host type surface', () => {
+            const output = renderReport(
+                report([
+                    run({
+                        externalFindings: 70,
+                        unresolvedHostModules: 70,
+                        errors: [
+                            'The Administration type surface did not resolve: 70 unresolved modules in the host sources.',
+                        ],
+                    }),
+                ]),
+                renderOptions,
+            );
+
+            expect(output).toContain('tool error: The Administration type surface did not resolve');
+            expect(output).toContain('Run "npm ci" in the Administration');
         });
 
         it('counts host diagnostics without listing them', () => {

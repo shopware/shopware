@@ -26,13 +26,33 @@ Node way. That combination is deliberate:
   such as `@shopware-ag/meteor-admin-sdk/es/*` are found through the filesystem.
   Measured against a real extension, `"Bundler"` leaves 82 unresolved modules
   (TS2307) and `"node"` leaves 0.
-- With no host `paths`, tsconfig inheritance — which replaces `paths` wholesale —
-  cannot destroy host resolution. `paths` belongs entirely to the extension.
+- With no host `paths` in the preset, tsconfig inheritance — which replaces `paths`
+  wholesale — cannot destroy host resolution from a config that extends it.
 - It is the resolver the Administration compiles its own program with.
 
 The honest downside: Vite honours `exports`, the type check does not, so TypeScript
 can in theory resolve a subpath the bundler would refuse. That is already the
 status quo for the Administration itself.
+
+## Where the host mappings live
+
+The preset stays free of `paths`, but a program still needs them, and the runner
+writes them into the program it owns — where no extension config can replace them.
+
+`admin-types.d.ts` pulls the Administration's own sources into every extension
+program, and those sources import each other as `src/…`, which the Administration's
+own `baseUrl` resolves. A program without an equivalent mapping cannot resolve
+`ShopwareClass`, so the global `Shopware` is declared as the TypeScript _error
+type_ — and an error type accepts every property access without complaint. The
+type check then passes while checking nothing at all.
+
+The runner therefore derives the mappings from the Administration's own
+`tsconfig.json` and adds a wildcard standing in for its `baseUrl` and its
+`node_modules`, so an extension importing a host package resolves against the
+installed version too. An extension's own `paths` win over both.
+
+If a run reports unresolved modules in the host sources, it fails with exit code 3
+rather than reporting a clean type check.
 
 ## Boundaries
 

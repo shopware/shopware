@@ -325,7 +325,7 @@ describe('scripts/extensionTooling/runner (integration)', () => {
             expect(findingsOf(check({ roots }), 'types')).toEqual([]);
         });
 
-        it('declares no paths when the extension declares none', () => {
+        it('still maps the host resolution when the extension declares no paths', () => {
             const extension = createExtension(projectRoot, {
                 name: 'SwagNoPaths',
                 sources: { 'main.ts': 'export const label: string = Shopware.name;\n' },
@@ -344,13 +344,40 @@ describe('scripts/extensionTooling/runner (integration)', () => {
                 extends: string;
                 files: string[];
                 include: string[];
-                compilerOptions: Record<string, unknown>;
+                compilerOptions: { paths: Record<string, string[]> };
             };
 
-            expect(generated.compilerOptions).toEqual({});
+            // The host mappings are never absent: without them the Administration's
+            // own sources cannot resolve each other and the type surface dies.
+            expect(generated.compilerOptions.paths).toEqual({
+                '*': [
+                    `${administrationRoot}/*`,
+                    `${administrationRoot}/node_modules/*`,
+                ],
+            });
             expect(generated.extends).toBe(path.join(administrationRoot, 'extension-tooling/tsconfig.base.json'));
             expect(generated.files).toEqual([path.join(administrationRoot, 'extension-tooling/admin-types.d.ts')]);
             expect(generated.include).toEqual([`${roots[0].sourcePath}/**/*`]);
+        });
+
+        it('lets the extension override the host wildcard', () => {
+            const extension = createExtension(projectRoot, {
+                name: 'SwagOwnWildcard',
+                sources: { 'main.ts': 'export const label: string = Shopware.name;\n' },
+                tsconfig: JSON.stringify({ compilerOptions: { paths: { '*': ['./vendor-types/*'] } } }, null, 4),
+            });
+
+            writeBundleConfig(projectRoot, {
+                SwagOwnWildcard: { basePath: extension.basePath, technicalName: 'swag-own-wildcard' },
+            });
+
+            const roots = discover();
+            const program = writeProgram(roots[0], projectRoot, administrationRoot);
+            const generated = JSON.parse(fs.readFileSync(program.tsconfigPath, 'utf8')) as {
+                compilerOptions: { paths: Record<string, string[]> };
+            };
+
+            expect(generated.compilerOptions.paths['*']).toEqual([`${roots[0].adminFolder}/vendor-types/*`]);
         });
 
         it('ignores an unreadable extension tsconfig instead of failing the run', () => {

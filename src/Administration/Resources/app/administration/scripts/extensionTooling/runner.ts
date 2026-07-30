@@ -98,21 +98,14 @@ export function ensureEntitySchema(administrationRoot: string): void {
 }
 
 /**
- * The `paths` an extension declares for itself, resolved to absolute values.
+ * The `paths` of a tsconfig, resolved to absolute values against its own
+ * `baseUrl`.
  *
- * The host contributes none (classic Node resolution finds every host package
- * through `node_modules`), so `paths` belongs entirely to the extension. The
- * values are made absolute rather than re-anchored through a `baseUrl`, because
- * the generated program lives in `var/` and a `baseUrl` there would also become
- * a second bare-specifier resolution root.
+ * Absolute values rather than a re-anchored `baseUrl`, because the generated
+ * program lives in `var/` and a `baseUrl` there would also become a second
+ * bare-specifier resolution root for everything else.
  */
-export function collectExtensionPaths(root: AdminRoot): Record<string, string[]> {
-    const tsconfigPath = findNearestTsconfig(root.adminFolder, root.extensionRoot);
-
-    if (tsconfigPath === null) {
-        return {};
-    }
-
+function absolutePathsOf(tsconfigPath: string): Record<string, string[]> {
     let config: { compilerOptions?: { baseUrl?: unknown; paths?: unknown } };
 
     try {
@@ -147,6 +140,48 @@ export function collectExtensionPaths(root: AdminRoot): Record<string, string[]>
     return resolved;
 }
 
+/** The `paths` an extension declares for itself, resolved to absolute values. */
+export function collectExtensionPaths(root: AdminRoot): Record<string, string[]> {
+    const tsconfigPath = findNearestTsconfig(root.adminFolder, root.extensionRoot);
+
+    return tsconfigPath === null ? {} : absolutePathsOf(tsconfigPath);
+}
+
+/**
+ * How the Administration resolves its own modules, translated for a program that
+ * lives somewhere else.
+ *
+ * This is not optional convenience. `admin-types.d.ts` pulls the Administration's
+ * sources into every extension program, and those sources import each other as
+ * `src/…`, which the Administration's own `baseUrl` resolves. Without an
+ * equivalent, `global.types.ts` cannot resolve `ShopwareClass`, so the global
+ * `Shopware` is declared as the *error type* — and an error type absorbs every
+ * property access silently. The type check then passes while checking nothing.
+ * Measured on a real extension: 70 unresolved modules and a `Shopware` that
+ * accepts anything, versus 0 unresolved modules with these mappings.
+ *
+ * The wildcard reproduces the Administration's `baseUrl`, and its second
+ * substitution its `node_modules`, so an extension importing a host package —
+ * `vue` being the common case — resolves against the installed version too. The
+ * explicit entries come from the Administration's own tsconfig, so the host's
+ * mappings cannot drift away from a list maintained here by hand.
+ *
+ * The preset itself still declares no `paths` (a plugin-authored config would
+ * replace them wholesale on inheritance); these live only in the program the
+ * runner writes and owns.
+ */
+export function collectHostPaths(administrationRoot: string): Record<string, string[]> {
+    const administrationPosix = toPosix(administrationRoot);
+
+    return {
+        ...absolutePathsOf(path.join(administrationRoot, 'tsconfig.json')),
+        '*': [
+            `${administrationPosix}/*`,
+            `${administrationPosix}/node_modules/*`,
+        ],
+    };
+}
+
 export interface GeneratedProgram {
     directory: string;
     tsconfigPath: string;
@@ -159,13 +194,18 @@ export function writeProgram(root: AdminRoot, projectRoot: string, administratio
     fs.mkdirSync(directory, { recursive: true });
 
     const presetDir = path.join(administrationRoot, PRESET_DIR);
-    const extensionPaths = collectExtensionPaths(root);
     const tsconfigPath = path.join(directory, 'tsconfig.json');
     const eslintConfigPath = path.join(directory, 'eslint.config.mjs');
+    // The extension's own mappings win: it knows its aliases, and a mapping it
+    // declares must not be shadowed by the host wildcard.
+    const paths = {
+        ...collectHostPaths(administrationRoot),
+        ...collectExtensionPaths(root),
+    };
 
     const program = {
         extends: toPosix(path.join(presetDir, 'tsconfig.base.json')),
-        compilerOptions: Object.keys(extensionPaths).length > 0 ? { paths: extensionPaths } : {},
+        compilerOptions: { paths },
         files: [toPosix(path.join(presetDir, 'admin-types.d.ts'))],
         // An extensionless glob matches only the extensions the host understands:
         // `tsc` therefore sees the TS and JS sources, while ESLint — which passes
@@ -193,6 +233,7 @@ export default shopwareAdminExtension({
 interface ParsedRun {
     findings: Finding[];
     externalFindings: number;
+    unresolvedHostModules: number;
     filesChecked: number;
 }
 
@@ -200,6 +241,7 @@ function parseTypeCheckOutput(output: string, projectRoot: string, sourcePath: s
     const findings: Finding[] = [];
     const files = new Set<string>();
     let externalFindings = 0;
+    let unresolvedHostModules = 0;
 
     for (const line of output.split('\n')) {
         const trimmed = line.trimEnd();
@@ -214,11 +256,15 @@ function parseTypeCheckOutput(output: string, projectRoot: string, sourcePath: s
             const groups = diagnostic.groups;
             const file = path.resolve(projectRoot, groups.file);
 
-            // The Administration's own sources are part of every extension program,
-            // and they are not type-clean under the extension preset's compiler
-            // options. Only what the extension owns is a finding.
+            // The Administration's own sources are part of every extension program.
+            // Only what the extension owns is a finding — but an unresolved module
+            // in the host is a broken type surface, not a footnote.
             if (!isWithin(file, sourcePath)) {
                 externalFindings += 1;
+
+                if (groups.code === 'TS2307') {
+                    unresolvedHostModules += 1;
+                }
 
                 continue;
             }
@@ -261,7 +307,7 @@ function parseTypeCheckOutput(output: string, projectRoot: string, sourcePath: s
         }
     }
 
-    return { findings, externalFindings, filesChecked: files.size };
+    return { findings, externalFindings, unresolvedHostModules, filesChecked: files.size };
 }
 
 interface EslintMessage {
@@ -302,7 +348,7 @@ function parseLintOutput(output: string, projectRoot: string): ParsedRun {
 
     // ESLint only ever reports on the files it was asked to lint, so nothing can
     // come from outside the checked root here.
-    return { findings, externalFindings: 0, filesChecked: results.length };
+    return { findings, externalFindings: 0, unresolvedHostModules: 0, filesChecked: results.length };
 }
 
 function typeCheck(root: AdminRoot, program: GeneratedProgram, options: RunnerOptions, spawnTool: SpawnTool): ToolRun {
@@ -328,11 +374,20 @@ function typeCheck(root: AdminRoot, program: GeneratedProgram, options: RunnerOp
         errors.push(result.stderr.trim());
     }
 
+    if (parsed.unresolvedHostModules > 0) {
+        errors.push(
+            `The Administration type surface did not resolve: ${parsed.unresolvedHostModules} unresolved modules in the ` +
+                'host sources. The global Shopware object is an error type in this program, which silently accepts ' +
+                'anything, so the type results are not meaningful.',
+        );
+    }
+
     return {
         tool: 'types',
         filesChecked: parsed.filesChecked,
         findings: parsed.findings,
         externalFindings: parsed.externalFindings,
+        unresolvedHostModules: parsed.unresolvedHostModules,
         errors,
     };
 }
@@ -365,6 +420,7 @@ function lint(root: AdminRoot, program: GeneratedProgram, options: RunnerOptions
             filesChecked: 0,
             findings: [],
             externalFindings: 0,
+            unresolvedHostModules: 0,
             errors: [`Could not run ${binary}: ${result.stderr.trim()}`],
         };
     }
@@ -381,6 +437,7 @@ function lint(root: AdminRoot, program: GeneratedProgram, options: RunnerOptions
             filesChecked: parsed.filesChecked,
             findings: parsed.findings,
             externalFindings: parsed.externalFindings,
+            unresolvedHostModules: 0,
             errors,
         };
     } catch (error) {
@@ -390,7 +447,7 @@ function lint(root: AdminRoot, program: GeneratedProgram, options: RunnerOptions
             errors.push(result.stderr.trim());
         }
 
-        return { tool: 'lint', filesChecked: 0, findings: [], externalFindings: 0, errors };
+        return { tool: 'lint', filesChecked: 0, findings: [], externalFindings: 0, unresolvedHostModules: 0, errors };
     }
 }
 

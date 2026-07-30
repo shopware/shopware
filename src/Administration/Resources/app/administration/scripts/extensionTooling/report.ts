@@ -7,6 +7,7 @@
  */
 
 import type { CheckReport, Finding, RootReport, ToolRun } from './shared';
+import type { FarmResult } from './resolution';
 
 export const EXIT_OK = 0;
 export const EXIT_FINDINGS = 1;
@@ -169,6 +170,69 @@ export function renderReport(report: CheckReport, options: RenderOptions): strin
         `Summary: ${report.roots.length} source roots, ${filesChecked} files checked, ` +
             `${countBySeverity(allFindings, 'error')} errors, ${countBySeverity(allFindings, 'warning')} warnings`,
     );
+
+    return `${lines.join('\n')}\n`;
+}
+
+/** A farm that could not be built at all is a tool error; partial failures are not. */
+export function exitCodeForFarm(result: FarmResult): number {
+    if (result.refusal !== null || result.created === 0) {
+        return EXIT_TOOL_ERROR;
+    }
+
+    return EXIT_OK;
+}
+
+export function renderFarmReport(result: FarmResult, projectRelativeFarm: string): string {
+    const lines: string[] = [
+        'Administration extension setup',
+        '',
+    ];
+
+    if (result.refusal !== null) {
+        lines.push(`tool error: ${result.refusal}`, '');
+
+        return `${lines.join('\n')}\n`;
+    }
+
+    lines.push(`Linked the installed Administration into ${projectRelativeFarm}: ${result.created} entries.`);
+    lines.push('Extensions now resolve the Administration sources and every host package without a config file.');
+    lines.push('');
+
+    for (const warning of result.warnings) {
+        lines.push(`warning: ${warning}`, '');
+    }
+
+    if (result.danglingEntries.length > 0) {
+        lines.push(
+            `Skipped ${result.danglingEntries.length} unreadable entries of the Administration's node_modules ` +
+                `(${result.danglingEntries.slice(0, 5).join(', ')}${result.danglingEntries.length > 5 ? ', …' : ''}).`,
+            'Run "npm ci" in the Administration if host packages stay unresolved.',
+            '',
+        );
+    }
+
+    if (result.failures.length > 0) {
+        lines.push(`${result.failures.length} links could not be created:`);
+
+        for (const failure of result.failures.slice(0, 10)) {
+            lines.push(`  ${failure.path}: ${failure.message}`);
+        }
+
+        if (result.failures.length > 10) {
+            lines.push(`  … and ${result.failures.length - 10} more`);
+        }
+
+        lines.push(
+            'On Windows, symlinks need Developer Mode or an elevated shell. Editor resolution will be incomplete;',
+            '"administration:extension:check" does not depend on these links and keeps working.',
+            '',
+        );
+    }
+
+    if (result.created === 0) {
+        lines.push('tool error: Not a single link was created — the farm is unusable.', '');
+    }
 
     return `${lines.join('\n')}\n`;
 }

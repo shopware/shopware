@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Administration\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\CheckExtensionToolingCommand;
+use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -43,6 +44,14 @@ class CheckExtensionToolingCommandTest extends TestCase
         }
     }
 
+    public function testTheSetupCommandIsWiredIntoTheConsole(): void
+    {
+        $command = static::getContainer()->get(SetupExtensionToolingCommand::class);
+
+        static::assertInstanceOf(SetupExtensionToolingCommand::class, $command);
+        static::assertSame('administration:extension:setup', $command->getName());
+    }
+
     public function testTheEntryScriptItSpawnsExists(): void
     {
         $projectDir = static::getContainer()->getParameter('kernel.project_dir');
@@ -51,6 +60,7 @@ class CheckExtensionToolingCommandTest extends TestCase
         $administrationRoot = $projectDir . '/src/Administration/Resources/app/administration';
 
         static::assertFileExists($administrationRoot . '/scripts/extensionTooling/cli.ts');
+        static::assertFileExists($administrationRoot . '/scripts/extensionTooling/setup.ts');
         static::assertFileExists($administrationRoot . '/extension-tooling/tsconfig.base.json');
         static::assertFileExists($administrationRoot . '/extension-tooling/eslint.mjs');
         static::assertFileExists($administrationRoot . '/extension-tooling/admin-types.d.ts');

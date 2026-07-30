@@ -129,6 +129,14 @@ The exit codes are `0` (no findings, at least one file checked), `1` (type or li
 
 Extension repositories cannot run this without an installation, by design — you check against the *installed* version. In CI, install Shopware, mount the extension, and call `bin/console administration:extension:check <Name>`.
 
+### Administration types and linting in the editor, without extension configuration
+
+`bin/console administration:extension:setup` (Composer twin `composer admin:extension:setup`) links the installed Administration into `<projectRoot>/node_modules`, so every extension in the installation resolves the Administration type surface, its sources, and every host package — including the ESLint binary with all its parsers and plugins.
+
+An extension needs **no** `tsconfig.json`, no `eslint.config.mjs` and no IDE settings file for this: bare specifiers resolve by walking `node_modules` upwards, and the project root is an ancestor of every extension. Types and completion for the global `Shopware` object work in a file that has committed nothing.
+
+Run it once after installing, and again after an `npm ci` in the Administration. The directory is replaced on every run and ignores itself via a `.gitignore` holding `*`, so `git status` stays clean; a `node_modules` the command did not create is never touched. On Windows, directory links are junctions and need no Developer Mode.
+
 ## Storefront
 
 ### `theme:create` gains `--full` and granular scaffold flags

@@ -17,6 +17,38 @@ source root below `var/admin-extension-tooling/` and points the Administration's
 own `tsc` and `eslint` at it, so an extension needs to commit nothing at all to
 be type-checked and linted.
 
+## Editor support
+
+```bash
+bin/console administration:extension:setup
+```
+
+Links the installed Administration into `<projectRoot>/node_modules` — every
+top-level entry of its `node_modules`, plus `src` as the package its own sources
+import each other as, plus an ambient `@types` entry carrying `admin-types.d.ts`.
+
+Bare specifiers resolve by walking `node_modules` upwards, and the project root is
+an ancestor of every extension in both layouts, so this gives an extension with
+**no config at all** the Administration types, completion, and the ESLint binary
+plus every parser and plugin from the same tree — no `paths` mapping, no IDE
+settings file, no version skew.
+
+Notes:
+
+- The directory is replaced on every run, never merged, so orphaned links are
+  impossible. Re-run it after an `npm ci` in the Administration.
+- It ignores itself through a `.gitignore` holding `*`, so `git status` stays
+  clean, and that file is also how the command recognises its own farm: a
+  `node_modules` it did not create is never replaced.
+- Link targets are relative, so a farm built inside a container still resolves
+  from an editor on the host, where the same tree is mounted elsewhere.
+- On Windows, directory links are junctions (no Developer Mode needed); links to
+  files may still fail and are reported. `administration:extension:check` does not
+  depend on the farm.
+- The ambient types make an editor pull the whole Administration into the program
+  for a config-less file. Diagnostics inside those host files are the price of
+  needing no configuration; they are reported against host files, not yours.
+
 ## Why `moduleResolution: "node"`
 
 `tsconfig.base.json` declares **no** `paths`, and resolves modules the classic

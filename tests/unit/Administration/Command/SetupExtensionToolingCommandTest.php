@@ -4,8 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Command\AbstractExtensionToolingCommand;
-use Shopware\Administration\Command\CheckExtensionToolingCommand;
+use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -16,9 +15,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(AbstractExtensionToolingCommand::class)]
-#[CoversClass(CheckExtensionToolingCommand::class)]
-class CheckExtensionToolingCommandTest extends TestCase
+#[CoversClass(SetupExtensionToolingCommand::class)]
+class SetupExtensionToolingCommandTest extends TestCase
 {
     private Filesystem $filesystem;
 
@@ -27,7 +25,7 @@ class CheckExtensionToolingCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem();
-        $this->administrationRoot = sys_get_temp_dir() . '/' . uniqid('sw-extension-check-', true);
+        $this->administrationRoot = sys_get_temp_dir() . '/' . uniqid('sw-extension-setup-', true);
     }
 
     protected function tearDown(): void
@@ -39,14 +37,13 @@ class CheckExtensionToolingCommandTest extends TestCase
     {
         $this->filesystem->mkdir($this->administrationRoot);
 
-        $tester = new CommandTester(new CheckExtensionToolingCommand($this->kernel(), $this->administrationRoot));
+        $tester = new CommandTester(new SetupExtensionToolingCommand($this->kernel(), $this->administrationRoot));
 
         static::assertSame(3, $tester->execute([]));
-        static::assertStringContainsString('Node dependencies are not installed', $tester->getDisplay(true));
         static::assertStringContainsString('npm ci', $tester->getDisplay(true));
     }
 
-    public function testItSpawnsTheCheckerWithTheProjectRootAndNoArguments(): void
+    public function testItSpawnsTheSetupScriptWithTheProjectRoot(): void
     {
         $command = $this->recordingCommand();
         $tester = new CommandTester($command);
@@ -55,70 +52,38 @@ class CheckExtensionToolingCommandTest extends TestCase
         static::assertSame([
             $this->administrationRoot . '/node_modules/.bin/ts-node',
             '--transpileOnly',
-            $this->administrationRoot . '/scripts/extensionTooling/cli.ts',
+            $this->administrationRoot . '/scripts/extensionTooling/setup.ts',
         ], $command->command);
-        static::assertSame($this->administrationRoot, $command->cwd);
         static::assertSame(['PROJECT_ROOT' => '/project'], $command->env);
     }
 
-    public function testItForwardsNamesAndOptions(): void
+    public function testItTakesNoArgumentsOrOptions(): void
     {
-        $command = $this->recordingCommand();
-        $tester = new CommandTester($command);
+        $definition = (new SetupExtensionToolingCommand($this->kernel(), $this->administrationRoot))->getDefinition();
 
-        $tester->execute([
-            'names' => ['SwagCommercial', 'SwagPayPal'],
-            '--types' => true,
-            '--lint' => true,
-            '--fix' => true,
-            '--include-platform' => true,
-        ]);
-
-        static::assertSame([
-            'SwagCommercial',
-            'SwagPayPal',
-            '--types',
-            '--lint',
-            '--fix',
-            '--include-platform',
-        ], \array_slice($command->command, 3));
+        static::assertSame([], $definition->getArguments());
+        static::assertSame([], $definition->getOptions());
     }
 
-    public function testItOmitsOptionsThatWereNotPassed(): void
-    {
-        $command = $this->recordingCommand();
-        $tester = new CommandTester($command);
-
-        $tester->execute(['--lint' => true]);
-
-        static::assertSame(['--lint'], \array_slice($command->command, 3));
-    }
-
-    /**
-     * The three states of the checker must stay distinguishable through the bridge:
-     * a crash must never arrive as "findings".
-     */
-    public function testItReturnsTheCheckerExitCodeVerbatim(): void
+    public function testItReturnsTheToolingExitCodeVerbatim(): void
     {
         foreach ([
             0,
-            1,
             2,
             3,
         ] as $exitCode) {
-            $command = $this->recordingCommand($exitCode);
-            $tester = new CommandTester($command);
+            $tester = new CommandTester($this->recordingCommand($exitCode));
 
             static::assertSame($exitCode, $tester->execute([]));
         }
     }
 
-    private function recordingCommand(int $exitCode = 0): RecordingCheckExtensionToolingCommand
+    private function recordingCommand(int $exitCode = 0): RecordingSetupExtensionToolingCommand
     {
         $this->filesystem->mkdir($this->administrationRoot . '/node_modules/.bin');
         $this->filesystem->touch($this->administrationRoot . '/node_modules/.bin/ts-node');
 
-        return new RecordingCheckExtensionToolingCommand($this->kernel(), $this->administrationRoot, $exitCode);
+        return new RecordingSetupExtensionToolingCommand($this->kernel(), $this->administrationRoot, $exitCode);
     }
 
     private function kernel(): KernelInterface
@@ -134,14 +99,12 @@ class CheckExtensionToolingCommandTest extends TestCase
  * @internal
  */
 #[Package('framework')]
-class RecordingCheckExtensionToolingCommand extends CheckExtensionToolingCommand
+class RecordingSetupExtensionToolingCommand extends SetupExtensionToolingCommand
 {
     /**
      * @var list<string>
      */
     public array $command = [];
-
-    public string $cwd = '';
 
     /**
      * @var array<string, string>
@@ -159,7 +122,6 @@ class RecordingCheckExtensionToolingCommand extends CheckExtensionToolingCommand
     protected function runTooling(array $command, string $cwd, array $env, OutputInterface $output): int
     {
         $this->command = $command;
-        $this->cwd = $cwd;
         $this->env = $env;
 
         return $this->exitCode;

@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Administration\Command\CheckExtensionToolingCommand;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
+use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Controller\AdminProductStreamController;
@@ -63,6 +64,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
     $services->set(CheckExtensionToolingCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(SetupExtensionToolingCommand::class)
         ->args([
             service('kernel'),
         ])

@@ -30,11 +30,12 @@ class GaranLabelTwigFilterTest extends TestCase
 
         $filters = $filter->getFilters();
 
-        static::assertCount(4, $filters);
+        static::assertCount(5, $filters);
         static::assertSame('sw_garan_label_duration', $filters[0]->getName());
         static::assertSame('sw_garan_label', $filters[1]->getName());
         static::assertSame('sw_garan_label_nested', $filters[2]->getName());
         static::assertSame('sw_garan_label_data_uri', $filters[3]->getName());
+        static::assertSame('sw_garan_label_nested_uri', $filters[4]->getName());
     }
 
     public function testFormatDurationDelegatesToFormatter(): void
@@ -140,6 +141,38 @@ class GaranLabelTwigFilterTest extends TestCase
         $svg = base64_decode(substr($dataUri, \strlen('data:image/svg+xml;base64,')), true);
         static::assertIsString($svg);
         static::assertStringContainsString('ACME-123', $svg);
+    }
+
+    public function testRenderNestedAsDataUriReturnsNullForNullProductId(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->renderNestedAsDataUri(null, Context::createDefaultContext()));
+    }
+
+    public function testRenderNestedAsDataUriReturnsNullWhenProductNotConfirmed(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: false);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertNull($filter->renderNestedAsDataUri($product->getId(), Context::createDefaultContext()));
+    }
+
+    public function testRenderNestedAsDataUriReturnsBase64EncodedSvgForCompleteConfirmedProduct(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        $dataUri = $filter->renderNestedAsDataUri($product->getId(), Context::createDefaultContext());
+
+        static::assertIsString($dataUri);
+        static::assertStringStartsWith('data:image/svg+xml;base64,', $dataUri);
+
+        $svg = base64_decode(substr($dataUri, \strlen('data:image/svg+xml;base64,')), true);
+        static::assertIsString($svg);
+        static::assertStringContainsString('nested', $svg);
     }
 
     /**

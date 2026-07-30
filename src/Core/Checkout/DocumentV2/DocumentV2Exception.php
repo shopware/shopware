@@ -40,8 +40,6 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
 
-    public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
-
     public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
 
     public const TEMPLATE_RENDER_FAILED = 'DOCUMENT_V2__TEMPLATE_RENDER_FAILED';
@@ -141,12 +139,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function rendererNotFound(string $format, string $documentType): self
+    public static function rendererNotFound(string $format, ?string $documentType = null): self
     {
+        $message = $documentType === null
+            ? 'Renderer for format "{{ format }}" not found.'
+            : 'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.';
+
         return new self(
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
-            'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            $message,
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -271,16 +273,6 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_TYPE_NOT_FOUND,
             'Document type "{{ documentType }}" not found.',
             ['documentType' => $documentType],
-        );
-    }
-
-    public static function duplicateRenderer(string $format, string $documentType): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DUPLICATE_RENDERER,
-            'Duplicate renderer for format "{{ format }}" and document type "{{ documentType }}".',
-            ['format' => $format, 'documentType' => $documentType],
         );
     }
 

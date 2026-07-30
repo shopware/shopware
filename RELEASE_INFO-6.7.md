@@ -162,6 +162,24 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## Hosting & Configuration
 
+### Optional `Clear-Site-Data` header on customer logout
+
+On customer logout the storefront can send a [`Clear-Site-Data`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data) header, so the browser drops data left over from the session. Disabled by default:
+
+```yaml
+# config/packages/storefront.yaml
+storefront:
+    security:
+        clear_site_data_on_logout: ['storage']
+```
+
+Allowed directives are `cache`, `cookies` and `storage`; anything else is rejected at container build time. Choose them deliberately, as the header applies to the whole origin and not just to the storefront:
+
+* `cookies` covers the registrable domain (eTLD+1), so on a shared domain it also logs the merchant out of the Administration and resets the cookie consent.
+* `storage` clears `localStorage`, `sessionStorage`, IndexedDB and service workers, which breaks a PWA on the same origin.
+* `cache` makes the browser download all assets again after every logout.
+
+The header requires a trustworthy origin (HTTPS or `http://localhost`) and is ignored by Safari on the logout redirect.
 ### Fallback thumbnail sizes for remote thumbnails
 
 When remote thumbnails are enabled, operators can optionally configure `shopware.media.remote_thumbnails.fallback_sizes`. It defaults to `[]` and accepts entries with `width` and `height`:
@@ -287,6 +305,17 @@ If you need to temporarily suppress a specific constraint name while migrating, 
 ### Plugin activation rolls back when post-activation fails
 
 Plugin activation now restores the plugin's `active` flag when a post-activation subscriber fails. Previously, a failure after the active flag was persisted, for example during storefront theme refresh, could leave the plugin marked active even though activation failed.
+
+### Product export pagination changed to keyset; `getTotal()` deprecated
+
+The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, removing the `getTotalCount()` timeout on large catalogs.
+
+- `ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated; the export no longer computes a grand total. Use `hasNextBatch()` and `getOffset()` instead.
+- The read buffer size is now configurable via `shopware.product_export.read_buffer_size` (default 200). Raise it to reduce per-batch overhead, lower it if a batch hits the worker memory limit.
+
+### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
+
+`SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
 ### Deprecated `maintenanceIpWhitelist` wording of the sales channel
 

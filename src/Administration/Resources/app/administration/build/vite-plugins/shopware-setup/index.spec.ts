@@ -249,16 +249,14 @@ swDefinePublic({ count });
         );
     });
 
-    it('keeps setup source positions when the transformed SFC map is composed by plugin-vue', async () => {
+    it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {
         expect.hasAssertions();
 
         const fixtureDirectory = path.join(__dirname, 'fixtures/sourcemap-composition');
         const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
-        const sourceDirectory = path.join(root, 'src');
 
         await fs.cp(fixtureDirectory, root, { recursive: true });
 
-        const componentSource = await fs.readFile(path.join(sourceDirectory, 'sw-nested-component.vue'), 'utf8');
         const { stdout } = await execFileAsync(process.execPath, [path.join(root, 'probe.js')], {
             cwd: process.cwd(),
             env: {
@@ -266,19 +264,44 @@ swDefinePublic({ count });
                 SHOPWARE_ADMIN_ROOT: process.cwd(),
             },
         });
-        const { generatedIndex, mappedPosition } = JSON.parse(stdout);
-        const originalIndex = componentSource.indexOf("computed(() => 'Hello from source')");
-        const originalPosition = positionForIndex(componentSource, originalIndex);
+        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout);
 
-        expect(generatedIndex).toBeGreaterThanOrEqual(0);
-        expect(originalIndex).toBeGreaterThanOrEqual(0);
-        expect(mappedPosition.source).toContain('src/sw-nested-component.vue');
-        // The intermediate virtual module must be collapsed away: its `.shopware-setup.vue` id must not
-        // survive into the shipped map.
-        expect(mappedPosition.source).not.toContain('.shopware-setup.vue');
-        expect(mappedPosition.line).toBe(originalPosition.line);
-        expect(mappedPosition.column).toBe(originalPosition.column);
-    }, 30000);
+        // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
+        // serialized from the emitted asset, so asserting on the chunk object hid a bug where every
+        // shipped plugin map still named the virtual `.shopware-setup.vue` files.
+        expect(sources.filter((source) => source.includes('.shopware-setup.vue'))).toEqual([]);
+        expect(sources.filter((source) => source.startsWith('/'))).toEqual([]);
+
+        // Content has to be the author's code; embedding the transform output would show `__swSetupAuthor_`
+        // aliases and the generated footer in the debugger.
+        expect(loweredSourceCount).toBe(0);
+
+        // A base component keeps its body in place; an override has its body relocated into a callback, so
+        // only the override proves the transform's own map is composed rather than merely renamed.
+        [
+            [
+                'base',
+                base,
+                'src/sw-nested-component.vue',
+            ],
+            [
+                'override',
+                override,
+                'src/sw-nested-component.override.vue',
+            ],
+        ].forEach(
+            ([
+                ,
+                probe,
+                file,
+            ]) => {
+                expect(probe.generatedIndex).toBeGreaterThanOrEqual(0);
+                expect(probe.authoredIndex).toBeGreaterThanOrEqual(0);
+                expect(probe.mappedPosition.source).toContain(file);
+                expect(probe.mappedPosition.line).toBe(probe.authoredPosition.line);
+            },
+        );
+    }, 60000);
 
     it('rejects Vue files without a script setup block', async () => {
         const plugin = createPlugin();

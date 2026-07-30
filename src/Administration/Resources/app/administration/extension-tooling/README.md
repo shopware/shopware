@@ -13,7 +13,7 @@
 >   `administration:setup-extension-tooling`) and every option they accept
 > - the layout and contents of everything generated under
 >   `var/admin-extension-tooling/`, the root `tsconfig.json` / `eslint.config.mjs`
->   projections, and the `.shopware-admin/` bridge
+>   projections, and the `.shopware/` bridge
 > - the `var/admin-extension-tooling/manifest.json` schema (it carries a `version`
 >   field precisely so it can change)
 > - the exit codes, the report wording, and the module layout under
@@ -100,17 +100,17 @@ are covered by a marker-fenced block that setup manages in the project `.gitigno
   composer admin:setup-extension-tooling -- --shim=<TechnicalName>
   ```
 
-  This writes a git-ignored `.shopware-admin/` bridge (which holds the machine-specific paths and
+  This writes a git-ignored `.shopware/` bridge (which holds the machine-specific paths and
   composes the preset) and — if the plugin has no config yet — two small **committable** files at
   the plugin's administration folder that just extend it:
 
   ```jsonc
   // tsconfig.json
-  { "extends": "./.shopware-admin/tsconfig.json", "include": ["src/**/*.ts", "src/**/*.vue"] }
+  { "extends": "./.shopware/tsconfig.json", "include": ["src/**/*.ts", "src/**/*.vue"] }
   ```
   ```js
   // eslint.config.mjs
-  import shopware from './.shopware-admin/eslint.mjs';
+  import shopware from './.shopware/eslint.mjs';
   export default [ ...shopware, /* your own rules */ ];
   ```
 
@@ -130,7 +130,7 @@ your config instead:
 ```
 
 Re-run `composer admin:setup-extension-tooling -- --shim=<TechnicalName>` afterwards: the
-generated `.shopware-admin/` bridge becomes the single `paths` declarer and merges your
+generated `.shopware/` bridge becomes the single `paths` declarer and merges your
 aliases with the preset's host paths (targets resolve relative to the plugin's
 administration folder). The same mechanism covers type-only imports of host packages,
 e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/administration/node_modules/axios"] }`.
@@ -144,7 +144,7 @@ plugin repository:
 | --- | --- | --- | --- |
 | `var/admin-extension-tooling/**` (leaf tsconfigs, manifest) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
 | Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
-| `<plugin>/…/.shopware-admin/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`). One per shimmed root, or one beside the package config in root-config mode. |
+| `<plugin>/…/.shopware/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`). One per shimmed root, or one beside the package config in root-config mode. |
 | `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. |
 | `<plugin>/tsconfig.aliases.json` | committable plugin config | **yes** | Your path aliases; merged into the bridge. |
 

@@ -14,7 +14,7 @@
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
-import { SHIM_DIR_NAME } from './shared';
+import { LEGACY_SHIM_DIR_NAMES, SHIM_DIR_NAME } from './shared';
 import type { ModeReason, ModeResolution } from './shared';
 
 /** How deep an `extends` chain is followed before giving up. */
@@ -23,6 +23,8 @@ const MAX_EXTENDS_DEPTH = 10;
 export interface StaticConfigAnalysis {
     /** The `extends` chain reaches the shipped preset or a generated bridge. */
     reachesPreset: boolean;
+    /** The `extends` chain reaches a bridge of a previous tooling version instead. */
+    reachesLegacyPreset: boolean;
     /** The config declares its own `files` (replaces the bridge's injection). */
     declaresFiles: boolean;
     /** The config declares its own `paths` (replaces the preset's wholesale). */
@@ -34,6 +36,12 @@ function isPresetPath(configPath: string): boolean {
     const posixPath = configPath.split(path.sep).join('/');
 
     return posixPath.includes(`/${SHIM_DIR_NAME}/`) || posixPath.endsWith('extension-tooling/tsconfig.base.json');
+}
+
+function isLegacyPresetPath(configPath: string): boolean {
+    const posixPath = configPath.split(path.sep).join('/');
+
+    return LEGACY_SHIM_DIR_NAMES.some((legacyName) => posixPath.includes(`/${legacyName}/`));
 }
 
 function parseTsconfig(configPath: string): { config?: Record<string, unknown>; error?: string } {
@@ -84,12 +92,19 @@ export function analyzeTsConfigStatically(tsconfigPath: string): StaticConfigAna
     const root = parseTsconfig(tsconfigPath);
 
     if (root.error || !root.config) {
-        return { reachesPreset: false, declaresFiles: false, declaresPaths: false, parseError: root.error };
+        return {
+            reachesPreset: false,
+            reachesLegacyPreset: false,
+            declaresFiles: false,
+            declaresPaths: false,
+            parseError: root.error,
+        };
     }
 
     const compilerOptions = root.config.compilerOptions as { paths?: unknown } | undefined;
     const analysis: StaticConfigAnalysis = {
         reachesPreset: false,
+        reachesLegacyPreset: false,
         declaresFiles: root.config.files !== undefined,
         declaresPaths: compilerOptions?.paths !== undefined,
     };
@@ -112,6 +127,14 @@ export function analyzeTsConfigStatically(tsconfigPath: string): StaticConfigAna
 
                 if (isPresetPath(resolved)) {
                     analysis.reachesPreset = true;
+
+                    continue;
+                }
+
+                if (isLegacyPresetPath(resolved)) {
+                    // Terminal like the preset: the legacy bridge may already be
+                    // deleted, so its content is never followed.
+                    analysis.reachesLegacyPreset = true;
 
                     continue;
                 }
@@ -161,7 +184,14 @@ export function detailForTsReason(reason: ModeReason, analysis?: StaticConfigAna
                 `(tsconfig extends semantics) — admin-types.d.ts never enters the program.${aliasesNote}`
             );
         case 'not-extending':
-            return `the extends chain does not reach the Shopware preset or a generated .shopware-admin/ bridge.${aliasesNote}`;
+            if (analysis?.reachesLegacyPreset) {
+                return (
+                    `the config still extends the old ${LEGACY_SHIM_DIR_NAMES[0]}/ bridge — the bridge moved to ` +
+                    `${SHIM_DIR_NAME}/, update the "extends" to "./${SHIM_DIR_NAME}/tsconfig.json".${aliasesNote}`
+                );
+            }
+
+            return `the extends chain does not reach the Shopware preset or a generated ${SHIM_DIR_NAME}/ bridge.${aliasesNote}`;
         default:
             return `the resolved config does not inject extension-tooling/admin-types.d.ts.${aliasesNote}`;
     }
@@ -210,10 +240,23 @@ export function resolveStaticEslintMode(eslintConfigPath: string | null): ModeRe
     }
 
     if (!analyzeEslintConfigStatically(eslintConfigPath).importsFactory) {
+        const importsLegacyBridge = (() => {
+            try {
+                const text = fs.readFileSync(eslintConfigPath, 'utf8');
+
+                return LEGACY_SHIM_DIR_NAMES.some((legacyName) => text.includes(`${legacyName}/eslint.mjs`));
+            } catch {
+                return false;
+            }
+        })();
+
         return {
             mode: 'unmanaged',
             reason: 'factory-not-composed',
-            detail: ESLINT_NOT_COMPOSED_DETAIL,
+            detail: importsLegacyBridge
+                ? `the config still imports the old ${LEGACY_SHIM_DIR_NAMES[0]}/ bridge — the bridge moved to ` +
+                  `${SHIM_DIR_NAME}/, update the import to './${SHIM_DIR_NAME}/eslint.mjs'.`
+                : ESLINT_NOT_COMPOSED_DETAIL,
             verified: false,
         };
     }

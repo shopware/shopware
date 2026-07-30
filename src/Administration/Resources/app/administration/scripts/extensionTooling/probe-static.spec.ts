@@ -31,7 +31,7 @@ describe('scripts/extensionTooling/probe-static', () => {
             writeFile(tsconfigPath('admin/tsconfig.json'), [
                 '{',
                 '    // JSONC comments must parse',
-                '    "extends": "./.shopware-admin/tsconfig.json",',
+                '    "extends": "./.shopware/tsconfig.json",',
                 '    "files": ["../global.types.ts"],',
                 '    "include": ["src/**/*"]',
                 '}',
@@ -39,6 +39,7 @@ describe('scripts/extensionTooling/probe-static', () => {
 
             expect(analyzeTsConfigStatically(tsconfigPath('admin/tsconfig.json'))).toEqual({
                 reachesPreset: true,
+                reachesLegacyPreset: false,
                 declaresFiles: true,
                 declaresPaths: false,
             });
@@ -61,6 +62,7 @@ describe('scripts/extensionTooling/probe-static', () => {
 
             expect(analyzeTsConfigStatically(tsconfigPath('admin/tsconfig.json'))).toEqual({
                 reachesPreset: false,
+                reachesLegacyPreset: false,
                 declaresFiles: false,
                 declaresPaths: true,
             });
@@ -75,7 +77,7 @@ describe('scripts/extensionTooling/probe-static', () => {
 
     describe('analyzeEslintConfigStatically', () => {
         it('recognizes bridge and factory imports, rejects unrelated configs', () => {
-            writeFile(tsconfigPath('bridge.mjs'), ["import shopware from './.shopware-admin/eslint.mjs';"]);
+            writeFile(tsconfigPath('bridge.mjs'), ["import shopware from './.shopware/eslint.mjs';"]);
             writeFile(tsconfigPath('factory.mjs'), [
                 "import { shopwareAdminExtension } from '../extension-tooling/eslint.mjs';",
             ]);
@@ -94,9 +96,9 @@ describe('scripts/extensionTooling/probe-static', () => {
         });
 
         it('maps analysis results to unverified modes with reasons', () => {
-            writeFile(tsconfigPath('composing.json'), ['{ "extends": "./.shopware-admin/tsconfig.json" }']);
+            writeFile(tsconfigPath('composing.json'), ['{ "extends": "./.shopware/tsconfig.json" }']);
             writeFile(tsconfigPath('files-override.json'), [
-                '{ "extends": "./.shopware-admin/tsconfig.json", "files": ["x.d.ts"] }',
+                '{ "extends": "./.shopware/tsconfig.json", "files": ["x.d.ts"] }',
             ]);
             writeFile(tsconfigPath('standalone.json'), ['{ "compilerOptions": { "strict": true } }']);
             writeFile(tsconfigPath('broken.json'), ['{ "extends": ']);
@@ -126,10 +128,27 @@ describe('scripts/extensionTooling/probe-static', () => {
             });
         });
 
+        it('points configs at the renamed bridge when they still reference the legacy directory', () => {
+            writeFile(tsconfigPath('legacy.json'), ['{ "extends": "./.shopware-admin/tsconfig.json" }']);
+            writeFile(tsconfigPath('legacy-eslint.mjs'), ["import shopware from './.shopware-admin/eslint.mjs';"]);
+
+            const tsResolution = resolveStaticTsMode(tsconfigPath('legacy.json'));
+
+            expect(tsResolution.reason).toBe('not-extending');
+            expect(tsResolution.detail).toContain('.shopware-admin');
+            expect(tsResolution.detail).toContain('"./.shopware/tsconfig.json"');
+
+            const eslintResolution = resolveStaticEslintMode(tsconfigPath('legacy-eslint.mjs'));
+
+            expect(eslintResolution.reason).toBe('factory-not-composed');
+            expect(eslintResolution.detail).toContain('.shopware-admin');
+            expect(eslintResolution.detail).toContain("'./.shopware/eslint.mjs'");
+        });
+
         it('explains the files-override trap and points path declarers at tsconfig.aliases.json', () => {
             writeFile(tsconfigPath('trap.json'), [
                 '{',
-                '    "extends": "./.shopware-admin/tsconfig.json",',
+                '    "extends": "./.shopware/tsconfig.json",',
                 '    "files": ["x.d.ts"],',
                 '    "compilerOptions": { "paths": { "MyPlugin/*": ["src/*"] } }',
                 '}',

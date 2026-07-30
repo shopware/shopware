@@ -14,7 +14,15 @@ import path from 'path';
 import { record } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { scaffoldExtensionConfigs } from './setup-configs';
-import { GENERATED_MARKER, SHIM_DIR_NAME, asRelativeSpecifier, relativePosix, writeManagedFile } from './shared';
+import {
+    GENERATED_MARKER,
+    LEGACY_SHIM_DIR_NAMES,
+    SHIM_DIR_NAME,
+    asRelativeSpecifier,
+    isGeneratedContent,
+    relativePosix,
+    writeManagedFile,
+} from './shared';
 import type { AdministrationTarget, ExtensionToolingProject } from './shared';
 
 /**
@@ -94,12 +102,46 @@ function buildShimPaths(
 }
 
 /**
- * Writes the three git-ignored bridge files into `<bridgeParent>/.shopware-admin/`.
+ * Deletes a bridge directory left behind by a previous tooling version (e.g.
+ * `.shopware-admin/`) — but only when its tsconfig still carries the generated
+ * marker. A directory a human took ownership of is left alone with a warning,
+ * consistent with the writeManagedFile ownership rules.
+ */
+function removeLegacyBridges(context: GeneratorContext, bridgeParent: string): void {
+    for (const legacyName of LEGACY_SHIM_DIR_NAMES) {
+        const legacyDir = path.join(bridgeParent, legacyName);
+        const legacyTsconfig = path.join(legacyDir, 'tsconfig.json');
+
+        if (!fs.existsSync(legacyDir)) {
+            continue;
+        }
+
+        if (!fs.existsSync(legacyTsconfig) || !isGeneratedContent(fs.readFileSync(legacyTsconfig, 'utf8'))) {
+            context.warnings.push(
+                `${legacyDir} looks like a bridge from a previous tooling version but is not marker-owned — ` +
+                    `it was left alone. The bridge now lives in ${SHIM_DIR_NAME}/; remove the old directory manually.`,
+            );
+
+            continue;
+        }
+
+        context.staleFiles.push(relativePosix(context.projectRoot, legacyDir));
+
+        if (!context.dryRun) {
+            fs.rmSync(legacyDir, { recursive: true });
+        }
+    }
+}
+
+/**
+ * Writes the git-ignored bridge files into `<bridgeParent>/.shopware/`.
  * The bridge is the machine-specific hop into the installed Administration; the
  * eslint bridge derives its own parent directory at runtime, so one bridge serves
  * whichever config — per-root or a shared package root — sits beside it.
  */
 function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSources: AliasSource[]): void {
+    removeLegacyBridges(context, bridgeParent);
+
     const shimDir = path.join(bridgeParent, SHIM_DIR_NAME);
     const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
     const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');

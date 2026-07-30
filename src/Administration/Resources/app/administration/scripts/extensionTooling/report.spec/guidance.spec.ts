@@ -29,7 +29,7 @@ describe('scripts/extensionTooling/report describeNextStep', () => {
         ).join('\n');
 
         expect(steps).toContain('finish wiring it');
-        expect(steps).toContain('"extends": "./.shopware-admin/tsconfig.json"');
+        expect(steps).toContain('"extends": "./.shopware/tsconfig.json"');
         expect(steps).not.toContain('--shim');
     });
 
@@ -84,7 +84,7 @@ describe('scripts/extensionTooling/report describeToolGuidance', () => {
             resolution('unmanaged', { reason: 'factory-not-composed' }),
         );
 
-        expect(guidance?.fix.join('\n')).toContain("import shopware from './.shopware-admin/eslint.mjs';");
+        expect(guidance?.fix.join('\n')).toContain("import shopware from './.shopware/eslint.mjs';");
     });
 
     it('returns null for composing tools and for vendor extensions', () => {

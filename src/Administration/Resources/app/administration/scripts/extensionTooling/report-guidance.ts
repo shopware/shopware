@@ -7,15 +7,22 @@
  * so both report renderers can share it without pulling in picocolors.
  */
 
-import { DEFAULT_TOOLING_COMMANDS, SHIM_DIR_NAME, aggregateModeResolution, deriveExtensionState } from './shared';
+import {
+    BRIDGE_ESLINT_SPECIFIER,
+    BRIDGE_TSCONFIG_EXTENDS,
+    DEFAULT_TOOLING_COMMANDS,
+    SHIM_DIR_NAME,
+    aggregateModeResolution,
+    deriveExtensionState,
+} from './shared';
 import type { ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 
 /**
  * Ownership class of a generated path, so dry-run and shim output can tell
  * apart the three lifecycles a developer must treat differently:
- * - `bridge`: git-ignored machine-specific files inside `.shopware-admin/` —
+ * - `bridge`: git-ignored machine-specific files inside `.shopware/` —
  *   never committed;
- * - `committable`: the plugin's own tsconfig/eslint/baseline — commit these;
+ * - `committable`: the plugin's own tsconfig/eslint — commit these;
  * - `host`: disposable root projections and IDE bootstraps the tool re-derives.
  */
 export type FileClass = 'bridge' | 'committable' | 'host';
@@ -27,10 +34,7 @@ export function classifyFile(file: string): FileClass {
 
     const base = file.split('/').pop() ?? '';
 
-    if (
-        file.startsWith('custom/plugins/') &&
-        (base === 'tsconfig.json' || base === 'eslint.config.mjs' || base === '.shopware-admin-baseline.json')
-    ) {
+    if (file.startsWith('custom/plugins/') && (base === 'tsconfig.json' || base === 'eslint.config.mjs')) {
         return 'committable';
     }
 
@@ -42,9 +46,9 @@ export interface ToolGuidance {
     fix: string[];
 }
 
-const BRIDGE_TSCONFIG_LINE = '"extends": "./.shopware-admin/tsconfig.json"';
+const BRIDGE_TSCONFIG_LINE = `"extends": "${BRIDGE_TSCONFIG_EXTENDS}"`;
 const BRIDGE_ESLINT_LINES = [
-    "import shopware from './.shopware-admin/eslint.mjs';",
+    `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
     'export default [ ...shopware /* , your rules */ ];',
 ];
 
@@ -131,13 +135,13 @@ export function describeNextStep(
         return [
             "It isn't checked with the Shopware preset yet. Bridge it with one command:",
             `    ${shimCommand(project, commands)}`,
-            'That generates a git-ignored .shopware-admin/ bridge plus small committed',
+            `That generates a git-ignored ${SHIM_DIR_NAME}/ bridge plus small committed`,
             'tsconfig/eslint that extend it (existing configs are never overwritten).',
         ];
     }
 
     if (state === 'bridge-unwired') {
-        const lines = ['The .shopware-admin/ bridge exists — finish wiring it:'];
+        const lines = [`The ${SHIM_DIR_NAME}/ bridge exists — finish wiring it:`];
 
         for (const [
             tool,

@@ -13,7 +13,13 @@ import colors from 'picocolors';
 import { classifyFile, describeNextStep } from './report-guidance';
 import type { FileClass } from './report-guidance';
 import type { SetupExtensionToolingResult } from './setup';
-import { DEFAULT_TOOLING_COMMANDS, deriveExtensionState, projectHasBridge, projectHasOwnedConfig } from './shared';
+import {
+    DEFAULT_TOOLING_COMMANDS,
+    SHIM_DIR_NAME,
+    deriveExtensionState,
+    projectHasBridge,
+    projectHasOwnedConfig,
+} from './shared';
 import type { DerivedExtensionState, ExtensionToolingProject, ToolingCommands } from './shared';
 
 interface SetupRenderOptions {
@@ -134,12 +140,12 @@ function renderShimConfirmation(
             lines.push(
                 '',
                 colors.green(`✔ Bridged ${project.name}. Its tsconfig / eslint.config.mjs now extend the generated`),
-                colors.green('  .shopware-admin/ bridge (git-ignored). Commit them, edit freely — keep the "extends".'),
+                colors.green(`  ${SHIM_DIR_NAME}/ bridge (git-ignored). Commit them, edit freely — keep the "extends".`),
             );
         } else {
             lines.push(
                 '',
-                colors.green(`✔ Bridge created for ${project.name} at .shopware-admin/ — one step left:`),
+                colors.green(`✔ Bridge created for ${project.name} at ${SHIM_DIR_NAME}/ — one step left:`),
                 ...describeNextStep(project, commands)
                     .slice(1)
                     .map((line) => `  ${line}`),
@@ -154,7 +160,7 @@ function renderShimConfirmation(
     if (bridgeCreated > 0 || committableCreated > 0) {
         lines.push(
             colors.dim(
-                `  ${bridgeCreated} git-ignored bridge file(s) in .shopware-admin/ (never commit) · ` +
+                `  ${bridgeCreated} git-ignored bridge file(s) in ${SHIM_DIR_NAME}/ (never commit) · ` +
                     `${committableCreated} committable plugin config(s) (commit these)`,
             ),
         );

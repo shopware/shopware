@@ -12,7 +12,10 @@ import path from 'path';
 import { record } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import {
+    BRIDGE_ESLINT_SPECIFIER,
+    BRIDGE_TSCONFIG_EXTENDS,
     GENERATED_MARKER,
+    SHIM_DIR_NAME,
     STATE_DIR,
     asRelativeSpecifier,
     isGeneratedContent,
@@ -317,11 +320,11 @@ export function createIdeBootstraps(
 
 /**
  * Scaffolds the plugin's own small, committable tsconfig/eslint that extend the
- * generated `.shopware-admin/` bridge in `configDir` — created only when absent
- * so the developer can see and customize them. In root-config mode one pair
- * includes every source root; per root, one pair covers a single root. An
- * existing config is never overwritten; instead we print the one line to add so
- * it too composes the preset.
+ * generated bridge in `configDir` — created only when absent so the developer
+ * can see and customize them. In root-config mode one pair includes every
+ * source root; per root, one pair covers a single root. An existing config is
+ * never overwritten; instead we print the one line to add so it too composes
+ * the preset.
  */
 export function scaffoldExtensionConfigs(
     context: GeneratorContext,
@@ -337,11 +340,11 @@ export function scaffoldExtensionConfigs(
     const tsconfigPath = path.join(configDir, 'tsconfig.json');
     const eslintPath = path.join(configDir, 'eslint.config.mjs');
     const tsconfigContent =
-        `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
+        `// Committed config for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
         '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
         `${JSON.stringify(
             {
-                extends: './.shopware-admin/tsconfig.json',
+                extends: BRIDGE_TSCONFIG_EXTENDS,
                 include,
                 exclude: SPEC_FILE_SUFFIXES.map((suffix) => `**/*.${suffix}`),
             },
@@ -349,9 +352,9 @@ export function scaffoldExtensionConfigs(
             4,
         )}\n`;
     const eslintContent = [
-        `// Committed config for ${name}. Composes the generated Shopware bridge in .shopware-admin/`,
+        `// Committed config for ${name}. Composes the generated Shopware bridge in ${SHIM_DIR_NAME}/`,
         '// (git-ignored). Safe to edit and commit — keep the import and the ...spread.',
-        "import shopware from './.shopware-admin/eslint.mjs';",
+        `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
         '',
         'export default [',
         '    ...shopware,',
@@ -365,7 +368,7 @@ export function scaffoldExtensionConfigs(
 
     if (tsconfigResult === 'skipped') {
         context.warnings.push(
-            `${tsconfigPath} already exists and was not touched — add \`"extends": "./.shopware-admin/tsconfig.json"\` ` +
+            `${tsconfigPath} already exists and was not touched — add \`"extends": "${BRIDGE_TSCONFIG_EXTENDS}"\` ` +
                 `so ${name} composes the Shopware preset. Own "files" array? Remove it — the bridge provides the ` +
                 'type surface. Own paths? Declare them in tsconfig.aliases.json.',
         );
@@ -374,7 +377,7 @@ export function scaffoldExtensionConfigs(
     if (eslintResult === 'skipped') {
         context.warnings.push(
             `${eslintPath} already exists and was not touched — compose the bridge in it: ` +
-                "import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware /* , your rules */ ];",
+                `import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; export default [ ...shopware /* , your rules */ ];`,
         );
     }
 }

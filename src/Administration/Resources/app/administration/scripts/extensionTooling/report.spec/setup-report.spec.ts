@@ -75,7 +75,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         const output = setupReport(setupResult([bridgedPlugin]), { shim: 'Bridged' });
 
         expect(output).toContain('✔ Bridged Bridged');
-        expect(output).toContain('.shopware-admin/ bridge');
+        expect(output).toContain('.shopware/ bridge');
     });
 
     it('announces one remaining step after --shim when existing configs were left alone', () => {
@@ -91,8 +91,8 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             setupResult([project('Mono')], {
                 changed: true,
                 writes: [
-                    { file: 'custom/plugins/Mono/.shopware-admin/tsconfig.json', state: 'created' },
-                    { file: 'custom/plugins/Mono/.shopware-admin/eslint.mjs', state: 'created' },
+                    { file: 'custom/plugins/Mono/.shopware/tsconfig.json', state: 'created' },
+                    { file: 'custom/plugins/Mono/.shopware/eslint.mjs', state: 'created' },
                     { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
                     { file: 'var/admin-extension-tooling/manifest.json', state: 'created' },
                 ],
@@ -100,7 +100,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             { checkOnly: true },
         );
 
-        expect(output).toContain('would create: custom/plugins/Mono/.shopware-admin/tsconfig.json [git-ignored bridge]');
+        expect(output).toContain('would create: custom/plugins/Mono/.shopware/tsconfig.json [git-ignored bridge]');
         expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
         expect(output).toContain('2 git-ignored bridge file(s), 1 committable plugin file(s), 1 host projection(s)');
     });

@@ -221,7 +221,7 @@ const SETUP_COMMAND: CommandSpec = {
             valueName: '<TechnicalName>|all-custom',
             description:
                 'Bridge one extension (or "all-custom") with committed configs that extend a generated ' +
-                '.shopware-admin/ bridge.',
+                '.shopware/ bridge.',
         },
         {
             name: '--root-config',

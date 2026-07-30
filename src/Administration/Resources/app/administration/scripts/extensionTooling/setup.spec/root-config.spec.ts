@@ -93,7 +93,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         setupExtensionTooling({ projectRoot, administrationRoot, shim: 'Mono', rootConfig: '.' });
 
         expect(countBridges(path.join(projectRoot, 'custom/plugins/Mono'))).toBe(1);
-        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Mono/.shopware-admin/tsconfig.json'))).toBe(true);
+        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Mono/.shopware/tsconfig.json'))).toBe(true);
         expect(
             fs.existsSync(
                 path.join(projectRoot, 'custom/plugins/Mono/src/BundleA/Resources/app/administration/tsconfig.json'),
@@ -102,7 +102,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
 
         const scaffold = fs.readFileSync(path.join(projectRoot, 'custom/plugins/Mono/tsconfig.json'), 'utf8');
 
-        expect(scaffold).toContain('"extends": "./.shopware-admin/tsconfig.json"');
+        expect(scaffold).toContain('"extends": "./.shopware/tsconfig.json"');
         expect(scaffold).toContain('src/BundleA/Resources/app/administration/src/**/*.ts');
         expect(scaffold).toContain('src/BundleB/Resources/app/administration/src/**/*.ts');
     });
@@ -117,7 +117,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'Shared' });
 
         expect(countBridges(path.join(projectRoot, 'custom/plugins/Shared'))).toBe(1);
-        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Shared/.shopware-admin/tsconfig.json'))).toBe(true);
+        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Shared/.shopware/tsconfig.json'))).toBe(true);
         // The pre-existing package config is never rewritten.
         expect(fs.readFileSync(path.join(projectRoot, 'custom/plugins/Shared/tsconfig.json'), 'utf8')).not.toContain(
             '@generated',

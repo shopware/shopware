@@ -66,7 +66,7 @@ const renderDryRun = (reportModule: ReportModule) =>
         setupResult([project('Mono')], {
             changed: true,
             writes: [
-                { file: 'custom/plugins/Mono/.shopware-admin/tsconfig.json', state: 'created' },
+                { file: 'custom/plugins/Mono/.shopware/tsconfig.json', state: 'created' },
                 { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
                 { file: 'var/admin-extension-tooling/manifest.json', state: 'created' },
             ],
@@ -88,7 +88,7 @@ describe('scripts/extensionTooling/report color rendering', () => {
         const output = stripAnsi(colored);
 
         expect(output).not.toBe(colored);
-        expect(output).toContain('would create: custom/plugins/Mono/.shopware-admin/tsconfig.json [git-ignored bridge]');
+        expect(output).toContain('would create: custom/plugins/Mono/.shopware/tsconfig.json [git-ignored bridge]');
         expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
     });
 

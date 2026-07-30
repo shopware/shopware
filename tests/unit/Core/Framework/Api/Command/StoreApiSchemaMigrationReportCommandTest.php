@@ -37,8 +37,6 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
         static::assertIsArray($report);
         static::assertArrayHasKey('jsonOverridesPhpGenerated', $report);
         static::assertIsArray($report['jsonOverridesPhpGenerated']);
-        static::assertArrayHasKey('jsonOverridesPhpGeneratedWithoutAllowlist', $report);
-        static::assertIsArray($report['jsonOverridesPhpGeneratedWithoutAllowlist']);
         static::assertArrayHasKey('phpGeneratedOnlyWithoutAllowlist', $report);
         static::assertIsArray($report['phpGeneratedOnlyWithoutAllowlist']);
         static::assertSame(['JsonOverrideEntity'], $report['jsonOverridesPhpGenerated']);
@@ -121,13 +119,10 @@ class StoreApiSchemaMigrationReportCommandTest extends TestCase
     {
         return new StoreApiSchemaMigrationReport(
             jsonOverridesPhpGenerated: ['JsonOverrideEntity'],
-            jsonOverridesPhpGeneratedAllowed: [],
-            jsonOverridesPhpGeneratedWithoutAllowlist: [],
             phpGeneratedOnly: [],
             phpGeneratedOnlyAllowed: [],
             phpGeneratedOnlyWithoutAllowlist: ['TestEntityWithAssociations'],
             jsonWithoutPhpGenerated: [],
-            allowlistWithoutJsonOverridesPhpGeneratedSchema: [],
             allowlistWithoutPhpGeneratedOnlySchema: [],
             allowlistWithoutPhpGeneratedSchema: [],
         );

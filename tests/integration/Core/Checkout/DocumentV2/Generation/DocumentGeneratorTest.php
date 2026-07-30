@@ -275,8 +275,7 @@ class DocumentGeneratorTest extends TestCase
     private function loadDocument(string $documentId): DocumentEntity
     {
         $document = static::getContainer()->get('document.repository')
-            ->search(new Criteria([$documentId]), $this->context)
-            ->first();
+            ->search(new Criteria([$documentId]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(DocumentEntity::class, $document);
 

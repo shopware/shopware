@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -15,7 +16,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  *
  * @phpstan-type StoreApiSchemaMigrationAllowlist array{
- *     jsonOverridesPhpGeneratedSchemas: list<string>,
  *     phpGeneratedStoreApiSchemas: list<string>
  * }
  */
@@ -40,8 +40,8 @@ class StoreApiSchemaMigrationReporter
     public function report(array $definitions, string $scope = CoreStoreApiSchemaMigrationScopeProvider::SCOPE): StoreApiSchemaMigrationReport
     {
         $scopeProvider = $this->getScopeProvider($scope);
-        $phpGeneratedSchemaNames = $this->getPhpGeneratedSchemaNames($definitions, $scopeProvider);
         $jsonSchemaNames = $this->getJsonSchemaNames($scopeProvider->getSchemaPaths());
+        $phpGeneratedSchemaNames = $this->getPhpGeneratedSchemaNames($definitions, $scopeProvider, $jsonSchemaNames);
         $allowlist = $this->loadAllowlist($scopeProvider->getAllowlistPath());
 
         $jsonOverridesPhpGenerated = array_intersect($jsonSchemaNames, $phpGeneratedSchemaNames);
@@ -49,13 +49,10 @@ class StoreApiSchemaMigrationReporter
 
         return new StoreApiSchemaMigrationReport(
             jsonOverridesPhpGenerated: $this->sortList($jsonOverridesPhpGenerated),
-            jsonOverridesPhpGeneratedAllowed: $this->sortList(array_intersect($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
-            jsonOverridesPhpGeneratedWithoutAllowlist: $this->sortList(array_diff($jsonOverridesPhpGenerated, $allowlist['jsonOverridesPhpGeneratedSchemas'])),
             phpGeneratedOnly: $this->sortList($phpGeneratedOnly),
             phpGeneratedOnlyAllowed: $this->sortList(array_intersect($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
             phpGeneratedOnlyWithoutAllowlist: $this->sortList(array_diff($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
             jsonWithoutPhpGenerated: $this->sortList(array_diff($jsonSchemaNames, $phpGeneratedSchemaNames)),
-            allowlistWithoutJsonOverridesPhpGeneratedSchema: $this->sortList(array_diff($allowlist['jsonOverridesPhpGeneratedSchemas'], $jsonOverridesPhpGenerated)),
             allowlistWithoutPhpGeneratedOnlySchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedOnly)),
             allowlistWithoutPhpGeneratedSchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedSchemaNames)),
         );
@@ -76,11 +73,15 @@ class StoreApiSchemaMigrationReporter
 
     /**
      * @param array<string, EntityDefinition> $definitions
+     * @param list<string> $jsonSchemaNames
      *
      * @return list<string>
      */
-    private function getPhpGeneratedSchemaNames(array $definitions, StoreApiSchemaMigrationScopeProviderInterface $scopeProvider): array
-    {
+    private function getPhpGeneratedSchemaNames(
+        array $definitions,
+        StoreApiSchemaMigrationScopeProviderInterface $scopeProvider,
+        array $jsonSchemaNames
+    ): array {
         $schemaNames = [];
 
         ksort($definitions);
@@ -90,11 +91,16 @@ class StoreApiSchemaMigrationReporter
                 continue;
             }
 
+            if (\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $jsonSchemaNames, true)) {
+                continue;
+            }
+
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
                 $this->getResourceUri($definition),
                 true,
                 $this->shouldIncludeReferenceOnly($definition),
+                DefinitionService::TYPE_JSON_API,
             );
 
             array_push($schemaNames, ...array_keys($schema));
@@ -139,7 +145,6 @@ class StoreApiSchemaMigrationReporter
     {
         if (!$this->filesystem->exists($allowlistPath)) {
             return [
-                'jsonOverridesPhpGeneratedSchemas' => [],
                 'phpGeneratedStoreApiSchemas' => [],
             ];
         }
@@ -161,7 +166,6 @@ class StoreApiSchemaMigrationReporter
         }
 
         return [
-            'jsonOverridesPhpGeneratedSchemas' => $this->readAllowlistSchemaNames($data, 'jsonOverridesPhpGeneratedSchemas', $allowlistPath),
             'phpGeneratedStoreApiSchemas' => $this->readAllowlistSchemaNames($data, 'phpGeneratedStoreApiSchemas', $allowlistPath),
         ];
     }

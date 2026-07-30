@@ -18,7 +18,7 @@ import {
     relativePosix,
 } from './shared';
 import type { AdministrationTarget, ExtensionToolingProject } from './shared';
-import { resolveStaticEslintMode, resolveStaticTsMode } from './probe-static';
+import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
 
 const ESLINT_CONFIG_NAMES = [
     'eslint.config.mjs',
@@ -128,11 +128,10 @@ export function discoverProjects(
                         bridgePresent: [...bridgeDirs].some((dir) =>
                             fs.existsSync(path.join(dir, SHIM_DIR_NAME, 'tsconfig.json')),
                         ),
-                        tsconfig: tsconfig ? relativePosix(projectRoot, tsconfig) : null,
-                        eslintConfig: eslintConfig ? relativePosix(projectRoot, eslintConfig) : null,
-                        ts: resolveStaticTsMode(tsconfig),
-                        eslint: resolveStaticEslintMode(eslintConfig),
-                        checkTsconfig: '',
+                        tsconfig: tsconfig ? tsconfigVerdict(tsconfig, relativePosix(projectRoot, tsconfig)) : null,
+                        eslintConfig: eslintConfig
+                            ? eslintConfigVerdict(eslintConfig, relativePosix(projectRoot, eslintConfig))
+                            : null,
                     };
                 });
 

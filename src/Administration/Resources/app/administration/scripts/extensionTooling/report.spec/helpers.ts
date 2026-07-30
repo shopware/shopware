@@ -10,7 +10,7 @@
 import path from 'path';
 import { renderSetupReport } from '../report';
 import type { SetupExtensionToolingResult } from '../setup';
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
+import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig } from '../shared';
 
 // picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
 // is exact for the renderer's output.
@@ -21,37 +21,31 @@ export function stripAnsi(value: string): string {
     return value.replace(ANSI_SGR_PATTERN, '');
 }
 
-export function resolution(mode: ModeResolution['mode'], overrides: Partial<ModeResolution> = {}): ModeResolution {
-    return { mode, verified: true, ...overrides };
+/** An extension-owned config at `path`; a `detail` implies it does not compose. */
+export function owned(configPath: string, detail?: string): OwnedConfig {
+    return detail === undefined ? { path: configPath, composes: true } : { path: configPath, composes: false, detail };
 }
 
-type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget> & { sourcePaths?: string[] };
-
-export function target(name: string, overrides: Partial<AdministrationTarget> = {}): AdministrationTarget {
-    const sourcePath = overrides.sourcePath ?? `custom/plugins/${name}/src`;
-
-    return {
-        technicalNames: overrides.technicalNames ?? [name],
-        sourcePath,
-        adminFolder: overrides.adminFolder ?? path.posix.dirname(sourcePath),
-        bridgePresent: overrides.bridgePresent ?? false,
-        tsconfig: overrides.tsconfig ?? null,
-        eslintConfig: overrides.eslintConfig ?? null,
-        ts: overrides.ts ?? resolution('managed'),
-        eslint: overrides.eslint ?? resolution('managed'),
-        checkTsconfig: overrides.checkTsconfig ?? '',
-    };
-}
+type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget>;
 
 export function project(name: string, overrides: ProjectOverrides = {}): ExtensionToolingProject {
-    const sourcePath = overrides.sourcePath ?? overrides.sourcePaths?.[0] ?? `custom/plugins/${name}/src`;
+    const sourcePath = overrides.sourcePath ?? `custom/plugins/${name}/src`;
 
     return {
         name: overrides.name ?? name,
         technicalNames: overrides.technicalNames ?? [name],
         basePath: overrides.basePath ?? `custom/plugins/${name}`,
         vendor: overrides.vendor ?? false,
-        targets: overrides.targets ?? [target(name, { ...overrides, sourcePath })],
+        targets: overrides.targets ?? [
+            {
+                technicalNames: overrides.technicalNames ?? [name],
+                sourcePath,
+                adminFolder: overrides.adminFolder ?? path.posix.dirname(sourcePath),
+                bridgePresent: overrides.bridgePresent ?? false,
+                tsconfig: overrides.tsconfig ?? null,
+                eslintConfig: overrides.eslintConfig ?? null,
+            },
+        ],
     };
 }
 

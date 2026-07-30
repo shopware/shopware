@@ -22,14 +22,13 @@
  * import for consumers.
  *
  * Pipeline: discover extensions (var/plugins.json) → automatic per-extension
- * bridges + scaffolded configs → fallback leaf tsconfigs in
- * var/admin-extension-tooling/ for targets the bridge could not cover → root
- * tsconfig/eslint projections → IDE bootstraps → manifest.
+ * bridges + scaffolded configs → re-discover → root tsconfig/eslint
+ * projections covering whatever no extension config governs → IDE bootstraps →
+ * manifest.
  *
  * Marker-owned files (root configs, IDE bootstraps, bridges) a human wrote are
  * never overwritten; collisions are reported with integration instructions
- * instead. The var/ state files (leaf configs, manifest.json) are tool-owned
- * and rewritten on every run.
+ * instead. The manifest under var/ is tool-owned and rewritten on every run.
  */
 
 import fs from 'fs';
@@ -49,13 +48,7 @@ import type { ExtensionToolingManifest, WriteResult } from './shared';
 import { record, toManifestState } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
-import {
-    createIdeBootstraps,
-    createLeafConfigs,
-    createRootEslintConfig,
-    createRootTsconfig,
-    ensureEntitySchema,
-} from './setup-configs';
+import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
 import { createBridges } from './setup-bridge';
 import { ensureGitignoreBlock } from './setup-gitignore';
 
@@ -65,12 +58,10 @@ export { discoverProjects };
 export interface SetupExtensionToolingOptions {
     projectRoot: string;
     administrationRoot: string;
-    pluginsConfigPath?: string;
     /**
-     * Root-config bridge mode for a multi-root extension: the directory
-     * (relative to the extension root) whose package-level config governs every
-     * Administration root. One bridge is generated beside it instead of one per
-     * root. The choice is persisted in the manifest, so plain re-runs keep it.
+     * Bridge one extension beside the package-level config in this directory
+     * (relative to the extension root) instead of beside each of its owned
+     * configs — for a multi-root package whose layout the grouping cannot infer.
      */
     rootConfig?: { extension: string; dir: string };
     /** Validate-only mode: report what would change, write nothing. */
@@ -83,7 +74,7 @@ export interface SetupExtensionToolingResult {
     manifest: ExtensionToolingManifest;
     manifestPath: string;
     writes: WriteResult[];
-    /** Stale leaf configs of removed extensions that were (or would be) deleted. */
+    /** Files of removed extensions that were (or would be) deleted. */
     staleFiles: string[];
     warnings: string[];
     /** Human instructions for user-owned files and IDEs we never write to. */
@@ -116,7 +107,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
-    const pluginsConfigPath = path.resolve(projectRoot, options.pluginsConfigPath ?? path.join('var', 'plugins.json'));
+    const pluginsConfigPath = path.join(projectRoot, 'var', 'plugins.json');
     const context: GeneratorContext = {
         projectRoot,
         administrationRoot,
@@ -134,35 +125,35 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     const previousManifest = readPreviousManifest(projectRoot);
 
     let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
-
-    // Persisted root-config choices survive plain re-runs; entries of removed
-    // extensions are dropped, a fresh --root-config value wins for its extension.
-    const discoveredNames = new Set(discovered.map((project) => project.name));
-    const rootConfigDirs: Record<string, string> = Object.fromEntries(
-        Object.entries(previousManifest?.rootConfigDirs ?? {}).filter(([name]) => discoveredNames.has(name)),
-    );
+    const rootConfigDirs: Record<string, string> = {};
 
     if (options.rootConfig) {
-        if (discoveredNames.has(options.rootConfig.extension)) {
+        const known = discovered.some((project) => project.name === options.rootConfig?.extension);
+
+        if (known) {
             rootConfigDirs[options.rootConfig.extension] = options.rootConfig.dir;
         } else {
             context.warnings.push(
                 `--root-config names the unknown extension ${options.rootConfig.extension}. ` +
-                    `Discovered extensions: ${[...discoveredNames].sort().join(', ') || '(none)'}.`,
+                    `Discovered extensions: ${
+                        discovered
+                            .map((project) => project.name)
+                            .sort()
+                            .join(', ') || '(none)'
+                    }.`,
             );
         }
     }
 
-    // Bridge before leaf/root configs, then re-discover so every freshly
+    // Bridge before the root projection, then re-discover so every freshly
     // bridged extension is already recognized as bridged within this same run.
-    // (A --check dry-run cannot see unwritten bridges, so it lists the fallback
-    // leafs a real run would not produce — the exit code is 1 either way.)
+    // (A --check dry-run cannot see unwritten bridges, so it reports the
+    // projection a real run would not need — the exit code is 1 either way.)
     createBridges(context, discovered, rootConfigDirs);
     discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
 
-    const projects = createLeafConfigs(context, discovered);
-    const rootTsconfigState = createRootTsconfig(context, projects);
-    const rootEslintState = createRootEslintConfig(context, projects);
+    const rootTsconfigState = createRootTsconfig(context, discovered);
+    const rootEslintState = createRootEslintConfig(context, discovered);
     const adminRelative = relativePosix(projectRoot, administrationRoot);
     const ideBootstraps = createIdeBootstraps(context, adminRelative, readEslintMajorVersion(administrationRoot));
     const gitignore = ensureGitignoreBlock(
@@ -200,8 +191,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
             ),
         ),
         gitignore,
-        rootConfigDirs,
-        projects,
+        projects: discovered,
     };
 
     const manifestPath = path.join(projectRoot, STATE_DIR, 'manifest.json');
@@ -245,8 +235,8 @@ const SETUP_COMMAND: CommandSpec = {
             value: 'required',
             valueName: '<Extension>:<dir>',
             description:
-                'Bridge the named multi-root extension once beside the package-level config in <dir> ' +
-                '(relative to the extension root) instead of once per root. Persisted for later plain runs.',
+                'Bridge the named extension once beside the package-level config in <dir> (relative to the ' +
+                'extension root) instead of beside each config it owns.',
         },
         {
             name: '--project-root',
@@ -261,12 +251,6 @@ const SETUP_COMMAND: CommandSpec = {
             value: 'required',
             valueName: '<path>',
             description: 'Administration app root (defaults to the installed one running this script).',
-        },
-        {
-            name: '--plugins-config',
-            value: 'required',
-            valueName: '<path>',
-            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
         },
     ],
 };
@@ -348,7 +332,6 @@ export function runSetupCli(argv: string[]): number {
         const result = setupExtensionTooling({
             projectRoot,
             administrationRoot,
-            pluginsConfigPath: parsed.values['--plugins-config'],
             rootConfig,
             checkOnly: checkFlag,
             noGitignore: parsed.flags.has('--no-gitignore'),

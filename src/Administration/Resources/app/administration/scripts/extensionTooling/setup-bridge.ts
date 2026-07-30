@@ -1,15 +1,14 @@
 /**
  * @sw-package framework
  *
- * Bridge generation — automatic for every discovered non-platform extension.
- * A bridge is the git-ignored, machine-specific hop into the installed
- * Administration; the committed extension configs (scaffolded in
- * setup-configs) extend it. Decides whether an extension is bridged once per
- * Administration root or once beside a package-level config that governs
- * several roots (`resolveBridgePlan`), then writes the bridge files and merges
- * plugin aliases into its `paths`. A bridge that cannot be written (read-only
- * vendor dir, ambiguous layout) degrades to a warning; the extension stays
- * covered through the host-owned fallback configs.
+ * Bridge generation — automatic for every discovered non-platform extension. A
+ * bridge is the git-ignored, machine-specific hop into the installed
+ * Administration; the committed extension configs (scaffolded in setup-configs)
+ * extend it. One bridge is written per directory that owns a config, so a
+ * package-level config governing several Administration roots gets a single
+ * shared bridge. A bridge that cannot be written (an unwritable vendor
+ * directory) degrades to a warning; the extension stays covered through the
+ * root projection.
  */
 
 import fs from 'fs';
@@ -17,21 +16,12 @@ import path from 'path';
 import { record } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { scaffoldExtensionConfigs } from './setup-configs';
-import {
-    GENERATED_MARKER,
-    LEGACY_SHIM_DIR_NAMES,
-    SHIM_DIR_NAME,
-    asRelativeSpecifier,
-    isGeneratedContent,
-    isPlatformProject,
-    relativePosix,
-    writeManagedFile,
-} from './shared';
-import type { AdministrationTarget, ExtensionToolingProject } from './shared';
+import { GENERATED_MARKER, SHIM_DIR_NAME, asRelativeSpecifier, isPlatformProject, writeManagedFile } from './shared';
+import type { ExtensionToolingProject, OwnedConfig } from './shared';
 
 /**
  * Aliases contributing to a bridge's merged `paths`. Each source's targets
- * resolve relative to its own `baseDir`, so a root-config bridge can carry the
+ * resolve relative to its own `baseDir`, so a shared bridge can carry the
  * aliases declared beside every covered Administration root, not only one.
  */
 interface AliasSource {
@@ -40,17 +30,14 @@ interface AliasSource {
 }
 
 function dedupeAliasSources(sources: AliasSource[]): AliasSource[] {
-    const seen = new Set<string>();
-
-    return sources.filter((source) => {
-        if (seen.has(source.aliasesPath)) {
-            return false;
-        }
-
-        seen.add(source.aliasesPath);
-
-        return true;
-    });
+    return [
+        ...new Map(
+            sources.map((source) => [
+                source.aliasesPath,
+                source,
+            ]),
+        ).values(),
+    ];
 }
 
 /**
@@ -105,44 +92,6 @@ function buildShimPaths(
     return mergedPaths;
 }
 
-/**
- * Deletes a bridge directory left behind by a previous tooling version (e.g.
- * `.shopware-admin/`) — but only when its tsconfig still carries the generated
- * marker. A directory a human took ownership of is left alone with a warning,
- * consistent with the writeManagedFile ownership rules.
- */
-function removeLegacyBridges(context: GeneratorContext, bridgeParent: string): void {
-    for (const legacyName of LEGACY_SHIM_DIR_NAMES) {
-        const legacyDir = path.join(bridgeParent, legacyName);
-        const legacyTsconfig = path.join(legacyDir, 'tsconfig.json');
-
-        if (!fs.existsSync(legacyDir)) {
-            continue;
-        }
-
-        if (!fs.existsSync(legacyTsconfig) || !isGeneratedContent(fs.readFileSync(legacyTsconfig, 'utf8'))) {
-            context.warnings.push(
-                `${legacyDir} looks like a bridge from a previous tooling version but is not marker-owned — ` +
-                    `it was left alone. The bridge now lives in ${SHIM_DIR_NAME}/; remove the old directory manually.`,
-            );
-
-            continue;
-        }
-
-        context.staleFiles.push(relativePosix(context.projectRoot, legacyDir));
-
-        if (!context.dryRun) {
-            fs.rmSync(legacyDir, { recursive: true });
-        }
-    }
-}
-
-/**
- * Writes the git-ignored bridge files into `<bridgeParent>/.shopware/`.
- * The bridge is the machine-specific hop into the installed Administration; the
- * eslint bridge derives its own parent directory at runtime, so one bridge serves
- * whichever config — per-root or a shared package root — sits beside it.
- */
 /** The README generated into every bridge so the folder explains itself when stumbled upon. */
 function bridgeReadmeContent(context: GeneratorContext): string {
     return [
@@ -166,9 +115,13 @@ function bridgeReadmeContent(context: GeneratorContext): string {
     ].join('\n');
 }
 
+/**
+ * Writes the git-ignored bridge files into `<bridgeParent>/.shopware/`. The
+ * bridge is the machine-specific hop into the installed Administration; its
+ * eslint half derives its own parent directory at runtime, so one bridge serves
+ * whichever config — per-root or a shared package root — sits beside it.
+ */
 function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSources: AliasSource[]): void {
-    removeLegacyBridges(context, bridgeParent);
-
     const shimDir = path.join(bridgeParent, SHIM_DIR_NAME);
     const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
     const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
@@ -221,78 +174,50 @@ function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSourc
     );
 }
 
-type BridgePlan = { kind: 'per-root' } | { kind: 'root-config'; dir: string } | { kind: 'ambiguous'; candidates: string[] };
-
 /**
- * Decides whether an extension is bridged once beside a package-level config
- * that already governs several Administration roots, or once per root. An
- * explicit `--root-config` always wins. Otherwise a single owned config shared
- * by two or more roots is adopted as the root config; two or more competing
- * shared configs are ambiguous and require the explicit flag; anything else (a
- * single root, genuinely independent per-root configs, or zero-config) stays
- * per-root, so independent layouts keep their existing behavior.
+ * Groups an extension's source roots by the directory their bridge belongs in:
+ * beside each config the extension already owns, or beside the source root
+ * itself when it owns none. A package-level config governing several roots
+ * therefore gets one shared bridge, independent per-root configs get one each,
+ * and no layout has to be classified up front. `--root-config` overrides the
+ * grouping for one extension; the config scaffolded there makes the choice
+ * self-perpetuating, so nothing needs to remember it.
  */
-function resolveBridgePlan(
+function bridgeDirs(
     context: GeneratorContext,
     project: ExtensionToolingProject,
     explicitRootConfig?: string,
-): BridgePlan {
-    const extensionRoot = path.resolve(context.projectRoot, project.basePath);
+): Map<string, string[]> {
+    const grouped = new Map<string, string[]>();
 
-    if (explicitRootConfig !== undefined) {
-        return { kind: 'root-config', dir: path.resolve(extensionRoot, explicitRootConfig) };
-    }
+    for (const target of project.targets) {
+        const ownedDirs = [
+            target.tsconfig,
+            target.eslintConfig,
+        ]
+            .filter((config): config is OwnedConfig => config !== null)
+            .map((config) => path.dirname(path.resolve(context.projectRoot, config.path)));
+        const dirs =
+            explicitRootConfig !== undefined
+                ? [path.resolve(context.projectRoot, project.basePath, explicitRootConfig)]
+                : [...new Set(ownedDirs.length > 0 ? ownedDirs : [path.resolve(context.projectRoot, target.adminFolder)])];
 
-    if (project.targets.length < 2) {
-        return { kind: 'per-root' };
-    }
-
-    const sharedConfigDirs = (configOf: (target: AdministrationTarget) => string | null): string[] => {
-        const counts = new Map<string, number>();
-
-        for (const target of project.targets) {
-            const config = configOf(target);
-
-            if (config) {
-                const dir = path.dirname(path.resolve(context.projectRoot, config));
-
-                counts.set(dir, (counts.get(dir) ?? 0) + 1);
-            }
+        for (const dir of dirs) {
+            grouped.set(dir, [
+                ...(grouped.get(dir) ?? []),
+                target.sourcePath,
+            ]);
         }
-
-        return [...counts.entries()]
-            .filter(
-                ([
-                    ,
-                    count,
-                ]) => count >= 2,
-            )
-            .map(([dir]) => dir);
-    };
-    const candidates = [
-        ...new Set([
-            ...sharedConfigDirs((target) => target.tsconfig),
-            ...sharedConfigDirs((target) => target.eslintConfig),
-        ]),
-    ];
-
-    if (candidates.length === 0) {
-        return { kind: 'per-root' };
     }
 
-    if (candidates.length === 1) {
-        return { kind: 'root-config', dir: candidates[0] };
-    }
-
-    return { kind: 'ambiguous', candidates };
+    return grouped;
 }
 
 /**
- * Bridges every discovered non-platform extension — custom and vendor alike,
- * so linting and type-checking always run through generated configs. A bridge
- * that cannot be produced (ambiguous multi-root layout, unwritable directory)
- * is skipped with a warning instead of failing the run: the extension then
- * stays on the host-owned fallback configs.
+ * Bridges every discovered non-platform extension — custom and vendor alike, so
+ * linting and type-checking always run through generated configs. A bridge that
+ * cannot be written (an unwritable directory) is skipped with a warning instead
+ * of failing the run: the extension then stays on the root projection.
  */
 export function createBridges(
     context: GeneratorContext,
@@ -304,60 +229,25 @@ export function createBridges(
             continue;
         }
 
-        const plan = resolveBridgePlan(context, project, rootConfigDirs[project.name]);
-
-        if (plan.kind === 'ambiguous') {
-            const relative = plan.candidates
-                .map((dir) => relativePosix(context.projectRoot, dir))
-                .sort()
-                .join(', ');
-
-            context.warnings.push(
-                `${project.name} was not bridged: more than one package-level config governs multiple ` +
-                    `Administration roots (${relative}). Choose one with --root-config=${project.name}:<dir> ` +
-                    `(relative to ${project.basePath}), or give each root its own independent config.`,
-            );
-
-            continue;
-        }
-
         try {
-            if (plan.kind === 'root-config') {
-                const coveredAdminFolders = project.targets.map((target) =>
-                    path.resolve(context.projectRoot, target.adminFolder),
-                );
-                const aliasSources = dedupeAliasSources([
-                    { aliasesPath: path.join(plan.dir, 'tsconfig.aliases.json'), baseDir: plan.dir },
-                    ...coveredAdminFolders.map((folder) => ({
-                        aliasesPath: path.join(folder, 'tsconfig.aliases.json'),
-                        baseDir: folder,
-                    })),
-                ]);
-
-                writeBridge(context, plan.dir, aliasSources);
-                scaffoldExtensionConfigs(
-                    context,
-                    project.name,
-                    plan.dir,
-                    project.targets.map((target) => target.sourcePath),
-                    project.vendor,
+            for (const [
+                dir,
+                sourcePaths,
+            ] of bridgeDirs(context, project, rootConfigDirs[project.name])) {
+                const aliasSources = dedupeAliasSources(
+                    [
+                        dir,
+                        ...sourcePaths.map((sourcePath) => path.dirname(path.resolve(context.projectRoot, sourcePath))),
+                    ].map((baseDir) => ({ aliasesPath: path.join(baseDir, 'tsconfig.aliases.json'), baseDir })),
                 );
 
-                continue;
-            }
-
-            for (const target of project.targets) {
-                const adminFolder = path.resolve(context.projectRoot, target.adminFolder);
-
-                writeBridge(context, adminFolder, [
-                    { aliasesPath: path.join(adminFolder, 'tsconfig.aliases.json'), baseDir: adminFolder },
-                ]);
-                scaffoldExtensionConfigs(context, project.name, adminFolder, [target.sourcePath], project.vendor);
+                writeBridge(context, dir, aliasSources);
+                scaffoldExtensionConfigs(context, project.name, dir, sourcePaths, project.vendor);
             }
         } catch (error) {
             context.warnings.push(
                 `Could not write the bridge for ${project.name} into ${project.basePath} ` +
-                    `(${error instanceof Error ? error.message : String(error)}) — falling back to host-managed configs.`,
+                    `(${error instanceof Error ? error.message : String(error)}) — falling back to the root projection.`,
             );
         }
     }

@@ -1,5 +1,8 @@
 /**
  * @sw-package framework
+ *
+ * The usage contract of the shared CLI layer: what parses, what is rejected,
+ * and that `--help` renders every declared flag with the composer `--` caveat.
  */
 
 import { CliUsageError, parseCli, renderHelp } from './cli';
@@ -38,21 +41,26 @@ describe('scripts/extensionTooling/cli', () => {
             expect(parsed.values['--project-root']).toBe('/srv/shop');
         });
 
-        it('rejects unknown flags with a usage error pointing at --help', () => {
-            expect(() => parseCli(['--chekc'], COMMAND)).toThrow(CliUsageError);
+        it('rejects unknown flags, missing values, values on boolean flags, and positionals', () => {
+            const rejected = [
+                ['--chekc'],
+                ['--root-config'],
+                ['--root-config='],
+                ['--check=yes'],
+                ['SwagPayPal'],
+            ];
+
+            for (const argv of rejected) {
+                expect(() => parseCli(argv, COMMAND)).toThrow(CliUsageError);
+            }
+
+            // The two messages a mistyped invocation must stay actionable on.
             expect(() => parseCli(['--chekc'], COMMAND)).toThrow(
                 'Unknown option --chekc. See --help for the available options.',
             );
-        });
-
-        it('rejects value flags without a value', () => {
-            expect(() => parseCli(['--root-config'], COMMAND)).toThrow('requires a value: --root-config=<Extension>:<dir>');
-            expect(() => parseCli(['--root-config='], COMMAND)).toThrow('requires a value');
-        });
-
-        it('rejects values on boolean flags and bare positionals', () => {
-            expect(() => parseCli(['--check=yes'], COMMAND)).toThrow('--check does not take a value.');
-            expect(() => parseCli(['SwagPayPal'], COMMAND)).toThrow('Unexpected argument "SwagPayPal"');
+            expect(() => parseCli(['--root-config='], COMMAND)).toThrow(
+                '--root-config requires a value: --root-config=<Extension>:<dir>',
+            );
         });
 
         it('short-circuits on --help / -h without validating the rest', () => {

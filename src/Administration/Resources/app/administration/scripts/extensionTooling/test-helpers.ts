@@ -55,23 +55,16 @@ export function createSkeletonAdmin(projectRoot: string): string {
     return administrationRoot;
 }
 
+/**
+ * Stands in for the generated entity schema. Only one property matters to the
+ * generator: it must not carry the generated marker, so it counts as the real
+ * file rather than the tool's own stub.
+ */
 export const syntheticEntitySchema = [
-    '/* eslint-disable */',
     '/* THIS FILE IS AUTO GENERATED AND SHOULD NOT BE MODIFIED MANUALLY */',
     'declare namespace EntitySchema {',
     '    interface Entities {',
-    '        product: product;',
-    '        acme_custom_entity: acme_custom_entity;',
-    '    }',
-    '',
-    '    interface product {',
-    '        id: string;',
-    '        name?: string;',
-    '    }',
-    '',
-    '    interface acme_custom_entity {',
-    '        id: string;',
-    '        customValue: string;',
+    '        product: { id: string };',
     '    }',
     '}',
 ];
@@ -83,7 +76,11 @@ export interface FixturePluginOptions {
     withComposerJson?: boolean;
 }
 
-/** Writes a typed zero-config plugin: TS entry + `<script setup>` SFC + legacy Twig template + entity merge. */
+/**
+ * A plugin with Administration sources and no config of its own. Nothing
+ * compiles or lints these files — the generators only need the directory and an
+ * entry file to exist — so the content stays minimal on purpose.
+ */
 export function writeZeroConfigPlugin(options: FixturePluginOptions): void {
     const pluginRoot = path.join(options.projectRoot, options.pluginPath);
     const sourceRoot = path.join(pluginRoot, 'src', 'Resources', 'app', 'administration', 'src');
@@ -92,64 +89,7 @@ export function writeZeroConfigPlugin(options: FixturePluginOptions): void {
         writeFile(path.join(pluginRoot, 'composer.json'), '{}\n');
     }
 
-    writeFile(path.join(sourceRoot, 'main.ts'), [
-        "import ProductCard from './ProductCard.vue';",
-        '',
-        "const productRepository = Shopware.Service('repositoryFactory').create('product');",
-        "const customEntityRepository = Shopware.Service('repositoryFactory').create('acme_custom_entity');",
-        'const criteria = new Shopware.Data.Criteria(1, 10);',
-        'void ProductCard;',
-        '',
-        "export async function loadProduct(productId: string): Promise<Entity<'product'> | null> {",
-        '    const products = await productRepository.search(criteria, Shopware.Context.api);',
-        '    return products.get(productId);',
-        '}',
-        '',
-        "export const customEntity: Entity<'acme_custom_entity'> = customEntityRepository.create(",
-        '    Shopware.Context.api,',
-        "    'custom-id',",
-        ');',
-    ]);
-    writeFile(path.join(sourceRoot, 'global.d.ts'), [
-        'declare global {',
-        '    namespace EntitySchema {',
-        '        interface Entities {',
-        '            fixture_plugin_entity: { id: string; fixtureValue: string };',
-        '            acme_custom_entity: { id: string; customValue: string };',
-        '        }',
-        '    }',
-        '}',
-        '',
-        'export {};',
-    ]);
-    writeFile(path.join(sourceRoot, 'PluginEntityUsage.ts'), [
-        "export const fixtureRepo = Shopware.Service('repositoryFactory').create('fixture_plugin_entity');",
-    ]);
-    writeFile(path.join(sourceRoot, 'ProductCard.vue'), [
-        '<script setup lang="ts">',
-        'const props = defineProps<{ productId: string }>();',
-        "const repository = Shopware.Service('repositoryFactory').create('product');",
-        '',
-        'async function loadProduct() {',
-        '    return repository.get(props.productId, Shopware.Context.api);',
-        '}',
-        '',
-        'void loadProduct();',
-        '</script>',
-        '',
-        '<template>',
-        '    <p class="zero-config-product-card">',
-        '        {{ props.productId }}',
-        '    </p>',
-        '</template>',
-    ]);
-    writeFile(path.join(sourceRoot, 'product-card.html.twig'), [
-        '<div class="zero-config-product-card">',
-        '    {% block zero_config_product_card_content %}',
-        '        <span>{{ product.name }}</span>',
-        '    {% endblock %}',
-        '</div>',
-    ]);
+    writeFile(path.join(sourceRoot, 'main.ts'), ['export {};']);
 }
 
 export interface FixtureBundleDefinition {

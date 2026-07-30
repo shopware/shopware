@@ -1,17 +1,17 @@
 /**
  * @sw-package framework
  *
- * Automatic per-root bridging: the self-ignoring .shopware/ bridge generated
- * for every discovered extension (vendor included), the committable plugin
- * configs scaffolded beside it, alias merging into the bridge's paths, legacy
- * bridge cleanup, and the graceful fallback when a bridge cannot be written.
- * The multi-root variant lives in root-config.spec.ts.
+ * Automatic bridging: the self-ignoring .shopware/ bridge generated for every
+ * discovered extension (vendor included), the committable plugin configs
+ * scaffolded beside it, alias merging into the bridge's paths, and the graceful
+ * fallback when a bridge cannot be written. The multi-root grouping lives in
+ * root-config.spec.ts.
  */
 
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
-import { GENERATED_MARKER, LEGACY_SHIM_DIR_NAMES, deriveExtensionState } from '../shared';
+import { GENERATED_MARKER, deriveExtensionState } from '../shared';
 import { cleanupTempProject, writeFile } from '../test-helpers';
 import { createSetupProject, writeDefaultFixtures } from './fixtures';
 
@@ -155,48 +155,12 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         expect(fs.readFileSync(path.join(shimDir, 'README.md'), 'utf8')).toContain('Why this folder exists');
     });
 
-    it('deletes a marker-owned bridge of a previous tooling version', () => {
-        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
-        const legacyDir = path.join(adminFolder, LEGACY_SHIM_DIR_NAMES[0]);
+    it('falls back to the root projection when a bridge cannot be written', () => {
+        // chmod is advisory for root, so the read-only scenario cannot run there.
+        if (process.getuid?.() === 0) {
+            return;
+        }
 
-        writeFile(path.join(legacyDir, 'tsconfig.json'), [
-            `// ${GENERATED_MARKER}`,
-            '{}',
-        ]);
-        writeFile(path.join(legacyDir, '.gitignore'), [
-            `# ${GENERATED_MARKER}`,
-            '*',
-        ]);
-
-        const checkResult = setupExtensionTooling({ projectRoot, administrationRoot, checkOnly: true });
-
-        // The dry-run reports the pending deletion but leaves the directory alone.
-        expect(checkResult.staleFiles.some((file) => file.endsWith(LEGACY_SHIM_DIR_NAMES[0]))).toBe(true);
-        expect(fs.existsSync(legacyDir)).toBe(true);
-
-        const result = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        expect(result.staleFiles.some((file) => file.endsWith(LEGACY_SHIM_DIR_NAMES[0]))).toBe(true);
-        expect(fs.existsSync(legacyDir)).toBe(false);
-        expect(fs.existsSync(path.join(adminFolder, '.shopware', 'tsconfig.json'))).toBe(true);
-    });
-
-    it('leaves a human-owned legacy bridge directory alone and warns', () => {
-        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
-        const legacyDir = path.join(adminFolder, LEGACY_SHIM_DIR_NAMES[0]);
-
-        writeFile(path.join(legacyDir, 'tsconfig.json'), ['{ "compilerOptions": { "strict": true } }']);
-
-        const result = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        expect(fs.existsSync(path.join(legacyDir, 'tsconfig.json'))).toBe(true);
-        expect(result.warnings.join('\n')).toContain('not marker-owned');
-    });
-
-    // chmod is advisory for root, so the read-only scenario cannot run there.
-    const itSkippingRoot = process.getuid?.() === 0 ? it.skip : it;
-
-    itSkippingRoot('falls back to host-managed configs when a bridge cannot be written', () => {
         const zeroConfigAdminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
         const vendorAdminFolder = path.join(projectRoot, 'vendor/acme/custom-admin/src/Resources/app/administration');
 
@@ -210,38 +174,34 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
             expect(result.warnings.join('\n')).toContain('Could not write the bridge for ZeroConfig');
             expect(result.warnings.join('\n')).toContain('Could not write the bridge for custom-admin');
 
-            // The zero-config plugin stays covered through the fallback leaf,
-            // referenced from the root solution tsconfig.
             const zeroConfig = result.manifest.projects.find((project) => project.name === 'ZeroConfig');
 
             expect(zeroConfig && deriveExtensionState(zeroConfig)).toBe('ready');
-            expect(zeroConfig?.targets[0].checkTsconfig).toContain('var/admin-extension-tooling/projects/');
+            expect(zeroConfig?.targets[0].tsconfig).toBeNull();
 
-            const leafPath = path.join(projectRoot, zeroConfig?.targets[0].checkTsconfig ?? '');
+            // The source root is covered by the root tsconfig's own include,
+            // with its spec files excluded.
+            const rootTsconfig = JSON.parse(
+                fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8').split('\n').slice(1).join('\n'),
+            ) as { include: string[]; exclude: string[] };
+            const sourcePath = zeroConfig?.targets[0].sourcePath ?? '';
 
-            expect(fs.existsSync(leafPath)).toBe(true);
+            expect(rootTsconfig.include).toContain(`${sourcePath}/**/*.ts`);
+            expect(rootTsconfig.exclude).toContain(`${sourcePath}/**/*.spec.ts`);
 
-            // The leaf's exclude patterns carry the source prefix, because
-            // exclude resolves relative to the config file in var/.
-            const leaf = JSON.parse(fs.readFileSync(leafPath, 'utf8').split('\n').slice(1).join('\n')) as {
-                exclude: string[];
-            };
-
-            expect(leaf.exclude).toEqual(
-                expect.arrayContaining([expect.stringMatching(/custom\/plugins\/ZeroConfig\/.*\*\*\/\*\.spec\.ts$/)]),
-            );
-            expect(fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8')).toContain(
-                zeroConfig?.targets[0].checkTsconfig ?? '',
-            );
-
-            // Once writable again, the next run bridges and prunes the leaf.
+            // Once writable again, the next run bridges and the projection empties.
             fs.chmodSync(zeroConfigAdminFolder, 0o755);
             const rerun = setupExtensionTooling({ projectRoot, administrationRoot });
-            const bridgedZeroConfig = rerun.manifest.projects.find((project) => project.name === 'ZeroConfig');
+            const bridged = rerun.manifest.projects.find((project) => project.name === 'ZeroConfig');
 
-            expect(bridgedZeroConfig && deriveExtensionState(bridgedZeroConfig)).toBe('bridged');
-            expect(fs.existsSync(leafPath)).toBe(false);
-            expect(rerun.staleFiles).toContain(zeroConfig?.targets[0].checkTsconfig ?? '');
+            expect(bridged && deriveExtensionState(bridged)).toBe('bridged');
+            expect(
+                (
+                    JSON.parse(
+                        fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8').split('\n').slice(1).join('\n'),
+                    ) as { include: string[] }
+                ).include,
+            ).not.toContain(`${sourcePath}/**/*.ts`);
         } finally {
             fs.chmodSync(zeroConfigAdminFolder, 0o755);
             fs.chmodSync(vendorAdminFolder, 0o755);

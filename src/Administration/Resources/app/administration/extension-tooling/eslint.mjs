@@ -33,6 +33,23 @@ const templateFilePatterns = [
     ...vueFilePatterns,
     ...defaultTwigFiles,
 ];
+/** Extensions consume the Administration through the global Shopware object, never through its sources. */
+const NO_ADMIN_INTERNALS_RULE = [
+    'error',
+    {
+        patterns: [
+            {
+                group: [
+                    'src',
+                    'src/*',
+                    '@administration/*',
+                    '**/src/Administration/Resources/app/administration/src/*',
+                ],
+                message: 'Use the global Shopware object instead of importing Administration internals.',
+            },
+        ],
+    },
+];
 const typedRules = Object.assign({}, ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}));
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
@@ -192,25 +209,7 @@ export function shopwareAdminExtension(options = {}) {
             },
             rules: {
                 'plugin-rules/no-src-imports': srcImportBoundary ? 'error' : 'off',
-                'no-restricted-imports': srcImportBoundary
-                    ? [
-                          'error',
-                          {
-                              patterns: [
-                                  {
-                                      group: [
-                                          'src',
-                                          'src/*',
-                                          '@administration/*',
-                                          '**/src/Administration/Resources/app/administration/src/*',
-                                      ],
-                                      message:
-                                          'Use the global Shopware object instead of importing Administration internals.',
-                                  },
-                              ],
-                          },
-                      ]
-                    : 'off',
+                'no-restricted-imports': srcImportBoundary ? NO_ADMIN_INTERNALS_RULE : 'off',
             },
         },
         {

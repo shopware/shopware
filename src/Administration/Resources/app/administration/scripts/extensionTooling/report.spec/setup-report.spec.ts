@@ -1,65 +1,182 @@
 /**
  * @sw-package framework
+ *
+ * What the setup report must say: the coverage buckets and their single action,
+ * the change list with its ownership labels (real run and dry run), the
+ * experimental notice on every branch, the empty state, and the layout-aware
+ * commands.
  */
 
-import { project, resolution, setupReport, setupResult } from './helpers';
+import { DEFAULT_TOOLING_COMMANDS, resolveToolingCommands } from '../shared';
+import { owned, project, setupReport, setupResult } from './helpers';
+
+const FLEX_COMMANDS = resolveToolingCommands('/shop', '/shop/vendor/shopware/administration/Resources/app/administration');
 
 describe('scripts/extensionTooling/report renderSetupReport', () => {
     const managed = project('FroshTools');
-    const customPlugin = project('SwagPayPal', {
-        ts: resolution('unmanaged', { reason: 'not-extending', verified: false }),
-        eslint: resolution('unmanaged', { reason: 'factory-not-composed', verified: false }),
-        tsconfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/tsconfig.json',
-        eslintConfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/eslint.config.mjs',
+    const needsBridge = project('SwagPayPal', {
+        tsconfig: owned('custom/plugins/SwagPayPal/src/Resources/app/administration/tsconfig.json', 'why it drifts'),
+        eslintConfig: owned('custom/plugins/SwagPayPal/src/Resources/app/administration/eslint.config.mjs', 'and why'),
     });
-    const bridgedPlugin = project('Bridged', {
-        ts: resolution('bridged'),
-        eslint: resolution('bridged'),
+    const bridged = project('Bridged', {
         bridgePresent: true,
-        tsconfig: 'custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json',
-        eslintConfig: 'custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs',
+        tsconfig: owned('custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json'),
+        eslintConfig: owned('custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs'),
     });
-    const unwiredPlugin = project('Unwired', {
-        ts: resolution('unmanaged', { reason: 'not-extending', verified: false }),
-        eslint: resolution('unmanaged', { reason: 'factory-not-composed', verified: false }),
+    const unwired = project('Unwired', {
         bridgePresent: true,
-        tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
-        eslintConfig: 'custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs',
+        tsconfig: owned('custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json', 'own "files" array'),
+        eslintConfig: owned('custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs'),
     });
 
-    it('classifies ready / bridged / unwired / not-bridged and shows inline next-steps by default', () => {
+    it('classifies every bucket and gives each uncovered one its action', () => {
         const output = setupReport(
             setupResult([
                 managed,
-                customPlugin,
-                bridgedPlugin,
-                unwiredPlugin,
+                needsBridge,
+                bridged,
+                unwired,
             ]),
         );
 
         expect(output).toContain('✔ ready');
         expect(output).toContain('● bridged');
-        expect(output).toContain('bridge unwired');
-        expect(output).toContain('● not bridged');
-        expect(output).toContain('Next steps');
-        expect(output).toContain("isn't bridged yet");
+        expect(output).toContain('⚠ bridge unwired');
+        expect(output).toContain('⚠ not bridged');
+        // The copy-pasteable remediation is the actual user contract here.
+        expect(output).toContain('"extends": "./.shopware/tsconfig.json"');
+        expect(output).toContain("import shopware from './.shopware/eslint.mjs'");
+        expect(output).toContain('bridges are generated automatically');
+        // The per-config drift detail names the trap the bucket note cannot.
+        expect(output).toContain('Unwired: own "files" array');
         expect(output).not.toContain('--shim');
-        expect(output).toContain('finish wiring it');
     });
 
-    it('reports a statically classified bridged plugin the same as a verified one', () => {
-        // Setup only ever has the static verdict; nothing in its output may
-        // depend on `verified`, which no setup run can ever set.
-        const staticallyBridged = project('Static', {
-            ts: resolution('bridged', { verified: false }),
-            eslint: resolution('bridged', { verified: false }),
-            bridgePresent: true,
-            tsconfig: 'custom/plugins/Static/src/Resources/app/administration/tsconfig.json',
-            eslintConfig: 'custom/plugins/Static/src/Resources/app/administration/eslint.config.mjs',
-        });
+    it('gives a fully composing extension no action lines', () => {
+        const output = setupReport(setupResult([bridged]));
 
-        expect(setupReport(setupResult([staticallyBridged]))).toContain('● bridged  Static');
-        expect(setupReport(setupResult([staticallyBridged]))).not.toContain('unverified');
+        expect(output).toContain('● bridged  Bridged');
+        expect(output).not.toContain('→');
+    });
+
+    it('marks the extensions this run freshly bridged', () => {
+        const output = setupReport(
+            setupResult([bridged], {
+                changed: true,
+                writes: [
+                    {
+                        file: 'custom/plugins/Bridged/src/Resources/app/administration/.shopware/tsconfig.json',
+                        state: 'created',
+                    },
+                ],
+            }),
+        );
+
+        expect(output).toContain('Bridged (new)');
+        // An idempotent re-run creates nothing, so nothing is marked.
+        expect(setupReport(setupResult([bridged]))).not.toContain('(new)');
+    });
+
+    it('adds the local-lifecycle note for vendor extensions', () => {
+        const output = setupReport(
+            setupResult([
+                project('Acme', {
+                    vendor: true,
+                    basePath: 'vendor/acme/admin',
+                    sourcePath: 'vendor/acme/admin/src/Resources/app/administration/src',
+                    bridgePresent: true,
+                    tsconfig: owned('vendor/acme/admin/src/Resources/app/administration/tsconfig.json', 'drift'),
+                }),
+            ]),
+        );
+
+        expect(output).toContain('composer update removes them');
+    });
+
+    it('labels changed files by ownership and summarizes the bridge files', () => {
+        const result = setupResult([project('Mono')], {
+            changed: true,
+            writes: [
+                { file: 'custom/plugins/Mono/.shopware/tsconfig.json', state: 'created' },
+                { file: 'custom/plugins/Mono/.shopware/eslint.mjs', state: 'created' },
+                { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
+                { file: 'vendor/acme/admin/src/Resources/app/administration/tsconfig.json', state: 'created' },
+                { file: 'tsconfig.json', state: 'updated' },
+            ],
+        });
+        const output = setupReport(result);
+
+        expect(output).toContain('generated: custom/plugins/Mono/tsconfig.json [commit this]');
+        expect(output).toContain(
+            'generated: vendor/acme/admin/src/Resources/app/administration/tsconfig.json ' +
+                '[local — restored by re-running setup]',
+        );
+        // The root projection is a host file, not a committable plugin config.
+        expect(output).toContain('updated: tsconfig.json');
+        expect(output).not.toContain('updated: tsconfig.json [commit this]');
+        // Bridge files scale with the extension count, so they are counted.
+        expect(output).toContain('2 git-ignored .shopware/ bridge file(s) — never commit');
+        expect(output).not.toContain('custom/plugins/Mono/.shopware/tsconfig.json');
+    });
+
+    it('switches the change list to the dry-run wording under --check', () => {
+        const result = setupResult([project('Mono')], {
+            changed: true,
+            writes: [{ file: 'custom/plugins/Mono/tsconfig.json', state: 'created' }],
+            staleFiles: ['var/admin-extension-tooling/manifest.json'],
+        });
+        const output = setupReport(result, { checkOnly: true });
+
+        expect(output).toContain('Setup is stale');
+        expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
+        expect(output).toContain('would delete: var/admin-extension-tooling/manifest.json');
+        // Nothing was generated, so the real-run verb must not appear.
+        expect(output).not.toContain('generated:');
+    });
+
+    it('reads "Configs up to date" when nothing changed', () => {
+        expect(setupReport(setupResult([managed]))).toContain('Configs up to date');
+    });
+
+    it('states the experimental status on every branch, including the empty state', () => {
+        // The report is the only surface a developer is guaranteed to see, so the
+        // BC caveat may never depend on which branch the run takes.
+        expect(setupReport(setupResult([managed]))).toContain(
+            'EXPERIMENTAL — not covered by the backwards-compatibility promise.',
+        );
+        expect(setupReport(setupResult([managed]))).toContain('manifest');
+        expect(setupReport(setupResult([]))).toContain('EXPERIMENTAL');
+        expect(setupReport(setupResult([managed]), { checkOnly: true })).toContain('EXPERIMENTAL');
+    });
+
+    it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
+        const output = setupReport(setupResult([]));
+
+        expect(output).toContain('no extensions found');
+        expect(output).toContain('bin/console bundle:dump');
+        expect(output).not.toContain('0 extension(s)');
+    });
+
+    it('lists platform bundles in their own bucket, excluded from the count', () => {
+        const storefront = project('Storefront', {
+            basePath: 'src/Storefront',
+            eslintConfig: owned('src/Storefront/Resources/app/administration/eslint.config.mjs', 'drift'),
+        });
+        const output = setupReport(
+            setupResult([
+                managed,
+                storefront,
+            ]),
+        );
+
+        expect(output).toContain('— 1 extension(s)');
+        expect(output).toContain('platform  Storefront');
+        // Platform bundles never get an action: the core toolchain checks them.
+        expect(output).not.toContain('Storefront: drift');
+
+        const emptyWithPlatform = setupReport(setupResult([storefront]));
+
+        expect(emptyWithPlatform).toContain('no extensions found');
     });
 
     it('renders the IDE / integration instruction block the run produced', () => {
@@ -71,142 +188,21 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(setupReport(setupResult([managed]))).not.toContain('Settings → Languages');
     });
 
-    it('confirms a fresh bridge only when the run created one and the configs compose it', () => {
-        const freshWrites = [
-            {
-                file: 'custom/plugins/Bridged/src/Resources/app/administration/.shopware/tsconfig.json',
-                state: 'created' as const,
-            },
-        ];
-        const output = setupReport(setupResult([bridgedPlugin], { changed: true, writes: freshWrites }));
+    it('warns when a root projection is user-owned', () => {
+        const conflicted = setupResult([managed]);
+        conflicted.manifest.rootConfigs.tsconfig = 'conflict';
 
-        expect(output).toContain('✔ Bridged Bridged');
-        expect(output).toContain('.shopware/ bridge');
-
-        // An idempotent re-run (nothing freshly created) prints no confirmation.
-        expect(setupReport(setupResult([bridgedPlugin]))).not.toContain('✔ Bridged');
+        expect(setupReport(conflicted)).toContain('root tsconfig.json is user-owned');
     });
 
-    it('announces one remaining step when existing configs were left alone beside a fresh bridge', () => {
-        const freshWrites = [
-            {
-                file: 'custom/plugins/Unwired/src/Resources/app/administration/.shopware/tsconfig.json',
-                state: 'created' as const,
-            },
-        ];
-        const output = setupReport(setupResult([unwiredPlugin], { changed: true, writes: freshWrites }));
+    it('uses the layout-aware commands for actions and the flag hint', () => {
+        expect(DEFAULT_TOOLING_COMMANDS.setup).toBe('composer admin:setup-extension-tooling');
+        expect(FLEX_COMMANDS.setup).toBe('bin/console administration:setup-extension-tooling');
 
-        expect(output).toContain('✔ Bridge created for Unwired');
-        expect(output).toContain('one step left');
-        expect(output).not.toContain('✔ Bridged Unwired');
-    });
+        const output = setupReport(setupResult([needsBridge]), { commands: FLEX_COMMANDS, showFlagHint: true });
 
-    it('distinguishes bridge, committable, and local vendor files in dry-run output', () => {
-        const output = setupReport(
-            setupResult([project('Mono')], {
-                changed: true,
-                writes: [
-                    { file: 'custom/plugins/Mono/.shopware/tsconfig.json', state: 'created' },
-                    { file: 'custom/plugins/Mono/.shopware/eslint.mjs', state: 'created' },
-                    { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
-                    { file: 'vendor/acme/admin/src/Resources/app/administration/tsconfig.json', state: 'created' },
-                    { file: 'var/admin-extension-tooling/manifest.json', state: 'created' },
-                ],
-            }),
-            { checkOnly: true },
-        );
-
-        expect(output).toContain('would create: custom/plugins/Mono/.shopware/tsconfig.json [git-ignored bridge]');
-        expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
-        expect(output).toContain(
-            'would create: vendor/acme/admin/src/Resources/app/administration/tsconfig.json ' +
-                '[local — restored by re-running setup]',
-        );
-        expect(output).toContain(
-            '2 git-ignored bridge file(s), 1 committable plugin file(s), 1 local vendor config(s), 1 host projection(s)',
-        );
-    });
-
-    it('states the experimental status on every run, including the empty state', () => {
-        // The report is the only surface a developer is guaranteed to see, so the
-        // BC caveat may never depend on which branch the run takes.
-        const populated = setupReport(setupResult([managed]));
-
-        expect(populated).toContain('EXPERIMENTAL — not covered by the backwards-compatibility promise.');
-        expect(populated).toContain('manifest');
-        expect(setupReport(setupResult([]))).toContain('EXPERIMENTAL');
-        expect(setupReport(setupResult([managed]), { checkOnly: true })).toContain('EXPERIMENTAL');
-    });
-
-    it('replaces the empty state with discovery guidance instead of a green "up to date"', () => {
-        const output = setupReport(setupResult([]));
-
-        expect(output).toContain('no extensions found');
-        expect(output).toContain('bin/console bundle:dump');
-        expect(output).not.toContain('Configs up to date');
-        expect(output).not.toContain('0 extension(s)');
-    });
-
-    it('lists platform bundles in their own dim section, excluded from the count and next steps', () => {
-        const storefront = project('Storefront', {
-            basePath: 'src/Storefront',
-            eslintConfig: 'src/Storefront/Resources/app/administration/eslint.config.mjs',
-            eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
-        });
-        const output = setupReport(
-            setupResult([
-                managed,
-                storefront,
-            ]),
-        );
-
-        expect(output).toContain('— 1 extension(s)');
-        expect(output).toContain('platform   Storefront');
-        expect(output).not.toContain('--shim=Storefront');
-        expect(output).not.toContain('<administration>');
-
-        const emptyWithPlatform = setupReport(setupResult([storefront]));
-
-        expect(emptyWithPlatform).toContain('no extensions found');
-        expect(emptyWithPlatform).toContain('Platform bundles like Storefront');
-    });
-
-    it('reads "Configs up to date" when nothing changed, lists stale writes under --check', () => {
-        expect(setupReport(setupResult([managed]))).toContain('Configs up to date');
-
-        const stale = setupResult([managed], {
-            changed: true,
-            writes: [{ file: 'tsconfig.json', state: 'created' }],
-        });
-
-        expect(setupReport(stale, { checkOnly: true })).toContain('would create: tsconfig.json');
-    });
-
-    it('lists changed files by path and keeps only the count for large batches', () => {
-        const few = setupResult([managed], {
-            changed: true,
-            writes: [
-                { file: 'var/admin-extension-tooling/projects/mine.json', state: 'created' },
-                { file: 'tsconfig.json', state: 'updated' },
-            ],
-            staleFiles: ['var/admin-extension-tooling/projects/gone.json'],
-        });
-        const fewOutput = setupReport(few);
-
-        expect(fewOutput).toContain('generated: var/admin-extension-tooling/projects/mine.json');
-        expect(fewOutput).toContain('updated: tsconfig.json');
-        expect(fewOutput).toContain('removed: var/admin-extension-tooling/projects/gone.json');
-
-        const many = setupResult([managed], {
-            changed: true,
-            writes: Array.from({ length: 12 }, (unused, index) => ({
-                file: `var/admin-extension-tooling/projects/p${index}.json`,
-                state: 'created' as const,
-            })),
-        });
-        const manyOutput = setupReport(many);
-
-        expect(manyOutput).toContain('12 generated, 0 updated');
-        expect(manyOutput).not.toContain('generated: var/admin-extension-tooling/projects/p3.json');
+        expect(output).toContain('bin/console administration:setup-extension-tooling');
+        expect(output).not.toContain('composer admin:setup-extension-tooling');
+        expect(output).toContain('Options need "--"');
     });
 });

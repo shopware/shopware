@@ -143,17 +143,24 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         writeFile(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupTwo/tsconfig.json'), ['{ "files": [] }']);
     }
 
+    it('groups a zero-config multi-root plugin into one bridge per source root', () => {
+        writeMultiRootPlugin('Mono', [
+            'BundleA',
+            'BundleB',
+        ]);
+
+        setupExtensionTooling({ projectRoot, administrationRoot });
+
+        expect(countBridges(path.join(projectRoot, 'custom/plugins/Mono'))).toBe(2);
+    });
+
     it('bridges once beside an explicit --root-config and scaffolds one covering config', () => {
         writeMultiRootPlugin('Mono', [
             'BundleA',
             'BundleB',
         ]);
 
-        const result = setupExtensionTooling({
-            projectRoot,
-            administrationRoot,
-            rootConfig: { extension: 'Mono', dir: '.' },
-        });
+        setupExtensionTooling({ projectRoot, administrationRoot, rootConfig: { extension: 'Mono', dir: '.' } });
 
         expect(countBridges(path.join(projectRoot, 'custom/plugins/Mono'))).toBe(1);
         expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Mono/.shopware/tsconfig.json'))).toBe(true);
@@ -169,11 +176,15 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         expect(scaffold).toContain('src/BundleA/Resources/app/administration/src/**/*.ts');
         expect(scaffold).toContain('src/BundleB/Resources/app/administration/src/**/*.ts');
 
-        // The choice is persisted so plain re-runs keep it.
-        expect(result.manifest.rootConfigDirs?.Mono).toBe('.');
+        // The scaffolded config makes the choice self-perpetuating: a plain
+        // re-run groups both roots onto the same config directory again.
+        const plainRerun = setupExtensionTooling({ projectRoot, administrationRoot });
+
+        expect(countBridges(path.join(projectRoot, 'custom/plugins/Mono'))).toBe(1);
+        expect(plainRerun.changed).toBe(false);
     });
 
-    it('auto-detects a single shared package config governing multiple roots', () => {
+    it('shares one bridge for the package config that governs several roots', () => {
         writeMultiRootPlugin('Shared', [
             'BundleA',
             'BundleB',
@@ -191,7 +202,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         expect(result.warnings.some((warning) => warning.includes('tsconfig.json already exists'))).toBe(true);
     });
 
-    it('keeps per-root bridging for genuinely independent per-root configs', () => {
+    it('keeps one bridge per root for genuinely independent per-root configs', () => {
         writeMultiRootPlugin('Independent', [
             'BundleA',
             'BundleB',
@@ -215,33 +226,17 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         expect(countBridges(path.join(projectRoot, 'custom/plugins/Independent'))).toBe(2);
     });
 
-    it('skips an undecidable multi-root layout with a warning instead of failing the run', () => {
+    it('bridges each governing config of a package with several shared configs', () => {
         writeAmbiguousPlugin();
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
 
-        expect(countBridges(path.join(projectRoot, 'custom/plugins/Ambiguous'))).toBe(0);
-        expect(result.warnings.join('\n')).toMatch(/Ambiguous was not bridged.*--root-config=Ambiguous:<dir>/s);
-    });
-
-    it('persists an explicit --root-config choice so later plain runs stay bridged', () => {
-        writeAmbiguousPlugin();
-
-        const explicitRun = setupExtensionTooling({
-            projectRoot,
-            administrationRoot,
-            rootConfig: { extension: 'Ambiguous', dir: '.' },
-        });
-
-        expect(countBridges(path.join(projectRoot, 'custom/plugins/Ambiguous'))).toBe(1);
-        expect(explicitRun.manifest.rootConfigDirs?.Ambiguous).toBe('.');
-        expect(explicitRun.warnings.join('\n')).not.toContain('was not bridged');
-
-        const plainRerun = setupExtensionTooling({ projectRoot, administrationRoot });
-
-        expect(plainRerun.warnings.join('\n')).not.toContain('was not bridged');
-        expect(countBridges(path.join(projectRoot, 'custom/plugins/Ambiguous'))).toBe(1);
-        expect(plainRerun.manifest.rootConfigDirs?.Ambiguous).toBe('.');
+        // Two package-level configs each governing two roots: one bridge each,
+        // rather than a refusal that needs a flag to resolve.
+        expect(countBridges(path.join(projectRoot, 'custom/plugins/Ambiguous'))).toBe(2);
+        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupOne/.shopware'))).toBe(true);
+        expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupTwo/.shopware'))).toBe(true);
+        expect(result.warnings.join('\n')).not.toContain('was not bridged');
     });
 
     it('warns about a --root-config naming an unknown extension', () => {
@@ -257,6 +252,5 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         });
 
         expect(result.warnings.join('\n')).toContain('--root-config names the unknown extension Unknown');
-        expect(result.manifest.rootConfigDirs?.Unknown).toBeUndefined();
     });
 });

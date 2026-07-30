@@ -1,19 +1,23 @@
 /**
  * @sw-package framework
  *
- * Strict CLI argument layer for the extension tooling commands. Parsing is
- * pure (no filesystem or environment access) so `--help` and usage errors
- * work before any project state is touched. Unknown flags are rejected
- * instead of silently ignored — a mistyped `--chekc` must never degrade
- * into a mutating default run.
+ * Strict CLI argument layer for the extension tooling commands. Node's
+ * `parseArgs` does the parsing; this module owns the command spec that drives
+ * both it and `--help`, and normalizes its errors into one usage error. Parsing
+ * stays pure (no filesystem or environment access) so `--help` and usage errors
+ * work before any project state is touched, and unknown flags are rejected
+ * instead of silently ignored — a mistyped `--chekc` must never degrade into a
+ * mutating default run.
  */
 
-export interface FlagSpec {
+import { parseArgs } from 'node:util';
+
+interface FlagSpec {
     /** Long option name including dashes, e.g. "--check". */
     name: string;
     /** 'required' when the flag is only meaningful with an `=value`. */
     value?: 'required';
-    /** Placeholder rendered in help and errors, e.g. "<TechnicalName>|all-custom". */
+    /** Placeholder rendered in help and errors, e.g. "<Extension>:<dir>". */
     valueName?: string;
     description: string;
 }
@@ -25,7 +29,7 @@ export interface CommandSpec {
     flags: FlagSpec[];
 }
 
-export interface ParsedArgs {
+interface ParsedArgs {
     /** Values of `--name=value` options, keyed by flag name including dashes. */
     values: Record<string, string | undefined>;
     /** Boolean flags that were present, by flag name including dashes. */
@@ -43,37 +47,54 @@ export function parseCli(argv: string[], spec: CommandSpec): ParsedArgs {
         return { values: {}, flags: new Set(), help: true };
     }
 
+    let parsed;
+
+    try {
+        parsed = parseArgs({
+            args: argv,
+            options: Object.fromEntries(
+                spec.flags.map((flag) => [
+                    flag.name.replace(/^--/, ''),
+                    { type: flag.value === 'required' ? ('string' as const) : ('boolean' as const) },
+                ]),
+            ),
+            strict: true,
+            allowPositionals: false,
+        });
+    } catch (error) {
+        // Node prefixes its parseArgs errors with `TypeError [ERR_PARSE_ARGS_…]:`
+        // and quotes the offending token; strip both so the usage line reads
+        // like the rest of the tooling's output.
+        const message = (error instanceof Error ? error.message : String(error))
+            .replace(/^\w*Error \[[A-Z_]+\]:\s*/, '')
+            .replace(/'/g, '');
+
+        throw new CliUsageError(`${message}. See --help for the available options.`);
+    }
+
     const values: Record<string, string | undefined> = {};
     const flags = new Set<string>();
 
-    for (const argument of argv) {
-        if (!argument.startsWith('--')) {
-            throw new CliUsageError(`Unexpected argument "${argument}" — options start with "--".`);
+    for (const flag of spec.flags) {
+        const value = parsed.values[flag.name.replace(/^--/, '')];
+
+        if (value === undefined) {
+            continue;
         }
 
-        const equalsIndex = argument.indexOf('=');
-        const name = equalsIndex === -1 ? argument : argument.slice(0, equalsIndex);
-        const flagSpec = spec.flags.find((flag) => flag.name === name);
+        if (typeof value === 'boolean') {
+            flags.add(flag.name);
 
-        if (!flagSpec) {
-            throw new CliUsageError(`Unknown option ${name}. See --help for the available options.`);
+            continue;
         }
 
-        if (flagSpec.value === 'required') {
-            const value = equalsIndex === -1 ? '' : argument.slice(equalsIndex + 1);
-
-            if (value === '') {
-                throw new CliUsageError(`${name} requires a value: ${name}=${flagSpec.valueName ?? '<value>'}`);
-            }
-
-            values[name] = value;
-        } else {
-            if (equalsIndex !== -1) {
-                throw new CliUsageError(`${name} does not take a value.`);
-            }
-
-            flags.add(name);
+        // parseArgs accepts `--name=` as an empty string; the flags that take a
+        // value are never meaningful without one.
+        if (value === '') {
+            throw new CliUsageError(`${flag.name} requires a value: ${optionLabel(flag)}`);
         }
+
+        values[flag.name] = value;
     }
 
     return { values, flags, help: false };

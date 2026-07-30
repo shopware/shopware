@@ -76,14 +76,14 @@ const adminMenuStore = Shopware.Store.register({
             this.expandedEntries = this.expandedEntries.filter((e) => menuEntryKey(e) !== key);
         },
         /**
-         * Expands the  sidebar menu
+         * Collapses the sidebar menu
          */
         collapseSidebar() {
             this.isExpanded = false;
             localStorage.setItem('sw-admin-menu-expanded', 'false');
         },
         /**
-         * Collapses the sidebar menu
+         * Expands the sidebar menu
          */
         expandSidebar() {
             this.isExpanded = true;

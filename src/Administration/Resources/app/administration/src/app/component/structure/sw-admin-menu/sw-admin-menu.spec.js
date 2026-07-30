@@ -804,6 +804,117 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         });
     });
 
+    describe('collapsed flyout branch navigation', () => {
+        async function openFlyout() {
+            wrapper.unmount();
+            wrapper = await createWrapper({ attachTo: document.body });
+            await flushPromises();
+
+            Shopware.Store.get('adminMenu').collapseSidebar();
+            await flushPromises();
+
+            await wrapper.find('.navigation-list-item__has-children').trigger('mouseenter');
+            await flushPromises();
+
+            return document.getElementById('sw-admin-menu-flyout');
+        }
+
+        function findRow(flyout, hasChildren) {
+            const selector = hasChildren
+                ? '.sw-admin-menu__navigation-list-item.navigation-list-item__has-children'
+                : '.sw-admin-menu__navigation-list-item:not(.navigation-list-item__has-children)';
+
+            const row = flyout.querySelector(selector);
+            expect(row).not.toBeNull();
+
+            return row;
+        }
+
+        afterEach(() => {
+            wrapper.unmount();
+        });
+
+        it('should keep the flyout open when a row that is a collapsible and a route navigates', async () => {
+            const flyout = await openFlyout();
+            const branchRow = findRow(flyout, true);
+
+            branchRow.querySelector('.sw-admin-menu__navigation-link').click();
+
+            // Asserted synchronously on purpose: router-link resolves its navigation in the
+            // microtask checkpoint at the end of this click listener, so the suppression has
+            // to be armed by the time the click returns. A handler that only sees the
+            // bubbled event — e.g. one on the flyout wrapper — runs after the route watcher
+            // has already closed the flyout.
+            expect(wrapper.vm.isFlyoutPinned).toBe(true);
+
+            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+        });
+
+        it('should close the flyout when a leaf row navigates', async () => {
+            const flyout = await openFlyout();
+            const leafRow = findRow(flyout, false);
+
+            leafRow.querySelector('.sw-admin-menu__navigation-link').click();
+
+            expect(wrapper.vm.isFlyoutPinned).toBe(false);
+
+            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+        });
+
+        it('should keep the flyout open across follow-up route changes while pinned', async () => {
+            const flyout = await openFlyout();
+
+            findRow(flyout, true).querySelector('.sw-admin-menu__navigation-link').click();
+
+            // List pages issue further router.replace calls once their search resolves, an
+            // unbounded number of ticks after the click. The pin is state, not a time
+            // window, so every one of them has to leave the flyout alone.
+            for (let i = 0; i < 3; i += 1) {
+                wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+                await flushPromises();
+            }
+
+            expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
+        });
+
+        it('should release the pin when a leaf inside the pinned flyout navigates', async () => {
+            const flyout = await openFlyout();
+
+            findRow(flyout, true).querySelector('.sw-admin-menu__navigation-link').click();
+            expect(wrapper.vm.isFlyoutPinned).toBe(true);
+
+            findRow(flyout, false).querySelector('.sw-admin-menu__navigation-link').click();
+            expect(wrapper.vm.isFlyoutPinned).toBe(false);
+
+            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            await flushPromises();
+
+            expect(wrapper.vm.flyoutEntries).toHaveLength(0);
+        });
+
+        it('should ignore the focusout caused by a branch navigation but still close on pointer leave', async () => {
+            const flyout = await openFlyout();
+            const flyoutWrapper = new DOMWrapper(flyout);
+
+            findRow(flyout, true).querySelector('.sw-admin-menu__navigation-link').click();
+
+            // Navigating moves the focus off the clicked link, which arrives here as a
+            // focusout with no relatedTarget — it must not schedule a close.
+            await flyoutWrapper.trigger('focusout');
+            expect(wrapper.vm.flyoutCloseTimeoutId).toBeNull();
+
+            // Leaving with the pointer is a real intent to dismiss and still closes.
+            await flyoutWrapper.trigger('mouseleave');
+            expect(wrapper.vm.flyoutCloseTimeoutId).not.toBeNull();
+        });
+    });
+
     it('should not show icons in flyout menu items', async () => {
         wrapper = await createWrapper();
         await flushPromises();

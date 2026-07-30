@@ -5,12 +5,14 @@
 const path = require('path');
 
 /**
- * The shape a native setup component name is expected to have: lowercase kebab-case.
+ * The shape a native setup component name is expected to have: multi-segment lowercase kebab-case.
  *
- * A single segment is allowed here because `vue/multi-word-component-names` already reports that, with
- * a message about the Vue convention rather than about the filename.
+ * Multi-word is enforced here rather than left to `vue/multi-word-component-names`, because that rule
+ * sees the *component* name and `sw-thing/index.vue` reports as the literal `index` - which the config
+ * has to ignore. Only this rule knows the name really came from the directory, so only this rule can
+ * hold every `.vue` file to the convention.
  */
-const COMPONENT_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+const COMPONENT_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 
 /**
  * Derives the component name the transform would infer from a filename.
@@ -38,6 +40,10 @@ function deriveComponentName(filename) {
  * correctness problem (the name is escaped wherever it is emitted), so it is reported here instead of
  * failing the build.
  *
+ * It applies to every `.vue` file, with no gate on the file's contents: an SFC that is not a valid native
+ * setup component does not build at all, so there is no such thing as a `.vue` file whose filename is not
+ * a component name.
+ *
  * @type {import('eslint').Rule.RuleModule}
  */
 module.exports = {
@@ -52,14 +58,15 @@ module.exports = {
         messages: {
             invalidName:
                 'The component name "{{ componentName }}" comes from this filename and becomes a template tag and ' +
-                'the public override target, so it should be lowercase kebab-case - for example "sw-product-list".',
+                'the public override target, so it should be multi-word lowercase kebab-case - for example ' +
+                '"sw-product-list".',
         },
     },
 
     create(context) {
         return {
             Program(node) {
-                const filename = context.getFilename();
+                const filename = context.filename ?? context.getFilename();
 
                 if (!filename.endsWith('.vue')) {
                     return;

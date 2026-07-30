@@ -23,13 +23,13 @@ module.exports = {
     create(context) {
         return {
             Program(node) {
-                const filename = context.getFilename();
+                const filename = context.filename ?? context.getFilename();
 
                 if (!filename.endsWith('.vue')) {
                     return;
                 }
 
-                const sourceCode = context.getSourceCode();
+                const sourceCode = context.sourceCode ?? context.getSourceCode();
 
                 try {
                     validateShopwareSetupSfc(sourceCode.text, filename);
@@ -53,7 +53,6 @@ module.exports = {
                         message: error.message,
                     });
                 }
-
             },
         };
     },

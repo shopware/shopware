@@ -54,18 +54,35 @@ swDefineOverride({});
             code: setupBlock,
         },
         {
-            // Single segment is left to vue/multi-word-component-names, which reports it with a message
-            // about the Vue convention rather than about the filename.
-            filename: 'dashboard.vue',
-            code: setupBlock,
-        },
-        {
             // Only SFCs derive a component name from their filename.
             filename: 'Some_Helper.ts',
             code: 'export const value = 1;',
         },
     ],
     invalid: [
+        {
+            // Single-word names are reported here, not left to vue/multi-word-component-names: that rule
+            // matches the component name, so it cannot see past the literal `index` of an index file.
+            filename: 'dashboard.vue',
+            code: setupBlock,
+            errors: [
+                {
+                    messageId: 'invalidName',
+                    data: { componentName: 'dashboard' },
+                },
+            ],
+        },
+        {
+            // The index case the other rule has to ignore, which is why this one covers it.
+            filename: '/plugin/src/dashboard/index.vue',
+            code: setupBlock,
+            errors: [
+                {
+                    messageId: 'invalidName',
+                    data: { componentName: 'dashboard' },
+                },
+            ],
+        },
         {
             filename: 'sw_thing.vue',
             code: setupBlock,

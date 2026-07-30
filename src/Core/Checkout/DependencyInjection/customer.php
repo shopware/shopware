@@ -62,7 +62,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
-use Shopware\Core\Checkout\Customer\Service\RegistrationIdempotencyGuard;
 use Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
@@ -160,13 +159,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('sales_channel_domain.repository'),
             service(ClockInterface::class),
-        ]);
-
-    $services->set(RegistrationIdempotencyGuard::class)
-        ->args([
-            service('lock.factory'),
-            service('cache.object'),
-            service('logger'),
         ]);
 
     $services->set(AddressValidationFactory::class)
@@ -423,8 +415,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PasswordValidationFactory::class),
             service(DoubleOptInService::class),
             service(ClockInterface::class),
-            service(RegistrationIdempotencyGuard::class),
-            param('kernel.secret'),
         ]);
 
     $services->set(RegisterConfirmRoute::class)

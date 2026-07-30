@@ -8,13 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerRegistrationReplayedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -64,9 +62,6 @@ class StorefrontSubscriberTest extends TestCase
             ],
             CustomerLogoutEvent::class => [
                 'updateSessionAfterLogout',
-            ],
-            CustomerRegistrationReplayedEvent::class => [
-                'updateSessionAfterRegistrationReplay',
             ],
             SalesChannelContextResolvedEvent::class => [
                 ['replaceContextToken'],
@@ -462,32 +457,6 @@ class StorefrontSubscriberTest extends TestCase
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testUpdateSessionAfterRegistrationReplay(): void
-    {
-        $request = new Request(attributes: [
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
-        ]);
-        $session = new Session(new MockArraySessionStorage());
-        $session->start();
-        $request->setSession($session);
-        $requestStack = new RequestStack([$request]);
-
-        $sessionIdBeforeReplay = $session->getId();
-
-        (new StorefrontSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        ))->updateSessionAfterRegistrationReplay(new CustomerRegistrationReplayedEvent('winner-token', Uuid::randomHex()));
-
-        static::assertSame('winner-token', $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame('winner-token', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertNotSame($sessionIdBeforeReplay, $session->getId(), 'The stale session should be migrated when attaching it to the replayed context token');
     }
 
     public function testDoesNotUpdateSessionForStoreApiRequest(): void

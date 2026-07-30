@@ -63,6 +63,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Storefront\Controller\AccountProfileController;
 use Shopware\Storefront\Controller\AddressController;
@@ -358,8 +359,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel_domain.repository'),
             service(HeaderPageletLoader::class),
             service(FooterPageletLoader::class),
+            service(RegistrationDoubleSubmitGuard::class),
         ])
         ->call('setContainer', [service('service_container')]);
+
+    $services->set(RegistrationDoubleSubmitGuard::class)
+        ->args([
+            service('lock.factory'),
+            service('cache.registration'),
+            service('logger'),
+            service('request_stack'),
+            service(SystemConfigService::class),
+        ]);
 
     $services->set(ScriptController::class)
         ->args([

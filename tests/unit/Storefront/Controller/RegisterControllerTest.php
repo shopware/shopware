@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -34,11 +36,15 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -384,6 +390,15 @@ class RegisterControllerTest extends TestCase
         $customerRepository = static::createStub(EntityRepository::class);
         $domainRepository = static::createStub(EntityRepository::class);
 
+        // a guard on in-memory infrastructure: an unconsumed token always reaches the registration
+        $doubleSubmitGuard = new RegistrationDoubleSubmitGuard(
+            new LockFactory(new InMemoryStore()),
+            new ArrayAdapter(),
+            new NullLogger(),
+            new RequestStack(),
+            $this->systemConfigService,
+        );
+
         return new RegisterControllerTestClass(
             $accountLoginPageLoader ?? $this->accountLoginPageLoader,
             $registerRoute ?? $this->registerRoute,
@@ -396,6 +411,7 @@ class RegisterControllerTest extends TestCase
             $domainRepository,
             static::createStub(HeaderPageletLoaderInterface::class),
             static::createStub(FooterPageletLoaderInterface::class),
+            $doubleSubmitGuard,
         );
     }
 

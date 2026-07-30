@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -33,6 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -127,57 +130,135 @@ class RegisterControllerTest extends TestCase
         static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
-    public function testDoubleSubmitAttachesSessionToExistingRegistration(): void
+    public function testDoubleSubmittedGuestRegistrationCreatesOnlyOneCustomer(): void
     {
-        $requestStack = static::getContainer()->get('request_stack');
-
-        // empty the stack so the requests below become the main request the session subscriber acts on
-        while ($requestStack->getMainRequest() !== null) {
-            $requestStack->pop();
-        }
-
         $registerController = static::getContainer()->get(RegisterController::class);
 
-        $registrationData = $this->getRegistrationData()->all();
-        $registrationData['redirectTo'] = 'frontend.checkout.confirm.page';
+        $data = $this->getRegistrationData();
+        $email = (string) $data->get('email');
+        $consumedToken = $this->salesChannelContext->getToken();
 
-        $originalToken = $this->salesChannelContext->getToken();
+        $firstRequest = $this->createMainRequest();
+        $registerController->register($firstRequest, $data, $this->salesChannelContext);
 
-        $firstRequest = $this->createRequest();
-        $firstRequest->request->add($registrationData);
+        static::assertNotSame($consumedToken, $this->salesChannelContext->getToken());
+        static::assertTrue($firstRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
-        $firstResponse = $registerController->register($firstRequest, new RequestDataBag($registrationData), $this->salesChannelContext);
+        // the double tap resolves its context from the token the first request already consumed,
+        // and is still anonymous because the winner never touched its session
+        $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create($consumedToken, TestDefaults::SALES_CHANNEL);
 
-        static::assertInstanceOf(RedirectResponse::class, $firstResponse);
-        static::assertSame('/checkout/confirm', $firstResponse->getTargetUrl());
+        $duplicateRequest = $this->createMainRequest();
+        $duplicateResponse = $registerController->register($duplicateRequest, $this->getRegistrationData(), $duplicateContext);
 
-        $session = $this->getSession();
-        $loginToken = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertIsString($loginToken);
-        static::assertNotSame($originalToken, $loginToken);
+        static::assertSame(200, $duplicateResponse->getStatusCode());
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+        static::assertFalse(
+            $duplicateRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT),
+            'the duplicate submission must be suppressed instead of registering again'
+        );
+    }
 
-        // a browser that never received the rotated token resubmits: same payload, stale session
-        // token, customer-less context
-        $requestStack->pop();
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $originalToken);
+    public function testSuppressedDoubleSubmitKeepsTheCartOnTheOneRegisteredContext(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $cartService = static::getContainer()->get(CartService::class);
+        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+        $registerController = static::getContainer()->get(RegisterController::class);
 
-        $duplicateRequest = $this->createRequest();
-        $duplicateRequest->request->add($registrationData);
+        $data = $this->getRegistrationData();
+        $email = (string) $data->get('email');
+        $consumedToken = $this->salesChannelContext->getToken();
+
+        // the visitor registers out of a checkout that already holds a cart
+        $cart = $cartService->getCart($consumedToken, $this->salesChannelContext);
+        $cartService->add($cart, $this->createProductLineItem(), $this->salesChannelContext);
+
+        $registerController->register($this->createMainRequest(), $data, $this->salesChannelContext);
+
+        $winnerToken = $this->salesChannelContext->getToken();
+        static::assertNotSame($consumedToken, $winnerToken);
+
+        $duplicateContext = $contextFactory->create($consumedToken, TestDefaults::SALES_CHANNEL);
+        $contextRowsBeforeDuplicate = (int) $connection->fetchOne('SELECT COUNT(*) FROM `sales_channel_api_context`');
+
+        $registerController->register($this->createMainRequest(), $this->getRegistrationData(), $duplicateContext);
+
+        static::assertSame(
+            $contextRowsBeforeDuplicate,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM `sales_channel_api_context`'),
+            'the suppressed submission must not insert another sales channel context'
+        );
+
+        $customerIds = $this->fetchCustomerIdsByEmail($email);
+        static::assertCount(1, $customerIds);
+        static::assertSame(
+            [$winnerToken],
+            $connection->fetchFirstColumn(
+                'SELECT `token` FROM `sales_channel_api_context` WHERE `customer_id` = :customerId',
+                ['customerId' => Uuid::fromHexToBytes($customerIds[0])]
+            )
+        );
+
+        // the cart travelled to the winning token instead of being stranded on the consumed one
+        $winnerCart = $cartService->getCart(
+            $winnerToken,
+            $contextFactory->create($winnerToken, TestDefaults::SALES_CHANNEL),
+            caching: false
+        );
+
+        static::assertCount(1, $winnerCart->getLineItems());
+    }
+
+    public function testSuppressedDoubleSubmitPointsTheSessionAtTheWinnerToken(): void
+    {
+        $registerController = static::getContainer()->get(RegisterController::class);
+
+        $consumedToken = $this->salesChannelContext->getToken();
+
+        $firstRequest = $this->createMainRequest();
+        $registerController->register($firstRequest, $this->getRegistrationData(), $this->salesChannelContext);
+
+        $winnerToken = $this->salesChannelContext->getToken();
+        static::assertSame($winnerToken, $firstRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        // the duplicate still carries the session the visitor had while anonymous, so without the
+        // repair it would answer into a checkout it is not logged into
+        $duplicateRequest = $this->createMainRequest();
+        $duplicateRequest->getSession()->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $consumedToken);
 
         $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create($originalToken, TestDefaults::SALES_CHANNEL);
+            ->create($consumedToken, TestDefaults::SALES_CHANNEL);
 
-        $duplicateResponse = $registerController->register($duplicateRequest, new RequestDataBag($registrationData), $duplicateContext);
+        $registerController->register($duplicateRequest, $this->getRegistrationData(), $duplicateContext);
 
-        static::assertInstanceOf(RedirectResponse::class, $duplicateResponse);
-        static::assertSame('/checkout/confirm', $duplicateResponse->getTargetUrl());
-        static::assertSame($loginToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($loginToken, $duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($winnerToken, $duplicateRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($winnerToken, $duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
 
-        $customers = static::getContainer()->get(Connection::class)
-            ->fetchAllAssociative('SELECT id FROM customer WHERE email = :mail', ['mail' => $registrationData['email']]);
+    public function testRejectedRegistrationDoesNotConsumeTheContextToken(): void
+    {
+        $registerController = static::getContainer()->get(RegisterController::class);
 
-        static::assertCount(1, $customers);
+        $incompleteData = $this->getRegistrationData();
+        $incompleteData->set('firstName', '');
+
+        $email = (string) $incompleteData->get('email');
+        $token = $this->salesChannelContext->getToken();
+
+        $rejectedRequest = $this->createMainRequest();
+        $registerController->register($rejectedRequest, $incompleteData, $this->salesChannelContext);
+
+        static::assertFalse($rejectedRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
+        static::assertCount(0, $this->fetchCustomerIdsByEmail($email));
+        static::assertSame($token, $this->salesChannelContext->getToken(), 'a rejected registration must not rotate the token');
+
+        // the visitor corrects the form and submits again on the very same token
+        $registerController->register($this->createMainRequest(), $this->getRegistrationData(), $this->salesChannelContext);
+
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+        static::assertNotSame($token, $this->salesChannelContext->getToken());
     }
 
     public function testRegisterWithDoubleOptIn(): void
@@ -391,6 +472,48 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
+     * @return list<string>
+     */
+    private function fetchCustomerIdsByEmail(string $email): array
+    {
+        /** @var EntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = static::getContainer()->get('customer.repository');
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('email', $email));
+
+        return array_values($customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->getIds());
+    }
+
+    private function createProductLineItem(): LineItem
+    {
+        $productId = Uuid::randomHex();
+
+        static::getContainer()->get('product.repository')->create([
+            [
+                'id' => $productId,
+                'name' => 'Double submit product',
+                'productNumber' => 'double-submit-' . $productId,
+                'stock' => 1,
+                'taxId' => $this->getValidTaxId(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15.99, 'net' => 10, 'linked' => false],
+                ],
+                'visibilities' => [
+                    [
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return static::getContainer()->get(LineItemFactoryRegistry::class)->create(
+            ['type' => LineItem::PRODUCT_LINE_ITEM_TYPE, 'referencedId' => $productId],
+            $this->salesChannelContext
+        );
+    }
+
+    /**
      * @param array<string|int, mixed> $customerData
      */
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
@@ -409,12 +532,27 @@ class RegisterControllerTest extends TestCase
             '_route' => 'frontend.checkout.register.page',
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
             PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL,
         ]);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
 
         static::getContainer()->get('request_stack')->push($request);
 
         return $request;
+    }
+
+    /**
+     * Storefront session handling only acts on the main request.
+     */
+    private function createMainRequest(): Request
+    {
+        $requestStack = static::getContainer()->get('request_stack');
+
+        while ($requestStack->getMainRequest() !== null) {
+            $requestStack->pop();
+        }
+
+        return $this->createRequest();
     }
 
     private function getRegistrationData(?bool $isGuest = true): RequestDataBag
@@ -529,6 +667,7 @@ class RegisterControllerTest extends TestCase
             $container->get('sales_channel_domain.repository'),
             $container->get(HeaderPageletLoader::class),
             $container->get(FooterPageletLoader::class),
+            $container->get(RegistrationDoubleSubmitGuard::class),
         );
     }
 }

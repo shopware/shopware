@@ -12,11 +12,9 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerRegistrationReplayedEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
-use Shopware\Core\Checkout\Customer\Service\RegistrationIdempotencyGuard;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -70,24 +68,6 @@ class RegisterRoute extends AbstractRegisterRoute
     use CustomerAddressDataNormalizerTrait;
 
     /**
-     * Transport and one-shot fields that may differ between the requests of one submission without
-     * changing the registration outcome. An unlisted field only makes a duplicate look like a
-     * different request, which registers again.
-     */
-    private const DIGEST_EXCLUDED_FIELDS = [
-        'redirectTo',
-        'redirectParameters',
-        'errorRoute',
-        'errorParameters',
-        '_grecaptcha_v2',
-        '_grecaptcha_v3',
-        'shopware_basic_captcha_confirm',
-        'shopware_basic_captcha_check',
-        'formId',
-        'shopware_surname_confirm',
-    ];
-
-    /**
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
@@ -111,8 +91,6 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly DoubleOptInService $doubleOptInService,
         private readonly ClockInterface $clock,
-        private readonly RegistrationIdempotencyGuard $idempotencyGuard,
-        private readonly string $appSecret,
     ) {
     }
 
@@ -141,6 +119,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $billing = $data->get('billingAddress');
+        $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
             if ($billing->has('firstName') && !$data->has('firstName')) {
@@ -155,25 +134,6 @@ class RegisterRoute extends AbstractRegisterRoute
                 $billing->set('title', $data->get('title'));
             }
         }
-
-        return $this->idempotencyGuard->guard(
-            $context->getSalesChannelId(),
-            $context->getToken(),
-            $this->buildRequestDigest($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
-            fn (): CustomerResponse => $this->processRegistration($data, $isGuest, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
-            fn (string $customerId, ?string $newContextToken): ?CustomerResponse => $this->replayRegistration($customerId, $newContextToken, $context),
-        );
-    }
-
-    private function processRegistration(
-        RequestDataBag $data,
-        bool $isGuest,
-        SalesChannelContext $context,
-        bool $validateStorefrontUrl,
-        ?DataValidationDefinition $additionalValidationDefinitions
-    ): CustomerResponse {
-        $billing = $data->get('billingAddress');
-        $shipping = $data->get('shippingAddress');
 
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
@@ -301,111 +261,6 @@ class RegisterRoute extends AbstractRegisterRoute
 
         // We don't want to leak the hash in store-api
         $customerEntity->setHash('');
-
-        return $response;
-    }
-
-    private function buildRequestDigest(
-        RequestDataBag $data,
-        SalesChannelContext $context,
-        bool $validateStorefrontUrl,
-        ?DataValidationDefinition $additionalValidationDefinitions
-    ): string {
-        $payload = $data->all();
-
-        foreach (self::DIGEST_EXCLUDED_FIELDS as $field) {
-            unset($payload[$field]);
-        }
-
-        // persisted on the customer, so they change the outcome of an otherwise identical payload
-        $mode = ($validateStorefrontUrl ? '1' : '0')
-            . '|'
-            . ($additionalValidationDefinitions === null ? 'none' : 'additional:' . $additionalValidationDefinitions->getName())
-            . '|' . $context->getLanguageId()
-            . '|' . $context->getCustomerGroupId();
-
-        return hash_hmac(
-            'sha256',
-            $mode . '|' . json_encode($this->sortRecursively($payload), \JSON_THROW_ON_ERROR),
-            $this->appSecret,
-        );
-    }
-
-    /**
-     * Sorts associative keys recursively for a canonical representation, list ordering stays
-     * significant.
-     *
-     * @param array<array-key, mixed> $payload
-     *
-     * @return array<array-key, mixed>
-     */
-    private function sortRecursively(array $payload): array
-    {
-        foreach ($payload as $key => $value) {
-            if (\is_array($value)) {
-                $payload[$key] = $this->sortRecursively($value);
-            }
-        }
-
-        if (!array_is_list($payload)) {
-            ksort($payload);
-        }
-
-        return $payload;
-    }
-
-    /**
-     * Answers a duplicate submission with the original customer and, when a login happened, its
-     * rotated context token. Returns null when that result is no longer valid, so the caller
-     * registers freshly.
-     */
-    private function replayRegistration(string $customerId, ?string $newContextToken, SalesChannelContext $context): ?CustomerResponse
-    {
-        $customerEntity = $this->customerRepository
-            ->search(new Criteria([$customerId]), $context->getContext())
-            ->getEntities()
-            ->first();
-
-        if ($customerEntity === null) {
-            return null;
-        }
-
-        if ($newContextToken === null) {
-            // double-opt-in registration: no authenticated context token to replay
-            $customerEntity->setHash('');
-
-            return new CustomerResponse($customerEntity);
-        }
-
-        // mirror the customer gating of the sales channel context factory
-        if (!$customerEntity->getActive()) {
-            return null;
-        }
-
-        $boundSalesChannelId = $customerEntity->getBoundSalesChannelId();
-        if ($boundSalesChannelId !== null && $boundSalesChannelId !== $context->getSalesChannelId()) {
-            return null;
-        }
-
-        $persistedContext = $this->contextPersister->load($newContextToken, $context->getSalesChannelId());
-
-        if ($persistedContext === []
-            || ($persistedContext['expired'] ?? true) !== false
-            || ($persistedContext['token'] ?? null) !== $newContextToken
-            || ($persistedContext['customerId'] ?? null) !== $customerId
-        ) {
-            return null;
-        }
-
-        // the normal path assigns the rotated token to the passed context, mirror that for decorators
-        $context->assign(['token' => $newContextToken]);
-
-        $this->eventDispatcher->dispatch(new CustomerRegistrationReplayedEvent($newContextToken, $customerId));
-
-        $customerEntity->setHash('');
-
-        $response = new CustomerResponse($customerEntity);
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newContextToken);
 
         return $response;
     }

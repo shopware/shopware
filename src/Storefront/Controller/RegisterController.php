@@ -25,6 +25,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -70,6 +71,7 @@ class RegisterController extends StorefrontController
         private readonly EntityRepository $domainRepository,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly FooterPageletLoaderInterface $footerPageletLoader,
+        private readonly RegistrationDoubleSubmitGuard $doubleSubmitGuard,
     ) {
     }
 
@@ -218,12 +220,16 @@ class RegisterController extends StorefrontController
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
             $data->set('guest', !$data->getBoolean('createCustomerAccount'));
 
-            $this->registerRoute->register(
-                $data->toRequestDataBag(),
-                $context,
-                false,
-                $this->getAdditionalRegisterValidationDefinitions($data, $context)
-            );
+            $additionalValidationDefinitions = $this->getAdditionalRegisterValidationDefinitions($data, $context);
+
+            $this->doubleSubmitGuard->guard($context, function () use ($data, $context, $additionalValidationDefinitions): void {
+                $this->registerRoute->register(
+                    $data->toRequestDataBag(),
+                    $context,
+                    false,
+                    $additionalValidationDefinitions
+                );
+            });
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
                 throw RoutingException::missingRequestParameter('errorRoute');

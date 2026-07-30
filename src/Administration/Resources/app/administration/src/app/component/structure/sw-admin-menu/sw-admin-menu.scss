@@ -558,13 +558,6 @@
     &.is--closing {
         animation: sw-admin-menu-flyout-out 0.1s ease forwards;
     }
-
-    .navigation-list-item__level-2.is--flyout-enabled {
-        & > .sw-admin-menu__sub-navigation-list {
-            width: $sw-admin-menu-width-flyout;
-            z-index: $sw-admin-menu-z-index-flyout;
-        }
-    }
 }
 
 @keyframes sw-admin-menu-flyout-in {

@@ -41,7 +41,7 @@ Shopware.Module.register('sw-cms', {
     name: 'cms',
     title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
-    color: '#ff68b4',
+    color: 'var(--color-pink-500)',
     icon: 'regular-image-text',
     favicon: 'icon-module-content.png',
     entity: 'cms_page',
@@ -79,7 +79,7 @@ Shopware.Module.register('sw-cms', {
         {
             id: 'sw-content',
             label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
-            color: '#ff68b4',
+            color: 'var(--color-pink-500)',
             icon: 'regular-image-text',
             position: 50,
         },

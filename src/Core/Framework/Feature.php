@@ -266,11 +266,19 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
-        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations) {
             return;
         }
 
-        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
+        if (isset(self::$silent[$majorFlag])) {
+            return;
+        }
+
+        if (self::isActive($majorFlag)) {
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        }
+
+        if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
             throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 

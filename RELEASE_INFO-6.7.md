@@ -596,7 +596,7 @@ This toolchain is **experimental** and not covered by the backwards-compatibilit
 
 Options belong after Composer's `--` separator; `-- --help` prints the generated reference, and an unknown flag exits 2 before anything is written. In a Composer/Flex install, where the Administration lives under `vendor/shopware/administration` and the Composer scripts do not exist, the same commands are available as `bin/console administration:setup-extension-tooling` and `bin/console administration:generate-entity-schema-types` — run `npm ci` in the Administration directory once, since its Node dependencies are not part of the Composer package.
 
-Nothing changes for existing flows: no default build, watch, init or CI pipeline invokes the new command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
+Nothing changes for existing flows unless you opt in: in a platform checkout `composer setup` runs the setup command only when the experimental `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g. `ADMIN_EXTENSION_TOOLING=1` in `.env`); without the flag the step is a one-line no-op, and no build, watch or CI pipeline invokes the command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
 
 ### Administration caches shared user configuration and lookup data
 

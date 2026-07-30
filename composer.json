@@ -526,7 +526,8 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront"
+            "@php bin/console theme:change --sync --all Storefront",
+            "@admin:setup-extension-tooling --if-enabled"
         ],
         "static-analyze": [
             "@phpstan src/"

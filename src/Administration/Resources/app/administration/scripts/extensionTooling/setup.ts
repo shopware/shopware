@@ -235,6 +235,12 @@ const SETUP_COMMAND: CommandSpec = {
         { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
         { name: '--no-gitignore', description: 'Never manage the ignore block in the project .gitignore.' },
         {
+            name: '--if-enabled',
+            description:
+                'Run only when the ADMIN_EXTENSION_TOOLING feature flag is enabled (e.g. in .env); otherwise ' +
+                'exit 0 without touching anything. Used by the `composer setup` chain.',
+        },
+        {
             name: '--root-config',
             value: 'required',
             valueName: '<Extension>:<dir>',
@@ -265,6 +271,16 @@ const SETUP_COMMAND: CommandSpec = {
     ],
 };
 
+/**
+ * Mirrors PHP Feature::isTrue ("$value && $value !== 'false'"): enabled when
+ * non-empty and neither "0" (falsy as a PHP string) nor the literal "false".
+ * Read from the raw env because this runs before any PHP bootstrap — the
+ * composer scripts load .env via bin/exec-with-env.
+ */
+function isFeatureFlagEnabled(value: string | undefined): boolean {
+    return value !== undefined && value !== '' && value !== '0' && value !== 'false';
+}
+
 /** Runs the setup command; returns the process exit code (0 ok, 1 drift/error, 2 usage error). */
 export function runSetupCli(argv: string[]): number {
     let parsed;
@@ -283,6 +299,17 @@ export function runSetupCli(argv: string[]): number {
 
     if (parsed.help) {
         console.log(renderHelp(SETUP_COMMAND));
+
+        return 0;
+    }
+
+    // Before any root resolution, so a disabled flag can never fail on a
+    // missing PROJECT_ROOT — the skip must be a guaranteed no-op.
+    if (parsed.flags.has('--if-enabled') && !isFeatureFlagEnabled(process.env.ADMIN_EXTENSION_TOOLING)) {
+        console.log(
+            'Administration extension tooling: skipped — set ADMIN_EXTENSION_TOOLING=1 (e.g. in .env) to run ' +
+                'this experimental step during composer setup.',
+        );
 
         return 0;
     }

@@ -115,4 +115,100 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
             process.env.PROJECT_ROOT = previousProjectRoot;
         }
     });
+
+    describe('--if-enabled feature-flag gate', () => {
+        const previousFlag = process.env.ADMIN_EXTENSION_TOOLING;
+
+        afterEach(() => {
+            if (previousFlag === undefined) {
+                delete process.env.ADMIN_EXTENSION_TOOLING;
+            } else {
+                process.env.ADMIN_EXTENSION_TOOLING = previousFlag;
+            }
+        });
+
+        it('skips with exit 0 and writes nothing when the flag is unset', () => {
+            delete process.env.ADMIN_EXTENSION_TOOLING;
+
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+            const treeBefore = listTree(projectRoot);
+
+            const exitCode = runSetupCli([
+                '--if-enabled',
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(0);
+            expect(listTree(projectRoot)).toEqual(treeBefore);
+            expect(logSpy.mock.calls.join('\n')).toContain('ADMIN_EXTENSION_TOOLING');
+            logSpy.mockRestore();
+        });
+
+        it.each([
+            '',
+            '0',
+            'false',
+        ])('treats ADMIN_EXTENSION_TOOLING=%j as disabled, mirroring Feature::isTrue', (value) => {
+            process.env.ADMIN_EXTENSION_TOOLING = value;
+
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+            const treeBefore = listTree(projectRoot);
+
+            const exitCode = runSetupCli([
+                '--if-enabled',
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(0);
+            expect(listTree(projectRoot)).toEqual(treeBefore);
+            logSpy.mockRestore();
+        });
+
+        it.each([
+            '1',
+            'true',
+        ])('runs the full setup when ADMIN_EXTENSION_TOOLING=%j', (value) => {
+            process.env.ADMIN_EXTENSION_TOOLING = value;
+
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+            const exitCode = runSetupCli([
+                '--if-enabled',
+                `--project-root=${projectRoot}`,
+                `--administration-root=${administrationRoot}`,
+            ]);
+
+            expect(exitCode).toBe(0);
+            expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/manifest.json'))).toBe(true);
+            logSpy.mockRestore();
+        });
+
+        it('skips before root resolution: no PROJECT_ROOT plus a disabled flag is not an error', () => {
+            delete process.env.ADMIN_EXTENSION_TOOLING;
+            const previousProjectRoot = process.env.PROJECT_ROOT;
+            delete process.env.PROJECT_ROOT;
+
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+            // The exit-2 "PROJECT_ROOT required" path must never fire for a
+            // disabled flag — composer setup must stay green without any env.
+            expect(runSetupCli(['--if-enabled'])).toBe(0);
+            logSpy.mockRestore();
+
+            if (previousProjectRoot !== undefined) {
+                process.env.PROJECT_ROOT = previousProjectRoot;
+            }
+        });
+
+        it('documents the flag in --help', () => {
+            const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+            runSetupCli(['--help']);
+
+            expect(logSpy.mock.calls.join('\n')).toContain('--if-enabled');
+            logSpy.mockRestore();
+        });
+    });
 });

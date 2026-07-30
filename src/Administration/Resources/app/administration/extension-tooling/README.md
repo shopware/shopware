@@ -30,8 +30,11 @@
 > - **Your own committed configs.** A bridged extension's `tsconfig.json` and
 >   `eslint.config.mjs` are yours; the tooling only asks that they keep the
 >   `extends` pointing at the generated bridge.
-> - **Opting out costs nothing.** No build, watch, init, or CI pipeline invokes
->   this tooling. Not running it leaves a project exactly as it was.
+> - **Opting out costs nothing.** The one automated hook — the `composer setup`
+>   step in a platform checkout — is a no-op unless the experimental
+>   `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g.
+>   `ADMIN_EXTENSION_TOOLING=1` in `.env`). No build, watch, or CI pipeline
+>   invokes this tooling; not running it leaves a project exactly as it was.
 >
 > Do not hand-edit generated files and do not build automation on top of the
 > generated layout — drive it through the commands instead, and re-run them after
@@ -86,6 +89,10 @@ composer admin:setup-extension-tooling -- --help                # full option re
 (`composer admin:setup-extension-tooling --check` runs a plain setup, not a dry-run). For a
 dry-run that **cannot** mutate files regardless of the separator, use the dedicated
 `composer admin:setup-extension-tooling:check` alias — prefer it in CI.
+
+`composer setup` also runs the setup automatically when the `ADMIN_EXTENSION_TOOLING`
+feature flag is enabled in your `.env`; without the flag that step prints a one-line
+skip notice and touches nothing.
 
 Setup discovers every installed extension with Administration sources (from
 `var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or

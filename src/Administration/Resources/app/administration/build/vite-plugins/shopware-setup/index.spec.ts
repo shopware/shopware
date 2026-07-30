@@ -37,16 +37,6 @@ function createPlugin(options: { administrationRoot: string } = pluginOptions): 
 }
 const execFileAsync = promisify(execFile);
 
-function positionForIndex(source: string, index: number) {
-    const beforeIndex = source.slice(0, index);
-    const lines = beforeIndex.split('\n');
-
-    return {
-        line: lines.length,
-        column: lines[lines.length - 1].length,
-    };
-}
-
 async function createVueFile(source: string, fileName = 'component.vue') {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-plugin-'));
     const vueFile = path.join(root, fileName);

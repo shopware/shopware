@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeFilesystemResolver
 {
     /**

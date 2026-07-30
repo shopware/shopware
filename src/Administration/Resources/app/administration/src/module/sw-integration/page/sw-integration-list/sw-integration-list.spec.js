@@ -139,7 +139,7 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

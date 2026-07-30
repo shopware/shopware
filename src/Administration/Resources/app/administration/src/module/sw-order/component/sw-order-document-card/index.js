@@ -397,7 +397,6 @@ export default {
 
                 return this.documentV2Service.createDocument(
                     orderId,
-                    this.order.versionId,
                     documentTypeName,
                     params.requestedFormats ?? [],
                     params.documentNumber,
@@ -635,7 +634,6 @@ export default {
             const previewRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
                 ? this.documentV2Service.previewDocument(
                       this.order.id,
-                      this.order.versionId,
                       this.currentDocumentType.technicalName,
                       format,
                       params.documentNumber,

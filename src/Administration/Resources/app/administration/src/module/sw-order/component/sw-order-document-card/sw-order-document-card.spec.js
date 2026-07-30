@@ -340,7 +340,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     name: routeName,
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -780,7 +780,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createDocumentMock).not.toHaveBeenCalled();
         expect(createDocumentV2Mock).toHaveBeenCalledWith(
             '1234',
-            'order-version-id',
             'invoice',
             ['html'],
             '1000',
@@ -830,7 +829,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createDocumentMock).not.toHaveBeenCalled();
         expect(createDocumentV2Mock).toHaveBeenCalledWith(
             '1234',
-            'order-version-id',
             'invoice',
             [
                 'html',
@@ -869,7 +867,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createDocumentMock).not.toHaveBeenCalled();
         expect(createDocumentV2Mock).toHaveBeenCalledWith(
             '1234',
-            'order-version-id',
             'invoice',
             ['html'],
             '1000',
@@ -942,7 +939,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(getDocumentPreviewV2Mock).toHaveBeenCalledWith(
             '1234',
-            'order-version-id',
             'invoice',
             'html',
             '1000',

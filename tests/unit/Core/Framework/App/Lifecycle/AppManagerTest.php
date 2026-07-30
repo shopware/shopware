@@ -576,7 +576,6 @@ XML,
         array $persisters = [],
         ?AclRoleEntity $aclRole = null,
     ): AppManager {
-        /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepository */
         $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
         return new AppManager(

@@ -88,7 +88,6 @@ class ProductListRouteTest extends TestCase
         static::assertContains('Other translation', $names);
     }
 
-    #[Group('slow')]
     public function testListingProductsLimit(): void
     {
         $this->browser->request(

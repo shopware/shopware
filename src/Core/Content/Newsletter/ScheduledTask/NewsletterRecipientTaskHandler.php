@@ -20,8 +20,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 #[Package('after-sales')]
+#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**

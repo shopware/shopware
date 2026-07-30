@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
@@ -25,8 +26,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal Only to be used by the admin-extension-sdk.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class AdminExtensionApiController extends AbstractController
 {
     /**
@@ -44,6 +45,11 @@ class AdminExtensionApiController extends AbstractController
     public function runAction(RequestDataBag $requestDataBag, Context $context): Response
     {
         $appName = $requestDataBag->get('appName');
+
+        if (!$context->isAllowed('app.all') && !$context->isAllowed('app.' . $appName)) {
+            throw ApiException::missingPrivileges(['app.' . $appName]);
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('name', $appName)

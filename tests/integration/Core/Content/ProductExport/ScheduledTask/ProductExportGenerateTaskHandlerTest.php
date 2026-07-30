@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -32,7 +31,6 @@ use Symfony\Component\Clock\NativeClock;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

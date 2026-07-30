@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -31,7 +30,6 @@ use SwagTestPlugin\SwagTestPlugin;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

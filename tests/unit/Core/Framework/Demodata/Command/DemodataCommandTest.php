@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Command\Command;
@@ -55,6 +57,8 @@ class DemodataCommandTest extends TestCase
         CustomFieldSetDefinition::class,
         MailTemplateDefinition::class,
         MailHeaderFooterDefinition::class,
+        SalesChannelDomainDefinition::class,
+        NewsletterRecipientDefinition::class,
     ];
 
     private EventDispatcher $dispatcher;
@@ -112,7 +116,10 @@ class DemodataCommandTest extends TestCase
             $items = $event->getRequest()->all();
             foreach (self::DEFAULT_DEFINITIONS as $definition) {
                 static::assertArrayHasKey($definition, $items);
+                unset($items[$definition]);
             }
+
+            self::assertSame([], $items);
         });
 
         $tester = new CommandTester($this->command);

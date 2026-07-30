@@ -22,8 +22,6 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_FORMATS = 'DOCUMENT_V2__MISSING_FORMATS';
 
-    public const LIVE_VERSION_NOT_ALLOWED = 'DOCUMENT_V2__LIVE_VERSION_NOT_ALLOWED';
-
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
@@ -41,8 +39,6 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS';
 
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
-
-    public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
 
     public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
 
@@ -123,15 +119,6 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function liveVersionNotAllowed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::LIVE_VERSION_NOT_ALLOWED,
-            'Live version of document is not allowed for document generation.',
-        );
-    }
-
     public static function orderNotFound(string $orderId): self
     {
         return new self(
@@ -152,12 +139,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function rendererNotFound(string $format, string $documentType): self
+    public static function rendererNotFound(string $format, ?string $documentType = null): self
     {
+        $message = $documentType === null
+            ? 'Renderer for format "{{ format }}" not found.'
+            : 'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.';
+
         return new self(
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
-            'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            $message,
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -282,16 +273,6 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_TYPE_NOT_FOUND,
             'Document type "{{ documentType }}" not found.',
             ['documentType' => $documentType],
-        );
-    }
-
-    public static function duplicateRenderer(string $format, string $documentType): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DUPLICATE_RENDERER,
-            'Duplicate renderer for format "{{ format }}" and document type "{{ documentType }}".',
-            ['format' => $format, 'documentType' => $documentType],
         );
     }
 

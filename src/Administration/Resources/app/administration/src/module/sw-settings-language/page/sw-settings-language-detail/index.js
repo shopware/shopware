@@ -242,6 +242,7 @@ export default {
             this.languageRepository
                 .save(this.language)
                 .then(() => {
+                    this.invalidateLanguageCaches();
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
 
@@ -259,6 +260,15 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.language.index' });
+        },
+
+        invalidateLanguageCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'active-languages',
+                ],
+            });
         },
     },
 };

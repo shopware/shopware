@@ -9,12 +9,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Validation;
@@ -30,7 +30,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'formats' => [
                 DocumentFormat::PDF->value,
@@ -44,7 +43,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
         $result = $this->resolveRequest($request);
 
         static::assertSame('018f5972f9ea72a0be49f7c39f72a2a0', $result->orderId);
-        static::assertSame('018f5972f9ea72a0be49f7c39f72a2a1', $result->orderVersionId);
         static::assertSame(DocumentType::INVOICE->value, $result->documentType);
         static::assertSame([DocumentFormat::PDF->value, DocumentFormat::HTML->value], $result->requestedFormats);
         static::assertSame('1000', $result->documentNumber);
@@ -56,7 +54,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::HTML->value,
             'documentNumber' => '1000',
@@ -65,7 +62,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
         $result = $this->resolveRequest($request);
 
         static::assertSame('018f5972f9ea72a0be49f7c39f72a2a0', $result->orderId);
-        static::assertSame('018f5972f9ea72a0be49f7c39f72a2a1', $result->orderVersionId);
         static::assertSame(DocumentType::INVOICE->value, $result->documentType);
         static::assertSame([DocumentFormat::HTML->value], $result->requestedFormats);
         static::assertSame('1000', $result->documentNumber);
@@ -76,7 +72,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'formats' => [
                 DocumentFormat::HTML->value,
@@ -93,8 +88,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -103,7 +98,6 @@ class DocumentGenerationRequestResolverTest extends TestCase
     {
         $request = $this->createRequest([
             'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
-            'orderVersionId' => '018f5972f9ea72a0be49f7c39f72a2a1',
             'documentType' => DocumentType::INVOICE->value,
             'format' => DocumentFormat::PDF->value,
         ]);
@@ -117,8 +111,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -140,10 +134,10 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
     private function resolveRequest(
         Request $request,
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequest {
         $result = iterator_to_array(
-            $this->createResolver($documentRendererRegistry)->resolve(
+            $this->createResolver($documentTypeRegistry)->resolve(
                 $request,
                 new ArgumentMetadata('generationRequest', DocumentGenerationRequest::class, false, false, null)
             )
@@ -155,13 +149,15 @@ class DocumentGenerationRequestResolverTest extends TestCase
     }
 
     private function createResolver(
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequestResolver {
         return new DocumentGenerationRequestResolver(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            $documentRendererRegistry ?? new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-                new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            $documentTypeRegistry ?? new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ]),
             ]),
         );
     }

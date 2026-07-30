@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -29,7 +28,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -70,6 +68,9 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove(self::APP_ZIP_FIXTURE_PATH);
+        // App.zip extracts into the shared fixture dir; its root must never collide with a
+        // committed fixture app (it used to be `plugin/`, silently overwriting apps/plugin)
+        $this->filesystem->remove(self::APPS_PATH . '/SwagApp');
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');

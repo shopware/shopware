@@ -14,7 +14,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "symfony/runtime": true
         }
     },
@@ -38,7 +38,7 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "league/flysystem": "^3.13.0",
-        "mcp/sdk": "^0.6.0",
+        "mcp/sdk": "^0.7.0",
         "meyfa/php-svg": "^0.16.1",
         "psr/clock": "^1.0.0",
         "psr/log": "^3.0.0",

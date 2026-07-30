@@ -32,7 +32,6 @@ type DocumentListener = (event: DocumentEvent) => void;
 
 type DocumentRequestPayload = {
     orderId: string;
-    orderVersionId: string;
     documentType: string;
     documentNumber: string;
     documentDate: string;
@@ -44,6 +43,7 @@ type CreateDocumentPayload = DocumentRequestPayload & {
 };
 
 type UploadDocumentPayload = DocumentRequestPayload & {
+    orderVersionId: string;
     format: string;
     mediaId: string | null;
     referencedDocumentId: string | null;
@@ -79,7 +79,6 @@ export default class DocumentV2ApiService extends ApiService {
 
     createDocument(
         orderId: string,
-        orderVersionId: string,
         documentTypeName: string,
         formats: string[],
         documentNumber: string,
@@ -90,7 +89,6 @@ export default class DocumentV2ApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: CreateDocumentPayload = {
             orderId,
-            orderVersionId,
             documentType: documentTypeName,
             formats,
             documentNumber,
@@ -159,7 +157,6 @@ export default class DocumentV2ApiService extends ApiService {
 
     previewDocument(
         orderId: string,
-        orderVersionId: string,
         documentTypeName: string,
         format: string,
         documentNumber: string,
@@ -170,7 +167,6 @@ export default class DocumentV2ApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: PreviewDocumentPayload = {
             orderId,
-            orderVersionId,
             documentType: documentTypeName,
             format,
             documentNumber,

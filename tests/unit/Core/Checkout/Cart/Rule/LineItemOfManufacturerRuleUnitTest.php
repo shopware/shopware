@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,5 +45,22 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         ));
 
         static::assertFalse($matches);
+    }
+
+    public function testCustomProductOptionDoesNotMatchNotEqualManufacturerRuleWithLineItemScope(): void
+    {
+        $manufacturerId = '019fa77183677a04ba9eaff57eed9627';
+
+        $rule = new LineItemOfManufacturerRule(
+            Rule::OPERATOR_NEQ,
+            [$manufacturerId],
+        );
+
+        $hasMatch = $rule->match(new LineItemScope(
+            self::createLineItem('customized-products-option'),
+            static::createStub(SalesChannelContext::class),
+        ));
+
+        static::assertFalse($hasMatch);
     }
 }

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Instrumentation\Stopwatch;
+use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
@@ -56,7 +56,7 @@ class IndexerMetricsInstrumentor
         ));
 
         $result = self::INDEXING_SUCCESS;
-        $stopwatch = Stopwatch::start();
+        $timer = ElapsedTimer::start();
 
         try {
             $callback();
@@ -67,7 +67,7 @@ class IndexerMetricsInstrumentor
         } finally {
             $this->meter->emit(new ConfiguredMetric(
                 name: 'indexer.run.duration',
-                value: $stopwatch->getElapsedMs(),
+                value: $timer->getElapsedMs(),
                 labels: ['indexer' => $indexerName, 'mode' => $mode, 'result' => $result],
             ));
         }

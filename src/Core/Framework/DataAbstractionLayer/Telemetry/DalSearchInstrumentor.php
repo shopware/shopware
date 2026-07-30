@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Instrumentation\Stopwatch;
+use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
@@ -76,11 +76,11 @@ class DalSearchInstrumentor
             return $callback();
         }
 
-        $stopwatch = Stopwatch::start();
+        $timer = ElapsedTimer::start();
         try {
             $result = $callback();
         } finally {
-            $durationMs = $stopwatch->getElapsedMs();
+            $durationMs = $timer->getElapsedMs();
         }
 
         $this->meter->emit(new ConfiguredMetric(

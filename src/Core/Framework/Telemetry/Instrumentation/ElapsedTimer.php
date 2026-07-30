@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
-final readonly class Stopwatch
+final readonly class ElapsedTimer
 {
     private function __construct(private int|float $startedAt)
     {

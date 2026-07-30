@@ -32,6 +32,9 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
+
         // Intentional rename of the technical-term analyzer chain so the public
         // identifier matches how the chain is referenced everywhere else
         // (constants, `buildTextFieldConfig(technicalTerms: true)`, the

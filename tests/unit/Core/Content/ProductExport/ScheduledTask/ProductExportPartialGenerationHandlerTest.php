@@ -203,11 +203,11 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
             $generator,
             $fileHandler,
             $messageBus,
-            $this->createMock(ProductExportRendererInterface::class),
-            $this->createMock(AbstractTranslator::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(Connection::class),
+            static::createStub(ProductExportRendererInterface::class),
+            static::createStub(AbstractTranslator::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(Connection::class),
         )->__invoke(new ProductExportPartialGeneration($this->productExport->getId(), $this->productExport->getSalesChannelId(), 50));
 
         static::assertCount(1, $messageBus->getMessages());

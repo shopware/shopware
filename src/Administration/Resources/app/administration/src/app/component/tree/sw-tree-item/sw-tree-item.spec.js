@@ -202,8 +202,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(contextButton.find('.sw-context-menu__duplicate-action').exists()).toBeFalsy();
     });
 
-    describe('naming a new element', () => {
-        async function createNamingWrapper() {
+    describe('naming a new element that is already mounted', () => {
+        async function createMountedItemInNamingMode() {
             const wrapper = await createWrapper({
                 stubs: {
                     'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
@@ -211,7 +211,6 @@ describe('src/app/component/tree/sw-tree-item', () => {
                 },
             });
 
-            // The item already exists when it becomes the element to be named
             await wrapper.setProps({ newElementId: '1a2b3c' });
             await flushPromises();
 
@@ -227,7 +226,7 @@ describe('src/app/component/tree/sw-tree-item', () => {
         });
 
         it('should focus the naming field', async () => {
-            const wrapper = await createNamingWrapper();
+            const wrapper = await createMountedItemInNamingMode();
 
             const nameField = wrapper.get('.sw-tree-detail__edit-tree-item input');
 
@@ -235,7 +234,7 @@ describe('src/app/component/tree/sw-tree-item', () => {
         });
 
         it('should scroll the naming field into view', async () => {
-            await createNamingWrapper();
+            await createMountedItemInNamingMode();
 
             expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
                 behavior: 'smooth',

@@ -347,9 +347,6 @@ export default {
         newElementId(newId) {
             this.currentEditElement = newId;
 
-            /* The item can already be mounted when it becomes the element to name, in which case
-             * mountedComponent() did not see it yet.
-             */
             if (newId === this.item.data.id) {
                 this.editElementName();
             }
@@ -549,9 +546,7 @@ export default {
         },
 
         editElementName() {
-            /* The naming field focuses itself via v-autofocus, because it is rendered too late for a
-             * lookup from here. Scrolling the item keeps the field visible while creating in series.
-             */
+            // The naming field is rendered too late to be focused from here, v-autofocus does that.
             this.$nextTick(() => {
                 this.$el.scrollIntoView({
                     behavior: 'smooth',

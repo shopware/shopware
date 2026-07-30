@@ -44,14 +44,16 @@ The core allowlist lives in `Generator/StoreApiPhpGeneratedSchemaAllowlist.json`
 
 1. Capture the current generated StoreAPI component as the compatibility baseline.
 2. Add the explicit JSON component schema and verify that the final generated StoreAPI component stays compatible.
-3. Remove the matching entry from `phpGeneratedStoreApiSchemas`. JSON/PHP base-schema overlap is an error; only typed extension fields may still be contributed by PHP.
+3. Remove the matching flat-schema entry and, when present, its legacy `*JsonApi` entry from `phpGeneratedStoreApiSchemas`. JSON/PHP base-schema overlap is an error; only typed extension fields may still be contributed by PHP.
 4. Remove schema-only PHP metadata only when it is no longer needed by Admin API schema generation or runtime DAL/API behavior.
 
 Flags such as `ApiAware`, `Required`, `WriteProtected`, and `Runtime` are not schema-only and must remain on the DAL definition. PHP field descriptions, definition version information, and `IgnoreInOpenapiSchema` are also still used by Admin API generation today, so they cannot be removed as part of a StoreAPI-only component migration without preserving the Admin API schema through another source.
 
 The next metadata-cleanup phase should first preserve the corresponding Admin API schema in JSON or another Admin-specific source, then remove PHP descriptions, version information, and OpenAPI-only flags that have no remaining consumer. Keep runtime and DAL flags unchanged.
 
-StoreAPI generation uses flat component schemas only; legacy `*JsonApi` components are not generated. The target for core is that `jsonOverridesPhpGenerated` stays empty and `phpGeneratedStoreApiSchemas` shrinks to an empty list as JSON components are added.
+JSON-owned Store API components use the flat JSON base schema and receive only typed extension fields from PHP. During the migration, definitions without a matching JSON component continue to generate their legacy flat and `*JsonApi` PHP schemas; both are tracked in `phpGeneratedStoreApiSchemas`.
+
+The target for core is that `jsonOverridesPhpGenerated` stays empty and `phpGeneratedStoreApiSchemas` shrinks to an empty list as JSON components are added. Once no PHP-owned definitions remain, the remaining legacy `*JsonApi` compatibility schemas can be removed.
 
 The platform CI runs the check in core scope:
 

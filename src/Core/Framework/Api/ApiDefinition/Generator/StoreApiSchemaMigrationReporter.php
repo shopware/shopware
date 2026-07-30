@@ -100,7 +100,7 @@ class StoreApiSchemaMigrationReporter
                 $this->getResourceUri($definition),
                 true,
                 $this->shouldIncludeReferenceOnly($definition),
-                DefinitionService::TYPE_JSON,
+                DefinitionService::TYPE_JSON_API,
             );
 
             array_push($schemaNames, ...array_keys($schema));

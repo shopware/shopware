@@ -21,6 +21,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Def
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginBundleWithSchema\PluginBundleWithSchema;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginExtensionForJsonOverride;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -113,11 +114,27 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
-    public function testSchemaDoesNotContainJsonApiComponents(): void
+    public function testOnlyPhpGeneratedSchemaRetainsJsonApiComponent(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [SalesChannelSimpleDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $schema = $this->generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        static::assertArrayHasKey('SimpleJsonApi', $schema['components']['schemas']);
+    }
+
+    public function testJsonOwnedSchemaDoesNotContainJsonApiComponent(): void
     {
         $schema = $this->generateSchema($this->generator, null);
 
-        static::assertArrayNotHasKey('SimpleJsonApi', $schema['components']['schemas']);
         static::assertArrayNotHasKey('JsonOverrideEntityJsonApi', $schema['components']['schemas']);
     }
 

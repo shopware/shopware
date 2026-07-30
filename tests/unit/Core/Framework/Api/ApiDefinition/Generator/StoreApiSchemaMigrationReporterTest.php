@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByT
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_extensionFixtures\ExtensionDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -80,6 +81,20 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         static::assertNotContains('GroupByTest', $report->phpGeneratedOnly);
         static::assertSame([], $report->jsonOverridesPhpGenerated);
         static::assertFalse($report->hasMismatches());
+    }
+
+    public function testReportTracksLegacyJsonApiSchemaForPhpOwnedDefinition(): void
+    {
+        $report = $this->createReporter(
+            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            allowlistPath: $this->createAllowlistPath(),
+        )->report(
+            $this->createDefinitions([SalesChannelSimpleDefinition::class]),
+            AllStoreApiSchemaMigrationScopeProvider::SCOPE,
+        );
+
+        static::assertContains('Simple', $report->phpGeneratedOnly);
+        static::assertContains('SimpleJsonApi', $report->phpGeneratedOnly);
     }
 
     public function testReportStillDetectsUnexpectedPhpGeneratedJsonSchemaOverlap(): void

@@ -107,7 +107,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     $this->getResourceUri($definition),
                     $forSalesChannel,
                     $onlyReference,
-                    DefinitionService::TYPE_JSON,
+                    DefinitionService::TYPE_JSON_API,
                 );
             }
 

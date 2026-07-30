@@ -28,6 +28,8 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
@@ -39,6 +41,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -331,7 +334,7 @@ class DocumentRendererSnapshotTest extends TestCase
     private function buildCancellationInvoiceRenderData(OrderEntity $order): CancellationInvoiceRenderData
     {
         $this->seedDemoBaseConfig('storno');
-        $this->seedReferenceInvoice($order->getId());
+        $referencedInvoiceId = $this->seedReferenceInvoice($order->getId());
 
         $provider = static::getContainer()->get(CancellationInvoiceDataProvider::class);
 
@@ -343,7 +346,13 @@ class DocumentRendererSnapshotTest extends TestCase
             documentDate: self::DOCUMENT_DATE,
         );
 
-        return $provider->provideRenderingData($order, $request, $this->context);
+        $input = new ProviderInput($order, $request, new ReferencedDocument(
+            id: $referencedInvoiceId,
+            documentNumber: self::DOCUMENT_NUMBER,
+            orderVersionId: $order->getVersionId() ?? Defaults::LIVE_VERSION,
+        ));
+
+        return $provider->provideRenderingData($input, $this->context);
     }
 
     private function buildDeliveryNoteRenderData(): DeliveryNoteRenderData

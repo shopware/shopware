@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
@@ -9,6 +10,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinitio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
@@ -22,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -40,6 +43,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
@@ -740,6 +744,9 @@ class DocumentV2ControllerTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
 
+        $connection = static::createStub(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, []));
+
         return new DocumentGenerator(
             new DocumentDataProviderRegistry([
                 new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
@@ -753,6 +760,7 @@ class DocumentV2ControllerTest extends TestCase
                 $mediaService,
             ),
             new DocumentDependencyResolver($rendererRegistry),
+            new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
         );
     }

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
@@ -94,7 +95,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(InvoiceDataProvider::class),
-            service(ReferenceInvoiceLoader::class),
         ])
         ->tag('shopware.document_v2.provider');
 
@@ -186,6 +186,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
         ]);
 
+    $services->set(ReferencedDocumentResolver::class)
+        ->args([
+            service(ReferenceInvoiceLoader::class),
+            service(Connection::class),
+        ]);
+
     $services->set(DocumentGenerator::class)
         ->public()
         ->args([
@@ -194,6 +200,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentNumberGenerator::class),
             service(DocumentPersister::class),
             service(DocumentDependencyResolver::class),
+            service(ReferencedDocumentResolver::class),
             service('order.repository'),
         ]);
 

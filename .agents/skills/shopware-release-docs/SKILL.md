@@ -32,7 +32,7 @@ Write into the following files, but only if the decision above applies:
 
 Write from the outside user's perspective: what changed, who is affected, and what they should do.
 
-State the change and its impact, not the reasoning behind it, the internals of how it works, or the history of the problem. Link the issue or upstream report instead, so readers who want that context can follow it.
+State the change and its impact, not the reasoning behind it, the internals of how it works, or the history of the problem.
 
 ## Formatting
 

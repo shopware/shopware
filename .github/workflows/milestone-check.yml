@@ -43,7 +43,20 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           sparse-checkout: .github/bin/js
 
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      # The rule lives on the base branch, so it is absent wherever it has not landed
+      # yet — this pull request itself, and any branch it has not been backported to.
+      # Passing there is the correct reading of "the rule as the target branch has it".
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No milestone label rule on ${GITHUB_BASE_REF:-the base branch} yet, nothing to check."
+          fi
+
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const { checkMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')

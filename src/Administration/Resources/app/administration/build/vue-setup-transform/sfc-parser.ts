@@ -19,6 +19,20 @@ import { toScriptBlock } from './utils/sfc-script-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
 /**
+ * The shape a filename-derived component name has to have.
+ *
+ * The derived name is a runtime registry key and a template tag, so it must be lowercase kebab-case:
+ * capitals, underscores, spaces and dots would all produce a name no other Administration component
+ * has and that an override could not reliably target.
+ *
+ * Deliberately *not* requiring two segments here, even though every real name has them: the
+ * multi-word rule is Vue's own convention and is already enforced by the `vue/multi-word-component-names`
+ * ESLint rule, which reports it with a better message than a build failure can. No prefix is required
+ * either - core uses `sw-`, Meteor `mt-`, and extensions bring their own.
+ */
+const COMPONENT_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
+/**
  * Reads Vue's SFC descriptor and returns only blocks that use Shopware setup mode.
  */
 function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupBlock | null {
@@ -48,6 +62,15 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
 
     const scriptSetupBlock = toScriptBlock(source, parsed.descriptor.scriptSetup, 'scriptSetup');
     const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock, filename);
+
+    if (!COMPONENT_NAME_PATTERN.test(shopwareSetupBlock.componentName)) {
+        throw new ShopwareSetupTransformError(
+            `"${shopwareSetupBlock.componentName}" cannot be a Shopware component name. The name comes from the ` +
+                'filename (or the directory name for an index file) and becomes both a template tag and the public ' +
+                'override target, so it must be lowercase kebab-case - for example "sw-product-list". Rename the file.',
+            0,
+        );
+    }
 
     if (parsed.descriptor.script) {
         throw new ShopwareSetupTransformError(

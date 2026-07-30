@@ -233,7 +233,8 @@ describe('build/vue-setup-transform base rename pass', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'sw-jsx.tsx').code;
+        // An SFC filename is always `.vue`; `tsx` is the script block's `lang`, not the file extension.
+        const result = transformOrFail(source, 'sw-jsx.vue').code;
 
         // The member-expression root `Lib` is a binding and is renamed; `div` (intrinsic) and `.Btn`
         // (member property) are not. Without the fix `<Lib.Btn />` would resolve to the footer binding

@@ -141,6 +141,8 @@ const {
             <template><ChildComponent /></template>
             <script setup>
             import ChildComponent from './child.vue';
+
+            swDefinePublic({});
             </script>
         `;
 
@@ -157,6 +159,8 @@ const {
             <script setup>
             defineOptions({ inheritAttrs: false });
             defineEmits(['save']);
+
+            swDefinePublic({});
             </script>
         `;
 

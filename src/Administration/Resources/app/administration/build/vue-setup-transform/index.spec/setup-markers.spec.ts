@@ -8,7 +8,7 @@
  * `useSwPreviousState()` rejected in base mode.
  */
 
-import { stripIndent, transformShopwareSetupSfc } from './helpers';
+import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
 
 describe('build/vue-setup-transform setup markers', () => {
     it.each([
@@ -63,6 +63,37 @@ describe('build/vue-setup-transform setup markers', () => {
         );
     });
 
+    it('requires swDefinePublic() in base mode', () => {
+        const source = stripIndent`
+            <script setup>
+            const count = 1;
+            </script>
+        `;
+
+        // A transformed base component is an extension point - its filename is the public override
+        // target - so the marker is mandatory even with nothing public, rather than letting a file become
+        // extendable just by carrying a <script setup> block.
+        expect(() => transformShopwareSetupSfc(source, 'missing-public.vue')).toThrow(
+            'A base Shopware setup component must declare its extension surface. Add swDefinePublic({ ... }) ' +
+                'at the top level - pass an empty object if no binding is public.',
+        );
+    });
+
+    it('accepts an empty swDefinePublic() for a base component with no public state', () => {
+        const source = stripIndent`
+            <script setup>
+            const internalOnly = 1;
+
+            swDefinePublic({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'empty-public.vue').code;
+
+        expect(result).toContain('public: {},');
+        expect(result).toContain('internalOnly: __swSetupAuthor_internalOnly,');
+    });
+
     it('rejects swDefineOverride() in base mode', () => {
         const source = stripIndent`
             <script setup>
@@ -71,6 +102,8 @@ describe('build/vue-setup-transform setup markers', () => {
             </script>
         `;
 
+        // The wrong-mode complaint must win over the missing-swDefinePublic() one: both are true here,
+        // but only this one explains what the author actually did wrong.
         expect(() => transformShopwareSetupSfc(source, 'base-override.vue')).toThrow(
             'swDefineOverride() is a Shopware setup compile-time macro for override components. ' +
                 'It declares which base component bindings this override replaces. ' +

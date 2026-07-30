@@ -121,6 +121,16 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
             'Override components must use swDefineOverride() to declare replacement bindings instead.',
         ].join(' '),
         duplicateMessage: 'Only one swDefinePublic() call is allowed in a base Shopware setup block.',
+        // Required even when nothing is public. A transformed base component is an extension point: its
+        // filename becomes the public override target and its bindings become overrideable state. Making
+        // the marker mandatory keeps that from happening silently - a reader of the file can tell at a
+        // glance that it is lowered, and the author states the extension surface deliberately.
+        required: {
+            modes: ['base'],
+            message:
+                'A base Shopware setup component must declare its extension surface. Add swDefinePublic({ ... }) ' +
+                'at the top level - pass an empty object if no binding is public.',
+        },
         topLevelOnly: {
             message: 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
         },
@@ -238,18 +248,26 @@ function collectMacroCallEntries(statement: Statement): MacroCallEntry[] {
 /**
  * Applies the declarative registry rules to the collected top-level entries.
  *
- * Rules run per macro in registry order (Vue macros before Shopware markers), each checking wrong
- * mode first, then multiplicity, then required presence - so an author who both misplaces a macro and
- * duplicates it hears about the misplacement.
+ * The three rule kinds run as separate passes over every macro, not interleaved per macro, so the most
+ * specific complaint always wins: a macro used in the wrong mode is reported before any duplicate, and
+ * both are reported before a missing required marker. Otherwise a base file that mistakenly calls
+ * swDefineOverride() would be told to add swDefinePublic() - technically true, but useless.
  */
 function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, scriptOffset: number): void {
+    const entriesFor = (name: MacroName): MacroCallEntry[] => entries.filter((entry) => entry.name === name);
+
     MACRO_NAMES.forEach((name) => {
         const rule = MACRO_RULES[name];
-        const named = entries.filter((entry) => entry.name === name);
+        const named = entriesFor(name);
 
         if (!rule.modes.includes(mode) && named.length > 0) {
             throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteRange(named[0].call, scriptOffset));
         }
+    });
+
+    MACRO_NAMES.forEach((name) => {
+        const rule = MACRO_RULES[name];
+        const named = entriesFor(name);
 
         // Multiplicity is per name, not per `group`: the only macros with a duplicate limit are the
         // swDefine* markers, which have no group, and the grouped props macros deliberately leave
@@ -257,8 +275,12 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
         if (rule.duplicateMessage && named.length > 1) {
             throw new ShopwareSetupTransformError(rule.duplicateMessage, absoluteRange(named[1].call, scriptOffset));
         }
+    });
 
-        if (rule.required?.modes.includes(mode) && named.length === 0) {
+    MACRO_NAMES.forEach((name) => {
+        const rule = MACRO_RULES[name];
+
+        if (rule.required?.modes.includes(mode) && entriesFor(name).length === 0) {
             throw new ShopwareSetupTransformError(rule.required.message, scriptOffset);
         }
     });

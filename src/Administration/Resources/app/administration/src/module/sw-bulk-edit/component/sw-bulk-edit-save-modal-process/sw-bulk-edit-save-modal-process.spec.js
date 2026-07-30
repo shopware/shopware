@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { DocumentEvents } from 'src/core/service/api/document.api.service';
 
 const selectedOrderIds = [
     'order-id-1',
@@ -49,6 +50,22 @@ const syncServiceMock = {
     sync: jest.fn(() => Promise.resolve()),
 };
 
+const documentV2ServiceMock = {
+    listener: null,
+    setListener: jest.fn((callback) => {
+        documentV2ServiceMock.listener = callback;
+    }),
+    createDocument: jest.fn(() =>
+        Promise.resolve({
+            data: {
+                documentId: 'document-id',
+                deepLinkCode: 'deep-link-code',
+                formats: ['pdf'],
+            },
+        }),
+    ),
+};
+
 async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures) {
     Shopware.Store.get('swBulkEdit').selectedIds = selectedOrderIds;
     Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
@@ -85,6 +102,7 @@ async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures
                     },
                     syncService: syncServiceMock,
                     repositoryFactory: repositoryFactoryMock,
+                    documentV2Service: documentV2ServiceMock,
                 },
             },
         },
@@ -95,6 +113,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
         await flushPromises();
     });
@@ -522,6 +541,147 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             },
         ]);
+    });
+
+    describe('DOCUMENT_GENERATION_REWORK', () => {
+        beforeEach(() => {
+            global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+            documentV2ServiceMock.createDocument.mockClear();
+        });
+
+        it('calls documentV2Service.createDocument per order with the selected file formats', async () => {
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: [
+                            'pdf',
+                            'html',
+                        ],
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: ['pdf'],
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId2',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentV2ServiceMock.createDocument).toHaveBeenNthCalledWith(
+                1,
+                'orderId',
+                'invoice',
+                [
+                    'pdf',
+                    'html',
+                ],
+                undefined,
+                'documentDate',
+                'documentComment',
+            );
+            expect(documentV2ServiceMock.createDocument).toHaveBeenNthCalledWith(
+                2,
+                'orderId2',
+                'invoice',
+                ['pdf'],
+                undefined,
+                'documentDate',
+                'documentComment',
+            );
+            expect(result).toEqual({
+                requested: 2,
+                failed: 0,
+                skipped: 0,
+                failedItems: [],
+            });
+            expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        });
+
+        it('collects failed items using the last document-failed event when createDocument resolves without a response', async () => {
+            documentV2ServiceMock.createDocument.mockImplementationOnce(() => {
+                documentV2ServiceMock.listener({
+                    action: DocumentEvents.DOCUMENT_FAILED,
+                    payload: {
+                        code: 'DOCUMENT_GENERATION_FAILED',
+                        detail: 'Document generation failed',
+                    },
+                });
+
+                return Promise.resolve(undefined);
+            });
+
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'] },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(result).toEqual({
+                requested: 1,
+                failed: 1,
+                skipped: 0,
+                failedItems: [
+                    {
+                        orderId: 'orderId',
+                        documentType: 'invoice',
+                        errorCode: 'DOCUMENT_GENERATION_FAILED',
+                        detail: 'Document generation failed',
+                    },
+                ],
+            });
+        });
+
+        it('passes the selected file formats through as-is, without falling back to pdf', async () => {
+            await wrapper.vm.createDocument('invoice', [
+                {
+                    config: {},
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentV2ServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'invoice',
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            );
+        });
+
+        it('routes credit notes through the v2 endpoint as well', async () => {
+            await wrapper.vm.createDocument('credit_note', [
+                {
+                    config: { fileFormats: ['pdf'] },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'credit_note',
+                },
+            ]);
+
+            expect(documentV2ServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'credit_note',
+                ['pdf'],
+                undefined,
+                undefined,
+                undefined,
+            );
+        });
     });
 
     describe('delete documents', () => {

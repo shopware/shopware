@@ -45,7 +45,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -238,6 +240,43 @@ class AuthControllerTest extends TestCase
 
         $newSessionId = $session->getId();
         static::assertNotSame($sessionId, $newSessionId);
+    }
+
+    public function testLogoutSendsNoClearSiteDataHeaderByDefault(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/logout');
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+        static::assertFalse($response->headers->has('Clear-Site-Data'));
+    }
+
+    /**
+     * The container parameter cannot be changed at runtime, so the configured state is simulated by
+     * registering a second, configured listener instance on the real dispatcher.
+     */
+    public function testLogoutSendsClearSiteDataWhenDirectivesAreConfigured(): void
+    {
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $onResponse = (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...);
+        $dispatcher->addListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
+
+        try {
+            $browser = $this->login();
+            $browser->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
+            $browser->setServerParameter('HTTP_SEC_FETCH_MODE', 'navigate');
+            $browser->setServerParameter('HTTP_SEC_FETCH_DEST', 'document');
+
+            $browser->request('GET', '/account/logout');
+            $response = $browser->getResponse();
+
+            static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+            static::assertSame('"cache", "storage"', $response->headers->get('Clear-Site-Data'));
+        } finally {
+            $dispatcher->removeListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
+        }
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void

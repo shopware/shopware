@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolv
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -53,6 +54,7 @@ final class DocumentV2Controller extends AbstractController
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
+        private readonly DocumentTypeRegistry $documentTypeRegistry,
         private readonly DocumentArchiveGenerator $documentArchiveGenerator,
         private readonly EntityRepository $documentRepository,
         private readonly EntityRepository $documentFileRepository,
@@ -70,11 +72,13 @@ final class DocumentV2Controller extends AbstractController
     )]
     public function availableTypes(): JsonResponse
     {
-        $documentTypes = array_map(function (array $formats) {
-            return [
-                'formats' => $formats,
+        $documentTypes = [];
+
+        foreach ($this->documentTypeRegistry->getDocumentTypes() as $documentType) {
+            $documentTypes[$documentType] = [
+                'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];
-        }, $this->documentRendererRegistry->getSupportedFormatsByDocumentType());
+        }
 
         return new JsonResponse([
             'documentTypes' => $documentTypes,
@@ -140,7 +144,7 @@ final class DocumentV2Controller extends AbstractController
         $documentType = $this->requirePayloadString($payload, 'documentType');
         $format = $this->requirePayloadString($payload, 'format');
 
-        $this->documentRendererRegistry->validateFormats($documentType, [$format]);
+        $this->documentTypeRegistry->validateFormats($documentType, [$format]);
 
         $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);

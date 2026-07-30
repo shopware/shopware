@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Frosh\Rector\Rule\v68\EntitySearchResultGetEntitiesRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
@@ -23,12 +24,19 @@ return RectorConfig::configure()
         '**/vendor/*',
         '**/node_modules/*',
         '**/Resources/*',
+
+        // BC test deliberately covering the deprecated delegations until their removal
+        EntitySearchResultGetEntitiesRector::class => [
+            __DIR__ . '/tests/unit/Core/Framework/DataAbstractionLayer/Search/EntitySearchResultTest.php',
+        ],
     ])
     ->withCache(
         cacheDirectory: __DIR__ . '/var/cache/rector',
         cacheClass: FileCacheStorage::class,
     )
     ->withRules([
+        // Guards against the deprecated collection surface of EntitySearchResult (see #18655)
+        EntitySearchResultGetEntitiesRector::class,
         ClassConstantToSelfClassRector::class,
         DisallowedEmptyRuleFixerRector::class,
         CountArrayToEmptyArrayComparisonRector::class,

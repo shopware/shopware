@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -202,6 +203,28 @@ class AuthControllerTest extends TestCase
             'external url attack' => ['https://www.shopware.com', 'frontend.account.login.page'],
             'empty/null fallback' => [null, 'frontend.account.login.page'],
         ];
+    }
+
+    public function testLogoutOptsTheResponseIntoClearSiteData(): void
+    {
+        $request = new Request();
+
+        $this->controller->logout($request, Generator::generateSalesChannelContext(), new RequestDataBag());
+
+        static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA));
+        static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
+    }
+
+    public function testLogoutWithoutCustomerDoesNotOptIntoClearSiteData(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+
+        $this->controller->logout($request, $context, new RequestDataBag());
+
+        static::assertFalse($request->attributes->has(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA));
     }
 
     public function testGenerateAccountRecoveryThrowsConstraintException(): void

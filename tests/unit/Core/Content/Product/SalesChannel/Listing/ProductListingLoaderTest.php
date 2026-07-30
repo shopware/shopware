@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -24,12 +23,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -354,6 +351,7 @@ class ProductListingLoaderTest extends TestCase
 
         $expected = new Criteria();
         $expected->addState(ResolvedCriteriaProductSearchRoute::STATE);
+        $expected->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $expected->addGroupField(new FieldGrouping('displayGroup'));
         $expected->addFilter(new NotEqualsFilter('displayGroup', null));
         $expected->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
@@ -416,39 +414,48 @@ class ProductListingLoaderTest extends TestCase
         return new EntitySearchResult('product', $products->count(), $products, new AggregationResultCollection(), $criteria, $this->salesChannelContext->getContext());
     }
 
+    /**
+     * Runs a search-route listing through the public loader and returns the criteria the
+     * loader resolved the ids with.
+     */
     private function resolveSearchIds(bool $findBestVariant): Criteria
     {
-        $salesChannelId = Uuid::randomHex();
+        $this->systemConfigService
+            ->method('getBool')
+            ->willReturnCallback(function (string $key, string $salesChannelId) use ($findBestVariant): bool {
+                static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
 
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getSalesChannelId')->willReturn($salesChannelId);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+                return match ($key) {
+                    'core.listing.findBestVariant' => $findBestVariant,
+                    'core.listing.partialDataLoading', 'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                    default => throw new \RuntimeException('Unexpected config key ' . $key),
+                };
+            });
 
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('getBool')->willReturnMap([
-            ['core.listing.findBestVariant', $salesChannelId, $findBestVariant],
-            ['core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId, false],
-        ]);
+        $resolved = null;
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria) use (&$resolved): IdSearchResult {
+                $resolved = $criteria;
 
-        /** @var StaticSalesChannelRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticSalesChannelRepository([[]]);
+                // no ids: the loader stops right after resolving them
+                return $this->createIdSearchResult($criteria, []);
+            });
 
-        $loader = new ProductListingLoader(
-            $productRepository,
-            $systemConfigService,
-            static::createStub(Connection::class),
-            new EventDispatcher(),
-            static::createStub(AbstractProductCloseoutFilterFactory::class),
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
 
         $criteria = new Criteria();
         $criteria->addState(ResolvedCriteriaProductSearchRoute::STATE);
 
-        $method = new \ReflectionMethod($loader, 'resolveIds');
-        $method->invoke($loader, $criteria, $context);
+        $this->createLoader()->load($criteria, $this->salesChannelContext);
 
-        return $criteria;
+        static::assertInstanceOf(Criteria::class, $resolved);
+
+        return $resolved;
     }
 
     private function findChildCountFilter(Criteria $criteria): ?MultiFilter

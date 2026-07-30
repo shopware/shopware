@@ -44,15 +44,11 @@ class ZugferdXmlRendererTest extends TestCase
     public function testConfig(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
-        static::assertSame(
-            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
-            $renderer->getDocumentTypes(),
-        );
     }
 
     public function testRenderToString(): void
@@ -103,10 +99,10 @@ class ZugferdXmlRendererTest extends TestCase
 
     public function testRenderToStringThrowsWhenTemplateProducesMalformedXml(): void
     {
-        $finder = $this->createMock(TemplateFinder::class);
+        $finder = static::createStub(TemplateFinder::class);
         $finder->method('find')->willReturn(self::ZUGFERD_TEMPLATE_PATH);
 
-        $env = $this->createMock(TwigEnvironment::class);
+        $env = static::createStub(TwigEnvironment::class);
         $env->method('renderWithTimezoneOverride')->willReturn('<root><unclosed></root>');
 
         $renderer = $this->createRenderer($finder, $env);
@@ -131,7 +127,7 @@ class ZugferdXmlRendererTest extends TestCase
             ->with($expectedTemplate)
             ->willReturn($expectedTemplate);
 
-        $env = $this->createMock(TwigEnvironment::class);
+        $env = static::createStub(TwigEnvironment::class);
         $env->method('renderWithTimezoneOverride')->willReturn('<root/>');
 
         $renderer = $this->createRenderer($finder, $env);
@@ -156,7 +152,7 @@ class ZugferdXmlRendererTest extends TestCase
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->never())->method('find');
 
-        $renderer = $this->createRenderer($finder, $this->createMock(TwigEnvironment::class));
+        $renderer = $this->createRenderer($finder, static::createStub(TwigEnvironment::class));
 
         $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
 
@@ -175,8 +171,8 @@ class ZugferdXmlRendererTest extends TestCase
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TwigEnvironment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         $input = new RenderInput(

@@ -131,7 +131,11 @@ const baseRules = {
     'vue/multi-word-component-names': [
         'error',
         {
-            ignores: ['index.html'],
+            // The option matches component names, and `sw-thing/index.vue` is a documented native-setup
+            // form where the name comes from the directory - so the rule would otherwise report the
+            // literal name "index" for a component actually called `sw-thing`. The directory-derived name
+            // is still validated by the transform.
+            ignores: ['index.html', 'index'],
         },
     ],
     'func-names': 'off',

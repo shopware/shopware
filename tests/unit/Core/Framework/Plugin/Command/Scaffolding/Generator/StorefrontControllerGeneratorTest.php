@@ -108,8 +108,8 @@ class StorefrontControllerGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([StorefrontControllerGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
-                'src/Resources/config/routes.xml',
+                'src/Resources/config/services.php',
+                'src/Resources/config/routes.php',
                 'src/Storefront/Controller/ExampleController.php',
                 'src/Resources/views/storefront/page/example.html.twig',
             ],

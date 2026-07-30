@@ -9,7 +9,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: {
+        repositoryFactory: {},
+        feature: {},
+        documentV2Service: {},
+    },
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -51,25 +55,36 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.isLoading = true;
-            this.documentTypeRepository
-                .search(this.documentTypeCriteria)
-                .then((documentTypes) => {
-                    documentTypes.forEach((documentType) => {
-                        documentType.selected = false;
-                    });
-                    this.documentTypes = documentTypes;
-                })
-                .catch((error) => {
-                    this.documentTypes = [];
-                    this.createNotificationError({
-                        message: error.message,
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
+
+            try {
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
+                    const availableTypesResponse = await this.documentV2Service.getAvailableTypes();
+                    const supportedDocumentTypes = availableTypesResponse.data?.documentTypes ?? {};
+
+                    // TODO: map technicalName to name
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => ({
+                        id: technicalName,
+                        technicalName,
+                        translated: { name: technicalName },
+                    }));
+                    this.documentTypes.total = this.documentTypes.length;
+                } else {
+                    this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);
+                }
+
+                this.documentTypes.forEach((documentType) => {
+                    documentType.selected = false;
                 });
+            } catch (error) {
+                this.documentTypes = [];
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };

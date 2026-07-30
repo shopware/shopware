@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
             stubs: {
@@ -17,6 +17,16 @@ async function createWrapper() {
                         };
                     },
                 },
+                documentV2Service: {
+                    getAvailableTypes: jest.fn().mockResolvedValue({
+                        data: {
+                            documentTypes: {
+                                invoice: { formats: ['pdf'] },
+                            },
+                        },
+                    }),
+                    ...documentV2ServiceOverrides,
+                },
             },
         },
     });
@@ -26,6 +36,7 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
     });
 
@@ -69,5 +80,21 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
             ]),
         );
         spy.mockRestore();
+    });
+
+    it('fetches document types from the available types endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await wrapper.vm.createdComponent();
+
+        expect([...wrapper.vm.documentTypes]).toEqual([
+            {
+                id: 'invoice',
+                technicalName: 'invoice',
+                translated: { name: 'invoice' },
+                selected: false,
+            },
+        ]);
     });
 });

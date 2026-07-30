@@ -11,9 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: {
+        repositoryFactory: {},
+        feature: {},
+        documentV2Service: {},
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -60,14 +62,31 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.documentTypeRepository.search(this.documentTypeCriteria).then((res) => {
-                this.documentTypes = res;
+        async createdComponent() {
+            try {
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
+                    const availableTypesResponse = await this.documentV2Service.getAvailableTypes();
+                    const supportedDocumentTypes = availableTypesResponse.data?.documentTypes ?? {};
+
+                    // TODO: map technicalName to name
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => ({
+                        id: technicalName,
+                        technicalName,
+                        name: technicalName,
+                    }));
+                } else {
+                    this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);
+                }
 
                 this.documentTypes.forEach((type) => {
                     this.value.documentType[type.technicalName] = null;
                 });
-            });
+            } catch (error) {
+                this.documentTypes = [];
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
         },
     },
 };

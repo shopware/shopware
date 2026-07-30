@@ -340,7 +340,15 @@
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
-          "labelTextarea": "Kommentar"
+          "labelTextarea": "Kommentar",
+          "labelFileFormats": "Dateiformate",
+          "placeholderFileFormats": "Dateiformate auswählen ...",
+          "fileFormats": {
+            "pdf": "PDF",
+            "html": "HTML",
+            "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
+            "zugferdXml": "ZUGFeRD XML"
+          }
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

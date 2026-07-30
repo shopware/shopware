@@ -17,6 +17,7 @@ export default {
     emits: [
         'new-password-change',
         'new-password-confirm-change',
+        'user-theme-change',
         'media-upload',
         'media-remove',
         'media-open',
@@ -79,6 +80,11 @@ export default {
             type: Array,
             required: true,
         },
+        userTheme: {
+            type: String,
+            required: false,
+            default: 'system',
+        },
     },
 
     computed: {
@@ -112,6 +118,15 @@ export default {
                     label: language.customLabel,
                 };
             });
+        },
+
+        computedUserTheme: {
+            get() {
+                return this.userTheme;
+            },
+            set(userTheme) {
+                this.$emit('user-theme-change', userTheme);
+            },
         },
     },
 

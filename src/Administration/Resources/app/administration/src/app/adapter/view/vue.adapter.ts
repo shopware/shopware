@@ -35,6 +35,7 @@ import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
 import MtText from '@shopware-ag/meteor-component-library/dist/esm/MtText';
 import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtThemeSelect from '@shopware-ag/meteor-component-library/dist/esm/MtThemeSelect';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
@@ -457,6 +458,7 @@ export default class VueAdapter extends ViewAdapter {
             MtText,
             MtTextField,
             MtTextarea,
+            MtThemeSelect,
             MtIcon,
             MtPagination,
             MtSkeletonBar,

@@ -78,6 +78,17 @@
             />
             {% endblock %}
         </sw-container>
+
+        <sw-container v-bind="{ columns: 'repeat(2, minmax(250px, 1fr))', gap: '0 30px' }">
+            {% block sw_profile_index_general_information_theme %}
+            <mt-theme-select
+                v-model="computedUserTheme"
+                name="sw-field--user-theme"
+                class="sw-profile--theme"
+                :label="$t('sw-profile.index.labelThemeField')"
+            />
+            {% endblock %}
+        </sw-container>
     </mt-card>
     {% endblock %}
 

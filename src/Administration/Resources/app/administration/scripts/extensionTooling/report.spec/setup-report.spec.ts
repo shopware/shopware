@@ -27,7 +27,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         eslintConfig: 'custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs',
     });
 
-    it('classifies ready / bridged / unwired / needs-bridge and shows inline next-steps by default', () => {
+    it('classifies ready / bridged / unwired / not-bridged and shows inline next-steps by default', () => {
         const output = setupReport(
             setupResult([
                 managed,
@@ -40,10 +40,10 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(output).toContain('✔ ready');
         expect(output).toContain('● bridged');
         expect(output).toContain('bridge unwired');
-        expect(output).toContain('● needs bridge');
+        expect(output).toContain('● not bridged');
         expect(output).toContain('Next steps');
-        expect(output).toContain('--shim=SwagPayPal');
-        expect(output).not.toContain('--shim=Unwired');
+        expect(output).toContain("isn't bridged yet");
+        expect(output).not.toContain('--shim');
         expect(output).toContain('finish wiring it');
     });
 
@@ -71,22 +71,37 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         expect(setupReport(setupResult([managed]))).not.toContain('Settings → Languages');
     });
 
-    it('confirms a fresh bridge after --shim only when the configs actually compose it', () => {
-        const output = setupReport(setupResult([bridgedPlugin]), { shim: 'Bridged' });
+    it('confirms a fresh bridge only when the run created one and the configs compose it', () => {
+        const freshWrites = [
+            {
+                file: 'custom/plugins/Bridged/src/Resources/app/administration/.shopware/tsconfig.json',
+                state: 'created' as const,
+            },
+        ];
+        const output = setupReport(setupResult([bridgedPlugin], { changed: true, writes: freshWrites }));
 
         expect(output).toContain('✔ Bridged Bridged');
         expect(output).toContain('.shopware/ bridge');
+
+        // An idempotent re-run (nothing freshly created) prints no confirmation.
+        expect(setupReport(setupResult([bridgedPlugin]))).not.toContain('✔ Bridged');
     });
 
-    it('announces one remaining step after --shim when existing configs were left alone', () => {
-        const output = setupReport(setupResult([unwiredPlugin]), { shim: 'Unwired' });
+    it('announces one remaining step when existing configs were left alone beside a fresh bridge', () => {
+        const freshWrites = [
+            {
+                file: 'custom/plugins/Unwired/src/Resources/app/administration/.shopware/tsconfig.json',
+                state: 'created' as const,
+            },
+        ];
+        const output = setupReport(setupResult([unwiredPlugin], { changed: true, writes: freshWrites }));
 
         expect(output).toContain('✔ Bridge created for Unwired');
         expect(output).toContain('one step left');
         expect(output).not.toContain('✔ Bridged Unwired');
     });
 
-    it('distinguishes git-ignored bridge files from committable plugin files in dry-run output', () => {
+    it('distinguishes bridge, committable, and local vendor files in dry-run output', () => {
         const output = setupReport(
             setupResult([project('Mono')], {
                 changed: true,
@@ -94,6 +109,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
                     { file: 'custom/plugins/Mono/.shopware/tsconfig.json', state: 'created' },
                     { file: 'custom/plugins/Mono/.shopware/eslint.mjs', state: 'created' },
                     { file: 'custom/plugins/Mono/tsconfig.json', state: 'created' },
+                    { file: 'vendor/acme/admin/src/Resources/app/administration/tsconfig.json', state: 'created' },
                     { file: 'var/admin-extension-tooling/manifest.json', state: 'created' },
                 ],
             }),
@@ -102,7 +118,13 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
 
         expect(output).toContain('would create: custom/plugins/Mono/.shopware/tsconfig.json [git-ignored bridge]');
         expect(output).toContain('would create: custom/plugins/Mono/tsconfig.json [commit this]');
-        expect(output).toContain('2 git-ignored bridge file(s), 1 committable plugin file(s), 1 host projection(s)');
+        expect(output).toContain(
+            'would create: vendor/acme/admin/src/Resources/app/administration/tsconfig.json ' +
+                '[local — restored by re-running setup]',
+        );
+        expect(output).toContain(
+            '2 git-ignored bridge file(s), 1 committable plugin file(s), 1 local vendor config(s), 1 host projection(s)',
+        );
     });
 
     it('states the experimental status on every run, including the empty state', () => {

@@ -10,7 +10,12 @@ const COMMAND: CommandSpec = {
     description: 'Generate configs for extensions.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing.' },
-        { name: '--shim', value: 'required', valueName: '<TechnicalName>|all-custom', description: 'Bridge one extension.' },
+        {
+            name: '--root-config',
+            value: 'required',
+            valueName: '<Extension>:<dir>',
+            description: 'Bridge a multi-root extension beside one package config.',
+        },
         { name: '--project-root', value: 'required', valueName: '<path>', description: 'Shop root to set up.' },
     ],
 };
@@ -21,7 +26,7 @@ describe('scripts/extensionTooling/cli', () => {
             const parsed = parseCli(
                 [
                     '--check',
-                    '--shim=SwagPayPal',
+                    '--root-config=Swag:.',
                     '--project-root=/srv/shop',
                 ],
                 COMMAND,
@@ -29,7 +34,7 @@ describe('scripts/extensionTooling/cli', () => {
 
             expect(parsed.help).toBe(false);
             expect(parsed.flags.has('--check')).toBe(true);
-            expect(parsed.values['--shim']).toBe('SwagPayPal');
+            expect(parsed.values['--root-config']).toBe('Swag:.');
             expect(parsed.values['--project-root']).toBe('/srv/shop');
         });
 
@@ -41,8 +46,8 @@ describe('scripts/extensionTooling/cli', () => {
         });
 
         it('rejects value flags without a value', () => {
-            expect(() => parseCli(['--shim'], COMMAND)).toThrow('requires a value: --shim=<TechnicalName>|all-custom');
-            expect(() => parseCli(['--shim='], COMMAND)).toThrow('requires a value');
+            expect(() => parseCli(['--root-config'], COMMAND)).toThrow('requires a value: --root-config=<Extension>:<dir>');
+            expect(() => parseCli(['--root-config='], COMMAND)).toThrow('requires a value');
         });
 
         it('rejects values on boolean flags and bare positionals', () => {
@@ -71,7 +76,7 @@ describe('scripts/extensionTooling/cli', () => {
             expect(help).toContain('composer admin:setup-extension-tooling -- [options]');
             expect(help).toContain('composer swallows options placed before it');
             expect(help).toContain('--check');
-            expect(help).toContain('--shim=<TechnicalName>|all-custom');
+            expect(help).toContain('--root-config=<Extension>:<dir>');
             expect(help).toContain('--project-root=<path>');
             expect(help).toContain('-h, --help');
         });

@@ -48,7 +48,7 @@ describe('scripts/extensionTooling/setup file ownership', () => {
         const rootWrite = result.writes.find((write) => write.file === 'tsconfig.json');
 
         expect(rootWrite?.state).toBe('updated');
-        expect(fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8')).toContain('admin-extension-tooling');
+        expect(fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8')).toContain('solution-style index');
     });
 
     it('is idempotent: a second run changes nothing', () => {

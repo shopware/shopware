@@ -28,14 +28,14 @@ describe('extension tooling command layout', () => {
         });
     });
 
-    it('renders the setup shim next-step with the layout-aware command', () => {
+    it('renders the not-bridged next-step with the layout-aware command', () => {
         const needsBridge = project('NeedsBridge', {
             tsconfig: 'custom/plugins/NeedsBridge/src/tsconfig.json',
             ts: resolution('unmanaged', { reason: 'not-extending' }),
         });
         const output = setupReport(setupResult([needsBridge]), { commands: flexCommands });
 
-        expect(output).toContain('bin/console administration:setup-extension-tooling -- --shim=NeedsBridge');
-        expect(output).not.toContain('composer admin:setup-extension-tooling -- --shim=NeedsBridge');
+        expect(output).toContain('bin/console administration:setup-extension-tooling');
+        expect(output).not.toContain('composer admin:setup-extension-tooling');
     });
 });

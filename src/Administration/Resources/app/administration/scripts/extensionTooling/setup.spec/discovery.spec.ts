@@ -53,19 +53,30 @@ describe('scripts/extensionTooling/setup discovery', () => {
             ],
             vendor: false,
         });
+        // Auto-bridging scaffolded composing configs, so the manifest records
+        // the post-bridge state of the same run.
         expect(suite?.targets).toHaveLength(2);
         expect(suite?.targets).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ technicalNames: ['SuiteA'], ts: { mode: 'managed', verified: true } }),
-                expect.objectContaining({ technicalNames: ['SuiteB'], ts: { mode: 'managed', verified: true } }),
+                expect.objectContaining({
+                    technicalNames: ['SuiteA'],
+                    ts: expect.objectContaining({ mode: 'bridged' }) as unknown,
+                }),
+                expect.objectContaining({
+                    technicalNames: ['SuiteB'],
+                    ts: expect.objectContaining({ mode: 'bridged' }) as unknown,
+                }),
             ]),
         );
         expect(zeroConfig?.vendor).toBe(false);
-        expect(zeroConfig?.targets[0].ts).toMatchObject({ mode: 'managed' });
-        expect(zeroConfig?.targets[0].eslint).toMatchObject({ mode: 'managed' });
-        // The vendor fixture's own configs do not compose the preset — static
+        expect(zeroConfig?.targets[0].bridgePresent).toBe(true);
+        expect(zeroConfig?.targets[0].ts).toMatchObject({ mode: 'bridged' });
+        expect(zeroConfig?.targets[0].eslint).toMatchObject({ mode: 'bridged' });
+        // The vendor fixture ships its own non-composing configs: they are
+        // never overwritten, so the bridge exists but stays unwired — static
         // analysis already classifies them, unverified until a check run.
         expect(vendorExtension?.vendor).toBe(true);
+        expect(vendorExtension?.targets[0].bridgePresent).toBe(true);
         expect(vendorExtension?.targets[0].ts).toMatchObject({
             mode: 'unmanaged',
             reason: 'not-extending',

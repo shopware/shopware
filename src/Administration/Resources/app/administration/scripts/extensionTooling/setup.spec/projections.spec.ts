@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  *
- * The generated projections: per-target runtime and spec leaf tsconfigs, the
- * solution-style root tsconfig that references them, the scoped root ESLint
- * config, the entity-schema gate, and the pruning of leaves whose extension
- * disappeared.
+ * The generated projections: the solution-style root tsconfig (routing only
+ * fallback leaf tsconfigs — bridged targets carry their own configs), the
+ * scoped root ESLint config, the entity-schema gate, and the pruning of stale
+ * leaves.
  */
 
 import { execFileSync } from 'child_process';
@@ -33,22 +33,24 @@ describe('scripts/extensionTooling/setup config projections', () => {
         cleanupTempProject(projectRoot);
     });
 
-    it('projects root configs that mirror the generated leaf configs', () => {
+    it('routes bridged targets to their own configs and writes no fallback leafs', () => {
         writeDefaultFixtures(projectRoot);
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
         const references = [...rootTsconfig.matchAll(/"path": "(.+)"/g)].map((match) => match[1]);
-        const managedTargets = result.manifest.projects.flatMap((project) =>
-            project.targets.filter((target) => target.ts.mode === 'managed'),
-        );
 
         expect(rootTsconfig).toContain(GENERATED_MARKER);
-        // Every managed target is routed to its leaf from the solution index.
-        expect(references).toEqual(managedTargets.map((target) => `./${target.checkTsconfig}`));
+        // Auto-bridging gave every target an owned (scaffolded or pre-existing)
+        // config, so the solution index has nothing left to route and no
+        // fallback leafs are generated.
+        expect(references).toEqual([]);
+        expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'))).toBe(false);
 
-        for (const reference of references) {
-            expect(fs.existsSync(path.join(projectRoot, reference))).toBe(true);
+        for (const project of result.manifest.projects) {
+            for (const target of project.targets) {
+                expect(target.checkTsconfig).toBe(target.tsconfig);
+            }
         }
 
         const rootEslint = fs.readFileSync(path.join(projectRoot, 'eslint.config.mjs'), 'utf8');
@@ -58,31 +60,11 @@ describe('scripts/extensionTooling/setup config projections', () => {
                 expect(rootEslint).toContain(`${JSON.stringify(target.sourcePath)},`);
             }
         }
-
-        // One leaf per Administration target — including the targets whose own
-        // config governs them, so a later bridge has a leaf to fall back to.
-        const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects'));
-
-        expect(leafFiles).toHaveLength(
-            result.manifest.projects.reduce((total, project) => total + project.targets.length, 0),
-        );
     });
 
-    it('excludes test files from generated and scaffolded tsconfigs', () => {
+    it('excludes test files from scaffolded tsconfigs', () => {
         writeDefaultFixtures(projectRoot);
-        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
-
-        const leafRaw = fs.readFileSync(
-            path.join(projectRoot, 'var/admin-extension-tooling/projects/zeroconfig.json'),
-            'utf8',
-        );
-        const leaf = JSON.parse(leafRaw.split('\n').slice(1).join('\n')) as { exclude: string[] };
-
-        // Exclude patterns resolve relative to the config file, so the leaf
-        // config (in var/) must prefix them with the source path.
-        expect(leaf.exclude).toEqual(
-            expect.arrayContaining([expect.stringMatching(/custom\/plugins\/ZeroConfig\/.*\*\*\/\*\.spec\.ts$/)]),
-        );
+        setupExtensionTooling({ projectRoot, administrationRoot });
 
         const scaffold = fs.readFileSync(
             path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/tsconfig.json'),
@@ -151,23 +133,18 @@ describe('scripts/extensionTooling/setup config projections', () => {
         expect(withRealSchema.manifest.entitySchemaAvailable).toBe(true);
     });
 
-    it('removes stale leaf configs when an extension disappears', () => {
+    it('prunes leaf configs left behind by previous runs', () => {
         writeDefaultFixtures(projectRoot);
-        setupExtensionTooling({ projectRoot, administrationRoot });
-
-        writePluginsConfig(projectRoot, [
-            {
-                technicalName: 'ZeroConfig',
-                basePath: 'custom/plugins/ZeroConfig/src',
-                administrationPath: 'Resources/app/administration/src',
-            },
+        // A leaf of a removed extension — or of a target that has since been
+        // bridged and no longer needs the fallback.
+        writeFile(path.join(projectRoot, 'var/admin-extension-tooling/projects/gone.json'), [
+            `// ${GENERATED_MARKER}`,
+            '{}',
         ]);
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
-        const leafFiles = fs.readdirSync(path.join(projectRoot, 'var/admin-extension-tooling/projects')).sort();
 
-        expect(result.staleFiles.length).toBeGreaterThan(0);
-        // Only the surviving extension's leaf remains.
-        expect(leafFiles).toEqual(['zeroconfig.json']);
+        expect(result.staleFiles).toContain('var/admin-extension-tooling/projects/gone.json');
+        expect(fs.existsSync(path.join(projectRoot, 'var/admin-extension-tooling/projects/gone.json'))).toBe(false);
     });
 });

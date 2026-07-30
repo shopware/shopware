@@ -7,7 +7,7 @@ import type { ExtensionToolingProject } from '../shared';
 import { project, resolution } from './helpers';
 
 describe('scripts/extensionTooling/report describeNextStep', () => {
-    it('gives the one-command bridge for a custom/plugins extension without a bridge', () => {
+    it('points an unbridged extension at the automatic setup run', () => {
         const steps = describeNextStep(
             project('SwagPayPal', {
                 tsconfig: 'custom/plugins/SwagPayPal/src/Resources/app/administration/tsconfig.json',
@@ -15,11 +15,13 @@ describe('scripts/extensionTooling/report describeNextStep', () => {
             }),
         ).join('\n');
 
-        expect(steps).toContain('composer admin:setup-extension-tooling -- --shim=SwagPayPal');
+        expect(steps).toContain("isn't bridged yet");
+        expect(steps).toContain('composer admin:setup-extension-tooling');
+        expect(steps).not.toContain('--shim');
         expect(steps).not.toContain('README');
     });
 
-    it('never re-suggests --shim once the bridge exists', () => {
+    it('asks to finish the wiring once the bridge exists', () => {
         const steps = describeNextStep(
             project('Unwired', {
                 bridgePresent: true,
@@ -45,10 +47,19 @@ describe('scripts/extensionTooling/report describeNextStep', () => {
         ).toEqual([]);
     });
 
-    it('explains vendor extensions are read-only, with no shim command', () => {
-        const steps = describeNextStep(project('Acme', { vendor: true, basePath: 'vendor/acme/admin' })).join('\n');
+    it('adds the local-lifecycle note for vendor extensions', () => {
+        const steps = describeNextStep(
+            project('Acme', {
+                vendor: true,
+                basePath: 'vendor/acme/admin',
+                sourcePath: 'vendor/acme/admin/src/Resources/app/administration/src',
+                tsconfig: 'vendor/acme/admin/src/Resources/app/administration/tsconfig.json',
+                ts: resolution('unmanaged', { reason: 'not-extending' }),
+            }),
+        ).join('\n');
 
-        expect(steps).toContain('vendor');
+        expect(steps).toContain("isn't bridged yet");
+        expect(steps).toContain('update removes them');
         expect(steps).not.toContain('--shim');
     });
 });
@@ -87,14 +98,29 @@ describe('scripts/extensionTooling/report describeToolGuidance', () => {
         expect(guidance?.fix.join('\n')).toContain("import shopware from './.shopware/eslint.mjs';");
     });
 
-    it('returns null for composing tools and for vendor extensions', () => {
+    it('returns null for composing tools and platform bundles, but guides vendor extensions', () => {
         expect(describeToolGuidance(unwired(), 'TypeScript', resolution('bridged'))).toBeNull();
         expect(
             describeToolGuidance(
-                project('Acme', { vendor: true, basePath: 'vendor/acme/admin' }),
+                project('Storefront', {
+                    basePath: 'src/Storefront',
+                    tsconfig: 'src/Storefront/Resources/app/administration/tsconfig.json',
+                }),
                 'TypeScript',
                 resolution('unmanaged', { reason: 'not-extending' }),
             ),
         ).toBeNull();
+        expect(
+            describeToolGuidance(
+                project('Acme', {
+                    vendor: true,
+                    basePath: 'vendor/acme/admin',
+                    bridgePresent: true,
+                    tsconfig: 'vendor/acme/admin/src/Resources/app/administration/tsconfig.json',
+                }),
+                'TypeScript',
+                resolution('unmanaged', { reason: 'not-extending' }),
+            ),
+        ).not.toBeNull();
     });
 });

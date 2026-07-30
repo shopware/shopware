@@ -18,14 +18,16 @@ import {
 import type { ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
 
 /**
- * Ownership class of a generated path, so dry-run and shim output can tell
- * apart the three lifecycles a developer must treat differently:
+ * Ownership class of a generated path, so dry-run and bridge output can tell
+ * apart the lifecycles a developer must treat differently:
  * - `bridge`: git-ignored machine-specific files inside `.shopware/` —
  *   never committed;
  * - `committable`: the plugin's own tsconfig/eslint — commit these;
+ * - `vendor-config`: the same scaffolds inside a composer-managed extension —
+ *   local only, restored by re-running setup after a composer update;
  * - `host`: disposable root projections and IDE bootstraps the tool re-derives.
  */
-export type FileClass = 'bridge' | 'committable' | 'host';
+export type FileClass = 'bridge' | 'committable' | 'vendor-config' | 'host';
 
 export function classifyFile(file: string): FileClass {
     if (file.includes(`/${SHIM_DIR_NAME}/`)) {
@@ -34,8 +36,14 @@ export function classifyFile(file: string): FileClass {
 
     const base = file.split('/').pop() ?? '';
 
-    if (file.startsWith('custom/plugins/') && (base === 'tsconfig.json' || base === 'eslint.config.mjs')) {
-        return 'committable';
+    if (base === 'tsconfig.json' || base === 'eslint.config.mjs') {
+        if (file.startsWith('custom/plugins/')) {
+            return 'committable';
+        }
+
+        if (file.startsWith('vendor/')) {
+            return 'vendor-config';
+        }
     }
 
     return 'host';
@@ -52,10 +60,6 @@ const BRIDGE_ESLINT_LINES = [
     'export default [ ...shopware /* , your rules */ ];',
 ];
 
-function shimCommand(project: ExtensionToolingProject, commands: ToolingCommands): string {
-    return `${commands.setup} -- --shim=${project.name}`;
-}
-
 /**
  * One `why:` and one `fix:` for a skipped tool — reason- and state-specific,
  * never suggesting a step the project's facts prove was already done.
@@ -71,8 +75,9 @@ export function describeToolGuidance(
 
     const state = deriveExtensionState(project);
 
-    if (state === 'vendor' || state === 'platform') {
-        // Rendered as a per-extension note instead of per-tool fixes.
+    if (state === 'platform') {
+        // Platform bundles are checked by the core toolchain; per-tool fixes
+        // would point at files this tool never manages.
         return null;
     }
 
@@ -114,6 +119,14 @@ export function describeToolGuidance(
     };
 }
 
+/** The note appended for vendor extensions whose files this run touched or should touch. */
+function vendorLifecycleNote(): string[] {
+    return [
+        '(Vendor extension — files written under vendor/ are local only; a composer',
+        'update removes them and re-running setup restores them.)',
+    ];
+}
+
 /**
  * The extension's single missing step for the setup report — empty when
  * nothing is missing.
@@ -124,19 +137,11 @@ export function describeNextStep(
 ): string[] {
     const state = deriveExtensionState(project);
 
-    if (state === 'vendor') {
-        return [
-            'Read-only vendor extension — covered through host-owned configs; its own',
-            'files are never written to.',
-        ];
-    }
-
     if (state === 'needs-bridge') {
         return [
-            "It isn't checked with the Shopware preset yet. Bridge it with one command:",
-            `    ${shimCommand(project, commands)}`,
-            `That generates a git-ignored ${SHIM_DIR_NAME}/ bridge plus small committed`,
-            'tsconfig/eslint that extend it (existing configs are never overwritten).',
+            `It isn't bridged yet. Bridges are generated automatically — run \`${commands.setup}\`;`,
+            'if a warning above explains why the bridge was skipped, fix that first.',
+            ...(project.vendor ? vendorLifecycleNote() : []),
         ];
     }
 
@@ -161,6 +166,10 @@ export function describeNextStep(
             if (guidance) {
                 lines.push(...guidance.fix.map((line) => `    ${line}`));
             }
+        }
+
+        if (project.vendor) {
+            lines.push(...vendorLifecycleNote());
         }
 
         return lines;

@@ -80,7 +80,7 @@ describe('scripts/extensionTooling/report color rendering', () => {
 
         expect(stripAnsi(colored)).not.toBe(colored);
         expect(stripAnsi(colored)).toContain('✔ ready    Ready');
-        expect(stripAnsi(colored)).toContain('● needs bridge   NeedsBridge');
+        expect(stripAnsi(colored)).toContain('● not bridged   NeedsBridge');
     });
 
     it('keeps dry-run ownership labels assertable when color is forced on', () => {

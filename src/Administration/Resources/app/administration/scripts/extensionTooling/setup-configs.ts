@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  *
- * Config generators. Tool-owned var/ leaf tsconfigs (one per Administration
- * root), the marker-owned root tsconfig/eslint projections, IDE bootstraps, the
- * entity-schema stub gate, and the committed per-extension configs that a
- * `--shim` scaffolds beside its bridge.
+ * Config generators. Tool-owned var/ leaf tsconfigs (fallback for targets the
+ * bridge could not cover), the marker-owned root tsconfig/eslint projections,
+ * IDE bootstraps, the entity-schema stub gate, and the per-extension configs
+ * scaffolded beside every generated bridge.
  */
 
 import fs from 'fs';
@@ -96,6 +96,13 @@ export function createLeafConfigs(
     const configured = projects.map((project) => ({
         ...project,
         targets: project.targets.map((target) => {
+            // Bridged targets carry their own config; a leaf is only generated
+            // as the fallback for targets the bridge could not cover (write
+            // failure, ambiguous layout, --check dry-run).
+            if (target.tsconfig !== null) {
+                return { ...target, checkTsconfig: target.tsconfig };
+            }
+
             const targetName =
                 project.targets.length === 1
                     ? project.name
@@ -128,7 +135,7 @@ export function createLeafConfigs(
 
             return {
                 ...target,
-                checkTsconfig: target.tsconfig ?? relativePosix(context.projectRoot, configPath),
+                checkTsconfig: relativePosix(context.projectRoot, configPath),
             };
         }),
     }));
@@ -331,6 +338,7 @@ export function scaffoldExtensionConfigs(
     name: string,
     configDir: string,
     sourcePaths: string[],
+    vendor = false,
 ): void {
     const include = sourcePaths.flatMap((sourcePath) => {
         const sourceRelative = toPosix(path.relative(configDir, path.resolve(context.projectRoot, sourcePath)));
@@ -339,9 +347,18 @@ export function scaffoldExtensionConfigs(
     });
     const tsconfigPath = path.join(configDir, 'tsconfig.json');
     const eslintPath = path.join(configDir, 'eslint.config.mjs');
+    // A vendor extension's files are composer-managed: "commit" makes no sense
+    // there, re-running setup after an update is the restore path instead.
+    const configKind = vendor ? 'Local config' : 'Committed config';
+    const tsconfigLifecycleNote = vendor
+        ? 'A composer update removes this file; re-running setup restores it.'
+        : 'Safe to edit and commit — keep the "extends".';
+    const eslintLifecycleNote = vendor
+        ? 'A composer update removes this file; re-running setup restores it.'
+        : 'Safe to edit and commit — keep the import and the ...spread.';
     const tsconfigContent =
-        `// Committed config for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
-        '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
+        `// ${configKind} for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
+        `// (git-ignored, holds the machine-specific paths). ${tsconfigLifecycleNote}\n` +
         `${JSON.stringify(
             {
                 extends: BRIDGE_TSCONFIG_EXTENDS,
@@ -352,8 +369,8 @@ export function scaffoldExtensionConfigs(
             4,
         )}\n`;
     const eslintContent = [
-        `// Committed config for ${name}. Composes the generated Shopware bridge in ${SHIM_DIR_NAME}/`,
-        '// (git-ignored). Safe to edit and commit — keep the import and the ...spread.',
+        `// ${configKind} for ${name}. Composes the generated Shopware bridge in ${SHIM_DIR_NAME}/`,
+        `// (git-ignored). ${eslintLifecycleNote}`,
         `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
         '',
         'export default [',

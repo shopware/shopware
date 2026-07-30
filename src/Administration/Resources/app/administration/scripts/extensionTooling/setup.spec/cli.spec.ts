@@ -83,19 +83,19 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
         }
     });
 
-    it('rejects --root-config without --shim as a usage error and writes nothing', () => {
+    it('rejects a malformed --root-config value as a usage error and writes nothing', () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         const treeBefore = listTree(projectRoot);
 
         const exitCode = runSetupCli([
-            '--root-config=.',
+            '--root-config=just-a-dir',
             `--project-root=${projectRoot}`,
             `--administration-root=${administrationRoot}`,
         ]);
 
         expect(exitCode).toBe(2);
         expect(listTree(projectRoot)).toEqual(treeBefore);
-        expect(errorSpy.mock.calls.join('\n')).toContain('--root-config only applies together with --shim');
+        expect(errorSpy.mock.calls.join('\n')).toContain('--root-config expects <Extension>:<dir>');
         errorSpy.mockRestore();
     });
 

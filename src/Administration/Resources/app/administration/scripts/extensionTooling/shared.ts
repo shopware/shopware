@@ -119,6 +119,12 @@ export interface ExtensionToolingManifest {
         state: ManifestFileState;
         optedOut: boolean;
     };
+    /**
+     * Per-extension `--root-config` choices (extension name → dir relative to
+     * the extension root), persisted so an ambiguous multi-root package stays
+     * bridged on plain re-runs after the flag was given once.
+     */
+    rootConfigDirs?: Record<string, string>;
     projects: ExtensionToolingProject[];
 }
 
@@ -139,7 +145,7 @@ export function readPreviousManifest(projectRoot: string): ExtensionToolingManif
  * Display state derived from the project's facts, never stored — so every
  * consumer reaches the same verdict from the same manifest.
  */
-export type DerivedExtensionState = 'ready' | 'needs-bridge' | 'bridge-unwired' | 'bridged' | 'platform' | 'vendor';
+export type DerivedExtensionState = 'ready' | 'needs-bridge' | 'bridge-unwired' | 'bridged' | 'platform';
 
 export function projectSourcePaths(project: ExtensionToolingProject): string[] {
     return project.targets.map((target) => target.sourcePath);
@@ -179,16 +185,24 @@ export function aggregateModeResolution(project: ExtensionToolingProject, tool: 
     return { mode: 'managed', verified: true };
 }
 
-export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
-    if (project.vendor) {
-        return 'vendor';
-    }
+/**
+ * Bundles of the platform itself (the monorepo's own src/ bundles) — the one
+ * exception to automatic bridging: they are checked by the core toolchain and
+ * their repository commits its own configs.
+ */
+export function isPlatformProject(project: ExtensionToolingProject): boolean {
+    return !project.vendor && !project.basePath.startsWith('custom/plugins/');
+}
 
-    if (!project.basePath.startsWith('custom/plugins/')) {
+export function deriveExtensionState(project: ExtensionToolingProject): DerivedExtensionState {
+    if (isPlatformProject(project)) {
         return 'platform';
     }
 
     if (!projectHasOwnedConfig(project)) {
+        // Bridging has not produced configs (yet): a --check dry-run, or a
+        // skipped/failed bridge. The host-owned fallback (leaf configs + root
+        // projections) covers the extension either way.
         return 'ready';
     }
 

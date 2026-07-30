@@ -13,18 +13,11 @@ import colors from 'picocolors';
 import { classifyFile, describeNextStep } from './report-guidance';
 import type { FileClass } from './report-guidance';
 import type { SetupExtensionToolingResult } from './setup';
-import {
-    DEFAULT_TOOLING_COMMANDS,
-    SHIM_DIR_NAME,
-    deriveExtensionState,
-    projectHasBridge,
-    projectHasOwnedConfig,
-} from './shared';
+import { DEFAULT_TOOLING_COMMANDS, SHIM_DIR_NAME, deriveExtensionState, projectHasBridge } from './shared';
 import type { DerivedExtensionState, ExtensionToolingProject, ToolingCommands } from './shared';
 
 interface SetupRenderOptions {
     checkOnly?: boolean;
-    shim?: string;
     /**
      * Shown on plain (flag-less) runs: composer swallows options placed before
      * "--", so this footer is both flag discovery and the safety net for a
@@ -122,25 +115,33 @@ function renderNoExtensionsFound(result: SetupExtensionToolingResult, platform: 
     return lines;
 }
 
-/** The `--shim=<name>` confirmation: what the bridge did for the named project(s) and the file-ownership tally. */
-function renderShimConfirmation(
-    result: SetupExtensionToolingResult,
-    shim: string,
-    stateOf: StateMap,
-    commands: ToolingCommands,
-): string[] {
+/**
+ * The always-on bridge summary: which extensions this run freshly bridged and
+ * the file-ownership tally, so the automatic writes into plugin (and vendor)
+ * directories are never silent. Empty on an idempotent re-run.
+ */
+function renderBridgeSummary(result: SetupExtensionToolingResult, stateOf: StateMap, commands: ToolingCommands): string[] {
     const { projects } = result.manifest;
     const lines: string[] = [];
+    const created = result.writes.filter((write) => write.state === 'created');
     const justBridged = projects.filter(
-        (project) => (project.name === shim || project.technicalNames.includes(shim)) && projectHasBridge(project),
+        (project) =>
+            projectHasBridge(project) &&
+            created.some(
+                (write) => write.file.startsWith(`${project.basePath}/`) && classifyFile(write.file) === 'bridge',
+            ),
     );
 
     for (const project of justBridged) {
         if (stateOf.get(project.name) === 'bridged') {
+            const lifecycle = project.vendor
+                ? 'Local to this machine — re-run setup after a composer update.'
+                : 'Commit them, edit freely — keep the "extends".';
+
             lines.push(
                 '',
                 colors.green(`✔ Bridged ${project.name}. Its tsconfig / eslint.config.mjs now extend the generated`),
-                colors.green(`  ${SHIM_DIR_NAME}/ bridge (git-ignored). Commit them, edit freely — keep the "extends".`),
+                colors.green(`  ${SHIM_DIR_NAME}/ bridge (git-ignored). ${lifecycle}`),
             );
         } else {
             lines.push(
@@ -153,15 +154,16 @@ function renderShimConfirmation(
         }
     }
 
-    const created = result.writes.filter((write) => write.state === 'created');
     const bridgeCreated = created.filter((write) => classifyFile(write.file) === 'bridge').length;
     const committableCreated = created.filter((write) => classifyFile(write.file) === 'committable').length;
+    const vendorCreated = created.filter((write) => classifyFile(write.file) === 'vendor-config').length;
 
-    if (bridgeCreated > 0 || committableCreated > 0) {
+    if (bridgeCreated > 0 || committableCreated > 0 || vendorCreated > 0) {
         lines.push(
             colors.dim(
                 `  ${bridgeCreated} git-ignored bridge file(s) in ${SHIM_DIR_NAME}/ (never commit) · ` +
-                    `${committableCreated} committable plugin config(s) (commit these)`,
+                    `${committableCreated} committable plugin config(s) (commit these)` +
+                    (vendorCreated > 0 ? ` · ${vendorCreated} local vendor config(s) (restored by setup)` : ''),
             ),
         );
     }
@@ -178,19 +180,14 @@ function renderStateSummary(
     const ready = projects.filter((project) => stateOf.get(project.name) === 'ready');
     const bridged = projects.filter((project) => stateOf.get(project.name) === 'bridged');
     const unwired = projects.filter((project) => stateOf.get(project.name) === 'bridge-unwired');
-    const needsBridge = projects.filter((project) => {
-        const state = stateOf.get(project.name);
-
-        if (state === 'needs-bridge') {
-            return true;
-        }
-
-        return state === 'vendor' && !projectHasBridge(project) && projectHasOwnedConfig(project);
-    });
+    const needsBridge = projects.filter((project) => stateOf.get(project.name) === 'needs-bridge');
     const lines = [''];
 
     if (ready.length > 0) {
-        lines.push(`  ${colors.green('✔ ready')}    ${ready.map((project) => project.name).join(', ')}`);
+        lines.push(
+            `  ${colors.green('✔ ready')}    ${ready.map((project) => project.name).join(', ')}  ` +
+                colors.dim('(covered through host-owned fallback configs)'),
+        );
     }
 
     if (bridged.length > 0) {
@@ -209,8 +206,8 @@ function renderStateSummary(
 
     if (needsBridge.length > 0) {
         lines.push(
-            `  ${colors.yellow('● needs bridge')}   ${needsBridge.map((project) => project.name).join(', ')}  ` +
-                colors.dim('(ships own config — not composed yet; bridge it to check with the preset)'),
+            `  ${colors.yellow('● not bridged')}   ${needsBridge.map((project) => project.name).join(', ')}  ` +
+                colors.dim('(ships own config, no bridge yet — see warnings/next steps)'),
         );
     }
 
@@ -236,6 +233,7 @@ function renderStaleSetup(result: SetupExtensionToolingResult, commands: Tooling
     const classNote: Record<FileClass, string> = {
         bridge: colors.dim(' [git-ignored bridge]'),
         committable: colors.cyan(' [commit this]'),
+        'vendor-config': colors.dim(' [local — restored by re-running setup]'),
         host: '',
     };
     const pending = result.writes.filter((entry) => entry.state === 'created' || entry.state === 'updated');
@@ -253,12 +251,14 @@ function renderStaleSetup(result: SetupExtensionToolingResult, commands: Tooling
 
     const bridgeCount = pending.filter((write) => classifyFile(write.file) === 'bridge').length;
     const committableCount = pending.filter((write) => classifyFile(write.file) === 'committable').length;
+    const vendorCount = pending.filter((write) => classifyFile(write.file) === 'vendor-config').length;
 
-    if (bridgeCount > 0 || committableCount > 0) {
+    if (bridgeCount > 0 || committableCount > 0 || vendorCount > 0) {
         lines.push(
             colors.dim(
                 `    (${bridgeCount} git-ignored bridge file(s), ${committableCount} committable plugin file(s), ` +
-                    `${pending.length - bridgeCount - committableCount} host projection(s))`,
+                    (vendorCount > 0 ? `${vendorCount} local vendor config(s), ` : '') +
+                    `${pending.length - bridgeCount - committableCount - vendorCount} host projection(s))`,
             ),
         );
     }
@@ -324,10 +324,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         ...renderExperimentalNotice(),
     ];
 
-    if (options.shim) {
-        lines.push(...renderShimConfirmation(result, options.shim, stateOf, commands));
-    }
-
+    lines.push(...renderBridgeSummary(result, stateOf, commands));
     lines.push(...renderStateSummary(projects, stateOf, platform));
 
     lines.push('', ...describeFileChanges(result).map((line) => `  ${colors.dim(line)}`));
@@ -352,7 +349,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     lines.push(...renderInstructions(result));
 
     if (options.showFlagHint) {
-        lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --shim=<name> | --help`));
+        lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --help`));
     }
 
     return lines.join('\n');

@@ -108,8 +108,8 @@ export function discoverProjects(
                     const tsconfig = findNearestConfig(target.sourcePath, group.extensionRoot, ['tsconfig.json']);
                     const eslintConfig = findNearestConfig(target.sourcePath, group.extensionRoot, ESLINT_CONFIG_NAMES);
                     // A bridge sits beside the config it serves: the source root
-                    // itself (per-root shim) or the directory of the owned config
-                    // that extends it (root-config shim). Check every candidate so
+                    // itself (per-root bridge) or the directory of the owned config
+                    // that extends it (root-config bridge). Check every candidate so
                     // a root-config bridge is not mistaken for "no bridge".
                     const bridgeDirs = new Set<string>([path.dirname(target.sourcePath)]);
 

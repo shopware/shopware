@@ -1,12 +1,15 @@
 /**
  * @sw-package framework
  *
- * Shim/bridge generation for `--shim`ed extensions. A bridge is the
- * git-ignored, machine-specific hop into the installed Administration; the
- * committed extension configs (scaffolded in setup-configs) extend it. Decides
- * whether an extension is bridged once per Administration root or once beside a
- * package-level config that governs several roots (`resolveBridgePlan`), then
- * writes the bridge files and merges plugin aliases into its `paths`.
+ * Bridge generation — automatic for every discovered non-platform extension.
+ * A bridge is the git-ignored, machine-specific hop into the installed
+ * Administration; the committed extension configs (scaffolded in
+ * setup-configs) extend it. Decides whether an extension is bridged once per
+ * Administration root or once beside a package-level config that governs
+ * several roots (`resolveBridgePlan`), then writes the bridge files and merges
+ * plugin aliases into its `paths`. A bridge that cannot be written (read-only
+ * vendor dir, ambiguous layout) degrades to a warning; the extension stays
+ * covered through the host-owned fallback configs.
  */
 
 import fs from 'fs';
@@ -20,6 +23,7 @@ import {
     SHIM_DIR_NAME,
     asRelativeSpecifier,
     isGeneratedContent,
+    isPlatformProject,
     relativePosix,
     writeManagedFile,
 } from './shared';
@@ -283,36 +287,24 @@ function resolveBridgePlan(
     return { kind: 'ambiguous', candidates };
 }
 
-export function createShims(
+/**
+ * Bridges every discovered non-platform extension — custom and vendor alike,
+ * so linting and type-checking always run through generated configs. A bridge
+ * that cannot be produced (ambiguous multi-root layout, unwritable directory)
+ * is skipped with a warning instead of failing the run: the extension then
+ * stays on the host-owned fallback configs.
+ */
+export function createBridges(
     context: GeneratorContext,
     projects: ExtensionToolingProject[],
-    shim: string,
-    rootConfig?: string,
+    rootConfigDirs: Record<string, string>,
 ): void {
-    const selected =
-        shim === 'all-custom'
-            ? projects.filter((project) => project.basePath.startsWith('custom/plugins/'))
-            : projects.filter((project) => project.name === shim || project.technicalNames.includes(shim));
-
-    if (selected.length === 0) {
-        const available = projects.map((project) => project.name).join(', ');
-
-        throw new Error(`No extension matches --shim=${shim}. Discovered extensions: ${available || '(none)'}.`);
-    }
-
-    if (rootConfig !== undefined && shim === 'all-custom') {
-        throw new Error('--root-config cannot be combined with --shim=all-custom; bridge one extension at a time.');
-    }
-
-    for (const project of selected) {
-        if (!project.basePath.startsWith('custom/plugins/')) {
-            throw new Error(
-                `Refusing to write a shim into ${project.basePath}: shims are only generated below custom/plugins ` +
-                    '(vendor and platform extensions are checked through host-owned configs instead).',
-            );
+    for (const project of projects) {
+        if (isPlatformProject(project)) {
+            continue;
         }
 
-        const plan = resolveBridgePlan(context, project, rootConfig);
+        const plan = resolveBridgePlan(context, project, rootConfigDirs[project.name]);
 
         if (plan.kind === 'ambiguous') {
             const relative = plan.candidates
@@ -320,43 +312,53 @@ export function createShims(
                 .sort()
                 .join(', ');
 
-            throw new Error(
-                `${project.name} has more than one package-level config governing multiple Administration roots ` +
-                    `(${relative}). Choose one with --root-config=<dir> relative to ${project.basePath}, ` +
-                    'or give each root its own independent config.',
-            );
-        }
-
-        if (plan.kind === 'root-config') {
-            const coveredAdminFolders = project.targets.map((target) =>
-                path.resolve(context.projectRoot, target.adminFolder),
-            );
-            const aliasSources = dedupeAliasSources([
-                { aliasesPath: path.join(plan.dir, 'tsconfig.aliases.json'), baseDir: plan.dir },
-                ...coveredAdminFolders.map((folder) => ({
-                    aliasesPath: path.join(folder, 'tsconfig.aliases.json'),
-                    baseDir: folder,
-                })),
-            ]);
-
-            writeBridge(context, plan.dir, aliasSources);
-            scaffoldExtensionConfigs(
-                context,
-                project.name,
-                plan.dir,
-                project.targets.map((target) => target.sourcePath),
+            context.warnings.push(
+                `${project.name} was not bridged: more than one package-level config governs multiple ` +
+                    `Administration roots (${relative}). Choose one with --root-config=${project.name}:<dir> ` +
+                    `(relative to ${project.basePath}), or give each root its own independent config.`,
             );
 
             continue;
         }
 
-        for (const target of project.targets) {
-            const adminFolder = path.resolve(context.projectRoot, target.adminFolder);
+        try {
+            if (plan.kind === 'root-config') {
+                const coveredAdminFolders = project.targets.map((target) =>
+                    path.resolve(context.projectRoot, target.adminFolder),
+                );
+                const aliasSources = dedupeAliasSources([
+                    { aliasesPath: path.join(plan.dir, 'tsconfig.aliases.json'), baseDir: plan.dir },
+                    ...coveredAdminFolders.map((folder) => ({
+                        aliasesPath: path.join(folder, 'tsconfig.aliases.json'),
+                        baseDir: folder,
+                    })),
+                ]);
 
-            writeBridge(context, adminFolder, [
-                { aliasesPath: path.join(adminFolder, 'tsconfig.aliases.json'), baseDir: adminFolder },
-            ]);
-            scaffoldExtensionConfigs(context, project.name, adminFolder, [target.sourcePath]);
+                writeBridge(context, plan.dir, aliasSources);
+                scaffoldExtensionConfigs(
+                    context,
+                    project.name,
+                    plan.dir,
+                    project.targets.map((target) => target.sourcePath),
+                    project.vendor,
+                );
+
+                continue;
+            }
+
+            for (const target of project.targets) {
+                const adminFolder = path.resolve(context.projectRoot, target.adminFolder);
+
+                writeBridge(context, adminFolder, [
+                    { aliasesPath: path.join(adminFolder, 'tsconfig.aliases.json'), baseDir: adminFolder },
+                ]);
+                scaffoldExtensionConfigs(context, project.name, adminFolder, [target.sourcePath], project.vendor);
+            }
+        } catch (error) {
+            context.warnings.push(
+                `Could not write the bridge for ${project.name} into ${project.basePath} ` +
+                    `(${error instanceof Error ? error.message : String(error)}) — falling back to host-managed configs.`,
+            );
         }
     }
 }

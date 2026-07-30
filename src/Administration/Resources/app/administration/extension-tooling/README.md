@@ -93,16 +93,14 @@ projections so IDEs see exactly what the check command checks. The generated roo
 are covered by a marker-fenced block that setup manages in the project `.gitignore`
 (skipped when the entries are already covered; opt out permanently with `--no-gitignore`).
 
-- **Zero-config**: a plugin with no config files at all is fully covered.
-- **Committed configs**: bridge the plugin with one command:
+Every discovered extension is **bridged automatically** in the same run — custom and
+vendor-installed alike, no separate command. Linting and type-checking against the
+Administration only work through the generated configs; there is no bridge-less mode.
 
-  ```bash
-  composer admin:setup-extension-tooling -- --shim=<TechnicalName>
-  ```
-
-  This writes a git-ignored `.shopware/` bridge (which holds the machine-specific paths and
-  composes the preset) and — if the plugin has no config yet — two small **committable** files at
-  the plugin's administration folder that just extend it:
+- A git-ignored, self-explaining `.shopware/` bridge is written beside each extension's
+  Administration folder. It holds the machine-specific paths and composes the preset.
+- If the extension has no config yet, two small files that just extend the bridge are
+  scaffolded next to it:
 
   ```jsonc
   // tsconfig.json
@@ -114,9 +112,18 @@ are covered by a marker-fenced block that setup manages in the project `.gitigno
   export default [ ...shopware, /* your own rules */ ];
   ```
 
-  Commit those two files and edit them freely — add your own options/rules — as long as the
-  `extends`/import stays. The tool never overwrites them: if you already have configs, setup
-  leaves them alone and prints the one line to add so they compose the preset too.
+  In `custom/plugins/`, commit those two files and edit them freely — add your own
+  options/rules — as long as the `extends`/import stays. Under `vendor/` they are local
+  only: a composer update removes them and re-running setup restores them.
+- Existing configs are never overwritten: setup leaves them alone and prints the one
+  line to add so they compose the preset too.
+- A multi-bundle package whose shared config governs several Administration roots is
+  bridged once beside that config (auto-detected). When two candidate configs tie, setup
+  warns and skips the extension; pick one with `-- --root-config=<Extension>:<dir>` —
+  the choice is persisted for later plain runs.
+- A bridge that cannot be written (e.g. a read-only vendor directory) degrades to a
+  warning; the extension stays covered through host-owned fallback configs under
+  `var/admin-extension-tooling/`.
 
 ## Own path aliases (`tsconfig.aliases.json`)
 
@@ -129,7 +136,7 @@ your config instead:
 { "MyPlugin/*": ["src/*"] }
 ```
 
-Re-run `composer admin:setup-extension-tooling -- --shim=<TechnicalName>` afterwards: the
+Re-run `composer admin:setup-extension-tooling` afterwards: the
 generated `.shopware/` bridge becomes the single `paths` declarer and merges your
 aliases with the preset's host paths (targets resolve relative to the plugin's
 administration folder). The same mechanism covers type-only imports of host packages,
@@ -137,22 +144,24 @@ e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/adminis
 
 ## Generated files — what to commit, what to ignore
 
-Setup and `--shim` produce three kinds of file. Only the **committable** ones belong in the
-plugin repository:
+Setup produces the following kinds of file. Only the **committable** ones belong in the
+plugin repository; nothing written under `vendor/` is ever committed (a composer update
+removes those files, re-running setup restores them):
 
 | File | Kind | Commit? | Notes |
 | --- | --- | --- | --- |
 | `var/admin-extension-tooling/**` (leaf tsconfigs, manifest) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
 | Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
-| `<plugin>/…/.shopware/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining (generated README). One per shimmed root, or one beside the package config in root-config mode. |
-| `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. |
+| `<plugin>/…/.shopware/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining (generated README). One per bridged root, or one beside the package config in root-config mode. |
+| `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** (custom/plugins) | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. Under `vendor/` they are local only — restored by re-running setup. |
 | `<plugin>/tsconfig.aliases.json` | committable plugin config | **yes** | Your path aliases; merged into the bridge. |
 
 For a **single-root** plugin that's one bridge + one committable `tsconfig.json`/`eslint.config.mjs`
 pair. For a **multi-root** package in root-config mode it's one bridge + one committable config
 pair beside the package config (not one per bundle). `setup … --check` (or the
-`admin:setup-extension-tooling:check` alias) labels each planned file as `[git-ignored bridge]`
-or `[commit this]` so you can see the split before writing.
+`admin:setup-extension-tooling:check` alias) labels each planned file as `[git-ignored bridge]`,
+`[commit this]`, or `[local — restored by re-running setup]` so you can see the split before
+writing.
 
 ## Troubleshooting
 
@@ -162,6 +171,7 @@ or `[commit this]` so you can see the split before writing.
 | `Duplicate identifier` errors after bridging | Your plugin's own `global.types.ts` re-declares parts of the preset surface — prune the duplicates. |
 | `Cannot find module 'axios'` (or another host package) | The preset drops the old `"*" → node_modules` fallback. Map the package in `tsconfig.aliases.json` (see above). |
 | Trailing `Script …` lines after a failing run | Composer echoes the script chain on a non-zero exit (the command flattens this to the minimum two lines). The report's own summary above them is the verdict. |
+| A config still points at `./.shopware-admin/` | The bridge directory was renamed to `.shopware/`. Setup deletes the old marker-owned directory automatically — update your config's `extends`/import to the `./.shopware/` path and re-run setup. |
 
 ## The type surface
 

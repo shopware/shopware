@@ -649,9 +649,7 @@ export default class FlowBuilderService {
             const documentTypeName =
                 data.documentTypes.find((item) => item.technicalName === config.documentType)?.translated?.name ?? '';
 
-            const fileFormatLabels = config.fileFormats.map((format) =>
-                translateDocumentFileFormat(format, translator.$t),
-            );
+            const fileFormatLabels = config.fileFormats.map((format) => translateDocumentFileFormat(format, translator.$t));
 
             if (!fileFormatLabels.length) {
                 return documentTypeName;

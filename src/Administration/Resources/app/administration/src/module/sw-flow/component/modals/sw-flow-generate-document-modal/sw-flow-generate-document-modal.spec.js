@@ -29,7 +29,12 @@ const documentTypeMock = [
 ];
 
 const supportedDocumentTypesMock = {
-    invoice: { formats: ['pdf', 'zugferd_xml'] },
+    invoice: {
+        formats: [
+            'pdf',
+            'zugferd_xml',
+        ],
+    },
     credit_note: { formats: ['pdf'] },
 };
 
@@ -194,7 +199,10 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 fileFormatsSelected: ['pdf'],
             });
 
-            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual(['pdf', 'zugferd_xml']);
+            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual([
+                'pdf',
+                'zugferd_xml',
+            ]);
 
             wrapper.vm.onDocumentTypeSelectedChange('credit_note');
             await flushPromises();
@@ -215,9 +223,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             await flushPromises();
 
             expect(wrapper.find('.sw-flow-generate-document-modal__type-select').classes()).toContain('has--error');
-            expect(wrapper.find('.sw-flow-generate-document-modal__file-formats-select').classes()).toContain(
-                'has--error',
-            );
+            expect(wrapper.find('.sw-flow-generate-document-modal__file-formats-select').classes()).toContain('has--error');
 
             expect(wrapper.emitted()['process-finish']).toBeUndefined();
         });

@@ -199,7 +199,9 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumenttyp auswählen ...",
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
         "labelFileFormats": "Dateiformate",
         "placeholderFileFormats": "Dateiformate auswählen ...",
         "fileFormats": {

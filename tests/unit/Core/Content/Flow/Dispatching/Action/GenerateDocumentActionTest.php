@@ -154,6 +154,7 @@ class GenerateDocumentActionTest extends TestCase
 
         $order = new OrderEntity();
         $order->setId($orderId);
+        $order->setVersionId($createdOrderVersionId);
         $order->setSalesChannelId($salesChannelId);
         $order->setLanguageId($orderLanguageId);
 
@@ -255,7 +256,7 @@ class GenerateDocumentActionTest extends TestCase
         ], new DocumentTypeDefinition());
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::PDF),
         ]);
 
         $mediaService = static::createStub(MediaService::class);

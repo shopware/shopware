@@ -120,11 +120,11 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 
 | Method | What it covers | When to use |
 |---|---|---|
-| `bin/console debug:mcp` | Full registry — same source as the HTTP endpoint | Quick manual check during development |
+| `bin/console debug:mcp` | Both registries (admin + store-api) — same source as the HTTP endpoints | Quick manual check during development |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
 | `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
-`bin/console debug:mcp` now uses the same `Registry` as the HTTP endpoint (populated by calling `Builder::build()`), so it shows core tools, plugin tools, and app tools in one view. It is the fastest way to check that a newly registered capability is visible.
+`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It is the fastest way to check that a newly registered capability is visible. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
 
 **`McpCapabilityDiscoveryTest`** (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) boots the full kernel, authenticates, and calls the live MCP HTTP endpoint. It is the authoritative check that mirrors what the MCP Inspector does interactively. Add new capability names to its `expectedTools()` / `expectedPrompts()` / `expectedResources()` lists when adding new core capabilities.
 

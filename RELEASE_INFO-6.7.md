@@ -113,6 +113,21 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### `debug:mcp` lists Store API capabilities
+
+`bin/console debug:mcp` was wired to the Admin MCP server only, so no capability of the Store API MCP server (`/store-api/_mcp`) appeared in its output, and looking one up by name reported "No capability found". Store API tools registered with `shopware.store_api_mcp.tool` were therefore invisible to the standard debugging command.
+
+The command now inspects both MCP servers and groups the output per server. A new `--scope` option limits it to one of them:
+
+```bash
+bin/console debug:mcp                          # both servers
+bin/console debug:mcp --scope=store-api        # /store-api/_mcp only
+bin/console debug:mcp --scope=api              # /api/_mcp only
+bin/console debug:mcp shopware-store-api-context
+```
+
+Looking up a capability by name resolves across both servers and the detail view names the owning server. `--integration` still applies to the Admin server only, because integration allowlists are not evaluated for Store API requests; a note points this out when both servers are listed.
+
 ## Administration
 
 ## Storefront

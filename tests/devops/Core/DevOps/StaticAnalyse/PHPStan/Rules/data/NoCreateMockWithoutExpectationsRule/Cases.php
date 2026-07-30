@@ -141,7 +141,8 @@ class Cases extends TestCase
 
     public function testMockFromReturningHelper(): void
     {
-        // NOT flagged: makeDependency() hands its double back, so a caller can still ->expects() it.
+        // FLAGGED: makeDependency() hands its double back, and this only call site forwards it
+        // into the SUT constructor — provably never ->expects()-ed.
         $sut = new SystemUnderTest($this->makeDependency());
 
         static::assertSame('made', $sut->run());

@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -106,7 +107,292 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message);
         }
 
+        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as $createMock) {
+            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB);
+        }
+
         return $errors;
+    }
+
+    /**
+     * A `getFooMock()` helper whose returned double is provably never `->expects()`-ed: neither inside the
+     * helper nor at any call site of it in this class. The plain local/inline analyses skip returned doubles
+     * ("the caller could expects() it"); this pass follows the return to those callers and flags the double
+     * when none of them does.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return list<MethodCall|StaticCall>
+     */
+    private function findHelperReturnedStubMocks(array $methods, array $ownMethods): array
+    {
+        $finder = new NodeFinder();
+        $result = [];
+
+        foreach ($methods as $helper) {
+            if ($this->isTestMethod($helper) || mb_strtolower($helper->name->name) === 'setup' || $helper->stmts === null) {
+                continue;
+            }
+
+            $returned = $this->returnedCreateMocks($finder, $helper, $ownMethods);
+            if ($returned === []) {
+                continue;
+            }
+
+            if (!$this->helperResultIsNeverExpected($finder, $methods, $ownMethods, $helper->name->name)) {
+                continue;
+            }
+
+            foreach ($returned as $createMock) {
+                $result[] = $createMock;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * The `createMock()` calls whose double leaves $helper through a `return` while provably clean inside it:
+     * either `return $this->createMock(X);` directly, or a local that is only stub-configured before a bare
+     * `return $local;`. Doubles the helper itself `->expects()`-es or lets escape any other way answer nothing.
+     *
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return list<MethodCall|StaticCall>
+     */
+    private function returnedCreateMocks(NodeFinder $finder, ClassMethod $helper, array $ownMethods): array
+    {
+        $stmts = (array) $helper->stmts;
+        $result = [];
+
+        foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+            if ($return->expr !== null && $this->isCreateMockCall($return->expr)) {
+                \assert($return->expr instanceof MethodCall || $return->expr instanceof StaticCall);
+                $result[] = $return->expr;
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+            if (!$assign->var instanceof Variable || !\is_string($assign->var->name) || !$this->isCreateMockCall($assign->expr)) {
+                continue;
+            }
+
+            $name = $assign->var->name;
+
+            $bareReturn = false;
+            foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+                if ($return->expr instanceof Variable && $return->expr->name === $name) {
+                    $bareReturn = true;
+                }
+            }
+
+            if (!$bareReturn) {
+                continue;
+            }
+
+            // Inside the helper the double must stay clean: only stub configuration, constructor forwarding,
+            // proven own-method forwarding, its defining assignment, and the bare return itself.
+            $extraHarmless = [spl_object_id($assign->var)];
+            foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+                if ($return->expr instanceof Variable && $return->expr->name === $name) {
+                    $extraHarmless[] = spl_object_id($return->expr);
+                }
+            }
+
+            if ($this->variableIsNeverExpected($stmts, $name, $ownMethods, $extraHarmless)) {
+                \assert($assign->expr instanceof MethodCall || $assign->expr instanceof StaticCall);
+                $result[] = $assign->expr;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * True when every call site of `$this->$helperName()` in the class provably never `->expects()`-es the
+     * returned double: bound to a local that stays clean, chained into stub configuration, used as a bare
+     * statement, forwarded into a constructor, or forwarded into an own method whose parameter is proven.
+     * Any call site this rule cannot classify answers false.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     */
+    private function helperResultIsNeverExpected(NodeFinder $finder, array $methods, array $ownMethods, string $helperName): bool
+    {
+        foreach ($methods as $method) {
+            if ($method->stmts === null || mb_strtolower($method->name->name) === mb_strtolower($helperName)) {
+                continue;
+            }
+
+            $stmts = (array) $method->stmts;
+
+            $sites = [];
+            foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+                if ($call->name instanceof Identifier && mb_strtolower($call->name->name) === mb_strtolower($helperName)) {
+                    $sites[spl_object_id($call)] = $call;
+                }
+            }
+
+            if ($sites === []) {
+                continue;
+            }
+
+            $classified = [];
+
+            // `$x = $this->helper();` — analyse $x like a local double.
+            foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+                if (!isset($sites[spl_object_id($assign->expr)])) {
+                    continue;
+                }
+
+                if (!$assign->var instanceof Variable || !\is_string($assign->var->name)) {
+                    return false;
+                }
+
+                if (!$this->variableIsNeverExpected($stmts, $assign->var->name, $ownMethods, [spl_object_id($assign->var)])) {
+                    return false;
+                }
+
+                $classified[spl_object_id($assign->expr)] = true;
+            }
+
+            // `$this->helper()->method(...)` — chained stub configuration; a chained `expects()` is a mock.
+            foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+                if (!isset($sites[spl_object_id($call->var)])) {
+                    continue;
+                }
+
+                if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
+                    return false;
+                }
+
+                $classified[spl_object_id($call->var)] = true;
+            }
+
+            // `new Sut($this->helper())` — production code, it cannot configure expectations.
+            foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
+                if ($new->isFirstClassCallable()) {
+                    continue;
+                }
+
+                foreach ($new->getArgs() as $arg) {
+                    if (isset($sites[spl_object_id($arg->value)])) {
+                        $classified[spl_object_id($arg->value)] = true;
+                    }
+                }
+            }
+
+            // `$this->other($this->helper())` — allowed only when the receiving parameter is proven.
+            foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+                $callee = $this->resolveOwnMethod($call, $ownMethods);
+
+                foreach ($call->getArgs() as $index => $arg) {
+                    if (!isset($sites[spl_object_id($arg->value)])) {
+                        continue;
+                    }
+
+                    if ($callee === null || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                        return false;
+                    }
+
+                    $classified[spl_object_id($arg->value)] = true;
+                }
+            }
+
+            // `$this->helper();` as a bare statement — the double is dropped.
+            foreach ($finder->findInstanceOf($stmts, Expression::class) as $expression) {
+                if (isset($sites[spl_object_id($expression->expr)])) {
+                    $classified[spl_object_id($expression->expr)] = true;
+                }
+            }
+
+            foreach (array_keys($sites) as $id) {
+                if (!isset($classified[$id])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * True when every use of local `$$name` in $stmts is provably harmless: receiving a non-`expects()` call,
+     * being handed to a constructor, or being forwarded to an own method whose parameter is proven. Uses
+     * listed in $extraHarmless (defining assignments, sanctioned returns) are accepted as-is; any other use —
+     * an `->expects()`, a `return`, a re-assignment, an unresolvable call — answers false.
+     *
+     * @param array<Node> $stmts
+     * @param array<string, ClassMethod> $ownMethods
+     * @param list<int> $extraHarmless spl_object_ids of Variable nodes to accept
+     */
+    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = []): bool
+    {
+        $finder = new NodeFinder();
+
+        $uses = [];
+        foreach ($finder->findInstanceOf($stmts, Variable::class) as $variable) {
+            if ($variable->name === $name) {
+                $uses[spl_object_id($variable)] = true;
+            }
+        }
+
+        if ($uses === []) {
+            return true;
+        }
+
+        $harmless = array_fill_keys($extraHarmless, true);
+
+        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if (!$call->var instanceof Variable || $call->var->name !== $name) {
+                continue;
+            }
+
+            if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
+                return false;
+            }
+
+            $harmless[spl_object_id($call->var)] = true;
+        }
+
+        foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
+            if ($new->isFirstClassCallable()) {
+                continue;
+            }
+
+            foreach ($new->getArgs() as $arg) {
+                foreach ($this->passedThroughVariables($arg->value, $name) as $variable) {
+                    $harmless[spl_object_id($variable)] = true;
+                }
+            }
+        }
+
+        foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+            $callee = $this->resolveOwnMethod($call, $ownMethods);
+            if ($callee === null) {
+                continue;
+            }
+
+            foreach ($call->getArgs() as $index => $arg) {
+                $variables = $this->passedThroughVariables($arg->value, $name);
+                if ($variables === [] || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                    continue;
+                }
+
+                foreach ($variables as $variable) {
+                    $harmless[spl_object_id($variable)] = true;
+                }
+            }
+        }
+
+        foreach (array_keys($uses) as $id) {
+            if (!isset($harmless[$id])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -144,7 +430,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 $skip[spl_object_id($arg->value)] = true;
             }
         });
-        // handed back to the caller → it can be ->expects()-ed there
+        // handed back to the caller → covered by findHelperReturnedStubMocks(), which follows it to the call sites
         foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
             foreach ($finder->findInstanceOf([$return], MethodCall::class) as $inner) {
                 $skip[spl_object_id($inner)] = true;
@@ -197,7 +483,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
         $this->disqualifyDoublesPassedToOwnMethods($finder, $stmts, $ownMethods, $disqualified, fn (Node $n): ?string => $this->localName($n));
 
-        // handed back to the caller (a `getFooMock()` fixture helper) → it can be ->expects()-ed there
+        // handed back to the caller → covered by findHelperReturnedStubMocks(), which follows it to the call sites
         foreach ($this->findReturnedVariableNames($finder, $stmts) as $name) {
             $disqualified[$name] = true;
         }

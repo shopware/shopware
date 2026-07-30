@@ -124,7 +124,7 @@ parameters:
                 - src/Core/Content/ProductExport/Error/Error.php
 
         # Internal deprecations of Shopware are handled in other places
-        - '#deprecated.*(class|interface) Shopware\\#'
+        - '#deprecated (class|interface) Shopware\\#'
 
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'

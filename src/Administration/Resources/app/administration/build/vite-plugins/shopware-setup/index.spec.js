@@ -99,6 +99,40 @@ swDefinePublic({ count });
         await expect(plugin.transform(source, '/example/sw-my-component.vue')).resolves.toHaveProperty('code');
     });
 
+    it('releases a component name when its file is deleted so a move does not look like a duplicate', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+        const source = `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        await plugin.transform(source, '/old/sw-my-component.vue');
+
+        // Moving a file arrives as a delete of the old path plus a transform of the new one. Without the
+        // release the old path would still hold the name and the move would be reported as a duplicate
+        // for the rest of the dev session.
+        plugin.watchChange('/old/sw-my-component.vue', { event: 'delete' });
+
+        await expect(plugin.transform(source, '/new/sw-my-component.vue')).resolves.toHaveProperty('code');
+    });
+
+    it('keeps reporting a genuine duplicate after an unrelated file is deleted', async () => {
+        /** @type {import('vite').Plugin} */
+        const plugin = ShopwareSetupPlugin(pluginOptions);
+        const source = `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        await plugin.transform(source, '/a/sw-my-component.vue');
+        plugin.watchChange('/somewhere/else/sw-other-component.vue', { event: 'delete' });
+
+        await expect(plugin.transform(source, '/b/sw-my-component.vue')).rejects.toThrow(
+            'Duplicate native setup base component name "sw-my-component"',
+        );
+    });
+
     it('ignores Vue files without Shopware setup blocks', async () => {
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin(pluginOptions);

@@ -79,6 +79,21 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
         baseComponentFiles.set(result.componentName, fileName);
     }
 
+    /**
+     * Drops a file's claim on its component name.
+     *
+     * The registry outlives a single transform in a dev session, so a deleted or moved file would keep
+     * its name reserved: transforming the file at its new path would then collide with the path that no
+     * longer exists and report a duplicate until the dev server restarts.
+     */
+    function forgetBaseComponentFile(fileName: string): void {
+        baseComponentFiles.forEach((claimedBy, componentName) => {
+            if (claimedBy === fileName) {
+                baseComponentFiles.delete(componentName);
+            }
+        });
+    }
+
     return {
         name: 'shopware-vite-plugin-shopware-setup',
         enforce: 'pre',
@@ -102,6 +117,15 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
                 code: result.code,
                 map: result.map,
             };
+        },
+
+        watchChange(id, change) {
+            // A rename reaches us as a delete of the old path plus a create of the new one, so releasing
+            // the name on delete is what lets the new path claim it instead of colliding with a file that
+            // no longer exists. An update keeps its claim: same path, same name.
+            if (change.event === 'delete') {
+                forgetBaseComponentFile(withoutQuery(id));
+            }
         },
     };
 }

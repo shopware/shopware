@@ -159,8 +159,14 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
         const legacyDir = path.join(adminFolder, LEGACY_SHIM_DIR_NAMES[0]);
 
-        writeFile(path.join(legacyDir, 'tsconfig.json'), [`// ${GENERATED_MARKER}`, '{}']);
-        writeFile(path.join(legacyDir, '.gitignore'), [`# ${GENERATED_MARKER}`, '*']);
+        writeFile(path.join(legacyDir, 'tsconfig.json'), [
+            `// ${GENERATED_MARKER}`,
+            '{}',
+        ]);
+        writeFile(path.join(legacyDir, '.gitignore'), [
+            `# ${GENERATED_MARKER}`,
+            '*',
+        ]);
 
         const checkResult = setupExtensionTooling({ projectRoot, administrationRoot, checkOnly: true });
 

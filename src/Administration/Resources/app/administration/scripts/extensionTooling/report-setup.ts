@@ -127,9 +127,7 @@ function renderBridgeSummary(result: SetupExtensionToolingResult, stateOf: State
     const justBridged = projects.filter(
         (project) =>
             projectHasBridge(project) &&
-            created.some(
-                (write) => write.file.startsWith(`${project.basePath}/`) && classifyFile(write.file) === 'bridge',
-            ),
+            created.some((write) => write.file.startsWith(`${project.basePath}/`) && classifyFile(write.file) === 'bridge'),
     );
 
     for (const project of justBridged) {

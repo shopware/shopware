@@ -111,9 +111,7 @@ describe('extension-tooling eslint factory host options', () => {
         // The block itself survives (it also carries globals and the plugin
         // registration) — only the rule severities flip.
         expect(blocks.map((block) => block.name)).toContain('shopware/admin-extension/runtime-contract');
-        expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'plugin-rules/no-src-imports')).toBe(
-            'off',
-        );
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'plugin-rules/no-src-imports')).toBe('off');
         expect(ruleSeverity(blocks, 'shopware/admin-extension/runtime-contract', 'no-restricted-imports')).toBe('off');
         expect(ruleSeverity(blocks, 'shopware/admin-extension/api-boundary', '@typescript-eslint/no-deprecated')).toBe(
             'error',

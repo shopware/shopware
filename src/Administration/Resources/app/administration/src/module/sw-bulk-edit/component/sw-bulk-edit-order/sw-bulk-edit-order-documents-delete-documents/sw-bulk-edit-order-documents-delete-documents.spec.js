@@ -53,7 +53,7 @@ const repositoryFactoryMock = {
     },
 };
 
-async function createWrapper() {
+async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-delete-documents', { sync: true }), {
         global: {
             stubs: {
@@ -61,6 +61,16 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: repositoryFactoryMock,
+                documentV2Service: {
+                    getAvailableTypes: jest.fn().mockResolvedValue({
+                        data: {
+                            documentTypes: {
+                                invoice: { formats: ['pdf'] },
+                            },
+                        },
+                    }),
+                    ...documentV2ServiceOverrides,
+                },
             },
         },
     });
@@ -69,6 +79,7 @@ async function createWrapper() {
 describe('sw-bulk-edit-order-documents-delete-documents', () => {
     beforeEach(() => {
         setActivePinia(pinia);
+        global.activeFeatureFlags = [];
     });
 
     it('should render checkboxes for each document type', async () => {
@@ -105,5 +116,20 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
         await flushPromises();
 
         expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(0);
+    });
+
+    it('fetches document types from the available types endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect([...wrapper.vm.documentTypes]).toEqual([
+            {
+                id: 'invoice',
+                technicalName: 'invoice',
+                translated: { name: 'invoice' },
+                selected: false,
+            },
+        ]);
     });
 });

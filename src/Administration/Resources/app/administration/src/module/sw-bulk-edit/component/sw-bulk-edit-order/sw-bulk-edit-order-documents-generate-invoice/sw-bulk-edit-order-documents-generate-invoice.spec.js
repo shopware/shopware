@@ -3,12 +3,31 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(documentV2ServiceOverrides = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-invoice', { sync: true }), {
         global: {
             stubs: {
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
+                'mt-select': true,
+            },
+            provide: {
+                documentV2Service: {
+                    getAvailableTypes: jest.fn().mockResolvedValue({
+                        data: {
+                            documentTypes: {
+                                invoice: {
+                                    formats: [
+                                        'zugferd_xml',
+                                        'pdf',
+                                        'html',
+                                    ],
+                                },
+                            },
+                        },
+                    }),
+                    ...documentV2ServiceOverrides,
+                },
             },
         },
     });
@@ -18,6 +37,7 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
     });
 
@@ -52,5 +72,22 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
 
         expect(wrapper.vm.generateData.documentDate).toBe('I am a date');
         expect(wrapper.vm.generateData.documentComment).toBe('I am a comment');
+    });
+
+    it('should not fetch available document types when the feature flag is inactive', async () => {
+        expect(wrapper.vm.supportedDocumentTypes).toEqual({});
+        expect(wrapper.vm.fileFormatOptions).toEqual([]);
+    });
+
+    it('should fetch and sort file format options when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.fileFormatOptions).toEqual([
+            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.pdf', value: 'pdf' },
+            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.html', value: 'html' },
+            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.zugferdXml', value: 'zugferd_xml' },
+        ]);
     });
 });

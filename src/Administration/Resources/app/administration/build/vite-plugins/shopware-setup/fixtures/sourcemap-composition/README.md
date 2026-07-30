@@ -12,3 +12,11 @@ This fixture keeps that integration visible:
 - The spec checks that a position in the final bundled code still maps back to the original `.vue` source line and column.
 
 The value is catching bugs where our transform-level map looks correct, but composition through Vue shifts, drops, or misattributes source positions.
+
+## What this fixture does *not* cover
+
+It cannot catch a leak in the **emitted map asset**. `generateBundle` remaps `chunk.map`, and in a small isolated build like this one that object is also what Rollup writes to the `.js.map` file — so the assertion passes whether or not the fix that writes the remapped map back to `bundle['<chunk>.js.map']` is present. Verified by removing that write: this fixture stays green.
+
+In the full extension pipeline the `.js.map` asset already exists at `generateBundle` time and is written from the asset, not from `chunk.map`. That is where virtual `*.vue.shopware-setup.vue` filenames leaked into shipped sourcemaps, and only a real `composer build:js:admin` detects it. Reproducing it here would mean building the fixture from the real extension plugin list in `build/plugins.vite.ts`; that was considered and deliberately not done, because the failure mode is degraded debugging rather than broken behaviour.
+
+So: green here means composition through Vue is intact. It does not mean the shipped map is clean.

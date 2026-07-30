@@ -253,7 +253,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @return array<string, array<string, mixed>|bool|string|int|float|\UnitEnum|null>
+     * @phpstan-ignore missingType.iterableValue (Needs to be fixed in upstream parent method)
      */
     protected function getKernelParameters(): array
     {

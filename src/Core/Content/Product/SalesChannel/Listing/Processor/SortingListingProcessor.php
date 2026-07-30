@@ -104,7 +104,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     {
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');
-        /** @var string[] $availableSortings */
+        /** @var array<string, mixed> $availableSortings */
         $availableSortings = RequestParamHelper::get($request, 'availableSortings');
         $availableSortingsById = [];
 

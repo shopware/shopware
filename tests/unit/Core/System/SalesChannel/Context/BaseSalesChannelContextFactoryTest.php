@@ -53,13 +53,15 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ContextOptions from BaseSalesChannelContextFactory
  */
 #[Package('discovery')]
 #[CoversClass(BaseSalesChannelContextFactory::class)]
 class BaseSalesChannelContextFactoryTest extends TestCase
 {
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      * @param array<string, array<mixed>> $entitySearchResult
      * @param false|array<string, mixed> $fetchDataResult
      */

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import Criteria from 'src/core/data/criteria.data';
+import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 
@@ -11,11 +12,13 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: [
-        'orderDocumentApiService',
-        'repositoryFactory',
-        'syncService',
-    ],
+    inject: {
+        orderDocumentApiService: {},
+        repositoryFactory: {},
+        syncService: {},
+        feature: {},
+        documentV2Service: {},
+    },
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -219,6 +222,10 @@ export default {
         },
 
         async createDocument(documentType, payload) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return this.createDocumentV2(documentType, payload);
+            }
+
             const requestedTotal = payload.length;
 
             if (payload.length <= this.requestsPerPayload) {
@@ -247,6 +254,51 @@ export default {
                 failed: results.reduce((total, result) => total + result.failed, 0),
                 skipped: results.reduce((total, result) => total + result.skipped, 0),
                 failedItems: results.flatMap((result) => result.failedItems),
+            };
+        },
+
+        async createDocumentV2(documentType, payload) {
+            const requestedTotal = payload.length;
+            const failedItems = [];
+            let completed = 0;
+            let latestError = null;
+
+            this.documentV2Service.setListener(({ action, payload: eventPayload }) => {
+                if (action === DocumentEvents.DOCUMENT_FAILED) {
+                    latestError = eventPayload;
+                }
+            });
+
+            for (const item of payload) {
+                latestError = null;
+
+                const response = await this.documentV2Service.createDocument(
+                    item.orderId,
+                    documentType,
+                    item.config?.fileFormats,
+                    undefined,
+                    item.config?.documentDate,
+                    item.config?.documentComment,
+                );
+
+                if (!response) {
+                    failedItems.push({
+                        orderId: item.orderId,
+                        documentType,
+                        errorCode: latestError?.code,
+                        detail: latestError?.detail,
+                    });
+                }
+
+                completed += 1;
+                this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+            }
+
+            return {
+                requested: requestedTotal,
+                failed: failedItems.length,
+                skipped: 0,
+                failedItems,
             };
         },
 

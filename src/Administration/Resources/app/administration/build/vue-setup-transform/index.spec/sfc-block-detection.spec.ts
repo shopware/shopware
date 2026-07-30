@@ -68,14 +68,28 @@ describe('build/vue-setup-transform SFC block detection', () => {
         expect(result).toContain('/* <script setup> */');
     });
 
-    it('ignores non-setup script blocks', () => {
-        const source = stripIndent`
-            <script>
-            const count = 1;
-            </script>
-        `;
-
-        expect(transformShopwareSetupSfc(source, 'normal-script.vue')).toBeNull();
+    it.each([
+        [
+            'an Options API script block',
+            stripIndent`
+                <script>
+                export default { name: 'sw-thing' };
+                </script>
+            `,
+        ],
+        [
+            'a template-only SFC',
+            stripIndent`
+                <template><div>no script at all</div></template>
+            `,
+        ],
+    ])('rejects %s, which could never be extended', (_name, source) => {
+        // Every `.vue` component in the Administration is extendable, and the extension surface is
+        // declared by markers that only exist inside `<script setup>`. An SFC without that block would
+        // compile into a component nothing can override, so it is refused rather than passed through.
+        expect(() => transformShopwareSetupSfc(source, 'sw-thing.vue')).toThrow(
+            'A Shopware setup component needs a <script setup> block.',
+        );
     });
 
     it('takes the component name from the directory for an index file', () => {

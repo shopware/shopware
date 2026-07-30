@@ -9,6 +9,8 @@ Mode and component name come from the filename; the name is the public override 
 - **Base** — a plain `.vue` file. `sw-my-component.vue` and `sw-my-component/index.vue` both resolve to `sw-my-component`.
 - **Override** — an `.override.vue` file. `sw-my-component.override.vue` and `sw-my-component/index.override.vue` both resolve to `sw-my-component`.
 
+There is no third mode: **every** `.vue` file is a native setup component, so every one of them needs a `<script setup>` block with its marker. A plain `<script>` (Options API) or a template-only `.vue` is rejected at build time rather than compiled as an ordinary Vue SFC — see [Rejected loudly](#rejected-loudly).
+
 ```vue
 <!-- sw-my-component.vue (base) -->
 <script setup lang="ts">
@@ -76,7 +78,9 @@ swDefineOverride({});
 swDefineOverride({ count });
 ```
 
-Renaming, string keys, computed keys, spreads, and non-object-literal arguments are rejected: the transform, lint, and type layers need a stable compile-time key, and a renamed key could silently shadow another binding. `swDefinePublic` is optional (base is auto-private); `swDefineOverride` is required in override mode — use `swDefineOverride({})` for a template-only override.
+Renaming, string keys, computed keys, spreads, and non-object-literal arguments are rejected: the transform, lint, and type layers need a stable compile-time key, and a renamed key could silently shadow another binding.
+
+**Both markers are mandatory in their mode.** A base component declares `swDefinePublic({...})` and an override declares `swDefineOverride({...})` — pass an empty object when nothing is public or replaced (`swDefinePublic({})`, `swDefineOverride({})`). Requiring the marker keeps the extension surface an explicit, reviewable decision rather than a side effect of which bindings happen to be declared: without it, an author who never meant to expose anything and an author who forgot the marker produce identical code.
 
 ## Differences from native setup
 
@@ -97,7 +101,8 @@ The transform rejects these at build time:
 - Base-mode macros used in override mode (`defineProps`, `withDefaults`, `defineEmits`, `defineExpose`, `defineSlots`, `defineOptions`)
 - Override-only helpers (`useSwPreviousState()`, `useSwProps()`, `useSwContext()`) in base mode
 - Top-level `await`
-- Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` / `swDefineOverride()` usage — and a missing `swDefineOverride()` in override mode
+- An SFC without a `<script setup>` block — a plain `<script>` (Options API) or a template-only `.vue` file. Every `.vue` component is extendable, and the markers that declare that only exist in `<script setup>`, so such a file would compile into a component nothing can override
+- Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` / `swDefineOverride()` usage — and a missing marker in either mode
 - Authored `#default`, `data`, or `v-bind` bindings on `<sw-block>`
 - Template writes to a forwarded override binding inside `<sw-block extends>` content
 - Reserved top-level binding names:
@@ -111,4 +116,4 @@ Malformed or unclosed SFC sections are left to Vue's compiler parser: if `@vue/c
 
 ## Parser behaviour
 
-All parser-sensitive behaviour lives in `build/vue-setup-transform`, with smaller helpers under `build/vue-setup-transform/utils`. SFC block detection uses `@vue/compiler-sfc` and reads `descriptor.scriptSetup`; mode and component name come from the normalized filename. Plain `<script>` blocks are not transformation candidates. Vue's parser deliberately treats fake `<script setup>` text inside comments, templates, styles, and script bodies as non-top-level content.
+All parser-sensitive behaviour lives in `build/vue-setup-transform`, with smaller helpers under `build/vue-setup-transform/utils`. SFC block detection uses `@vue/compiler-sfc` and reads `descriptor.scriptSetup`; mode and component name come from the normalized filename. A missing `<script setup>` block is an error rather than an opt-out, so the only `.vue` file the transform hands back untouched is one Vue's own parser already rejected. Vue's parser deliberately treats fake `<script setup>` text inside comments, templates, styles, and script bodies as non-top-level content.

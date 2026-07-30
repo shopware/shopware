@@ -38,7 +38,7 @@ const supportedDocumentTypesMock = {
     credit_note: { formats: ['pdf'] },
 };
 
-async function createWrapper() {
+async function createWrapper(documentV2ServiceOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-flow-generate-document-modal', {
             sync: true,
@@ -59,6 +59,7 @@ async function createWrapper() {
                             Promise.resolve({
                                 data: { documentTypes: supportedDocumentTypesMock },
                             }),
+                        ...documentV2ServiceOverrides,
                     },
                 },
                 data() {
@@ -186,6 +187,23 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 'invoice',
                 'credit_note',
             ]);
+        });
+
+        it('should show an error notification and still restore the selection when loading the available types fails', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper({
+                getAvailableTypes: () => Promise.reject(new Error('Network error')),
+            });
+            wrapper.vm.createNotificationError = jest.fn();
+
+            await flushPromises();
+
+            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+                message: 'Network error',
+            });
+            expect(wrapper.vm.isLoadingSupportedDocumentTypes).toBe(false);
+            expect(wrapper.vm.supportedDocumentTypes).toEqual({});
         });
 
         it('should reset the selected file formats when the document type changes', async () => {

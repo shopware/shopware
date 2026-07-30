@@ -1,7 +1,7 @@
 import template from './sw-flow-generate-document-modal.html.twig';
 import { translateDocumentFileFormat } from '../../../constant/document-file-format.constant';
 
-const { Component, Store } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -21,6 +21,10 @@ export default {
     emits: [
         'modal-close',
         'process-finish',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -134,6 +138,10 @@ export default {
             try {
                 const response = await this.documentV2Service.getAvailableTypes();
                 this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
             } finally {
                 this.isLoadingSupportedDocumentTypes = false;
             }

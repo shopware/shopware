@@ -4,7 +4,7 @@
 
 import type { Plugin } from 'vite';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
 
 type ShopwareSetupTransformModule = {
@@ -25,10 +25,11 @@ function withoutQuery(id: string): string {
     return id.split('?')[0];
 }
 
-// One in-flight/settled import per administration root, shared by every plugin instance. Without it the
-// import is re-entered for every `.vue` file: the ESM registry makes that cheap, but a bad
-// `administrationRoot` then fails once per file and reads like a transform bug instead of a config error.
-const transformModulePromises = new Map<string, Promise<typeof transformShopwareSetupSfcRuntime>>();
+// One load for the whole process, shared by every plugin instance - `administrationRoot` is this directory
+// at both call sites (`vite.config.mts` and `build/plugins.vite.ts`), so there is only ever one transform
+// to load. Without this the load is re-entered for every `.vue` file: the module cache makes that cheap,
+// but a bad root then fails once per file and reads like a transform bug rather than a config error.
+let transformModulePromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
 /**
  * Keep the CommonJS transform out of Vite's config bundle.
@@ -38,26 +39,27 @@ const transformModulePromises = new Map<string, Promise<typeof transformShopware
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    // A dynamic `import()` takes a URL, not a path. `path.join` yields a platform path, and on Windows
-    // Node's ESM resolver reads the `C:` drive letter as a URL scheme and rejects it outright with
-    // ERR_UNSUPPORTED_ESM_URL_SCHEME - so the file: URL is what makes this work off POSIX.
-    const transformUrl = pathToFileURL(path.join(administrationRoot, 'build/vue-setup-transform/index.js')).href;
-    const transformImport = (await import(transformUrl)) as ShopwareSetupTransformImport;
+    // `createRequire` rather than a dynamic `import()`, because this plugin is bundled two different ways:
+    // esbuild's ESM config bundle for the Administration build, and a CommonJS resolver for extension
+    // builds (build/plugins.vite.ts). A dynamic import() needs a file: URL to survive Windows, where Node's
+    // ESM resolver reads the `C:` drive letter as a URL scheme - and that URL is exactly what the CommonJS
+    // resolver cannot load ("Cannot find module 'file:///...'"). `require` takes a plain path and works in
+    // every combination. It also matches how virtual-sfc-sourcemap.ts loads @jridgewell/remapping.
+    const requireFromAdministration = createRequire(path.join(administrationRoot, 'package.json'));
+    const transformImport = requireFromAdministration(
+        path.join(administrationRoot, 'build/vue-setup-transform/index.js'),
+    ) as ShopwareSetupTransformImport;
     const transformModule = 'default' in transformImport ? transformImport.default : transformImport;
 
     return transformModule.transformShopwareSetupSfc;
 }
 
 function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    let transformPromise = transformModulePromises.get(administrationRoot);
+    transformModulePromise ??= importShopwareSetupTransform(administrationRoot);
 
-    if (!transformPromise) {
-        transformPromise = importShopwareSetupTransform(administrationRoot);
-        transformModulePromises.set(administrationRoot, transformPromise);
-    }
-
-    return transformPromise;
+    return transformModulePromise;
 }
 
 /**

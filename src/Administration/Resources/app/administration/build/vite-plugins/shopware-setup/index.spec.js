@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import path from 'node:path';
 import ShopwareSetupPlugin from './index';
 
 const pluginOptions = {
@@ -149,9 +150,20 @@ swDefinePublic({ count });
         await expect(plugin.transform('const count = 1;', '/example/component.ts')).resolves.toBeNull();
     });
 
-    it('loads the shared transform once per administration root', async () => {
+    it('loads the shared transform once for the whole process', async () => {
+        // The memo is module state, and every test above already loaded the real transform through it, so
+        // this needs its own module instance to observe the first load at all.
+        let IsolatedShopwareSetupPlugin;
+
+        jest.isolateModules(() => {
+            IsolatedShopwareSetupPlugin = require('./index').default;
+        });
+
+        // `src` rather than a made-up path: the loader resolves the transform relative to the root, and
+        // `src/build/vue-setup-transform` does not exist - while staying inside the package keeps the
+        // require resolvable, which a path outside it would not be.
         /** @type {import('vite').Plugin} */
-        const plugin = ShopwareSetupPlugin({ administrationRoot: '/definitely/not/an/administration/root' });
+        const plugin = IsolatedShopwareSetupPlugin({ administrationRoot: path.join(process.cwd(), 'src') });
         const source = `<script setup>
 const count = 1;
 swDefinePublic({ count });

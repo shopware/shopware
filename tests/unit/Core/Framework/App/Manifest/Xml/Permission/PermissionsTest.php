@@ -31,8 +31,8 @@ class PermissionsTest extends TestCase
             'order' => ['read'],
         ], $manifest->getPermissions()->getPermissions());
 
-        // process_taxes is implied by the manifest's tax provider and added to the additional privileges
-        static::assertSame(['user_change_me', 'process_taxes'], $manifest->getPermissions()->getAdditionalPrivileges());
+        // tax_processor is implied by the manifest's tax provider and added to the additional privileges
+        static::assertSame(['user_change_me', 'tax_processor'], $manifest->getPermissions()->getAdditionalPrivileges());
     }
 
     public function testAsParsedPrivileges(): void
@@ -59,7 +59,7 @@ class PermissionsTest extends TestCase
             'order:read',
             'user_change_me',
             // implied by the manifest's tax provider
-            'process_taxes',
+            'tax_processor',
         ], $manifest->getPermissions()->asParsedPrivileges());
     }
 

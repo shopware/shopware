@@ -1245,7 +1245,7 @@ class AppManagerTest extends TestCase
         static::assertContains('order:read', $privileges);
         static::assertContains('user_change_me', $privileges);
         // implied by the manifest's tax provider
-        static::assertContains('process_taxes', $privileges);
+        static::assertContains('tax_processor', $privileges);
     }
 
     private function assertDefaultWebhooks(string $appId): void

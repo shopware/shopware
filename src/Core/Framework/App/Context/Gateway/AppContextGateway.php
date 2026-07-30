@@ -52,15 +52,13 @@ class AppContextGateway
         }
         $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
-        // do not push cart/customer data to an app that has not been granted the context gateway
-        // permission; leave the shopper's context untouched instead
-        $response = $this->appCapability->whenGranted(
-            $app->getId(),
-            ContextGateway::PERMISSION,
-            fn (): ContextTokenResponse => $this->dispatchToApp($app, $payload)
-        );
+        // the app calls this gateway itself, so reject the request instead of silently ignoring it.
+        // no cart/customer data is pushed to an app that has not been granted the permission.
+        if (!$this->appCapability->can($app->getId(), ContextGateway::PERMISSION)) {
+            throw AppException::capabilityNotGranted($app->getName(), ContextGateway::PERMISSION);
+        }
 
-        return $response ?? new ContextTokenResponse($payload->getSalesChannelContext()->getToken());
+        return $this->dispatchToApp($app, $payload);
     }
 
     private function dispatchToApp(AppEntity $app, ContextGatewayPayloadStruct $payload): ContextTokenResponse

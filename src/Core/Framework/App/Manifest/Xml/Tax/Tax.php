@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class Tax extends XmlElement
 {
-    final public const PERMISSION = 'process_taxes';
+    final public const PERMISSION = 'tax_processor';
 
     /**
      * @var list<TaxProvider>

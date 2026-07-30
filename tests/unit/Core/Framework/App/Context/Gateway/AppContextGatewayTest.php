@@ -597,7 +597,7 @@ class AppContextGatewayTest extends TestCase
         static::assertSame('newtoken', $response->getToken());
     }
 
-    public function testProcessSkipsAppWhenPermissionNotGranted(): void
+    public function testProcessThrowsWhenPermissionNotGranted(): void
     {
         $cart = new Cart('hatoken');
         $context = Generator::generateSalesChannelContext();
@@ -637,18 +637,16 @@ class AppContextGatewayTest extends TestCase
             new AppCapability($privileges),
         );
 
-        $response = $gateway->process(new ContextGatewayPayloadStruct($cart, $context, $data));
+        // the app calls the gateway itself, so it is told the call was rejected
+        $this->expectExceptionObject(AppException::capabilityNotGranted('app_test', ContextGateway::PERMISSION));
 
-        // the shopper's context is returned untouched
-        static::assertSame($context->getToken(), $response->getToken());
+        $gateway->process(new ContextGatewayPayloadStruct($cart, $context, $data));
     }
 
     private function grantingCapability(): AppCapability
     {
         $capability = static::createStub(AppCapability::class);
-        $capability->method('whenGranted')->willReturnCallback(
-            static fn (string $appId, string $action, callable $callback): mixed => $callback()
-        );
+        $capability->method('can')->willReturn(true);
 
         return $capability;
     }

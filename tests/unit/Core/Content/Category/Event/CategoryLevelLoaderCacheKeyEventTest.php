@@ -25,7 +25,7 @@ class CategoryLevelLoaderCacheKeyEventTest extends TestCase
         $rootId = 'root-id';
         $depth = 3;
         $salesChannelId = 'sales-channel-id';
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getSalesChannelId')->willReturn($salesChannelId);
         $context->method('getContext')->willReturn($defaultContext);
 

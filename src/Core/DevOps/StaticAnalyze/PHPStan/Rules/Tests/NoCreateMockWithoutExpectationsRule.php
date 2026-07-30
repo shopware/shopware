@@ -283,12 +283,20 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 }
             }
 
-            // `$this->other($this->helper())` — allowed only when the receiving parameter is proven.
+            // `$this->other($this->helper())` — allowed only when the receiving parameter is proven; an
+            // inherited assertion (`static::assertSame($this->helper(), ...)`) only reads its arguments.
             foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+                $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
                 $callee = $this->resolveOwnMethod($call, $ownMethods);
 
                 foreach ($call->getArgs() as $index => $arg) {
                     if (!isset($sites[spl_object_id($arg->value)])) {
+                        continue;
+                    }
+
+                    if ($assertion) {
+                        $classified[spl_object_id($arg->value)] = true;
+
                         continue;
                     }
 
@@ -369,14 +377,20 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+            $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
             $callee = $this->resolveOwnMethod($call, $ownMethods);
-            if ($callee === null) {
+            if ($callee === null && !$assertion) {
                 continue;
             }
 
             foreach ($call->getArgs() as $index => $arg) {
                 $variables = $this->passedThroughVariables($arg->value, $name);
-                if ($variables === [] || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                if ($variables === []) {
+                    continue;
+                }
+
+                // inherited assertions only read their arguments; own callees need their parameter proven
+                if (!$assertion && ($callee === null || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, []))) {
                     continue;
                 }
 
@@ -767,24 +781,50 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      */
     private function eachOpaqueOwnCallArg(NodeFinder $finder, array $stmts, array $ownMethods, callable $onArg): void
     {
+        $resolvableMethods = $ownMethods;
         if ($this->hasOpaqueExpectsReceiver($finder, $stmts)) {
             // Some double is ->expects()-ed through a reference this rule cannot resolve (typically a fixture
             // struct handed back by the helper: `$fixture->repository->expects(...)`). Which double that is
             // cannot be told, so no callee counts as transparent here.
-            $ownMethods = [];
+            $resolvableMethods = [];
         }
 
         foreach ($this->findOwnCalls($finder, $stmts) as $call) {
-            $callee = $this->resolveOwnMethod($call, $ownMethods);
+            // `static::assertSame($double, ...)` — an inherited PHPUnit assertion only reads its arguments;
+            // it cannot configure expectations. Checked against the full method map on purpose: an
+            // assert-named method declared in this class is analysed like any other helper.
+            if ($this->isInheritedAssertionCall($call, $ownMethods)) {
+                continue;
+            }
+
+            $callee = $this->resolveOwnMethod($call, $resolvableMethods);
 
             foreach ($call->getArgs() as $index => $arg) {
-                if ($callee !== null && $this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                if ($callee !== null && $this->argumentIsNeverExpected($callee, $arg, $index, $resolvableMethods, [])) {
                     continue;
                 }
 
                 $onArg($arg);
             }
         }
+    }
+
+    /**
+     * A `$this->`/`self::`/`static::` call to an `assert*` method that is not declared in this class — an
+     * inherited PHPUnit assertion. Assertions only read their arguments and can never configure an
+     * expectation on a double.
+     *
+     * @param array<string, ClassMethod> $ownMethods
+     */
+    private function isInheritedAssertionCall(MethodCall|StaticCall $call, array $ownMethods): bool
+    {
+        if (!$call->name instanceof Identifier) {
+            return false;
+        }
+
+        $name = mb_strtolower($call->name->name);
+
+        return \str_starts_with($name, 'assert') && !isset($ownMethods[$name]);
     }
 
     /**
@@ -966,16 +1006,21 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
         }
 
-        // forwarded to another own method → recurse into it
+        // forwarded to another own method → recurse into it; inherited assertions only read their arguments
         foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+            $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
             $callee = $this->resolveOwnMethod($call, $ownMethods);
-            if ($callee === null) {
+            if ($callee === null && !$assertion) {
                 continue;
             }
 
             foreach ($call->getArgs() as $index => $arg) {
                 $variables = $this->passedThroughVariables($arg->value, $paramName);
-                if ($variables === [] || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, $visited)) {
+                if ($variables === []) {
+                    continue;
+                }
+
+                if (!$assertion && ($callee === null || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, $visited))) {
                     continue;
                 }
 

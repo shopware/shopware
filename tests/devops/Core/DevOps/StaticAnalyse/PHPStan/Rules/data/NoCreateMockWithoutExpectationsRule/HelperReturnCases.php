@@ -118,6 +118,45 @@ class EscapedReturnCases extends TestCase
 
 /**
  * @internal
+ *
+ * The double only feeds an inherited PHPUnit assertion, which reads its arguments and cannot
+ * configure expectations. FLAGGED.
+ */
+class AssertionArgumentCases extends TestCase
+{
+    public function testOne(): void
+    {
+        $dependency = $this->createMock(ReturnDependency::class);
+        $sut = new ReturnSut($dependency);
+
+        static::assertSame($dependency, $sut->getDependency());
+    }
+}
+
+/**
+ * @internal
+ *
+ * An assert-named method declared in THIS class configures an expectation; the whitelist only
+ * covers inherited assertions. NOT flagged.
+ */
+class OwnAssertHelperCases extends TestCase
+{
+    public function testOne(): void
+    {
+        $dependency = $this->createMock(ReturnDependency::class);
+        (new ReturnSut($dependency))->run();
+
+        $this->assertDependencyWasRead($dependency);
+    }
+
+    private function assertDependencyWasRead(ReturnDependency $dependency): void
+    {
+        $dependency->expects($this->once())->method('value');
+    }
+}
+
+/**
+ * @internal
  */
 class ReturnSut
 {
@@ -128,6 +167,11 @@ class ReturnSut
     public function run(): string
     {
         return $this->dependency->value();
+    }
+
+    public function getDependency(): ReturnDependency
+    {
+        return $this->dependency;
     }
 }
 

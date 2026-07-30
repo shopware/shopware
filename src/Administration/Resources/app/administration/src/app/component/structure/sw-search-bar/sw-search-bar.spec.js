@@ -481,10 +481,25 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper = await createWrapper();
         expect(wrapper.vm.isSearchBarShown).toBe(true);
 
+        // Fire the registered media query listener like a real breakpoint change would.
+        const [
+            ,
+            changeHandler,
+        ] = wrapper.vm.collapseQuery.addEventListener.mock.calls.find(([event]) => event === 'change');
+
         wrapper.vm.collapseQuery.matches = true;
-        wrapper.vm.showSearchFieldOnLargerViewports();
+        changeHandler();
 
         expect(wrapper.vm.isSearchBarShown).toBe(false);
+    });
+
+    it('should remove the media query listener on unmount', async () => {
+        wrapper = await createWrapper();
+        const query = wrapper.vm.collapseQuery;
+
+        wrapper.unmount();
+
+        expect(query.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
     });
 
     it('should render the off-canvas toggle next to the full search bar and toggle the menu', async () => {

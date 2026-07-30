@@ -252,8 +252,8 @@ export default {
         async createdComponent() {
             // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
             this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
-            this.collapseQuery.addEventListener('change', this.showSearchFieldOnLargerViewports);
-            this.showSearchFieldOnLargerViewports();
+            this.collapseQuery.addEventListener('change', this.syncSearchBarCollapse);
+            this.syncSearchBarCollapse();
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -273,7 +273,7 @@ export default {
         },
 
         destroyedComponent() {
-            this.collapseQuery?.removeEventListener('change', this.showSearchFieldOnLargerViewports);
+            this.collapseQuery?.removeEventListener('change', this.syncSearchBarCollapse);
             document.removeEventListener('click', this.closeOnClickOutside);
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
@@ -340,12 +340,8 @@ export default {
         },
 
         closeOnClickOutside(event) {
-            const target = event.target;
-
-            if (!target.closest('.sw-search-bar')) {
-                this.clearSearchTerm();
-                this.showTypeSelectContainer = false;
-                this.showModuleFiltersContainer = false;
+            if (!event.target.closest('.sw-search-bar')) {
+                this.closeSearchPanels();
             }
         },
 
@@ -355,10 +351,14 @@ export default {
             this.activeResultPosition = 0;
         },
 
-        onKeyUpEsc() {
+        closeSearchPanels() {
             this.clearSearchTerm();
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
+        },
+
+        onKeyUpEsc() {
+            this.closeSearchPanels();
             this.$refs.searchInput?.blur();
         },
 
@@ -400,7 +400,7 @@ export default {
             this.showResultsContainer = false;
         },
 
-        showSearchFieldOnLargerViewports() {
+        syncSearchBarCollapse() {
             this.isSearchBarShown = !this.collapseQuery.matches;
         },
 

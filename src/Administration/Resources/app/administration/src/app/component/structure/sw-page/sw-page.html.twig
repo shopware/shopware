@@ -8,8 +8,9 @@
         v-if="showHeadArea"
         class="sw-page__head-area"
     >
-        {% block sw_page_search_bar %}
+        {% block sw_page_top_bar %}
         <div class="sw-page__top-bar">
+            {% block sw_page_search_bar %}
             <div
                 v-if="showSearchBar"
                 class="sw-page__search-bar"
@@ -20,6 +21,7 @@
                     {% endblock %}
                 </slot>
             </div>
+            {% endblock %}
 
             {% block sw_page_top_bar_actions %}
             <div class="sw-page__top-bar-actions">
@@ -47,41 +49,46 @@
         >
             {% block sw_page_smart_bar_divider %}
             <div
-                v-if="showSmartBar && showSearchBar"
+                v-if="showSearchBar"
                 class="sw-page__smart-bar-divider"
             ></div>
             {% endblock %}
 
             {% block sw_page_smart_bar_back_btn %}
-            <div
-                class="sw-page__back-btn-container"
-            >
+            <div class="sw-page__back-btn-container">
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
-                    <mt-button
+                    <router-link
                         v-if="parentRoute"
-                        class="smart-bar__back-btn"
-                        variant="secondary"
-                        size="default"
-                        square
-                        :aria-label="$t('global.sw-page.backButton')"
-                        :title="$t('global.sw-page.backButton')"
-                        @click="$router.push(routerBack)"
+                        v-slot="{ href, navigate }"
+                        :to="routerBack"
+                        custom
                     >
-                        <mt-icon
-                            name="solid-long-arrow-left"
-                            size="12px"
-                        />
-                    </mt-button>
+                        <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
+                        <mt-button
+                            is="a"
+                            class="smart-bar__back-btn"
+                            variant="secondary"
+                            size="default"
+                            square
+                            :href="href"
+                            :aria-label="$t('global.sw-page.backButton')"
+                            :title="$t('global.sw-page.backButton')"
+                            @click="navigate"
+                        >
+                            <mt-icon
+                                name="solid-long-arrow-left"
+                                size="12px"
+                            />
+                        </mt-button>
+                    </router-link>
                     {% endblock %}
                 </slot>
             </div>
             {% endblock %}
 
             {% block sw_page_smart_bar_content %}
-            <div
-                class="smart-bar__content"
-            >
+            <div class="smart-bar__content">
                 {% block sw_page_smart_bar_content_header %}
                 <div class="smart-bar__header">
                     <slot name="smart-bar-header">

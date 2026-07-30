@@ -15,7 +15,7 @@ export default {
         },
 
         hasActiveSidebar() {
-            return Shopware.Store.get('sidebar').sidebars.some((sidebar) => sidebar.active);
+            return Shopware.Store.get('sidebar').getActiveSidebar !== null;
         },
     },
 
@@ -25,15 +25,7 @@ export default {
         },
 
         toggleSidebar(locationId: string) {
-            const store = Shopware.Store.get('sidebar');
-            const sidebar = store.sidebars.find((item) => item.locationId === locationId);
-
-            if (sidebar?.active && store.closingSidebar !== locationId) {
-                store.requestCloseSidebar(locationId);
-                return;
-            }
-
-            store.setActiveSidebar(locationId);
+            Shopware.Store.get('sidebar').toggleSidebar(locationId);
         },
     },
 };

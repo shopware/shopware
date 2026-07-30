@@ -4,6 +4,7 @@ import initializeSidebar from 'src/app/init/sidebar.init';
 
 describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', () => {
     let mockLocalStorage;
+    let outsideButton;
 
     // Narrow enough that the default sidebar width does not fit next to the
     // main content, so a resizable sidebar opens straight into overlay mode.
@@ -19,9 +20,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
                     stubs: {
                         'sw-iframe-renderer': true,
                         'mt-icon': true,
-                        'mt-button': true,
                     },
-                    provide: {},
                 },
                 attachTo: document.body,
             },
@@ -43,8 +42,20 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         return wrapper;
     }
 
+    function focusIsTrappedInside(panelElement) {
+        outsideButton.focus();
+
+        return panelElement.contains(document.activeElement);
+    }
+
     beforeAll(() => {
         initializeSidebar();
+
+        // focus-trap's tabbable check requires layout boxes, which jsdom does
+        // not compute — pretend every element is visible.
+        HTMLElement.prototype.getClientRects = () => [
+            { width: 10, height: 10 },
+        ];
 
         mockLocalStorage = {
             getItem: jest.fn(),
@@ -58,6 +69,8 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         mockLocalStorage.getItem.mockReturnValue(null);
 
         Shopware.Store.get('sidebar').sidebars = [];
+        Shopware.Store.get('sidebar').closingSidebar = null;
+        Shopware.Store.get('sidebar').switchedWhileOpen = false;
 
         Shopware.Store.get('extensions').extensionsState = {};
         Shopware.Store.get('extensions').addExtension({
@@ -69,22 +82,44 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
             integrationId: '123',
             active: true,
         });
+
+        outsideButton = document.createElement('button');
+        document.body.appendChild(outsideButton);
+    });
+
+    afterEach(() => {
+        outsideButton.remove();
     });
 
     it('should trap the focus inside the panel in overlay mode', async () => {
         const wrapper = await createOverlayWrapper();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
-
         const panel = wrapper.find('.sw-sidebar-renderer.is-active');
         expect(panel.attributes('role')).toBe('dialog');
         expect(panel.attributes('aria-modal')).toBe('true');
 
-        // The stubbed panel has no tabbable nodes in jsdom, so the trap
-        // falls back to the container itself.
-        expect(document.activeElement).toBe(panel.element);
+        // Initial focus moves into the panel, focusing an element outside
+        // pulls the focus back in.
+        expect(panel.element.contains(document.activeElement)).toBe(true);
+        expect(focusIsTrappedInside(panel.element)).toBe(true);
 
         wrapper.unmount();
+    });
+
+    it('should return the focus to the previously focused element when the panel unmounts', async () => {
+        outsideButton.focus();
+
+        const wrapper = await createOverlayWrapper();
+        expect(outsideButton.contains(document.activeElement)).toBe(false);
+
+        wrapper.unmount();
+
+        // focus-trap returns the focus in a zero-delay timeout.
+        await new Promise((resolve) => {
+            setTimeout(resolve, 0);
+        });
+
+        expect(document.activeElement).toBe(outsideButton);
     });
 
     it('should not trap the focus in docked mode', async () => {
@@ -92,18 +127,23 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
 
         const wrapper = await createOverlayWrapper();
 
-        expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
-        expect(wrapper.vm.focusTrap).toBeNull();
-        expect(wrapper.find('.sw-sidebar-renderer.is-active').attributes('role')).toBeUndefined();
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        expect(panel.attributes('role')).toBeUndefined();
+        expect(focusIsTrappedInside(panel.element)).toBe(false);
 
         wrapper.unmount();
     });
 
-    it('should not trap the focus for a non-resizable sidebar', async () => {
+    it('should render a non-resizable sidebar docked and without a trap', async () => {
         const wrapper = await createOverlayWrapper({ resizable: false });
 
-        expect(wrapper.vm.focusTrap).toBeNull();
-        expect(wrapper.find('.sw-sidebar-renderer.is-active').attributes('role')).toBeUndefined();
+        // Non-resizable sidebars always use the default width and therefore
+        // never enter overlay mode, regardless of the window width.
+        expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
+
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        expect(panel.attributes('role')).toBeUndefined();
+        expect(focusIsTrappedInside(panel.element)).toBe(false);
 
         wrapper.unmount();
     });
@@ -111,16 +151,15 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     it('should release the trap without closing the sidebar when overlay mode ends', async () => {
         const wrapper = await createOverlayWrapper();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
-
         window.innerWidth = 2600;
         window.dispatchEvent(new Event('resize'));
         await flushPromises();
 
-        expect(wrapper.vm.focusTrap).toBeNull();
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        expect(panel.attributes('role')).toBeUndefined();
+        expect(focusIsTrappedInside(panel.element)).toBe(false);
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(true);
         expect(Shopware.Store.get('sidebar').closingSidebar).toBeNull();
-        expect(wrapper.find('.sw-sidebar-renderer.is-active').attributes('role')).toBeUndefined();
 
         wrapper.unmount();
     });
@@ -128,13 +167,10 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     it('should close the sidebar on Escape', async () => {
         const wrapper = await createOverlayWrapper();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
-
         jest.useFakeTimers();
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
-        expect(wrapper.vm.focusTrap).toBeNull();
         expect(Shopware.Store.get('sidebar').closingSidebar).toBe('test-sidebar');
 
         jest.advanceTimersByTime(400);
@@ -146,20 +182,26 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         wrapper.unmount();
     });
 
-    it('should release the trap while resizing and re-engage it afterwards', async () => {
+    it('should pause the trap while resizing and resume it without moving the focus', async () => {
         const wrapper = await createOverlayWrapper();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        const closeButton = wrapper.find('.sw-sidebar-renderer__button-close');
+        closeButton.element.focus();
 
         await wrapper.find('.sw-sidebar-renderer__resize-handle').trigger('mousedown', { clientX: 100 });
         await flushPromises();
 
-        expect(wrapper.vm.focusTrap).toBeNull();
+        // Paused: focus may leave the panel while dragging.
+        expect(focusIsTrappedInside(panel.element)).toBe(false);
 
+        closeButton.element.focus();
         document.dispatchEvent(new MouseEvent('mouseup'));
         await flushPromises();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
+        // Resumed without re-running the initial focus.
+        expect(document.activeElement).toBe(closeButton.element);
+        expect(focusIsTrappedInside(panel.element)).toBe(true);
 
         wrapper.unmount();
     });
@@ -174,17 +216,12 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
             resizable: true,
         });
 
-        const firstTrap = wrapper.vm.focusTrap;
-        expect(firstTrap).toBeTruthy();
-
         Shopware.Store.get('sidebar').setActiveSidebar('second-sidebar');
         await flushPromises();
 
-        expect(wrapper.vm.focusTrap).toBeTruthy();
-        expect(wrapper.vm.focusTrap).not.toBe(firstTrap);
-
         const panels = wrapper.findAll('.sw-sidebar-renderer');
-        expect(document.activeElement).toBe(panels.at(1).element);
+        expect(panels[1].element.contains(document.activeElement)).toBe(true);
+        expect(focusIsTrappedInside(panels[1].element)).toBe(true);
 
         wrapper.unmount();
     });

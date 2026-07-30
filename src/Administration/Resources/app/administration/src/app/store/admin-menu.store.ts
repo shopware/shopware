@@ -18,7 +18,7 @@ interface MenuService {
  * its branches, otherwise collapsing one id-less branch would drop every other id-less entry.
  */
 function menuEntryKey(entry: NavigationEntry): string | undefined {
-    return entry?.id ?? entry?.path;
+    return entry.id ?? entry.path;
 }
 
 const adminMenuStore = Shopware.Store.register({
@@ -51,7 +51,11 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to expand
          */
         expandMenuEntry(entry: NavigationEntry) {
-            if (this.expandedEntries.some((e) => menuEntryKey(e) === menuEntryKey(entry))) {
+            const key = menuEntryKey(entry);
+
+            // Entries without id and path share the key `undefined`; deduplicating
+            // them would collapse distinct entries into one.
+            if (key !== undefined && this.expandedEntries.some((e) => menuEntryKey(e) === key)) {
                 return;
             }
 
@@ -62,7 +66,14 @@ const adminMenuStore = Shopware.Store.register({
          * @param entry The Navigation Entry to collapse
          */
         collapseMenuEntry(entry: NavigationEntry) {
-            this.expandedEntries = this.expandedEntries.filter((e) => menuEntryKey(e) !== menuEntryKey(entry));
+            const key = menuEntryKey(entry);
+
+            if (key === undefined) {
+                this.expandedEntries = this.expandedEntries.filter((e) => e !== entry);
+                return;
+            }
+
+            this.expandedEntries = this.expandedEntries.filter((e) => menuEntryKey(e) !== key);
         },
         /**
          * Expands the  sidebar menu

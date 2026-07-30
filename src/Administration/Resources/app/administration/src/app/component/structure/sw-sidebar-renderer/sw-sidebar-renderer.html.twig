@@ -22,7 +22,7 @@
         :class="{
             'is-active': activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-closing': closingSidebar === sidebar.locationId,
-            'is-switched': switchedWhileOpen,
+            'is-switched': switchedWhileOpen && activeSidebar && activeSidebar.locationId === sidebar.locationId,
             'is-resizing': sidebarDisplayOptions.isResizing,
             'is-overlay': activeSidebar && activeSidebar.resizable && sidebarDisplayOptions.isOverlayMode,
         }"

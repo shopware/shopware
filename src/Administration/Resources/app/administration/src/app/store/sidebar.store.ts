@@ -58,7 +58,14 @@ const sidebarsStore = Shopware.Store.register({
             if (!sidebar) {
                 return;
             }
+
             sidebar.active = false;
+
+            // A pending close animation for this sidebar is obsolete now — its
+            // timeout skips itself once the id is cleared.
+            if (this.closingSidebar === locationId) {
+                this.closingSidebar = null;
+            }
         },
 
         // Play the closing animation, then deactivate once it finishes.
@@ -83,6 +90,10 @@ const sidebarsStore = Shopware.Store.register({
             this.sidebars = this.sidebars.filter((sidebar) => {
                 return sidebar.locationId !== locationId;
             });
+
+            if (this.closingSidebar === locationId) {
+                this.closingSidebar = null;
+            }
         },
 
         setActiveSidebar(locationId: string): void {
@@ -101,15 +112,25 @@ const sidebarsStore = Shopware.Store.register({
             this.switchedWhileOpen =
                 this.closingSidebar === null && this.sidebars.some((item) => item.active && item.locationId !== locationId);
 
-            // cancel any pending close animation
             this.closingSidebar = null;
 
-            // reset all sidebars
             this.sidebars.forEach((item) => {
                 item.active = false;
             });
 
             sidebar.active = true;
+        },
+
+        // Close on a repeated trigger of the active sidebar, open it otherwise.
+        toggleSidebar(locationId: string): void {
+            const sidebar = this.sidebars.find((item) => item.locationId === locationId);
+
+            if (sidebar?.active && this.closingSidebar !== locationId) {
+                this.requestCloseSidebar(locationId);
+                return;
+            }
+
+            this.setActiveSidebar(locationId);
         },
     },
 });

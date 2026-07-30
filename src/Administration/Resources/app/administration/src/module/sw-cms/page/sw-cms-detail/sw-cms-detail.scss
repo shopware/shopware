@@ -39,6 +39,8 @@
 
     .sw-cms-detail__page-name {
         max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
         text-overflow: ellipsis;
     }
 

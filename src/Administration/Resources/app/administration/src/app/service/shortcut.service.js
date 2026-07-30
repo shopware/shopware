@@ -53,7 +53,11 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
             key.toUpperCase(),
         ].join('');
 
-        return Boolean(shortcutFactory.getPathByCombination(combination));
+        const path = shortcutFactory.getPathByCombination(combination);
+
+        // Sequences the user may not navigate to never fire (see handleKeyUp),
+        // so they must not swallow single-key shortcuts either.
+        return Boolean(path) && Shopware.Service('acl').hasAccessToRoute(path);
     }
 
     function startEventListener() {

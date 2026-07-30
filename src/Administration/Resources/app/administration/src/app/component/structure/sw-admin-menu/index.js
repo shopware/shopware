@@ -93,10 +93,6 @@ export default {
                 return this.currentUser.aclRoles[0].name;
             }
 
-            if (this.currentUser && this.currentUser.title) {
-                return this.currentUser.title;
-            }
-
             return '';
         },
 
@@ -583,8 +579,6 @@ The admin menu only supports up to three levels of nesting.`,
             this.flyoutReferenceElement = target.querySelector('.sw-admin-menu__navigation-link') ?? target;
             this.flyoutEntries = children;
             this.flyoutTitle = this.getEntryLabel(entry);
-            this.deactivatePreviousMenuItem();
-            target.classList.add('is--flyout-enabled');
 
             this.activeEntry = { entry, target };
         },
@@ -783,17 +777,10 @@ The admin menu only supports up to three levels of nesting.`,
         onFlyoutLeave() {
             this.deactivateFlyoutFocusTrap();
             this.cancelFlyoutClose();
-            this.deactivatePreviousMenuItem();
+            this.activeEntry = null;
             this.flyoutReferenceElement = null;
             this.flyoutEntries = [];
             this.flyoutTitle = '';
-        },
-
-        deactivatePreviousMenuItem() {
-            if (this.activeEntry && this.activeEntry.target) {
-                this.activeEntry.target.classList.remove('is--flyout-enabled');
-            }
-            this.activeEntry = null;
         },
 
         getEntryLabel(entry) {

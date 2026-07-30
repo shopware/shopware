@@ -1,3 +1,5 @@
+// Selected state of the trigger while its sidebar is open — pressed, not
+// hover, so it stays distinguishable from hovering an inactive trigger.
 .sw-app-topbar-sidebar__icon.sw-app-topbar-sidebar__icon-active {
-    background: var(--color-interaction-secondary-hover);
+    background: var(--color-interaction-secondary-pressed);
 }

@@ -112,13 +112,15 @@
             bottom: 8px;
             position: absolute;
 
+            // Pink primitives on purpose: there is no "favorite" semantic token,
+            // and the critical token would make the heart read as an error.
             .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                color: var(--color-icon-critical-default);
+                color: var(--color-pink-700);
             }
 
             &:disabled {
                 .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                    color: var(--color-icon-critical-disabled);
+                    color: var(--color-pink-300);
                 }
             }
         }

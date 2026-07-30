@@ -235,6 +235,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     beforeEach(async () => {
         Shopware.Service('salesChannelFavorites').state.favorites = [];
         Shopware.Store.get('session').languageId = defaultAdminLanguageId;
+        // Tests that collapse the sidebar persist that into localStorage — reset it.
+        Shopware.Store.get('adminMenu').expandSidebar();
         global.repositoryFactoryMock.showError = false;
     });
 

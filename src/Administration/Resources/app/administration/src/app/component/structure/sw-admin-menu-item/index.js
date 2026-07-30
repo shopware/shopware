@@ -4,8 +4,9 @@ import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from
 import './sw-admin-menu-item.scss';
 
 /**
- * The mt-tooltip trigger props that make the tooltip open. Stripped from the trigger when the
- * collapsed tooltip must stay silent — see collapsedTooltipTriggerProps.
+ * The mt-tooltip trigger props that open the tooltip or tie it to the trigger.
+ * Stripped from the trigger when the collapsed tooltip must stay silent —
+ * see collapsedTooltipTriggerProps.
  *
  * @private
  */
@@ -41,28 +42,10 @@ export default {
         'flyout-close-request',
     ],
 
-    data() {
-        return {
-            suppressRouteKeepsFolderOpen: false,
-            manualNestedOpen: false,
-        };
-    },
-
-    watch: {
-        '$route.fullPath'() {
-            this.suppressRouteKeepsFolderOpen = false;
-        },
-    },
-
     props: {
         entry: {
             type: Object,
             required: true,
-        },
-        parentEntries: {
-            type: Array,
-            required: false,
-            default: () => [],
         },
 
         menuDepth: {
@@ -116,6 +99,13 @@ export default {
         },
     },
 
+    data() {
+        return {
+            suppressRouteKeepsFolderOpen: false,
+            manualNestedOpen: false,
+        };
+    },
+
     computed: {
         /** Admin menu supports at most three levels; level-3 rows are leaf items only */
         isLeafDepth() {
@@ -127,25 +117,31 @@ export default {
             return getActiveRouteNames(this.$route, this.$router);
         },
 
+        /** The entry with its children reduced to the ones the user may see. */
+        aclFilteredEntry() {
+            return { ...this.entry, children: this.children };
+        },
+
+        hasActiveChild() {
+            return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
+        },
+
         /**
          * Whether this row should show the "current page" highlight (`router-link-active`).
-         * True when the entry (or a descendant) is on the active route, except that an open
-         * parent yields the highlight to its active child.
+         * True when the entry (or a visible descendant) is on the active route, except that
+         * an open parent yields the highlight to its active child.
          */
         rowActive() {
             if (!this.showActiveState) {
                 return false;
             }
 
-            if (!isEntryOnActiveRoute(this.entry, this.$route, this.activeRouteNames)) {
+            if (!isEntryOnActiveRoute(this.aclFilteredEntry, this.$route, this.activeRouteNames)) {
                 return false;
             }
 
-            const activeChild = this.children.some((child) =>
-                isEntryOnActiveRoute(child, this.$route, this.activeRouteNames),
-            );
             const selfIsCurrent =
-                !activeChild &&
+                !this.hasActiveChild &&
                 !!this.entry.path &&
                 this.activeRouteNames.has(this.entry.path) &&
                 entryParamsMatchRoute(this.entry, this.$route);
@@ -209,16 +205,12 @@ export default {
             });
         },
 
+        // Collapsible items stay on the same <mt-collapsible> template branch whether the
+        // sidebar is expanded or collapsed. Switching branches on collapse remounts the row
+        // and makes the navigation icons flash; the collapsed appearance is handled purely
+        // via CSS and the forced-closed collapsibleOpen state instead.
         hasCollapsibleSubtree() {
             return this.children.length > 0 && !this.isLeafDepth;
-        },
-
-        // Keep collapsible items on the same <mt-collapsible> template branch whether the sidebar
-        // is expanded or collapsed. Switching branches on collapse remounts the row and makes the
-        // navigation icons flash; the collapsed appearance is handled purely via CSS and the
-        // forced-closed collapsibleOpen state instead.
-        usesCollapsible() {
-            return this.hasCollapsibleSubtree;
         },
 
         routeKeepsFolderOpen() {
@@ -226,51 +218,43 @@ export default {
                 return false;
             }
 
-            return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
+            return this.hasActiveChild;
         },
 
         submenuVisuallyOpen() {
-            if (!this.sidebarExpanded && this.menuDepth === 1) {
-                return false;
-            }
-
             if (this.menuDepth === 1) {
-                const expandedBranches = Shopware.Store.get('adminMenu').expandedEntries ?? [];
-                const myKey = this.entry.id ?? this.entry.path;
-
-                if (expandedBranches.length > 0 && myKey !== undefined && myKey !== '') {
-                    const expandedKeys = expandedBranches.map((e) => e?.id ?? e?.path);
-
-                    if (!expandedKeys.includes(myKey)) {
-                        return false;
-                    }
+                if (!this.sidebarExpanded) {
+                    return false;
                 }
 
-                return this.isExpanded || this.routeKeepsFolderOpen;
+                // Once any branch was explicitly expanded, the store-driven expansion state
+                // (isExpanded) is the single source of truth; route-driven auto-open only
+                // applies while no branch is open.
+                const hasExpandedBranches = Shopware.Store.get('adminMenu').expandedEntries.length > 0;
+
+                return hasExpandedBranches ? this.isExpanded : this.isExpanded || this.routeKeepsFolderOpen;
             }
 
             return this.routeKeepsFolderOpen || this.manualNestedOpen;
         },
 
         collapsibleOpen() {
-            if (!this.usesCollapsible) {
-                return false;
-            }
-
-            return this.submenuVisuallyOpen;
+            return this.hasCollapsibleSubtree && this.submenuVisuallyOpen;
         },
 
         expandIcon() {
-            const expanded = this.usesCollapsible ? this.collapsibleOpen : this.submenuVisuallyOpen;
-
-            return expanded ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs';
+            return this.submenuVisuallyOpen ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs';
         },
 
         collapsibleLiClass() {
             return [
                 'sw-admin-menu__navigation-list-item',
                 this.getElementClasses(this.entry.id || this.entryPath),
-                { 'is--entry-expanded': this.collapsibleOpen, 'is--child-active': this.childRouteActive },
+                {
+                    'is--entry-expanded': this.collapsibleOpen,
+                    'is--child-active': this.childRouteActive,
+                    'is--flyout-enabled': this.flyoutActive,
+                },
             ];
         },
 
@@ -289,12 +273,7 @@ export default {
         },
 
         childRouteActive() {
-            if (this.children.length === 0 || !this.submenuVisuallyOpen) {
-                return false;
-            }
-
-            // A descendant's route is the current route (or an ancestor of it).
-            return this.children.some((child) => isEntryOnActiveRoute(child, this.$route, this.activeRouteNames));
+            return this.children.length > 0 && this.submenuVisuallyOpen && this.hasActiveChild;
         },
 
         /**
@@ -307,10 +286,23 @@ export default {
                 return {};
             }
 
+            // aria-controls only while open — the flyout element does not exist otherwise.
+            if (!this.flyoutActive) {
+                return { 'aria-expanded': 'false' };
+            }
+
             return {
-                'aria-expanded': this.flyoutActive ? 'true' : 'false',
-                ...(this.flyoutActive ? { 'aria-controls': 'sw-admin-menu-flyout' } : {}),
+                'aria-expanded': 'true',
+                'aria-controls': 'sw-admin-menu-flyout',
             };
+        },
+
+        /**
+         * Collapsed top-level rows hide their label (visibility: hidden removes it
+         * from the accessibility tree), so the accessible name needs an aria-label.
+         */
+        collapsedAriaLabel() {
+            return !this.sidebarExpanded && this.menuDepth === 1 ? this.getEntryLabel : null;
         },
 
         /**
@@ -334,6 +326,12 @@ export default {
         },
     },
 
+    watch: {
+        '$route.fullPath'() {
+            this.suppressRouteKeepsFolderOpen = false;
+        },
+    },
+
     methods: {
         collapsedTooltipTriggerProps(tooltipProps) {
             if (this.showsCollapsedTooltip) {
@@ -342,8 +340,8 @@ export default {
 
             // The wrapping <mt-tooltip> stays mounted even when the tooltip must not open,
             // because unmounting the row on sidebar toggle makes the navigation icons flash
-            // (see usesCollapsible). The trigger id also has to stay bound; mt-tooltip errors
-            // when it cannot find its trigger element. Only the handlers that open the
+            // (see hasCollapsibleSubtree). The trigger id also has to stay bound; mt-tooltip
+            // errors when it cannot find its trigger element. Only the handlers that open the
             // tooltip are dropped — the closing handlers keep an already visible tooltip
             // hidable when the sidebar expands while it is hovered.
             //
@@ -394,25 +392,13 @@ export default {
                 `navigation-list-item__level-${this.entry.level}`,
                 {
                     'navigation-list-item__has-children': hasChildren,
-                    'navigation-list-item--nested': this.entry.level > 1,
+                    'navigation-list-item--nested': this.menuDepth > 1,
                 },
             ];
         },
 
-        getStableSubMenuItemKey(entry, index) {
-            if (entry.id) {
-                return String(entry.id);
-            }
-
-            if (entry.path) {
-                return String(entry.path);
-            }
-
-            return `admin-menu-sub-${index}`;
-        },
-
         toggleSubmenu() {
-            if (!this.usesCollapsible) {
+            if (!this.hasCollapsibleSubtree) {
                 return;
             }
 
@@ -464,10 +450,6 @@ export default {
 
         forwardMenuItemHover(entry, target) {
             this.$emit('menu-item-hover', entry, target);
-        },
-
-        forwardBranchToggle(payload) {
-            this.$emit('branch-toggle', payload);
         },
     },
 };

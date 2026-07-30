@@ -15,6 +15,7 @@ const aclService = {
 
         return global.activeAclRoles.includes(key);
     },
+    hasAccessToRoute: () => true,
 };
 
 export default aclService;

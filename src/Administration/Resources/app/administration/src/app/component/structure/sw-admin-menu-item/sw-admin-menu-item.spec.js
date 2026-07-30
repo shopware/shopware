@@ -50,9 +50,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        const children = wrapper.findAll('sw-admin-menu-item-stub');
-        expect(children).toHaveLength(0);
-
+        expect(wrapper.find('.sw-admin-menu__sub-navigation-list').exists()).toBe(false);
         expect(wrapper.classes()).toContain('navigation-list-item__sw-product');
     });
 
@@ -135,7 +133,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.html().length).toBeGreaterThan(1);
+        expect(wrapper.find('.navigation-list-item__sw-product .sw-admin-menu__navigation-link').exists()).toBe(true);
     });
 
     it('should check route access by exact route name', async () => {
@@ -496,22 +494,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    it('should match route', async () => {
-        const entries = [...catalogues.children];
-        entries.unshift({
-            id: 'sw-catalogue',
-            moduleType: 'core',
-            label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
-            color: '#57D9A3',
-            icon: 'regular-products',
-            position: 20,
-            level: 1,
-        });
-
-        Shopware.Store.get('adminMenu').adminModuleNavigation = entries;
-
+    it('should not show the active state when another route is active', async () => {
         const wrapper = await createWrapper({
             privileges: [],
+            route: {
+                name: 'sw.bar.index',
+                matched: [{ name: 'sw.bar.index' }],
+            },
             props: {
                 entry: {
                     path: 'sw.foo.index',
@@ -753,5 +742,43 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         // Vue Router's own active classes are suppressed as well
         expect(wrapper.vm.routerLinkActiveClass).toBe('');
         expect(wrapper.vm.routerLinkExactActiveClass).toBe('');
+    });
+
+    it('should switch the icon to its solid variant while the row is active', async () => {
+        const entry = {
+            id: 'sw-product',
+            path: 'sw.product.index',
+            label: 'sw-product.general.mainMenuItemGeneral',
+            icon: 'regular-products',
+            moduleType: 'core',
+            position: 10,
+            level: 1,
+            children: [],
+        };
+
+        const inactiveWrapper = await createWrapper({ props: { entry } });
+        expect(inactiveWrapper.vm.navigationIconName).toBe('regular-products');
+
+        const activeWrapper = await createWrapper({
+            props: { entry },
+            route: { name: 'sw.product.index', matched: [{ name: 'sw.product.index' }] },
+        });
+        expect(activeWrapper.vm.navigationIconName).toBe('solid-products');
+    });
+
+    it('should emit a branch toggle with the chevron following the open state', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                entry: catalogues,
+            },
+        });
+
+        expect(wrapper.vm.expandIcon).toBe('regular-chevron-down-xs');
+
+        await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+        expect(wrapper.emitted('branch-toggle')).toEqual([
+            [{ entry: catalogues, open: true }],
+        ]);
     });
 });

@@ -1,7 +1,7 @@
 {% block sw_admin_menu_item %}
-<!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <mt-collapsible
-    v-if="showMenuItem && usesCollapsible"
+    v-if="showMenuItem && hasCollapsibleSubtree"
     as="li"
     :class="collapsibleLiClass"
     :aria-current="rowActive ? 'page' : 'false'"
@@ -19,10 +19,11 @@
                 :active-class="routerLinkActiveClass"
                 :exact-active-class="routerLinkExactActiveClass"
                 :aria-expanded="collapsibleOpen"
+                :aria-label="collapsedAriaLabel"
                 v-bind="collapsedFlyoutAria"
                 @click="toggleSubmenu"
             >
-                {% block sw_admin_menu_item_icon_linked %}
+                {% block sw_admin_menu_item_icon %}
                 <mt-icon
                     v-if="displayIcon"
                     :size="iconSize"
@@ -31,7 +32,7 @@
                 />
                 {% endblock %}
 
-                {% block sw_admin_menu_item_text_linked %}
+                {% block sw_admin_menu_item_text %}
                 <span
                     class="sw-admin-menu__navigation-link-label"
                     :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
@@ -60,9 +61,10 @@
             type="button"
             class="sw-admin-menu__navigation-link"
             :class="{ 'router-link-active': rowActive }"
+            :aria-label="collapsedAriaLabel"
             v-bind="collapsedFlyoutAria"
         >
-            {% block sw_admin_menu_item_navigation_icon_fold %}
+            {% block sw_admin_menu_item_navigation_icon %}
             <mt-icon
                 v-if="displayIcon"
                 :size="iconSize"
@@ -71,7 +73,7 @@
             />
             {% endblock %}
 
-            {% block sw_admin_menu_item_navigation_text_fold %}
+            {% block sw_admin_menu_item_navigation_text %}
             <span
                 class="sw-admin-menu__navigation-link-label"
                 :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
@@ -84,10 +86,7 @@
             <slot name="additional-text"></slot>
 
             {% block sw_admin_menu_item_expand_indicator_fold %}
-            <span
-                v-if="children.length"
-                class="sw-admin-menu__navigation-link-expand-icon-box"
-            >
+            <span class="sw-admin-menu__navigation-link-expand-icon-box">
                 <mt-icon
                     :name="expandIcon"
                     size="8"
@@ -98,14 +97,14 @@
         </mt-collapsible-trigger>
     </div>
 
-    {% block sw_sidebar_sub_items_collapsible %}
+    {% block sw_sidebar_sub_items_list %}
     <mt-collapsible-content
         as="ul"
         class="sw-admin-menu__sub-navigation-list"
     >
         <sw-admin-menu-item
             v-for="(childEntry, subMenuIndex) in children"
-            :key="getStableSubMenuItemKey(childEntry, subMenuIndex)"
+            :key="childEntry.id ?? childEntry.path ?? subMenuIndex"
             :entry="childEntry"
             :menu-depth="menuDepth + 1"
             :display-icon="false"
@@ -113,28 +112,29 @@
             :collapsible-text="collapsibleText"
             :icon-size="iconSize"
             @menu-item-hover="forwardMenuItemHover"
-            @branch-toggle="forwardBranchToggle"
         />
     </mt-collapsible-content>
     {% endblock %}
 </mt-collapsible>
 
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
     v-else-if="showMenuItem"
     :class="leafLiClass"
     :aria-current="rowActive ? 'page' : 'false'"
-    @mouseenter="$emit('menu-item-hover', entry, $event.target)"
+    @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
 >
     <mt-tooltip
         :content="getEntryLabel"
         placement="right"
     >
-        <template #default="{ ...tooltipProps }">
+        <template #default="tooltipProps">
             <div
                 class="sw-admin-menu__navigation-item-row"
                 v-bind="collapsedTooltipTriggerProps(tooltipProps)"
             >
 
+                {% block sw_admin_menu_item_router_link %}
                 <router-link
                     v-if="entryPath"
                     class="sw-admin-menu__navigation-link"
@@ -142,6 +142,7 @@
                     :class="{ 'router-link-active': rowActive }"
                     :active-class="routerLinkActiveClass"
                     :exact-active-class="routerLinkExactActiveClass"
+                    :aria-label="collapsedAriaLabel"
                 >
                     <mt-icon
                         v-if="displayIcon"
@@ -160,12 +161,15 @@
 
                     <slot name="additional-text"></slot>
                 </router-link>
+                {% endblock %}
 
+                {% block sw_admin_menu_item_external_link %}
                 <a
-                    v-else-if="entry.link"
+                    v-if="!entryPath && entry.link"
                     :href="entry.link"
                     :target="entry.target"
-                    :title="$t(entry.label)"
+                    :title="getEntryLabel"
+                    :aria-label="collapsedAriaLabel"
                     class="sw-admin-menu__navigation-link"
                 >
                     <mt-icon
@@ -185,9 +189,11 @@
 
                     <slot name="additional-text"></slot>
                 </a>
+                {% endblock %}
 
+                {% block sw_admin_menu_item_navigation_link %}
                 <span
-                    v-else
+                    v-if="!entryPath && !entry.link"
                     class="sw-admin-menu__navigation-link"
                     :class="{ 'router-link-active': rowActive }"
                 >
@@ -208,6 +214,7 @@
 
                     <slot name="additional-text"></slot>
                 </span>
+                {% endblock %}
             </div>
         </template>
     </mt-tooltip>

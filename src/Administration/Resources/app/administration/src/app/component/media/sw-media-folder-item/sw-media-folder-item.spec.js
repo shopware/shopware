@@ -15,7 +15,7 @@ modulesToCreate.set('sw-mail-template', {
     icon: 'regular-cog',
     entity: 'mail_template',
 });
-modulesToCreate.set('sw-cms', { icon: 'regular-content', entity: 'cms_page' });
+modulesToCreate.set('sw-cms', { icon: 'regular-image-text', entity: 'cms_page' });
 
 Array.from(modulesToCreate.keys()).forEach((moduleName) => {
     const currentModuleValues = modulesToCreate.get(moduleName);

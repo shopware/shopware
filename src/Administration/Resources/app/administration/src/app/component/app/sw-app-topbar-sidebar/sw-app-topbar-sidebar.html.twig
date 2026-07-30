@@ -1,10 +1,10 @@
-<template v-if="sidebars && sidebars.length === 1">
+<template v-if="sidebars.length === 1">
     <mt-tooltip
         :content="$t(sidebars[0].title)"
         placement="bottom"
         :delay-duration-in-ms="500"
     >
-        <template #default="{ ...tooltipProps }">
+        <template #default="tooltipProps">
             <mt-button
                 v-bind="tooltipProps"
                 class="sw-app-topbar-sidebar__icon"
@@ -25,7 +25,7 @@
     </mt-tooltip>
 </template>
 
-<template v-if="sidebars.length && sidebars.length > 1">
+<template v-else-if="sidebars.length > 1">
     <mt-dropdown-menu-root>
         <mt-dropdown-menu-trigger as-child>
             <mt-button

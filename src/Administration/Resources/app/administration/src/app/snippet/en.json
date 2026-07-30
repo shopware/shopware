@@ -1735,8 +1735,7 @@
   "sidebar": {
     "ariaLabelButtonClose": "Close sidebar",
     "ariaLabelButtonOpen": "Open sidebar",
-    "ariaLabelButtonCollapse": "Collapse sidebar",
-    "buttonCollapse": "collapse"
+    "ariaLabelButtonCollapse": "Collapse sidebar"
   },
   "help-center": {
     "sidebar": {

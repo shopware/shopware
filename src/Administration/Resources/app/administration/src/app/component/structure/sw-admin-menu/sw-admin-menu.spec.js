@@ -145,6 +145,15 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
     });
 
+    it('should show the configured shop name', async () => {
+        wrapper.vm.systemConfigApiService.getValues = () => Promise.resolve({ 'core.basicInformation.shopName': 'My Shop' });
+
+        wrapper.vm.loadShopName();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-admin-menu__shop-name').text()).toBe('My Shop');
+    });
+
     it('should fall back to "Shopware" when no shop name is configured', async () => {
         await flushPromises();
 

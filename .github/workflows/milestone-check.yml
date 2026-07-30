@@ -1,19 +1,10 @@
 name: Check milestone label
-# Fails a PR whose milestone/* label contradicts its base branch, so a change cannot
-# be announced under a release it will not ship in. The rule and the reasoning behind
-# it live in .github/bin/js/milestone-label.ts.
+# Rule and reasoning: .github/bin/js/milestone-label.ts
 #
-# Runs on both events on purpose. The pull_request run is feedback while the PR is
-# open; the merge_group run is what actually prevents the merge, because GitHub
-# retargets a stacked PR to trunk when its parent merges without emitting any
-# pull_request event — so the PR-level run can still be green from before the
-# retarget, while the merge group is always evaluated against the final base.
-#
-# Both runs report the same job name, so a single required status check covers the PR
-# and the queue.
-#
-# Reports only, never relabels: the repair lives in milestone.yml, so a check run
-# cannot silently change what it is checking.
+# merge_group is the gate that matters — GitHub retargets a stacked PR to trunk
+# without emitting a pull_request event, so the PR-level run can be green from
+# before the retarget. Both report the same job name, so one required check covers
+# the PR and the queue.
 
 on:
   pull_request:
@@ -37,15 +28,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       # The base ref, never the PR head: a fork PR must not be able to edit the
-      # module that judges it. Sparse, because only the module is needed.
+      # module that judges it.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
           sparse-checkout: .github/bin/js
 
-      # The rule lives on the base branch, so it is absent wherever it has not landed
-      # yet — this pull request itself, and any branch it has not been backported to.
-      # Passing there is the correct reading of "the rule as the target branch has it".
+      # Absent wherever the rule has not landed yet, e.g. a release branch it was
+      # never backported to.
       - id: rule
         run: |
           if [ -f .github/bin/js/milestone-label.ts ]; then

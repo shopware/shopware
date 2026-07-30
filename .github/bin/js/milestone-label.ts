@@ -1,21 +1,12 @@
 /**
  * Validate and repair the `milestone/*` label of a pull request.
  *
- * The milestone label decides which release a change is announced under, so a stale
- * label is what sends RELEASE_INFO entries into an already-branched section. Two
- * things make it go stale:
- *
- * - A release branch is split off while the PR is open. The branch-off automation
- *   moves the label on open PRs, but a PR that is not open at that moment — or that
- *   the relabel run misses — keeps the old one.
- * - GitHub retargets a stacked PR to trunk once its parent merges. That produces an
- *   `AutomaticBaseChangeSucceededEvent` but no `pull_request` webhook, so no event
- *   re-evaluates the label. This is why the check alone is not enough and a
- *   scheduled reconcile exists.
- *
  * The invariant: once branch `X.Y.Z.x` exists, the `X.Y.Z.*` line is closed and a PR
  * targeting the default branch must not claim it — unless it carries the matching
  * `backport-X.Y.Z.x` label, which routes it into that branch on purpose.
+ *
+ * Labels go stale silently because GitHub retargets a stacked PR to trunk once its
+ * parent merges without emitting a `pull_request` event, so nothing re-evaluates it.
  */
 
 export const MILESTONE_LABEL_PREFIX = 'milestone/';
@@ -23,11 +14,7 @@ export const MILESTONE_LABEL_PREFIX = 'milestone/';
 /** Opt-out for the deliberate exceptions the release owner makes. */
 export const SKIP_CHECK_LABEL = 'skip-milestone-check';
 
-/**
- * Narrows the ref search when listing version branches. The repository has ~700
- * branches, so an unfiltered listing would cost eight pages per PR event; this
- * brings it down to one. Widen it when a `7.` series starts.
- */
+/** Narrows the ref search: ~700 branches would otherwise cost eight pages per event. Widen for a `7.` series. */
 export const VERSION_BRANCH_QUERY = '6.';
 
 /** Matches a version branch and captures its release line: `6.7.13.x` -> `6.7.13`, `6.6.x` -> `6.6`. */
@@ -47,16 +34,10 @@ export type MilestoneLabelInput = {
     labels: string[];
     /** Existing version branches, e.g. `['6.6.x', '6.7.12.x', '6.7.13.x']`. */
     versionBranches: string[];
-    /**
-     * Drafts are held to the weaker rule: a wrong milestone is still wrong, but a
-     * missing one is not, because authors deliberately drop the label from
-     * long-running drafts and a draft cannot merge. The label comes back on
-     * `ready_for_review`.
-     */
+    /** A missing label is tolerated on drafts: authors drop it deliberately, and the labeler restores it on `ready_for_review`. */
     isDraft?: boolean;
 };
 
-/** The release line a version branch belongs to, or undefined when it isn't one. */
 function releaseLineOf(branch: string): string | undefined {
     return VERSION_BRANCH_PATTERN.exec(branch)?.[1];
 }
@@ -68,10 +49,9 @@ function milestoneVersionOf(label: string): string | undefined {
 }
 
 /**
- * The milestone a PR against the default branch belongs to: the patch after the
- * highest already-branched one. Derived from the branches rather than from the
- * latest tag, so it stays correct in the window between a branch-off and the
- * matching release — which is exactly the window where labels go wrong.
+ * The patch after the highest already-branched minor. Derived from branches, not the
+ * latest tag, so it stays correct between a branch-off and its release — the window
+ * where labels go wrong.
  */
 export function expectedMilestone(versionBranches: string[]): string | undefined {
     let highest: number[] | undefined;
@@ -108,15 +88,12 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
 
     const milestoneLabels = labels.filter((label) => label.startsWith(MILESTONE_LABEL_PREFIX));
     if (milestoneLabels.length > 1) {
-        // Never guess which of them was meant.
         return { status: 'invalid', message: `carries ${milestoneLabels.length} milestone labels (${milestoneLabels.join(', ')}), expected exactly one` };
     }
 
     const baseLine = releaseLineOf(baseRefName);
 
-    // A stacked PR targets another PR's head branch. Which release it lands in
-    // depends on where the parent merges, so there is nothing to validate yet —
-    // it gets validated once GitHub retargets it.
+    // A stacked PR lands wherever its parent merges, so there is nothing to judge yet.
     if (baseRefName !== defaultBranch && baseLine === undefined) {
         return { status: 'skipped', message: `base branch \`${baseRefName}\` is neither \`${defaultBranch}\` nor a version branch` };
     }
@@ -132,8 +109,7 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
         return {
             status: 'invalid',
             message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label, so it would be released without being announced anywhere`,
-            // On a version branch the milestone depends on whether the minor is already
-            // released, which this module does not know — don't offer a wrong fix.
+            // On a version branch the right patch depends on release state this module cannot see.
             expected: baseLine === undefined ? expected : undefined,
         };
     }
@@ -277,16 +253,12 @@ function defaultBranchOf(context: PullRequestContext): string {
 /** `refs/heads/gh-readonly-queue/trunk/pr-18791-<base sha>` -> 18791 */
 const MERGE_GROUP_REF_PATTERN = /\/pr-(\d+)-[0-9a-f]+$/;
 
-/** What the rule needs about a pull request, from either event's payload. */
 type CheckedPullRequest = { number: number; baseRefName: string; labels: string[]; isDraft: boolean };
 
 /**
- * The pull requests a merge group is about to merge.
- *
- * The queue may batch several PRs into one group and the ref names only the last of
- * them, so every commit in the group is resolved back to its pull request. The
- * ref-named PR is always included, so an incomplete commit lookup still leaves the
- * queued PR checked rather than silently passing it.
+ * The queue may batch several PRs into one group while the ref names only the last,
+ * so commits are resolved back to their PRs. The ref-named PR is always included so
+ * a failed lookup cannot silently pass it.
  */
 async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
     const numbers = new Set<number>();
@@ -348,16 +320,11 @@ async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<
 }
 
 /**
- * Fails the run when a pull request's milestone label contradicts its base branch.
+ * Fails the run when a milestone label contradicts its base branch.
  *
- * Handles both `pull_request` (fast feedback while the PR is open) and `merge_group`
- * (the gate that actually prevents the merge). The merge group run is the one that
- * matters: GitHub retargets a stacked PR to the default branch without emitting any
- * `pull_request` event, so the PR-level run can be green from before the retarget,
- * while the merge group is always evaluated against the final base.
- *
- * Reports only — the fix is left to a human or to {@link reconcileMilestoneLabel}, so
- * a check run never silently changes what it is checking.
+ * `merge_group` is the gate that matters: it is always evaluated against the final
+ * base, while the `pull_request` run can be green from before a silent retarget.
+ * Reports only, so a check never changes what it is checking.
  */
 export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
     const { github, core, context } = toolkit;
@@ -395,11 +362,8 @@ export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
 }
 
 /**
- * Sets the milestone label a PR should carry. Used after a base branch change,
- * where the previous label was chosen for a different base.
- *
- * Only acts when the label is both wrong and unambiguously fixable; anything else
- * is left for {@link checkMilestoneLabel} to report.
+ * Sets the label a PR should carry after its base branch changed. Only acts when the
+ * label is unambiguously fixable; the rest is left for {@link checkMilestoneLabel}.
  */
 export async function reconcileMilestoneLabel({ github, core, context }: Toolkit): Promise<void> {
     const pullRequest = pullRequestOf(context);
@@ -449,14 +413,7 @@ const OPEN_PULL_REQUESTS_QUERY = /* GraphQL */ `
     }
   }`;
 
-/**
- * Re-evaluates every open PR against the default branch and repairs the labels that
- * contradict it.
- *
- * This is the backstop for the case no webhook covers: GitHub retargeting a stacked
- * PR to the default branch emits no `pull_request` event, so without a periodic
- * sweep such a PR can be merged with a label from before the retarget.
- */
+/** Re-evaluates every open PR against the default branch and repairs contradicting labels. */
 export async function reconcileOpenMilestoneLabels({ github, core, context }: Toolkit, dryRun: boolean): Promise<void> {
     const defaultBranch = defaultBranchOf(context);
     const versionBranches = await fetchVersionBranches(github, context.repo);

@@ -327,6 +327,34 @@ class ReleaseInfoSectionPlacementTest extends TestCase
         static::assertStringContainsString('add a `# 6.7.14.0 (upcoming)` section', $warning);
     }
 
+    #[TestDox('Points at the stale label when the milestone names a version that is already branched off')]
+    public function testWarnsAboutStaleMilestoneLabel(): void
+    {
+        // A pull request opened before the branch-off keeps its old milestone label: both MCP pull
+        // requests that caused this still carried `milestone/6.7.13.0` when they shipped with 6.7.14.0.
+        $patch = <<<'DIFF'
+            @@ -3,3 +3,5 @@
+             ## Features
+
+            +### Entry in the upcoming section
+            +
+             Description.
+            DIFF;
+
+        $context = $this->createContext([$this->releaseInfoFile($patch)], ['milestone/6.7.13.0']);
+
+        (new ReleaseInfoSectionPlacement())($context);
+
+        static::assertCount(1, $context->getWarnings());
+
+        $warning = $context->getWarnings()[0];
+        static::assertStringContainsString('`milestone/6.7.13.0` label puts this pull request into **6.7.13.0**', $warning);
+        static::assertStringContainsString('`# 6.7.13.0` has already been branched off', $warning);
+        static::assertStringContainsString('The label is most likely left over from before the branch-off', $warning);
+        // Recreating the frozen section is never the fix for a stale label.
+        static::assertStringNotContainsString('(upcoming)` section at the top', $warning);
+    }
+
     #[TestDox('Stays silent when the milestone label matches the upcoming section')]
     public function testSilentWhenMilestoneMatchesUpcomingSection(): void
     {

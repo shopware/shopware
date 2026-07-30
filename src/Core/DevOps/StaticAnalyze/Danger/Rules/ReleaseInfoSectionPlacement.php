@@ -64,10 +64,9 @@ class ReleaseInfoSectionPlacement
 
         $this->reportMisplacedEntries($context, $file, $sections, $addedEntries, $openSection['version']);
 
-        // A single unambiguous open section can be cross-checked against the milestone label, which
-        // branch-off keeps up to date. A mismatch means the section for that milestone is missing.
+        // A single unambiguous open section can be cross-checked against the milestone label.
         if (\count($openSections) <= 1) {
-            $this->reportMissingSection($context, $file, $openSection['version'], $labels);
+            $this->reportMilestoneMismatch($context, $file, $openSection['version'], $labels);
         }
     }
 
@@ -104,9 +103,12 @@ class ReleaseInfoSectionPlacement
     }
 
     /**
+     * The milestone label and the open section should name the same version. They drift apart in two
+     * directions, and the direction decides which of the two is wrong.
+     *
      * @param array<string> $labels
      */
-    private function reportMissingSection(Context $context, File $file, string $openVersion, array $labels): void
+    private function reportMilestoneMismatch(Context $context, File $file, string $openVersion, array $labels): void
     {
         $milestone = $this->milestoneVersion($labels);
         if ($milestone === null || $milestone === $openVersion) {
@@ -119,6 +121,23 @@ class ReleaseInfoSectionPlacement
             return;
         }
 
+        // The label names an older version, whose section is already branched off or released. The
+        // label is stale — it is not updated on every open pull request when a branch-off happens.
+        if (version_compare($milestone, $openVersion, '<')) {
+            $context->warning(
+                \sprintf('The `milestone/%s` label puts this pull request into **%s**,', $milestone, $milestone)
+                . \sprintf(' but `# %s` has already been branched off in `%s`', $milestone, $file->name)
+                . \sprintf(' and `# %s` is the section that accepts new entries.', $openVersion)
+                . '<br/><br/>The label is most likely left over from before the branch-off. Please check which'
+                . \sprintf(' version this pull request ships with, and keep your entries under `# %s`', $openVersion)
+                . ' as long as that is the open section.'
+            );
+
+            return;
+        }
+
+        // The label names a newer version than any section in the file, so the section for it is
+        // missing — either the branch-off did not add it yet, or a patch release needs a new one.
         $context->warning(
             \sprintf('The `milestone/%s` label ships this pull request with **%s**,', $milestone, $milestone)
             . \sprintf(' but the newest section in `%s` is `# %s`.', $file->name, $openVersion)

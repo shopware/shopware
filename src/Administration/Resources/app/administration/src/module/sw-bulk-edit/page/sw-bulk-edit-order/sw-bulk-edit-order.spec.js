@@ -270,14 +270,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                             });
                         },
                     },
-                    documentV2Service: {
-                        getAvailableTypes: () =>
-                            Promise.resolve({
-                                data: {
-                                    documentTypes: {},
-                                },
-                            }),
-                    },
+                    documentV2Service: {},
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},

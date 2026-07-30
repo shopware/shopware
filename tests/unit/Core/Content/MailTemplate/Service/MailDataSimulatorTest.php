@@ -147,7 +147,7 @@ class MailDataSimulatorTest extends TestCase
     public function testFieldEventCanOverrideSubclassOfKnownCoreFieldType(): void
     {
         $capturedEvent = null;
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$capturedEvent): object {
             if ($event instanceof MailDataSimulatorFieldEvent) {
                 $capturedEvent = $event;

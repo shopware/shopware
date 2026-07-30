@@ -760,7 +760,9 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            return this.getDocumentFileTypes(item).map((format) => this.getDocumentFormatLabel(format)).join(', ');
+            return this.getDocumentFileTypes(item)
+                .map((format) => this.getDocumentFormatLabel(format))
+                .join(', ');
         },
     },
 };

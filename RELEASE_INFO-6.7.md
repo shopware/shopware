@@ -41,6 +41,45 @@ The existing `reason:*` annotations will be migrated to these attributes in foll
 
 ## Administration
 
+### Vue Single File Components for Administration extensions
+
+Administration components can now be written as Vue Single File Components. `.vue` files were previously not supported at all: components were registered through the component factory with Twig templates, and there was no way to author or override one as an SFC.
+
+A build-time transform lowers these files onto the Composition-API extension system before Vue compiles them, so an override receives the base component's state instead of replacing its implementation. It runs in every extension build — no configuration needed in your plugin.
+
+Filename decides both identity and role: `sw-my-component.vue` (or `sw-my-component/index.vue`) declares the base component `sw-my-component`, and `sw-my-component.override.vue` overrides it. Two markers declare the extension surface, and both are mandatory in their mode — pass an empty object when there is nothing to declare:
+
+```vue
+<!-- sw-my-component.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const count = ref(0);
+const internalValue = ref('private');
+
+swDefinePublic({ count });   // `count` is overrideable, `internalValue` is not
+</script>
+```
+
+```vue
+<!-- sw-my-component.override.vue -->
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const count = computed(() => previousState.count.value * 2);
+
+swDefineOverride({ count });
+</script>
+```
+
+Two things to know before you start:
+
+* **Every `.vue` file needs a `<script setup>` block.** A plain `<script>` (Options API) SFC or a template-only SFC is rejected at build time, because the markers that make a component extendable only exist in `<script setup>`. Options-API components continue to work as before through the component factory; this applies to `.vue` files only.
+* **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
+
+Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+
 ## Storefront
 
 ## App System

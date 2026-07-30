@@ -42,7 +42,6 @@ class SeoActionControllerTest extends TestCase
     /**
      * @param list<string> $expectedPrivileges
      */
-    #[TestDox('Route $routeName is guarded by the $expectedPrivileges ACL privilege')]
     #[DataProvider('aclProtectedSeoUrlRouteProvider')]
     public function testRouteRequiresSeoUrlPrivilege(string $routeName, array $expectedPrivileges): void
     {

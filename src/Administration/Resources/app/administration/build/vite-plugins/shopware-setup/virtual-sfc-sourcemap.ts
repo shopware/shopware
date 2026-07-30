@@ -30,11 +30,18 @@ type OutputChunkWithMap = {
     map: ShopwareSetupTransformMap;
 };
 
+type OutputAssetLike = {
+    type: 'asset';
+    fileName: string;
+    source: string | Uint8Array;
+};
+
 type OutputItemLike =
     | {
           type: string;
       }
-    | OutputChunkLike;
+    | OutputChunkLike
+    | OutputAssetLike;
 
 type OutputBundleLike = Record<string, OutputItemLike>;
 
@@ -42,6 +49,10 @@ const virtualSetupSuffix = '.shopware-setup.vue';
 
 function isOutputChunkWithMap(item: OutputItemLike): item is OutputChunkWithMap {
     return item.type === 'chunk' && 'map' in item && item.map !== null;
+}
+
+function isOutputAsset(item: OutputItemLike | undefined): item is OutputAssetLike {
+    return item?.type === 'asset' && 'source' in item;
 }
 
 function resolveMapSourceFileName(outputDirectory: string, chunkFileName: string, source: string): string {
@@ -121,7 +132,7 @@ function createVirtualSetupSourcemapContext(administrationRoot: string) {
                 return;
             }
 
-            item.map = remapping(
+            const remapped = remapping(
                 currentMap,
                 (source) => {
                     if (!isVirtualFileName(source)) {
@@ -134,6 +145,27 @@ function createVirtualSetupSourcemapContext(administrationRoot: string) {
                 },
                 false,
             );
+
+            // Our transform records absolute source paths, and remapping carries them through - so without
+            // this the shipped map advertises the build machine's filesystem layout. Rollup writes module
+            // sources relative to the map, so match that.
+            const mapDirectory = path.resolve(outputDirectory, path.dirname(item.fileName));
+
+            remapped.sources = remapped.sources.map((source) =>
+                path.isAbsolute(source) ? path.relative(mapDirectory, source).split(path.sep).join('/') : source,
+            );
+
+            item.map = remapped;
+
+            // The `.js.map` file is written from the emitted asset when one already exists at this point,
+            // in which case mutating `chunk.map` alone changes nothing on disk - which is how the virtual
+            // filenames survived into shipped plugin sourcemaps. Update both so the remap lands whichever
+            // of the two Rollup ends up serializing.
+            const mapAsset = bundle[`${item.fileName}.map`];
+
+            if (isOutputAsset(mapAsset)) {
+                mapAsset.source = JSON.stringify(remapped);
+            }
         });
     }
 

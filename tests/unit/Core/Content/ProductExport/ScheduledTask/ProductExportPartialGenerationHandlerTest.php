@@ -162,7 +162,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         static::assertCount(0, $messageBus->getMessages());
     }
 
-    public function testFollowUpChunkDoesNotOverwriteSchedulingOrCacheTimestamps(): void
+    public function testFollowUpChunkDoesNotOverwriteSchedulingAndDispatchesNextBatchWithKeysetCursor(): void
     {
         $writeResult = static::createStub(EntityWrittenContainerEvent::class);
 
@@ -184,7 +184,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $generator
             ->expects($this->once())
             ->method('generate')
-            ->willReturn(new ProductExportResult('chunk', [], 200));
+            ->willReturn(new ProductExportResult('chunk', [], 0, 250, true));
 
         $fileHandler = $this->createMock(ProductExportFileHandlerInterface::class);
         $fileHandler
@@ -203,14 +203,21 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
             $generator,
             $fileHandler,
             $messageBus,
-            $this->createMock(ProductExportRendererInterface::class),
-            $this->createMock(AbstractTranslator::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(Connection::class),
+            static::createStub(ProductExportRendererInterface::class),
+            static::createStub(AbstractTranslator::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(Connection::class),
         )->__invoke(new ProductExportPartialGeneration($this->productExport->getId(), $this->productExport->getSalesChannelId(), 50));
 
-        static::assertCount(1, $messageBus->getMessages());
+        // The next batch is dispatched with the keyset cursor carried by the batch result.
+        $messages = $messageBus->getMessages();
+        static::assertCount(1, $messages);
+        $next = $messages[0]->getMessage();
+        static::assertInstanceOf(ProductExportPartialGeneration::class, $next);
+        static::assertSame(250, $next->getOffset());
+        static::assertSame($this->productExport->getId(), $next->getProductExportId());
+        static::assertSame($this->productExport->getSalesChannelId(), $next->getSalesChannelId());
     }
 
     private function createHandler(
@@ -244,7 +251,6 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
             $salesChannelContextService,
             $contextPersister,
             $connection,
-            50,
             $languageLocaleProvider,
             new MockClock()
         );

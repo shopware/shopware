@@ -346,6 +346,13 @@ export default {
                 return;
             }
 
+            /* The inline naming of a tree item relies on the focus staying inside the confirm field,
+             * otherwise the submit is lost when the tree scrolls away below the cursor.
+             */
+            if (event.target.closest('.sw-confirm-field')) {
+                return;
+            }
+
             /* Check recursively if any tree item is active, if yes, focus on it.
              * If no tree item is active, focus on the tree item closest to the event target.
              */

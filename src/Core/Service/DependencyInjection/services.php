@@ -37,6 +37,7 @@ use Shopware\Core\Service\ServiceHookableEventDescriber;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
+use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
@@ -86,6 +87,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LifecycleManager::class),
         ])
         ->tag('console.command');
+
+    $services->set(RegistryUrlProcessor::class)
+        ->args([
+            ServiceExtension::DEFAULT_REGISTRY_URL,
+            param('shopware.service_registry.trusted_domains'),
+        ])
+        ->tag('container.env_var_processor');
 
     $services->set(Client::class)
         ->args([

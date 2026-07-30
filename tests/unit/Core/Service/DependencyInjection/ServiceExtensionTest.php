@@ -17,30 +17,32 @@ use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBa
 #[CoversClass(ServiceExtension::class)]
 class ServiceExtensionTest extends TestCase
 {
-    #[DataProvider('nonProductionEnvironmentProvider')]
-    public function testRegistryUrlIsConfigurableOutsideOfProduction(string $environment): void
+    #[DataProvider('environmentProvider')]
+    public function testRegistryUrlIsResolvedFromTheEnvironmentVariable(string $environment): void
     {
-        $container = new ContainerBuilder(new EnvPlaceholderParameterBag(['kernel.environment' => $environment]));
+        $container = $this->prepend($environment);
 
-        (new ServiceExtension())->prepend($container);
-
-        static::assertSame('%env(SERVICE_REGISTRY_URL)%', $container->getParameter('shopware.service_registry.url'));
+        static::assertSame('%env(service-registry-url:SERVICE_REGISTRY_URL)%', $container->getParameter('shopware.service_registry.url'));
     }
 
-    public function testRegistryUrlIgnoresTheEnvironmentVariableInProduction(): void
+    public function testRegistryUrlIsRestrictedToShopwareDomainsInProduction(): void
     {
-        $container = new ContainerBuilder(new EnvPlaceholderParameterBag(['kernel.environment' => 'prod']));
+        $container = $this->prepend('prod');
 
-        (new ServiceExtension())->prepend($container);
+        static::assertSame(['shopware.io'], $container->getParameter('shopware.service_registry.trusted_domains'));
+    }
 
-        static::assertSame(ServiceExtension::DEFAULT_REGISTRY_URL, $container->getParameter('shopware.service_registry.url'));
+    #[DataProvider('nonProductionEnvironmentProvider')]
+    public function testRegistryUrlIsUnrestrictedOutsideOfProduction(string $environment): void
+    {
+        $container = $this->prepend($environment);
+
+        static::assertSame([], $container->getParameter('shopware.service_registry.trusted_domains'));
     }
 
     public function testRegistryHttpClientUsesTheResolvedRegistryUrl(): void
     {
-        $container = new ContainerBuilder(new EnvPlaceholderParameterBag(['kernel.environment' => 'prod']));
-
-        (new ServiceExtension())->prepend($container);
+        $container = $this->prepend('prod');
 
         static::assertSame([[
             'http_client' => [
@@ -57,9 +59,28 @@ class ServiceExtensionTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
+    public static function environmentProvider(): iterable
+    {
+        yield 'production environment' => ['prod'];
+
+        yield from self::nonProductionEnvironmentProvider();
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function nonProductionEnvironmentProvider(): iterable
     {
         yield 'development environment' => ['dev'];
         yield 'test environment' => ['test'];
+    }
+
+    private function prepend(string $environment): ContainerBuilder
+    {
+        $container = new ContainerBuilder(new EnvPlaceholderParameterBag(['kernel.environment' => $environment]));
+
+        (new ServiceExtension())->prepend($container);
+
+        return $container;
     }
 }

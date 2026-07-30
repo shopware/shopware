@@ -101,6 +101,31 @@ describe('scripts/extensionTooling/setup shim bridging', () => {
         expect(parsed.compilerOptions.paths.vue[0]).toContain('node_modules/vue');
     });
 
+    it('generates a self-explaining README into the bridge and keeps it marker-owned', () => {
+        const shimDir = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/.shopware');
+        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        const readme = fs.readFileSync(path.join(shimDir, 'README.md'), 'utf8');
+
+        // Marker within the first lines so writeManagedFile keeps ownership,
+        // and the essentials a developer stumbling over the folder needs.
+        expect(readme.split('\n')[0]).toContain(GENERATED_MARKER);
+        expect(readme).toContain('do not edit');
+        expect(readme).toContain('never');
+        expect(readme).toContain('commit');
+        // Layout-aware command (the fixture admin lives under vendor/, so the
+        // bin/console form is printed).
+        expect(readme).toContain('bin/console administration:setup-extension-tooling');
+        // The self-ignoring .gitignore covers the README too.
+        expect(fs.readFileSync(path.join(shimDir, '.gitignore'), 'utf8')).toContain('*');
+
+        // A stale (outdated but marker-owned) README is rewritten on the next run.
+        fs.writeFileSync(path.join(shimDir, 'README.md'), `<!-- ${GENERATED_MARKER} -->\nold content\n`);
+        setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ZeroConfig' });
+
+        expect(fs.readFileSync(path.join(shimDir, 'README.md'), 'utf8')).toContain('Why this folder exists');
+    });
+
     it('deletes a marker-owned bridge of a previous tooling version', () => {
         const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
         const legacyDir = path.join(adminFolder, LEGACY_SHIM_DIR_NAMES[0]);

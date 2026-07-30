@@ -685,6 +685,8 @@ shopware:
 
     product_stream:
         indexing: true
+    product_export:
+        read_buffer_size: 200
     product:
         allowed_types:
           - physical

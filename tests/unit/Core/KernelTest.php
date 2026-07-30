@@ -8,98 +8,47 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
+ * The container dumping side of the kernel is covered by
+ * \Shopware\Tests\Integration\Core\KernelTest, as it requires a real boot.
+ *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
-    private const EMPTY_SERVICES_XML = '<?xml version="1.0" ?><container xmlns="http://symfony.com/schema/dic/services"></container>';
+    /**
+     * A path that is never touched: the tests below only compose strings from it.
+     */
+    private const PROJECT_DIR = '/project-dir';
 
-    private const EMPTY_ROUTES_XML = '<?xml version="1.0" ?><routes xmlns="http://symfony.com/schema/routing"></routes>';
+    private const PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE = __DIR__ . '/_fixtures/Kernel/project-without-twig-component-bundle';
 
-    private string $tmpProjectDir;
-
-    private Filesystem $filesystem;
-
-    protected function setUp(): void
-    {
-        $this->tmpProjectDir = __DIR__ . '/tmpToBeRemoved';
-        $this->filesystem = new Filesystem();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->tmpProjectDir);
-    }
+    private const PROJECT_WITH_TWIG_COMPONENT_BUNDLE = __DIR__ . '/_fixtures/Kernel/project-with-twig-component-bundle';
 
     public function testGetCacheDir(): void
     {
-        static::assertStringStartsWith($this->tmpProjectDir . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
-    }
-
-    public function testDumpContainerDumpsPreloadFile(): void
-    {
-        $containerBuilder = new ContainerBuilder();
-        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
-        $containerBuilder->compile();
-
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
-            new ConfigCache($this->tmpProjectDir . '/cache-file', true),
-            $containerBuilder,
-            'Shopware_Core_KernelDevDebugContainer',
-            'Container',
-        );
-
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
-    }
-
-    public function testDumpContainerDoesNotDumpPreloadFileIfWarmupCacheDirIsGiven(): void
-    {
-        $containerBuilder = new ContainerBuilder();
-        // An underscore at the end indicates a warmup cache directory
-        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
-        $containerBuilder->compile();
-
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
-            new ConfigCache($this->tmpProjectDir . '/cache', true),
-            $containerBuilder,
-            'Shopware_Core_KernelDevDebugContainer',
-            'Container',
-        );
-
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
-
-        // Do not create the preload file in warmup cache
-        static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
+        static::assertStringStartsWith(self::PROJECT_DIR . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
     }
 
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $this->writeBundlesConfig([]);
         $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
 
-        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+        $kernel = $this->createKernel(projectDir: self::PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE);
+
+        $bundles = iterator_to_array($kernel->registerBundles());
 
         static::assertSame([TwigComponentBundle::class], array_values(array_map(
             static fn (object $bundle): string => $bundle::class,
@@ -111,11 +60,9 @@ class KernelTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $this->writeBundlesConfig([
-            TwigComponentBundle::class => ['all' => true],
-        ]);
+        $kernel = $this->createKernel(projectDir: self::PROJECT_WITH_TWIG_COMPONENT_BUNDLE);
 
-        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+        $bundles = iterator_to_array($kernel->registerBundles());
 
         static::assertSame([TwigComponentBundle::class], array_values(array_map(
             static fn (object $bundle): string => $bundle::class,
@@ -125,7 +72,7 @@ class KernelTest extends TestCase
 
     public function testConfigureRoutesImportsProjectRoutesScopedToEnvironment(): void
     {
-        $confDir = $this->tmpProjectDir . '/config';
+        $confDir = self::PROJECT_DIR . '/config';
 
         $captured = $this->captureRouteImports('test');
 
@@ -136,7 +83,7 @@ class KernelTest extends TestCase
 
     public function testConfigureRoutesDoesNotImportForeignEnvironmentGlobs(): void
     {
-        $confDir = $this->tmpProjectDir . '/config';
+        $confDir = self::PROJECT_DIR . '/config';
 
         $captured = $this->captureRouteImports('prod');
 
@@ -144,124 +91,17 @@ class KernelTest extends TestCase
         static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
-    public function testConfigureContainerTriggersDeprecationForXmlPackageConfiguration(): void
+    private function createKernel(string $environment = 'fooBar', string $projectDir = self::PROJECT_DIR): Kernel
     {
-        $path = $this->tmpProjectDir . '/config/packages/unit_test.xml';
-        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the package configuration to YAML or PHP format.',
-            $path,
-        )));
-
-        $this->captureContainerLoads('fooBar');
-    }
-
-    public function testConfigureContainerTriggersDeprecationForXmlServiceDefinitions(): void
-    {
-        $path = $this->tmpProjectDir . '/config/services.xml';
-        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the service definitions to PHP format (services.php).',
-            $path,
-        )));
-
-        $this->captureContainerLoads('fooBar');
-    }
-
-    public function testConfigureContainerTriggersDeprecationForEnvironmentSpecificXmlServiceDefinitions(): void
-    {
-        $path = $this->tmpProjectDir . '/config/services_fooBar.xml';
-        $this->filesystem->dumpFile($path, self::EMPTY_SERVICES_XML);
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the service definitions to PHP format (services_fooBar.php).',
-            $path,
-        )));
-
-        $this->captureContainerLoads('fooBar');
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigureContainerStillLoadsConfigGlobsWhenDeprecationsAreDisabled(): void
-    {
-        $confDir = $this->tmpProjectDir . '/config';
-        $this->filesystem->dumpFile($confDir . '/services.xml', self::EMPTY_SERVICES_XML);
-
-        $captured = $this->captureContainerLoads('fooBar');
-
-        static::assertContains([$confDir . '/{services}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
-    }
-
-    public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(): void
-    {
-        $path = $this->tmpProjectDir . '/config/routes.xml';
-        $this->filesystem->dumpFile($path, self::EMPTY_ROUTES_XML);
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes.php).',
-            $path,
-        )));
-
-        $this->captureRouteImports('test');
-    }
-
-    public function testConfigureRoutesTriggersDeprecationForXmlFilesInRoutesDirectory(): void
-    {
-        $path = $this->tmpProjectDir . '/config/routes/nested.xml';
-        $this->filesystem->dumpFile($path, self::EMPTY_ROUTES_XML);
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (nested.php).',
-            $path,
-        )));
-
-        $this->captureRouteImports('test');
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigureRoutesStillReachesRouteImportWhenDeprecationsAreDisabled(): void
-    {
-        $confDir = $this->tmpProjectDir . '/config';
-        $this->filesystem->dumpFile($confDir . '/routes.xml', self::EMPTY_ROUTES_XML);
-
-        $captured = $this->captureRouteImports('test');
-
-        static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
-    }
-
-    private function createKernel(string $environment = 'fooBar'): KernelStub
-    {
-        return new KernelStub(
+        return new Kernel(
             $environment,
             true,
             static::createStub(StaticKernelPluginLoader::class),
             'cacheId',
             '6.6.6',
             static::createStub(Connection::class),
-            $this->tmpProjectDir,
+            $projectDir,
         );
-    }
-
-    /**
-     * @return list<array{0: mixed, 1: ?string}>
-     */
-    private function captureContainerLoads(string $environment): array
-    {
-        $captured = [];
-        $loader = static::createStub(LoaderInterface::class);
-        $loader->method('load')->willReturnCallback(
-            function (mixed $resource, ?string $type = null) use (&$captured): mixed {
-                $captured[] = [$resource, $type];
-
-                return null;
-            }
-        );
-
-        $this->createKernel($environment)->runConfigureContainer(new ContainerBuilder(), $loader);
-
-        return $captured;
     }
 
     /**
@@ -270,8 +110,8 @@ class KernelTest extends TestCase
     private function captureRouteImports(string $environment): array
     {
         $captured = [];
-        $loader = static::createStub(PhpFileLoader::class);
-        $loader->method('import')->willReturnCallback(
+        $routeLoader = static::createStub(PhpFileLoader::class);
+        $routeLoader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];
 
@@ -279,39 +119,15 @@ class KernelTest extends TestCase
             }
         );
 
-        $this->createKernel($environment)->runConfigureRoutes(
-            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
-        );
+        $resolver = static::createStub(LoaderResolverInterface::class);
+        $resolver->method('resolve')->willReturn($routeLoader);
+
+        $loader = static::createStub(LoaderInterface::class);
+        $loader->method('getResolver')->willReturn($resolver);
+
+        // `loadRoutes()` is the public routing entry point Symfony registers as `kernel::loadRoutes`
+        $this->createKernel($environment)->loadRoutes($loader);
 
         return $captured;
-    }
-
-    /**
-     * @param array<string, array<string, bool>> $bundles
-     */
-    private function writeBundlesConfig(array $bundles): void
-    {
-        $configDir = $this->tmpProjectDir . '/config';
-        $this->filesystem->mkdir($configDir);
-        $this->filesystem->dumpFile(
-            $configDir . '/bundles.php',
-            "<?php\n\nreturn " . var_export($bundles, true) . ";\n"
-        );
-    }
-}
-
-/**
- * @internal
- */
-class KernelStub extends Kernel
-{
-    public function runConfigureContainer(ContainerBuilder $container, LoaderInterface $loader): void
-    {
-        $this->configureContainer($container, $loader);
-    }
-
-    public function runConfigureRoutes(RoutingConfigurator $routes): void
-    {
-        $this->configureRoutes($routes);
     }
 }

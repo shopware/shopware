@@ -1,6 +1,6 @@
 ---
 name: shopware-release-docs
-description: Decide and write Shopware developer-facing release documentation (RELEASE_INFO / UPGRADE / changelog entries). Use when a change may affect extension authors, API consumers, operators, or storefront/theme developers — public APIs, deprecations, removals, configuration, or upgrade steps.
+description: Decide and write Shopware developer-facing release documentation (RELEASE_INFO / UPGRADE entries). Use when a change may affect extension authors, API consumers, operators, or storefront/theme developers — public APIs, deprecations, removals, configuration, or upgrade steps, or when you are about to write a changelog entry.
 license: MIT
 ---
 
@@ -27,6 +27,8 @@ Write into the following files, but only if the decision above applies:
   For deprecations, the old path still works; the entry tells developers what to change before it stops.
   Describe the concrete before and after, and write in past tense, as developers read this only after the next major release.
 - Public REST/Admin/Store API route additions or changes: add or update the matching OpenAPI JSON schema under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/<AdminApi|StoreApi>/paths`.
+
+Never add a file under `changelog/_unreleased/`. That per-change format was replaced by the curated files above ([ADR](../../../adr/2025-10-28-changelog-release-info-process.md)), and the `DeprecatedChangelogFormat` Danger rule fails any pull request that touches it. The exhaustive changelog is generated from semantic pull request titles when a tag is created, so there is nothing to write by hand.
 
 ## What To Write
 

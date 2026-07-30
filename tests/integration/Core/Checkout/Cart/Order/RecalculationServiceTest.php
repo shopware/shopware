@@ -472,7 +472,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($this->getDeDeLanguageId(), $order->getLanguageId());
     }
 
-    public function testFetchOrder(): void
+    public function testRecalculateLiveVersionIsNotAllowed(): void
     {
         // create order
         $cart = $this->generateDemoCart();
@@ -480,11 +480,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->expectExceptionObject(OrderException::canNotRecalculateLiveVersion($orderId));
 
-        $service = static::getContainer()->get(RecalculationService::class);
-
-        (new \ReflectionClass($service))
-            ->getMethod('fetchOrder')
-            ->invoke($service, $orderId, $this->context);
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $this->context);
     }
 
     public function testRecalculationWithDeletedCustomer(): void

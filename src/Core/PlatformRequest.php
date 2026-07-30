@@ -83,6 +83,8 @@ final class PlatformRequest
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
+    public const ATTRIBUTE_CLEAR_SITE_DATA = '_clearSiteData';
+
     public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
         self::ATTRIBUTE_CAPTCHA,
         self::ATTRIBUTE_ROUTE_SCOPE,

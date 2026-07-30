@@ -115,6 +115,20 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Administration
 
+### Type-check and lint the Administration code of installed extensions
+
+`bin/console administration:extension:check` type-checks and lints the Administration sources of every installed extension against the installed Shopware version. In a platform checkout, `composer admin:extension:check` is the identical twin.
+
+```bash
+bin/console administration:extension:check [<Name>...] [--types] [--lint] [--fix] [--include-platform]
+```
+
+Extensions need to commit nothing for this: the TypeScript program and the ESLint flat config the tools run against are generated per extension source root below `var/admin-extension-tooling/`, and nothing is ever written into an extension. Without `--types` or `--lint`, both run. `--include-platform` also checks the platform bundles.
+
+The exit codes are `0` (no findings, at least one file checked), `1` (type or lint findings), `2` (usage error), and `3` (tool error — no bundle configuration, missing Administration dependencies, or zero files checked). The Administration's Node dependencies must be installed: run `npm ci` in `src/Administration/Resources/app/administration` first.
+
+Extension repositories cannot run this without an installation, by design — you check against the *installed* version. In CI, install Shopware, mount the extension, and call `bin/console administration:extension:check <Name>`.
+
 ## Storefront
 
 ### `theme:create` gains `--full` and granular scaffold flags

@@ -14,6 +14,7 @@
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
     "create-test": "node ./scripts/create-spec-file/index.mjs",
     "dev": "export VITE_MODE=development && ts-node -T build.ts",
+    "extension-check": "ts-node --transpileOnly ./scripts/extensionTooling/cli.ts",
     "format": "prettier --check \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"build/vite-plugins/**/*.{js,ts}\" \"build/plugins.vite.ts\" \"build.ts\"",
     "format:fix": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"build/vite-plugins/**/*.{js,ts}\" \"build/plugins.vite.ts\" \"build.ts\" --cache",
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",

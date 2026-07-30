@@ -1,20 +1,12 @@
 name: 'Code Owners'
 
-# `pull_request_target`, not `pull_request`: fork PRs only get a read-only GITHUB_TOKEN on
-# `pull_request`, so codeowners-plus could not request reviewers and failed silently.
-# Never add `ref:` to the checkout and never run a build, install or script step from the PR head —
-# that would hand fork code a writable token.
-
 concurrency:
-  # by PR number, not `github.ref` — that is the base branch here, so all PRs would share one group
   group: codeowners-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
   pull_request_target:
     types: [opened, reopened, ready_for_review, synchronize]
-  # GitHub drops a team from the reviewer list as soon as one member reviews; re-run so
-  # codeowners-plus requests the still-missing owners again
   pull_request_review:
     types: [submitted]
 
@@ -34,8 +26,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # codeowners-plus diffs with local git (`git diff base...head`), and the PR head is not part
-      # of the base checkout. The repository is public, so this needs no credentials.
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

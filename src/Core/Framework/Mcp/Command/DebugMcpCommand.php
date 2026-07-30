@@ -29,10 +29,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @experimental stableVersion:v6.8.0
  */
 #[Package('framework')]
-#[AsCommand(
-    name: 'debug:mcp',
-    description: 'List registered MCP capabilities (tools, prompts, resources) per scope (' . ApiRouteScope::ID . ', ' . StoreApiRouteScope::ID . ')',
-)]
+#[AsCommand(name: 'debug:mcp', description: 'List registered MCP capabilities (tools, prompts, resources)')]
 class DebugMcpCommand extends Command
 {
     /**

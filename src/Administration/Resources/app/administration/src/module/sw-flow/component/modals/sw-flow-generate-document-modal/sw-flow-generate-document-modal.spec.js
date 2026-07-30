@@ -38,7 +38,7 @@ const supportedDocumentTypesMock = {
     credit_note: { formats: ['pdf'] },
 };
 
-async function createWrapper(documentV2ServiceOverrides = {}) {
+async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-flow-generate-document-modal', {
             sync: true,
@@ -59,7 +59,6 @@ async function createWrapper(documentV2ServiceOverrides = {}) {
                             Promise.resolve({
                                 data: { documentTypes: supportedDocumentTypesMock },
                             }),
-                        ...documentV2ServiceOverrides,
                     },
                 },
                 data() {
@@ -192,12 +191,13 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         it('should show an error notification and still restore the selection when loading the available types fails', async () => {
             jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
 
-            const wrapper = await createWrapper({
-                getAvailableTypes: () => Promise.reject(new Error('Network error')),
-            });
-            wrapper.vm.createNotificationError = jest.fn();
-
+            const wrapper = await createWrapper();
             await flushPromises();
+
+            wrapper.vm.createNotificationError = jest.fn();
+            wrapper.vm.documentV2Service.getAvailableTypes = jest.fn(() => Promise.reject(new Error('Network error')));
+
+            await wrapper.vm.loadSupportedDocumentTypes();
 
             expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
                 message: 'Network error',

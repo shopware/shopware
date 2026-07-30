@@ -1,9 +1,4 @@
 .sw-app-topbar-button {
-    // Without registered app buttons the empty mount point still occupies a gap slot in the top bar.
-    &:empty {
-        display: none;
-    }
-
     .mt-button {
         background: var(--color-background-primary-default);
         color: var(--color-text-primary-default);

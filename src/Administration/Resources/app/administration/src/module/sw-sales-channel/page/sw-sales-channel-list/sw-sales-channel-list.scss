@@ -9,9 +9,10 @@
         margin: 0;
     }
 
-    // Center the empty state on the page; the card view content already
-    // spans the full page height, and the empty state caps its own width.
-    .sw-card-view__content:has(.mt-empty-state) {
+    // Center the no-sales-channels empty state on the page; the card view content
+    // already spans the full page height, and the empty state caps its own width.
+    // Scoped to that one state — the search "no result" state stays top-aligned.
+    .sw-card-view__content:has(.sw-sales-channel-list__empty-state) {
         display: flex;
         flex-direction: column;
         align-items: center;

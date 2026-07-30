@@ -1,17 +1,7 @@
 @import "~scss/mixins";
 
-.sw-version {
-    width: 100%;
-
-    .sw-version__info {
-        @include truncate;
-
-        max-width: 200px;
-        color: var(--color-text-secondary-default);
-        font-family: var(--font-family-body);
-        font-size: var(--font-size-2xs);
-        font-style: normal;
-        font-weight: var(--font-weight-regular);
-        line-height: var(--font-line-height-2xs);
-    }
+// Typography comes from the wrapping mt-text in the admin menu footer —
+// only the truncation is ours.
+.sw-version .sw-version__info {
+    @include truncate;
 }

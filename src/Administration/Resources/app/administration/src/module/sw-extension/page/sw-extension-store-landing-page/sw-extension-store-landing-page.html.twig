@@ -1,8 +1,7 @@
 {% block sw_extension_store_landing_page %}
 <component
     :is="insideModal ? 'div' : 'sw-meteor-page'"
-    :full-width="insideModal ? undefined : true"
-    :hide-smart-bar="insideModal ? undefined : true"
+    v-bind="insideModal ? {} : { fullWidth: true, hideSmartBar: true }"
 >
     <div class="sw-extension-store-landing-page">
         <div class="sw-extension-store-landing-page__wrapper">

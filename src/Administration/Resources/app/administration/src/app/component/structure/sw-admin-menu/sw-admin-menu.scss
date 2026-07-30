@@ -18,10 +18,6 @@
     margin: var(--scale-size-8);
 }
 
-.sw-admin-menu__version-footer .sw-version {
-    width: auto;
-}
-
 .sw-admin-menu__backdrop-enter-active,
 .sw-admin-menu__backdrop-leave-active {
     transition: opacity 0.3s ease-in-out;
@@ -301,7 +297,7 @@
     .sw-admin-menu__headline {
         display: flex;
         height: var(--scale-size-36);
-        padding: var(--scale-size-0) var(--scale-size-6) var(--scale-size-0) var(--scale-size-10);
+        padding: 0 var(--scale-size-6) 0 var(--scale-size-10);
         align-items: center;
         justify-content: space-between;
         gap: var(--scale-size-10);
@@ -564,6 +560,10 @@
 }
 
 .sw-admin-menu__flyout-content {
+    // Shifts the flyout up so its first item aligns with the hovered menu
+    // entry: title height + own padding + border.
+    --sw-admin-menu-flyout-shift: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6) + 1px)));
+
     width: 264px;
     padding: var(--scale-size-6);
     display: flex;
@@ -572,7 +572,7 @@
     border: 1px solid var(--color-border-secondary-default);
     background: var(--color-elevation-surface-raised);
     box-shadow: 0 6px 12px -8px var(--color-elevation-shadow-default);
-    transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6) + 1px)));
+    transform: var(--sw-admin-menu-flyout-shift);
     transform-origin: left center;
     animation: sw-admin-menu-flyout-in 0.1s ease;
 
@@ -591,24 +591,24 @@
 @keyframes sw-admin-menu-flyout-in {
     from {
         opacity: 0;
-        transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6)))) scale(0.98);
+        transform: var(--sw-admin-menu-flyout-shift) scale(0.98);
     }
 
     to {
         opacity: 1;
-        transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6)))) scale(1);
+        transform: var(--sw-admin-menu-flyout-shift) scale(1);
     }
 }
 
 @keyframes sw-admin-menu-flyout-out {
     from {
         opacity: 1;
-        transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6)))) scale(1);
+        transform: var(--sw-admin-menu-flyout-shift) scale(1);
     }
 
     to {
         opacity: 0;
-        transform: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6)))) scale(0.95);
+        transform: var(--sw-admin-menu-flyout-shift) scale(0.95);
     }
 }
 
@@ -621,7 +621,7 @@
 // Typography comes from mt-text — layout and truncation are ours.
 .sw-admin-menu__flyout-title {
     height: var(--scale-size-36);
-    padding: var(--scale-size-0) var(--scale-size-6) var(--scale-size-0) var(--scale-size-10);
+    padding: 0 var(--scale-size-6) 0 var(--scale-size-10);
     display: flex;
     align-items: center;
     gap: var(--scale-size-10);

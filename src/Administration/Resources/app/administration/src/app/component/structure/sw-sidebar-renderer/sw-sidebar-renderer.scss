@@ -2,7 +2,7 @@
     position: fixed;
     inset: 0;
     background: var(--color-elevation-backdrop-default);
-    z-index: 999;
+    z-index: $z-index-modal - 1;
     cursor: pointer;
 
     &.is-resizing {
@@ -24,7 +24,7 @@
     transition: all 0.3s ease-in-out;
     will-change: width;
     display: none;
-    z-index: 1200;
+    z-index: $z-index-modal;
 
     iframe {
         width: 100%;

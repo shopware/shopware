@@ -49,7 +49,7 @@
                     >
                         <mt-action-menu-item
                             class="sw-admin-menu__headline-context-menu-manage-sales-channels"
-                            icon="regular-pencil-s"
+                            icon="regular-pencil"
                             @click="navigate"
                         >
                             {{ $t('sw-sales-channel.general.manageSalesChannels') }}
@@ -99,6 +99,7 @@
                         size="x-small"
                         square
                         :aria-label="$t('sw-sales-channel.general.tooltipOpenStorefront')"
+                        :title="$t('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"
                     >
                         <template #iconFront>
@@ -128,7 +129,7 @@
             {% block sw_sales_channel_menu_navigation_add_channel %}
             <li
                 v-if="showAddChannelMenuItem"
-                class="sw-admin-menu__navigation-list-item sw-sales-channel-menu__add-channel hide-on-collapse"
+                class="sw-admin-menu__navigation-list-item sw-sales-channel-menu__add-channel"
             >
                 <div class="sw-admin-menu__navigation-item-row">
                     <button
@@ -142,7 +143,7 @@
                             size="16px"
                             class="sw-admin-menu__navigation-link-icon"
                         />
-                        <span class="sw-admin-menu__navigation-link-label collapsible-text">
+                        <span class="sw-admin-menu__navigation-link-label collapsible-text hide-on-collapse">
                             {{ $t('sw-sales-channel.general.addSalesChannel') }}
                         </span>
                     </button>

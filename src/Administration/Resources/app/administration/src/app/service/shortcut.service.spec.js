@@ -75,6 +75,19 @@ describe('app/service/shortcut.service', () => {
             expect(shortcutService.isPendingCombinationKey('p')).toBe(false);
         });
 
+        it('should not report a pending combination for a route the user has no access to', () => {
+            shortcutFactory.getPathByCombination.mockImplementation((combination) => {
+                return combination === 'GM' ? '/sw/manufacturer/index' : undefined;
+            });
+            jest.spyOn(Shopware.Service('acl'), 'hasAccessToRoute').mockReturnValue(false);
+            shortcutService = createShortcutService(shortcutFactory);
+            shortcutService.startEventListener();
+
+            document.dispatchEvent(new KeyboardEvent('keyup', { key: 'g' }));
+
+            expect(shortcutService.isPendingCombinationKey('m')).toBe(false);
+        });
+
         it('should not report a pending combination without buffered keys', () => {
             shortcutFactory.getPathByCombination.mockReturnValue('/sw/manufacturer/index');
             shortcutService = createShortcutService(shortcutFactory);

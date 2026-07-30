@@ -44,7 +44,6 @@ export default {
             lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
-                color: 'inherit',
             },
         };
     },
@@ -74,7 +73,7 @@ export default {
                     return 'multicolor-folder-thumbnail--green';
                 case 'regular-database':
                     return 'multicolor-folder-thumbnail--grey';
-                case 'regular-content':
+                case 'regular-image-text':
                     return 'multicolor-folder-thumbnail--pink';
                 case 'regular-cog':
                     return 'multicolor-folder-thumbnail--grey';
@@ -127,7 +126,6 @@ export default {
             }
 
             this.iconConfig.name = module.manifest?.icon ?? '';
-            this.iconConfig.color = module.manifest?.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

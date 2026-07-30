@@ -49,6 +49,8 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
     beforeEach(() => {
         Shopware.Store.get('sidebar').sidebars = [];
+        Shopware.Store.get('sidebar').closingSidebar = null;
+        Shopware.Store.get('sidebar').switchedWhileOpen = false;
 
         Shopware.Store.get('extensions').extensionsState = {};
         Shopware.Store.get('extensions').addExtension({

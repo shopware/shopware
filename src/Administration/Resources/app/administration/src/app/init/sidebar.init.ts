@@ -23,7 +23,9 @@ export default function initializeSidebar(): void {
     });
 
     Shopware.ExtensionAPI.handle('uiSidebarClose', ({ locationId }) => {
-        Shopware.Store.get('sidebar').closeSidebar(locationId);
+        // Same close path as the panel's own close button, so an app-initiated
+        // close plays the closing animation too.
+        Shopware.Store.get('sidebar').requestCloseSidebar(locationId);
     });
 
     Shopware.ExtensionAPI.handle('uiSidebarSetActive', ({ locationId }: { locationId: string }) => {

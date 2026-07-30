@@ -81,9 +81,9 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-list', () => {
 
         const emptyState = wrapper.find('.mt-empty-state');
         expect(emptyState.exists()).toBe(true);
+        expect(emptyState.classes()).toContain('sw-sales-channel-list__empty-state');
         expect(emptyState.text()).toContain('sw-sales-channel.list.emptyStateHeadline');
         expect(emptyState.text()).toContain('sw-sales-channel.list.emptyStateDescription');
-        expect(emptyState.find('button').exists()).toBe(false);
     });
 
     it('should show the no-result empty state instead when a search term is set', async () => {

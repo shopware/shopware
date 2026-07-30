@@ -50,10 +50,10 @@
 
         {% block sw_search_bar_field %}
         <!-- The click delegation is a pointer convenience only — the input stays the real, keyboard-reachable control. -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="isSearchBarShown"
             class="sw-search-bar__field-wrapper"
-            role="presentation"
             @click="onClickFieldWrapper"
         >
             <div

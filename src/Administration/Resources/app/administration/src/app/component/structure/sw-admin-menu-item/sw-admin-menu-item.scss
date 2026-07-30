@@ -4,8 +4,6 @@ $nesting-line-offset: 18px;
 $nesting-line-indent: 36px;
 
 .sw-admin-menu__navigation-list-item {
-    border-radius: var(--border-radius-s);
-
     .mt-collapsible-content[data-state="open"],
     .mt-collapsible-content[data-state="closed"] {
         animation-duration: 0.3s;
@@ -36,12 +34,11 @@ $nesting-line-indent: 36px;
 
     &:not(.router-link-active):hover {
         background: var(--color-interaction-secondary-hover);
-        color: var(--color-text-primary-default);
     }
 
     &:focus-visible {
         outline: var(--scale-size-2) solid var(--color-border-brand-default);
-        outline-offset: -2px;
+        outline-offset: calc(-1 * var(--scale-size-2));
     }
 
     .mt-icon {
@@ -57,15 +54,16 @@ $nesting-line-indent: 36px;
     }
 }
 
+// Native button variants of the navigation link (collapsible trigger,
+// sales channel "add" entry) — drop the user agent chrome.
 .sw-admin-menu__navigation-item-row button.sw-admin-menu__navigation-link {
-    text-align: left;
-    justify-content: flex-start;
+    border: 0;
+    background: none;
 }
 
 .sw-admin-menu__navigation-item-row {
     display: flex;
     align-items: stretch;
-    gap: var(--scale-size-10);
 }
 
 .sw-admin-menu__navigation-link-expand-icon {
@@ -88,10 +86,6 @@ $nesting-line-indent: 36px;
     margin: 0;
     padding: 0;
     overflow: hidden;
-
-    .sw-admin-menu__navigation-link {
-        transition: none;
-    }
 }
 
 .navigation-list-item--nested > .sw-admin-menu__sub-navigation-list {
@@ -106,11 +100,13 @@ $nesting-line-indent: 36px;
         top: 0;
         bottom: 0;
         width: 1px;
-        background: var(--color-border-primary-default);
+        background: var(--color-border-secondary-default);
         border-radius: 1px;
     }
 }
 
+// Shorten the tree line when the last visible row is a closed leaf, so the
+// line ends at that row's indicator instead of running past it.
 .navigation-list-item--nested:last-child > .sw-admin-menu__sub-navigation-list:has(
 > .sw-admin-menu__navigation-list-item:last-child:not(.is--entry-expanded)
 )::before {
@@ -127,10 +123,12 @@ $nesting-line-indent: 36px;
         top: 0;
         bottom: 0;
         width: 1px;
-        background: var(--color-border-primary-default);
+        background: var(--color-border-secondary-default);
         border-radius: 1px;
     }
 
+    // The indicator pill; its transparent outline acts as a colour-swappable
+    // halo around it, so no extra element is needed.
     &::after {
         content: "";
         position: absolute;
@@ -213,22 +211,12 @@ $nesting-line-indent: 36px;
 }
 
 .sw-admin-menu__navigation-list-item.is--entry-expanded {
-    background: none;
-
     .collapsible-text {
-        color: var(--color-text-primary-default);
-    }
-
-    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link .collapsible-text {
         color: var(--color-text-primary-default);
     }
 
     & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active .collapsible-text {
         color: var(--color-icon-brand-default);
-    }
-
-    .sw-admin-menu__navigation-list-item {
-        background: none;
     }
 }
 

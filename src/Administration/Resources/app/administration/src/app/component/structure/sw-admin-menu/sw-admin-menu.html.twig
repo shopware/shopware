@@ -150,7 +150,6 @@
                     <sw-admin-menu-item
                         v-for="entry in mainMenuEntries"
                         :key="entry.id || entry.path"
-                        :class="{ 'is--entry-expanded': isNavigationEntryExpanded(entry) }"
                         :sidebar-expanded="isExpanded"
                         :is-expanded="isNavigationEntryExpanded(entry)"
                         :flyout-active="isFlyoutEntryActive(entry)"
@@ -309,20 +308,15 @@
             </mt-text>
 
             <ul class="sw-admin-menu__flyout-list">
-                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
-                <template
+                <sw-admin-menu-item
                     v-for="entry in flyoutEntries"
                     :key="entry.id || entry.path"
-                >
-                    <sw-admin-menu-item
-                        :entry="entry"
-                        :menu-depth="2"
-                        :sidebar-expanded="isExpanded"
-                        :display-icon="false"
-                        :collapsible-text="false"
-                        @branch-toggle="onMenuBranchToggle"
-                    />
-                </template>
+                    :entry="entry"
+                    :menu-depth="2"
+                    :sidebar-expanded="isExpanded"
+                    :display-icon="false"
+                    :collapsible-text="false"
+                />
             </ul>
         </div>
     </mt-floating-ui>

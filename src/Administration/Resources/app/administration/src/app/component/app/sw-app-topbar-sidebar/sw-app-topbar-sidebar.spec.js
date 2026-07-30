@@ -2,34 +2,16 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-sidebar', { sync: true }), {
-        global: {
-            stubs: {
-                'mt-tooltip': {
-                    template: '<div class="mt-tooltip"><slot /></div>',
-                },
-                'mt-dropdown-menu-root': {
-                    template: '<div class="mt-dropdown-menu-root"><slot /></div>',
-                },
-                'mt-dropdown-menu-trigger': {
-                    template: '<div class="mt-dropdown-menu-trigger"><slot /></div>',
-                },
-                'mt-dropdown-menu-portal': {
-                    template: '<div class="mt-dropdown-menu-portal"><slot /></div>',
-                },
-                'mt-action-menu': {
-                    template: '<div class="mt-action-menu"><slot /></div>',
-                },
-                'mt-action-menu-item': {
-                    template: '<button class="mt-action-menu-item" @click="$emit(\'select\')"><slot /></button>',
-                    emits: ['select'],
-                },
-            },
-        },
+        attachTo: document.body,
     });
+}
+
+function menuItems() {
+    return new DOMWrapper(document.body).findAll('.mt-action-menu-item');
 }
 
 const sidebar = {
@@ -50,14 +32,22 @@ const secondSidebar = {
 
 describe('sw-app-topbar-sidebar', () => {
     let wrapper = null;
+    let store;
 
     beforeEach(() => {
-        Shopware.Store.get('sidebar').sidebars = [];
+        store = Shopware.Store.get('sidebar');
+        store.sidebars = [];
+        store.closingSidebar = null;
     });
 
-    it('should render button correctly', async () => {
-        const store = Shopware.Store.get('sidebar');
-        store.sidebars.push(sidebar);
+    afterEach(() => {
+        wrapper?.unmount();
+        document.body.innerHTML = '';
+        jest.restoreAllMocks();
+    });
+
+    it('should render a single sidebar as a plain toggle button', async () => {
+        store.sidebars.push({ ...sidebar });
 
         wrapper = await createWrapper();
 
@@ -66,39 +56,39 @@ describe('sw-app-topbar-sidebar', () => {
     });
 
     it('should render an action menu with all sidebars when multiple are registered', async () => {
-        const store = Shopware.Store.get('sidebar');
-        store.sidebars.push(sidebar, secondSidebar);
+        store.sidebars.push({ ...sidebar }, { ...secondSidebar });
 
         wrapper = await createWrapper();
 
-        const trigger = wrapper.find('.mt-dropdown-menu-trigger button');
-        expect(trigger.classes()).toContain('sw-app-topbar-sidebar__icon');
+        expect(menuItems()).toHaveLength(0);
 
-        const items = wrapper.findAll('.mt-action-menu-item');
+        await wrapper.find('button.sw-app-topbar-sidebar__icon').trigger('click');
+        await flushPromises();
+
+        const items = menuItems();
         expect(items).toHaveLength(2);
-        expect(items[0].text()).toBe('Example Sidebar');
-        expect(items[1].text()).toBe('Second Sidebar');
+        expect(items.at(0).text()).toBe('Example Sidebar');
+        expect(items.at(1).text()).toBe('Second Sidebar');
     });
 
     it('should activate the selected sidebar from the action menu', async () => {
-        const store = Shopware.Store.get('sidebar');
-        store.sidebars.push(sidebar, secondSidebar);
-        store.setActiveSidebar = jest.fn();
+        store.sidebars.push({ ...sidebar }, { ...secondSidebar });
+        const setActiveSidebar = jest.spyOn(store, 'setActiveSidebar');
 
         wrapper = await createWrapper();
 
-        const items = wrapper.findAll('.mt-action-menu-item');
-        await items[1].trigger('click');
+        await wrapper.find('button.sw-app-topbar-sidebar__icon').trigger('click');
+        await flushPromises();
 
-        expect(store.setActiveSidebar).toHaveBeenCalledWith('second-location-id');
+        await menuItems().at(1).trigger('click');
+
+        expect(setActiveSidebar).toHaveBeenCalledWith('second-location-id');
     });
 
     it('should open the sidebar when clicking the button while it is closed', async () => {
-        const store = Shopware.Store.get('sidebar');
         store.sidebars.push({ ...sidebar, active: false });
-        store.closingSidebar = null;
-        store.setActiveSidebar = jest.fn();
-        store.requestCloseSidebar = jest.fn();
+        const setActiveSidebar = jest.spyOn(store, 'setActiveSidebar');
+        const requestCloseSidebar = jest.spyOn(store, 'requestCloseSidebar');
 
         wrapper = await createWrapper();
 
@@ -108,16 +98,14 @@ describe('sw-app-topbar-sidebar', () => {
 
         await button.trigger('click');
 
-        expect(store.setActiveSidebar).toHaveBeenCalledWith('example-location-id');
-        expect(store.requestCloseSidebar).not.toHaveBeenCalled();
+        expect(setActiveSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(requestCloseSidebar).not.toHaveBeenCalled();
     });
 
     it('should request the animated close when clicking the button while the sidebar is open', async () => {
-        const store = Shopware.Store.get('sidebar');
         store.sidebars.push({ ...sidebar, active: true });
-        store.closingSidebar = null;
-        store.setActiveSidebar = jest.fn();
-        store.requestCloseSidebar = jest.fn();
+        const setActiveSidebar = jest.spyOn(store, 'setActiveSidebar');
+        const requestCloseSidebar = jest.spyOn(store, 'requestCloseSidebar');
 
         wrapper = await createWrapper();
 
@@ -127,24 +115,21 @@ describe('sw-app-topbar-sidebar', () => {
 
         await button.trigger('click');
 
-        expect(store.requestCloseSidebar).toHaveBeenCalledWith('example-location-id');
-        expect(store.setActiveSidebar).not.toHaveBeenCalled();
+        expect(requestCloseSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(setActiveSidebar).not.toHaveBeenCalled();
     });
 
     it('should reopen the sidebar when clicking the button while it is closing', async () => {
-        const store = Shopware.Store.get('sidebar');
         store.sidebars.push({ ...sidebar, active: true });
         store.closingSidebar = 'example-location-id';
-        store.setActiveSidebar = jest.fn();
-        store.requestCloseSidebar = jest.fn();
+        const setActiveSidebar = jest.spyOn(store, 'setActiveSidebar');
+        const requestCloseSidebar = jest.spyOn(store, 'requestCloseSidebar');
 
         wrapper = await createWrapper();
 
         await wrapper.find('button').trigger('click');
 
-        expect(store.setActiveSidebar).toHaveBeenCalledWith('example-location-id');
-        expect(store.requestCloseSidebar).not.toHaveBeenCalled();
-
-        store.closingSidebar = null;
+        expect(setActiveSidebar).toHaveBeenCalledWith('example-location-id');
+        expect(requestCloseSidebar).not.toHaveBeenCalled();
     });
 });

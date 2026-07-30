@@ -20,7 +20,11 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             };
 
             expect(getActiveRouteNames(route)).toEqual(
-                new Set(['core', 'sw.extension.my-extensions', 'sw.extension.my-extensions.listing']),
+                new Set([
+                    'core',
+                    'sw.extension.my-extensions',
+                    'sw.extension.my-extensions.listing',
+                ]),
             );
         });
 
@@ -30,9 +34,21 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         });
 
         it('ignores records without a name', () => {
-            const route = { matched: [{ name: 'core' }, {}, { name: undefined }, { name: 'sw.product.index' }] };
+            const route = {
+                matched: [
+                    { name: 'core' },
+                    {},
+                    { name: undefined },
+                    { name: 'sw.product.index' },
+                ],
+            };
 
-            expect(getActiveRouteNames(route)).toEqual(new Set(['core', 'sw.product.index']));
+            expect(getActiveRouteNames(route)).toEqual(
+                new Set([
+                    'core',
+                    'sw.product.index',
+                ]),
+            );
         });
 
         it('bridges sibling detail pages to their owning nav route via the parentPath chain (multi-hop)', () => {
@@ -65,7 +81,12 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 ],
             };
 
-            expect(getActiveRouteNames(route, router)).toEqual(new Set(['a', 'b']));
+            expect(getActiveRouteNames(route, router)).toEqual(
+                new Set([
+                    'a',
+                    'b',
+                ]),
+            );
         });
     });
 
@@ -103,7 +124,10 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             // The reported bug: "Extensions" (no path) sits above `sw.extension.my-extensions`,
             // which is an ancestor of the deep route `…my-extensions.listing.app`.
             const route = {
-                matched: [{ name: 'sw.extension.my-extensions' }, { name: 'sw.extension.my-extensions.listing' }],
+                matched: [
+                    { name: 'sw.extension.my-extensions' },
+                    { name: 'sw.extension.my-extensions.listing' },
+                ],
                 params: {},
             };
             const extensions = {
@@ -140,7 +164,10 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         it('lights a leaf reachable only through the parentPath bridge', () => {
             const route = {
                 name: 'sw.product.detail.base',
-                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
+                matched: [
+                    { name: 'sw.product.detail' },
+                    { name: 'sw.product.detail.base' },
+                ],
                 meta: { parentPath: 'sw.product.index' },
                 params: {},
             };

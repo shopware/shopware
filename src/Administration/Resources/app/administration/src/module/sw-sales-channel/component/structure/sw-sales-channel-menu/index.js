@@ -23,6 +23,7 @@ export default {
     data() {
         return {
             salesChannels: [],
+            salesChannelsLoaded: false,
             showModal: false,
             isLoading: true,
         };
@@ -45,8 +46,10 @@ export default {
             return this.acl.can('sales_channel.creator');
         },
 
+        // Gated on the finished request, so the row never flashes while the
+        // sales channels are still loading.
         showAddChannelMenuItem() {
-            return !this.isLoading && this.buildMenuTree.length === 0 && this.canCreateSalesChannels;
+            return this.salesChannelsLoaded && this.salesChannels.length === 0 && this.canCreateSalesChannels;
         },
 
         salesChannelCriteria() {
@@ -173,8 +176,9 @@ export default {
         },
 
         loadEntityData() {
-            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+            return this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
                 this.salesChannels = response;
+                this.salesChannelsLoaded = true;
             });
         },
 

@@ -93,24 +93,6 @@ export default Shopware.Component.wrapComponentConfig({
         hasTabs(): boolean {
             return typeof this.$slots['page-tabs'] !== 'undefined';
         },
-
-        tabItems(): TabItem[] {
-            return this.getTabItemsFromSlot();
-        },
-
-        defaultTab(): string {
-            const routeName = typeof this.$route?.name === 'string' ? this.$route.name : undefined;
-
-            if (routeName && this.tabItems.some((tab) => tab.name === routeName)) {
-                return routeName;
-            }
-
-            return this.tabItems[0]?.name ?? '';
-        },
-
-        pageColor(): string {
-            return this.module?.color ?? '#d8dde6';
-        },
     },
 
     beforeUnmount(): void {

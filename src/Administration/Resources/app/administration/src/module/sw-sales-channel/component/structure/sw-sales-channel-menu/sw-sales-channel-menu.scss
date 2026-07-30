@@ -3,14 +3,12 @@
         flex-shrink: 0;
         overflow: hidden;
 
-        // Collapse via width instead of `display: none` so the element never
-        // leaves the flex layout mid-animation (which caused a visible jump).
-        // The fade lives on the inner icon (hide-on-collapse). Visibility flips
-        // at the end of the shrink and removes the button from the tab order
-        // while collapsed.
+        // Collapses via width like .sw-admin-menu__collapse-button; the icon
+        // fades via hide-on-collapse. Visibility flips at the end of the shrink
+        // and removes the button from the tab order while collapsed.
         transition:
-            width 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-            visibility 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
+            visibility var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
 
         .sw-sales-channel-menu-domain-link__icon {
             color: var(--color-icon-primary-default);
@@ -21,13 +19,11 @@
         overflow: hidden;
 
         .sw-admin-menu__headline_text {
-            overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .sw-admin-menu__headline_text a {
             color: var(--color-text-secondary-default);
-            font-family: var(--font-family-body);
             font-size: var(--font-size-xs);
             font-weight: var(--font-weight-regular);
             line-height: var(--font-line-height-xs);
@@ -41,26 +37,8 @@
             outline: none;
         }
     }
-
-    .sw-sales-channel-menu__add-channel {
-        // Native button reset; layout and typography come from the shared
-        // navigation-link classes.
-        .sw-admin-menu__navigation-link {
-            width: 100%;
-            border: 0;
-            background: none;
-
-            &:hover {
-                background: var(--color-interaction-secondary-hover);
-            }
-        }
-    }
 }
 
-// No justify-content change here: switching to `center` when collapsed made the
-// text jump, since justify-content is not animatable. The text keeps its left
-// position, shrinks via flex, and fades via hide-on-collapse; the action button
-// fills the collapsed headline width on its own.
 .sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-admin-menu__headline {
     padding: 0;
 
@@ -69,8 +47,11 @@
     gap: 0;
 }
 
-.is--collapsed .sw-sales-channel-menu .sw-sales-channel-menu-domain-link {
+.sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-sales-channel-menu-domain-link {
     width: 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
     visibility: hidden;
     pointer-events: none;
 }

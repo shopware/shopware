@@ -50,7 +50,7 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
             stubs: {
                 'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
                 'router-link': {
-                    template: '<a class="router-link"></a>',
+                    template: '<a class="router-link"><slot /></a>',
                     props: ['to'],
                 },
             },
@@ -66,15 +66,6 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
             provide: {
                 acl: {
                     can,
-                    hasAccessToRoute: (path) => {
-                        const match = $router.getRoutes().find((route) => route.name === path);
-
-                        if (!match?.meta) {
-                            return true;
-                        }
-
-                        return can(match.meta.privilege);
-                    },
                     hasActiveSettingModules: aclService.hasActiveSettingModules,
                     state: aclService.state,
                 },

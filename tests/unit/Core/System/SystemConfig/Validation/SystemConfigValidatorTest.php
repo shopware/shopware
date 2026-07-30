@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -137,39 +139,46 @@ class SystemConfigValidatorTest extends TestCase
         ], $context);
     }
 
-    public function testGetSystemConfigByDomainEmptyDomain(): void
+    public function testValidateAddsNoConstraintsForDomainWithoutConfiguration(): void
     {
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $dataValidatorMock = static::createStub(DataValidator::class);
+        $configurationServiceMock->method('getConfiguration')
+            ->willReturn([]);
 
-        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        $contextMock = Context::createDefaultContext();
+        $systemConfigValidation->validate(
+            ['null' => ['dummy.domain.dummyKey' => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
 
-        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
-
-        $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
-
-        static::assertSame([], $result);
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        static::assertSame([], $definition->getSubDefinitions());
     }
 
-    public function testGetSystemConfigByDomainWithException(): void
+    public function testValidateIgnoresSystemConfigExceptionsWhileLoadingTheDomainConfiguration(): void
     {
         $configurationServiceMock = static::createStub(ConfigurationService::class);
         $configurationServiceMock->method('getConfiguration')
             ->willThrowException(SystemConfigException::configurationNotFound('missing'));
 
-        $dataValidatorMock = static::createStub(DataValidator::class);
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+        $systemConfigValidation->validate(
+            ['null' => ['dummy.domain.dummyKey' => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
 
-        $contextMock = Context::createDefaultContext();
-
-        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
-
-        $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
-
-        static::assertSame($result, []);
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        static::assertSame([], $definition->getSubDefinitions());
     }
 
     /**
@@ -177,18 +186,41 @@ class SystemConfigValidatorTest extends TestCase
      * @param array<int, mixed> $expected
      */
     #[DataProvider('dataProviderTestGetRuleByKey')]
-    public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected, bool $allowNulls): void
+    public function testValidateBuildsConstraintsFromElementConfig(array $elementConfig, array $expected, bool $allowNulls): void
     {
+        // nulls are only valid values for sales channel specific configuration
+        $salesChannelId = $allowNulls ? Uuid::randomHex() : 'null';
+        $configKey = 'core.basicInformation.dummyKey';
+
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $dataValidatorMock = static::createStub(DataValidator::class);
+        $configurationServiceMock->method('getConfiguration')
+            ->willReturn([
+                [
+                    'elements' => [
+                        [
+                            'name' => $configKey,
+                            'config' => $elementConfig,
+                        ],
+                    ],
+                ],
+            ]);
 
-        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
+        $systemConfigValidation->validate(
+            [$salesChannelId => [$configKey => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
 
-        $result = $refMethod->invoke($systemConfigValidation, $elementConfig, $allowNulls);
-
-        static::assertEquals($expected, $result);
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        $subDefinition = $definition->getSubDefinitions()[$salesChannelId] ?? null;
+        static::assertInstanceOf(DataValidationDefinition::class, $subDefinition);
+        static::assertSame([$configKey], array_keys($subDefinition->getProperties()));
+        static::assertEquals($expected, $subDefinition->getProperty($configKey));
     }
 
     public static function dataProviderTestGetRuleByKey(): \Generator
@@ -356,5 +388,21 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param-out DataValidationDefinition|null $definition
+     */
+    private function createDefinitionCapturingValidator(?DataValidationDefinition &$definition): DataValidator
+    {
+        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturnCallback(function (array $data, DataValidationDefinition $passedDefinition) use (&$definition): void {
+                $definition = $passedDefinition;
+            });
+
+        return $dataValidatorMock;
     }
 }

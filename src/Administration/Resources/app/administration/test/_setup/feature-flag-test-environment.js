@@ -5,6 +5,7 @@
 const { TestEnvironment } = require('jest-environment-jsdom');
 
 const activeFeatureFlagsSymbol = Symbol.for('shopware.activeFeatureFlags');
+const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 
 class FeatureFlagTestEnvironment extends TestEnvironment {
     activeFeatureFlagsByTest = new WeakMap();
@@ -28,7 +29,13 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
                 return;
             }
 
-            const activeFeatureFlags = [...new Set(featureFlags)];
+            const defaultActiveFeatureFlags = this.global[defaultActiveFeatureFlagsSymbol] ?? [];
+            const activeFeatureFlags = [
+                ...new Set([
+                    ...defaultActiveFeatureFlags,
+                    ...featureFlags,
+                ]),
+            ];
 
             this.global.activeFeatureFlagsForCurrentTest = activeFeatureFlags;
             this.global.activeFeatureFlags = activeFeatureFlags;
@@ -50,7 +57,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
             return;
         }
 
-        this.global.activeFeatureFlags = [];
+        this.global.activeFeatureFlags = [...(this.global[defaultActiveFeatureFlagsSymbol] ?? [])];
         delete this.global.activeFeatureFlagsForCurrentTest;
     }
 }

@@ -57,6 +57,9 @@ import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
 
+const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
+global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
+
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
 import '../../src/app/store/teaser-popover.store';
@@ -647,7 +650,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [];
+    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...global[defaultActiveFeatureFlagsSymbol]];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
         return;

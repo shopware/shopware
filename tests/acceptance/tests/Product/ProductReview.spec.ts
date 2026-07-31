@@ -60,7 +60,6 @@ test(
             await ShopCustomer.expects(StorefrontProductDetail.reviewLoginForm).toBeVisible();
             await ShopCustomer.expects(StorefrontProductDetail.forgottenPasswordLink).toBeVisible();
             await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
-            await TestDataService.clearCaches();
 
             // collapse depend on page-level initialization (JS event listeners, aria-expanded, etc.) which don’t re-fire after DOM patching.
             await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);

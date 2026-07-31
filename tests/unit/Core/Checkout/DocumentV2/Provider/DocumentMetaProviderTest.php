@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -141,16 +141,18 @@ class DocumentMetaProviderTest extends TestCase
             new MediaDefinition(),
         );
 
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
         return new DocumentMetaProvider(
             new DocumentConfigLoader(
                 $documentConfigRepository,
                 $countryRepository,
                 $mediaRepository,
                 static::createStub(SystemConfigService::class),
-                new AppDocumentTypeLoader($connection),
+                new AppDocumentTypeLoader(
+                    StaticEntityRepository::of(
+                        AppDocumentTypeCollection::class,
+                        [new AppDocumentTypeCollection([])]
+                    ),
+                ),
             ),
         );
     }

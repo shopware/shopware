@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @extends EntityCollection<AppDocumentTypeEntity>
  */
 #[Package('framework')]

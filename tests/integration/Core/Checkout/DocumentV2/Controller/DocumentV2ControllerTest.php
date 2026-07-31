@@ -297,7 +297,7 @@ class DocumentV2ControllerTest extends TestCase
 
     public function testUploadStoresAppRegisteredDocumentTypeWithNullDocumentTypeId(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../Generation/_fixtures/apps/withCertificateDocument');
+        $this->loadAppsFromDir(__DIR__ . '/../Generation/_fixtures/apps/withDocumentGeneration');
         $documentType = 'swag_certificate';
 
         $orderId = $this->createDraftOrder();

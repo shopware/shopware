@@ -59,9 +59,6 @@ class DocumentDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            /**
-             * @deprecated tag:v6.8.0 - document_type_id becomes nullable. Slated for removal once v1 documents migrate off it.
-             */
             (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware()),
             (new FkField('referenced_document_id', 'referencedDocumentId', self::class))->addFlags(new ApiAware()),
 

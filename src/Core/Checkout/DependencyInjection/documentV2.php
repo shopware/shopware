@@ -125,7 +125,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AppDocumentTypeLoader::class)
         ->args([
-            service(Connection::class),
+            service('app_document_type.repository'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

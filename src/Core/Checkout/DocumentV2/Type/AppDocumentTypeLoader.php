@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Type;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -27,7 +30,10 @@ final class AppDocumentTypeLoader implements ResetInterface
      */
     private ?array $configByName = null;
 
-    public function __construct(private readonly Connection $connection)
+    /**
+     * @param EntityRepository<AppDocumentTypeCollection> $appDocumentTypeRepository
+     */
+    public function __construct(private readonly EntityRepository $appDocumentTypeRepository)
     {
     }
 
@@ -67,20 +73,19 @@ final class AppDocumentTypeLoader implements ResetInterface
             return;
         }
 
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT `app_document_type`.`technical_name`, `app_document_type`.`formats`, `app_document_type`.`config`
-            FROM `app_document_type`
-            INNER JOIN `app` ON `app`.`id` = `app_document_type`.`app_id`
-            WHERE `app`.`active` = 1'
-        );
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('app.active', true));
+
+        $appDocumentTypes = $this->appDocumentTypeRepository
+            ->search($criteria, Context::createDefaultContext())
+            ->getEntities();
 
         $validFormats = array_column(DocumentFormat::cases(), 'value');
 
         $typesByName = [];
         $configByName = [];
 
-        foreach ($rows as $row) {
-            $technicalName = (string) $row['technical_name'];
+        foreach ($appDocumentTypes as $appDocumentType) {
+            $technicalName = $appDocumentType->getTechnicalName();
 
             // should never shadow core type
             if (DocumentType::tryFrom($technicalName) !== null) {
@@ -88,16 +93,17 @@ final class AppDocumentTypeLoader implements ResetInterface
             }
 
             /** @var list<string> $declaredFormats */
-            $declaredFormats = Json::decodeToList((string) $row['formats']);
+            $declaredFormats = $appDocumentType->getFormats() ?? [];
             $formats = array_values(array_intersect($declaredFormats, $validFormats));
 
             if ($formats !== []) {
                 $typesByName[$technicalName] = $formats;
             }
 
-            $configByName[$technicalName] = $row['config'] !== null
-                ? Json::decodeToArray((string) $row['config'])
-                : [];
+            /** @var array<string, scalar> $config */
+            $config = $appDocumentType->getConfig() ?? [];
+
+            $configByName[$technicalName] = $config;
         }
 
         $this->typesByName = $typesByName;

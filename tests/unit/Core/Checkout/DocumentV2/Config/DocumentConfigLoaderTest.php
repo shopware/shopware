@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
@@ -17,6 +16,8 @@ use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -515,20 +516,25 @@ class DocumentConfigLoaderTest extends TestCase
      */
     private function createAppDocumentTypeLoader(array $configByTechnicalName = []): AppDocumentTypeLoader
     {
-        $rows = [];
+        $entities = [];
 
         foreach ($configByTechnicalName as $technicalName => $config) {
-            $rows[] = [
-                'technical_name' => $technicalName,
-                'formats' => '["html"]',
-                'config' => json_encode($config, \JSON_THROW_ON_ERROR),
-            ];
+            $id = Uuid::randomHex();
+
+            $entity = new AppDocumentTypeEntity();
+            $entity->setUniqueIdentifier($id);
+            $entity->setId($id);
+            $entity->setTechnicalName($technicalName);
+            $entity->setFormats(['html']);
+            $entity->setConfig($config);
+
+            $entities[] = $entity;
         }
 
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn($rows);
-
-        return new AppDocumentTypeLoader($connection);
+        return new AppDocumentTypeLoader(StaticEntityRepository::of(
+            AppDocumentTypeCollection::class,
+            [new AppDocumentTypeCollection($entities)],
+        ));
     }
 
     /**

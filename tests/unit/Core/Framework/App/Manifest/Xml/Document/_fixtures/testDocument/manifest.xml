@@ -26,6 +26,8 @@
             <formats>
                 <format>html</format>
                 <format>pdf</format>
+                <format>zugferd_xml</format>
+                <format>zugferd_embedded_pdf</format>
             </formats>
             <config>
                 <page-size>a4</page-size>

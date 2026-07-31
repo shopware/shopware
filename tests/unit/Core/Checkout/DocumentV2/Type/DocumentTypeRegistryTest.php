@@ -2,13 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Type;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 
 /**
@@ -84,13 +87,11 @@ class DocumentTypeRegistryTest extends TestCase
 
     public function testResetInvalidatesMemoizedMergeSoUpdatedAppTypesAreReflected(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturnOnConsecutiveCalls(
-            $this->appTypeRows(['swag_certificate' => ['html']]),
-            $this->appTypeRows(['swag_warranty' => ['pdf']]),
-        );
+        $loader = new AppDocumentTypeLoader(StaticEntityRepository::of(AppDocumentTypeCollection::class, [
+            $this->appDocumentTypes(['swag_certificate' => ['html']]),
+            $this->appDocumentTypes(['swag_warranty' => ['pdf']]),
+        ]));
 
-        $loader = new AppDocumentTypeLoader($connection);
         $registry = new DocumentTypeRegistry([new StaticDocumentType('invoice', ['html', 'pdf'])], $loader);
 
         static::assertSame(['invoice', 'swag_certificate'], $registry->getDocumentTypes());
@@ -108,27 +109,32 @@ class DocumentTypeRegistryTest extends TestCase
      */
     private function appDocumentTypeLoader(array $appTypes = []): AppDocumentTypeLoader
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn($this->appTypeRows($appTypes));
-
-        return new AppDocumentTypeLoader($connection);
+        return new AppDocumentTypeLoader(StaticEntityRepository::of(
+            AppDocumentTypeCollection::class,
+            [$this->appDocumentTypes($appTypes)],
+        ));
     }
 
     /**
      * @param array<string, list<string>> $appTypes
-     *
-     * @return list<array{technical_name: string, formats: string, config: null}>
      */
-    private function appTypeRows(array $appTypes): array
+    private function appDocumentTypes(array $appTypes): AppDocumentTypeCollection
     {
-        return array_map(
-            static fn (string $identifier, array $formats): array => [
-                'technical_name' => $identifier,
-                'formats' => (string) json_encode($formats, \JSON_THROW_ON_ERROR),
-                'config' => null,
-            ],
-            array_keys($appTypes),
-            array_values($appTypes),
-        );
+        $entities = [];
+
+        foreach ($appTypes as $identifier => $formats) {
+            $id = Uuid::randomHex();
+
+            $entity = new AppDocumentTypeEntity();
+            $entity->setUniqueIdentifier($id);
+            $entity->setId($id);
+            $entity->setTechnicalName($identifier);
+            $entity->setFormats($formats);
+            $entity->setConfig(null);
+
+            $entities[] = $entity;
+        }
+
+        return new AppDocumentTypeCollection($entities);
     }
 }

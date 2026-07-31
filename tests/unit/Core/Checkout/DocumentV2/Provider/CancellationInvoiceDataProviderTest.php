@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +31,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -133,15 +133,17 @@ class CancellationInvoiceDataProviderTest extends TestCase
 
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
 
-        $appDocumentTypeConnection = static::createStub(Connection::class);
-        $appDocumentTypeConnection->method('fetchAllAssociative')->willReturn([]);
+        $appDocumentTypeRepository = StaticEntityRepository::of(
+            AppDocumentTypeCollection::class,
+            [new AppDocumentTypeCollection([])],
+        );
 
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
-            new AppDocumentTypeLoader($appDocumentTypeConnection),
+            new AppDocumentTypeLoader($appDocumentTypeRepository),
         );
 
         return new InvoiceDataProvider(

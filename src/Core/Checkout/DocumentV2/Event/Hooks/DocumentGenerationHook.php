@@ -10,12 +10,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
- * Triggered once per document generation, after the order is loaded and the document number is
- * allocated, but before any renderer runs.
- *
- * On the `generate()` path, a script that throws aborts generation after the order version was
- * created and the document number was already consumed from its number range, leaving a gap in
- * the invoice sequence.
+ * Triggered once per document generation, after the order is loaded and the document number is allocated, but before any renderer runs.
  *
  * @hook-use-case data_loading
  *

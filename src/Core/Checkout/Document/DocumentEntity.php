@@ -21,9 +21,6 @@ class DocumentEntity extends Entity
 
     protected string $orderVersionId;
 
-    /**
-     * @deprecated tag:v6.8.0 - documentTypeId becomes nullable
-     */
     protected ?string $documentTypeId = null;
 
     protected ?string $documentMediaFileId = null;

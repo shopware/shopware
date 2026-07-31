@@ -12,6 +12,18 @@ nav:
 
 All available Hooks that can be used to load additional data.
 
+### document-generation
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | document-generation                         |
+| **Since**              | 6.7.13.0                        |
+| **Class**              | `Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook`                      |
+| **Description**        | Triggered once per document generation, after the order is loaded and the document number is allocated, but before any renderer runs.<br>                  |
+| **Available Data**     | context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>documentNumber: `string`<br>documentType: `string`<br>formats: `array`<br>order: [`Shopware\Core\Checkout\Order\OrderEntity`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Order/OrderEntity.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 ### payment-method-route-request
 
 | <!-- -->               | <!-- -->                                |

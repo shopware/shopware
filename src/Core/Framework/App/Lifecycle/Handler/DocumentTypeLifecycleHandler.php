@@ -12,6 +12,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore - coverd by integration test
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler\DocumentTypeLifecycleHandlerTest
  */
 #[Package('framework')]
 class DocumentTypeLifecycleHandler extends AbstractLifecycleHandler

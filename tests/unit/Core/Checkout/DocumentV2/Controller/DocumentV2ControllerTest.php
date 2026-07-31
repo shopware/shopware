@@ -36,6 +36,7 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -691,10 +692,12 @@ class DocumentV2ControllerTest extends TestCase
 
     private function createAppDocumentTypeLoader(): AppDocumentTypeLoader
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
-        return new AppDocumentTypeLoader($connection);
+        return new AppDocumentTypeLoader(
+            StaticEntityRepository::of(
+                AppDocumentTypeCollection::class,
+                [new AppDocumentTypeCollection([])]
+            ),
+        );
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

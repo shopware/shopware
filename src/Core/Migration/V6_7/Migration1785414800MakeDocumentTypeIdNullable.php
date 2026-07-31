@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -12,6 +13,10 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('after-sales')]
 class Migration1785414800MakeDocumentTypeIdNullable extends MigrationStep
 {
+    private const TABLE = 'document';
+
+    private const COLUMN = 'document_type_id';
+
     public function getCreationTimestamp(): int
     {
         return 1785414800;
@@ -19,22 +24,10 @@ class Migration1785414800MakeDocumentTypeIdNullable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        /** @var array{Null: string}|false $column */
-        $column = $connection->fetchAssociative(
-            'SHOW COLUMNS FROM `document` WHERE `Field` = :field',
-            ['field' => 'document_type_id'],
-        );
-
-        if ($column === false || $column['Null'] === 'YES') {
+        if (!TableHelper::getColumnOfTable($connection, self::TABLE, self::COLUMN)->isNotNull) {
             return;
         }
 
-        $connection->executeStatement(
-            'ALTER TABLE `document` MODIFY `document_type_id` BINARY(16) NULL'
-        );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
+        $connection->executeStatement('ALTER TABLE `document` MODIFY `document_type_id` BINARY(16) NULL');
     }
 }

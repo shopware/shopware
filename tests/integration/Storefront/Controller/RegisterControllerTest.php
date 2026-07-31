@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -149,15 +150,76 @@ class RegisterControllerTest extends TestCase
         $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create($consumedToken, TestDefaults::SALES_CHANNEL);
 
+        // the guard is keyed on the context token alone, so changing what is submitted does not make
+        // consuming that token again legitimate
+        $otherEmail = 'erika.musterfrau@example.com';
+        $otherData = $this->getRegistrationData(email: $otherEmail);
+        $otherBillingAddress = $otherData->get('billingAddress');
+        static::assertInstanceOf(DataBag::class, $otherBillingAddress);
+        $otherBillingAddress->set('street', 'Andere Strasse 42');
+
         $duplicateRequest = $this->createMainRequest();
-        $duplicateResponse = $registerController->register($duplicateRequest, $this->getRegistrationData(), $duplicateContext);
+        $duplicateResponse = $registerController->register($duplicateRequest, $otherData, $duplicateContext);
 
         static::assertSame(200, $duplicateResponse->getStatusCode());
         static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+        static::assertCount(0, $this->fetchCustomerIdsByEmail($otherEmail));
         static::assertFalse(
             $duplicateRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT),
             'the duplicate submission must be suppressed instead of registering again'
         );
+    }
+
+    public function testEveryStaleResubmissionOfASpentTokenIsSuppressed(): void
+    {
+        $registerController = static::getContainer()->get(RegisterController::class);
+        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
+
+        $data = $this->getRegistrationData();
+        $email = (string) $data->get('email');
+        $consumedToken = $this->salesChannelContext->getToken();
+
+        $registerController->register($this->createMainRequest(), $data, $this->salesChannelContext);
+
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+
+        // a browser that never stored the rotated token keeps presenting the spent one, so the marker
+        // has to outlive the whole burst rather than one resubmission of it
+        for ($resubmission = 0; $resubmission < 2; ++$resubmission) {
+            $staleContext = $contextFactory->create($consumedToken, TestDefaults::SALES_CHANNEL);
+            $staleRequest = $this->createMainRequest();
+
+            $registerController->register($staleRequest, $this->getRegistrationData(), $staleContext);
+
+            static::assertFalse(
+                $staleRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT),
+                'resubmission ' . ($resubmission + 1) . ' must be suppressed'
+            );
+        }
+
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+    }
+
+    public function testDoubleSubmittedGuestRegistrationWithDoubleOptInCreatesOnlyOneCustomer(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.doubleOptInGuestOrder', true, TestDefaults::SALES_CHANNEL);
+
+        $registerController = static::getContainer()->get(RegisterController::class);
+
+        $data = $this->getRegistrationData();
+        $email = (string) $data->get('email');
+        $consumedToken = $this->salesChannelContext->getToken();
+
+        $registerController->register($this->createMainRequest(), $data, $this->salesChannelContext);
+
+        // a registration that waits for a double opt-in confirmation returns without rotating the token
+        static::assertSame($consumedToken, $this->salesChannelContext->getToken());
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
+
+        $registerController->register($this->createMainRequest(), $this->getRegistrationData(), $this->salesChannelContext);
+
+        static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
     }
 
     public function testSuppressedDoubleSubmitKeepsTheCartOnTheOneRegisteredContext(): void
@@ -562,12 +624,12 @@ class RegisterControllerTest extends TestCase
         return $this->createRequest();
     }
 
-    private function getRegistrationData(?bool $isGuest = true): RequestDataBag
+    private function getRegistrationData(?bool $isGuest = true, string $email = 'max.mustermann@example.com'): RequestDataBag
     {
         $data = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
-            'email' => 'max.mustermann@example.com',
-            'emailConfirmation' => 'max.mustermann@example.com',
+            'email' => $email,
+            'emailConfirmation' => $email,
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

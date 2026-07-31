@@ -383,7 +383,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should hide banner when config is set to true', async () => {
+    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should hide banner when config is set to true', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -421,7 +423,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should toggle banner visibility and save config', async () => {
+    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should toggle banner visibility and save config', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -445,7 +449,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    it('provides the change notices with the version they can be removed with', async () => {
+    // CHANGE REASON: The rename notice remains visible before its v6.8 removal version. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename notice.
+    it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.changeNotices).toEqual([
@@ -454,6 +460,13 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 deprecationVersion: 'v6.8.0.0',
             },
         ]);
+    });
+
+    // CHANGE REASON: The v6.8 settings overview no longer exposes the expired rename notice. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('does not provide expired change notices', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.changeNotices).toEqual([]);
     });
 
     it('fails once a change notice reached its deprecation version (delete the entry then)', async () => {

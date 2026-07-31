@@ -125,26 +125,31 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         expect(wrapper.vm.config.label1[en]).toBe(value !== '' ? value : null);
     });
 
-    it('should render multiple locales with deprecated tabs when the major feature flag is inactive', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+    // CHANGE REASON: This assertion covers the translated-label legacy sw-tabs branch replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')(
+        'should render multiple locales with deprecated tabs when the major feature flag is inactive',
+        async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-        expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(false);
-        expect(wrapper.find('.sw-custom-field-translated-labels__tabs').exists()).toBe(true);
-        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+            expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(false);
+            expect(wrapper.find('.sw-custom-field-translated-labels__tabs').exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
 
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(
-            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
-        ).toBe('label1 (locale.en-GB)');
+            expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')).toHaveLength(2);
+            expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
+            expect(
+                wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+            ).toBe('label1 (locale.en-GB)');
 
-        await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(
-            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
-        ).toBe('label1 (locale.de-DE)');
-    });
+            await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
+            expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
+            expect(
+                wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+            ).toBe('label1 (locale.de-DE)');
+        },
+    );
 
     it('should render multiple locales with meteor tabs when the major feature flag is active', async () => {
         const wrapper = await createWrapper(defaultProps, { featureActive: true });

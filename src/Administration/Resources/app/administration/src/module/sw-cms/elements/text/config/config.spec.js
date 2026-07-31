@@ -115,7 +115,9 @@ describe('src/module/sw-cms/elements/text/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+    // CHANGE REASON: The fallback sw-tabs branch is removed in v6.8 and already has a Meteor-tabs counterpart. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy CMS text tabs.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs when the major feature flag is inactive', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
@@ -172,7 +174,9 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
 
-    it('should emits element-update when trigger @blur event', async () => {
+    // CHANGE REASON: The blur integration belongs to the legacy sw-text-editor branch and has no v6.8 equivalent. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-text-editor blur integration.
+    it.deprecated('v6.8.0.0')('should emits element-update when trigger @blur event', async () => {
         const wrapper = await createWrapper();
 
         const updatedContent = 'Updated content';

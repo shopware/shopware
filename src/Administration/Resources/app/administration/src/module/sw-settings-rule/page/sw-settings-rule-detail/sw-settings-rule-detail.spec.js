@@ -542,7 +542,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it('should render fallback tab items', async () => {
+    // CHANGE REASON: This test covers the rule-detail fallback sw-tabs branch replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the fallback sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

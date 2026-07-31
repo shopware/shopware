@@ -221,7 +221,7 @@ responses.addResponse({
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     linkDataProvider.forEach((link) => {
-        it(`parses ${link.type} URLs correctly`, async () => {
+        const testLinkParsing = async () => {
             const wrapper = await createWrapper(link.buttonConfig);
             await flushPromises();
 
@@ -283,10 +283,28 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                     value: link.prefix + placeholderId,
                 },
             ]);
-        });
+        };
+
+        if (
+            [
+                'detail',
+                'media',
+            ].includes(link.type)
+        ) {
+            // CHANGE REASON: These URL cases exercise the legacy editor link menu removed in v6.8.0.0. @removed
+            // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
+            it.deprecated('v6.8.0.0')(`parses ${link.type} URLs correctly`, testLinkParsing);
+
+            return;
+        }
+
+        // eslint-disable-next-line jest/expect-expect -- Assertions are declared in the shared testLinkParsing callback.
+        it(`parses ${link.type} URLs correctly`, testLinkParsing);
     });
 
-    it('parses product detail links and reacts to changes correctly', async () => {
+    // CHANGE REASON: This test exercises the legacy editor link menu removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-text-editor-link-menu.
+    it.deprecated('v6.8.0.0')('parses product detail links and reacts to changes correctly', async () => {
         const wrapper = await createWrapper({
             value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,
             type: 'detail',

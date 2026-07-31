@@ -75,7 +75,9 @@ describe('src/app/component/base/sw-card-deprecated', () => {
         expect(emptyCard.find('.sw-context-button').exists()).toBe(false);
     });
 
-    it('should correctly use the `context-action` slot using unscoped slots', async () => {
+    // CHANGE REASON: This test covers the legacy sw-card context-action rendering removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-card-deprecated.
+    it.deprecated('v6.8.0.0')('should correctly use the `context-action` slot using unscoped slots', async () => {
         const options = {
             slots: {
                 'context-actions': '<div class="unscoped-slot">Unscoped</div>',

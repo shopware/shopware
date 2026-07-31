@@ -331,7 +331,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
-    it('should render tabs when type is shop page', async () => {
+    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should render tabs when type is shop page', async () => {
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
@@ -339,7 +341,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeTruthy();
     });
 
-    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs when the major feature flag is inactive', async () => {
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
@@ -427,7 +431,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
     });
 
-    it('should disable shop pages tab with missing system config permission', async () => {
+    // CHANGE REASON: This assertion locates the permission state through the legacy sw-tabs DOM. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should disable shop pages tab with missing system config permission', async () => {
         const wrapper = await createWrapper('page');
 
         expect(
@@ -1141,7 +1147,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
-    it('should render tabs when type is landing pages', async () => {
+    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should render tabs when type is landing pages', async () => {
         const wrapper = await createWrapper('landingpage');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();

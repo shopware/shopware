@@ -65,7 +65,9 @@ const createSelect = async (
 };
 
 describe('components/sw-entity-many-to-many-select', () => {
-    it('should use the provided associations in the criteria', async () => {
+    // CHANGE REASON: This test covers sw-entity-many-to-many-select, which is removed in favor of sw-entity-multi-select. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-entity-many-to-many-select.
+    it.deprecated('v6.8.0.0')('should use the provided associations in the criteria', async () => {
         const criteria = new Criteria(1, 25);
         criteria.addAssociation('testAssociation');
         const entityCollection = getCollection();

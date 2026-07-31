@@ -432,7 +432,9 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.alpha).toBe(0.8);
     });
 
-    it('should show the color picker', async () => {
+    // CHANGE REASON: This test covers the legacy colorpicker implementation removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
+    it.deprecated('v6.8.0.0')('should show the color picker', async () => {
         await wrapper.find('.sw-colorpicker__previewWrapper').trigger('click');
         await flushPromises();
 
@@ -572,7 +574,9 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
-    it('should call moveSelector on dragging colorPicker', async () => {
+    // CHANGE REASON: This test covers legacy colorpicker dragging removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
+    it.deprecated('v6.8.0.0')('should call moveSelector on dragging colorPicker', async () => {
         wrapper = await createWrapper();
         const moveSelectorSpy = jest.spyOn(wrapper.vm, 'moveSelector');
 
@@ -588,7 +592,9 @@ describe('components/form/sw-colorpicker', () => {
         expect(moveSelectorSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should call removeDragging on mouseup', async () => {
+    // CHANGE REASON: This test covers legacy colorpicker dragging removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
+    it.deprecated('v6.8.0.0')('should call removeDragging on mouseup', async () => {
         wrapper = await createWrapper();
 
         const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
@@ -709,36 +715,49 @@ describe('components/form/sw-colorpicker', () => {
         ],
     ];
 
-    it.each(moveSelectorDataSet)(
-        'should calculate luminanceValue and saturationValue correctly when moveSelector',
-        async (clientX, clientY, left, top, expectedSaturationValue, expectedLuminanceValue) => {
-            wrapper = await createWrapper();
+    moveSelectorDataSet.forEach(
+        ([
+            clientX,
+            clientY,
+            left,
+            top,
+            expectedSaturationValue,
+            expectedLuminanceValue,
+        ]) => {
+            // CHANGE REASON: These cases cover legacy colorpicker calculations removed in v6.8.0.0. @removed
+            // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-colorpicker-deprecated.
+            it.deprecated('v6.8.0.0')(
+                `should calculate luminanceValue and saturationValue for ${clientX}, ${clientY}`,
+                async () => {
+                    wrapper = await createWrapper();
 
-            await wrapper.setData({
-                visible: true,
-                isDragging: true,
-            });
-            await flushPromises();
+                    await wrapper.setData({
+                        visible: true,
+                        isDragging: true,
+                    });
+                    await flushPromises();
 
-            const event = {
-                clientX,
-                clientY,
-                preventDefault: jest.fn(),
-            };
+                    const event = {
+                        clientX,
+                        clientY,
+                        preventDefault: jest.fn(),
+                    };
 
-            jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
-                return {
-                    left,
-                    top,
-                    width: 200,
-                    height: 100,
-                };
-            });
+                    jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
+                        return {
+                            left,
+                            top,
+                            width: 200,
+                            height: 100,
+                        };
+                    });
 
-            wrapper.vm.moveSelector(event);
+                    wrapper.vm.moveSelector(event);
 
-            expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
-            expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
+                    expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
+                    expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
+                },
+            );
         },
     );
 

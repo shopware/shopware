@@ -326,7 +326,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(loadMoreButton.exists()).toBe(false);
     });
 
-    it('should have a computed property for nextMediaCriteria', async () => {
+    // CHANGE REASON: The file-name ascending criterion is replaced by createdAt descending under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy media-library sort criterion.
+    it.deprecated('v6.8.0.0')('should have a computed property for nextMediaCriteria', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({

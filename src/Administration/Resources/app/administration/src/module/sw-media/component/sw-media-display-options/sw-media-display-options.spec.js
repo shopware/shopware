@@ -10,7 +10,9 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
-    it('should default to created at ascending without v6.8.0.0 feature flag', async () => {
+    // CHANGE REASON: Ascending creation-date sorting is the legacy default replaced under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy ascending media sort default.
+    it.deprecated('v6.8.0.0')('should default to created at ascending without v6.8.0.0 feature flag', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.sortingConCat).toBe('createdAt:asc');

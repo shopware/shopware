@@ -359,7 +359,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should load user config for banner on created', async () => {
+    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should load user config for banner on created', async () => {
         await createWrapper();
 
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
@@ -368,7 +370,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should show banner by default when no config is set', async () => {
+    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should show banner by default when no config is set', async () => {
         const wrapper = await createWrapper();
 
         await flushPromises();
@@ -397,7 +401,9 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should show banner when config is set to false', async () => {
+    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should show banner when config is set to false', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {

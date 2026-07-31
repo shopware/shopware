@@ -211,7 +211,9 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(actionsSlot.text()).toBe('I am in the action slot');
     });
 
-    it('should render the tabs', async () => {
+    // CHANGE REASON: This test covers sw-meteor-card's legacy sw-tabs rendering removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the tabs', async () => {
         const wrapper = mount(
             {
                 template: `
@@ -256,20 +258,25 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(tabItems.at(1).text()).toBe('Tab 2');
     });
 
-    it('should render deprecated tabs and change content when the major feature flag is inactive', async () => {
-        const wrapper = await createMeteorCardWithTabs();
-        await flushPromises();
+    // CHANGE REASON: This test covers sw-meteor-card's legacy sw-tabs interaction removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')(
+        'should render deprecated tabs and change content when the major feature flag is inactive',
+        async () => {
+            const wrapper = await createMeteorCardWithTabs();
+            await flushPromises();
 
-        const tabTwo = wrapper.findAll('.sw-tabs-item').at(1);
+            const tabTwo = wrapper.findAll('.sw-tabs-item').at(1);
 
-        let content = wrapper.find('.sw-meteor-card__content-wrapper');
-        expect(content.text()).toBe('Tab 1');
+            let content = wrapper.find('.sw-meteor-card__content-wrapper');
+            expect(content.text()).toBe('Tab 1');
 
-        await tabTwo.trigger('click');
+            await tabTwo.trigger('click');
 
-        content = wrapper.find('.sw-meteor-card__content-wrapper');
-        expect(content.text()).toBe('Tab 2');
-    });
+            content = wrapper.find('.sw-meteor-card__content-wrapper');
+            expect(content.text()).toBe('Tab 2');
+        },
+    );
 
     it('should render meteor tabs and change content when the major feature flag is active', async () => {
         const wrapper = await createMeteorCardWithTabs({ featureActive: true });

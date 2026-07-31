@@ -1749,7 +1749,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(wrapper.vm.visibleCustomFieldSets.first().name).toBe('set2');
     });
 
-    it('should show the tabs', async () => {
+    // CHANGE REASON: This test covers the custom-field renderer's legacy sw-tabs branch removed under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should show the tabs', async () => {
         wrapper = await createWrapper({
             entity: {},
             parentEntity: {},
@@ -1865,7 +1867,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         },
     );
 
-    it('should contain the right fields for each tab', async () => {
+    // CHANGE REASON: This test covers legacy sw-tabs content already represented by the Meteor-tabs scenario. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should contain the right fields for each tab', async () => {
         wrapper = await createWrapper({
             entity: {},
             parentEntity: {},
@@ -1972,7 +1976,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.element.style.display).not.toBe('none');
     });
 
-    it('should load the current active tab', async () => {
+    // CHANGE REASON: This test covers legacy sw-tabs lazy loading already represented by the Meteor-tabs scenario. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should load the current active tab', async () => {
         wrapper = await createWrapper({
             entity: {},
             parentEntity: {},

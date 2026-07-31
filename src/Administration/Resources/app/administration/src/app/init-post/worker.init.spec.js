@@ -64,7 +64,7 @@ describe('src/app/init-post/worker.init.ts', () => {
         expect(loginListeners).toHaveLength(1);
     });
 
-    it.each([
+    [
         'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
         'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
@@ -79,41 +79,47 @@ describe('src/app/init-post/worker.init.ts', () => {
         'Shopware\\Core\\Content\\ImportExport\\Message\\ImportExportMessage',
         'Shopware\\Core\\Content\\Flow\\Indexing\\FlowIndexingMessage',
         'Shopware\\Core\\Content\\Newsletter\\DataAbstractionLayer\\NewsletterRecipientIndexingMessage',
-    ])('should register thumbnail middleware "%s"', async (name) => {
-        loggedIn = true;
+    ].forEach((name) => {
+        // CHANGE REASON: Increment-based thumbnail middleware notifications are removed in v6.8.0.0. @removed
+        // @deprecated tag:v6.8.0.0 - The test will be removed with registerThumbnailMiddleware.
+        it.deprecated('v6.8.0.0')(`should register thumbnail middleware "${name}"`, async () => {
+            loggedIn = true;
 
-        config = {
-            adminWorker: {
-                enableQueueStatsWorker: false,
-            },
-        };
+            config = {
+                adminWorker: {
+                    enableQueueStatsWorker: false,
+                },
+            };
 
-        initializeWorker();
-        const helper = WorkerNotificationFactory.initialize();
+            initializeWorker();
+            const helper = WorkerNotificationFactory.initialize();
 
-        const createMock = jest.fn(() => {
-            return Promise.resolve('jest-id');
+            const createMock = jest.fn(() => {
+                return Promise.resolve('jest-id');
+            });
+
+            helper.go({
+                queue: [
+                    { name, size: 1 },
+                ],
+                $root: {
+                    $t: (msg) => msg,
+                },
+                notification: {
+                    create: createMock,
+                },
+            });
+
+            await flushPromises();
+
+            expect(loginListeners).toHaveLength(0);
+            expect(createMock).toHaveBeenCalledTimes(1);
         });
-
-        helper.go({
-            queue: [
-                { name, size: 1 },
-            ],
-            $root: {
-                $t: (msg) => msg,
-            },
-            notification: {
-                create: createMock,
-            },
-        });
-
-        await flushPromises();
-
-        expect(loginListeners).toHaveLength(0);
-        expect(createMock).toHaveBeenCalledTimes(1);
     });
 
-    it('should update thumbnail middleware notifications', async () => {
+    // CHANGE REASON: Increment-based thumbnail middleware notification updates are removed in v6.8.0.0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with messageQueueNotification.
+    it.deprecated('v6.8.0.0')('should update thumbnail middleware notifications', async () => {
         loggedIn = true;
 
         config = {

@@ -218,7 +218,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(campaignCodeField.attributes().disabled).toBeUndefined();
     });
 
-    it('should able to edit shipping cost', async () => {
+    // CHANGE REASON: This test covers shipping-cost editing that moves from Details to General under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should able to edit shipping cost', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
@@ -232,7 +234,9 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 
-    it('should recalculate shipping cost while the field is not out of focus yet', async () => {
+    // CHANGE REASON: This test covers shipping-cost editing that moves from Details to General under V6_8_0_0. @removed
+    // @deprecated tag:v6.8.0.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should recalculate shipping cost while the field is not out of focus yet', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();

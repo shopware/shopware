@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
-use Shopware\Core\Framework\Adapter\Cache\Http\NoVarySearchDirectives;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -166,7 +165,7 @@ class CachePolicyProviderTest extends TestCase
         yield 'area cacheable default keeps no_vary_search while max_age is overridden by CacheAttribute' => [
             'policies' => ['area_cacheable' => new CachePolicy(
                 cacheControl: new CacheControlDirectives(public: true, maxAge: 300),
-                noVarySearch: new NoVarySearchDirectives(keyOrder: true),
+                noVarySearch: 'key-order',
             )],
             'routePolicies' => [],
             'defaultPolicies' => [
@@ -178,7 +177,7 @@ class CachePolicyProviderTest extends TestCase
             'cacheAttribute' => new CacheAttribute(maxAge: 1200),
             'expectedPolicy' => new CachePolicy(
                 cacheControl: new CacheControlDirectives(public: true, maxAge: 1200),
-                noVarySearch: new NoVarySearchDirectives(keyOrder: true),
+                noVarySearch: 'key-order',
             ),
         ];
 

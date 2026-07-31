@@ -1152,31 +1152,8 @@
                                         }
                                     },
                                     "no_vary_search": {
-                                        "type": "object",
-                                        "additionalProperties": false,
-                                        "title": "Query string differences clients may ignore when matching a stored response",
-                                        "properties": {
-                                            "key_order": {
-                                                "type": "boolean",
-                                                "title": "Marks the order of query parameters as irrelevant"
-                                            },
-                                            "params": {
-                                                "title": "\"true\" marks all query parameters as irrelevant, a list of names marks only those parameters as irrelevant",
-                                                "oneOf": [
-                                                    { "type": "boolean" },
-                                                    { "type": "array", "items": { "type": "string" } }
-                                                ]
-                                            },
-                                            "except": {
-                                                "type": "array",
-                                                "items": { "type": "string" },
-                                                "title": "Query parameters that stay relevant, only allowed together with \"params: true\""
-                                            },
-                                            "include_ignored_url_parameters": {
-                                                "type": "boolean",
-                                                "title": "Adds all \"shopware.http_cache.ignored_url_parameters\" to \"params\""
-                                            }
-                                        }
+                                        "type": "string",
+                                        "title": "Verbatim value of the \"No-Vary-Search\" header, e.g. \"key-order\""
                                     }
                                 }
                             }

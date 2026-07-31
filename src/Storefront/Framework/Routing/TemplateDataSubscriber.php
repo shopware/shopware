@@ -132,6 +132,6 @@ class TemplateDataSubscriber implements EventSubscriberInterface
 
         $policy = $this->cachePolicyProvider->getPolicy('', 'storefront', true);
 
-        $event->setParameter('noVarySearch', $policy->noVarySearch?->toHeaderValue());
+        $event->setParameter('noVarySearch', $policy->noVarySearch);
     }
 }

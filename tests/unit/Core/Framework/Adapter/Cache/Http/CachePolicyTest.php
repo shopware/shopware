@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
-use Shopware\Core\Framework\Adapter\Cache\Http\NoVarySearchDirectives;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -71,7 +70,7 @@ class CachePolicyTest extends TestCase
 
     public function testWithKeepsNoVarySearch(): void
     {
-        $noVarySearch = new NoVarySearchDirectives(keyOrder: true);
+        $noVarySearch = 'key-order';
 
         $policy = new CachePolicy(
             cacheControl: new CacheControlDirectives(public: true),
@@ -87,10 +86,10 @@ class CachePolicyTest extends TestCase
     {
         $policy = new CachePolicy(
             cacheControl: new CacheControlDirectives(public: true),
-            noVarySearch: new NoVarySearchDirectives(keyOrder: true),
+            noVarySearch: 'key-order',
         );
 
-        $noVarySearch = new NoVarySearchDirectives(params: true);
+        $noVarySearch = 'params';
 
         static::assertSame($noVarySearch, $policy->with(noVarySearch: $noVarySearch)->noVarySearch);
     }
@@ -100,12 +99,12 @@ class CachePolicyTest extends TestCase
         $policy = CachePolicy::fromArray([
             'headers' => [
                 'cache_control' => ['public' => true],
-                'no_vary_search' => ['key_order' => true],
+                'no_vary_search' => 'key-order',
             ],
         ]);
 
         static::assertNotNull($policy->noVarySearch);
-        static::assertSame('key-order', $policy->noVarySearch->toHeaderValue());
+        static::assertSame('key-order', $policy->noVarySearch);
     }
 
     public function testFromArrayWithoutNoVarySearch(): void

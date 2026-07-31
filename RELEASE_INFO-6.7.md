@@ -282,7 +282,7 @@ Cacheable Storefront and Store-API responses now send [`No-Vary-Search`](https:/
 
 The shipped policies declare `key-order` only, which marks the order of query parameters as irrelevant. That is the same normalization the server side cache key has always used, so no new assumption is introduced. When speculation rules are enabled for a sales channel, the storefront additionally declares the value as `expects_no_vary_search` in the emitted rules, so the browser does not start a second speculation for a URL that differs only in parameter order.
 
-Policies accept the header under `headers.no_vary_search`:
+Policies accept the header under `headers.no_vary_search` as the verbatim header value:
 
 ```yaml
 # config/packages/shopware.yaml
@@ -294,20 +294,42 @@ shopware:
                     cache_control:
                         public: true
                         s_maxage: 7200
-                    no_vary_search:
-                        key_order: true
-                        params: ['utm_source', 'gclid']
-                        # or: mark every parameter as irrelevant except the listed ones
-                        # params: true
-                        # except: ['q']
-                        include_ignored_url_parameters: false
+                    no_vary_search: 'key-order'
 ```
 
-`include_ignored_url_parameters: true` adds every entry of `shopware.http_cache.ignored_url_parameters` to `params`. Those parameters are already stripped from the server side cache key, so this only tells clients what the server cache does anyway. It is off by default because the 117 entries of the default list serialize to about 1.3 kB of header on every response, compared to 27 bytes for `key-order` alone.
+The value is passed through unchanged, so any [`No-Vary-Search`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search) value can be used, for example `key-order, params=("utm_source" "gclid")` or `params, except=("q")`. It is validated only for being a single line of printable ASCII, so it cannot smuggle a second header. Omitting the key sends no header at all.
 
-Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. With prerendering a widened match means a fully rendered page is displayed for a different URL, so declaring `p` as irrelevant would show page 1 at a `?p=2` URL. Listing tracking parameters is safe: reusing a stored response does not rewrite the document URL, so client side analytics still reads the real values from `window.location.search`.
+Never mark parameters that change the rendered content as irrelevant, such as `p`, `order`, `search` or filter names. With prerendering a widened match means a fully rendered page is displayed for a different URL, so declaring `p` as irrelevant would show page 1 at a `?p=2` URL. Marking tracking parameters is safe: reusing a stored response does not rewrite the document URL, so client side analytics still reads the real values from `window.location.search`.
 
-A `No-Vary-Search` header set by a controller or plugin is only replaced when the resolved policy declares one itself.
+Adding the `shopware.http_cache.ignored_url_parameters` entries to a `params=(...)` list tells clients what the server side cache key already does, since those parameters are stripped from it anyway. Keep the size in mind: the 117 entries of the default list serialize to about 1.3 kB of header on every response, compared to 27 bytes for `key-order` alone.
+
+#### Changing the value from an extension
+
+A `No-Vary-Search` header set by a controller or plugin is only replaced when the resolved policy declares one itself. There are three ways to influence it:
+
+1. **A dedicated policy for your own routes.** `route_policies` is resolved before the area default, so a plugin can point its routes at a policy carrying a different value:
+
+```yaml
+shopware:
+    http_cache:
+        policies:
+            my_plugin.listing:
+                headers:
+                    cache_control: { public: true, s_maxage: 3600 }
+                    no_vary_search: 'key-order, params=("ref")'
+        route_policies:
+            'frontend.my_plugin.listing': 'my_plugin.listing'
+```
+
+2. **A compiler pass** modifying the `shopware.http_cache.policies` container parameter, when a plugin needs to change the shipped default globally.
+
+3. **A response listener** below priority `-1500`, which is where `CacheResponseSubscriber::setResponseCache` runs. This is the only option for a value that depends on the request, the sales channel or the customer group, since configuration cannot express that:
+
+```php
+#[AsEventListener(event: KernelEvents::RESPONSE, priority: -1600)]
+```
+
+When you change the header from a listener, also set the `noVarySearch` parameter in a `StorefrontRenderEvent` listener. Otherwise the speculation rules keep announcing the policy value through `expects_no_vary_search` and the two drift apart.
 
 ### Speculation rules now prefetch listing links
 

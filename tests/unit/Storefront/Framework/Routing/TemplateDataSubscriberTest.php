@@ -396,7 +396,7 @@ class TemplateDataSubscriberTest extends TestCase
     {
         $event = $this->buildRenderEvent();
 
-        $this->buildSubscriber(noVarySearch: ['key_order' => true])->addNoVarySearch($event);
+        $this->buildSubscriber(noVarySearch: 'key-order')->addNoVarySearch($event);
 
         static::assertArrayHasKey('noVarySearch', $event->getParameters());
         static::assertSame('key-order', $event->getParameters()['noVarySearch']);
@@ -418,7 +418,7 @@ class TemplateDataSubscriberTest extends TestCase
         // speculation rules would only cause wasted speculations
         $event = $this->buildRenderEvent();
 
-        $this->buildSubscriber(noVarySearch: ['key_order' => true], httpCacheEnabled: false)->addNoVarySearch($event);
+        $this->buildSubscriber(noVarySearch: 'key-order', httpCacheEnabled: false)->addNoVarySearch($event);
 
         static::assertArrayNotHasKey('noVarySearch', $event->getParameters());
     }
@@ -428,7 +428,7 @@ class TemplateDataSubscriberTest extends TestCase
     {
         $event = $this->buildRenderEvent();
 
-        $this->buildSubscriber(noVarySearch: ['key_order' => true])->addNoVarySearch($event);
+        $this->buildSubscriber(noVarySearch: 'key-order')->addNoVarySearch($event);
 
         static::assertArrayNotHasKey('noVarySearch', $event->getParameters());
     }
@@ -443,15 +443,12 @@ class TemplateDataSubscriberTest extends TestCase
         );
     }
 
-    /**
-     * @param array<string, mixed>|null $noVarySearch
-     */
     private function buildSubscriber(
         ?HreflangLoaderInterface $hreflangLoader = null,
         ?ShopIdProvider $shopIdProvider = null,
         ?ActiveAppsLoader $activeAppsLoader = null,
         ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
-        ?array $noVarySearch = null,
+        ?string $noVarySearch = null,
         bool $httpCacheEnabled = true,
     ): TemplateDataSubscriber {
         $headers = ['cache_control' => ['public' => true]];

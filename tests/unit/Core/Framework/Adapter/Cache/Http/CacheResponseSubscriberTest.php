@@ -955,7 +955,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoVarySearchHeaderIsAppliedForCacheableResponse(): void
     {
-        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true]);
+        $response = $this->dispatchWithNoVarySearchPolicy('key-order');
 
         static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
     }
@@ -982,7 +982,7 @@ class CacheResponseSubscriberTest extends TestCase
         $response = new Response();
         $response->headers->set('No-Vary-Search', 'params=("ref")');
 
-        $this->dispatchWithNoVarySearchPolicy(['key_order' => true], response: $response);
+        $this->dispatchWithNoVarySearchPolicy('key-order', response: $response);
 
         static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
     }
@@ -990,14 +990,14 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoVarySearchHeaderIsNotAppliedForUncacheableRequest(): void
     {
         // POST responses are never cacheable, so there is nothing to match against
-        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true], method: Request::METHOD_POST);
+        $response = $this->dispatchWithNoVarySearchPolicy('key-order', method: Request::METHOD_POST);
 
         static::assertFalse($response->headers->has('No-Vary-Search'));
     }
 
     public function testNoVarySearchHeaderIsNotAppliedForUncacheableRoute(): void
     {
-        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true], httpCacheRoute: false);
+        $response = $this->dispatchWithNoVarySearchPolicy('key-order', httpCacheRoute: false);
 
         static::assertFalse($response->headers->has('No-Vary-Search'));
     }
@@ -1005,7 +1005,7 @@ class CacheResponseSubscriberTest extends TestCase
     #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
     public function testNoVarySearchHeaderIsNotAppliedWithoutCacheRework(): void
     {
-        $response = $this->dispatchWithNoVarySearchPolicy(['key_order' => true]);
+        $response = $this->dispatchWithNoVarySearchPolicy('key-order');
 
         static::assertFalse($response->headers->has('No-Vary-Search'));
     }
@@ -1013,11 +1013,9 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * Dispatches a storefront GET response through the subscriber using a cacheable policy that
      * optionally declares `no_vary_search`.
-     *
-     * @param array<string, mixed>|null $noVarySearch
      */
     private function dispatchWithNoVarySearchPolicy(
-        ?array $noVarySearch,
+        ?string $noVarySearch,
         string $method = Request::METHOD_GET,
         bool $httpCacheRoute = true,
         ?Response $response = null,

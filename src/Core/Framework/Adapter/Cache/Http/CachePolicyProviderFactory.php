@@ -19,17 +19,15 @@ class CachePolicyProviderFactory
      * @param array<string, CachePolicyConfig> $policiesConfig
      * @param array<string, string> $routePoliciesConfig
      * @param array<string, DefaultPoliciesConfig> $defaultPoliciesConfig
-     * @param list<string> $ignoredUrlParameters
      */
     public static function create(
         array $policiesConfig,
         array $routePoliciesConfig,
-        array $defaultPoliciesConfig,
-        array $ignoredUrlParameters = []
+        array $defaultPoliciesConfig
     ): CachePolicyProvider {
         // init CachePolicy objects from config arrays
-        $policies = array_map(static function ($directives) use ($ignoredUrlParameters) {
-            return CachePolicy::fromArray(self::resolveIgnoredUrlParameters($directives, $ignoredUrlParameters));
+        $policies = array_map(static function ($directives) {
+            return CachePolicy::fromArray($directives);
         }, $policiesConfig);
 
         // init DefaultPolicies objects from config arrays
@@ -38,41 +36,5 @@ class CachePolicyProviderFactory
         }, $defaultPoliciesConfig);
 
         return new CachePolicyProvider($policies, $routePoliciesConfig, $defaultPolicies);
-    }
-
-    /**
-     * Expands `no_vary_search.include_ignored_url_parameters` into the concrete `params` list.
-     *
-     * The globally configured `shopware.http_cache.ignored_url_parameters` are already stripped from
-     * the server side cache key, so declaring them in the header only tells clients what the server
-     * cache does anyway. Expanding it here keeps the directives value object free of global config.
-     *
-     * @param CachePolicyConfig $policyConfig
-     * @param list<string> $ignoredUrlParameters
-     *
-     * @return CachePolicyConfig
-     */
-    private static function resolveIgnoredUrlParameters(array $policyConfig, array $ignoredUrlParameters): array
-    {
-        $directives = $policyConfig['headers']['no_vary_search'] ?? null;
-
-        if ($directives === null || ($directives['include_ignored_url_parameters'] ?? false) !== true) {
-            return $policyConfig;
-        }
-
-        unset($directives['include_ignored_url_parameters']);
-
-        $params = $directives['params'] ?? null;
-
-        // `params: true` already covers every parameter, there is nothing to add
-        if ($params !== true) {
-            $params = \is_array($params) ? $params : [];
-
-            $directives['params'] = array_values(array_unique([...$params, ...$ignoredUrlParameters]));
-        }
-
-        $policyConfig['headers']['no_vary_search'] = $directives;
-
-        return $policyConfig;
     }
 }

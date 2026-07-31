@@ -97,94 +97,63 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
-    public function testNoVarySearchConfigTreeNode(): void
+    #[DataProvider('validNoVarySearchProvider')]
+    public function testNoVarySearchConfigTreeNode(string $value): void
     {
-        $config = (new Processor())->processConfiguration(new Configuration(), [
-            [
-                'http_cache' => [
-                    'policies' => [
-                        'my_policy' => [
-                            'headers' => [
-                                'cache_control' => ['public' => true],
-                                'no_vary_search' => [
-                                    'key_order' => true,
-                                    'params' => ['utm_source', 'gclid'],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        $config = $this->processNoVarySearch($value);
 
-        static::assertSame([
-            'key_order' => true,
-            'params' => ['utm_source', 'gclid'],
-            'except' => [],
-            'include_ignored_url_parameters' => false,
-        ], $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
-    }
-
-    public function testNoVarySearchConfigAcceptsBooleanParams(): void
-    {
-        $config = (new Processor())->processConfiguration(new Configuration(), [
-            [
-                'http_cache' => [
-                    'policies' => [
-                        'my_policy' => [
-                            'headers' => [
-                                'cache_control' => ['public' => true],
-                                'no_vary_search' => ['params' => true, 'except' => ['q']],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        $noVarySearch = $config['http_cache']['policies']['my_policy']['headers']['no_vary_search'];
-
-        static::assertTrue($noVarySearch['params']);
-        static::assertSame(['q'], $noVarySearch['except']);
+        static::assertSame($value, $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
     }
 
     /**
-     * @param mixed $params
+     * @return iterable<string, array{0: string}>
      */
-    #[DataProvider('invalidNoVarySearchParamsProvider')]
-    public function testNoVarySearchConfigRejectsInvalidParams($params, string $given): void
+    public static function validNoVarySearchProvider(): iterable
     {
-        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
-            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search.params": '
-            . 'The "params" option must be a boolean or a list of query parameter names, %s given.',
-            $given
-        )));
+        yield 'key order' => ['key-order'];
+        yield 'params list' => ['key-order, params=("utm_source" "gclid")'];
+        yield 'all params with except' => ['params, except=("q")'];
+    }
 
-        (new Processor())->processConfiguration(new Configuration(), [
+    public function testNoVarySearchDefaultsToNull(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
             [
                 'http_cache' => [
                     'policies' => [
-                        'my_policy' => [
-                            'headers' => [
-                                'cache_control' => ['public' => true],
-                                'no_vary_search' => ['params' => $params],
-                            ],
-                        ],
+                        'my_policy' => ['headers' => ['cache_control' => ['public' => true]]],
                     ],
                 ],
             ],
         ]);
+
+        static::assertNull($config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    #[DataProvider('invalidNoVarySearchProvider')]
+    public function testNoVarySearchConfigRejectsInvalidValues($value, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search": '
+            . 'The "no_vary_search" option must be a single line of printable ASCII, %s given.',
+            $given
+        )));
+
+        $this->processNoVarySearch($value);
     }
 
     /**
      * @return iterable<string, array{0: mixed, 1: string}>
      */
-    public static function invalidNoVarySearchParamsProvider(): iterable
+    public static function invalidNoVarySearchProvider(): iterable
     {
-        yield 'integer' => [5, '5'];
-        yield 'string' => ['utm_source', '"utm_source"'];
-        yield 'hash map' => [['a' => 'utm_source'], '{"a":"utm_source"}'];
-        yield 'list of integers' => [[1, 2], '[1,2]'];
+        // a header value must never be able to smuggle a second header
+        yield 'header injection via CRLF' => ["key-order\r\nX-Injected: 1", '"key-order\r\nX-Injected: 1"'];
+        yield 'newline' => ["key-order\n", '"key-order\n"'];
+        yield 'empty string' => ['', '""'];
     }
 
     public function testTranslationConfigDefaultsToNull(): void
@@ -637,6 +606,29 @@ class ConfigurationTest extends TestCase
                     ],
                     'foobar' => [
                         'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    private function processNoVarySearch($value): array
+    {
+        return (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => $value,
+                            ],
+                        ],
                     ],
                 ],
             ],

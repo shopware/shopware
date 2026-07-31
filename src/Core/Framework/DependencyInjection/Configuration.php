@@ -1343,46 +1343,13 @@ class Configuration implements ConfigurationInterface
                                             ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
                                         ->end()
                                     ->end()
-                                    ->arrayNode('no_vary_search')
-                                        ->info('Declares which query string differences clients may ignore when matching a stored response. Never list parameters that change the rendered content (e.g. "p", "order", filter names), as prerendered pages would be served for the wrong URL.')
-                                        ->children()
-                                            ->booleanNode('key_order')
-                                                ->info('Marks the order of query parameters as irrelevant')
-                                                ->defaultNull()
-                                            ->end()
-                                            ->variableNode('params')
-                                                ->info('"true" marks all query parameters as irrelevant, a list of names marks only those parameters as irrelevant')
-                                                ->defaultNull()
-                                                ->validate()
-                                                    ->ifTrue(static function ($params): bool {
-                                                        if ($params === null || \is_bool($params)) {
-                                                            return false;
-                                                        }
-
-                                                        if (!\is_array($params) || !array_is_list($params)) {
-                                                            return true;
-                                                        }
-
-                                                        foreach ($params as $param) {
-                                                            if (!\is_string($param)) {
-                                                                return true;
-                                                            }
-                                                        }
-
-                                                        return false;
-                                                    })
-                                                    ->thenInvalid('The "params" option must be a boolean or a list of query parameter names, %s given.')
-                                                ->end()
-                                            ->end()
-                                            ->arrayNode('except')
-                                                ->info('Query parameters that stay relevant. Only allowed in combination with "params: true".')
-                                                ->performNoDeepMerging()
-                                                ->scalarPrototype()->end()
-                                            ->end()
-                                            ->booleanNode('include_ignored_url_parameters')
-                                                ->info('Adds all "shopware.http_cache.ignored_url_parameters" to "params". Those are already stripped from the server side cache key. Note that the resulting header is about 1.3 kB with the default list, compared to 27 bytes for "key_order" alone.')
-                                                ->defaultFalse()
-                                            ->end()
+                                    ->scalarNode('no_vary_search')
+                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as prerendered pages would then be served for the wrong URL.')
+                                        ->defaultNull()
+                                        ->validate()
+                                            // `\z` instead of `$`, otherwise a trailing newline would pass and could smuggle a second header
+                                            ->ifTrue(static fn ($value): bool => $value !== null && (!\is_string($value) || preg_match('/^[\x20-\x7E]+\z/', $value) !== 1))
+                                            ->thenInvalid('The "no_vary_search" option must be a single line of printable ASCII, %s given.')
                                         ->end()
                                     ->end()
                                 ->end()

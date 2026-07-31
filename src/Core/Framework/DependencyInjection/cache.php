@@ -247,7 +247,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.policies'),
             param('shopware.http_cache.route_policies'),
             param('shopware.http_cache.default_policies'),
-            param('shopware.http_cache.ignored_url_parameters'),
         ]);
 
     $services->set(CacheResponseSubscriber::class)

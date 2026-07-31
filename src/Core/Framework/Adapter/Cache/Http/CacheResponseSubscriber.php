@@ -277,8 +277,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         // `No-Vary-Search` only has a meaning for responses a client may actually store. Restricting it
         // to cacheable responses also keeps it out of the only code path that reaches this method
         // without the cache rework being active (http cache disabled + no-store route).
-        if ($cacheable && ($noVarySearch = $policy->noVarySearch?->toHeaderValue()) !== null) {
-            $response->headers->set(self::HEADER_NO_VARY_SEARCH, $noVarySearch);
+        if ($cacheable && $policy->noVarySearch !== null) {
+            $response->headers->set(self::HEADER_NO_VARY_SEARCH, $policy->noVarySearch);
         }
     }
 

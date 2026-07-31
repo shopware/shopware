@@ -11,21 +11,23 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @phpstan-import-type CacheControlDirectivesConfig from CacheControlDirectives
- * @phpstan-import-type NoVarySearchDirectivesConfig from NoVarySearchDirectives
  *
  * @phpstan-type CachePolicyConfig array{
  *     headers: array{
  *         cache_control: CacheControlDirectivesConfig,
- *         no_vary_search?: NoVarySearchDirectivesConfig
+ *         no_vary_search?: string|null
  *     }
  * }
  */
 #[Package('framework')]
 readonly class CachePolicy
 {
+    /**
+     * @param string|null $noVarySearch Verbatim value of the `No-Vary-Search` header, e.g. `key-order`
+     */
     public function __construct(
         public CacheControlDirectives $cacheControl,
-        public ?NoVarySearchDirectives $noVarySearch = null,
+        public ?string $noVarySearch = null,
     ) {
     }
 
@@ -42,16 +44,15 @@ readonly class CachePolicy
 
         $cacheControl = CacheControlDirectives::fromArray($data['headers']['cache_control']);
 
-        $noVarySearch = isset($data['headers']['no_vary_search'])
-            ? NoVarySearchDirectives::fromArray($data['headers']['no_vary_search'])
-            : null;
-
-        return new self(cacheControl: $cacheControl, noVarySearch: $noVarySearch);
+        return new self(
+            cacheControl: $cacheControl,
+            noVarySearch: $data['headers']['no_vary_search'] ?? null,
+        );
     }
 
     public function with(
         ?CacheControlDirectives $cacheControl = null,
-        ?NoVarySearchDirectives $noVarySearch = null,
+        ?string $noVarySearch = null,
     ): self {
         return new self(
             cacheControl: $cacheControl ?? $this->cacheControl,

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-const { decode, encode } = require('@jridgewell/sourcemap-codec');
+import { decode, encode } from '@jridgewell/sourcemap-codec';
 
 type GeneratedPosition = {
     line: number;

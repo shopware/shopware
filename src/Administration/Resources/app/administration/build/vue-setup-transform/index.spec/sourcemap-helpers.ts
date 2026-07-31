@@ -2,10 +2,20 @@
  * @sw-package framework
  */
 
-import { SourceMapConsumer } from 'source-map-js';
+import { SourceMapConsumer, type RawSourceMap } from 'source-map-js';
 import type { ShopwareSetupTransformResult } from '../index';
 
 type TransformResult = ShopwareSetupTransformResult;
+
+/**
+ * Reads a transform result's sourcemap as a typed object.
+ *
+ * `JSON.parse` returns `any`, so every field access on a parsed map would be unchecked. Asserting
+ * `RawSourceMap` once here keeps that assertion in a single place instead of at each call site.
+ */
+export function parseSourceMap(result: TransformResult): RawSourceMap {
+    return JSON.parse(result.map.toString()) as RawSourceMap;
+}
 
 /**
  * Converts a zero-based string index into the one-based line and zero-based column shape
@@ -69,7 +79,7 @@ function originalPositionFor(result: TransformResult, generatedNeedle: string, o
     expect(generatedIndex).toBeGreaterThanOrEqual(0);
 
     const generatedPosition = positionForIndex(result.code, generatedIndex);
-    const consumer = new SourceMapConsumer(JSON.parse(result.map.toString()));
+    const consumer = new SourceMapConsumer(parseSourceMap(result));
 
     return consumer.originalPositionFor(generatedPosition);
 }
@@ -89,7 +99,7 @@ function originalPositionForIndex(
     bias = SourceMapConsumer.GREATEST_LOWER_BOUND,
 ) {
     const generatedPosition = positionForIndex(result.code, generatedIndex);
-    const consumer = new SourceMapConsumer(JSON.parse(result.map.toString()));
+    const consumer = new SourceMapConsumer(parseSourceMap(result));
 
     return consumer.originalPositionFor({
         ...generatedPosition,

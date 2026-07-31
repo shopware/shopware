@@ -3,6 +3,7 @@
  */
 
 import { transformOrFail } from './helpers';
+import { parseSourceMap } from './sourcemap-helpers';
 
 describe('build/vue-setup-transform sourcemap shape', () => {
     it('returns a content-bearing sourcemap for transformed setup SFCs', () => {
@@ -15,7 +16,7 @@ swDefinePublic({
 </script>`;
 
         const result = transformOrFail(source, 'content-bearing.vue');
-        const map = JSON.parse(result.map.toString());
+        const map = parseSourceMap(result);
 
         expect(map.sources).toContain('content-bearing.vue');
         expect(map.sourcesContent).toContain(source);
@@ -32,8 +33,8 @@ swDefinePublic({
 </script>`;
         const firstResult = transformOrFail(source, '/extension-a/src/component.vue');
         const secondResult = transformOrFail(source, '/extension-b/src/component.vue');
-        const firstMap = JSON.parse(firstResult.map.toString());
-        const secondMap = JSON.parse(secondResult.map.toString());
+        const firstMap = parseSourceMap(firstResult);
+        const secondMap = parseSourceMap(secondResult);
 
         expect(firstMap.sources).toContain('/extension-a/src/component.vue');
         expect(firstMap.sources).not.toContain('component.vue');

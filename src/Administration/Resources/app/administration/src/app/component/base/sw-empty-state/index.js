@@ -55,8 +55,7 @@ export default {
     },
 
     computed: {
-        // An explicitly passed color still wins; the module accent color is no
-        // longer used for the icon.
+        // An explicitly passed color still wins; the module accent color is no longer used
         moduleColor() {
             return this.color ?? 'var(--color-icon-primary-default)';
         },

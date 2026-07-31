@@ -51,8 +51,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         gap: var(--scale-size-8);
     }
 
-    // The expanded search field keeps 16px distance to the actions, the collapsed
-    // search icon joins their plain 8px button row instead.
+    // Expanded keeps 16px to the actions, collapsed joins their plain 8px button row
     .sw-page__top-bar:has(.sw-search-bar__field-wrapper) .sw-page__top-bar-actions {
         margin-inline-start: var(--scale-size-8);
     }
@@ -219,8 +218,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
             gap: var(--scale-size-8);
         }
 
-        // Keeps the title lead identical however the back button is absent: an empty slot collapses
-        // just like the one the category module hides. Next to a button, gap and margin add up to 16px.
+        // Keeps the title lead identical whether or not the back button is present
         .sw-page__back-btn-container:empty {
             display: none;
         }

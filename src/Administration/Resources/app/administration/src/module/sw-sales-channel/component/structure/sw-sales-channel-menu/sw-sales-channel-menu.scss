@@ -3,9 +3,7 @@
         flex-shrink: 0;
         overflow: hidden;
 
-        // Collapses via width like .sw-admin-menu__collapse-button; the icon
-        // fades via hide-on-collapse. Visibility flips at the end of the shrink
-        // and removes the button from the tab order while collapsed.
+        // Collapses via width; visibility drops it from the tab order at the end of the shrink
         transition:
             width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
             visibility var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
@@ -42,8 +40,7 @@
 .sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-admin-menu__headline {
     padding: 0;
 
-    // The headline text stays in layout at width 0, so the gap must collapse
-    // with it — otherwise it offsets the action button.
+    // The headline text stays in layout at width 0, so the gap must collapse with it
     gap: 0;
 }
 

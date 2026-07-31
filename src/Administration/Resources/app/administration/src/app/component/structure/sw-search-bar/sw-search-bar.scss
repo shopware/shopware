@@ -36,9 +36,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     .sw-search-bar__off-canvas-toggle {
         flex: 0 0 auto;
 
-        // Visible while sw-admin-menu shows as an off-canvas panel; the `not`
-        // query is the exact complement of the menu's breakpoint, so no
-        // fractional viewport width matches neither side.
+        // The not query is the exact complement of the menu breakpoint, so no width falls between
         @media not screen and (max-width: 1280px) {
             display: none;
         }

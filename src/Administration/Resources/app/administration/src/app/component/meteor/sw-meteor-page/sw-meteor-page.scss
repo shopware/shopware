@@ -73,8 +73,7 @@
         margin-bottom: 48px;
         border-bottom: 1px solid var(--color-border-secondary-default);
 
-        // Divider under the top bar: placed as a grid item at the end of the first row,
-        // the negative margin bleeds it through the padding to the full head area width.
+        // The negative margin bleeds the divider through the padding to full width
         &::before {
             content: "";
             grid-row: 1;
@@ -90,8 +89,7 @@
         }
     }
 
-    // Without the smart bar the bottom margin has nothing to space away and the top bar
-    // divider would only double the head area border.
+    // Without the smart bar the top bar divider would only double the head area border
     &.sw-meteor-page--hide-smart-bar .sw-meteor-page__head-area {
         margin-bottom: 0;
 
@@ -134,8 +132,7 @@
         margin-inline-start: var(--scale-size-8);
     }
 
-    // The expanded search field keeps 16px distance to the actions, the collapsed
-    // search icon joins their plain 8px button row instead - same as the sw-page top bar.
+    // Expanded keeps 16px to the actions, collapsed joins their plain 8px button row
     .sw-meteor-page__head-area:has(.sw-search-bar__field-wrapper) .sw-meteor-page__head-area-global-actions {
         margin-inline-start: var(--scale-size-16);
     }
@@ -156,8 +153,7 @@
         }
     }
 
-    // Narrow head area: the outer columns collapse and the content runs full width,
-    // mirroring the sw-page head area at the same breakpoint.
+    // Narrow head area: the outer columns collapse and the content runs full width
     @container sw-meteor-page (max-width: 1300px) {
         .sw-meteor-page__head-area {
             grid-template-columns: 0 minmax(0, 1fr) auto;

@@ -54,8 +54,7 @@ $nesting-line-indent: 36px;
     }
 }
 
-// Native button variants of the navigation link (collapsible trigger,
-// sales channel "add" entry) — drop the user agent chrome.
+// Native button variants of the navigation link, dropping the user agent chrome
 .sw-admin-menu__navigation-item-row button.sw-admin-menu__navigation-link {
     border: 0;
     background: none;
@@ -105,8 +104,7 @@ $nesting-line-indent: 36px;
     }
 }
 
-// Shorten the tree line when the last visible row is a closed leaf, so the
-// line ends at that row's indicator instead of running past it.
+// Shorten the tree line when the last visible row is a closed leaf
 .navigation-list-item--nested:last-child > .sw-admin-menu__sub-navigation-list:has(
 > .sw-admin-menu__navigation-list-item:last-child:not(.is--entry-expanded)
 )::before {
@@ -127,8 +125,7 @@ $nesting-line-indent: 36px;
         border-radius: 1px;
     }
 
-    // The indicator pill; its transparent outline acts as a colour-swappable
-    // halo around it, so no extra element is needed.
+    // The transparent outline acts as a colour-swappable halo, so no extra element is needed
     &::after {
         content: "";
         position: absolute;
@@ -220,12 +217,7 @@ $nesting-line-indent: 36px;
     }
 }
 
-// The nesting tree lines and item indicators (pseudo elements) follow the same
-// timing as .hide-on-collapse: hidden almost instantly when collapsing, fading
-// back in delayed while the sidebar opens. The transition is scoped to the
-// toggle window (.is--toggling) so the hover/active indicator keeps reacting
-// instantly during normal interaction. Flyouts render detached from
-// .sw-admin-menu and stay unaffected.
+// Tree lines and indicators follow .hide-on-collapse timing, scoped to the toggle window
 .sw-admin-menu.is--toggling .navigation-list-item--nested {
     > .sw-admin-menu__sub-navigation-list::before,
     > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,

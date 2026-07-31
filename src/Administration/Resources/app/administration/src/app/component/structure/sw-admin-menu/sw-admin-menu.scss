@@ -37,9 +37,7 @@
     --sw-admin-menu-fade-in-delay: 0.05s;
     --sw-admin-menu-fade-out-duration: 0.05s;
 
-    // Former root flex gap between header, body and footer. Lives on the
-    // scrolling body as vertical padding and doubles as the control points
-    // of the edge fade mask on the body container.
+    // Body vertical padding, doubling as the control points of its edge fade mask
     --sw-admin-menu-body-fade: var(--scale-size-16);
 
     background: var(--color-elevation-surface-sunken);
@@ -56,8 +54,7 @@
         position: absolute;
         top: 0;
 
-        // The horizontal margin keeps 8px of the panel in view after a plain
-        // translateX(-100%) — shift by the margin as well to fully hide it.
+        // Shift by the margin too, it would keep 8px of the panel in view
         transform: translateX(calc(-100% - var(--scale-size-8)));
         bottom: 0;
         height: auto;
@@ -82,11 +79,7 @@
         pointer-events: none;
     }
 
-    // Elements that fade out when the sidebar collapses. Closing hides them
-    // quickly; opening waits until the width animation nearly finished
-    // before fading them back in. Elements that additionally animate layout
-    // (width/max-width) must keep that transition on a parent element —
-    // `transition` does not merge across rules.
+    // Elements animating layout on top of this must keep that transition on a parent
     .hide-on-collapse {
         opacity: 1;
         transition:
@@ -137,8 +130,7 @@
         transition: padding var(--sw-admin-menu-duration) var(--sw-admin-menu-bezier);
     }
 
-    // Static positioning shell — keeps its layout size so the crossfade below
-    // never shifts the header layout.
+    // Keeps its layout size so the crossfade below never shifts the header
     .sw-admin-menu__header-logo-wrapper {
         width: var(--scale-size-40);
         height: var(--scale-size-40);
@@ -149,8 +141,7 @@
             height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
     }
 
-    // The visible brand box (background + logo). Crossfades with the expand
-    // button on hover in the collapsed state.
+    // Crossfades with the expand button on hover while collapsed
     .sw-admin-menu__header-logo-box {
         position: absolute;
         inset: 0;
@@ -173,8 +164,7 @@
             width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
             height var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
 
-        // The icon kit sizes the inner svg via an id selector — scale it to the
-        // wrapper like mt-icon's own custom-size mode does (hence !important).
+        // The icon kit sizes the inner svg via an id selector, hence !important
         > svg {
             width: 100% !important;
             height: 100% !important;
@@ -206,9 +196,7 @@
         flex-shrink: 0;
         overflow: hidden;
 
-        // Shrink out of the header layout while collapsing; the icon inside
-        // fades via hide-on-collapse. Visibility flips at the end of the shrink
-        // and removes the button from the tab order while collapsed.
+        // Shrinks out of the header layout; visibility drops it from the tab order
         transition:
             width 0.25s var(--sw-admin-menu-bezier),
             visibility 0.25s var(--sw-admin-menu-bezier);
@@ -218,8 +206,7 @@
         flex-shrink: 0;
     }
 
-    // Crossfades with the logo on hover in the collapsed state: scale + blur mask
-    // the overlap of the two glyphs so it reads as one morphing element.
+    // Scale + blur mask the overlap with the logo so it reads as one morphing element
     .sw-admin-menu__header-logo-expand-button {
         position: absolute;
         inset: 0;
@@ -232,8 +219,7 @@
         color: var(--color-icon-primary-default);
         cursor: pointer;
 
-        // Hidden via opacity only — `visibility: hidden` would make the button
-        // unfocusable, but keyboard users must be able to tab to it to reveal it.
+        // Opacity only: visibility hidden would stop keyboard users tabbing to it
         opacity: 0;
         transform: scale(1.15);
         filter: blur(2px);
@@ -246,8 +232,7 @@
             background: var(--color-interaction-secondary-pressed);
         }
 
-        // Opacity resolves faster than the transform so the scale motion is
-        // actually visible while the element is already opaque.
+        // Opacity resolves faster than the transform so the scale motion stays visible
         transition:
             opacity 0.12s var(--sw-admin-menu-bezier),
             transform 0.2s var(--sw-admin-menu-bezier),
@@ -258,10 +243,7 @@
         flex: 1 1 0;
         overflow: hidden;
 
-        // Fade the scrolling body out at the top and bottom edge. The fade runs
-        // from 4px inside the edge to the body's vertical padding, so resting
-        // content stays fully opaque and only fades while it moves through the
-        // padding zones.
+        // Fades from 4px inside the edge to the body padding, so resting content stays opaque
         mask-image:
             linear-gradient(
                 to bottom,
@@ -279,9 +261,7 @@
         flex-direction: column;
         gap: var(--scale-size-16);
 
-        // The vertical padding must live on the scroller itself: scroll
-        // containers clip at their padding box, so content passing through
-        // the padding stays visible for the fade mask on the container.
+        // Must live on the scroller: it clips at the padding box, keeping content visible for the mask
         padding: var(--sw-admin-menu-body-fade) 0;
         overflow-x: hidden;
         overflow-y: scroll;
@@ -306,8 +286,7 @@
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
 
-        // The headline text stays in layout when collapsed, so the padding/gap
-        // changes have to animate in sync with the sidebar width transition.
+        // The headline text stays in layout when collapsed, so this animates with the sidebar width
         transition:
             padding var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
             gap var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier);
@@ -394,8 +373,7 @@
                 color: var(--color-icon-primary-default);
             }
 
-            // Collapse via width instead of `display: none` (see .sw-admin-menu__headline_text).
-            // The fade lives on the inner icons (hide-on-collapse).
+            // Collapse via width instead of display none (see .sw-admin-menu__headline_text)
             transition:
                 width var(--sw-admin-menu-duration-inner) var(--sw-admin-menu-bezier),
                 gap 0.15s ease;
@@ -426,9 +404,7 @@
             height: var(--scale-size-36);
             border-radius: var(--border-radius-s);
 
-            // The button fills the overflow-clipped headline exactly, so the
-            // default outer focus outline of mt-button would be cut off.
-            // Draw it inset instead, like the navigation links.
+            // The button fills the clipped headline, so the outer mt-button outline would be cut off
             &:focus-visible {
                 outline-offset: -2px;
             }
@@ -441,8 +417,7 @@
             border: 0;
             visibility: hidden;
 
-            // Hide instantly when collapsing; the transition on the base state
-            // still animates the reveal when the sidebar expands again.
+            // Hide instantly when collapsing; the base state still animates the reveal
             transition: none;
         }
 
@@ -483,8 +458,7 @@
             height: var(--scale-size-36);
         }
 
-        // The off-canvas menu always renders expanded — never apply the
-        // collapsed header reset on mobile so the padding is kept.
+        // The off-canvas menu always renders expanded, so no collapsed header reset on mobile
         @media screen and (min-width: 1281px) {
             .sw-admin-menu__header {
                 padding: 0;
@@ -529,17 +503,13 @@
         }
     }
 
-    // No transitions while the viewport resizes: crossing the off-canvas breakpoint would animate the
-    // width difference between the two menu modes and look like the menu collapses on its own.
+    // Crossing the off-canvas breakpoint would animate the width difference between both modes
     &.is--viewport-resizing,
     &.is--viewport-resizing * {
         transition: none;
     }
 
-    // The collapsible branches close via a keyframe animation, which `transition: none` does not
-    // cover. Only the closing direction is suppressed: the opening one plays while the off-canvas
-    // panel is still off-screen, and suppressing it would replay it once the class is removed
-    // again (a changed `animation-name` restarts the keyframes).
+    // Keyframes need their own suppression; only closing, else it replays when the class is removed
     &.is--viewport-resizing .mt-collapsible-content[data-state="closed"] {
         animation: none;
     }
@@ -560,8 +530,7 @@
 }
 
 .sw-admin-menu__flyout-content {
-    // Shifts the flyout up so its first item aligns with the hovered menu
-    // entry: title height + own padding + border.
+    // Aligns the first flyout item with the hovered entry: title height + padding + border
     --sw-admin-menu-flyout-shift: translateY(calc(-1 * (var(--scale-size-36) + var(--scale-size-6) + 1px)));
 
     width: 264px;

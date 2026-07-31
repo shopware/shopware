@@ -46,10 +46,6 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
-### Test behaviours can read per-request state from the request container
-
-`AppSystemTestBehaviour::getScriptTraces()` accepts an optional container and `StorefrontControllerTestBehaviour` exposes the new `getStorefrontRequestContainer()`, so integration tests can read per-request state (such as script traces) from the container that handled the request instead of the static test container. Existing call sites keep working unchanged; plugin test suites using these behaviours can adopt the same pattern to become independent of kernel service resets.
-
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.

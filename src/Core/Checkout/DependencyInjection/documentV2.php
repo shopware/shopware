@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
@@ -212,6 +213,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ]);
 
+    $services->set(DocumentFileResolver::class)
+        ->args([
+            service('document.repository'),
+        ]);
+
     $services->set(DocumentGenerator::class)
         ->public()
         ->args([
@@ -243,6 +249,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_type.repository'),
             service(MediaService::class),
             service(FileNameProvider::class),
+            service(DocumentFileResolver::class),
         ])
         ->call('setContainer', [
             service('service_container'),

@@ -14,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,5 +99,13 @@ class TriggerFlowControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($response->getContent());
         static::assertEquals('The trigger `custom.checkout.event`successfully dispatched!', json_decode($response->getContent(), true)['message']);
+    }
+
+    public function testTriggerRouteRequiresFlowDispatchAclPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(TriggerFlowController::class)->get('api.action.trigger_event');
+
+        static::assertNotNull($route);
+        static::assertSame(['flow:dispatch'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 }

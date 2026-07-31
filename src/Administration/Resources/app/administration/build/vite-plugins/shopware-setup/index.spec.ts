@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-import path from 'node:path';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -18,6 +17,19 @@ import shopwareSetupPlugin from './index';
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
 type LoadedModule = { code: string; map: SourceMap };
+type ProbePosition = { line: number; column: number };
+type ProbeSide = {
+    generatedIndex: number;
+    authoredIndex: number;
+    authoredPosition: ProbePosition;
+    mappedPosition: { source: string; line: number };
+};
+type ProbeResult = {
+    sources: string[];
+    loweredSourceCount: number;
+    base: ProbeSide;
+    override: ProbeSide;
+};
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
@@ -55,10 +67,12 @@ async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: strin
         `./${path.basename(vueFile)}`,
         path.join(path.dirname(vueFile), 'entry.js'),
     );
+    expect(resolvedId).not.toBeNull();
+
     const loadContext = {
         addWatchFile: jest.fn(),
     };
-    const loaded = await plugin.load.call(loadContext, resolvedId);
+    const loaded = await plugin.load.call(loadContext, resolvedId as string);
 
     return {
         loaded,
@@ -98,20 +112,19 @@ swDefinePublic({ count });
 
         expect(resolvedId).toBe(`${vueFile}.shopware-setup.vue`);
         expect(loaded).toHaveProperty('code');
-        expect(loaded.code).toContain('Shopware.Component.attachOverrides(');
-        expect(loaded.code).toContain("name: 'sw-my-component'");
-        expect(loaded.map.sources).toContain(vueFile);
-        expect(loaded.map.sources).not.toContain('sw-my-component.vue');
-        expect(loaded.map.sourcesContent).toContain(source);
-        expect(loaded.map.mappings).not.toBe('');
+        expect(loaded?.code).toContain('Shopware.Component.attachOverrides(');
+        expect(loaded?.code).toContain("name: 'sw-my-component'");
+        expect(loaded?.map.sources).toContain(vueFile);
+        expect(loaded?.map.sources).not.toContain('sw-my-component.vue');
+        expect(loaded?.map.sourcesContent).toContain(source);
+        expect(loaded?.map.mappings).not.toBe('');
         // The real `.vue` is not a Rollup module of its own, so load() must register it as a watched
         // dependency for HMR/watch invalidation.
         expect(loadContext.addWatchFile).toHaveBeenCalledWith(vueFile);
     });
 
     it('reuses the resolveId transform in load instead of transforming twice', async () => {
-        /** @type {import('vite').Plugin} */
-        const plugin = ShopwareSetupPlugin(pluginOptions);
+        const plugin = createPlugin();
         const source = `<script setup>
 const count = 1;
 swDefinePublic({ count });
@@ -141,7 +154,7 @@ swDefineOverride({});
         const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
 
         expect(loaded).toHaveProperty('code');
-        expect(loaded.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
+        expect(loaded?.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
     });
 
     it('supports direct transform calls for toolchains that do not use Vite resolve/load', async () => {
@@ -154,8 +167,8 @@ swDefinePublic({ count });
         const result = await plugin.transform(source, '/example/component.vue');
 
         expect(result).toHaveProperty('code');
-        expect(result.code).toContain('Shopware.Component.attachOverrides(');
-        expect(result.map.sources).toContain('/example/component.vue');
+        expect(result?.code).toContain('Shopware.Component.attachOverrides(');
+        expect(result?.map.sources).toContain('/example/component.vue');
     });
 
     it('rejects two base components that resolve to the same name', async () => {
@@ -254,7 +267,7 @@ swDefinePublic({ count });
                 SHOPWARE_ADMIN_ROOT: process.cwd(),
             },
         });
-        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout);
+        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
         // serialized from the emitted asset, so asserting on the chunk object hid a bug where every
@@ -268,29 +281,17 @@ swDefinePublic({ count });
 
         // A base component keeps its body in place; an override has its body relocated into a callback, so
         // only the override proves the transform's own map is composed rather than merely renamed.
-        [
-            [
-                'base',
-                base,
-                'src/sw-nested-component.vue',
-            ],
-            [
-                'override',
-                override,
-                'src/sw-nested-component.override.vue',
-            ],
-        ].forEach(
-            ([
-                ,
-                probe,
-                file,
-            ]) => {
-                expect(probe.generatedIndex).toBeGreaterThanOrEqual(0);
-                expect(probe.authoredIndex).toBeGreaterThanOrEqual(0);
-                expect(probe.mappedPosition.source).toContain(file);
-                expect(probe.mappedPosition.line).toBe(probe.authoredPosition.line);
-            },
-        );
+        const sides: { probe: ProbeSide; file: string }[] = [
+            { probe: base, file: 'src/sw-nested-component.vue' },
+            { probe: override, file: 'src/sw-nested-component.override.vue' },
+        ];
+
+        sides.forEach(({ probe, file }) => {
+            expect(probe.generatedIndex).toBeGreaterThanOrEqual(0);
+            expect(probe.authoredIndex).toBeGreaterThanOrEqual(0);
+            expect(probe.mappedPosition.source).toContain(file);
+            expect(probe.mappedPosition.line).toBe(probe.authoredPosition.line);
+        });
     }, 60000);
 
     it('rejects Vue files without a script setup block', async () => {

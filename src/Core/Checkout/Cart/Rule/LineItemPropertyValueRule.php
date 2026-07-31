@@ -50,10 +50,6 @@ class LineItemPropertyValueRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $item) {
-            if ($item->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-
             if ($this->matchLineItem($item)) {
                 return true;
             }
@@ -64,6 +60,10 @@ class LineItemPropertyValueRule extends Rule
 
     public function matchLineItem(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         /**
          * @var list<string> $value
          */

@@ -43,10 +43,6 @@ class LineItemPurchasePriceRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-
             if ($this->matchPurchasePriceCondition($lineItem)) {
                 return true;
             }
@@ -88,6 +84,10 @@ class LineItemPurchasePriceRule extends Rule
      */
     private function matchPurchasePriceCondition(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
 
         return RuleComparison::numeric($purchasePriceAmount, $this->amount, $this->operator);

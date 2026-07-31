@@ -6,6 +6,10 @@
 
 ## Core
 
+### Line item rule conditions only evaluate product line items
+
+Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
+
 ### `product-export:generate --force` now regenerates scheduler-managed exports
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.

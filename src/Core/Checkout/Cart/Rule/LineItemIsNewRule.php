@@ -40,10 +40,6 @@ class LineItemIsNewRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }
@@ -72,6 +68,10 @@ class LineItemIsNewRule extends Rule
      */
     private function matchLineItemIsNew(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         return (bool) $lineItem->getPayloadValue('isNew') === $this->isNew;
     }
 }

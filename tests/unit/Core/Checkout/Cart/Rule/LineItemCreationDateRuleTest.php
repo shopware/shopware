@@ -266,21 +266,30 @@ class LineItemCreationDateRuleTest extends TestCase
         );
     }
 
-    public function testNonProductGoodsAreSkipped(): void
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
-        $option = self::createLineItem('customized-products-option');
-        $container = self::createLineItem('customized-products')
-            ->setGood(false)
-            ->setChildren(new LineItemCollection([$option]));
-
         $rule = new LineItemCreationDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
 
-        $matches = $rule->match(new CartRuleScope(
-            self::createCart(new LineItemCollection([$container])),
-            static::createStub(SalesChannelContext::class),
-        ));
+        $lineItem = self::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
 
-        static::assertFalse($matches);
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     private function createLineItemWithCreatedDate(?string $createdAt): LineItem

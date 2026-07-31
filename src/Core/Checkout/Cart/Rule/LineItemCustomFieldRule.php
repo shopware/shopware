@@ -50,10 +50,6 @@ class LineItemCustomFieldRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-
             if ($this->isCustomFieldValid($lineItem, $scope->getSalesChannelContext())) {
                 return true;
             }
@@ -69,6 +65,10 @@ class LineItemCustomFieldRule extends Rule
 
     private function isCustomFieldValid(LineItem $lineItem, SalesChannelContext $context): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $customFields = $lineItem->getPayloadValue('customFields');
         if ($customFields === null) {
             return RuleComparison::isNegativeOperator($this->operator);

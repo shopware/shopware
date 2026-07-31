@@ -132,22 +132,34 @@ class LineItemPropertyValueRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
-    public function testNonProductGoodsAreSkipped(): void
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
-        $option = new LineItem(Uuid::randomHex(), 'customized-products-option');
-        $container = (new LineItem(Uuid::randomHex(), 'customized-products'))->setGood(false)->setChildren(new LineItemCollection([$option]));
-
-        $cart = new Cart(Uuid::randomHex());
-        $cart->setLineItems(new LineItemCollection([$container]));
-
         $rule = new LineItemPropertyValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
-        $matches = $rule->match(new CartRuleScope(
-            $cart,
-            static::createStub(SalesChannelContext::class),
-        ));
+        $lineItem = new LineItem(Uuid::randomHex(), $type);
+        $context = static::createStub(SalesChannelContext::class);
 
-        static::assertFalse($matches);
+        if ($lineItemScope) {
+            $scope = new LineItemScope($lineItem, $context);
+        } else {
+            $cart = new Cart(Uuid::randomHex());
+            $cart->setLineItems(new LineItemCollection([$lineItem]));
+            $scope = new CartRuleScope($cart, $context);
+        }
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     /**

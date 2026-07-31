@@ -67,10 +67,6 @@ class LineItemReleaseDateRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -93,6 +89,10 @@ class LineItemReleaseDateRule extends Rule
      */
     private function matchesReleaseDate(LineItem $lineItem, string|array $ruleValue): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         /** @var string|null $releasedAtString */
         $releasedAtString = $lineItem->getPayloadValue('releaseDate');
 

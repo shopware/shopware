@@ -24,39 +24,58 @@ describe('Jest feature flag extensions', () => {
         expect(testFunction.skip).toHaveBeenCalledWith('deprecated test', expect.any(Function));
     });
 
-    it.activeFeatureFlags([
-        'EXISTING_FEATURE',
-        'NEW_FEATURE',
-    ])('activates feature flags during a test', () => {
-        // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
-        expect(globalThis.activeFeatureFlags).toEqual([
+    describe('active feature flag lifecycle', () => {
+        let featureFlagsInSetup: string[] = [];
+
+        beforeEach(() => {
+            featureFlagsInSetup = [...globalThis.activeFeatureFlags];
+        });
+
+        afterEach(() => {
+            // eslint-disable-next-line jest/no-standalone-expect -- Verifies the flags remain active after the test callback.
+            expect(globalThis.activeFeatureFlags).toEqual([
+                'EXISTING_FEATURE',
+                'NEW_FEATURE',
+            ]);
+        });
+
+        afterAll(() => {
+            // eslint-disable-next-line jest/no-standalone-expect -- Verifies the environment restores the flags after teardown.
+            expect(globalThis.activeFeatureFlags).toEqual([]);
+        });
+
+        it.activeFeatureFlags([
             'EXISTING_FEATURE',
             'NEW_FEATURE',
-        ]);
+        ])('activates feature flags during setup, the test, and teardown', () => {
+            // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
+            expect(globalThis.activeFeatureFlags).toEqual([
+                'EXISTING_FEATURE',
+                'NEW_FEATURE',
+            ]);
+
+            // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
+            expect(featureFlagsInSetup).toEqual([
+                'EXISTING_FEATURE',
+                'NEW_FEATURE',
+            ]);
+        });
     });
 
-    it('restores feature flags after a test', () => {
-        expect(globalThis.activeFeatureFlags).toEqual([]);
-    });
-
-    it('restores feature flags when an asynchronous test fails', async () => {
-        globalThis.activeFeatureFlags = ['EXISTING_FEATURE'];
-        const testFunction = jest.fn((name: string, callback?: jest.ProvidesCallback) => {
-            return (callback as (() => PromiseLike<unknown>) | undefined)?.();
+    it('registers feature flags for the created test', () => {
+        let registeredFeatureFlags: string[] = [];
+        const testFunction = jest.fn((name: string, callback: jest.ProvidesCallback) => {
+            const featureFlags: unknown = Reflect.get(callback, Symbol.for('shopware.activeFeatureFlags'));
+            registeredFeatureFlags = Array.isArray(featureFlags)
+                ? featureFlags.filter((featureFlag): featureFlag is string => typeof featureFlag === 'string')
+                : [];
         }) as unknown as jest.It;
-        const expectedError = new Error('Test failed');
+        const callback = jest.fn();
 
-        await expect(
-            createActiveFeatureFlagsTest(testFunction)(['NEW_FEATURE'])('failing test', () => {
-                expect(globalThis.activeFeatureFlags).toEqual([
-                    'EXISTING_FEATURE',
-                    'NEW_FEATURE',
-                ]);
+        createActiveFeatureFlagsTest(testFunction)(['NEW_FEATURE'])('feature test', callback);
 
-                return Promise.reject(expectedError);
-            }),
-        ).rejects.toBe(expectedError);
-
-        expect(globalThis.activeFeatureFlags).toEqual(['EXISTING_FEATURE']);
+        expect(testFunction).toHaveBeenCalledWith('feature test', callback, undefined);
+        expect(registeredFeatureFlags).toEqual(['NEW_FEATURE']);
+        expect(Reflect.has(callback, Symbol.for('shopware.activeFeatureFlags'))).toBeFalsy();
     });
 });

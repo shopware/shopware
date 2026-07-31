@@ -48,13 +48,11 @@ describe('Jest feature flag extensions', () => {
             'EXISTING_FEATURE',
             'NEW_FEATURE',
         ])('activates feature flags during setup, the test, and teardown', () => {
-            // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
             expect(globalThis.activeFeatureFlags).toEqual([
                 'EXISTING_FEATURE',
                 'NEW_FEATURE',
             ]);
 
-            // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
             expect(featureFlagsInSetup).toEqual([
                 'EXISTING_FEATURE',
                 'NEW_FEATURE',

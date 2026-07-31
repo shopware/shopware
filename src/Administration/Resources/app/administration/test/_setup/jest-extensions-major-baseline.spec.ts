@@ -29,17 +29,14 @@ describe('Jest feature flag extensions with a major baseline', () => {
     });
 
     it.activeFeatureFlags(['EXPERIMENTAL_FEATURE'])('adds per-test flags without replacing the major baseline', () => {
-        // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
         expect(globalThis.activeFeatureFlags).toEqual([
             'V6_8_0_0',
             'EXPERIMENTAL_FEATURE',
         ]);
-        // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
         expect(featureFlagsInSetup).toEqual([
             'V6_8_0_0',
             'EXPERIMENTAL_FEATURE',
         ]);
-        // eslint-disable-next-line jest/no-standalone-expect -- The custom test helper is not known to eslint-plugin-jest.
         expect(Shopware.Feature.isActive('v6.8.0.0')).toBeTruthy();
     });
 });

@@ -1364,7 +1364,22 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
-    it('should not filter custom field sets when selection not active', async () => {
+    // CHANGE REASON: Assert tab metadata through the component used by the active feature-flag branch. @upgraded
+    function expectCustomFieldTabs(expectedItems, assertLegacyLabels = false) {
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual(expectedItems);
+            return;
+        }
+
+        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+        expect(tabs).toHaveLength(expectedItems.length);
+
+        if (assertLegacyLabels) {
+            expect(tabs.map((tab) => tab.text())).toEqual(expectedItems.map(({ label }) => label));
+        }
+    }
+
+    const shouldNotFilterCustomFieldSetsWhenSelectionIsInactive = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1412,11 +1427,26 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+        expectCustomFieldTabs([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    };
 
-    it('should not filter custom field sets when entity has no customFieldSets column', async () => {
+    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when selection not active',
+        shouldNotFilterCustomFieldSetsWhenSelectionIsInactive,
+    );
+
+    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when selection not active',
+        shouldNotFilterCustomFieldSetsWhenSelectionIsInactive,
+    );
+
+    const shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1460,11 +1490,26 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+        expectCustomFieldTabs([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    };
 
-    it('should render the correct tab label given from the config', async () => {
+    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when entity has no customFieldSets column',
+        shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn,
+    );
+
+    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when entity has no customFieldSets column',
+        shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn,
+    );
+
+    const shouldRenderConfiguredTabLabel = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1498,12 +1543,20 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(1);
-        expect(tabs.at(0).text()).toBe('Set 1 Label');
-    });
+        expectCustomFieldTabs([{ label: 'Set 1 Label', name: 'set1' }], true);
+    };
 
-    it('should render the fallback tab label when no label exists in the config', async () => {
+    // CHANGE REASON: The legacy assertion reads the configured label from a sw-tabs item removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')('should render the correct tab label given from the config', shouldRenderConfiguredTabLabel);
+
+    // CHANGE REASON: The v6.8 variant reads the configured label from MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render the correct tab label given from the config',
+        shouldRenderConfiguredTabLabel,
+    );
+
+    const shouldRenderFallbackTabLabel = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1537,12 +1590,23 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(1);
-        expect(tabs.at(0).text()).toBe('set1');
-    });
+        expectCustomFieldTabs([{ label: 'set1', name: 'set1' }], true);
+    };
 
-    it('should not filter custom field sets when entity has no customFieldSetSelectionActive column', async () => {
+    // CHANGE REASON: The legacy assertion reads the fallback label from a sw-tabs item removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should render the fallback tab label when no label exists in the config',
+        shouldRenderFallbackTabLabel,
+    );
+
+    // CHANGE REASON: The v6.8 variant reads the fallback label from MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render the fallback tab label when no label exists in the config',
+        shouldRenderFallbackTabLabel,
+    );
+
+    const shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1586,11 +1650,26 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+        expectCustomFieldTabs([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    };
 
-    it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set', async () => {
+    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
+        shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn,
+    );
+
+    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
+        shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn,
+    );
+
+    const shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1635,11 +1714,26 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+        expectCustomFieldTabs([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    };
 
-    it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection', async () => {
+    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
+        shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive,
+    );
+
+    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
+        shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive,
+    );
+
+    const shouldNotFilterCustomFieldSetsWhenParentHasNoSelection = async () => {
         const props = {
             entity: {
                 customFields: {
@@ -1687,9 +1781,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+        expectCustomFieldTabs([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    };
+
+    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
+        shouldNotFilterCustomFieldSetsWhenParentHasNoSelection,
+    );
+
+    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
+        shouldNotFilterCustomFieldSetsWhenParentHasNoSelection,
+    );
 
     it('should initialize new custom fields on entity change', async () => {
         const props = {

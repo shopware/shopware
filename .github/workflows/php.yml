@@ -144,8 +144,15 @@ jobs:
           restore-keys: |
             rector-result-cache-
 
+      # baseline data for the runner sizing evaluation, see issue 18890: rector scales
+      # with the core count, so wall times are only comparable with the environment printed
+      - name: Show analysis environment
+        run: |
+          echo "cores: $(nproc)"
+          free -h | head -2
+
       - name: Rector
-        run: composer rector
+        run: time composer rector
 
       - name: "Save result cache"
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

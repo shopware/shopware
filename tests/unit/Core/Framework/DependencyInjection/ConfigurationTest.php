@@ -51,6 +51,13 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
     }
 
+    public function testCdnPathCacheBusterDefaultsToTrue(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);
+
+        static::assertTrue($config['cdn']['path_cache_buster']);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

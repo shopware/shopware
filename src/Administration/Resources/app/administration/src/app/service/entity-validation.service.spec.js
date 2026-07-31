@@ -13,6 +13,26 @@ function createService() {
     return new EntityValidationService(EntityDefinitionFactory, new ChangesetGenerator(), new ErrorResolver());
 }
 
+// CHANGE REASON: Feature-scoped tests must mirror the generated v6.8 product schema and restore the shared definition. @upgraded
+function withRequiredProductType(callback) {
+    return async () => {
+        const typeFlags = Shopware.EntityDefinition.get('product').properties.type.flags;
+        const previousRequired = typeFlags.required;
+
+        typeFlags.required = true;
+
+        try {
+            await callback();
+        } finally {
+            if (previousRequired === undefined) {
+                delete typeFlags.required;
+            } else {
+                typeFlags.required = previousRequired;
+            }
+        }
+    };
+}
+
 const entityFactory = new EntityFactory();
 
 describe('src/app/service/entity-validation.service.js', () => {
@@ -39,7 +59,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         });
     });
 
-    it('should validate an empty product and report errors', () => {
+    const validatesEmptyProduct = (requiresProductType = false) => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
         const testEntity = entityFactory.create('product');
@@ -71,10 +91,28 @@ describe('src/app/service/entity-validation.service.js', () => {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 source: { pointer: '/0/name' },
             },
+            ...(requiresProductType
+                ? [
+                      {
+                          code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                          source: { pointer: '/0/type' },
+                      },
+                  ]
+                : []),
         ]);
-    });
+    };
 
-    it('should validate missing price for a product', () => {
+    // CHANGE REASON: The legacy product schema does not require a product type. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('should validate an empty product and report errors', () => validatesEmptyProduct());
+
+    // CHANGE REASON: The v6.8 product schema reports the newly required product type. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should validate an empty product and report errors',
+        withRequiredProductType(() => validatesEmptyProduct(true)),
+    );
+
+    const validatesMissingProductPrice = (withProductType = false) => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
         const testEntity = entityFactory.create('product');
@@ -82,6 +120,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        if (withProductType) {
+            testEntity.type = 'physical';
+        }
         testEntity.price = [
             {
                 gross: null,
@@ -105,9 +146,19 @@ describe('src/app/service/entity-validation.service.js', () => {
                 source: { pointer: '/0/price/0/gross' },
             },
         ]);
-    });
+    };
 
-    it('should validate a complete product and report no errors', () => {
+    // CHANGE REASON: The legacy fixture is complete without a product type. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('should validate missing price for a product', () => validatesMissingProductPrice());
+
+    // CHANGE REASON: The v6.8 fixture supplies the required product type so validation remains focused on prices. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should validate missing price for a product',
+        withRequiredProductType(() => validatesMissingProductPrice(true)),
+    );
+
+    const validatesCompleteProduct = (withProductType = false) => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
         const testEntity = entityFactory.create('product');
@@ -115,6 +166,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        if (withProductType) {
+            testEntity.type = 'physical';
+        }
         testEntity.price = [
             {
                 gross: 10,
@@ -129,9 +183,19 @@ describe('src/app/service/entity-validation.service.js', () => {
         // found errors should match
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
-    });
+    };
 
-    it('should validate a product and report callback errors', () => {
+    // CHANGE REASON: The legacy fixture is complete without a product type. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('should validate a complete product and report no errors', () => validatesCompleteProduct());
+
+    // CHANGE REASON: The v6.8 complete fixture includes the newly required product type. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should validate a complete product and report no errors',
+        withRequiredProductType(() => validatesCompleteProduct(true)),
+    );
+
+    const validatesProductCallbackErrors = (withProductType = false) => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
         const testEntity = entityFactory.create('product');
@@ -139,6 +203,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        if (withProductType) {
+            testEntity.type = 'physical';
+        }
         testEntity.price = [
             {
                 gross: 10,
@@ -176,9 +243,21 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(customValidator.mock.calls[0][1]).toBe(testEntity); // entity
         expect(customValidator.mock.calls[0][2]).toBe(Shopware.EntityDefinition.get(testEntity.getEntityName())); // entity definition
         expect(customValidator.mock.results[0].value).toEqual(expectedErrors); // should return the errors
-    });
+    };
 
-    it('should validate a complete product with ignore fields and report no errors', () => {
+    // CHANGE REASON: The legacy fixture isolates callback errors without a product type. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('should validate a product and report callback errors', () =>
+        validatesProductCallbackErrors(),
+    );
+
+    // CHANGE REASON: The v6.8 fixture supplies the required type so the callback error remains the only violation. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should validate a product and report callback errors',
+        withRequiredProductType(() => validatesProductCallbackErrors(true)),
+    );
+
+    const validatesCompleteProductWithIgnoredFields = (withProductType = false) => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
         const testEntity = entityFactory.create('product');
@@ -186,6 +265,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         testEntity.stock = 5;
         testEntity.productNumber = 'MyProductNumber';
         testEntity.taxId = 'some-tax-uuid';
+        if (withProductType) {
+            testEntity.type = 'physical';
+        }
         testEntity.price = [
             {
                 gross: 10,
@@ -200,5 +282,17 @@ describe('src/app/service/entity-validation.service.js', () => {
 
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
-    });
+    };
+
+    // CHANGE REASON: The legacy fixture is complete without a product type when name is ignored. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('should validate a complete product with ignore fields and report no errors', () =>
+        validatesCompleteProductWithIgnoredFields(),
+    );
+
+    // CHANGE REASON: The v6.8 ignored-fields fixture includes the newly required product type. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should validate a complete product with ignore fields and report no errors',
+        withRequiredProductType(() => validatesCompleteProductWithIgnoredFields(true)),
+    );
 });

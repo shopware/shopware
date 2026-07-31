@@ -2123,9 +2123,9 @@ class EntityReaderTest extends TestCase
         $this->productRepository->upsert($products, $context);
 
         $criteria = new Criteria([$id1, $id2]);
-            $criteria->getAssociation('categories')
-                ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING))
-                ->setLimit(3);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING))
+            ->setLimit(3);
 
         $products = $this->productRepository
             ->search($criteria, $context)

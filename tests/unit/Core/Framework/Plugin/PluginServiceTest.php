@@ -29,7 +29,7 @@ class PluginServiceTest extends TestCase
 {
     public function testPluginsAddsPlugin(): void
     {
-        $pluginFinder = $this->createMock(PluginFinder::class);
+        $pluginFinder = static::createStub(PluginFinder::class);
         $completePackage = $this->getComposerPackage();
 
         $pluginFromFileSystemStruct = new PluginFromFileSystemStruct();
@@ -67,7 +67,7 @@ class PluginServiceTest extends TestCase
 
     public function testPluginsAliasesGetResolved(): void
     {
-        $pluginFinder = $this->createMock(PluginFinder::class);
+        $pluginFinder = static::createStub(PluginFinder::class);
         $pluginFromFileSystemStruct = new PluginFromFileSystemStruct();
         $completePackage = $this->getComposerPackage();
 
@@ -108,7 +108,7 @@ class PluginServiceTest extends TestCase
     public function testGetPluginByName(): void
     {
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
-        $pluginFinder = $this->createMock(PluginFinder::class);
+        $pluginFinder = static::createStub(PluginFinder::class);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
         $this->expectExceptionObject(PluginException::notFound('foo'));

@@ -814,7 +814,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    it('should load system config with different sales channel', async () => {
+    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should load system config with different sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
         const wrapper = await createWrapper('page');
@@ -835,7 +837,32 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    it('should load system config with different sales channel without matching shop pages', async () => {
+    // CHANGE REASON: Exercise the same sales-channel behavior through the v6.8 Meteor tabs API. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should load system config with different sales channel', async () => {
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page', {}, { featureActive: true });
+
+        // Select shop page tab
+        await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
+        await flushPromises();
+
+        // Set new sales channel id
+        await wrapper.setData({
+            shopPageSalesChannelId: 'storefront_id',
+        });
+
+        // Trigger sales channel select change
+        await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
+
+        expect(wrapper.vm.selectedShopPages.storefront_id).toEqual([
+            'core.basicInformation.contactPage',
+        ]);
+    });
+
+    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should load system config with different sales channel without matching shop pages', async () => {
         global.activeAclRoles = ['system.system_config'];
 
         const wrapper = await createWrapper('page');
@@ -855,7 +882,34 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
     });
 
-    it('should load system config when changing sales channel', async () => {
+    // CHANGE REASON: Exercise the empty shop-page inheritance state through the v6.8 Meteor tabs API. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should load system config with different sales channel without matching shop pages',
+        async () => {
+            global.activeAclRoles = ['system.system_config'];
+
+            const wrapper = await createWrapper('page', {}, { featureActive: true });
+
+            // Select shop page tab
+            await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
+            await flushPromises();
+
+            // Set new sales channel id
+            await wrapper.setData({
+                shopPageSalesChannelId: 'headless_id',
+            });
+
+            // Trigger sales channel select change
+            await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
+
+            // Value should be null for inheritance switch
+            expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
+        },
+    );
+
+    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    it.deprecated('v6.8.0.0')('should load system config when changing sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
         const wrapper = await createWrapper('page');
@@ -863,6 +917,23 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Select shop page tab
         await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
+
+        // Trigger sales channel select change
+        await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
+
+        expect(onInputSalesChannelSelectSpy).toHaveBeenCalledTimes(1);
+    });
+
+    // CHANGE REASON: Exercise the sales-channel listener through the v6.8 Meteor tabs API. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should load system config when changing sales channel', async () => {
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page', {}, { featureActive: true });
+        const onInputSalesChannelSelectSpy = jest.spyOn(wrapper.vm, 'onInputSalesChannelSelect');
+
+        // Select shop page tab
+        await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
+        await flushPromises();
 
         // Trigger sales channel select change
         await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');

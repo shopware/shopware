@@ -61,6 +61,7 @@ class SsoUserInvitationMailService
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
         $mailDataArray = [
+            'templateId' => $mailTemplate?->getId(),
             'recipients' => [$recipientEmail => $recipientEmail],
             'senderName' => $shopName,
             'subject' => $mailTemplate?->getTranslation('subject'),

@@ -663,9 +663,8 @@ class EntityDispatchServiceTest extends TestCase
             static::assertInstanceOf(IterateEntityMessage::class, $message);
             static::assertNotNull($message->lastRun);
             $entityName = $message->entityName;
-            if (\array_key_exists($entityName, $foundMessages)) {
-                ++$foundMessages[$entityName][$message->operation->value];
-            }
+            static::assertArrayHasKey($entityName, $foundMessages);
+            ++$foundMessages[$entityName][$message->operation->value];
         }
 
         static::assertSame($expectedMessages, $foundMessages);

@@ -303,11 +303,10 @@ class SeoActionController extends AbstractController
             throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
-        $config = $seoUrlRoute->getConfig();
-        $config->setSkipInvalid(false);
         $route = new ConfiguredEntitySeoUrlRoute($seoUrlRoute);
+        $route->getConfig()->setSkipInvalid(false);
 
-        $repository = $this->getRepository($config);
+        $repository = $this->getRepository($route->getConfig());
 
         $salesChannel = $this->resolveSalesChannel($seoUrlTemplate, $context);
         if ($salesChannel === null) {

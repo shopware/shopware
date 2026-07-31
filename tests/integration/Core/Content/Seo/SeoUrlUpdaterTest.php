@@ -327,7 +327,7 @@ class SeoUrlUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('routeName', ProductStoreApiUrlRoute::ROUTE_NAME));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->headlessSalesChannel['id']));
 
-        $seoUrl = static::getContainer()->get('seo_url.repository')->search($criteria, Context::createDefaultContext())->first();
+        $seoUrl = static::getContainer()->get('seo_url.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         return $seoUrl instanceof SeoUrlEntity ? $seoUrl : null;
     }

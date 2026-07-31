@@ -24,7 +24,6 @@ use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -435,7 +434,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());

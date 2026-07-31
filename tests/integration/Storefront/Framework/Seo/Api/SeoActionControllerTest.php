@@ -176,14 +176,15 @@ class SeoActionControllerTest extends TestCase
 
     public function testPreviewWithBrokenTemplate(): void
     {
-        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
-        $this->createTestProduct();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $this->createTestProduct($salesChannelId);
 
         $data = [
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => '{{ product.undefinedProperty }}',
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'salesChannelId' => $salesChannelId,
         ];
         $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);
 
@@ -229,21 +230,27 @@ class SeoActionControllerTest extends TestCase
     public function testPreviewForHeadlessStoreApiRoute(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $this->createSalesChannelContext(['id' => $salesChannelId, 'typeId' => Defaults::SALES_CHANNEL_TYPE_API, 'name' => 'test']);
-
-        // SEO URLs are only generated for external storefront domains
-        static::getContainer()->get(Connection::class)->executeStatement(
-            'UPDATE `sales_channel_domain` SET `is_external_storefront` = 1 WHERE `sales_channel_id` = :id',
-            ['id' => Uuid::fromHexToBytes($salesChannelId)]
-        );
+        $this->createSalesChannelContext([
+            'id' => $salesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'test',
+            'domains' => [
+                [
+                    'url' => 'https://foo.bar',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ]);
 
         $this->createTestProduct($salesChannelId);
 
-        // headless templates may render a full URL, which is passed through as-is
         $data = [
             'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
             'entityName' => static::getContainer()->get(ProductDefinition::class)->getEntityName(),
-            'template' => 'https://foo.bar/{{ product.name }}',
+            'template' => '{{ product.name }}',
             'salesChannelId' => $salesChannelId,
         ];
         $this->getBrowser()->jsonRequest('POST', '/api/_action/seo-url-template/preview', $data);

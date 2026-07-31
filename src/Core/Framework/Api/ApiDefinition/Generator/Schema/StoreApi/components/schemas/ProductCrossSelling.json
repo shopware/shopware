@@ -1,0 +1,65 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductCrossSelling": {
+                "description": "Added since version: 6.1.0.0",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "description": "The order of the tabs of your defined cross-selling actions in the storefront by entering numerical values like 1,2,3, etc.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "sortBy": {
+                        "description": "To sort the display of products by name, price or publication (descending, ascending) date.",
+                        "type": "string"
+                    },
+                    "sortDirection": {
+                        "description": "To sort the display of products by ascending or descending order.",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of product assignment for cross-selling. It can either be Dynamic product group or Manual assignment.",
+                        "type": "string"
+                    },
+                    "active": {
+                        "description": "When set to active, the cross-selling feature is enabled.",
+                        "type": "boolean"
+                    },
+                    "limit": {
+                        "description": "The maximum number of products to be displayed in cross-selling on the item detail page of your item.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

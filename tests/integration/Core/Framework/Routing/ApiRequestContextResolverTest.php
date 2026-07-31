@@ -107,6 +107,27 @@ class ApiRequestContextResolverTest extends TestCase
         }
     }
 
+    public function testNonAdminUserReceivesDefaultUserPrivileges(): void
+    {
+        $user = $this->createUser(['test-role' => ['product:read']], false);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
+        $request->attributes->set('_routeScope', ['api']);
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+
+        $source = $context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        static::assertFalse($source->isAdmin());
+
+        foreach (AdminApiSource::DEFAULT_USER_PRIVILEGES as $privilege) {
+            static::assertTrue($source->isAllowed($privilege), $privilege);
+        }
+    }
+
     public function testContextSkipTriggerFlowState(): void
     {
         $user = $this->createUser([], true);

@@ -12,16 +12,13 @@ class AdminApiSource implements ContextSource, \JsonSerializable
 
     /**
      * Runtime privileges granted to authenticated Administration users by default.
+     * The backing endpoints run in every admin session (module-usage tracking, queue polling),
+     * so users must not lose access when the routes enforce ACL privileges.
      *
      * @var list<string>
      */
     public const DEFAULT_USER_PRIVILEGES = [
-        'language:read',
-        'locale:read',
         'message_queue_stats:read',
-        'log_entry:create',
-        'currency:read',
-        'country:read',
         'increment:manage',
     ];
 

@@ -32,6 +32,5 @@ class IncrementApiControllerTest extends TestCase
         yield 'decrement' => ['api.increment.decrement'];
         yield 'list' => ['api.increment.list'];
         yield 'reset' => ['api.increment.reset'];
-        yield 'delete' => ['api.increment.delete'];
     }
 }

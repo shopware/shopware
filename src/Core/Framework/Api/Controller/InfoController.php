@@ -87,9 +87,6 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
-     */
     #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function queue(): JsonResponse
     {
@@ -107,16 +104,6 @@ class InfoController extends AbstractController
             'name' => $entry['key'],
             'size' => (int) $entry['count'],
         ], array_values($entries)));
-    }
-
-    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
-    public function messageStats(): JsonResponse
-    {
-        $response = new JsonResponse();
-        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_PRESERVE_ZERO_FRACTION);
-        $response->setData($this->messageStatsService->getStats());
-
-        return $response;
     }
 
     #[Route(

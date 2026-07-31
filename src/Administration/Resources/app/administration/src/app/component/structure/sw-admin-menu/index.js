@@ -268,7 +268,8 @@ The admin menu only supports up to three levels of nesting.`,
         createdComponent() {
             this.flyoutFocusTrap = null;
             this.offCanvasFocusTrap = null;
-            this.hadOpenMenuDropdown = false;
+            this.menuDropdownObserver = null;
+            this.openMenuDropdownTrigger = null;
 
             this.loginService.notifyOnLoginListener();
 
@@ -339,34 +340,67 @@ The admin menu only supports up to three levels of nesting.`,
                     return;
                 }
 
-                document.addEventListener('pointerdown', this.captureMenuDropdownState, true);
-                document.addEventListener('keydown', this.captureMenuDropdownState, true);
-
                 this.offCanvasFocusTrap = createFocusTrap(panelElement, {
-                    // Keep the trap while a menu dropdown is open: its clicks land outside and would close the panel too
-                    escapeDeactivates: () => !this.hadOpenMenuDropdown,
-                    clickOutsideDeactivates: () => !this.hadOpenMenuDropdown,
-
-                    // Without this the trap swallows clicks on the teleported dropdown items.
-                    allowOutsideClick: (event) => !!event.target?.closest?.('[data-reka-popper-content-wrapper]'),
+                    escapeDeactivates: true,
+                    clickOutsideDeactivates: false,
+                    allowOutsideClick: true,
                     returnFocusOnDeactivate: true,
                     delayInitialFocus: false,
                     fallbackFocus: panelElement,
                     onDeactivate: () => {
-                        document.removeEventListener('pointerdown', this.captureMenuDropdownState, true);
-                        document.removeEventListener('keydown', this.captureMenuDropdownState, true);
+                        this.stopMenuDropdownObserver();
                         this.offCanvasFocusTrap = null;
                         Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
                     },
                 });
 
                 this.offCanvasFocusTrap.activate();
+                this.startMenuDropdownObserver(panelElement);
             });
         },
 
-        captureMenuDropdownState() {
+        startMenuDropdownObserver(panelElement) {
+            this.menuDropdownObserver = new MutationObserver(this.syncMenuDropdownFocusOwner);
+
+            this.menuDropdownObserver.observe(panelElement, {
+                subtree: true,
+                childList: true,
+                attributes: true,
+                attributeFilter: ['data-state'],
+            });
+        },
+
+        stopMenuDropdownObserver() {
+            this.menuDropdownObserver?.disconnect();
+            this.menuDropdownObserver = null;
+            this.openMenuDropdownTrigger = null;
+        },
+
+        syncMenuDropdownFocusOwner() {
+            if (!this.offCanvasFocusTrap) {
+                return;
+            }
+
             // aria-haspopup narrows this to dropdown triggers: open navigation collapsibles share the same data-state
-            this.hadOpenMenuDropdown = !!this.$refs.swAdminMenu?.querySelector('[aria-haspopup="menu"][data-state="open"]');
+            const openTrigger = this.$refs.swAdminMenu?.querySelector('[aria-haspopup="menu"][data-state="open"]');
+
+            if (openTrigger && !this.openMenuDropdownTrigger) {
+                this.openMenuDropdownTrigger = openTrigger;
+                this.offCanvasFocusTrap.pause();
+
+                return;
+            }
+
+            if (!openTrigger && this.openMenuDropdownTrigger) {
+                const previousTrigger = this.openMenuDropdownTrigger;
+                this.openMenuDropdownTrigger = null;
+
+                if (previousTrigger.isConnected) {
+                    previousTrigger.focus();
+                }
+
+                this.offCanvasFocusTrap.unpause();
+            }
         },
 
         deactivateOffCanvasFocusTrap() {

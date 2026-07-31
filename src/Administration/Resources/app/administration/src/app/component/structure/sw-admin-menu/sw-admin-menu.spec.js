@@ -413,9 +413,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         attachedWrapper.vm.onToggleCanvas(true);
         await flushPromises();
 
-        document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
-        document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await attachedWrapper.find('.sw-admin-menu__backdrop').trigger('click');
         await flushPromises();
 
         expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
@@ -434,6 +432,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         dropdownTrigger.setAttribute('data-state', 'open');
         dropdownTrigger.setAttribute('aria-haspopup', 'menu');
         attachedWrapper.vm.$refs.swAdminMenu.appendChild(dropdownTrigger);
+        await flushPromises();
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
         await flushPromises();
@@ -441,6 +440,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
 
         dropdownTrigger.remove();
+        await flushPromises();
+
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
         await flushPromises();
 

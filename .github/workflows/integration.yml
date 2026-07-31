@@ -338,6 +338,13 @@ jobs:
 
           composer require shopware/core:${{ matrix.update.version }}
 
+      # setup-shopware only patches new-shopware; this installation vendors its own
+      # composer/composer, which for older versions predates composer/composer#12856.
+      - name: Patch vendored composer for modern GitHub tokens
+        uses: shopware/setup-shopware/patch-composer@main
+        with:
+          path: old-shopware
+
       - name: Install
         working-directory: old-shopware
         run: |

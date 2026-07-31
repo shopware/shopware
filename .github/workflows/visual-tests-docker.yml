@@ -37,6 +37,7 @@ jobs:
             echo "BLUE_GREEN_DEPLOYMENT=1"
             echo "ENABLE_SERVICES=0"
           } >> "$GITHUB_ENV"
+      
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
@@ -54,11 +55,12 @@ jobs:
           npm config set fetch-retries 5
           npm config set fetch-retry-mintimeout 20000
           npm ci
+      
       - name: Run visual tests in Playwright container
         working-directory: tests/acceptance
         continue-on-error: true
         env:
-          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=all' || '--update-snapshots=none' }}
           FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
           CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
@@ -80,7 +82,8 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            npx "$ATS_CMD" test --project=Visual --workers=1"$UPDATE_SNAPSHOTS""$FILTER"
+            npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+      
       - name: Upload visual test results
         if: always()
         continue-on-error: true

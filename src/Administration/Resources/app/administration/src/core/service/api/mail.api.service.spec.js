@@ -73,11 +73,7 @@ describe('mailApiService', () => {
             expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
         });
 
-        it('does not fall back to persisted mail template type data', async () => {
-            if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return;
-            }
-
+        const sendWithoutTemplateData = async () => {
             const { mailApiService, clientMock } = getMailApiService();
 
             await mailApiService.sendMailTemplate(
@@ -101,7 +97,22 @@ describe('mailApiService', () => {
                 'sales-channel-id',
             );
 
-            expect(JSON.parse(clientMock.history.post[0].data).mailTemplateData).toEqual({});
+            return JSON.parse(clientMock.history.post[0].data).mailTemplateData;
+        };
+
+        // CHANGE REASON: Before v6.8 the service falls back to persisted mail-template-type data. @removed @upgraded
+        // @deprecated tag:v6.8.0.0 - The test will be removed with the persisted template-data fallback.
+        it.deprecated('v6.8.0.0')('falls back to persisted mail template type data', async () => {
+            await expect(sendWithoutTemplateData()).resolves.toEqual({
+                order: {
+                    id: 'order-id',
+                },
+            });
+        });
+
+        // CHANGE REASON: The v6.8 service leaves omitted template data null instead of reading persisted type data. @upgraded
+        it.activeFeatureFlags(['v6.8.0.0'])('does not fall back to persisted mail template type data', async () => {
+            await expect(sendWithoutTemplateData()).resolves.toBeNull();
         });
     });
 

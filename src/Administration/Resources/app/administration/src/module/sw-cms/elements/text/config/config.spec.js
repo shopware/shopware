@@ -191,10 +191,6 @@ describe('src/module/sw-cms/elements/text/config', () => {
     });
 
     describe('handleUpdateContent', () => {
-        afterEach(() => {
-            global.activeFeatureFlags = [];
-        });
-
         it('should return true when textEditor ref is not available', async () => {
             const wrapper = await createWrapper();
 
@@ -203,40 +199,46 @@ describe('src/module/sw-cms/elements/text/config', () => {
             expect(result).toBe(true);
         });
 
-        it('should delegate to textEditor.validate and return true on success', async () => {
-            const mockValidate = jest.fn(() => Promise.resolve(true));
-            global.activeFeatureFlags = ['METEOR_TEXT_EDITOR'];
+        // CHANGE REASON: Isolate the text-editor validation branch without manual feature-flag cleanup. @migrated
+        it.activeFeatureFlags(['METEOR_TEXT_EDITOR'])(
+            'should delegate to textEditor.validate and return true on success',
+            async () => {
+                const mockValidate = jest.fn(() => Promise.resolve(true));
 
-            const wrapper = await createWrapper({
-                'mt-text-editor': {
-                    template: '<div></div>',
-                    methods: { validate: mockValidate },
-                },
-            });
-            await flushPromises();
+                const wrapper = await createWrapper({
+                    'mt-text-editor': {
+                        template: '<div></div>',
+                        methods: { validate: mockValidate },
+                    },
+                });
+                await flushPromises();
 
-            const result = await wrapper.vm.handleUpdateContent();
+                const result = await wrapper.vm.handleUpdateContent();
 
-            expect(mockValidate).toHaveBeenCalledTimes(1);
-            expect(result).toBe(true);
-        });
+                expect(mockValidate).toHaveBeenCalledTimes(1);
+                expect(result).toBe(true);
+            },
+        );
 
-        it('should return false when textEditor.validate reports invalid content', async () => {
-            const mockValidate = jest.fn(() => Promise.resolve(false));
-            global.activeFeatureFlags = ['METEOR_TEXT_EDITOR'];
+        // CHANGE REASON: Isolate the invalid text-editor validation branch without manual cleanup. @migrated
+        it.activeFeatureFlags(['METEOR_TEXT_EDITOR'])(
+            'should return false when textEditor.validate reports invalid content',
+            async () => {
+                const mockValidate = jest.fn(() => Promise.resolve(false));
 
-            const wrapper = await createWrapper({
-                'mt-text-editor': {
-                    template: '<div></div>',
-                    methods: { validate: mockValidate },
-                },
-            });
-            await flushPromises();
+                const wrapper = await createWrapper({
+                    'mt-text-editor': {
+                        template: '<div></div>',
+                        methods: { validate: mockValidate },
+                    },
+                });
+                await flushPromises();
 
-            const result = await wrapper.vm.handleUpdateContent();
+                const result = await wrapper.vm.handleUpdateContent();
 
-            expect(mockValidate).toHaveBeenCalledTimes(1);
-            expect(result).toBe(false);
-        });
+                expect(mockValidate).toHaveBeenCalledTimes(1);
+                expect(result).toBe(false);
+            },
+        );
     });
 });

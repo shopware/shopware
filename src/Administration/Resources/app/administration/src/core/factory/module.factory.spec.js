@@ -377,8 +377,8 @@ describe('core/factory/module.factory.js', () => {
         });
     });
 
-    it('should add settings item if feature flag is active', () => {
-        global.activeFeatureFlags = ['testFlag'];
+    // CHANGE REASON: Scope the synthetic feature flag to this test instead of mutating shared Jest state. @migrated
+    it.activeFeatureFlags(['testFlag'])('should add settings item if feature flag is active', () => {
         Shopware.Store.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
@@ -413,8 +413,8 @@ describe('core/factory/module.factory.js', () => {
         expect(Shopware.Store.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
 
+    // CHANGE REASON: The default baseline never activates the synthetic testFlag, so no global override is required. @cleanup
     it('should not add settings item if feature flag is deactivated', () => {
-        global.activeFeatureFlags = [];
         Shopware.Store.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {

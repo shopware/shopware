@@ -113,6 +113,12 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### Reduced entity-hydration and cache-tag overhead
+
+The DAL entity hydrator (`EntityHydrator`) now builds its per-result dedupe cache key from the raw primary-key bytes and defers the per-field primary-key decode until an entity is actually constructed, so duplicate rows (e.g. the same manufacturer or tax shared across thousands of products in a single result) no longer re-decode the primary key.
+`JsonFieldSerializer` no longer recompiles embedded fields on every decoded row, and the HTTP cache tag collector (`CacheTagCollector`) deduplicates collected tags via constant-time lookups instead of an `array_diff` that grew quadratically during a page render.
+This is a backwards-compatible optimization: hydrated entities and collected cache tags are unchanged, so no adjustments are required.
+
 ## Administration
 
 ## Storefront

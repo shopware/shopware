@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
@@ -77,10 +77,11 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): InvoiceRenderData {
+        $order = $input->order;
+        $generationRequest = $input->generationRequest;
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {

@@ -264,10 +264,29 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 || isset($variantListingConfig['mainVariantId'])
             ) {
                 $mainVariantId = $variantListingConfig['mainVariantId'] ?? null;
+
+                if (\is_string($mainVariantId) && Uuid::isValid($mainVariantId) && !$this->mainVariantExists($mainVariantId, $context)) {
+                    $mainVariantId = null;
+                }
             }
         }
 
         return [$mainVariantId, $productData['parentId'] ?? $productId];
+    }
+
+    private function mainVariantExists(string $mainVariantId, SalesChannelContext $context): bool
+    {
+        return $this->connection->fetchOne(
+            '# product-detail-route::main-variant-exists
+            SELECT 1
+            FROM product
+            WHERE id = :id
+            AND version_id = :versionId',
+            [
+                'id' => Uuid::fromHexToBytes($mainVariantId),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ]
+        ) !== false;
     }
 
     /**

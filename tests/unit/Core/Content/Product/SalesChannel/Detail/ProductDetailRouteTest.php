@@ -315,6 +315,50 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
+    public function testLoadIgnoresOrphanedMainVariantFromVariantListingConfig(): void
+    {
+        $productId = Uuid::randomHex();
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . Uuid::randomHex() . '"}',
+                'parentId' => null,
+            ]);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($productId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('requested-product');
+        $productEntity->setAvailable(true);
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static function (Criteria $criteria) use ($productId): bool {
+                static::assertSame([$productId], $criteria->getIds());
+
+                return true;
+            }))
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $result = $this->buildRoute($productRepository, $connection)->load($productId, new Request(), $this->context, new Criteria());
+
+        static::assertSame('requested-product', $result->getProduct()->getUniqueIdentifier());
+    }
+
     public function testResolveVariantIdFromEvent(): void
     {
         $connection = $this->createMock(Connection::class);

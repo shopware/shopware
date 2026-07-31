@@ -14,10 +14,8 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,6 +28,8 @@ use Shopware\Core\Framework\Log\Package;
 class AppCookieCollectListener
 {
     private const ANY_PAYMENT_METHOD = '*';
+
+    private const APP_HANDLER_PREFIX = 'app\\';
 
     /**
      * @param EntityRepository<AppCollection> $appRepository
@@ -121,42 +121,17 @@ class AppCookieCollectListener
     }
 
     /**
-     * @return array<string, true> handler identifiers of the referenced payment methods active in the sales channel
+     * @return array<string, true> handler identifiers of the app payment methods active in the sales channel
      */
     private function fetchActiveHandlerIdentifiers(AppCollection $apps, CookieGroupCollectEvent $event): array
     {
-        $handlerIdentifiers = [];
-        $wildcardAppNames = [];
-
-        foreach ($apps as $app) {
-            foreach ($app->getCookies() as $cookie) {
-                foreach ([$cookie, ...($cookie['entries'] ?? [])] as $item) {
-                    foreach ($item['active_payment_methods'] ?? [] as $identifier) {
-                        if ($identifier === self::ANY_PAYMENT_METHOD) {
-                            $wildcardAppNames[$app->getName()] = true;
-                        } else {
-                            $handlerIdentifiers[] = self::buildHandlerIdentifier($app->getName(), $identifier);
-                        }
-                    }
-                }
-            }
-        }
-
-        $identifierFilters = [];
-        if ($handlerIdentifiers !== []) {
-            $identifierFilters[] = new EqualsAnyFilter('handlerIdentifier', array_values(array_unique($handlerIdentifiers)));
-        }
-        foreach (array_keys($wildcardAppNames) as $appName) {
-            $identifierFilters[] = new PrefixFilter('handlerIdentifier', self::buildHandlerIdentifier($appName, ''));
-        }
-
-        if ($identifierFilters === []) {
+        if (!$this->hasPaymentMethodConditions($apps)) {
             return [];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new OrFilter($identifierFilters),
+            new PrefixFilter('handlerIdentifier', self::APP_HANDLER_PREFIX),
             new EqualsFilter('active', true),
             new EqualsFilter('salesChannels.id', $event->getSalesChannelContext()->getSalesChannelId())
         );
@@ -169,6 +144,21 @@ class AppCookieCollectListener
         }
 
         return $activeHandlerIdentifiers;
+    }
+
+    private function hasPaymentMethodConditions(AppCollection $apps): bool
+    {
+        foreach ($apps as $app) {
+            foreach ($app->getCookies() as $cookie) {
+                foreach ([$cookie, ...($cookie['entries'] ?? [])] as $item) {
+                    if (($item['active_payment_methods'] ?? []) !== []) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -233,6 +223,6 @@ class AppCookieCollectListener
     private static function buildHandlerIdentifier(string $appName, string $identifier): string
     {
         // must match PaymentMethodLifecycleHandler
-        return \sprintf('app\\%s_%s', $appName, $identifier);
+        return \sprintf('%s%s_%s', self::APP_HANDLER_PREFIX, $appName, $identifier);
     }
 }

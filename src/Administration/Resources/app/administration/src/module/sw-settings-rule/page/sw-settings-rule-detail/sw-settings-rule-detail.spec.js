@@ -849,7 +849,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it('should reload rule when switching from assignments to base tab', async () => {
+    // CHANGE REASON: The legacy route-switch assertion clicks sw-tabs items removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy rule-detail tabs.
+    it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -860,6 +862,31 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
 
         await wrapper.find('.sw-settings-rule-detail__tab-item-general').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
+    });
+
+    // CHANGE REASON: Verify route-driven rule reloads through the v6.8 Meteor tab callbacks. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
+        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const assignmentsTab = tabs
+            .props('items')
+            .find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        await assignmentsTab.onClick();
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
+
+        const generalTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.base');
+
+        await generalTab.onClick();
         await flushPromises();
         expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
 

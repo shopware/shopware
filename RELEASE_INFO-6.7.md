@@ -630,6 +630,8 @@ JSON schema files are now the sole source of truth for any entity they define. P
 
 If you maintain a bundle that provides both a PHP `EntityDefinition` and a JSON schema file under `Resources/Schema/StoreApi/components/schemas/` for the same entity, ensure the JSON file is complete. The PHP `EntityDefinition` remains responsible for DAL and internal entity handling.
 
+All core Store API entity components are now JSON-owned. The unused PHP-generated `LanguageJsonApi`, `MainCategoryJsonApi`, `NewsletterRecipientJsonApi`, `PaymentMethodJsonApi`, `SalutationJsonApi`, and `ShippingMethodJsonApi` compatibility components are no longer emitted; use their flat component counterparts instead.
+
 See the [JSON as the Source of Truth for API Schema](https://github.com/shopware/shopware/discussions/15100) RFC for the full rationale and roadmap.
 
 ### Purchase prices removed from Store API order line item payloads

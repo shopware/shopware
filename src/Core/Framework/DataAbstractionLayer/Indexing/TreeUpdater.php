@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
@@ -339,12 +339,21 @@ class TreeUpdater
         /** @var TreeLevelField|null $levelField */
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
 
+        $updateQueue = new MultiUpdateQueryQueue($this->connection, $definition->getEntityName());
+
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId, $bag);
             if ($entity !== null) {
-                $this->updateEntity($entity, $definition, $pathField, $levelField, $context, $bag);
+                $this->updateEntity($entity, $definition, $pathField, $levelField, $bag, $updateQueue);
             }
         }
+
+        $conditions = [];
+        if ($definition->getField('version_id')) {
+            $conditions['version_id'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
+        $updateQueue->execute($conditions);
 
         if ($recursive) {
             $childIds = $this->fetchByColumn($updateIds, $definition, 'parent_id', $context, $bag);
@@ -355,7 +364,7 @@ class TreeUpdater
     /**
      * @param array<string, mixed> $entity
      */
-    private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
+    private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, TreeUpdaterBag $bag, MultiUpdateQueryQueue $updateQueue): void
     {
         if ($pathField === null && $levelField) {
             throw DataAbstractionLayerException::treeUpdateError('`TreePathField` or `TreeLevelField` required.');
@@ -365,50 +374,15 @@ class TreeUpdater
             return;
         }
 
-        $tableName = EntityDefinitionQueryHelper::escape($definition->getEntityName());
-        $sql = 'UPDATE ' . $tableName . ' SET ';
-
-        $sets = [];
+        $update = [];
         if ($pathField !== null) {
-            $sets[] = EntityDefinitionQueryHelper::escape($pathField->getStorageName()) . ' = :path';
-        }
-
-        if ($levelField !== null) {
-            $sets[] = EntityDefinitionQueryHelper::escape($levelField->getStorageName()) . ' = :level';
-        }
-
-        $sql .= implode(',', $sets);
-        $sql .= ' WHERE `id` = :id';
-
-        if ($definition->getField('version_id')) {
-            $sql .= ' AND `version_id` = :version';
-        }
-
-        $sql .= ';';
-
-        $statement = $this->connection->prepare($sql);
-
-        $update = [
-            'id' => $entity['id'],
-        ];
-
-        if ($definition->getField('version_id')) {
-            $update['version'] = Uuid::fromHexToBytes($context->getVersionId());
-        }
-
-        if ($pathField !== null) {
-            $update['path'] = $entity['path'];
+            $update[$pathField->getStorageName()] = $entity['path'];
         }
         if ($levelField !== null) {
-            $update['level'] = $entity['level'];
+            $update[$levelField->getStorageName()] = $entity['level'];
         }
 
-        RetryableQuery::retryable(
-            connection: $this->connection,
-            closure: static function () use ($statement, $update): void {
-                StatementHelper::executeStatement($statement, $update);
-            }
-        );
+        $updateQueue->addUpdate($entity['id'], $update);
 
         $bag->addUpdated($entity['id']);
     }

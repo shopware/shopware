@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInte
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -119,9 +118,16 @@ class SearchKeywordUpdater implements ResetInterface
         $keywords = [];
         $dictionary = [];
 
-        $iterator = $this->getIterator($ids, $context, $configFields);
+        $criteria = $this->getCriteria($ids, $context, $configFields);
 
-        while ($products = $iterator->fetch()) {
+        // The requested ids already bound the result set, so search them in fixed chunks
+        // instead of paginating with an iterator, which would need an additional, empty
+        // page query per call to detect the end of the result set.
+        foreach (array_chunk($criteria->getIds(), 50) as $chunkedIds) {
+            $criteria->setIds($chunkedIds);
+
+            $products = $this->productRepository->search($criteria, $context);
+
             foreach ($products->getEntities() as $product) {
                 // overwrite fetched products if translations for that product exists
                 // otherwise we use the already fetched product from the parent language
@@ -165,19 +171,16 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * @param array<string> $ids
      * @param array<int, ConfigField> $configFields
-     *
-     * @return RepositoryIterator<ProductCollection>
      */
-    private function getIterator(array $ids, Context $context, array $configFields): RepositoryIterator
+    private function getCriteria(array $ids, Context $context, array $configFields): Criteria
     {
         $context->setConsiderInheritance(true);
 
         $criteria = new Criteria($ids);
-        $criteria->setLimit(50);
 
         $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
 
-        return new RepositoryIterator($this->productRepository, $context, $criteria);
+        return $criteria;
     }
 
     /**
@@ -207,7 +210,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
+        $queue = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
@@ -219,7 +222,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function insertDictionary(array $dictionary): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
+        $queue = new MultiInsertQueryQueue($this->connection, 250, true, true);
 
         foreach ($dictionary as $insert) {
             $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
@@ -334,13 +337,14 @@ class SearchKeywordUpdater implements ResetInterface
             return;
         }
 
-        $criteria = new Criteria(array_keys($productsByParentId));
-        $criteria->setLimit(50);
+        $criteria = new Criteria();
         $criteria->addFields(['name']);
 
-        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        foreach (array_chunk(array_keys($productsByParentId), 50) as $chunkedIds) {
+            $criteria->setIds($chunkedIds);
 
-        while ($parentProducts = $iterator->fetch()) {
+            $parentProducts = $this->productRepository->search($criteria, $context);
+
             foreach ($parentProducts->getEntities() as $parent) {
                 $parentProduct = new ProductEntity();
                 $parentProduct->setId($parent->getId());

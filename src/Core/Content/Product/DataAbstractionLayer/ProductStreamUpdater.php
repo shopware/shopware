@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
@@ -102,7 +104,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+            $newMatches = $this->collectMatchingIdsInLanguageContexts(
+                $this->getRelevantLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria),
+                $criteria
+            );
         } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
             // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
             // invalid filter, remove all mappings
@@ -204,7 +209,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts(
+                    $this->getRelevantLanguageContexts($languageContexts, $criteria),
+                    $criteria
+                );
             } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
                 // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
@@ -263,6 +271,36 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         ]);
 
         return $languageContext;
+    }
+
+    /**
+     * Filters on non-translated fields match the same products in every language, so the
+     * criteria only has to be searched once per language when a translated field is involved.
+     *
+     * @param list<Context> $languageContexts
+     *
+     * @return list<Context>
+     */
+    private function getRelevantLanguageContexts(array $languageContexts, Criteria $criteria): array
+    {
+        try {
+            foreach ($criteria->getFilters() as $filter) {
+                foreach ($filter->getFields() as $accessor) {
+                    $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($this->productDefinition, $accessor, false);
+
+                    foreach ($fields as $field) {
+                        if ($field instanceof TranslatedField) {
+                            return $languageContexts;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // unresolvable accessors are handled by the entity searcher, search every language as before
+            return $languageContexts;
+        }
+
+        return \array_slice($languageContexts, 0, 1);
     }
 
     /**

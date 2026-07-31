@@ -105,6 +105,8 @@ class InvoiceRendererTest extends TestCase
 
     public function testDocumentSnapshot(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
         $translator = static::getContainer()->get(Translator::class);
         $translator->injectSettings(
             $this->salesChannelContext->getSalesChannelId(),

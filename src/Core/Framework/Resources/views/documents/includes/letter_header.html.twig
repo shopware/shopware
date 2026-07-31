@@ -30,9 +30,16 @@ All blocks of this template are available in the template which renders this tem
                 } %}<br/>
 
                 {% set customerVatId = customer.customer.vatIds|first -%}
-                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or (feature('v6.8.0.0') and config.intraCommunityDelivery)) -%}
+                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery) -%}
 
-                {% if displayCustomerVatId or (not feature('v6.8.0.0') and customerVatId and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries) %}
+                {% if not feature('v6.8.0.0') -%}
+                    {% set customerVatId = customer.customer.vatIds|first %}
+                    {% set displayCustomerVatId = customerVatId and config.displayCustomerVatId %}
+                    {# @deprecated tag:v6.8.0 - displayCustomerVatIdForDelivery will be removed without replace #}
+                    {% set displayCustomerVatIdForDelivery = customerVatId and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries %}
+                {%- endif %}
+
+                {% if displayCustomerVatId or displayCustomerVatIdForDelivery %}
                     {{ 'document.vatId'|trans({'%vatId%': customerVatId})|sw_sanitize(null, true) }}<br>
                 {% endif %}
             {% endblock %}

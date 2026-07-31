@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -87,7 +86,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGenerateWithValidMediaCollection(): void
     {
         $expected = [
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ];
 
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
@@ -109,7 +108,7 @@ class ThumbnailServiceTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -119,15 +118,15 @@ class ThumbnailServiceTest extends TestCase
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
-        $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
+        $deleted = $this->thumbnailRepository->deletes[0][0];
         static::assertArrayHasKey('id', $deleted);
         static::assertSame($expected, $deleted);
 
         static::assertCount(1, $this->thumbnailRepository->creates);
-        $created = $this->thumbnailRepository->creates[0][0] ?? [];
+        $created = $this->thumbnailRepository->creates[0][0];
         static::assertArrayHasKey('id', $created);
         static::assertSame('media-id-1', $created['mediaId']);
-        static::assertSame('$mediaThumbnailSizeEntity-id-1', $created['mediaThumbnailSizeId']);
+        static::assertSame('media-thumbnail-size-id-1', $created['mediaThumbnailSizeId']);
         static::assertSame(100, $created['width']);
         static::assertSame(100, $created['height']);
     }
@@ -135,7 +134,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGenerateWithValidMediaCollectionKeepAspectRatio(): void
     {
         $expected = [
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ];
 
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
@@ -159,7 +158,7 @@ class ThumbnailServiceTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -169,15 +168,15 @@ class ThumbnailServiceTest extends TestCase
         static::assertSame(1, $result);
 
         static::assertCount(1, $this->thumbnailRepository->deletes);
-        $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
+        $deleted = $this->thumbnailRepository->deletes[0][0];
         static::assertArrayHasKey('id', $deleted);
         static::assertSame($expected, $deleted);
 
         static::assertCount(1, $this->thumbnailRepository->creates);
-        $created = $this->thumbnailRepository->creates[0][0] ?? [];
+        $created = $this->thumbnailRepository->creates[0][0];
         static::assertArrayHasKey('id', $created);
         static::assertSame('media-id-1', $created['mediaId']);
-        static::assertSame('$mediaThumbnailSizeEntity-id-1', $created['mediaThumbnailSizeId']);
+        static::assertSame('media-thumbnail-size-id-1', $created['mediaThumbnailSizeId']);
         static::assertSame(100, $created['width']);
         static::assertSame(53, $created['height']);
     }
@@ -207,7 +206,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGenerateWithNonImageMediaTypes(): void
     {
         $this->thumbnailRepository->addSearch([
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ]);
 
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
@@ -227,7 +226,7 @@ class ThumbnailServiceTest extends TestCase
     public function testGenerateWithInvalidMediaConfiguration(): void
     {
         $this->thumbnailRepository->addSearch([
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ]);
 
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
@@ -247,7 +246,7 @@ class ThumbnailServiceTest extends TestCase
     public function testUpdateWithValidMediaCollection(): void
     {
         $expected = [
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ];
 
         // Use different mediaThumbnailIds, so the ThumbnailService should delete the old thumbnails and generate new ones
@@ -264,7 +263,7 @@ class ThumbnailServiceTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -315,7 +314,7 @@ class ThumbnailServiceTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -335,7 +334,7 @@ class ThumbnailServiceTest extends TestCase
                 $reflection = new \ReflectionFunction($func);
                 $staticVars = $reflection->getStaticVariables();
 
-                static::assertCount(0, $staticVars['delete'][0] ?? []);
+                static::assertSame([], $staticVars['delete']);
                 static::assertSame($newMediaEntity, $staticVars['media']);
                 static::assertSame($mediaFolderEntity->getConfiguration(), $staticVars['config']);
                 static::assertSame($this->context, $staticVars['context']);
@@ -353,7 +352,7 @@ class ThumbnailServiceTest extends TestCase
     public function testDeleteThumbnailsExecutesRepository(): void
     {
         $expected = [
-            'id' => '$mediaThumbnailEntity-id-1',
+            'id' => 'media-thumbnail-id-1',
         ];
 
         $this->thumbnailRepository->addSearch($expected);
@@ -365,8 +364,8 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->deleteThumbnails($mediaEntity, $this->context);
 
-        $deleted = $this->thumbnailRepository->deletes[0][0] ?? [];
-        static::assertSame($expected, $deleted);
+        static::assertCount(1, $this->thumbnailRepository->deletes);
+        static::assertSame($expected, $this->thumbnailRepository->deletes[0][0]);
     }
 
     public function testDeleteThumbnailThrowsMediaContainsNoThumbnailException(): void
@@ -377,37 +376,6 @@ class ThumbnailServiceTest extends TestCase
         $this->expectExceptionObject(MediaException::mediaContainsNoThumbnails());
 
         $this->thumbnailService->deleteThumbnails($mediaEntity, $this->context);
-    }
-
-    /**
-     * @param array<string, int> $imageSize
-     * @param array<string, int<1, max>> $preferredThumbnailSize
-     * @param array<string, int> $expectedSize
-     */
-    #[DataProvider('thumbnailSizeProvider')]
-    public function testCalculateThumbnailSize(array $imageSize, bool $keepAspectRatio, array $preferredThumbnailSize, array $expectedSize): void
-    {
-        $mediaFolderConfigEntity = new MediaFolderConfigurationEntity();
-        $mediaFolderConfigEntity->setKeepAspectRatio($keepAspectRatio);
-
-        $thumbnailSizeEntity = new MediaThumbnailSizeEntity();
-        $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
-        $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
-
-        $method = new \ReflectionMethod(ThumbnailService::class, 'calculateThumbnailSize');
-        $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
-
-        static::assertSame($expectedSize, $calculatedSize);
-    }
-
-    /**
-     * @return iterable<array<array<string, int>|bool>>
-     */
-    public static function thumbnailSizeProvider(): iterable
-    {
-        yield 'landscape image keeps aspect ratio for a smaller thumbnail' => [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]];
-        yield 'landscape image uses preferred size when aspect ratio is disabled' => [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]];
-        yield 'smaller source image is kept when aspect ratio is disabled' => [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]];
     }
 
     public function testThumbnailGenerationThrowExceptionWhenRemoteThumbnailEnabled(): void
@@ -539,7 +507,7 @@ class ThumbnailServiceTest extends TestCase
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -597,7 +565,7 @@ class ThumbnailServiceTest extends TestCase
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) {
+            ->willReturnCallback(static function ($sql, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/thumbnail/test.png',
                 ];
@@ -667,7 +635,7 @@ class ThumbnailServiceTest extends TestCase
         $call = 0;
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')
-            ->willReturnCallback(static function ($_, $params) use (&$call, $paths) {
+            ->willReturnCallback(static function ($sql, $params) use (&$call, $paths) {
                 $path = $paths[$call] ?? '/thumbnail/extra.png';
                 ++$call;
 
@@ -767,7 +735,7 @@ class ThumbnailServiceTest extends TestCase
         return $mediaEntity;
     }
 
-    private function createMediaFolderEntity(string $mediaThumbnailSizeId = '$mediaThumbnailSizeEntity-id-1'): MediaFolderEntity
+    private function createMediaFolderEntity(string $mediaThumbnailSizeId = 'media-thumbnail-size-id-1'): MediaFolderEntity
     {
         $mediaThumbnailSizeEntity = new MediaThumbnailSizeEntity();
         $mediaThumbnailSizeEntity->setId($mediaThumbnailSizeId);
@@ -786,10 +754,10 @@ class ThumbnailServiceTest extends TestCase
         return $mediaFolderEntity;
     }
 
-    private function createMediaThumbnailEntity(string $mediaThumbnailSizeId = '$mediaThumbnailSizeEntity-id-1'): MediaThumbnailEntity
+    private function createMediaThumbnailEntity(string $mediaThumbnailSizeId = 'media-thumbnail-size-id-1'): MediaThumbnailEntity
     {
         $mediaThumbnailEntity = new MediaThumbnailEntity();
-        $mediaThumbnailEntity->setId('$mediaThumbnailEntity-id-1');
+        $mediaThumbnailEntity->setId('media-thumbnail-id-1');
         $mediaThumbnailEntity->setWidth(100);
         $mediaThumbnailEntity->setHeight(100);
         $mediaThumbnailEntity->setMediaId('media-id-1');

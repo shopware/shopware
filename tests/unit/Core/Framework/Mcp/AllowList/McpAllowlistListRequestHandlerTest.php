@@ -319,7 +319,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
     public function testToolsListIgnoresNonToolReferences(): void
     {
-        $registry = $this->createMock(RegistryInterface::class);
+        $registry = static::createStub(RegistryInterface::class);
         $registry->method('getTools')->willReturn(new Page([
             $this->tool('tool-a'),
             $this->resource('resource-a'),
@@ -394,7 +394,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
     public function testResourcesListIgnoresNonResourceReferences(): void
     {
-        $registry = $this->createMock(RegistryInterface::class);
+        $registry = static::createStub(RegistryInterface::class);
         $registry->method('getResources')->willReturn(new Page([
             $this->resource('resource-a'),
             $this->tool('tool-a'),
@@ -453,7 +453,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
     public function testPromptsListIgnoresNonPromptReferences(): void
     {
-        $registry = $this->createMock(RegistryInterface::class);
+        $registry = static::createStub(RegistryInterface::class);
         $registry->method('getPrompts')->willReturn(new Page([
             new Prompt('prompt-a'),
             $this->tool('tool-a'),

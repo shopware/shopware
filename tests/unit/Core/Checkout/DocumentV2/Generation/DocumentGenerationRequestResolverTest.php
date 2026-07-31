@@ -3,18 +3,20 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Validation;
@@ -38,6 +40,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
             'documentNumber' => ' 1000 ',
             'documentComment' => ' Comment ',
             'documentDate' => '2026-07-13T00:00:00.000+00:00',
+            'deliveryDate' => '2026-07-15T00:00:00.000+00:00',
+            'referencedDocumentId' => '018f5972f9ea72a0be49f7c39f72a2a2',
         ]);
 
         $result = $this->resolveRequest($request);
@@ -48,6 +52,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
         static::assertSame('1000', $result->documentNumber);
         static::assertSame('Comment', $result->documentComment);
         static::assertSame('2026-07-13T00:00:00.000+00:00', $result->documentDate);
+        static::assertSame('2026-07-15T00:00:00.000+00:00', $result->deliveryDate);
+        static::assertSame('018f5972f9ea72a0be49f7c39f72a2a2', $result->referencedDocumentId);
     }
 
     public function testResolveBuildsDocumentGenerationRequestFromPreviewPayload(): void
@@ -66,6 +72,73 @@ class DocumentGenerationRequestResolverTest extends TestCase
         static::assertSame([DocumentFormat::HTML->value], $result->requestedFormats);
         static::assertSame('1000', $result->documentNumber);
         static::assertNull($result->documentComment);
+        static::assertNull($result->deliveryDate);
+        static::assertNull($result->referencedDocumentId);
+    }
+
+    #[DataProvider('malformedDateProvider')]
+    public function testResolveRejectsAValueThatDoesNotParseAsADateTime(string $field): void
+    {
+        $request = $this->createRequest([
+            'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
+            'documentType' => DocumentType::INVOICE->value,
+            'format' => DocumentFormat::HTML->value,
+            $field => 'foo',
+        ]);
+
+        $this->expectException(ConstraintViolationException::class);
+
+        $this->resolveRequest($request);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function malformedDateProvider(): \Generator
+    {
+        yield 'documentDate must parse as a date-time' => ['documentDate'];
+        yield 'deliveryDate must parse as a date-time' => ['deliveryDate'];
+    }
+
+    #[DataProvider('parseableDateProvider')]
+    public function testResolveAcceptsAnyParseableDateTimeVariant(string $value): void
+    {
+        $request = $this->createRequest([
+            'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
+            'documentType' => DocumentType::INVOICE->value,
+            'format' => DocumentFormat::HTML->value,
+            'documentDate' => $value,
+            'deliveryDate' => $value,
+        ]);
+
+        $result = $this->resolveRequest($request);
+
+        static::assertSame($value, $result->documentDate);
+        static::assertSame($value, $result->deliveryDate);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function parseableDateProvider(): \Generator
+    {
+        yield 'ISO 8601 with milliseconds and offset' => ['2026-07-13T00:00:00.000+00:00'];
+        yield 'ISO 8601 without milliseconds' => ['2026-07-13T00:00:00+00:00'];
+        yield 'date without time' => ['2026-07-13'];
+    }
+
+    public function testResolveRejectsAMalformedReferencedDocumentId(): void
+    {
+        $request = $this->createRequest([
+            'orderId' => '018f5972f9ea72a0be49f7c39f72a2a0',
+            'documentType' => DocumentType::INVOICE->value,
+            'format' => DocumentFormat::HTML->value,
+            'referencedDocumentId' => 'not-a-uuid',
+        ]);
+
+        $this->expectException(ConstraintViolationException::class);
+
+        $this->resolveRequest($request);
     }
 
     public function testResolveRejectsUnsupportedFormats(): void
@@ -88,8 +161,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -111,8 +184,8 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
         $this->resolveRequest(
             $request,
-            new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             ]),
         );
     }
@@ -134,10 +207,10 @@ class DocumentGenerationRequestResolverTest extends TestCase
 
     private function resolveRequest(
         Request $request,
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequest {
         $result = iterator_to_array(
-            $this->createResolver($documentRendererRegistry)->resolve(
+            $this->createResolver($documentTypeRegistry)->resolve(
                 $request,
                 new ArgumentMetadata('generationRequest', DocumentGenerationRequest::class, false, false, null)
             )
@@ -149,13 +222,15 @@ class DocumentGenerationRequestResolverTest extends TestCase
     }
 
     private function createResolver(
-        ?DocumentRendererRegistry $documentRendererRegistry = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
     ): DocumentGenerationRequestResolver {
         return new DocumentGenerationRequestResolver(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            $documentRendererRegistry ?? new DocumentRendererRegistry([
-                new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-                new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value]),
+            $documentTypeRegistry ?? new DocumentTypeRegistry([
+                new StaticDocumentType(DocumentType::INVOICE->value, [
+                    DocumentFormat::HTML->value,
+                    DocumentFormat::PDF->value,
+                ]),
             ]),
         );
     }

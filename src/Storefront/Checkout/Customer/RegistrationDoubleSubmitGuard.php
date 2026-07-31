@@ -13,8 +13,10 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * Suppresses a storefront registration that re-submits an already consumed context token.
  *
- * A successful registration rotates the context token, so a request still presenting the old one is
- * a resubmission and is skipped.
+ * A registration that completes spends its context token, so a request still presenting it is a
+ * resubmission and is skipped until the marker expires. Completion is the signal rather than the
+ * rotated token, because a registration that waits for a double opt-in confirmation returns without
+ * rotating it.
  *
  * The marker only records that the token is spent, never what it became. A stale context token is
  * exactly what a fixated session presents, so anything derived from it would be available to an
@@ -22,7 +24,7 @@ use Symfony\Component\Lock\SharedLockInterface;
  * the session migration that login performs.
  *
  * Best effort: needs a lock and a cache shared by the competing requests and registers unguarded
- * when either is unavailable. Registrations that do not rotate the token are not covered.
+ * when either is unavailable, in which case the token is still spent.
  *
  * @internal
  */
@@ -35,7 +37,8 @@ class RegistrationDoubleSubmitGuard
 
     private const LOCK_RETRY_DELAY_US = 50000;
 
-    private const MARKER_TTL = 30;
+    // outlives the lock wait budget, so a request that waited it out still finds the marker
+    private const MARKER_TTL = 10;
 
     private const MARKER_KEY_PREFIX = 'storefront-registration-';
 
@@ -59,7 +62,7 @@ class RegistrationDoubleSubmitGuard
         $token = $context->getToken();
         $markerKey = $this->markerKey($token);
 
-        if ($this->claimMarker($markerKey)) {
+        if ($this->isConsumed($markerKey)) {
             return;
         }
 
@@ -73,7 +76,7 @@ class RegistrationDoubleSubmitGuard
         } catch (\Throwable $e) {
             $this->logger->warning('Registration lock could not be created, registering unguarded.', ['exception' => $e]);
 
-            $register();
+            $this->registerAndMark($register, $context, $token, $markerKey);
 
             return;
         }
@@ -85,37 +88,31 @@ class RegistrationDoubleSubmitGuard
             $this->releaseSilently($lock);
             $this->logger->warning('Registration lock could not be acquired, registering unguarded.', ['exception' => $e]);
 
-            $register();
+            $this->registerAndMark($register, $context, $token, $markerKey);
 
             return;
         }
 
         if (!$acquired) {
             // the holder may have finished while we waited
-            if ($this->claimMarker($markerKey)) {
+            if ($this->isConsumed($markerKey)) {
                 return;
             }
 
             $this->logger->warning('Registration lock was not acquired within the wait deadline, registering unguarded.');
 
-            $register();
+            $this->registerAndMark($register, $context, $token, $markerKey);
 
             return;
         }
 
         try {
-            if ($this->claimMarker($markerKey)) {
+            if ($this->isConsumed($markerKey)) {
                 return;
             }
 
-            $register();
+            $this->registerAndMark($register, $context, $token, $markerKey);
         } finally {
-            // only a rotated token is spent, and it stays spent even if something threw after the
-            // rotation - the customer exists either way from that point on
-            if ($context->getToken() !== $token) {
-                $this->markConsumed($markerKey);
-            }
-
             $this->releaseSilently($lock);
         }
     }
@@ -126,24 +123,42 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * Answers whether the token is spent, and clears the marker in the same step.
+     * Runs the registration and spends the token, on every path that reaches the registration.
      *
-     * The marker absorbs one resubmission, which is what a double submit produces. Leaving it in
-     * place would also swallow the registration the visitor then makes deliberately, because a
-     * suppressed request stays anonymous and keeps presenting the same token.
+     * An unguarded run creates a customer just as much as a guarded one, so it spends the token too.
      *
-     * @phpstan-impure the marker is cleared as it is read, so repeated calls do not agree
+     * @param \Closure(): void $register the actual registration
      */
-    private function claimMarker(string $markerKey): bool
+    private function registerAndMark(\Closure $register, SalesChannelContext $context, string $token, string $markerKey): void
+    {
+        $registered = false;
+
+        try {
+            $register();
+
+            $registered = true;
+        } finally {
+            // a rotated token stays spent even if something threw after the rotation - the customer
+            // exists either way from that point on
+            if ($registered || $context->getToken() !== $token) {
+                $this->markConsumed($markerKey);
+            }
+        }
+    }
+
+    /**
+     * Answers whether the token was already spent by a registration.
+     *
+     * The marker stays until it expires. A suppressed request stays anonymous and keeps presenting
+     * the same token, so clearing the marker as it is read would arm the guard for the next
+     * resubmission instead of suppressing it.
+     *
+     * @phpstan-impure a competing registration can write the marker between two calls
+     */
+    private function isConsumed(string $markerKey): bool
     {
         try {
-            if (!$this->cache->getItem($markerKey)->isHit()) {
-                return false;
-            }
-
-            $this->cache->deleteItem($markerKey);
-
-            return true;
+            return $this->cache->getItem($markerKey)->isHit();
         } catch (\Throwable $e) {
             // a broken cache must not skip the lock
             $this->logger->warning('Registration marker could not be read.', ['exception' => $e]);
@@ -152,6 +167,10 @@ class RegistrationDoubleSubmitGuard
         }
     }
 
+    /**
+     * Written only by the request that ran the registration, so resubmitting can neither clear the
+     * marker nor push its expiry forward.
+     */
     private function markConsumed(string $markerKey): void
     {
         try {

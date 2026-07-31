@@ -59,7 +59,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $marker = $this->createMock(CacheItemInterface::class);
         $marker->method('isHit')->willReturn(false);
         $marker->expects($this->once())->method('set')->with(true);
-        $marker->expects($this->once())->method('expiresAfter')->with(30);
+        $marker->expects($this->once())->method('expiresAfter')->with(10);
 
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->with(self::markerKey())->willReturn($marker);
@@ -99,10 +99,14 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         // became would undo the session migration that login performs
         static::assertTrue($cache->getItem(self::markerKey())->get());
         static::assertSame([self::markerKey()], array_keys($cache->getValues()));
-        static::assertNotContains(self::WINNER_TOKEN, $cache->getValues());
+
+        foreach ($cache->getValues() as $stored) {
+            // getValues() hands back serialized payloads, an unserialized comparison never matches
+            static::assertStringNotContainsString(self::WINNER_TOKEN, $stored);
+        }
     }
 
-    public function testADoubleOptInRegistrationKeepsItsTokenUsable(): void
+    public function testARegistrationThatKeepsItsTokenStillSpendsIt(): void
     {
         $cache = new ArrayAdapter();
         $lock = $this->createAcquiredLock();
@@ -120,7 +124,8 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(1, $registerCalls);
-        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+        static::assertSame(self::TOKEN, $context->getToken());
+        static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
     public function testAConsumedTokenSuppressesTheRegistration(): void
@@ -140,31 +145,66 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertSame(0, $registerCalls);
     }
 
-    public function testASuppressedSubmissionSpendsTheMarkerSoTheNextRegistrationRunsAgain(): void
+    public function testEveryResubmissionStaysSuppressedWhileTheMarkerLives(): void
     {
         $cache = new ArrayAdapter();
         $this->seedMarker($cache);
+
+        $guard = $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger());
+
+        // a suppressed request stays anonymous and keeps presenting the same token, so the marker has
+        // to outlive the whole burst rather than one resubmission of it
+        for ($resubmission = 0; $resubmission < 3; ++$resubmission) {
+            $guard->guard($this->createContext(), static function (): void {
+                static::fail('The double submit must not register a second time.');
+            });
+        }
+
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
+    }
+
+    public function testASuppressedResubmissionDoesNotRenewTheMarker(): void
+    {
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        // absent before the lock, written by the competing registration while this request waited
+        $cache->expects($this->exactly(2))
+            ->method('getItem')
+            ->with(self::markerKey())
+            ->willReturnOnConsecutiveCalls($this->createMissedMarker(), $this->createHitMarker());
+        $cache->expects($this->never())->method('save');
+        $cache->expects($this->never())->method('deleteItem');
+
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())
+            ->guard($this->createContext(), static function (): void {
+                static::fail('The double submit must not register a second time.');
+            });
+    }
+
+    public function testARejectedRegistrationDoesNotSpendTheToken(): void
+    {
+        $cache = new ArrayAdapter();
 
         $lock = $this->createAcquiredLock();
         $lock->expects($this->once())->method('release');
 
         $guard = $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger());
+        $rejection = new \RuntimeException('the submitted data is invalid');
 
-        $guard->guard($this->createContext(), static function (): void {
-            static::fail('The double submit must not register a second time.');
-        });
+        try {
+            $guard->guard($this->createContext(), static function () use ($rejection): void {
+                throw $rejection;
+            });
 
+            static::fail('The rejection must reach the caller.');
+        } catch (\RuntimeException $caught) {
+            static::assertSame($rejection, $caught);
+        }
+
+        // nothing was created, so the visitor can correct the submission and send it again
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
-
-        // the suppressed request stayed anonymous and still presents the same token, a marker that
-        // outlived the double submit would also swallow the registration the visitor now retries
-        $registerCalls = 0;
-
-        $guard->guard($this->createContext(), static function () use (&$registerCalls): void {
-            ++$registerCalls;
-        });
-
-        static::assertSame(1, $registerCalls);
     }
 
     public function testAMarkerWrittenWhileWaitingForTheLockStillSuppressesTheRegistration(): void
@@ -188,7 +228,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
                 static::fail('The registration must not run a second time.');
             });
 
-        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
     public function testAnUncreatableLockRegistersUnguarded(): void
@@ -212,11 +252,14 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         static::assertSame(1, $registerCalls);
         static::assertContains('Registration lock could not be created, registering unguarded.', $warnings);
-        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+        // an unguarded run creates a customer too, so it spends the token as well
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
     public function testAFailingAcquireReleasesTheLockAndRegistersUnguarded(): void
     {
+        $cache = new ArrayAdapter();
+
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())->method('acquire')->willThrowException(new \RuntimeException('lock store unreachable'));
         // acquire() can throw after the store already saved the lock, it must not be stranded until the TTL expires
@@ -225,7 +268,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $warnings = [];
         $registerCalls = 0;
 
-        $this->createGuard($this->createLockFactory($lock), new ArrayAdapter(), $this->createWarningCollector($warnings))->guard(
+        $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
             $this->createContext(),
             static function () use (&$registerCalls): void {
                 ++$registerCalls;
@@ -234,6 +277,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         static::assertSame(1, $registerCalls);
         static::assertContains('Registration lock could not be acquired, registering unguarded.', $warnings);
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
     public function testAMarkerWrittenWhileTheLockDeadlineExpiresSuppressesTheRegistration(): void
@@ -243,7 +287,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
             ->method('getItem')
             ->with(self::markerKey())
             ->willReturnOnConsecutiveCalls($this->createMissedMarker(), $this->createHitMarker());
-        $cache->expects($this->once())->method('deleteItem')->with(self::markerKey())->willReturn(true);
+        $cache->expects($this->never())->method('save');
 
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())->method('acquire')->willReturn(false);
@@ -281,7 +325,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         static::assertSame(1, $registerCalls);
         static::assertContains('Registration lock was not acquired within the wait deadline, registering unguarded.', $warnings);
-        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
     public function testTheLockIsRetriedUntilTheWaitDeadline(): void
@@ -396,7 +440,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
                 static::fail('The registration must not run a second time.');
             });
 
-        static::assertFalse($cache->getItem(self::markerKey())->isHit());
+        static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
     public static function oddMarkerPayloadProvider(): \Generator

@@ -6,5 +6,5 @@ This codemod removes a stabilized feature flag from `it.activeFeatureFlags()` ca
 Run it from the Administration directory. The target directory defaults to `src`:
 
 ```bash
-npm run codemod:stabilize-feature-flag -- FEATURE_FLAG [target-directory]
+npm run codemod:stabilize-feature-flag-in-jest -- FEATURE_FLAG [target-directory]
 ```

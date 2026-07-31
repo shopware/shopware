@@ -569,8 +569,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
     });
 
-    it('should not show order address twice when selected matches order by display fields only', async () => {
-        const selectedCustomerAddressId = 'display-key-match-address';
+    it('should keep both options when company and department differ', async () => {
+        const selectedCustomerAddressId = 'different-company-address';
 
         Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({
@@ -618,15 +618,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         ]);
 
         const optionIds = wrapper.vm.addressOptions.map((option) => option.id);
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
 
-        expect(optionsWithSameStreet).toHaveLength(1);
         expect(optionIds).toContain(selectedCustomerAddressId);
-        expect(optionIds).not.toContain('38e8895864a649a1b2ec806dad02ab87');
-        expect(optionIds.filter((id) => id === selectedCustomerAddressId)).toHaveLength(1);
+        expect(optionIds).toContain('38e8895864a649a1b2ec806dad02ab87');
     });
 
-    it('should dedupe when active order address has company but customer address does not', async () => {
+    it('should keep both options when only company differs', async () => {
         const selectedCustomerAddressId = 'no-company-customer-address';
 
         Shopware.Store.get('swOrderDetail').setCustomer(null);
@@ -670,11 +667,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             },
         ]);
 
-        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
+        const optionIds = wrapper.vm.addressOptions.map((option) => option.id);
 
-        expect(optionsWithSameStreet).toHaveLength(1);
-        expect(optionsWithSameStreet[0].id).toBe(selectedCustomerAddressId);
-        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
+        expect(optionIds).toContain(selectedCustomerAddressId);
+        expect(optionIds).toContain('38e8895864a649a1b2ec806dad02ab87');
     });
 
     it('should be able to get the options with props', async () => {

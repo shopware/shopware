@@ -393,8 +393,8 @@ export default {
         },
 
         /**
-         * Match by API hash, full content fingerprint, or visible dropdown fields.
-         * Do not stop at unequal hashes — display can still look identical.
+         * Match by API hash, or by the same fields AddressHashSubscriber uses when hash is missing
+         * (e.g. client-side drafts before reload).
          */
         addressesRepresentSamePlace(left, right) {
             if (!left || !right) {
@@ -405,11 +405,7 @@ export default {
                 return true;
             }
 
-            if (this.getAddressContentKey(left) === this.getAddressContentKey(right)) {
-                return true;
-            }
-
-            return this.getAddressDisplayKey(left) === this.getAddressDisplayKey(right);
+            return this.getAddressContentKey(left) === this.getAddressContentKey(right);
         },
 
         getAddressContentKey(address) {
@@ -428,21 +424,6 @@ export default {
                 address.countryStateId,
             ]
                 .map((value) => value ?? '')
-                .join('|');
-        },
-
-        getAddressDisplayKey(address) {
-            // Intentionally omit company/department: the active order address often has company
-            // set while the matching customer address does not (or vice versa), which produced
-            // a duplicate row (order address on top + same place again in the list).
-            return [
-                address.firstName,
-                address.lastName,
-                address.street,
-                address.zipcode,
-                address.city,
-            ]
-                .map((value) => `${value ?? ''}`.trim().toLowerCase())
                 .join('|');
         },
 

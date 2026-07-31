@@ -200,6 +200,7 @@ shopware:
     cdn:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
+        path_cache_buster: true
         fastly:
             api_key: ''
             soft_purge: false

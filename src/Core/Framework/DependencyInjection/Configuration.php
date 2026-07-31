@@ -157,6 +157,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->booleanNode('path_cache_buster')->defaultTrue()->end()
                 ->arrayNode('fastly')
                     ->children()
                         ->scalarNode('api_key')->end()

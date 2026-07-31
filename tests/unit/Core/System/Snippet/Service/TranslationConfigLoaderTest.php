@@ -188,11 +188,11 @@ class TranslationConfigLoaderTest extends TestCase
         static::assertSame('https://example.com/translate', $loader->load()->communityTranslationsUrl?->__toString());
     }
 
-    public function testOverrideDocumentationUrl(): void
+    public function testOverrideDocumentationUrlSnippet(): void
     {
-        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['documentation_url' => 'https://example.com/docs']);
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['documentation_url_snippet_key' => 'my.custom.docs']);
 
-        static::assertSame('https://example.com/docs', $loader->load()->documentationUrl?->__toString());
+        static::assertSame('my.custom.docs', $loader->load()->documentationUrlSnippetKey);
     }
 
     public function testOverrideCompletenessThreshold(): void
@@ -215,7 +215,7 @@ class TranslationConfigLoaderTest extends TestCase
             'repository_url' => null,
             'metadata_url' => null,
             'community_translations_url' => null,
-            'documentation_url' => null,
+            'documentation_url_snippet_key' => null,
             'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,

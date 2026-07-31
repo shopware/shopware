@@ -28,6 +28,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber;
+use Shopware\Core\System\Snippet\Subscriber\LanguageDeletionSubscriber;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -175,6 +176,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(LanguageDeletionSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(TranslationMetadataStore::class),
         ])
         ->tag('kernel.event_subscriber');
 };

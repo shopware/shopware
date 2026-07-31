@@ -28,7 +28,7 @@ export default {
     data() {
         return {
             translations: [],
-            documentationUrl: null,
+            documentationUrlSnippetKey: null,
             completenessThreshold: null,
             existingLanguageLocales: [],
             selectedLocale: null,
@@ -109,7 +109,7 @@ export default {
             }
 
             this.translations = listResponse?.items ?? [];
-            this.documentationUrl = metaResponse?.documentationUrl ?? null;
+            this.documentationUrlSnippetKey = metaResponse?.documentationUrlSnippetKey ?? null;
             this.completenessThreshold = metaResponse?.completenessThreshold ?? null;
 
             this.isLoading = false;

@@ -30,7 +30,7 @@ class TranslationConfig extends Struct
         public readonly Uri $metadataUrl,
         public readonly array $excludedLocales,
         public readonly ?Uri $communityTranslationsUrl = null,
-        public readonly ?Uri $documentationUrl = null,
+        public readonly ?string $documentationUrlSnippetKey = null,
         public readonly array $pseudoLocales = [],
         public readonly int $completenessThreshold = 90,
     ) {

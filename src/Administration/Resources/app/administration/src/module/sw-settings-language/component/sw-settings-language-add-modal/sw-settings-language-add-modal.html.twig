@@ -29,10 +29,10 @@
         <li class="sw-settings-language-add-modal__selection-info-item">
             {{ $t('sw-settings-language.addModal.docsHint') }}
             <mt-link
-                v-if="documentationUrl"
+                v-if="documentationUrlSnippetKey"
                 type="external"
                 as="a"
-                :href="documentationUrl"
+                :href="$t(documentationUrlSnippetKey)"
                 target="_blank"
                 rel="noopener"
             >

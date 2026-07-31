@@ -27,7 +27,7 @@ async function createWrapper(existingLanguages = []) {
             'en-GB',
         ],
         communityTranslationsUrl: 'https://translate.shopware.com',
-        documentationUrl: 'https://developer.shopware.com/docs/concepts/translations/',
+        documentationUrlSnippetKey: 'sw-settings-language.addModal.docsUrl',
         completenessThreshold: 90,
     });
 
@@ -142,10 +142,10 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
         expect(wrapper.vm.translationsHintTextKey).toBe('sw-settings-language.addModal.translationsIncomplete');
     });
 
-    it('reads the documentation url from the translation list response', async () => {
+    it('reads the documentation url snippet key from the meta response', async () => {
         const { wrapper } = await createWrapper();
 
-        expect(wrapper.vm.documentationUrl).toBe('https://developer.shopware.com/docs/concepts/translations/');
+        expect(wrapper.vm.documentationUrlSnippetKey).toBe('sw-settings-language.addModal.docsUrl');
     });
 
     it('reads the completeness threshold from the translation list response', async () => {

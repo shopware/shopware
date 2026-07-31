@@ -127,7 +127,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-card-view': true,
                 'sw-container': true,
                 'sw-language-switch': true,
-                'sw-language-info': true,
                 'sw-button-process': true,
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
@@ -395,5 +394,24 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(criteria.getAssociation('salesChannels').sortings).toEqual([
             expect.objectContaining({ field: 'name', order: 'ASC' }),
         ]);
+    });
+
+    it('hides the sales channel and snippet update cards while creating a new language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.language = { isNew: () => true, locale: { code: 'de-DE' } };
+        await flushPromises();
+
+        expect(wrapper.vm.isNewLanguage).toBe(true);
+        expect(wrapper.find('.sw-settings-language-detail__cards-row').exists()).toBe(false);
+    });
+
+    it('shows the sales channel and snippet update cards on an existing language', async () => {
+        const wrapper = await createWrapper([], 'language-id-1');
+        await flushPromises();
+
+        expect(wrapper.vm.isNewLanguage).toBe(false);
+        expect(wrapper.find('.sw-settings-language-detail__cards-row').exists()).toBe(true);
     });
 });

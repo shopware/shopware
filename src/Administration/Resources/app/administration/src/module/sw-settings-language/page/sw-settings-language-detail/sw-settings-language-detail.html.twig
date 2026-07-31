@@ -67,13 +67,8 @@
                 </mt-link>
             </div>
 
-            {% block sw_settings_language_detail_content_language_info %}
-            <sw-language-info
-                v-if="language"
-                :entity-description="language.name"
-                :is-new-entity="isNewLanguage"
-            />
-            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Block will be removed. The language info banner is no longer shown on the language detail page. #}
+            {% block sw_settings_language_detail_content_language_info %}{% endblock %}
 
             {% block sw_settings_language_detail_content_card %}
             <mt-card
@@ -257,7 +252,7 @@
 
             {% block sw_settings_language_detail_cards_row %}
             <div
-                v-if="language"
+                v-if="language && !isNewLanguage"
                 class="sw-settings-language-detail__cards-row"
             >
                 {% block sw_settings_language_detail_sales_channels %}

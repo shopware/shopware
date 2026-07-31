@@ -78,7 +78,7 @@ class TranslationControllerTest extends TestCase
         $content = $this->decodeResponse($response->getContent());
         static::assertArrayHasKey('builtInLocales', $content);
         static::assertArrayHasKey('communityTranslationsUrl', $content);
-        static::assertArrayHasKey('documentationUrl', $content);
+        static::assertArrayHasKey('documentationUrlSnippetKey', $content);
         static::assertArrayHasKey('completenessThreshold', $content);
     }
 

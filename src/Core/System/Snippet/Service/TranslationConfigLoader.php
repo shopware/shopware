@@ -29,7 +29,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private const COMMUNITY_TRANSLATIONS_URL = 'community-translations-url';
 
-    private const DOCUMENTATION_URL = 'documentation-url';
+    private const DOCUMENTATION_URL_SNIPPET_KEY = 'documentation-url-snippet-key';
 
     /**
      * @description Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
@@ -38,7 +38,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
         'repository_url' => self::REPOSITORY_URL,
         'metadata_url' => self::METADATA_URL,
         'community_translations_url' => self::COMMUNITY_TRANSLATIONS_URL,
-        'documentation_url' => self::DOCUMENTATION_URL,
+        'documentation_url_snippet_key' => self::DOCUMENTATION_URL_SNIPPET_KEY,
         'completeness_threshold' => 'completeness-threshold',
         'plugins' => 'plugins',
         'excluded_locales' => 'excluded-locales',
@@ -72,8 +72,9 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
         $communityTranslationsUrl = isset($config[self::COMMUNITY_TRANSLATIONS_URL])
             ? $this->getUrlFromConfigByType(self::COMMUNITY_TRANSLATIONS_URL, $config)
             : null;
-        $documentationUrl = isset($config[self::DOCUMENTATION_URL])
-            ? $this->getUrlFromConfigByType(self::DOCUMENTATION_URL, $config)
+        // Snippet key (not a URL): the actual documentation link is resolved per admin language via this snippet.
+        $documentationUrlSnippetKey = isset($config[self::DOCUMENTATION_URL_SNIPPET_KEY])
+            ? (string) $config[self::DOCUMENTATION_URL_SNIPPET_KEY]
             : null;
 
         /** @var list<string> $plugins */
@@ -104,7 +105,7 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             $metadataUrl,
             $excludedLocales,
             $communityTranslationsUrl,
-            $documentationUrl,
+            $documentationUrlSnippetKey,
             $pseudoLocales,
             $completenessThreshold,
         );

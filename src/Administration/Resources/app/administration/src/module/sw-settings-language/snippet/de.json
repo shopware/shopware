@@ -12,6 +12,7 @@
       "translationsIncomplete": "Einige Übersetzungen für diese Sprache fehlen möglicherweise noch.",
       "docsHint": "So funktionieren Übersetzungen in Shopware:",
       "docsLinkLabel": "Mehr erfahren",
+      "docsUrl": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/Uebersetzungen",
       "extensionStoreHint": "Nicht die passende Sprache gefunden? Durchstöbere verfügbare Sprachen im {extensionStoreLink}",
       "extensionStoreLink": "Extension Store",
       "createCustomLanguage": "Eigene Sprache anlegen",
@@ -23,7 +24,13 @@
     },
     "list": {
       "textHeadline": "Sprachen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest? Dies löscht alle Inhalte in dieser Sprache unwiederbringlich!",
+      "deleteModalTitle": "Sprachen löschen?",
+      "deleteModalIntro": "Bist Du sicher, dass Du die folgenden Sprachen löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden:",
+      "deleteFilesNoteLabel": "Hinweis:",
+      "deleteFilesNote": "Diese Aktion löscht die Sprachen und Textbausteine in der Administration, nicht aber die Snippet-Dateien im Dateisystem. Möchtest Du diese ebenfalls löschen?",
+      "deleteTranslationFiles": "Snippet-Dateien ebenfalls aus dem Dateisystem löschen",
+      "deleteTranslationFilesError": "Die Snippet-Dateien konnten nicht aus dem Dateisystem gelöscht werden.",
+      "deleteError": "Die Sprachen konnten nicht gelöscht werden.",
       "columnName": "Name",
       "columnActive": "Aktiv",
       "columnLocaleName": "Lokalisierung",
@@ -31,7 +38,6 @@
       "columnSalesChannels": "Verkaufskanäle",
       "columnSnippetStatus": "Textbaustein-Updates",
       "salesChannelCount": "{count} Verkaufskanal | {count} Verkaufskanäle",
-      "salesChannelNone": "Nicht zugewiesen",
       "snippetStatus": {
         "updateAvailable": "Update verfügbar",
         "updating": "Wird aktualisiert ..."

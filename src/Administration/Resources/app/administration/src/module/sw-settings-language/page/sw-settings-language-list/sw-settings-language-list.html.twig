@@ -39,11 +39,11 @@
     <template #smart-bar-actions>
         {% block sw_settings_language_list_smart_bar_actions_update_snippets %}
         <mt-button
+            v-if="updatableLocales.length"
             class="sw-settings-language-list__button-update-snippets"
             variant="secondary"
             size="default"
             :is-loading="isUpdatingSnippets"
-            :disabled="!updatableLocales.length || undefined"
             @click="onUpdateAllSnippets"
         >
             {{ $t('sw-settings-language.list.buttonUpdateAllSnippets') }}
@@ -108,13 +108,11 @@
                             :allow-view="allowView || undefined"
                             :allow-edit="allowEdit || undefined"
                             :allow-inline-edit="allowInlineEdit || undefined"
-                            :allow-delete="allowDelete || undefined"
+                            :allow-delete="false"
                             :full-page="false"
                             @column-sort="onSortColumn"
                             @page-change="onPageChange"
                             @inline-edit-save="onInlineEditSave"
-                            @delete-item-finish="invalidateLanguageCaches"
-                            @items-delete-finish="invalidateLanguageCaches"
                             @selection-change="onSelectionChange"
                         >
                             {% block sw_settings_language_list_content_list_content %}
@@ -229,24 +227,21 @@
 
                             {% block sw_settings_language_list_content_list_delete %}
                             {% block sw_settings_language_list_content_list_delete_action %}
-                            <template #delete-action="{ item, showDelete }">
+                            <template #delete-action="{ item }">
                                 <sw-context-menu-item
                                     v-tooltip.bottom="tooltipDelete(item.id)"
                                     class="sw-settings-language-list__delete-action"
                                     variant="danger"
                                     :disabled="isDefault(item.id) || !allowDelete || undefined"
-                                    @click="showDelete(item.id)"
+                                    @click="openDeleteModal([item])"
                                 >
                                     {{ $t('global.default.delete') }}
                                 </sw-context-menu-item>
                             </template>
                             {% endblock %}
 
-                            {% block sw_settings_language_list_content_list_delete_confirm_action %}
-                            <template #delete-confirm-text="{ item }">
-                                {{ $t('sw-settings-language.list.textDeleteConfirm', { name: item.name }, 1 ) }}
-                            </template>
-                            {% endblock %}
+                            {# @deprecated tag:v6.8.0 - Block will be removed. The delete confirmation now lives in the module's own delete modal (sw_settings_language_list_delete_modal). #}
+                            {% block sw_settings_language_list_content_list_delete_confirm_action %}{% endblock %}
                             {% endblock %}
                             {% endblock %}
 
@@ -261,6 +256,17 @@
                                     @keydown.enter="onUpdateSelectedSnippets"
                                 >
                                     {{ $t('sw-settings-language.list.buttonUpdateSelectedSnippets') }}
+                                </a>
+
+                                <a
+                                    v-if="allowDelete && bulkDeleteLanguages.length"
+                                    class="sw-settings-language-list__bulk-delete link link-danger"
+                                    role="button"
+                                    tabindex="0"
+                                    @click="openDeleteModal(bulkDeleteLanguages)"
+                                    @keydown.enter="openDeleteModal(bulkDeleteLanguages)"
+                                >
+                                    {{ $t('global.default.delete') }}
                                 </a>
                             </template>
                             {% endblock %}
@@ -277,6 +283,65 @@
             @language-added="onLanguageAdded"
             @close="showAddLanguageModal = false"
         />
+        {% endblock %}
+
+        {% block sw_settings_language_list_delete_modal %}
+        <sw-modal
+            v-if="showDeleteModal"
+            class="sw-settings-language-list__delete-modal"
+            :title="$t('sw-settings-language.list.deleteModalTitle')"
+            variant="default"
+            @modal-close="closeDeleteModal"
+        >
+            {% block sw_settings_language_list_delete_modal_content %}
+            <p class="sw-settings-language-list__delete-modal-intro">
+                {{ $t('sw-settings-language.list.deleteModalIntro') }}
+            </p>
+
+            <ul class="sw-settings-language-list__delete-modal-list">
+                <li
+                    v-for="language in sortedDeleteCandidates"
+                    :key="language.id"
+                >
+                    {{ language.name }}
+                </li>
+            </ul>
+
+            <template v-if="deleteCandidateInstalledLocales.length">
+                <p class="sw-settings-language-list__delete-modal-note">
+                    <strong>{{ $t('sw-settings-language.list.deleteFilesNoteLabel') }}</strong>
+                    {{ $t('sw-settings-language.list.deleteFilesNote') }}
+                </p>
+
+                <mt-checkbox
+                    v-model:checked="deleteTranslationFiles"
+                    class="sw-settings-language-list__delete-files-option"
+                    :label="$t('sw-settings-language.list.deleteTranslationFiles')"
+                />
+            </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_delete_modal_footer %}
+            <template #modal-footer>
+                <mt-button
+                    size="small"
+                    variant="secondary"
+                    @click="closeDeleteModal"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+
+                <mt-button
+                    size="small"
+                    variant="critical"
+                    :is-loading="isDeleting"
+                    @click="confirmDelete"
+                >
+                    {{ $t('global.default.delete') }}
+                </mt-button>
+            </template>
+            {% endblock %}
+        </sw-modal>
         {% endblock %}
     </template>
 

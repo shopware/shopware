@@ -8,11 +8,6 @@ import './sw-settings-language-list.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-const DEFAULT_LANGUAGE_LOCALES = [
-    'de-DE',
-    'en-GB',
-];
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -48,6 +43,11 @@ export default {
             showAddLanguageModal: false,
             updatingLocales: [],
             snippetSelection: {},
+            builtInLocales: [],
+            showDeleteModal: false,
+            deleteCandidates: [],
+            deleteTranslationFiles: true,
+            isDeleting: false,
         };
     },
 
@@ -70,6 +70,24 @@ export default {
             return Object.values(this.snippetSelection)
                 .map((language) => language.locale?.code)
                 .filter((localeCode) => this.translationMetadata[localeCode]?.updateAvailable);
+        },
+
+        selectedLanguages() {
+            return Object.values(this.snippetSelection);
+        },
+
+        bulkDeleteLanguages() {
+            return this.selectedLanguages.filter((language) => !this.isDefault(language.id));
+        },
+
+        deleteCandidateInstalledLocales() {
+            return this.deleteCandidates
+                .map((language) => language.locale?.code)
+                .filter((localeCode) => this.isLocaleInstalled(localeCode));
+        },
+
+        sortedDeleteCandidates() {
+            return [...this.deleteCandidates].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
         },
 
         updatableLocales() {
@@ -234,24 +252,33 @@ export default {
         },
 
         async loadTranslationMetadata() {
-            const response = await this.translationService.getList().catch(() => {
+            const [
+                listResponse,
+                metaResponse,
+            ] = await Promise.all([
+                this.translationService.getList().catch(() => null),
+                this.translationService.getMeta().catch(() => null),
+            ]);
+
+            if (listResponse === null || metaResponse === null) {
                 this.createNotificationError({
                     message: this.$t('sw-settings-language.list.snippetStatusLoadError'),
                 });
-                return null;
-            });
+            }
 
-            this.translationMetadata = (response?.items ?? []).reduce((map, entry) => {
+            this.translationMetadata = (listResponse?.items ?? []).reduce((map, entry) => {
                 map[entry.locale] = entry;
                 return map;
             }, {});
+
+            this.builtInLocales = metaResponse?.builtInLocales ?? this.builtInLocales;
         },
 
         salesChannelLabel(item) {
             const count = item.salesChannels?.length ?? 0;
 
             if (count === 0) {
-                return this.$t('sw-settings-language.list.salesChannelNone');
+                return '';
             }
 
             return this.$t('sw-settings-language.list.salesChannelCount', count);
@@ -260,8 +287,8 @@ export default {
         getSnippetStatus(item) {
             const localeCode = item.locale?.code;
 
-            // Default languages ship with Shopware and never receive snippet updates.
-            if (DEFAULT_LANGUAGE_LOCALES.includes(localeCode)) {
+            // Built-in languages ship with Shopware and never receive snippet updates.
+            if (this.builtInLocales.includes(localeCode)) {
                 return null;
             }
 
@@ -301,7 +328,10 @@ export default {
             ]);
         },
 
-        onUpdateAllSnippets() {
+        async onUpdateAllSnippets() {
+            // Re-check the current server state first so languages removed in the meantime are not re-created.
+            await this.loadTranslationMetadata();
+
             return this.runSnippetUpdate(this.updatableLocales);
         },
 
@@ -426,6 +456,64 @@ export default {
                     'active-languages',
                 ],
             });
+        },
+
+        isLocaleInstalled(localeCode) {
+            return Boolean(localeCode && this.translationMetadata[localeCode]?.lastUpdate);
+        },
+
+        openDeleteModal(languages) {
+            this.deleteCandidates = languages;
+            this.deleteTranslationFiles = true;
+            this.showDeleteModal = true;
+        },
+
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+            this.deleteCandidates = [];
+        },
+
+        async confirmDelete() {
+            const ids = this.deleteCandidates.map((language) => language.id);
+
+            if (ids.length === 0) {
+                this.closeDeleteModal();
+
+                return;
+            }
+
+            const locales = this.deleteTranslationFiles ? this.deleteCandidateInstalledLocales : [];
+
+            this.isDeleting = true;
+
+            try {
+                await this.languageRepository.syncDeleted(ids, Shopware.Context.api);
+                await this.removeTranslationFiles(locales);
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-settings-language.list.deleteError'),
+                });
+            } finally {
+                this.isDeleting = false;
+                this.showDeleteModal = false;
+                this.deleteCandidates = [];
+                this.snippetSelection = {};
+                this.$refs.languageGrid?.resetSelection();
+
+                this.invalidateLanguageCaches();
+                await this.getList();
+                await this.loadTranslationMetadata();
+            }
+        },
+
+        async removeTranslationFiles(locales) {
+            for (const localeCode of locales) {
+                await this.translationService.deleteTranslation(localeCode).catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-language.list.deleteTranslationFilesError'),
+                    });
+                });
+            }
         },
     },
 };

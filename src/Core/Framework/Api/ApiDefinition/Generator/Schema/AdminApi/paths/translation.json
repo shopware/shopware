@@ -91,10 +91,9 @@
                                             "type": "string",
                                             "format": "uri"
                                         },
-                                        "documentationUrl": {
-                                            "description": "URL of the translation documentation, or null if not configured.",
-                                            "type": "string",
-                                            "format": "uri"
+                                        "documentationUrlSnippetKey": {
+                                            "description": "Admin snippet key that resolves to the localized translation documentation URL, or null if not configured.",
+                                            "type": "string"
                                         },
                                         "completenessThreshold": {
                                             "description": "Minimum translation completeness in percent considered sufficient.",

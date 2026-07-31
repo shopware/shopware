@@ -12,6 +12,7 @@
       "translationsIncomplete": "Some translations for this language may still be missing.",
       "docsHint": "How translations work in Shopware:",
       "docsLinkLabel": "Learn more",
+      "docsUrl": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/translations",
       "extensionStoreHint": "Can't find the language you need? Browse available languages in the {extensionStoreLink}",
       "extensionStoreLink": "Extension Store",
       "createCustomLanguage": "Create custom language",
@@ -23,7 +24,13 @@
     },
     "list": {
       "textHeadline": "Languages",
-      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"? This will delete all content in this language and can not be undone!",
+      "deleteModalTitle": "Delete languages?",
+      "deleteModalIntro": "Are you sure you want to delete the following languages? This action can not be undone:",
+      "deleteFilesNoteLabel": "Note:",
+      "deleteFilesNote": "This action deletes the language entities and snippets in the administration and not the snippet files in the file system. Do you want to delete those too?",
+      "deleteTranslationFiles": "Also delete the snippets from file system",
+      "deleteTranslationFilesError": "Snippet files could not be deleted from the file system.",
+      "deleteError": "Languages could not be deleted.",
       "columnName": "Name",
       "columnActive": "Active",
       "columnLocaleName": "Locale",
@@ -31,7 +38,6 @@
       "columnSalesChannels": "Sales Channels",
       "columnSnippetStatus": "Snippet updates",
       "salesChannelCount": "{count} Sales Channel | {count} Sales Channels",
-      "salesChannelNone": "None assigned",
       "snippetStatus": {
         "updateAvailable": "Update available",
         "updating": "Updating..."

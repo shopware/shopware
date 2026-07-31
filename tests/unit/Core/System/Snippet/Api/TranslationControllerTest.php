@@ -47,7 +47,7 @@ class TranslationControllerTest extends TestCase
             new Uri('http://localhost:8000/metadata.json'),
             ['de-DE', 'en-GB'],
             new Uri('https://translate.shopware.com'),
-            new Uri('https://developer.shopware.com/docs/concepts/translations/'),
+            'sw-settings-language.addModal.docsUrl',
             ['ach-UG'],
             90,
         );
@@ -77,7 +77,7 @@ class TranslationControllerTest extends TestCase
 
         static::assertSame(['de-DE', 'en-GB'], $content['builtInLocales']);
         static::assertSame('https://translate.shopware.com', $content['communityTranslationsUrl']);
-        static::assertSame('https://developer.shopware.com/docs/concepts/translations/', $content['documentationUrl']);
+        static::assertSame('sw-settings-language.addModal.docsUrl', $content['documentationUrlSnippetKey']);
         static::assertSame(90, $content['completenessThreshold']);
     }
 

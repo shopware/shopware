@@ -1718,7 +1718,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
                 ->scalarNode('community_translations_url')->defaultNull()->end()
-                ->scalarNode('documentation_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
                 ->integerNode('completeness_threshold')->defaultNull()->end()
                 // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
                 ->arrayNode('plugins')

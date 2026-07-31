@@ -279,6 +279,7 @@ export default {
             if (!this.languageId) {
                 Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
+                this.language.active = true;
 
                 return;
             }

@@ -9,6 +9,23 @@ const deviceMock = {
 };
 
 async function createWrapper(privileges = [], customStubs = {}) {
+    const languageRepositoryMock = {
+        search: () => {
+            return Promise.resolve([
+                {
+                    name: 'English',
+                },
+                {
+                    name: 'German',
+                },
+                {
+                    name: 'Vietnamese',
+                },
+            ]);
+        },
+        syncDeleted: jest.fn().mockResolvedValue(),
+    };
+
     return mount(
         await wrapTestComponent('sw-settings-language-list', {
             sync: true,
@@ -33,26 +50,19 @@ async function createWrapper(privileges = [], customStubs = {}) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve([
-                                    {
-                                        name: 'English',
-                                    },
-                                    {
-                                        name: 'German',
-                                    },
-                                    {
-                                        name: 'Vietnamese',
-                                    },
-                                ]);
-                            },
-                        }),
+                        create: () => languageRepositoryMock,
                     },
                     translationService: {
                         getList: jest.fn().mockResolvedValue({ total: 0, items: [] }),
+                        getMeta: jest.fn().mockResolvedValue({
+                            builtInLocales: [
+                                'de-DE',
+                                'en-GB',
+                            ],
+                        }),
                         update: jest.fn().mockResolvedValue(),
                         install: jest.fn().mockResolvedValue(),
+                        deleteTranslation: jest.fn().mockResolvedValue(),
                     },
                     acl: {
                         can: (identifier) => {
@@ -304,35 +314,35 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         expect(columns).toContain('snippetStatus');
     });
 
-    it('should render an update all snippets button', async () => {
+    it('should render the update all snippets button when a language is updatable', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-
-        const updateButton = wrapper.find('.sw-settings-language-list__button-update-snippets');
-
-        expect(updateButton.exists()).toBe(true);
-    });
-
-    it('should disable the update-all button when nothing is updatable', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const updateButton = wrapper.find('.sw-settings-language-list__button-update-snippets');
-
-        // no metadata => nothing updatable
-        expect(updateButton.attributes('disabled')).toBeDefined();
 
         wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
         await flushPromises();
 
-        expect(updateButton.attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('.sw-settings-language-list__button-update-snippets').exists()).toBe(true);
+    });
+
+    it('should hide the update-all button when nothing is updatable', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // no metadata => nothing updatable => button hidden
+        expect(wrapper.find('.sw-settings-language-list__button-update-snippets').exists()).toBe(false);
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-list__button-update-snippets').exists()).toBe(true);
     });
 
     it('should label the assigned sales channels by count', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.salesChannelLabel({ salesChannels: [] })).toContain('salesChannelNone');
-        expect(wrapper.vm.salesChannelLabel({})).toContain('salesChannelNone');
+        // languages without assigned sales channels render nothing to keep the overview clean
+        expect(wrapper.vm.salesChannelLabel({ salesChannels: [] })).toBe('');
+        expect(wrapper.vm.salesChannelLabel({})).toBe('');
         expect(
             wrapper.vm.salesChannelLabel({
                 salesChannels: [
@@ -424,11 +434,14 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.translationMetadata = {
-            'fr-FR': { locale: 'fr-FR', updateAvailable: true },
-            'es-ES': { locale: 'es-ES', updateAvailable: true },
-            'it-IT': { locale: 'it-IT', updateAvailable: false },
-        };
+        // update all re-fetches the current state first, so a stale in-memory list can never re-create a deleted language
+        wrapper.vm.translationService.getList.mockResolvedValueOnce({
+            items: [
+                { locale: 'fr-FR', updateAvailable: true },
+                { locale: 'es-ES', updateAvailable: true },
+                { locale: 'it-IT', updateAvailable: false },
+            ],
+        });
 
         await wrapper.vm.onUpdateAllSnippets();
 
@@ -442,6 +455,23 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
             activate: true,
         });
         expect(wrapper.vm.translationService.update).not.toHaveBeenCalled();
+    });
+
+    it('does not re-install a language that was removed since the list was last loaded', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // stale in-memory state still lists de-DE as updatable
+        wrapper.vm.translationMetadata = {
+            'de-DE': { locale: 'de-DE', updateAvailable: true },
+        };
+
+        // the current server state no longer reports de-DE (the language was deleted in the meantime)
+        wrapper.vm.translationService.getList.mockResolvedValueOnce({ items: [] });
+
+        await wrapper.vm.onUpdateAllSnippets();
+
+        expect(wrapper.vm.translationService.install).not.toHaveBeenCalled();
     });
 
     it('should load the translation metadata once on creation and not on every list fetch', async () => {
@@ -545,5 +575,118 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         // the grid selection is cleared once the bulk update finishes
         expect(wrapper.vm.snippetSelection).toEqual({});
         expect(wrapper.vm.selectedUpdatableLocales).toEqual([]);
+    });
+
+    it('lists the single language and deletes it together with its files when the option is checked', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        jest.spyOn(wrapper.vm, 'invalidateLanguageCaches').mockImplementation(() => {});
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', lastUpdate: '2026-01-01T00:00:00+00:00' } };
+
+        wrapper.vm.openDeleteModal([{ id: 'id-fr', name: 'Français', locale: { code: 'fr-FR' } }]);
+
+        // the modal opens with the single language listed and the file option defaults to checked
+        expect(wrapper.vm.showDeleteModal).toBe(true);
+        expect(wrapper.vm.deleteCandidates).toHaveLength(1);
+        expect(wrapper.vm.deleteTranslationFiles).toBe(true);
+        expect(wrapper.vm.deleteCandidateInstalledLocales).toEqual(['fr-FR']);
+
+        await wrapper.vm.confirmDelete();
+
+        expect(wrapper.vm.languageRepository.syncDeleted).toHaveBeenCalledWith(['id-fr'], expect.anything());
+        expect(wrapper.vm.translationService.deleteTranslation).toHaveBeenCalledWith('fr-FR');
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+    });
+
+    it('keeps the files when the delete option is left unchecked', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        jest.spyOn(wrapper.vm, 'invalidateLanguageCaches').mockImplementation(() => {});
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', lastUpdate: '2026-01-01T00:00:00+00:00' } };
+
+        wrapper.vm.openDeleteModal([{ id: 'id-fr', name: 'Français', locale: { code: 'fr-FR' } }]);
+        wrapper.vm.deleteTranslationFiles = false;
+        await wrapper.vm.confirmDelete();
+
+        expect(wrapper.vm.languageRepository.syncDeleted).toHaveBeenCalledWith(['id-fr'], expect.anything());
+        expect(wrapper.vm.translationService.deleteTranslation).not.toHaveBeenCalled();
+    });
+
+    it('offers no file option for a language without a downloaded translation', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = {};
+        wrapper.vm.openDeleteModal([{ id: 'id-fr', name: 'Français', locale: { code: 'fr-FR' } }]);
+
+        expect(wrapper.vm.deleteCandidateInstalledLocales).toEqual([]);
+    });
+
+    it('lists all selected languages for a bulk delete and only removes files of installed ones', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        jest.spyOn(wrapper.vm, 'invalidateLanguageCaches').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'isDefault').mockReturnValue(false);
+
+        wrapper.vm.translationMetadata = {
+            'fr-FR': { locale: 'fr-FR', lastUpdate: '2026-01-01T00:00:00+00:00' },
+            'es-ES': { locale: 'es-ES', lastUpdate: null },
+        };
+        wrapper.vm.snippetSelection = {
+            'fr-id': { id: 'fr-id', name: 'Français', locale: { code: 'fr-FR' } },
+            'es-id': { id: 'es-id', name: 'Español', locale: { code: 'es-ES' } },
+        };
+
+        wrapper.vm.openDeleteModal(wrapper.vm.bulkDeleteLanguages);
+
+        expect(wrapper.vm.deleteCandidates).toHaveLength(2);
+        expect(wrapper.vm.deleteCandidateInstalledLocales).toEqual(['fr-FR']);
+
+        wrapper.vm.deleteTranslationFiles = true;
+        await wrapper.vm.confirmDelete();
+
+        expect(wrapper.vm.languageRepository.syncDeleted).toHaveBeenCalledWith(
+            [
+                'fr-id',
+                'es-id',
+            ],
+            expect.anything(),
+        );
+        expect(wrapper.vm.translationService.deleteTranslation).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.translationService.deleteTranslation).toHaveBeenCalledWith('fr-FR');
+        // the grid selection is cleared once the deletion finished
+        expect(wrapper.vm.snippetSelection).toEqual({});
+    });
+
+    it('excludes the system default language from a bulk delete', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        jest.spyOn(wrapper.vm, 'isDefault').mockImplementation((id) => id === 'default-id');
+
+        wrapper.vm.snippetSelection = {
+            a: { id: 'fr-id', name: 'Français', locale: { code: 'fr-FR' } },
+            def: { id: 'default-id', name: 'English', locale: { code: 'en-GB' } },
+        };
+
+        expect(wrapper.vm.bulkDeleteLanguages.map((language) => language.id)).toEqual(['fr-id']);
+    });
+
+    it('lists the delete candidates alphabetically by name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.deleteCandidates = [
+            { id: '1', name: 'Zulu' },
+            { id: '2', name: 'Català' },
+            { id: '3', name: 'Bosanski' },
+        ];
+
+        expect(wrapper.vm.sortedDeleteCandidates.map((language) => language.name)).toEqual([
+            'Bosanski',
+            'Català',
+            'Zulu',
+        ]);
     });
 });

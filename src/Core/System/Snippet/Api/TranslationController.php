@@ -62,7 +62,7 @@ class TranslationController extends AbstractController
             // Built-in languages are exactly the locales excluded from the community translation download
             'builtInLocales' => $this->config->excludedLocales,
             'communityTranslationsUrl' => $this->config->communityTranslationsUrl?->__toString(),
-            'documentationUrl' => $this->config->documentationUrl?->__toString(),
+            'documentationUrlSnippetKey' => $this->config->documentationUrlSnippetKey,
             'completenessThreshold' => $this->config->completenessThreshold,
         ]);
     }

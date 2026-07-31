@@ -7,6 +7,10 @@ them live in
 
 ## How the CI fits together
 
+The tables and lists in this section are orientation, not a specification. The
+workflow files are the source of truth: read the file before relying on a
+version, a branch name, a schedule, or the completeness of a list here.
+
 Almost every test workflow is **both** a PR entry point and a reusable workflow:
 it declares `pull_request`, `merge_group`, `workflow_dispatch` *and*
 `workflow_call`, so the same file runs on a PR and is called again by the
@@ -24,13 +28,14 @@ nightlies and the release gate. Change one and you change all three contexts.
 
 Composition, rather than duplication, is how the arms are built:
 
-- `nightly.yml` (01:00) calls `admin`, `integration`, `acceptance`,
-  `visual-tests`, `php`, `storefront`, `zugferd-compliance`, `downstream` and
-  `05-prepare-release` with `profile: nightly`.
-- `nightly-major.yml` (03:00, deliberately offset) calls `acceptance` and
-  `integration-major`.
-- `release-gate.yml` runs on pushes to maintenance branches (`6.7.x`,
-  `6.7.11.x`) and calls the same workflows with `profile: release`.
+- `nightly.yml` calls `admin`, `integration`, `acceptance`, `visual-tests`,
+  `php`, `storefront`, `zugferd-compliance`, `downstream` and `05-prepare-release`
+  with `profile: nightly`.
+- `nightly-major.yml` calls `acceptance` and `integration-major`; its cron is
+  deliberately offset from `nightly.yml` so the two do not overlap.
+- `release-gate.yml` runs on pushes to **every** maintenance branch — the minor
+  and patch-line branch globs in its `on: push:` block, not a fixed list of
+  versions — and calls the same workflows with `profile: release`.
 
 Three mechanisms decide how much runs:
 

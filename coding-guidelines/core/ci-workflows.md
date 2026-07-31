@@ -82,8 +82,8 @@ skipped job is visible in the UI, a suppressed failure is not.
   Prefer `!cancelled()` wherever you would reach for `always()`.
 - Action hash pinning is enforced by zizmor's `unpinned-uses` audit, configured
   in `.github/zizmor.yml` and run from `composer lint:actions`. zizmor is adopted
-  one audit at a time; the other ~39 audits are disabled there and report roughly
-  230 findings between them, so enabling one is its own piece of work.
+  one audit at a time; the remaining audits are disabled there and report a few
+  hundred findings between them, so enabling one is its own piece of work.
 - zizmor cannot parse a workflow whose `strategy:` is a dynamic
   `${{ fromJson(...) }}` matrix, and it *warns and exits 0* rather than failing —
   an unparsed file is an unaudited file. `zizmor-collection-guard.ts` reconciles

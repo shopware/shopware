@@ -36,22 +36,34 @@ jobs:
 
       - name: Install actionlint, yamlfmt and zizmor
         run: |
+          set -euo pipefail
           tmp="$(mktemp -d)"
 
-          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" -o "$tmp/actionlint.tar.gz"
-          echo "${ACTIONLINT_SHA256}  $tmp/actionlint.tar.gz" | sha256sum --check
-          tar -xzf "$tmp/actionlint.tar.gz" -C "$tmp" actionlint
-          sudo install -m 0755 "$tmp/actionlint" /usr/local/bin/actionlint
+          # Fetching the release archives is the only part of this job that can
+          # fail for reasons unrelated to the change under test, so the fetch is
+          # retried — network and infrastructure only, per .github/AGENTS.md. The
+          # checksum sits inside the retry because a truncated download presents
+          # as a hash mismatch. There is deliberately no fallback: a linter that
+          # is not installed would let the job pass without linting.
+          install_tool() {
+            local name="$1" url="$2" sha="$3" attempt
+            for attempt in 1 2 3; do
+              if curl -sSfL "$url" -o "$tmp/$name.tar.gz" \
+                && echo "$sha  $tmp/$name.tar.gz" | sha256sum --check --quiet; then
+                tar -xzf "$tmp/$name.tar.gz" -C "$tmp" "$name"
+                sudo install -m 0755 "$tmp/$name" /usr/local/bin/"$name"
+                return 0
+              fi
+              echo "::warning::$name: download attempt $attempt failed" >&2
+              sleep $((attempt * 5))
+            done
+            echo "Error: could not install $name from $url" >&2
+            return 1
+          }
 
-          curl -sSfL "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" -o "$tmp/yamlfmt.tar.gz"
-          echo "${YAMLFMT_SHA256}  $tmp/yamlfmt.tar.gz" | sha256sum --check
-          tar -xzf "$tmp/yamlfmt.tar.gz" -C "$tmp" yamlfmt
-          sudo install -m 0755 "$tmp/yamlfmt" /usr/local/bin/yamlfmt
-
-          curl -sSfL "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" -o "$tmp/zizmor.tar.gz"
-          echo "${ZIZMOR_SHA256}  $tmp/zizmor.tar.gz" | sha256sum --check
-          tar -xzf "$tmp/zizmor.tar.gz" -C "$tmp" zizmor
-          sudo install -m 0755 "$tmp/zizmor" /usr/local/bin/zizmor
+          install_tool actionlint "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" "${ACTIONLINT_SHA256}"
+          install_tool yamlfmt "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" "${YAMLFMT_SHA256}"
+          install_tool zizmor "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" "${ZIZMOR_SHA256}"
 
       # shellcheck (used by actionlint for `run:` scripts) is preinstalled on
       # GitHub-hosted ubuntu runners.

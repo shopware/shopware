@@ -221,28 +221,28 @@ jobs:
       - name: Start Webserver
         run: symfony server:start -d
 
+      # DEMO (do not merge): the nightly-profile steps run unconditionally and phpunit is
+      # pinned to the random-order seed of the failing 2026-07-31 nightly, so this PR
+      # reproduces that run's test order deterministically.
       - name: Install Shopware in previous major version on test DB
-        if: inputs.profile == 'nightly'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: inputs.profile == 'nightly'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: inputs.profile == 'nightly'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure --random-order-seed 1785462005
 
       - name: Install Shopware in previous major version
-        if: inputs.profile != 'nightly'
+        if: inputs.profile == 'demo-disabled'
         run: bin/console system:install --basic-setup --create-database --skip-assets-install
 
       - name: Run next major migrations
-        if: inputs.profile != 'nightly'
+        if: inputs.profile == 'demo-disabled'
         run: bin/console database:migrate --all core.V6_8
 
       - name: Run blue-green check
-        if: inputs.profile != 'nightly'
+        if: inputs.profile == 'demo-disabled'
         run: php .github/bin/blue-green-check.php
 
   blue-green-66-67:

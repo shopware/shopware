@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Profiling\Profiler;
@@ -48,9 +49,9 @@ class CartMetricsInstrumentor
         // Manual timing rather than Telemetry::instrument(): the duration metric carries a `has_promotions` label
         // that is only known once the cart has been (re)calculated.
         // The `cart-calculation` profiler span also lives here.
-        $start = hrtime(true);
+        $timer = ElapsedTimer::start();
         $cart = Profiler::trace('cart-calculation', $callback);
-        $durationMs = (hrtime(true) - $start) / 1_000_000;
+        $durationMs = $timer->getElapsedMs();
 
         $hasPromotions = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->count() > 0 ? 'yes' : 'no';
 

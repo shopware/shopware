@@ -18,6 +18,9 @@ class ProductExportPartialGeneration implements AsyncMessageInterface
     ) {
     }
 
+    /**
+     * Resume position for the next partial-generation batch (0 starts a fresh run).
+     */
     public function getOffset(): int
     {
         return $this->offset;

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -43,10 +44,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     protected ?int $limit = null;
 
     /**
-     * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
-     *
      * @param TEntityCollection $entities
      */
+    #[ParameterRemoval('v6.8.0', 'entity', '$entity parameter will be removed and the remaining parameters will reorder accordingly. See UPGRADE-6.8.md')]
     final public function __construct(
         /**
          * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.

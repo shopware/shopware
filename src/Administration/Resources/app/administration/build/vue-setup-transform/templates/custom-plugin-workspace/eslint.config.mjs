@@ -28,6 +28,7 @@ export default [
         files: ['plugins/**/*.vue'],
         plugins: {
             'sw-core-rules': swCoreRules,
+            vue: pluginVue,
         },
         languageOptions: {
             ecmaVersion: 'latest',
@@ -49,6 +50,12 @@ export default [
         },
         rules: {
             'sw-core-rules/valid-shopware-setup': 'error',
+            // The prop/setup name collision is the one native-setup mistake with silent consequences: the
+            // runtime strips declared prop keys from returned state, so the binding is deleted and the
+            // template reads `undefined` - no build error, no crash. The transform cannot catch it (a prop
+            // type can be a named type it cannot resolve), so this rule is the only guard, and a plugin
+            // workspace needs it just as much as the Administration does.
+            'vue/no-dupe-keys': 'error',
         },
     },
 ];

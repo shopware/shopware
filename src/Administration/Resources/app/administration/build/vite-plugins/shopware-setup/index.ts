@@ -37,12 +37,6 @@ function isDependencyFile(fileName: string): boolean {
     return fileName.replace(/\\/g, '/').includes('/node_modules/');
 }
 
-// One load for the whole process, shared by every plugin instance - `administrationRoot` is this directory
-// at both call sites (`vite.config.mts` and `build/plugins.vite.ts`), so there is only ever one transform
-// to load. Without this the load is re-entered for every `.vue` file: the module cache makes that cheap,
-// but a bad root then fails once per file and reads like a transform bug rather than a config error.
-let transformModulePromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
-
 /**
  * Keep the CommonJS transform out of Vite's config bundle.
  *
@@ -68,12 +62,6 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
-function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    transformModulePromise ??= importShopwareSetupTransform(administrationRoot);
-
-    return transformModulePromise;
-}
-
 /**
  * @private
  *
@@ -81,7 +69,7 @@ function loadShopwareSetupTransform(administrationRoot: string): Promise<typeof 
  * Parser-sensitive behavior stays in build/vue-setup-transform for reuse by Jest,
  * ESLint, and editor tooling.
  */
-export default function ShopwareSetupPlugin(options: Options): Plugin {
+export default function shopwareSetupPlugin(options: Options): Plugin {
     // Component name -> file that first declared it as a base component. The name is derived from the
     // filename and is the public override target, so two base components must not resolve to the same
     // name. Overrides intentionally reuse the base name, so only base components are tracked. This is
@@ -92,9 +80,25 @@ export default function ShopwareSetupPlugin(options: Options): Plugin {
     // shipping the same name. Cross-extension collisions are invisible at build time (an extension
     // cannot see the others) and surface in the runtime component registry instead.
     const baseComponentFiles = new Map<string, string>();
+    // Loaded once per plugin instance, lazily. It lives here rather than at module scope so the load
+    // takes no root argument that a memo could then silently ignore; `require`'s own cache means the
+    // underlying module is still read from disk only once per process. Lazy rather than eager because a
+    // bad `administrationRoot` must surface when a `.vue` file is actually transformed - an eagerly
+    // created rejected promise would go unhandled in builds that never reach one.
+    //
+    // Note this also caches a rejection permanently. That is deliberate: the only way this fails is a
+    // wrong `administrationRoot` or a missing committed bridge file, neither of which is transient, and
+    // reporting the identical error once beats reporting a fresh one per `.vue` file.
+    let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
+
+    function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
+        transformPromise ??= importShopwareSetupTransform(options.administrationRoot);
+
+        return transformPromise;
+    }
 
     async function transformCode(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
-        const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
+        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
         return transformShopwareSetupSfc(code, fileName);
     }

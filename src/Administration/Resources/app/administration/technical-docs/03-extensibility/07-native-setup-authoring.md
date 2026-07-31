@@ -68,13 +68,24 @@ const count = ref(0);   // collides with the declared prop `count`
 
 Native Vue lets the setup binding shadow the prop in the template; the extendable setup runtime does the opposite — it strips declared prop keys from returned state, so the binding would be deleted and `{{ count }}` would read `undefined`. Rename the local and read the prop through `props.count`.
 
-This is caught by the [`vue/no-dupe-keys` ESLint rule](#editor-integration), not the build-time transform — so it surfaces in your editor and in `composer eslint:admin`, across **every** prop form, including a named type (`defineProps<Props>()`) that no build-time check can resolve:
+This is caught by the [`vue/no-dupe-keys` ESLint rule](#editor-integration), not the build-time transform — so it surfaces in your editor and in `composer eslint:admin`. That covers an inline object literal and a type **declared in the same file**, which the transform itself cannot resolve:
 
 ```ts
 interface Props { count: number }
-const props = defineProps<Props>();   // vue/no-dupe-keys still flags the `count` collision below
+const props = defineProps<Props>();   // vue/no-dupe-keys flags the `count` collision below
 const count = ref(0);
 ```
+
+**It does not cover an imported prop type.** Nothing resolves across files here, so this collision is reported by no rule and no build step — the template silently renders `undefined`:
+
+```ts
+import type { Props } from './props.types';   // export interface Props { count: number }
+
+const props = defineProps<Props>();
+const count = ref(0);                         // not reported anywhere
+```
+
+Sharing a props type between components is ordinary, so treat this as a case to watch for by hand: when props come from an imported type, check the names against your top-level bindings yourself.
 
 ## Setup markers
 

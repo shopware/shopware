@@ -122,9 +122,10 @@ const baseRules = {
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
     'sw-core-rules/valid-shopware-setup': 'error',
-    // A naming convention, not a correctness problem: the transform escapes the derived name wherever it
-    // emits it, so an unconventional filename still builds and runs. Warn rather than block.
-    'sw-core-rules/native-setup-filename': 'warn',
+    // An error rather than a warning, because this rule is the only check on a directory-derived name:
+    // `vue/multi-word-component-names` has to ignore `index`, and `npm run lint` has no `--max-warnings`,
+    // so a warning here would let `Bad_Dir/index.vue` through CI while `Bad_Dir.vue` failed it.
+    'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [

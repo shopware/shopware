@@ -10,6 +10,22 @@ const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform')
  */
 
 /**
+ * Whether a file belongs to an installed dependency rather than to authored source.
+ *
+ * Mirrors the Vite plugin's guard, and it is needed for the same reason: a missing `<script setup>` is a
+ * hard error, and nobody can add `swDefinePublic()` to a package they do not own. Jest's default
+ * `transformIgnorePatterns` would keep dependencies away from this transformer, but jest.config.ts
+ * deliberately un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue`
+ * sources - so without this, resolving one of them would be an unfixable test failure.
+ *
+ * @param {string} filename
+ * @returns {boolean}
+ */
+function isDependencyFile(filename) {
+    return filename.replace(/\\/g, '/').includes('/node_modules/');
+}
+
+/**
  * Applies the shared pre-Vue transform before delegating to vue-jest.
  *
  * @param {string} source
@@ -17,6 +33,10 @@ const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform')
  * @returns {string}
  */
 function transformSource(source, filename) {
+    if (isDependencyFile(filename)) {
+        return source;
+    }
+
     const result = transformShopwareSetupSfc(source, filename);
 
     return result?.code ?? source;

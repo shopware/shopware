@@ -147,7 +147,8 @@
         "type": {
           "internal": "Intern",
           "external": "Extern"
-        }
+        },
+        "linkHasProtocol": "Mit Protokoll"
       },
       "products": {
         "productAssignmentHeadline": "Produkt-Zuweisung",

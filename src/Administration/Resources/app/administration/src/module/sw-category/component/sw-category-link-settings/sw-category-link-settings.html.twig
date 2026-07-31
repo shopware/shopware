@@ -75,7 +75,8 @@
     {% endblock %}
 
     {% block sw_category_detail_link_field %}
-    <sw-url-field
+    <component
+        :is="linkHasProtocol ? 'sw-url-field' : 'sw-text-field'"
         v-if="isExternal"
         v-model:value="category.externalLink"
         class="sw-category-link-settings__external-link"
@@ -84,6 +85,14 @@
         :placeholder="$tc('sw-category.base.link.linkLabel')"
     />
     {% endblock %}
+
+    <sw-switch-field
+        v-if="isExternal"
+        v-model:value="linkHasProtocol"
+        class="sw-category-link-settings__link-has-protocol"
+        :disabled="!acl.can('category.editor') || undefined"
+        :label="$t('sw-category.base.link.linkHasProtocol')"
+    />
 
     {% block sw_category_detail_link_new_tab %}
     <sw-switch-field

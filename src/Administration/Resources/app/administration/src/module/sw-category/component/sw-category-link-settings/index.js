@@ -33,6 +33,7 @@ export default {
     data() {
         return {
             categoriesCollection: [],
+            linkHasProtocol: false,
         };
     },
 
@@ -135,6 +136,7 @@ export default {
                 this.category.linkType = 'external';
             }
 
+            this.linkHasProtocol = this.category.externalLink?.startsWith('http') || this.category.externalLink === null;
             this.createCategoryCollection();
         },
 

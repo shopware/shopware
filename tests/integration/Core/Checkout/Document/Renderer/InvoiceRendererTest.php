@@ -105,8 +105,6 @@ class InvoiceRendererTest extends TestCase
 
     public function testDocumentSnapshot(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $translator = static::getContainer()->get(Translator::class);
         $translator->injectSettings(
             $this->salesChannelContext->getSalesChannelId(),
@@ -157,7 +155,11 @@ class InvoiceRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $this->assertSnapshot('invoice_renderer_default', [
+        $snapshot = Feature::isActive('v6.8.0.0')
+            ? 'invoice_renderer_default_v6_8'
+            : 'invoice_renderer_default_v6_7';
+
+        $this->assertSnapshot($snapshot, [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,

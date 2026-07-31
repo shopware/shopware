@@ -127,7 +127,7 @@ class ZugferdCreditNoteRendererTest extends TestCase
         // ZUGFeRD output differs from the pre 6.8 document.
         $snapshot = Feature::isActive('v6.8.0.0')
             ? 'zugferd_credit_note_document_default_v6_8'
-            : 'zugferd_credit_note_document_default';
+            : 'zugferd_credit_note_document_default_v6_7';
 
         $this->assertSnapshot($snapshot, [
             [

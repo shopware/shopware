@@ -21,6 +21,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -136,7 +137,11 @@ class DeliveryNoteRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $this->assertSnapshot('delivery_note_renderer_default', [
+        $snapshot = Feature::isActive('v6.8.0.0')
+            ? 'delivery_note_renderer_default_v6_8'
+            : 'delivery_note_renderer_default_v6_7';
+
+        $this->assertSnapshot($snapshot, [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,

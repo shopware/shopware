@@ -44,7 +44,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
                 global: {
                     provide: {
                         feature: {
-                            isActive: (flag) => global.activeFeatureFlags.includes(flag),
+                            // CHANGE REASON: Reuse the normalized feature service so declarative flag aliases work in this test. @migrated
+                            isActive: (flag) => Shopware.Feature.isActive(flag),
                         },
                     },
                     stubs,
@@ -90,7 +91,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        global.activeFeatureFlags = [];
+        // CHANGE REASON: Preserve the Jest environment feature-flag baseline instead of masking it for every test. @cleanup
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
@@ -111,47 +112,57 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(tabs.exists()).toBe(false);
     });
 
-    it('should render deprecated tabs in card section when the major feature flag is inactive', async () => {
-        addSectionWithTabs();
+    // CHANGE REASON: This assertion covers the deprecated sw-tabs branch replaced by mt-tabs under V6_8_0_0. @removed @migrated
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')(
+        'should render deprecated tabs in card section when the major feature flag is inactive',
+        async () => {
+            addSectionWithTabs();
 
-        wrapper = await createWrapper();
-        await flushPromises();
+            wrapper = await createWrapper();
+            await flushPromises();
 
-        const tabs = wrapper.findAll('.sw-tabs-item');
-        expect(tabs).toHaveLength(2);
+            const tabs = wrapper.findAll('.sw-tabs-item');
+            expect(tabs).toHaveLength(2);
 
-        const activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs).toHaveLength(1);
+            const activeTabs = wrapper.findAll('.sw-tabs-item--active');
+            expect(activeTabs).toHaveLength(1);
 
-        const activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toBe('Tab 1');
-    });
+            const activeTab = activeTabs.at(0);
+            expect(activeTab.text()).toBe('Tab 1');
+        },
+    );
 
-    it('should render meteor tabs in card section when the major feature flag is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-        addSectionWithTabs();
+    // CHANGE REASON: Declare the meteor-tabs scenario before setup rather than changing shared global state. @migrated
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render meteor tabs in card section when the major feature flag is active',
+        async () => {
+            addSectionWithTabs();
 
-        wrapper = await createWrapper();
-        await flushPromises();
+            wrapper = await createWrapper();
+            await flushPromises();
 
-        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
-        expect(tabs.exists()).toBe(true);
-        expect(tabs.props('positionIdentifier')).toBe('');
-        expect(tabs.props('defaultItem')).toBe('tab-1');
-        expect(tabs.props('items')).toEqual([
-            {
-                label: 'Tab 1',
-                name: 'tab-1',
-            },
-            {
-                label: 'Tab 2',
-                name: 'tab-2',
-            },
-        ]);
-        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
-    });
+            const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+            expect(tabs.exists()).toBe(true);
+            expect(tabs.props('positionIdentifier')).toBe('');
+            expect(tabs.props('defaultItem')).toBe('tab-1');
+            expect(tabs.props('items')).toEqual([
+                {
+                    label: 'Tab 1',
+                    name: 'tab-1',
+                },
+                {
+                    label: 'Tab 2',
+                    name: 'tab-2',
+                },
+            ]);
+            expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        },
+    );
 
-    it('should switch tab when clicking deprecated tabs', async () => {
+    // CHANGE REASON: This assertion covers the deprecated sw-tabs branch replaced by mt-tabs under V6_8_0_0. @removed @migrated
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -170,8 +181,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 
-    it('should switch tab when meteor tabs emit a new active item', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    // CHANGE REASON: Keep the meteor tab-switch path explicitly scoped to its feature flag. @migrated
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch tab when meteor tabs emit a new active item', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();

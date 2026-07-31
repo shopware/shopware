@@ -445,22 +445,17 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
     });
 
-    it('should only load primary order associations when v6.8.0.0 is active', async () => {
+    // CHANGE REASON: Let the test environment own the feature-flag lifetime instead of maintaining a local reset block. @migrated
+    it.activeFeatureFlags(['v6.8.0.0'])('should only load primary order associations when v6.8.0.0 is active', async () => {
         global.activeAclRoles = [];
-        global.activeFeatureFlags = ['v6.8.0.0'];
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
 
-        try {
-            wrapper = await createWrapper();
-            const criteria = wrapper.vm.orderCriteria;
-
-            expect(criteria.hasAssociation('primaryOrderDelivery')).toBe(true);
-            expect(criteria.hasAssociation('primaryOrderTransaction')).toBe(true);
-            expect(criteria.hasAssociation('deliveries')).toBe(false);
-            expect(criteria.hasAssociation('transactions')).toBe(false);
-            expect(criteria.hasAssociation('addresses')).toBe(false);
-        } finally {
-            global.activeFeatureFlags = [];
-        }
+        expect(criteria.hasAssociation('primaryOrderDelivery')).toBe(true);
+        expect(criteria.hasAssociation('primaryOrderTransaction')).toBe(true);
+        expect(criteria.hasAssociation('deliveries')).toBe(false);
+        expect(criteria.hasAssociation('transactions')).toBe(false);
+        expect(criteria.hasAssociation('addresses')).toBe(false);
     });
 
     it('should contain a computed property, called: listFilterOptions', async () => {
@@ -623,11 +618,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(stateTexts).toContain('Paid');
     });
 
-    it('should not fall back to deliveries and transactions when v6.8.0.0 is active', async () => {
-        global.activeAclRoles = [];
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
-        try {
+    // CHANGE REASON: Use automatic feature-flag cleanup for the no-fallback branch. @migrated
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not fall back to deliveries and transactions when v6.8.0.0 is active',
+        async () => {
+            global.activeAclRoles = [];
             wrapper = await createWrapper();
 
             const order = {
@@ -653,10 +648,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
             expect(wrapper.vm.getDelivery(order)).toBeNull();
             expect(wrapper.vm.transaction(order)).toBeNull();
-        } finally {
-            global.activeFeatureFlags = [];
-        }
-    });
+        },
+    );
 
     /**
      * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped

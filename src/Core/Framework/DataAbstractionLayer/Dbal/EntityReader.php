@@ -985,7 +985,7 @@ class EntityReader implements EntityReaderInterface
         }
 
         $orderBy = '';
-        $parts = $query->getOrderByParts();
+        $parts = array_values($query->getOrderByParts());
         if ($parts !== []) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
@@ -1005,13 +1005,13 @@ class EntityReader implements EntityReaderInterface
         $query->addGroupBy($root . '.' . $localColumn);
 
         if ($fieldCriteria->getLimit() !== null) {
-                $limitQuery = $this->buildManyToManyLimitQuery(
-                    $limitQuery,
-                    $root,
-                    $localColumn,
-                    $referenceColumn,
-                    $parts
-                );
+            $limitQuery = $this->buildManyToManyLimitQuery(
+                $limitQuery,
+                $root,
+                $localColumn,
+                $referenceColumn,
+                $parts
+            );
 
             $params = [
                 '#source_column#' => $localColumn,
@@ -1248,8 +1248,7 @@ class EntityReader implements EntityReaderInterface
         string $sourceColumn,
         string $referenceColumn,
         array $orderByParts
-    ): QueryBuilder
-    {
+    ): QueryBuilder {
         $sourceAccessor = $table . '.' . $sourceColumn;
         $referenceAccessor = $table . '.' . $referenceColumn;
 

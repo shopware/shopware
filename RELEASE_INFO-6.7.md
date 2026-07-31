@@ -162,6 +162,12 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## Hosting & Configuration
 
+### ProxySQL connection multiplexing can be enabled
+
+Shopware no longer relies on MySQL user-defined session variables when loading limited many-to-many associations, which allows ProxySQL to multiplex these requests. ProxySQL operators can also set `SQL_SET_DEFAULT_SESSION_VARIABLES=0` to skip Shopware's connection initialization commands, which otherwise make connections session-specific and prevent multiplexing.
+
+When disabling the initialization commands, ensure the database or proxy configuration provides the required session defaults, in particular UTC as the session time zone, a sufficient `group_concat_max_len` of 320000 or higher, and an SQL mode without `ONLY_FULL_GROUP_BY`. The variable defaults to enabled, so existing installations are unaffected.
+
 ### Optional `Clear-Site-Data` header on customer logout
 
 On customer logout the storefront can send a [`Clear-Site-Data`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data) header, so the browser drops data left over from the session. Disabled by default:

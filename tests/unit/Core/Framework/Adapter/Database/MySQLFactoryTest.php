@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Pdo\Mysql;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -128,7 +129,8 @@ class MySQLFactoryTest extends TestCase
 
         $params = MySQLFactory::create()->getParams();
 
-        static::assertArrayHasKey(\Pdo\Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayHasKey(Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
     }
 
     public function testDefaultSessionVariablesCanBeSkipped(): void
@@ -140,7 +142,8 @@ class MySQLFactoryTest extends TestCase
 
         $params = MySQLFactory::create()->getParams();
 
-        static::assertArrayNotHasKey(\Pdo\Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayNotHasKey(Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
     }
 
     public function testDriverOptionsFromDsnArePreservedInReplicaConfiguration(): void

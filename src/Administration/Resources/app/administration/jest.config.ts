@@ -112,6 +112,7 @@ const config: Config = {
         resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
+        resolve(join(__dirname, '/test/_setup/jest-extensions.ts')),
     ],
 
     transform: {
@@ -204,6 +205,7 @@ const config: Config = {
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/test/_helper_/**/*.spec.ts',
+        '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

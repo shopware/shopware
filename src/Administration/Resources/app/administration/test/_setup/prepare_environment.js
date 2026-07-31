@@ -651,7 +651,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = [...defaultFeatureFlags];
+    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...defaultFeatureFlags];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
         return;

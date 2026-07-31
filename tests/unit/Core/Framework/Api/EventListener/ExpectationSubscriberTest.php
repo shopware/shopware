@@ -135,6 +135,78 @@ class ExpectationSubscriberTest extends TestCase
         $this->expectationSubscriber->checkExpectations($event);
     }
 
+    #[DoesNotPerformAssertions]
+    public function testExpectationsAreIgnoredOnRoutesWithoutAuthentication(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testUnavailablePackagesAreNotReportedOnRoutesWithoutAuthentication(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'swag/not-installed:*');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    /**
+     * Routes bound to `%shopware.api.api_browser.auth_required_str%` receive the flag as "0"/"1".
+     */
+    #[DoesNotPerformAssertions]
+    public function testExpectationsAreIgnoredWhenAuthenticationIsDisabledAsString(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', '0');
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    public function testExpectationsAreCheckedWhenAuthenticationIsEnabledAsString(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', '1');
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        static::expectException(ExpectationFailedException::class);
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
     private function makeRequest(): Request
     {
         $request = new Request();

@@ -63,6 +63,13 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // The failure messages expose installed package versions, so the check must stay behind authentication.
+        // Routes that opt out of authentication (e.g. /api/_info/health-check) never validated a token at this
+        // point, therefore the header is ignored there instead of answering a version probe.
+        if (!$request->attributes->get('auth_required', true)) {
+            return;
+        }
+
         $expectations = $this->checkPackages($request);
 
         if ($expectations !== []) {

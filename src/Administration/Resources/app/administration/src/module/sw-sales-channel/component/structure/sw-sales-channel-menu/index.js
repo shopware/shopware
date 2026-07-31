@@ -46,8 +46,7 @@ export default {
             return this.acl.can('sales_channel.creator');
         },
 
-        // Gated on the finished request, so the row never flashes while the
-        // sales channels are still loading.
+        // Gated on the finished request, so the row never flashes while loading
         showAddChannelMenuItem() {
             return this.salesChannelsLoaded && this.salesChannels.length === 0 && this.canCreateSalesChannels;
         },

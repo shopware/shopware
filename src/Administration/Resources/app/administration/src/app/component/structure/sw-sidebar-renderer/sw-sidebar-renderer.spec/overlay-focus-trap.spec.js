@@ -6,8 +6,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     let mockLocalStorage;
     let outsideButton;
 
-    // Narrow enough that the default sidebar width does not fit next to the
-    // main content, so a resizable sidebar opens straight into overlay mode.
+    // Narrow enough that a resizable sidebar opens straight into overlay mode
     const OVERLAY_PAGE_WIDTH = 1400;
 
     async function createWrapper() {
@@ -51,8 +50,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     beforeAll(() => {
         initializeSidebar();
 
-        // focus-trap's tabbable check requires layout boxes, which jsdom does
-        // not compute — pretend every element is visible.
+        // focus-trap needs layout boxes, which jsdom does not compute
         HTMLElement.prototype.getClientRects = () => [
             { width: 10, height: 10 },
         ];
@@ -98,8 +96,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         expect(panel.attributes('role')).toBe('dialog');
         expect(panel.attributes('aria-modal')).toBe('true');
 
-        // Initial focus moves into the panel, focusing an element outside
-        // pulls the focus back in.
+        // Initial focus moves into the panel, focusing outside pulls it back in
         expect(panel.element.contains(document.activeElement)).toBe(true);
         expect(focusIsTrappedInside(panel.element)).toBe(true);
 
@@ -137,8 +134,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     it('should render a non-resizable sidebar docked and without a trap', async () => {
         const wrapper = await createOverlayWrapper({ resizable: false });
 
-        // Non-resizable sidebars always use the default width and therefore
-        // never enter overlay mode, regardless of the window width.
+        // Non-resizable sidebars keep the default width and never enter overlay mode
         expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
 
         const panel = wrapper.find('.sw-sidebar-renderer.is-active');

@@ -121,8 +121,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         });
 
         it('lights a path-less parent when a descendant route is in the matched chain', () => {
-            // The reported bug: "Extensions" (no path) sits above `sw.extension.my-extensions`,
-            // which is an ancestor of the deep route `…my-extensions.listing.app`.
+            // The reported bug: a path-less parent above an ancestor of the deep route
             const route = {
                 matched: [
                     { name: 'sw.extension.my-extensions' },

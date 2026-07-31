@@ -9,8 +9,7 @@ import type { ModuleManifest } from '../../core/factory/module.factory';
 
 type NavigationEntry = Exclude<ModuleManifest['navigation'], undefined>[number];
 
-// Path-only entries are valid at runtime (the store keys them by path), but the
-// Navigation type declares `id` as required — hence the cast.
+// Path-only entries are valid at runtime, but the Navigation type requires id, hence the cast
 function pathOnlyEntry(path: string): NavigationEntry {
     return { path } as NavigationEntry;
 }

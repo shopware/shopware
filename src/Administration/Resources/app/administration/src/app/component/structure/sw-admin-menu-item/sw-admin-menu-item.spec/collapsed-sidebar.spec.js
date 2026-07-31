@@ -13,8 +13,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
     });
 
     describe('collapsed flyout branch navigation', () => {
-        // Level-2 row that is a collapsible *and* a route, the shape that navigates and
-        // discloses its children on one click (e.g. "Product Reviews" under Catalogues).
+        // Level-2 row that is both a collapsible and a route, navigating and disclosing on one click
         const branchEntry = {
             id: 'sw-product-reviews',
             moduleType: 'core',
@@ -48,9 +47,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
 
-            // Must be emitted from this very click listener: router-link's navigation
-            // resolves in the microtask checkpoint at its end, and the admin menu closes
-            // the flyout on the resulting route change unless it already knows.
+            // Must be emitted from this listener: the route change lands at its end
             expect(wrapper.emitted('flyout-navigate')).toEqual([[{ disclosesChildren: true }]]);
             expect(wrapper.vm.collapsibleOpen).toBe(true);
         });
@@ -80,8 +77,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
 
-            // Renders the collapsible trigger instead of a router-link and never navigates,
-            // so the flyout is never at risk.
+            // Renders the collapsible trigger instead of a router-link, so it never navigates
             expect(wrapper.emitted('flyout-navigate')).toBeUndefined();
         });
 
@@ -96,8 +92,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
 
-            // Releases the pin, so the navigation closes the flyout again. Has to be known
-            // as early as the pin itself — the route change lands before the click bubbles.
+            // Releases the pin, and as early as the pin itself: the route change lands first
             expect(wrapper.emitted('flyout-navigate')).toEqual([[{ disclosesChildren: false }]]);
         });
     });
@@ -268,11 +263,8 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             expect(row.attributes('aria-describedby')).toBeUndefined();
         });
 
-        // Behavioural counterpart to the collapsed hover test above: the tooltip is silenced by
-        // stripping mt-tooltip's opening handlers by name (TOOLTIP_OPEN_TRIGGER_PROPS). Those
-        // names are library internals, so if a meteor upgrade renames or adds one, the strip
-        // stops working and this test fails instead of tooltips silently appearing on every
-        // expanded menu row.
+        // Guards TOOLTIP_OPEN_TRIGGER_PROPS: a meteor rename breaks the strip and fails here
+        // instead of letting tooltips silently appear on every expanded row
         it('should not open the tooltip on hover or focus while the sidebar is expanded', async () => {
             jest.useFakeTimers();
 
@@ -319,8 +311,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
                 expect(stripped).not.toHaveProperty(prop);
             });
 
-            // mt-tooltip errors without its trigger id, and the closing handlers must keep an
-            // already visible tooltip hidable when the sidebar expands while it is hovered.
+            // mt-tooltip errors without its trigger id, and the closing handlers keep it hidable
             expect(stripped).toHaveProperty('id', 'trigger-id');
             expect(stripped).toHaveProperty('onMouseleave');
             expect(stripped).toHaveProperty('onBlur');

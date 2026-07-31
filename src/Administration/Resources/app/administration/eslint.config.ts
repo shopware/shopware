@@ -614,9 +614,7 @@ export default [
         },
     },
     {
-        // Every mouse handler has a focus counterpart the rules do not recognise as equivalent
-        // The backdrop is redundant: Escape and a close button already close the panel
-        // Scoped to `src/app`, not `src/**`: the module extensions override the same file names.
+        // Mouse handlers have focus and keydown counterparts these rules do not recognise
         files: [
             'src/app/**/sw-admin-menu/sw-admin-menu.html.twig',
             'src/app/**/sw-admin-menu-item/sw-admin-menu-item.html.twig',

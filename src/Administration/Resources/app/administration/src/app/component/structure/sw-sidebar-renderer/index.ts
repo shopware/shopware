@@ -77,8 +77,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         };
 
-        // Overlay mode is modal, but the backdrop only blocks pointers — the trap keeps
-        // keyboard and screen reader users out of the obscured application behind it
+        // Overlay mode is modal, but the backdrop only blocks pointers, not keyboard access
         const overlayTrapTarget = computed(() => {
             const sidebar = activeSidebar.value;
 
@@ -221,8 +220,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         onUnmounted(() => {
             window.removeEventListener('resize', handleWindowResize);
-            // The renderer unmounts while the trap is active e.g. on navigation —
-            // return focus to the trigger instead of dropping it on <body>.
+            // Unmounting with an active trap would drop the focus on body
             deactivateFocusTrap(true);
         });
 

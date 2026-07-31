@@ -285,6 +285,10 @@ async function createWrapper(props = defaultProps, provide = {}, { featureActive
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                // CHANGE REASON: Preserve duplicate-action slots when the v6.8 popover uses mt-floating-ui. @harness
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `

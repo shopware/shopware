@@ -66,6 +66,8 @@
                     :label="$t('sw-order.documentModal.labelInvoiceNumber')"
                     :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
                     :options="invoiceNumberOptions"
+                    :error="invoiceNumberErrorMessage"
+                    required
                 />
 
                 <mt-datepicker

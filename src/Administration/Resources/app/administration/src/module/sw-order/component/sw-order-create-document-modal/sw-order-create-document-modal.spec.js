@@ -243,7 +243,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         expect(wrapper.find('.sw-modal').attributes()['data-is-loading']).toBe('false');
     });
 
-    it('does not mark the invoice selector as required while configuring credit-note documents', async () => {
+    it('marks the invoice selector as required while configuring credit-note documents', async () => {
         const wrapper = await createWrapper({
             order: {
                 ...orderFixture,
@@ -279,7 +279,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         await wrapper.setData({ documentTypeId: 'credit-note' });
         await flushPromises();
 
-        expect(wrapper.find('.sw-order-create-document-modal__invoice-number').attributes().required).toBeUndefined();
+        expect(wrapper.find('.sw-order-create-document-modal__invoice-number').attributes().required).toBeDefined();
     });
 
     it('emits the selected formats when creating a V2 document', async () => {

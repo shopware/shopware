@@ -159,6 +159,16 @@ export default Component.wrapComponentConfig({
             };
         },
 
+        invoiceNumberErrorMessage(): { detail: string } | null {
+            if ((!this.isCreditNoteDocument && !this.isStornoDocument) || this.documentConfig.custom.invoiceNumber) {
+                return null;
+            }
+
+            return {
+                detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
+            };
+        },
+
         documentTypeOptions(): { label: string; value: string }[] {
             return this.documentTypes.map((documentType) => {
                 return {

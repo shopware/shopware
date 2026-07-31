@@ -18,9 +18,8 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-card', () => {
-    it('should render the mt-card when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    // CHANGE REASON: The component always renders mt-card and no longer reads ENABLE_METEOR_COMPONENTS. @cleanup
+    it('should render the mt-card', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-card');

@@ -12,6 +12,8 @@ The `McpToolCompilerPass` in Core discovers tools tagged `shopware.mcp.tool` fro
 
 - `ThemeConfigTool` (`shopware-theme-config`) -- read and update theme configuration (colors, logos, fonts) for a sales channel. Uses `ThemeService` for config retrieval and updates with theme recompilation.
 
+The `salesChannelId` parameter accepts either a UUID or the sales channel name (matched against `sales_channel_translation.name`, case-insensitive via the column collation). Agents usually know the name, not the ID, so requiring a UUID made the tool fail on the most natural input. Every unresolvable input returns a `$this->error()` envelope listing the available names; nothing is allowed to escape `__invoke()` as an exception, because an uncaught throwable reaches the MCP SDK's generic handler and reaches the client as an opaque JSON-RPC `-32603`.
+
 ## Registration
 
 Services are defined in `src/Storefront/DependencyInjection/mcp.php` with the `mcp.tool` tag (collected via `tagged_iterator('mcp.tool')` in Core's `mcp.php` — same tag as Core in-tree bundle tools). MCP config uses PHP DI format (`PhpFileLoader`) for type-safe service definitions, even though the rest of the Storefront bundle still loads XML via `XmlFileLoader`.

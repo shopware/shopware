@@ -24,13 +24,19 @@ use Shopware\Storefront\Theme\ThemeService;
 #[Package('discovery')]
 #[McpTool(
     name: 'shopware-theme-config',
-    description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. Pass a salesChannelId to scope to a specific channel (see shopware://sales-channels for IDs).'
+    description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. salesChannelId accepts either the sales channel UUID or its name as shown in the admin, e.g. "Storefront". See shopware://sales-channels for the full list.'
 )]
 #[McpToolGroup('theme')]
 #[McpToolRequires('theme:read')]
 #[McpToolRequires('theme:update')]
 class ThemeConfigTool extends McpToolResponse
 {
+    /**
+     * Upper bound for the sales channel names listed in a "not found" error, so the hint stays
+     * small enough to be useful to the model.
+     */
+    private const MAX_SUGGESTED_NAMES = 20;
+
     /**
      * @internal
      */
@@ -47,33 +53,45 @@ class ThemeConfigTool extends McpToolResponse
         string $config = '{}',
         bool $dryRun = true,
     ): string {
+        if ($action !== 'get' && $action !== 'update') {
+            return $this->error(\sprintf('Unknown action "%s". Use "get" or "update".', $action));
+        }
+
         if ($salesChannelId === '') {
             return $this->error('salesChannelId is required. Use the shopware://sales-channels resource to find available sales channel IDs.');
         }
 
         $context = $this->contextProvider->getContext();
 
-        $requiredPrivileges = match ($action) {
-            'get' => ['theme:read'],
-            'update' => ['theme:read', 'theme:update'],
-            default => [],
-        };
+        $requiredPrivileges = $action === 'update'
+            ? ['theme:read', 'theme:update']
+            : ['theme:read'];
 
         if ($error = $this->requirePrivilege($context, ...$requiredPrivileges)) {
             return $error;
         }
 
-        $themeId = $this->resolveThemeId($salesChannelId);
+        // Resolving happens after the privilege check so the error hints never leak sales channel
+        // names to an unauthorized caller.
+        try {
+            $resolved = $this->resolveSalesChannelId($salesChannelId);
+
+            if (isset($resolved['error'])) {
+                return $this->error($resolved['error']);
+            }
+
+            $themeId = $this->resolveThemeId($resolved['id']);
+        } catch (\Throwable $e) {
+            return $this->error('Failed to resolve sales channel: ' . $e->getMessage());
+        }
 
         if ($themeId === null) {
             return $this->error(\sprintf('No theme assigned to sales channel "%s".', $salesChannelId));
         }
 
-        return match ($action) {
-            'get' => $this->handleGet($themeId, $context),
-            'update' => $this->handleUpdate($themeId, $config, $dryRun, $context),
-            default => $this->error(\sprintf('Unknown action "%s". Use "get" or "update".', $action)),
-        };
+        return $action === 'get'
+            ? $this->handleGet($themeId, $context)
+            : $this->handleUpdate($themeId, $config, $dryRun, $context);
     }
 
     private function handleGet(string $themeId, Context $context): string
@@ -120,6 +138,97 @@ class ThemeConfigTool extends McpToolResponse
             'themeId' => $themeId,
             'updatedKeys' => array_keys($configValues),
         ], ['dryRun' => false]);
+    }
+
+    /**
+     * Accepts either a sales channel UUID or its name, because agents typically know the name
+     * shown in the admin, not the ID. Anything unresolvable comes back as a message instead of an
+     * exception, so the client sees a usable error rather than a generic JSON-RPC failure.
+     *
+     * @return array{id: string}|array{error: string}
+     */
+    private function resolveSalesChannelId(string $input): array
+    {
+        $input = trim($input);
+        $uuid = strtolower($input);
+
+        if (Uuid::isValid($uuid)) {
+            $id = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(`id`)) FROM `sales_channel` WHERE `id` = :id',
+                ['id' => Uuid::fromHexToBytes($uuid)],
+            );
+
+            if ($id === false) {
+                return ['error' => \sprintf(
+                    'Sales channel "%s" not found. Use the shopware://sales-channels resource to look up IDs, or pass the sales channel name instead.',
+                    $input,
+                )];
+            }
+
+            return ['id' => (string) $id];
+        }
+
+        // sales_channel_translation.name uses utf8mb4_unicode_ci, so the match is case-insensitive.
+        // DISTINCT collapses the one row per language a single channel has.
+        $ids = $this->fetchStrings(
+            'SELECT DISTINCT LOWER(HEX(`sc`.`id`))
+             FROM `sales_channel` `sc`
+             INNER JOIN `sales_channel_translation` `sct` ON `sct`.`sales_channel_id` = `sc`.`id`
+             WHERE `sct`.`name` = :name',
+            ['name' => $input],
+        );
+
+        if (\count($ids) === 1) {
+            return ['id' => $ids[0]];
+        }
+
+        if ($ids === []) {
+            return ['error' => \sprintf(
+                'Sales channel "%s" not found. Available sales channels: %s. Pass one of these names or a sales channel UUID (see shopware://sales-channels).',
+                $input,
+                $this->listSalesChannelNames(),
+            )];
+        }
+
+        return ['error' => \sprintf(
+            'Sales channel name "%s" is ambiguous, %d channels share it. Pass one of these IDs instead: %s.',
+            $input,
+            \count($ids),
+            implode(', ', $ids),
+        )];
+    }
+
+    private function listSalesChannelNames(): string
+    {
+        $names = $this->fetchStrings(
+            'SELECT DISTINCT `name` FROM `sales_channel_translation` WHERE `name` IS NOT NULL ORDER BY `name`',
+        );
+
+        if ($names === []) {
+            return 'none';
+        }
+
+        $shown = \array_slice($names, 0, self::MAX_SUGGESTED_NAMES);
+        $list = implode(', ', array_map(static fn (string $name): string => '"' . $name . '"', $shown));
+
+        if (\count($names) > self::MAX_SUGGESTED_NAMES) {
+            $list .= \sprintf(' and %d more', \count($names) - self::MAX_SUGGESTED_NAMES);
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return list<string>
+     */
+    private function fetchStrings(string $sql, array $params = []): array
+    {
+        return array_map(
+            static fn (mixed $value): string => (string) $value,
+            $this->connection->fetchFirstColumn($sql, $params),
+        );
     }
 
     private function resolveThemeId(string $salesChannelId): ?string

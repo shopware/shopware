@@ -155,9 +155,7 @@ export default {
 
             // check if function exists
             if (typeof matchedShortcut.instance[matchedShortcut.functionName] === 'function') {
-                // The keystroke is consumed by the shortcut — without this the
-                // key still performs its default action, e.g. "f" focusing the
-                // search bar would also type the letter into the input.
+                // Without this the key also performs its default action, e.g. typing "f"
                 event.preventDefault();
 
                 // trigger function

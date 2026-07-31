@@ -124,9 +124,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     beforeEach(async () => {
-        // This is here to fix v-bind false error for transition "persisted".
-        // Merge instead of replace: the globally registered meteor components
-        // (e.g. mt-tooltip used by sw-admin-menu-item) must stay resolvable.
+        // Fixes the v-bind false error for transition "persisted"; merged so the
+        // globally registered meteor components stay resolvable
         config.global.stubs = {
             ...config.global.stubs,
             transition: false,
@@ -775,8 +774,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             const flyout = document.getElementById('sw-admin-menu-flyout');
 
-            // The flyout contains a sub branch whose closed children stay in the
-            // DOM as hidden, non-focusable links.
+            // The closed sub branch children stay in the DOM as hidden, non-focusable links
             const allLinks = Array.from(flyout.querySelectorAll('.sw-admin-menu__navigation-link'));
             const visibleLinks = allLinks.filter((link) => !link.closest('[hidden]'));
             expect(visibleLinks.length).toBeLessThan(allLinks.length);
@@ -841,11 +839,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             branchRow.querySelector('.sw-admin-menu__navigation-link').click();
 
-            // Asserted synchronously on purpose: router-link resolves its navigation in the
-            // microtask checkpoint at the end of this click listener, so the suppression has
-            // to be armed by the time the click returns. A handler that only sees the
-            // bubbled event — e.g. one on the flyout wrapper — runs after the route watcher
-            // has already closed the flyout.
+            // Synchronous on purpose: the suppression must be armed by the time the click returns,
+            // a handler seeing only the bubbled event runs after the flyout already closed
             expect(wrapper.vm.isFlyoutPinned).toBe(true);
 
             wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
@@ -873,9 +868,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             findRow(flyout, true).querySelector('.sw-admin-menu__navigation-link').click();
 
-            // List pages issue further router.replace calls once their search resolves, an
-            // unbounded number of ticks after the click. The pin is state, not a time
-            // window, so every one of them has to leave the flyout alone.
+            // List pages replace the route again later, so the pin is state, not a time window
             for (let i = 0; i < 3; i += 1) {
                 wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
                 await flushPromises();
@@ -905,8 +898,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             findRow(flyout, true).querySelector('.sw-admin-menu__navigation-link').click();
 
-            // Navigating moves the focus off the clicked link, which arrives here as a
-            // focusout with no relatedTarget — it must not schedule a close.
+            // Navigating fires a focusout with no relatedTarget, which must not schedule a close
             await flyoutWrapper.trigger('focusout');
             expect(wrapper.vm.flyoutCloseTimeoutId).toBeNull();
 

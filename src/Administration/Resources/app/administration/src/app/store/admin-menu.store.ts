@@ -53,8 +53,7 @@ const adminMenuStore = Shopware.Store.register({
         expandMenuEntry(entry: NavigationEntry) {
             const key = menuEntryKey(entry);
 
-            // Entries without id and path share the key `undefined`; deduplicating
-            // them would collapse distinct entries into one.
+            // Entries without id and path share the key undefined, so never deduplicate them
             if (key !== undefined && this.expandedEntries.some((e) => menuEntryKey(e) === key)) {
                 return;
             }

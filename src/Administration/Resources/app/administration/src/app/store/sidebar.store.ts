@@ -20,8 +20,7 @@ const sidebarsStore = Shopware.Store.register({
     state: () => ({
         sidebars: [] as SidebarItemEntry[],
         closingSidebar: null as string | null,
-        // True while the active sidebar was activated from an already-open panel,
-        // so the renderer swaps the content instead of replaying the open animation.
+        // Lets the renderer swap the content instead of replaying the open animation
         switchedWhileOpen: false,
     }),
 
@@ -61,8 +60,7 @@ const sidebarsStore = Shopware.Store.register({
 
             sidebar.active = false;
 
-            // A pending close animation for this sidebar is obsolete now — its
-            // timeout skips itself once the id is cleared.
+            // A pending close timeout skips itself once the id is cleared
             if (this.closingSidebar === locationId) {
                 this.closingSidebar = null;
             }
@@ -102,8 +100,7 @@ const sidebarsStore = Shopware.Store.register({
                 return;
             }
 
-            // Already open and not mid-close: nothing to do. Resetting state here
-            // would drop the switchedWhileOpen flag and replay the open animation.
+            // Resetting state here would drop switchedWhileOpen and replay the open animation
             if (sidebar.active && this.closingSidebar === null) {
                 return;
             }

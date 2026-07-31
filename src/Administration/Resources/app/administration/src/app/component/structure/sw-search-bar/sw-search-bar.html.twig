@@ -49,7 +49,7 @@
         {% endblock %}
 
         {% block sw_search_bar_field %}
-        <!-- The click delegation is a pointer convenience only — the input stays the real, keyboard-reachable control. -->
+        <!-- Pointer convenience only, the input stays the keyboard-reachable control. -->
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="isSearchBarShown"

@@ -55,8 +55,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
 
         const path = shortcutFactory.getPathByCombination(combination);
 
-        // Sequences the user may not navigate to never fire (see handleKeyUp),
-        // so they must not swallow single-key shortcuts either.
+        // Sequences the user may not navigate to never fire, so they must not swallow shortcuts
         return Boolean(path) && Shopware.Service('acl').hasAccessToRoute(path);
     }
 

@@ -23,8 +23,7 @@ export default function initializeSidebar(): void {
     });
 
     Shopware.ExtensionAPI.handle('uiSidebarClose', ({ locationId }) => {
-        // Same close path as the panel's own close button, so an app-initiated
-        // close plays the closing animation too.
+        // Same close path as the panel's close button, so the animation plays too
         Shopware.Store.get('sidebar').requestCloseSidebar(locationId);
     });
 

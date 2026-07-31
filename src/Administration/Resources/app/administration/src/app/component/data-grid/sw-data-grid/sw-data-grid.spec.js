@@ -56,6 +56,11 @@ const defaultProps = {
     ],
 };
 
+// CHANGE REASON: Forward settings content through the v6.8 mt-floating-ui test double. @harness
+const mtFloatingUiStub = {
+    template: '<div><slot /></div>',
+};
+
 describe('components/data-grid/sw-data-grid', () => {
     let stubs;
 
@@ -98,7 +103,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': mtFloatingUiStub,
             'mt-switch': true,
             'sw-provide': true,
         };
@@ -161,7 +166,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': mtFloatingUiStub,
             'mt-switch': true,
         };
     });
@@ -226,7 +231,7 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.classes()).toContain('sw-data-grid--plain-appearance');
     });
 
-    it('should load and apply user configuration', async () => {
+    const loadsAndAppliesUserConfiguration = async () => {
         const wrapper = await createWrapper({
             showSettings: true,
         });
@@ -260,7 +265,14 @@ describe('components/data-grid/sw-data-grid', () => {
         await name.setChecked(valueChecked);
 
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
-    });
+    };
+
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('should load and apply user configuration', loadsAndAppliesUserConfiguration);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should load and apply user configuration', loadsAndAppliesUserConfiguration);
 
     it('should save user configuration through the admin user config store', async () => {
         const wrapper = await createWrapper({
@@ -280,7 +292,7 @@ describe('components/data-grid/sw-data-grid', () => {
         });
     });
 
-    it('remove property in client', async () => {
+    const removesPropertyInClient = async () => {
         const wrapper = await createWrapper(
             {
                 showSettings: true,
@@ -347,9 +359,16 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
-    });
+    };
 
-    it('add property in client', async () => {
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('remove property in client', removesPropertyInClient);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('remove property in client', removesPropertyInClient);
+
+    const addsPropertyInClient = async () => {
         const wrapper = await createWrapper(
             {
                 showSettings: true,
@@ -411,9 +430,16 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
-    });
+    };
 
-    it('add property value in client', async () => {
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('add property in client', addsPropertyInClient);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('add property in client', addsPropertyInClient);
+
+    const addsPropertyValueInClient = async () => {
         const wrapper = await createWrapper(
             {
                 showSettings: true,
@@ -475,9 +501,16 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
-    });
+    };
 
-    it('remove property value in client', async () => {
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('add property value in client', addsPropertyValueInClient);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('add property value in client', addsPropertyValueInClient);
+
+    const removesPropertyValueInClient = async () => {
         const wrapper = await createWrapper(
             {
                 showSettings: true,
@@ -539,7 +572,14 @@ describe('components/data-grid/sw-data-grid', () => {
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
-    });
+    };
+
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('remove property value in client', removesPropertyValueInClient);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('remove property value in client', removesPropertyValueInClient);
 
     const cases = {
         'simple field': { accessor: 'id', expected: '123' },

@@ -16,6 +16,11 @@ import 'src/app/component/utils/sw-popover';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
+// CHANGE REASON: Forward context-menu content through the v6.8 mt-floating-ui test double. @harness
+const mtFloatingUiStub = {
+    template: '<div><slot /></div>',
+};
+
 describe('sw-app-actions', () => {
     let wrapper = null;
     let router = null;
@@ -76,7 +81,7 @@ describe('sw-app-actions', () => {
             'sw-modal': true,
             'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
             'sw-checkbox-field': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': mtFloatingUiStub,
         };
 
         router = createRouter();
@@ -100,7 +105,7 @@ describe('sw-app-actions', () => {
         jest.restoreAllMocks();
     });
 
-    it('creates an sw-app-action-button per action', async () => {
+    const createsAppActionButtonPerAction = async () => {
         wrapper = await createWrapper(router);
 
         Shopware.Store.get('shopwareApps').selectedIds = [
@@ -119,7 +124,14 @@ describe('sw-app-actions', () => {
         expect(actionButtons).toHaveLength(2);
         expect(actionButtons.at(0).props('action')).toEqual(actionButtonData[0]);
         expect(actionButtons.at(1).props('action')).toEqual(actionButtonData[1]);
-    });
+    };
+
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('creates an sw-app-action-button per action', createsAppActionButtonPerAction);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('creates an sw-app-action-button per action', createsAppActionButtonPerAction);
 
     it('should not reset the selectedIds on creation when entity exists', async () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
@@ -195,7 +207,7 @@ describe('sw-app-actions', () => {
         expect(emptyState.exists()).toBe(true);
     });
 
-    it('calls appActionButtonService.runAction if triggered by context menu button', async () => {
+    const runsActionTriggeredByContextMenuButton = async () => {
         wrapper = await createWrapper(router);
 
         Shopware.Store.get('shopwareApps').selectedIds = [
@@ -233,9 +245,22 @@ describe('sw-app-actions', () => {
             actionButtonData[1].id,
             { ids: Shopware.Store.get('shopwareApps').selectedIds },
         ]);
-    });
+    };
 
-    it('calls appActionButtonService.runAction with correct response', async () => {
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')(
+        'calls appActionButtonService.runAction if triggered by context menu button',
+        runsActionTriggeredByContextMenuButton,
+    );
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'calls appActionButtonService.runAction if triggered by context menu button',
+        runsActionTriggeredByContextMenuButton,
+    );
+
+    const runsActionWithCorrectResponse = async () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotification = jest.fn();
 
@@ -262,9 +287,19 @@ describe('sw-app-actions', () => {
             variant: actionResultData.data.status,
             message: actionResultData.data.message,
         });
-    });
+    };
 
-    it('calls appActionButtonService.runAction with open modal response', async () => {
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')('calls appActionButtonService.runAction with correct response', runsActionWithCorrectResponse);
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'calls appActionButtonService.runAction with correct response',
+        runsActionWithCorrectResponse,
+    );
+
+    const runsActionWithOpenModalResponse = async () => {
         const openModalResponseData = {
             data: {
                 actionType: 'openModal',
@@ -294,5 +329,18 @@ describe('sw-app-actions', () => {
 
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['app.action_button.iframe']);
         expect(wrapper.find('.sw-modal-app-action-button').exists()).toBe(true);
-    });
+    };
+
+    // CHANGE REASON: This variant preserves coverage for the legacy sw-popover rendering path. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover rendering path.
+    it.deprecated('v6.8.0.0')(
+        'calls appActionButtonService.runAction with open modal response',
+        runsActionWithOpenModalResponse,
+    );
+
+    // CHANGE REASON: This variant verifies the same behavior through the v6.8 mt-floating-ui path. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'calls appActionButtonService.runAction with open modal response',
+        runsActionWithOpenModalResponse,
+    );
 });

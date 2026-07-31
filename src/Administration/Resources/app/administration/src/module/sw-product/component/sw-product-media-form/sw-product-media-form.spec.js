@@ -53,6 +53,10 @@ async function createWrapper() {
                 'sw-media-preview-v2': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                // CHANGE REASON: Preserve context-menu slots when the v6.8 implementation uses mt-floating-ui. @harness
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-label': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -88,7 +92,8 @@ function getMediaCollection(collection = []) {
 }
 
 describe('module/sw-product/component/sw-product-media-form', () => {
-    beforeAll(() => {
+    // CHANGE REASON: Recreate mutable product media so assertions never depend on earlier tests reordering it. @cleanup
+    beforeEach(() => {
         const product = {
             cover: {
                 mediaId: 'media1',
@@ -99,7 +104,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
                 },
             },
             coverId: 'productMedia1',
-            media: getMediaCollection(media),
+            media: getMediaCollection(media.map((item) => ({ ...item, media: { ...item.media } }))),
         };
         product.getEntityName = () => 'T-Shirt';
 
@@ -157,7 +162,9 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
-    it('should not show cover when `showCoverLabel` is false', async () => {
+    // CHANGE REASON: The legacy context-menu assertion renders through sw-popover. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy product-media popover.
+    it.deprecated('v6.8.0.0')('should not show cover when `showCoverLabel` is false', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
@@ -177,7 +184,61 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 
-    it('should move media to first position when it is marked as cover', async () => {
+    // CHANGE REASON: Verify the same cover-label menu through the v6.8 floating-ui implementation. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should not show cover when `showCoverLabel` is false', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            showCoverLabel: false,
+        });
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('.is--cover').exists()).toBeFalsy();
+
+        await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');
+        await flushPromises();
+
+        const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
+        expect(buttons).toHaveLength(1);
+        expect(buttons.at(0).text()).toContain('global.default.remove');
+    });
+
+    // CHANGE REASON: The legacy cover action renders through sw-popover. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy product-media popover.
+    it.deprecated('v6.8.0.0')('should move media to first position when it is marked as cover', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        let productMediaItems = wrapper.findAll('.sw-product-image');
+
+        expect(productMediaItems[0].classes()).toContain('is--cover');
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
+        expect(productMediaItems[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
+
+        const contextButton = productMediaItems[1].find('.sw-product-image__context-button');
+        await contextButton.trigger('click');
+        await flushPromises();
+
+        const buttonCover = contextButton.find('.sw-product-image__button-cover');
+        expect(buttonCover.exists()).toBeTruthy();
+
+        // Media will be move to first position after clicking on Use as cover button
+        await buttonCover.trigger('click');
+
+        productMediaItems = wrapper.findAll('.sw-product-image');
+        expect(productMediaItems[0].classes()).toContain('is--cover');
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
+
+        expect(productMediaItems[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
+    });
+
+    // CHANGE REASON: Verify the cover action through the v6.8 floating-ui implementation. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should move media to first position when it is marked as cover', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
@@ -213,7 +274,8 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         // Check if previous mediaItem exists
         expect(wrapper.vm.product.media).toHaveLength(2);
-        expect(wrapper.vm.product.media[1].mediaId).toBe('media1');
+        // CHANGE REASON: The isolated fixture starts with the existing media item in its natural first position. @cleanup
+        expect(wrapper.vm.product.media[0].mediaId).toBe('media1');
 
         // Simulate successful upload for existing media
         await wrapper.vm.successfulUpload({ targetId: 'media1' });

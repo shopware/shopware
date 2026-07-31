@@ -45,7 +45,7 @@ if (!$releaseInfo) {
 
 // Build output
 $outputContent = "## System requirements\n";
-$outputContent .= "* tested on PHP `8.2`, `8.4` and `8.5`\n";
+$outputContent .= "* tested on PHP `8.2`, `8.4`, `8.5` and `8.6`\n";
 $outputContent .= "* tested on `MySQL 8` and `MariaDB 11`\n\n";
 $outputContent .= $releaseInfo . "\n";
 

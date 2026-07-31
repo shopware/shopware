@@ -16,12 +16,12 @@ $majorFilter = \strtolower($_SERVER['argv'][3] ?? '');
 
 if ($nightly) {
     // We add 8.4 separate because of currents
-    $php = ['8.2', '8.5'];
+    $php = ['8.2', '8.6'];
 }
 
 if ($release) {
     // Patch release gate: cover all supported PHP versions, but without Currents or major simulation.
-    $php = ['8.2', '8.4', '8.5'];
+    $php = ['8.2', '8.4', '8.5', '8.6'];
 }
 
 $majorVariants = ($major || $nightly) ? ['', 'major'] : [''];

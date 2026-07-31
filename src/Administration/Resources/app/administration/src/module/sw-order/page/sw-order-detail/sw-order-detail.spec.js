@@ -410,6 +410,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            // CHANGE REASON: Model the v6.8 canonical delivery so discounts exclude the primary delivery. @upgraded
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -459,6 +461,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            // CHANGE REASON: Model the v6.8 canonical delivery so discounts exclude the primary delivery. @upgraded
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -535,6 +539,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            // CHANGE REASON: Supply the canonical delivery id used by v6.8 address mappings. @upgraded
+            primaryOrderDeliveryId: 'delivery123',
             primaryOrderDelivery: {
                 id: 'delivery123',
             },

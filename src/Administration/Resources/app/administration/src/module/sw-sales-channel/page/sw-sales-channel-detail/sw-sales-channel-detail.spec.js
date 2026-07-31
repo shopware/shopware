@@ -178,7 +178,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
-        global.activeFeatureFlags = [];
+        // CHANGE REASON: The wrapper's featureActive option controls V6_8_0_0 locally, and Jest restores global flags. @cleanup
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();

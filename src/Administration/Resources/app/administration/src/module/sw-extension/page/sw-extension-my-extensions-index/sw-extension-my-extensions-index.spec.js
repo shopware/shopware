@@ -75,14 +75,11 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         });
     });
 
-    beforeEach(() => {
-        global.activeFeatureFlags = [];
-    });
-
+    // CHANGE REASON: The removed feature-only beforeEach masked the baseline for feature-independent upload-button tests. @cleanup
     afterEach(() => {
+        // CHANGE REASON: Jest restores feature flags, so only extension-management and ACL state need cleanup. @cleanup
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
         global.activeAclRoles = [];
-        global.activeFeatureFlags = [];
     });
 
     it('upload button should be there when allowed runtime extension management', async () => {

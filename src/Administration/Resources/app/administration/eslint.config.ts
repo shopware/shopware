@@ -122,9 +122,8 @@ const baseRules = {
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
     'sw-core-rules/valid-shopware-setup': 'error',
-    // An error rather than a warning, because this rule is the only check on a directory-derived name:
-    // `vue/multi-word-component-names` has to ignore `index`, and `npm run lint` has no `--max-warnings`,
-    // so a warning here would let `Bad_Dir/index.vue` through CI while `Bad_Dir.vue` failed it.
+    // Must be an error: this is the only check on a directory-derived component name, and `npm run lint`
+    // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
     'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
@@ -136,10 +135,10 @@ const baseRules = {
         'error',
         {
             // The option matches component names, and `sw-thing/index.vue` is a documented native-setup
-            // form where the name comes from the directory - so the rule would otherwise report the
-            // literal name "index" for a component actually called `sw-thing`. Nothing is lost by
-            // ignoring it: `sw-core-rules/native-setup-filename` holds every `.vue` file to a multi-word
-            // kebab-case name, and unlike this rule it resolves the directory-derived name.
+            // form where the name comes from the directory - so without the ignore this rule reports the
+            // literal name "index" for a component actually called `sw-thing`. Multi-word naming is still
+            // enforced for those files by `sw-core-rules/native-setup-filename`, which resolves the
+            // directory-derived name.
             ignores: ['index.html', 'index'],
         },
     ],

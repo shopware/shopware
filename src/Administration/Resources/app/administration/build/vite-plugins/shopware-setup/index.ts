@@ -47,12 +47,11 @@ function isDependencyFile(fileName: string): boolean {
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    // `createRequire` rather than a dynamic `import()`, because this plugin is bundled two different ways:
-    // esbuild's ESM config bundle for the Administration build, and a CommonJS resolver for extension
-    // builds (build/plugins.vite.ts). A dynamic import() needs a file: URL to survive Windows, where Node's
-    // ESM resolver reads the `C:` drive letter as a URL scheme - and that URL is exactly what the CommonJS
-    // resolver cannot load ("Cannot find module 'file:///...'"). `require` takes a plain path and works in
-    // every combination. It also matches how virtual-sfc-sourcemap.ts loads @jridgewell/remapping.
+    // `require`, not a dynamic `import()`. This plugin is bundled two ways - esbuild's ESM config bundle
+    // for the Administration build, and a CommonJS resolver for extension builds (build/plugins.vite.ts)
+    // - and no `import()` argument satisfies both: it needs a file: URL on Windows, where Node's ESM
+    // resolver reads the `C:` drive letter as a URL scheme, and the CommonJS resolver cannot load a URL
+    // ("Cannot find module 'file:///...'"). A plain path works everywhere.
     const requireFromAdministration = createRequire(path.join(administrationRoot, 'package.json'));
     const transformImport = requireFromAdministration(
         path.join(administrationRoot, 'build/vue-setup-transform/index.js'),
@@ -80,15 +79,14 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // shipping the same name. Cross-extension collisions are invisible at build time (an extension
     // cannot see the others) and surface in the runtime component registry instead.
     const baseComponentFiles = new Map<string, string>();
-    // Loaded once per plugin instance, lazily. It lives here rather than at module scope so the load
-    // takes no root argument that a memo could then silently ignore; `require`'s own cache means the
-    // underlying module is still read from disk only once per process. Lazy rather than eager because a
-    // bad `administrationRoot` must surface when a `.vue` file is actually transformed - an eagerly
-    // created rejected promise would go unhandled in builds that never reach one.
+    // Loaded on first use, once per plugin instance. Lazily, because a bad `administrationRoot` has to
+    // surface when a `.vue` file is transformed: an eagerly created rejected promise would go unhandled
+    // in a build that never reaches one. `require`'s own cache still reads the module from disk once per
+    // process.
     //
-    // Note this also caches a rejection permanently. That is deliberate: the only way this fails is a
-    // wrong `administrationRoot` or a missing committed bridge file, neither of which is transient, and
-    // reporting the identical error once beats reporting a fresh one per `.vue` file.
+    // A rejection is cached too. The only way this fails is a wrong `administrationRoot` or a missing
+    // committed bridge file, neither of which is transient, so reporting the identical error once is
+    // better than a fresh one per `.vue` file.
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
@@ -166,11 +164,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // the name on delete is what lets the new path claim it instead of colliding with a file that
             // no longer exists. An update keeps its claim: same path, same name.
             //
-            // Releasing here rather than resetting the whole registry in `buildStart` is deliberate.
-            // `buildStart` runs per environment in Vite 6 (client and ssr share this plugin instance), so
-            // a reset there would drop claims the previous environment made, and in `build --watch`
-            // Rollup re-uses cached modules - the unchanged files would never re-register and real
-            // duplicates would stop being reported.
+            // Do not swap this for a `buildStart` reset: `buildStart` runs per environment in Vite 6
+            // (client and ssr share this plugin instance), so a reset would drop the claims the previous
+            // environment made, and in `build --watch` Rollup re-uses cached modules, so unchanged files
+            // would never re-register and real duplicates would stop being reported.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
             }

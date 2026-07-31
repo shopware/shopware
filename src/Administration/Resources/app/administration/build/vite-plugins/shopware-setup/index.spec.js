@@ -163,9 +163,8 @@ swDefinePublic({ count });
     });
 
     it('loads the shared transform once per plugin instance', async () => {
-        // `src` rather than a made-up path: the loader resolves the transform relative to the root, and
-        // `src/build/vue-setup-transform` does not exist - while staying inside the package keeps the
-        // require resolvable, which a path outside it would not be.
+        // A root inside the package but without a transform under it: `src/build/vue-setup-transform`
+        // does not exist, while staying inside the package keeps the `require` itself resolvable.
         /** @type {import('vite').Plugin} */
         const plugin = ShopwareSetupPlugin({ administrationRoot: path.join(process.cwd(), 'src') });
         const source = `<script setup>
@@ -173,9 +172,9 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        // A bad `administrationRoot` is a config error, not a per-file one. The loader caches its promise,
-        // so both files reject with the *same* error object - which is what proves the module import
-        // happened once rather than once per `.vue` file.
+        // A bad `administrationRoot` is a config error, not a per-file one: the loader caches its promise,
+        // so both files reject with the *same* error object. Error identity is what proves the module was
+        // imported once.
         const first = await plugin.transform(source, '/example/sw-first.vue').catch((error) => error);
         const second = await plugin.transform(source, '/example/sw-second.vue').catch((error) => error);
 

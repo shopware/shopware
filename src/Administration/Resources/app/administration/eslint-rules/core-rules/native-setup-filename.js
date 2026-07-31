@@ -36,9 +36,8 @@ function deriveComponentName(filename) {
  *
  * The transform derives the component name from the filename, and that name is both a template tag and
  * the public override target - so a file like `Bad_Name.vue` produces a working but unconventional
- * component that no other Administration component resembles. This is a naming convention rather than a
- * correctness problem (the name is escaped wherever it is emitted), so it is reported here instead of
- * failing the build.
+ * component that no other Administration component resembles. The name is escaped wherever it is emitted,
+ * so this is a convention rather than a correctness problem; it is enforced by lint, not by the build.
  *
  * It applies to every `.vue` file, with no gate on the file's contents: an SFC that is not a valid native
  * setup component does not build at all, so there is no such thing as a `.vue` file whose filename is not

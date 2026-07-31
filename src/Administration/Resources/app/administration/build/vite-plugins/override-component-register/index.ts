@@ -47,12 +47,10 @@ export default function viteOverridePlugin(options: Options): Plugin {
                     // Ensure proper path separators
                     const importPath = relativePath.split(path.sep).join('/');
 
-                    // The identifier is positional rather than derived from the path. Any mapping of a
-                    // path to an identifier has to drop characters that are illegal in identifiers, and
-                    // every such mapping is lossy: `foo-bar/sw-x` and `foo_bar/sw-x` would collapse to the
-                    // same name and emit a duplicate binding that fails to parse. Numbering sidesteps that
-                    // entirely - nothing about the path is encoded, so nothing can collide. The import
-                    // statement right above each registration still shows which file it is.
+                    // Numbered, not derived from the path: any path-to-identifier mapping must drop
+                    // characters that are illegal in identifiers, so `foo-bar/sw-x` and `foo_bar/sw-x`
+                    // collapse to one name and the entry declares the same binding twice, which does not
+                    // parse. A counter cannot collide.
                     const componentName = `_swOverride${index}`;
                     componentNames.push(componentName);
 

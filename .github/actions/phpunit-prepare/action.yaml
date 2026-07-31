@@ -4,7 +4,7 @@ author: "shopware AG"
 
 inputs:
   php-version:
-    default: "8.2"
+    default: "8.6"
     description: PHP version to set up
   mysql-version:
     default: "skip"
@@ -33,6 +33,7 @@ runs:
         keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
+        php-fake-version: 8.5
 
     - name: Wait for OpenSearch/Elasticsearch
       if: ${{ inputs.needs-opensearch == 'true' }}

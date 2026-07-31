@@ -115,9 +115,19 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 ## Administration
 
-### `@shopware-ag/meteor-admin-sdk` updated to 6.10.0
+### Conditional visibility for app-registered tabs
 
-The bundled `@shopware-ag/meteor-admin-sdk` dependency was updated from `6.9.1` to `6.10.0`. This version adds an optional `visible` flag to `ui.tabs().addTabItem()` so an extension can register its tab hidden, and a new `ui.tabs().setVisibility()` method to show or hide a previously registered tab afterwards. Extensions that do not pass `visible` are unaffected; their tabs continue to render as before.
+`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.
+
+Re-calling `addTabItem()` for the same `componentSectionId` now updates the existing entry (label and visibility) instead of adding a duplicate, so an app can toggle a tab's visibility for the current context by re-registering it.
+
+```javascript
+sw.ui.tabs('sw-order-detail').addTabItem({
+    label: 'my-plugin.tabTitle',
+    componentSectionId: 'my-plugin-tab',
+    visible: order.stateMachineState.technicalName === 'open',
+});
+```
 
 ## Storefront
 
@@ -852,20 +862,6 @@ Added:
 Deprecated -> Replacement:
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
-
-### Conditional visibility for app-registered tabs
-
-`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.
-
-Re-calling `addTabItem()` for the same `componentSectionId` now updates the existing entry (label and visibility) instead of adding a duplicate, so an app can toggle a tab's visibility for the current context by re-registering it.
-
-```javascript
-sw.ui.tabs('sw-order-detail').addTabItem({
-    label: 'my-plugin.tabTitle',
-    componentSectionId: 'my-plugin-tab',
-    visible: order.stateMachineState.technicalName === 'open',
-});
-```
 
 # 6.7.12.0
 

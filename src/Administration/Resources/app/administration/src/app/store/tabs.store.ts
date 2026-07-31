@@ -48,9 +48,16 @@ const tabsStore = Shopware.Store.register({
         setVisibility({ positionId, componentSectionId, visible }: Omit<uiTabsSetVisibility, 'responseType'>): void {
             const existing = this.tabItems[positionId]?.find((item) => item.componentSectionId === componentSectionId);
 
-            if (existing) {
-                existing.visible = visible;
+            if (!existing) {
+                Shopware.Utils.debug.warn(
+                    'TabsStore',
+                    `Cannot set visibility for unknown tab item "${componentSectionId}" at position "${positionId}"`,
+                );
+
+                return;
             }
+
+            existing.visible = visible;
         },
     },
 });

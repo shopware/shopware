@@ -107,7 +107,9 @@ describe('tabs.store', () => {
         ]);
     });
 
-    it('does nothing when setting visibility for an unknown tab item', () => {
+    it('warns and does nothing when setting visibility for an unknown tab item', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
         store.addTabItem({
             label: 'Tab',
             positionId: 'examplePositionId',
@@ -134,5 +136,14 @@ describe('tabs.store', () => {
                 visible: true,
             },
         ]);
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            'TabsStore',
+            'Cannot set visibility for unknown tab item "unknownComponentSectionId" at position "examplePositionId"',
+        );
+        expect(warnSpy).toHaveBeenCalledWith(
+            'TabsStore',
+            'Cannot set visibility for unknown tab item "exampleComponentSectionId" at position "unknownPositionId"',
+        );
     });
 });

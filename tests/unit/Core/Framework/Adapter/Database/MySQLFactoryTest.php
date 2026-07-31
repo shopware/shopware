@@ -119,6 +119,30 @@ class MySQLFactoryTest extends TestCase
         static::assertSame($customValue, $params['driverOptions'][$customOption]);
     }
 
+    public function testDefaultSessionVariablesAreSetByDefault(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://localhost:3306/shopware',
+            'SQL_SET_DEFAULT_SESSION_VARIABLES' => null,
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey(\Pdo\Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
+    }
+
+    public function testDefaultSessionVariablesCanBeSkipped(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://localhost:3306/shopware',
+            'SQL_SET_DEFAULT_SESSION_VARIABLES' => '0',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayNotHasKey(\Pdo\Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
+    }
+
     public function testDriverOptionsFromDsnArePreservedInReplicaConfiguration(): void
     {
         // PDO::MYSQL_ATTR_LOCAL_INFILE = 1001, PDO::MYSQL_ATTR_FOUND_ROWS = 1004

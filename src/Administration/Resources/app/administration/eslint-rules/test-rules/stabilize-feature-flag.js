@@ -1,0 +1,121 @@
+/**
+ * @sw-package framework
+ */
+
+function isActiveFeatureFlagsCall(node) {
+    return (
+        node.type === 'MemberExpression' &&
+        node.computed === false &&
+        node.object.type === 'Identifier' &&
+        node.object.name === 'it' &&
+        node.property.type === 'Identifier' &&
+        node.property.name === 'activeFeatureFlags'
+    );
+}
+
+function getRemovalRanges(sourceCode, featureFlags, stabilizedFeatureFlags) {
+    const removalRanges = [];
+
+    for (let index = 0; index < stabilizedFeatureFlags.length; index += 1) {
+        const firstFeatureFlag = stabilizedFeatureFlags[index];
+        let lastFeatureFlag = firstFeatureFlag;
+
+        while (stabilizedFeatureFlags[index + 1]?.activeIndex === lastFeatureFlag.activeIndex + 1) {
+            index += 1;
+            lastFeatureFlag = stabilizedFeatureFlags[index];
+        }
+
+        const nextFeatureFlag = featureFlags[lastFeatureFlag.activeIndex + 1];
+        if (nextFeatureFlag) {
+            const comma = sourceCode.getTokenAfter(lastFeatureFlag.node, (token) => token.value === ',');
+            const separator = sourceCode.text.slice(comma.range[1], nextFeatureFlag.range[0]);
+            let rangeStart = firstFeatureFlag.node.range[0];
+            let rangeEnd = nextFeatureFlag.range[0];
+
+            if (separator.trim() !== '') {
+                const previousToken = sourceCode.getTokenBefore(firstFeatureFlag.node);
+                const leadingWhitespace = sourceCode.text.slice(previousToken.range[1], firstFeatureFlag.node.range[0]);
+
+                rangeStart = leadingWhitespace.trim() === '' ? previousToken.range[1] : rangeStart;
+                rangeEnd = comma.range[1];
+            }
+
+            removalRanges.push([
+                rangeStart,
+                rangeEnd,
+            ]);
+            continue;
+        }
+
+        const comma = sourceCode.getTokenBefore(firstFeatureFlag.node, (token) => token.value === ',');
+        removalRanges.push([
+            comma.range[0],
+            lastFeatureFlag.node.range[1],
+        ]);
+    }
+
+    return removalRanges;
+}
+
+module.exports = {
+    meta: {
+        type: 'suggestion',
+        docs: {
+            description: 'Remove a stabilized feature flag from it.activeFeatureFlags calls',
+        },
+        fixable: 'code',
+        schema: [
+            {
+                type: 'string',
+                minLength: 1,
+            },
+        ],
+        messages: {
+            stabilizedFeatureFlag: "Feature flag '{{ featureFlag }}' is stable and no longer needs to be activated.",
+        },
+    },
+
+    create(context) {
+        const sourceCode = context.sourceCode;
+        const [stabilizedFeatureFlag] = context.options;
+
+        return {
+            CallExpression(node) {
+                if (node.callee.type !== 'CallExpression' || !isActiveFeatureFlagsCall(node.callee.callee)) {
+                    return;
+                }
+
+                const [featureFlags] = node.callee.arguments;
+                if (featureFlags?.type !== 'ArrayExpression') {
+                    return;
+                }
+
+                const activeFeatureFlags = featureFlags.elements.filter(Boolean);
+                const stabilizedFeatureFlags = activeFeatureFlags
+                    .map((featureFlag, activeIndex) => ({ node: featureFlag, activeIndex }))
+                    .filter(({ node: featureFlag }) => {
+                        return featureFlag.type === 'Literal' && featureFlag.value === stabilizedFeatureFlag;
+                    });
+
+                if (stabilizedFeatureFlags.length === 0) {
+                    return;
+                }
+
+                context.report({
+                    node: stabilizedFeatureFlags[0].node,
+                    messageId: 'stabilizedFeatureFlag',
+                    data: { featureFlag: stabilizedFeatureFlag },
+                    fix(fixer) {
+                        if (activeFeatureFlags.length === stabilizedFeatureFlags.length) {
+                            return fixer.replaceText(node.callee, 'it');
+                        }
+
+                        return getRemovalRanges(sourceCode, activeFeatureFlags, stabilizedFeatureFlags).map((range) =>
+                            fixer.removeRange(range),
+                        );
+                    },
+                });
+            },
+        };
+    },
+};

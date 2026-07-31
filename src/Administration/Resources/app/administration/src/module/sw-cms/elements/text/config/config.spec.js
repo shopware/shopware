@@ -238,18 +238,21 @@ describe('src/module/sw-cms/elements/text/config', () => {
             expect(result).toBe(true);
         });
 
-        // CHANGE REASON: Isolate the text-editor validation branch without manual feature-flag cleanup. @migrated
-        it.activeFeatureFlags(['METEOR_TEXT_EDITOR'])(
+        // CHANGE REASON: Exercise validation in the v6.8 CMS container with the Meteor editor active. @upgraded
+        it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
             'should delegate to textEditor.validate and return true on success',
             async () => {
                 const mockValidate = jest.fn(() => Promise.resolve(true));
 
-                const wrapper = await createWrapper({
-                    'mt-text-editor': {
-                        template: '<div></div>',
-                        methods: { validate: mockValidate },
+                const wrapper = await createWrapper(
+                    {
+                        'mt-text-editor': {
+                            template: '<div></div>',
+                            methods: { validate: mockValidate },
+                        },
                     },
-                });
+                    { featureActive: true },
+                );
                 await flushPromises();
 
                 const result = await wrapper.vm.handleUpdateContent();
@@ -259,18 +262,21 @@ describe('src/module/sw-cms/elements/text/config', () => {
             },
         );
 
-        // CHANGE REASON: Isolate the invalid text-editor validation branch without manual cleanup. @migrated
-        it.activeFeatureFlags(['METEOR_TEXT_EDITOR'])(
+        // CHANGE REASON: Exercise invalid content in the v6.8 CMS container with the Meteor editor active. @upgraded
+        it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
             'should return false when textEditor.validate reports invalid content',
             async () => {
                 const mockValidate = jest.fn(() => Promise.resolve(false));
 
-                const wrapper = await createWrapper({
-                    'mt-text-editor': {
-                        template: '<div></div>',
-                        methods: { validate: mockValidate },
+                const wrapper = await createWrapper(
+                    {
+                        'mt-text-editor': {
+                            template: '<div></div>',
+                            methods: { validate: mockValidate },
+                        },
                     },
-                });
+                    { featureActive: true },
+                );
                 await flushPromises();
 
                 const result = await wrapper.vm.handleUpdateContent();

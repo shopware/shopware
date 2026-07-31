@@ -122,7 +122,7 @@ class MySQLIncrementer extends AbstractIncrementer
             ];
         }
 
-        /** @var array<string, array{count: int|string, key: string, cluster: string, pool: string}> $result */
+        /** @var array<string, array{count: string, key: string, cluster: string, pool: string}> $result */
         $result = $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
 
         foreach ($result as $key => $row) {

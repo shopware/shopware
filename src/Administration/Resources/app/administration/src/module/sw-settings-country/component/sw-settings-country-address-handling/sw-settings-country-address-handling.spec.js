@@ -76,6 +76,10 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                         <slot></slot>
                     </div>`,
         },
+        // CHANGE REASON: Preserve context-menu slots when the v6.8 popover implementation uses mt-floating-ui. @harness
+        'mt-floating-ui': {
+            template: '<div><slot /></div>',
+        },
         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
         'sw-select-result': await wrapTestComponent('sw-select-result'),
         'sw-highlight-text': true,
@@ -1193,7 +1197,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        const selectResult = wrapper.get('.sw-select-result-list-popover-wrapper');
+        // CHANGE REASON: Query result-list content shared by the legacy and v6.8 popover implementations. @harness
+        const selectResult = wrapper.get('.sw-select-result-list__content');
 
         await selectResult.findAll('li')[0].trigger('click');
 
@@ -1215,7 +1220,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.get('.sw-entity-single-select input').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-result-list-popover-wrapper').findAll('li')[0].trigger('click');
+        // CHANGE REASON: Query result-list content shared by the legacy and v6.8 popover implementations. @harness
+        await wrapper.get('.sw-select-result-list__content').findAll('li')[0].trigger('click');
         await flushPromises();
 
         renderMock.mockResolvedValueOnce({

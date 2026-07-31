@@ -125,7 +125,10 @@ async function createWrapper(props, options = {}) {
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    'mt-floating-ui': true,
+                    // CHANGE REASON: Preserve media suggestion slots when the v6.8 popover uses mt-floating-ui. @harness
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
                     'sw-pagination': true,

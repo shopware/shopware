@@ -142,6 +142,9 @@ jobs:
         with:
           php-version: "8.6"
 
+      - name: Fake version
+        run: |
+            composer config platform.php "8.5.0"
       - name: Install Composer
         run: |
           composer install --no-interaction --no-scripts

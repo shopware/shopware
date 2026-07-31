@@ -64,6 +64,7 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Cache CS Fixer
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -99,6 +100,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
           keep-composer-tools: true
           php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Install Danger # analysed via phpstan-paths.php + registered in phpstan-bootstrap.php
         run: composer install -d vendor-bin/danger-php --no-interaction
@@ -138,6 +140,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
           keep-composer-tools: "true"
           php-version: 8.6
+          php-fake-version: 8.5
 
       - name: "Restore result cache"
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -175,6 +178,9 @@ jobs:
         with:
           php-version: "8.6"
 
+      - name: Fake version
+        run: |
+            composer config platform.php "8.5.0"
       - name: Install Dependencies
         run: |
           composer install
@@ -212,6 +218,7 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Cache npm packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -371,6 +378,7 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           php-version: 8.6
+          php-fake-version: 8.5
       - name: Check license
         run: |
           # Word splitting is intentional: expand .allowed-licenses into repeated "-a <license>" args.
@@ -392,6 +400,9 @@ jobs:
         with:
           php-version: "8.6"
 
+      - name: Fake version
+        run: |
+            composer config platform.php "8.5.0"
       - name: Install Dependencies
         run: composer install
 
@@ -409,6 +420,7 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Install lowest dependencies
         run: composer update --prefer-lowest

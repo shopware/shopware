@@ -34,9 +34,7 @@
         position: sticky;
     }
 
-    // Below this breakpoint the admin menu is an absolutely positioned off-canvas panel and no
-    // longer occupies a grid column — drop the column, otherwise the content would land in an
-    // empty auto track.
+    // The off-canvas menu no longer occupies a grid column below this breakpoint
     @media screen and (max-width: 1280px) {
         grid-template-columns: 1fr auto;
 

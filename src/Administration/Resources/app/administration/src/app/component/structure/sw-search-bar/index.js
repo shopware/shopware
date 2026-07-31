@@ -330,8 +330,7 @@ export default {
         },
 
         onClickFieldWrapper(event) {
-            // Interactive children keep their own click behavior without
-            // pulling the focus into the search input.
+            // Interactive children keep their click behavior without focusing the search input
             if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
                 return;
             }

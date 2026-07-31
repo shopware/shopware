@@ -82,8 +82,7 @@ $sw-search-bar-item-hover-color-background: var(--color-interaction-secondary-ho
                 font-size: var(--font-size-2xs);
             }
 
-            // Compact the keys below the row's text line height, so showing
-            // them on the highlighted row never changes the row height.
+            // Kept below the row text line height, so revealing them never changes the row height
             .sw-shortcut-overview-item__key {
                 min-width: var(--scale-size-20);
                 height: var(--scale-size-20);
@@ -101,8 +100,7 @@ $sw-search-bar-item-hover-color-background: var(--color-interaction-secondary-ho
             }
         }
 
-        // The name grows into the free space and truncates on narrow
-        // viewports, keeping the shortcut and type label at the right edge.
+        // The name grows and truncates, keeping the shortcut and type label at the right edge
         .sw-highlight-text:first-child {
             @include truncate;
 

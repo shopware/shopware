@@ -1,7 +1,6 @@
 @import "~scss/mixins";
 
-// Typography comes from the wrapping mt-text in the admin menu footer —
-// only the truncation is ours.
+// Typography comes from the wrapping mt-text, only the truncation is ours
 .sw-version .sw-version__info {
     @include truncate;
 }

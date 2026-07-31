@@ -57,8 +57,7 @@
         }
     }
 
-    // Skip the open animation when the panel was already open and only the
-    // active sidebar changed — the content swaps in place instead.
+    // Skip the open animation when only the active sidebar changed; the content swaps in place
     &.is-active.is-switched:not(.is-closing) {
         animation: none;
 
@@ -196,9 +195,7 @@
     }
 }
 
-// The panel still opens and closes — only the motion is dropped. The store's
-// close delay is time-based, so the panel stays mounted for the same duration
-// and simply disappears without the slide/shrink.
+// Only the motion is dropped; the store close delay is time-based, so timing is unchanged
 @media (prefers-reduced-motion: reduce) {
     .sw-sidebar-renderer,
     .sw-sidebar-renderer.is-active,

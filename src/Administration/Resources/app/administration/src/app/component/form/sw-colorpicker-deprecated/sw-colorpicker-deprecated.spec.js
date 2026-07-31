@@ -432,7 +432,6 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.alpha).toBe(0.8);
     });
 
-    // CHANGE REASON: This test covers the legacy colorpicker implementation removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
     it.deprecated('v6.8.0.0')('should show the color picker', async () => {
         await wrapper.find('.sw-colorpicker__previewWrapper').trigger('click');
@@ -574,7 +573,6 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
-    // CHANGE REASON: This test covers legacy colorpicker dragging removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
     it.deprecated('v6.8.0.0')('should call moveSelector on dragging colorPicker', async () => {
         wrapper = await createWrapper();
@@ -592,7 +590,6 @@ describe('components/form/sw-colorpicker', () => {
         expect(moveSelectorSpy).toHaveBeenCalledTimes(1);
     });
 
-    // CHANGE REASON: This test covers legacy colorpicker dragging removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
     it.deprecated('v6.8.0.0')('should call removeDragging on mouseup', async () => {
         wrapper = await createWrapper();
@@ -724,7 +721,6 @@ describe('components/form/sw-colorpicker', () => {
             expectedSaturationValue,
             expectedLuminanceValue,
         ]) => {
-            // CHANGE REASON: These cases cover legacy colorpicker calculations removed in v6.8.0.0. @removed
             // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-colorpicker-deprecated.
             it.deprecated('v6.8.0.0')(
                 `should calculate luminanceValue and saturationValue for ${clientX}, ${clientY}`,

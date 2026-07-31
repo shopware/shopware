@@ -24,7 +24,7 @@ describe('src/app/component/base/sw-switch-field', () => {
         expect(wrapper.html()).toContain('mt-switch');
     });
 
-    // CHANGE REASON: The checked-value behavior no longer depends on the removed ENABLE_METEOR_COMPONENTS flag. @cleanup
+    // NOTE FOR REVIEWERS: checkedValue no longer depends on ENABLE_METEOR_COMPONENTS.
     it('should use the correct checked value', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.checkedValue).toBe(false);

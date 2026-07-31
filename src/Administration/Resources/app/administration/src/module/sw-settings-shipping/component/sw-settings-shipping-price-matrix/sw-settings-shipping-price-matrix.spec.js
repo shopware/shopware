@@ -93,7 +93,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
-    // CHANGE REASON: This assertion covers the shipping filter that is removed with V6_8_0_0. @removed @migrated
     // @deprecated tag:v6.8.0.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
     it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper();
@@ -105,7 +104,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
     });
 
-    // CHANGE REASON: Declare the price-only filter branch as per-test feature-flag metadata. @migrated
     it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper();
 

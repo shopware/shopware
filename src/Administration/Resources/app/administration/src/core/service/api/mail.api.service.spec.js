@@ -100,7 +100,7 @@ describe('mailApiService', () => {
             return JSON.parse(clientMock.history.post[0].data).mailTemplateData;
         };
 
-        // CHANGE REASON: Before v6.8 the service falls back to persisted mail-template-type data. @removed @upgraded
+        // NOTE FOR REVIEWERS: Omitted template data falls back to persisted type data before v6.8 but must remain null in v6.8.
         // @deprecated tag:v6.8.0.0 - The test will be removed with the persisted template-data fallback.
         it.deprecated('v6.8.0.0')('falls back to persisted mail template type data', async () => {
             await expect(sendWithoutTemplateData()).resolves.toEqual({
@@ -110,7 +110,6 @@ describe('mailApiService', () => {
             });
         });
 
-        // CHANGE REASON: The v6.8 service leaves omitted template data null instead of reading persisted type data. @upgraded
         it.activeFeatureFlags(['v6.8.0.0'])('does not fall back to persisted mail template type data', async () => {
             await expect(sendWithoutTemplateData()).resolves.toBeNull();
         });

@@ -76,7 +76,6 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     });
 
     beforeEach(async () => {
-        // CHANGE REASON: These assertions are feature-independent and should inherit the current Jest baseline. @cleanup
         setActivePinia(createPinia());
     });
 

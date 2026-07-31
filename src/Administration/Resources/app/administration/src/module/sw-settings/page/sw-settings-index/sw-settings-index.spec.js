@@ -359,7 +359,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should load user config for banner on created', async () => {
         await createWrapper();
@@ -370,7 +369,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should show banner by default when no config is set', async () => {
         const wrapper = await createWrapper();
@@ -383,7 +381,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should hide banner when config is set to true', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
@@ -403,7 +400,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should show banner when config is set to false', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
@@ -423,7 +419,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // CHANGE REASON: This test covers the settings rename banner removed under V6_8_0_0. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should toggle banner visibility and save config', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
@@ -449,7 +444,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    // CHANGE REASON: The rename notice remains visible before its v6.8 removal version. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename notice.
     it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
@@ -462,7 +456,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         ]);
     });
 
-    // CHANGE REASON: The v6.8 settings overview no longer exposes the expired rename notice. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])('does not provide expired change notices', async () => {
         const wrapper = await createWrapper();
 

@@ -18,18 +18,16 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-loader', () => {
-    // CHANGE REASON: This assertion covers the legacy sw-loader implementation scheduled for removal in v6.8.0.0. @removed @migrated
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-loader implementation.
-    it.deprecated('v6.8.0.0')('should render the deprecated sw-loader when major feature flag is disabled', async () => {
+    it.deprecated('v6.8.0.0')('should render the deprecated sw-loader', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-loader-deprecated');
         expect(wrapper.html()).not.toContain('mt-loader');
     });
 
-    // CHANGE REASON: Scope ENABLE_METEOR_COMPONENTS declaratively to the Meteor loader test. @migrated
     it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])(
-        'should render the mt-loader when major feature flag is enabled',
+        'should render the mt-loader',
         async () => {
             const wrapper = await createWrapper();
 

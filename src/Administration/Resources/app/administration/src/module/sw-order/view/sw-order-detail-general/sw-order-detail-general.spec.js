@@ -70,7 +70,6 @@ const orderMock = {
     lineItems: [],
 };
 
-// CHANGE REASON: Model the v6.8 order shape with the canonical primary delivery association. @upgraded
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
 async function createWrapper() {

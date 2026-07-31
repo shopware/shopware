@@ -203,14 +203,14 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         Shopware.Store.register(contextState);
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+    it('should render the fallback tabs branch', () => {
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-order-create');
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it('should render meteor tabs', async () => {
         wrapper = await createWrapper({
             featureActive: true,
             routeName: 'sw.order.create.details',

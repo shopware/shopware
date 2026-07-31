@@ -291,7 +291,6 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 'media',
             ].includes(link.type)
         ) {
-            // CHANGE REASON: These URL cases exercise the legacy editor link menu removed in v6.8.0.0. @removed
             // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
             it.deprecated('v6.8.0.0')(`parses ${link.type} URLs correctly`, testLinkParsing);
 
@@ -302,7 +301,6 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         it(`parses ${link.type} URLs correctly`, testLinkParsing);
     });
 
-    // CHANGE REASON: This test exercises the legacy editor link menu removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-text-editor-link-menu.
     it.deprecated('v6.8.0.0')('parses product detail links and reacts to changes correctly', async () => {
         const wrapper = await createWrapper({

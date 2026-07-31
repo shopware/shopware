@@ -651,7 +651,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'manufacturer',
             'visibilities',
         ].forEach((property) => expect(data.properties).toContain(property));
-        // CHANGE REASON: Generated schema property order differs in v6.8 while the available translation paths stay equal. @upgraded
         const expectedTranslationOptions = [
             {
                 label: 'translations.DEFAULT.metaDescription',

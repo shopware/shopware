@@ -331,7 +331,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
-    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should render tabs when type is shop page', async () => {
         const wrapper = await createWrapper('page');
@@ -341,16 +340,15 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeTruthy();
     });
 
-    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
-    it.deprecated('v6.8.0.0')('should render deprecated tabs when the major feature flag is inactive', async () => {
+    it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it('should render meteor tabs', async () => {
         const wrapper = await createWrapper('page', {}, { featureActive: true });
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -372,7 +370,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
     });
 
-    it('should provide landing page meteor tabs when the major feature flag is active', async () => {
+    it('should provide landing page meteor tabs', async () => {
         const wrapper = await createWrapper('landingpage', {}, { featureActive: true });
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -431,7 +429,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
     });
 
-    // CHANGE REASON: This assertion locates the permission state through the legacy sw-tabs DOM. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should disable shop pages tab with missing system config permission', async () => {
         const wrapper = await createWrapper('page');
@@ -814,7 +811,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should load system config with different sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
@@ -837,7 +833,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    // CHANGE REASON: Exercise the same sales-channel behavior through the v6.8 Meteor tabs API. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])('should load system config with different sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
@@ -860,7 +855,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should load system config with different sales channel without matching shop pages', async () => {
         global.activeAclRoles = ['system.system_config'];
@@ -882,7 +876,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
     });
 
-    // CHANGE REASON: Exercise the empty shop-page inheritance state through the v6.8 Meteor tabs API. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should load system config with different sales channel without matching shop pages',
         async () => {
@@ -907,7 +900,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         },
     );
 
-    // CHANGE REASON: The legacy assertion selects the shop-pages view through the removed sw-tabs DOM. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should load system config when changing sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
@@ -924,7 +916,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(onInputSalesChannelSelectSpy).toHaveBeenCalledTimes(1);
     });
 
-    // CHANGE REASON: Exercise the sales-channel listener through the v6.8 Meteor tabs API. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])('should load system config when changing sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
@@ -1218,7 +1209,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
-    // CHANGE REASON: This assertion targets the legacy sw-tabs DOM replaced under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should render tabs when type is landing pages', async () => {
         const wrapper = await createWrapper('landingpage');

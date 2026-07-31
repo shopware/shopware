@@ -70,7 +70,6 @@ const orderMock = {
     ],
 };
 
-// CHANGE REASON: Model the v6.8 order shape with the canonical primary delivery association. @upgraded
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
 async function createWrapper() {
@@ -221,7 +220,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(campaignCodeField.attributes().disabled).toBeUndefined();
     });
 
-    // CHANGE REASON: This test covers shipping-cost editing that moves from Details to General under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with shipping-cost editing in the Details view.
     it.deprecated('v6.8.0.0')('should able to edit shipping cost', async () => {
         jest.useFakeTimers();
@@ -237,7 +235,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 
-    // CHANGE REASON: This test covers shipping-cost editing that moves from Details to General under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with shipping-cost editing in the Details view.
     it.deprecated('v6.8.0.0')('should recalculate shipping cost while the field is not out of focus yet', async () => {
         jest.useFakeTimers();

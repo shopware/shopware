@@ -166,7 +166,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+    it('should render the fallback tabs branch', async () => {
         wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
@@ -175,7 +175,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it('should render meteor tabs', async () => {
         wrapper = await createWrapper(
             {},
             {
@@ -410,7 +410,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
-            // CHANGE REASON: Model the v6.8 canonical delivery so discounts exclude the primary delivery. @upgraded
             primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
@@ -461,7 +460,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
-            // CHANGE REASON: Model the v6.8 canonical delivery so discounts exclude the primary delivery. @upgraded
             primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
@@ -539,7 +537,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
-            // CHANGE REASON: Supply the canonical delivery id used by v6.8 address mappings. @upgraded
             primaryOrderDeliveryId: 'delivery123',
             primaryOrderDelivery: {
                 id: 'delivery123',

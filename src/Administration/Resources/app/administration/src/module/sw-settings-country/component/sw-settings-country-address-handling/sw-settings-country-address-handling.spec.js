@@ -76,7 +76,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                         <slot></slot>
                     </div>`,
         },
-        // CHANGE REASON: Preserve context-menu slots when the v6.8 popover implementation uses mt-floating-ui. @harness
         'mt-floating-ui': {
             template: '<div><slot /></div>',
         },
@@ -1197,7 +1196,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        // CHANGE REASON: Query result-list content shared by the legacy and v6.8 popover implementations. @harness
         const selectResult = wrapper.get('.sw-select-result-list__content');
 
         await selectResult.findAll('li')[0].trigger('click');
@@ -1220,7 +1218,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.get('.sw-entity-single-select input').trigger('click');
         await flushPromises();
 
-        // CHANGE REASON: Query result-list content shared by the legacy and v6.8 popover implementations. @harness
         await wrapper.get('.sw-select-result-list__content').findAll('li')[0].trigger('click');
         await flushPromises();
 

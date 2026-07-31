@@ -209,14 +209,14 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+    it('should render deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it('should render meteor tabs', async () => {
         const wrapper = await createWrapper('content', [], true);
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 

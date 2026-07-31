@@ -285,7 +285,6 @@ async function createWrapper(props = defaultProps, provide = {}, { featureActive
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                // CHANGE REASON: Preserve duplicate-action slots when the v6.8 popover uses mt-floating-ui. @harness
                 'mt-floating-ui': {
                     template: '<div><slot /></div>',
                 },
@@ -546,7 +545,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    // CHANGE REASON: This test covers the rule-detail fallback sw-tabs branch replaced under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the fallback sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
@@ -557,7 +555,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
+    it('should render meteor route tabs', async () => {
         const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
         await flushPromises();
 
@@ -853,7 +851,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    // CHANGE REASON: The legacy route-switch assertion clicks sw-tabs items removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy rule-detail tabs.
     it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
@@ -872,7 +869,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
     });
 
-    // CHANGE REASON: Verify route-driven rule reloads through the v6.8 Meteor tab callbacks. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
         await flushPromises();

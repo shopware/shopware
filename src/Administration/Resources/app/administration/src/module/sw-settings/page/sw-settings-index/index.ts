@@ -52,7 +52,6 @@ export default Shopware.Component.wrapComponentConfig({
          * here — it is no longer relevant.
          */
         changeNotices(): { key: string; deprecationVersion: string }[] {
-            // CHANGE REASON: Hide the rename notice once its v6.8 removal flag is active while retaining the legacy notice. @upgraded
             if (Shopware.Feature.isActive('v6.8.0.0')) {
                 return [];
             }

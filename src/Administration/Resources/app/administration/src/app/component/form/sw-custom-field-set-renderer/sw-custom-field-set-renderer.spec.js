@@ -125,7 +125,6 @@ async function createWrapper(props, options = {}) {
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    // CHANGE REASON: Preserve media suggestion slots when the v6.8 popover uses mt-floating-ui. @harness
                     'mt-floating-ui': {
                         template: '<div><slot /></div>',
                     },
@@ -1367,13 +1366,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
-    // CHANGE REASON: Assert tab metadata through the component used by the active feature-flag branch. @upgraded
-    function expectCustomFieldTabs(expectedItems, assertLegacyLabels = false) {
-        if (Shopware.Feature.isActive('v6.8.0.0')) {
-            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual(expectedItems);
-            return;
-        }
+    function expectMeteorCustomFieldTabs(expectedItems) {
+        expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual(expectedItems);
+    }
 
+    function expectLegacyCustomFieldTabs(expectedItems, assertLegacyLabels = false) {
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(expectedItems.length);
 
@@ -1382,7 +1379,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         }
     }
 
-    const shouldNotFilterCustomFieldSetsWhenSelectionIsInactive = async () => {
+    function expectLegacyCustomFieldTabLabels(expectedItems) {
+        expectLegacyCustomFieldTabs(expectedItems, true);
+    }
+
+    const shouldNotFilterCustomFieldSetsWhenSelectionIsInactive = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1430,26 +1431,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectCustomFieldTabs([
+        expectTabs([
             { label: 'set1', name: 'set1' },
             { label: 'set2', name: 'set2' },
         ]);
     };
 
-    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when selection not active',
-        shouldNotFilterCustomFieldSetsWhenSelectionIsInactive,
+        () => shouldNotFilterCustomFieldSetsWhenSelectionIsInactive(expectLegacyCustomFieldTabs),
     );
 
-    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when selection not active',
-        shouldNotFilterCustomFieldSetsWhenSelectionIsInactive,
+        () => shouldNotFilterCustomFieldSetsWhenSelectionIsInactive(expectMeteorCustomFieldTabs),
     );
 
-    const shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn = async () => {
+    const shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1493,26 +1492,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectCustomFieldTabs([
+        expectTabs([
             { label: 'set1', name: 'set1' },
             { label: 'set2', name: 'set2' },
         ]);
     };
 
-    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no customFieldSets column',
-        shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn,
+        () => shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn(expectLegacyCustomFieldTabs),
     );
 
-    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when entity has no customFieldSets column',
-        shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn,
+        () => shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn(expectMeteorCustomFieldTabs),
     );
 
-    const shouldRenderConfiguredTabLabel = async () => {
+    const shouldRenderConfiguredTabLabel = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1546,20 +1543,21 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expectCustomFieldTabs([{ label: 'Set 1 Label', name: 'set1' }], true);
+        expectTabs([{ label: 'Set 1 Label', name: 'set1' }]);
     };
 
-    // CHANGE REASON: The legacy assertion reads the configured label from a sw-tabs item removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
-    it.deprecated('v6.8.0.0')('should render the correct tab label given from the config', shouldRenderConfiguredTabLabel);
-
-    // CHANGE REASON: The v6.8 variant reads the configured label from MtTabs metadata. @upgraded
-    it.activeFeatureFlags(['v6.8.0.0'])(
+    it.deprecated('v6.8.0.0')(
         'should render the correct tab label given from the config',
-        shouldRenderConfiguredTabLabel,
+        () => shouldRenderConfiguredTabLabel(expectLegacyCustomFieldTabLabels),
     );
 
-    const shouldRenderFallbackTabLabel = async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render the correct tab label given from the config',
+        () => shouldRenderConfiguredTabLabel(expectMeteorCustomFieldTabs),
+    );
+
+    const shouldRenderFallbackTabLabel = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1593,23 +1591,21 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expectCustomFieldTabs([{ label: 'set1', name: 'set1' }], true);
+        expectTabs([{ label: 'set1', name: 'set1' }]);
     };
 
-    // CHANGE REASON: The legacy assertion reads the fallback label from a sw-tabs item removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should render the fallback tab label when no label exists in the config',
-        shouldRenderFallbackTabLabel,
+        () => shouldRenderFallbackTabLabel(expectLegacyCustomFieldTabLabels),
     );
 
-    // CHANGE REASON: The v6.8 variant reads the fallback label from MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should render the fallback tab label when no label exists in the config',
-        shouldRenderFallbackTabLabel,
+        () => shouldRenderFallbackTabLabel(expectMeteorCustomFieldTabs),
     );
 
-    const shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn = async () => {
+    const shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1653,26 +1649,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectCustomFieldTabs([
+        expectTabs([
             { label: 'set1', name: 'set1' },
             { label: 'set2', name: 'set2' },
         ]);
     };
 
-    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
-        shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn,
+        () => shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn(expectLegacyCustomFieldTabs),
     );
 
-    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
-        shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn,
+        () => shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn(expectMeteorCustomFieldTabs),
     );
 
-    const shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive = async () => {
+    const shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1717,26 +1711,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectCustomFieldTabs([
+        expectTabs([
             { label: 'set1', name: 'set1' },
             { label: 'set2', name: 'set2' },
         ]);
     };
 
-    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
-        shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive,
+        () => shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive(expectLegacyCustomFieldTabs),
     );
 
-    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
-        shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive,
+        () => shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive(expectMeteorCustomFieldTabs),
     );
 
-    const shouldNotFilterCustomFieldSetsWhenParentHasNoSelection = async () => {
+    const shouldNotFilterCustomFieldSetsWhenParentHasNoSelection = async (expectTabs) => {
         const props = {
             entity: {
                 customFields: {
@@ -1784,23 +1776,21 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         wrapper = await createWrapper(props);
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectCustomFieldTabs([
+        expectTabs([
             { label: 'set1', name: 'set1' },
             { label: 'set2', name: 'set2' },
         ]);
     };
 
-    // CHANGE REASON: The legacy assertion covers the sw-tabs rendering path removed in v6.8. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
-        shouldNotFilterCustomFieldSetsWhenParentHasNoSelection,
+        () => shouldNotFilterCustomFieldSetsWhenParentHasNoSelection(expectLegacyCustomFieldTabs),
     );
 
-    // CHANGE REASON: The v6.8 variant verifies the same visible sets through MtTabs metadata. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
-        shouldNotFilterCustomFieldSetsWhenParentHasNoSelection,
+        () => shouldNotFilterCustomFieldSetsWhenParentHasNoSelection(expectMeteorCustomFieldTabs),
     );
 
     it('should initialize new custom fields on entity change', async () => {
@@ -1861,7 +1851,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(wrapper.vm.visibleCustomFieldSets.first().name).toBe('set2');
     });
 
-    // CHANGE REASON: This test covers the custom-field renderer's legacy sw-tabs branch removed under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should show the tabs', async () => {
         wrapper = await createWrapper({
@@ -1889,9 +1878,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(wrapper.find('.sw-tab--name-custom_clothing').text()).toContain('Clothing');
     });
 
-    // CHANGE REASON: Declare the meteor custom-field-tabs path directly on its test. @migrated
     it.activeFeatureFlags(['v6.8.0.0'])(
-        'should render meteor tabs and switch active custom field set when major feature flag is active',
+        'should render meteor tabs and switch active custom field set',
         async () => {
             const sportsId = uuid.get('custom_sports');
             const clothingId = uuid.get('custom_clothing');
@@ -1979,7 +1967,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         },
     );
 
-    // CHANGE REASON: This test covers legacy sw-tabs content already represented by the Meteor-tabs scenario. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should contain the right fields for each tab', async () => {
         wrapper = await createWrapper({
@@ -2088,7 +2075,6 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.element.style.display).not.toBe('none');
     });
 
-    // CHANGE REASON: This test covers legacy sw-tabs lazy loading already represented by the Meteor-tabs scenario. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should load the current active tab', async () => {
         wrapper = await createWrapper({

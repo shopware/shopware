@@ -5,7 +5,6 @@ import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
 
-// CHANGE REASON: A stable test service allows each case to configure invitations without replacing the service container. @cleanup
 const ssoInvitationService = {
     inviteUser: jest.fn(),
 };
@@ -108,7 +107,6 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
     });
 
     it('should throw "invitation-failed" event', async () => {
-        // CHANGE REASON: Scope the rejected invitation to this test through the stable service mock. @cleanup
         ssoInvitationService.inviteUser.mockRejectedValueOnce();
 
         const wrapper = await createWrapper();
@@ -137,7 +135,6 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
     });
 
     it('should throw "user-invited" event', async () => {
-        // CHANGE REASON: Scope the successful invitation to this test through the stable service mock. @cleanup
         ssoInvitationService.inviteUser.mockResolvedValueOnce();
 
         const wrapper = await createWrapper();

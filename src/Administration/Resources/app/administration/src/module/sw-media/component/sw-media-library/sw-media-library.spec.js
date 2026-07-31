@@ -326,7 +326,6 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(loadMoreButton.exists()).toBe(false);
     });
 
-    // CHANGE REASON: The file-name ascending criterion is replaced by createdAt descending under V6_8_0_0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy media-library sort criterion.
     it.deprecated('v6.8.0.0')('should have a computed property for nextMediaCriteria', async () => {
         const wrapper = await createWrapper();
@@ -375,9 +374,9 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    // CHANGE REASON: Make the next-major media criteria branch explicit and isolated to this test. @migrated
+    // NOTE FOR REVIEWERS: v6.8 changes the default media sort from file name ascending to creation date descending.
     it.activeFeatureFlags(['v6.8.0.0'])(
-        'should use created at descending for nextMediaCriteria when v6.8.0.0 is active',
+        'should use created at descending for nextMediaCriteria',
         async () => {
             const wrapper = await createWrapper();
 
@@ -439,7 +438,6 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    // CHANGE REASON: Keep the changed media-default scenario from mutating the global flag array. @migrated
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should sort folders by name ascending when media defaults to created at descending',
         async () => {

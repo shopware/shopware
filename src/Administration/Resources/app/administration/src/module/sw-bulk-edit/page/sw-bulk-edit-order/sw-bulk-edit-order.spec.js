@@ -465,7 +465,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeUndefined();
     });
 
-    it('should call onCustomFieldsChange when a customField is changed', async () => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy bulk-edit custom-field selection.
+    it.deprecated('v6.8.0.0')('should call onCustomFieldsChange when a customField is changed', async () => {
         wrapper = await createWrapper();
 
         const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');

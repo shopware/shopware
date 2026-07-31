@@ -42,12 +42,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
                     ...props,
                 },
                 global: {
-                    provide: {
-                        feature: {
-                            // CHANGE REASON: Reuse the normalized feature service so declarative flag aliases work in this test. @migrated
-                            isActive: (flag) => Shopware.Feature.isActive(flag),
-                        },
-                    },
                     stubs,
                 },
             },
@@ -91,7 +85,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        // CHANGE REASON: Preserve the Jest environment feature-flag baseline instead of masking it for every test. @cleanup
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
@@ -112,10 +105,9 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(tabs.exists()).toBe(false);
     });
 
-    // CHANGE REASON: This assertion covers the deprecated sw-tabs branch replaced by mt-tabs under V6_8_0_0. @removed @migrated
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')(
-        'should render deprecated tabs in card section when the major feature flag is inactive',
+        'should render deprecated tabs in card section',
         async () => {
             addSectionWithTabs();
 
@@ -133,9 +125,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         },
     );
 
-    // CHANGE REASON: Declare the meteor-tabs scenario before setup rather than changing shared global state. @migrated
     it.activeFeatureFlags(['v6.8.0.0'])(
-        'should render meteor tabs in card section when the major feature flag is active',
+        'should render meteor tabs in card section',
         async () => {
             addSectionWithTabs();
 
@@ -160,7 +151,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         },
     );
 
-    // CHANGE REASON: This assertion covers the deprecated sw-tabs branch replaced by mt-tabs under V6_8_0_0. @removed @migrated
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {
         addSectionWithTabs();
@@ -181,7 +171,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 
-    // CHANGE REASON: Keep the meteor tab-switch path explicitly scoped to its feature flag. @migrated
     it.activeFeatureFlags(['v6.8.0.0'])('should switch tab when meteor tabs emit a new active item', async () => {
         addSectionWithTabs();
 

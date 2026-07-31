@@ -55,7 +55,6 @@ async function createWrapper() {
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     let wrapper;
 
-    // CHANGE REASON: This test covers the unused sw-order-state-history-card component removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-order-state-history-card.
     it.deprecated('v6.8.0.0')('should have an disabled payment state', async () => {
         global.activeAclRoles = [];
@@ -64,7 +63,6 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         expect(paymentState.attributes().disabled).toBe('true');
     });
 
-    // CHANGE REASON: This test covers the unused sw-order-state-history-card component removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-order-state-history-card.
     it.deprecated('v6.8.0.0')('should not have an disabled payment state', async () => {
         global.activeAclRoles = ['order.editor'];
@@ -74,7 +72,6 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         expect(paymentState.attributes().disabled).toBeUndefined();
     });
 
-    // CHANGE REASON: This test covers the unused sw-order-state-history-card component removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-order-state-history-card.
     it.deprecated('v6.8.0.0')('should have an disabled delivery state', async () => {
         global.activeAclRoles = [];
@@ -84,7 +81,6 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         expect(deliveryState.attributes().disabled).toBe('true');
     });
 
-    // CHANGE REASON: This test covers the unused sw-order-state-history-card component removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-order-state-history-card.
     it.deprecated('v6.8.0.0')('should not have an disabled delivery state', async () => {
         global.activeAclRoles = ['order.editor'];

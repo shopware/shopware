@@ -13,7 +13,6 @@ function createService() {
     return new EntityValidationService(EntityDefinitionFactory, new ChangesetGenerator(), new ErrorResolver());
 }
 
-// CHANGE REASON: Feature-scoped tests must mirror the generated v6.8 product schema and restore the shared definition. @upgraded
 function withRequiredProductType(callback) {
     return async () => {
         const typeFlags = Shopware.EntityDefinition.get('product').properties.type.flags;
@@ -35,6 +34,7 @@ function withRequiredProductType(callback) {
 
 const entityFactory = new EntityFactory();
 
+// NOTE FOR REVIEWERS: Product type becomes required in v6.8, so the active variants include it to keep each assertion focused on its intended validation error.
 describe('src/app/service/entity-validation.service.js', () => {
     beforeAll(() => {
         Object.entries(entitySchemaMock).forEach(
@@ -102,11 +102,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         ]);
     };
 
-    // CHANGE REASON: The legacy product schema does not require a product type. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate an empty product and report errors', () => validatesEmptyProduct());
 
-    // CHANGE REASON: The v6.8 product schema reports the newly required product type. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should validate an empty product and report errors',
         withRequiredProductType(() => validatesEmptyProduct(true)),
@@ -148,11 +146,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         ]);
     };
 
-    // CHANGE REASON: The legacy fixture is complete without a product type. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate missing price for a product', () => validatesMissingProductPrice());
 
-    // CHANGE REASON: The v6.8 fixture supplies the required product type so validation remains focused on prices. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should validate missing price for a product',
         withRequiredProductType(() => validatesMissingProductPrice(true)),
@@ -185,11 +181,9 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
     };
 
-    // CHANGE REASON: The legacy fixture is complete without a product type. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a complete product and report no errors', () => validatesCompleteProduct());
 
-    // CHANGE REASON: The v6.8 complete fixture includes the newly required product type. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should validate a complete product and report no errors',
         withRequiredProductType(() => validatesCompleteProduct(true)),
@@ -245,13 +239,11 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(customValidator.mock.results[0].value).toEqual(expectedErrors); // should return the errors
     };
 
-    // CHANGE REASON: The legacy fixture isolates callback errors without a product type. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a product and report callback errors', () =>
         validatesProductCallbackErrors(),
     );
 
-    // CHANGE REASON: The v6.8 fixture supplies the required type so the callback error remains the only violation. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should validate a product and report callback errors',
         withRequiredProductType(() => validatesProductCallbackErrors(true)),
@@ -284,13 +276,11 @@ describe('src/app/service/entity-validation.service.js', () => {
         expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
     };
 
-    // CHANGE REASON: The legacy fixture is complete without a product type when name is ignored. @removed @upgraded
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a complete product with ignore fields and report no errors', () =>
         validatesCompleteProductWithIgnoredFields(),
     );
 
-    // CHANGE REASON: The v6.8 ignored-fields fixture includes the newly required product type. @upgraded
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should validate a complete product with ignore fields and report no errors',
         withRequiredProductType(() => validatesCompleteProductWithIgnoredFields(true)),

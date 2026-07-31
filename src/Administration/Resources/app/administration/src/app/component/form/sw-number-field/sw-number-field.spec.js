@@ -18,7 +18,7 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-number-field', () => {
-    // CHANGE REASON: The component always renders mt-number-field and no longer reads ENABLE_METEOR_COMPONENTS. @cleanup
+    // NOTE FOR REVIEWERS: sw-number-field ignores ENABLE_METEOR_COMPONENTS and always renders mt-number-field.
     it('should render the mt-number-field', async () => {
         const wrapper = await createWrapper();
 

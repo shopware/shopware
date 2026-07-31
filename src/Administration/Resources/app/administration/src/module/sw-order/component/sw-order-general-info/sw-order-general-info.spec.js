@@ -84,7 +84,6 @@ const orderMock = {
     ],
 };
 
-// CHANGE REASON: Model the v6.8 order shape with canonical primary transaction and delivery associations. @upgraded
 orderMock.primaryOrderTransaction = orderMock.transactions[0];
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 

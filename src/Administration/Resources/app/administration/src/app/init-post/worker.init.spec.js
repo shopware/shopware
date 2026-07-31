@@ -80,7 +80,6 @@ describe('src/app/init-post/worker.init.ts', () => {
         'Shopware\\Core\\Content\\Flow\\Indexing\\FlowIndexingMessage',
         'Shopware\\Core\\Content\\Newsletter\\DataAbstractionLayer\\NewsletterRecipientIndexingMessage',
     ].forEach((name) => {
-        // CHANGE REASON: Increment-based thumbnail middleware notifications are removed in v6.8.0.0. @removed
         // @deprecated tag:v6.8.0.0 - The test will be removed with registerThumbnailMiddleware.
         it.deprecated('v6.8.0.0')(`should register thumbnail middleware "${name}"`, async () => {
             loggedIn = true;
@@ -117,7 +116,6 @@ describe('src/app/init-post/worker.init.ts', () => {
         });
     });
 
-    // CHANGE REASON: Increment-based thumbnail middleware notification updates are removed in v6.8.0.0. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with messageQueueNotification.
     it.deprecated('v6.8.0.0')('should update thumbnail middleware notifications', async () => {
         loggedIn = true;

@@ -73,14 +73,14 @@ async function createWrapper({ featureActive = false } = {}) {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
-    it('should render the deprecated tabs when the major feature flag is inactive', async () => {
+    it('should render the deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs with the expected item API when the major feature flag is active', async () => {
+    it('should render meteor tabs with the expected item API', async () => {
         const wrapper = await createWrapper({ featureActive: true });
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });

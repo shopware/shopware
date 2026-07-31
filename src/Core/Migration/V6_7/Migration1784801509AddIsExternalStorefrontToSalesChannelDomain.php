@@ -27,8 +27,4 @@ class Migration1784801509AddIsExternalStorefrontToSalesChannelDomain extends Mig
     {
         $this->addColumn($connection, 'sales_channel_domain', 'is_external_storefront', 'TINYINT(1)', false, '0');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

@@ -25,6 +25,10 @@ class ValidSeoPathInfo extends Constraint
     final public const INVALID_TYPE_MESSAGE = 'This value should be of type string.';
     final public const INVALID_CHARACTERS = 'CONTENT__SEO_URL_INVALID_CHARACTERS';
 
+    final public const INVALID_DOMAIN_MESSAGE = 'The SEO path is pre-fixed with either an unknown domain or a domain not marked as external storefront.';
+
+    final public const INVALID_DOMAIN = 'CONTENT__SEO_URL_INVALID_DOMAIN';
+
     public const DISALLOWED_CHARACTERS_PATTERN = '/' . self::DISALLOWED_SEQUENCES . '/';
 
     protected const ERROR_NAMES = [

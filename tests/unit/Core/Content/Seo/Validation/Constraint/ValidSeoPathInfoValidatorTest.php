@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Seo\Validation\Constraint;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -97,14 +98,46 @@ class ValidSeoPathInfoValidatorTest extends TestCase
         static::assertSame(ValidSeoPathInfo::INVALID_TYPE_MESSAGE, $violations->get(0)->getMessageTemplate());
     }
 
-    private function buildValidator(): ValidatorInterface
+    public function testPathPrefixedWithExternalStorefrontDomainPasses(): void
     {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('1');
+
+        $violations = $this->buildValidator($connection)
+            ->validate('https://foo.bar/awesome-product', new ValidSeoPathInfo());
+
+        static::assertCount(0, $violations);
+    }
+
+    public function testPathPrefixedWithUnknownDomainIsRejected(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
+        $violations = $this->buildValidator($connection)
+            ->validate('https://foo.bar/awesome-product', new ValidSeoPathInfo());
+
+        static::assertCount(1, $violations);
+
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(ValidSeoPathInfo::INVALID_DOMAIN, $violation->getCode());
+    }
+
+    private function buildValidator(?Connection $connection = null): ValidatorInterface
+    {
+        $connection ??= static::createStub(Connection::class);
+
         return Validation::createValidatorBuilder()
-            ->setConstraintValidatorFactory(new class implements ConstraintValidatorFactoryInterface {
+            ->setConstraintValidatorFactory(new class($connection) implements ConstraintValidatorFactoryInterface {
+                public function __construct(private readonly Connection $connection)
+                {
+                }
+
                 public function getInstance(Constraint $constraint): ConstraintValidatorInterface
                 {
                     if ($constraint instanceof ValidSeoPathInfo) {
-                        return new ValidSeoPathInfoValidator();
+                        return new ValidSeoPathInfoValidator($this->connection);
                     }
 
                     throw SeoException::unexpectedType($constraint, ValidSeoPathInfo::class);

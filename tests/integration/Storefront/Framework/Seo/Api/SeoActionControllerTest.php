@@ -570,6 +570,60 @@ class SeoActionControllerTest extends TestCase
         static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
+    public function testUpdateDefaultCanonicalForHeadlessBehavesCorrectly(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannelContext([
+            'id' => $salesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'test',
+            'domains' => [
+                [
+                    'url' => 'https://foo.bar',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ]);
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+
+        static::assertCount(1, $seoUrls);
+
+        $newSeoPathInfo = 'https://foo.bar/my-awesome-seo-path';
+        $seoUrl = [
+            'foreignKey' => $id,
+            'seoPathInfo' => $newSeoPathInfo,
+            'pathInfo' => '/store-api/product/' . $id,
+            'salesChannelId' => $salesChannelId,
+            'isModified' => true,
+            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+        ];
+
+        // modify canonical
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $seoUrl);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+
+        static::assertCount(2, $seoUrls);
+
+        $productUpdate = [
+            'id' => $id,
+            'name' => 'unused name',
+        ];
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $productUpdate);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+
+        static::assertCount(2, $seoUrls);
+    }
+
     public function testPreviewWithPrepareCriteriaMethodActiveProductFiltering(): void
     {
         $salesChannelId = Uuid::randomHex();

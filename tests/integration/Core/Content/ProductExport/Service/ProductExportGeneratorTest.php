@@ -399,15 +399,19 @@ class ProductExportGeneratorTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'https://headless-server.test',
+                    'url' => $domainUrl,
+                    'isExternalStorefront' => true,
                 ],
             ],
         ]);
 
         $productIds = $this->createHeadlessProducts($headlessSalesChannelId);
 
-        $expectedUrls = $this->createStoreApiProductSeoUrls($headlessSalesChannelId, $productIds, $domainUrl);
-        static::assertCount(3, $expectedUrls);
+        $expectedUrls = [
+            'https://composable-frontends.test/headless-product-1/headless-product-1',
+            'https://composable-frontends.test/headless-product-2/headless-product-2',
+            'https://composable-frontends.test/headless-product-3/headless-product-3',
+        ];
 
         $productExportId = Uuid::randomHex();
         $this->repository->upsert([
@@ -670,42 +674,6 @@ class ProductExportGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')->create($products, $this->context);
 
         return array_values($ids->getList($keys));
-    }
-
-    /**
-     * @param list<string> $productIds
-     *
-     * @return list<string> the resolved URLs the export is expected to contain
-     */
-    private function createStoreApiProductSeoUrls(string $salesChannelId, array $productIds, string $domainUrl): array
-    {
-        $seoUrlRepository = static::getContainer()->get('seo_url.repository');
-
-        $seoUrls = [];
-        $expectedUrls = [];
-
-        foreach ($productIds as $index => $productId) {
-            $seoPathInfo = $domainUrl . '/composable-frontends/product/' . $index;
-
-            $seoUrls[] = [
-                'id' => Uuid::randomHex(),
-                'salesChannelId' => $salesChannelId,
-                'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'foreignKey' => $productId,
-                'routeName' => ProductStoreApiUrlRoute::ROUTE_NAME,
-                'pathInfo' => '/store-api/product/' . $productId,
-                'seoPathInfo' => $seoPathInfo,
-                'isCanonical' => true,
-                'isModified' => true,
-                'isDeleted' => false,
-            ];
-
-            $expectedUrls[] = $seoPathInfo;
-        }
-
-        $seoUrlRepository->create($seoUrls, $this->context);
-
-        return $expectedUrls;
     }
 
     /**

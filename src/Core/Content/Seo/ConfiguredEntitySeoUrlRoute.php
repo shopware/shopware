@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Util\CategoryBreadcrumbHelper;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -42,7 +43,7 @@ class ConfiguredEntitySeoUrlRoute extends ConfiguredSeoUrlRoute
         $serialized = $entity->jsonSerialize();
 
         if ($entity instanceof CategoryEntity) {
-            $serialized['seoBreadcrumb'] = $entity->getPlainBreadcrumb();
+            $serialized['seoBreadcrumb'] = CategoryBreadcrumbHelper::build($entity, $salesChannel);
         }
 
         return new SeoUrlMapping(

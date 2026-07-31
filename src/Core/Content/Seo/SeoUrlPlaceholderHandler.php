@@ -51,8 +51,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
-                    if ($context->isHeadless() && preg_match('#^https?://.+#i', trim($value)) === 1) {
-                        $seoMapping[$key] = $value;
+                    if ($this->isHeadlessSeoUrl($value, $context)) {
                         continue;
                     }
 
@@ -64,6 +63,25 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
             return $content;
         });
+    }
+
+    private function isHeadlessSeoUrl(string $seoUrl, SalesChannelContext $context): bool
+    {
+        if (!$context->isHeadless()) {
+            return false;
+        }
+
+        foreach ($context->getSalesChannel()->getDomains() ?? [] as $domain) {
+            if (!$domain->getIsExternalStorefront()) {
+                continue;
+            }
+
+            if (str_starts_with($seoUrl, $domain->getUrl())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

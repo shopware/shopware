@@ -67,14 +67,13 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        $domains = [];
+        $domain = null;
         if ($salesChannel->isHeadless()) {
-            $domains = $salesChannel->getDomains()
-                ?->filter(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
-                    && $domain->getLanguageId() === $context->getLanguageId())
-                ->getElements() ?? [];
+            $domain = $salesChannel->getDomains()
+                ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
+                    && $domain->getLanguageId() === $context->getLanguageId());
 
-            if ($domains === []) {
+            if ($domain === null) {
                 return [];
             }
         }
@@ -89,14 +88,13 @@ class SeoUrlGenerator
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template), $domains);
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template), $domain);
             }
         }
     }
 
     /**
      * @param EntitySearchResult<EntityCollection<covariant Entity>> $searchResult
-     * @param SalesChannelDomainEntity[] $domains
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -106,7 +104,7 @@ class SeoUrlGenerator
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
         string $templateName,
-        array $domains,
+        ?SalesChannelDomainEntity $domain,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
@@ -140,17 +138,15 @@ class SeoUrlGenerator
             $seoUrl->setSeoPathInfo($seoPathInfo);
             $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            if (!$salesChannel->isHeadless() || preg_match('#^https?://.+#i', trim($seoPathInfo)) === 1) {
+            if (!$salesChannel->isHeadless() || $domain === null) {
                 yield $seoUrl;
 
                 continue;
             }
 
-            foreach ($domains as $domain) {
-                $seoUrl->setSeoPathInfo(rtrim($domain->getUrl(), '/') . '/' . $seoPathInfo);
+            $seoUrl->setSeoPathInfo(rtrim($domain->getUrl(), '/') . '/' . $seoPathInfo);
 
-                yield clone $seoUrl;
-            }
+            yield clone $seoUrl;
         }
     }
 

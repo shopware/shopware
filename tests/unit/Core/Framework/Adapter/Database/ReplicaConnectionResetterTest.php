@@ -8,6 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
 /**
  * @internal
@@ -52,5 +55,14 @@ class ReplicaConnectionResetterTest extends TestCase
         $connection->expects($this->never())->method(static::anything());
 
         (new ReplicaConnectionResetter($connection))->reset();
+    }
+
+    public function testResetsAfterRequestsAndHandledMessages(): void
+    {
+        static::assertSame([
+            KernelEvents::TERMINATE => 'reset',
+            WorkerMessageHandledEvent::class => 'reset',
+            WorkerMessageFailedEvent::class => 'reset',
+        ], ReplicaConnectionResetter::getSubscribedEvents());
     }
 }

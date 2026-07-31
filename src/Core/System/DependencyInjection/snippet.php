@@ -131,7 +131,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.translation.client'),
             service(TranslationConfig::class),
             service('event_dispatcher'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(TranslationMetadataStore::class)
         ->args([

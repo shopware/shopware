@@ -21,7 +21,10 @@ class DocumentEntity extends Entity
 
     protected string $orderVersionId;
 
-    protected string $documentTypeId;
+    /**
+     * @deprecated tag:v6.8.0 - documentTypeId becomes nullable
+     */
+    protected ?string $documentTypeId = null;
 
     protected ?string $documentMediaFileId = null;
 
@@ -135,12 +138,12 @@ class DocumentEntity extends Entity
         $this->documentType = $documentType;
     }
 
-    public function getDocumentTypeId(): string
+    public function getDocumentTypeId(): ?string
     {
         return $this->documentTypeId;
     }
 
-    public function setDocumentTypeId(string $documentTypeId): void
+    public function setDocumentTypeId(?string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
     }

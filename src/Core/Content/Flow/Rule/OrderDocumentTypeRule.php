@@ -58,6 +58,10 @@ class OrderDocumentTypeRule extends FlowRule
 
         $typeIds = [];
         foreach ($documents->getElements() as $document) {
+            if ($document->getDocumentTypeId() === null) {
+                continue;
+            }
+
             $typeIds[] = $document->getDocumentTypeId();
         }
 

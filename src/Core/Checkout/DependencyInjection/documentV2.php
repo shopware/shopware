@@ -24,9 +24,11 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Subscriber\AppDocumentNumberRangeSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DeliveryNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -65,12 +67,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('country.repository'),
             service('media.repository'),
             service(SystemConfigService::class),
+            service(AppDocumentTypeLoader::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
         ->args([
             service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(AppDocumentNumberRangeSubscriber::class)
+        ->args([
+            service('number_range_type.repository'),
+            service('number_range.repository'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -113,10 +123,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DeliveryNoteDocumentType::class)
         ->tag('shopware.document_v2.type');
 
+    $services->set(AppDocumentTypeLoader::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
     $services->set(DocumentTypeRegistry::class)
         ->args([
             tagged_iterator('shopware.document_v2.type'),
-        ]);
+            service(AppDocumentTypeLoader::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentTemplateRenderer::class)
         ->public()

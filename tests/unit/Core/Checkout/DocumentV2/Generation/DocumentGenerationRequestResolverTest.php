@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -163,7 +165,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ]),
+            ], $this->createAppDocumentTypeLoader()),
         );
     }
 
@@ -186,7 +188,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ]),
+            ], $this->createAppDocumentTypeLoader()),
         );
     }
 
@@ -231,8 +233,16 @@ class DocumentGenerationRequestResolverTest extends TestCase
                     DocumentFormat::HTML->value,
                     DocumentFormat::PDF->value,
                 ]),
-            ]),
+            ], $this->createAppDocumentTypeLoader()),
         );
+    }
+
+    private function createAppDocumentTypeLoader(): AppDocumentTypeLoader
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        return new AppDocumentTypeLoader($connection);
     }
 
     /**

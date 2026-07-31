@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
-use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -17,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Renders a document into XRechnung 3.0 (CII) XML.
  *
- * Consumes the shared meta and the invoice render data; the raw Twig markup is then piped through
+ * Consumes the shared meta. The raw Twig markup is then piped through
  * {@see XmlFormatter} for deterministic pretty-printing and well-formedness validation.
  *
  * @internal
@@ -52,10 +51,7 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
             DocumentMetaRenderData::class,
         );
 
-        $renderData = $input->requireData(
-            $input->documentType,
-            AbstractRenderData::class,
-        );
+        $renderData = $input->getData($input->documentType);
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 

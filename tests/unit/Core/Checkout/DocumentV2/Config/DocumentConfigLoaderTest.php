@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\Doc
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -75,6 +77,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $bundle = $loader->load(
@@ -116,6 +119,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $bundle = $loader->load(
@@ -126,6 +130,108 @@ class DocumentConfigLoaderTest extends TestCase
 
         static::assertSame('A4', $bundle->config->pageSize);
         static::assertSame('Global GmbH', $bundle->company->companyName);
+    }
+
+    public function testLoadUsesDefaultLayoutWhenNoBaseConfigRowExists(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'App Type GmbH',
+                'companyStreet' => 'App Street 1',
+                'companyZipcode' => '11111',
+                'companyCity' => 'App City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ], $salesChannelId),
+            $this->createAppDocumentTypeLoader(),
+        );
+
+        $bundle = $loader->load(
+            'app_registered_document_type',
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('a4', $bundle->config->pageSize);
+        static::assertSame('portrait', $bundle->config->pageOrientation);
+        static::assertSame(10, $bundle->config->itemsPerPage);
+        static::assertNull($bundle->config->filenamePrefix);
+        static::assertNull($bundle->config->filenameSuffix);
+        static::assertNull($bundle->config->logo);
+        static::assertSame('App Type GmbH', $bundle->company->companyName);
+        static::assertFalse($bundle->display->displayHeader);
+        static::assertFalse($bundle->display->displayFooter);
+        static::assertFalse($bundle->display->displayPageCount);
+        static::assertFalse($bundle->display->displayLineItems);
+        static::assertFalse($bundle->display->displayPrices);
+    }
+
+    public function testLoadOverlaysAppDeclaredConfigForAppDocumentType(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'App Type GmbH',
+                'companyStreet' => 'App Street 1',
+                'companyZipcode' => '11111',
+                'companyCity' => 'App City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ], $salesChannelId),
+            $this->createAppDocumentTypeLoader([
+                'app_registered_document_type_with_config' => [
+                    'pageOrientation' => 'landscape',
+                    'itemsPerPage' => 20,
+                    'displayHeader' => true,
+                ],
+            ]),
+        );
+
+        $bundle = $loader->load(
+            'app_registered_document_type_with_config',
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('a4', $bundle->config->pageSize);
+        static::assertSame('landscape', $bundle->config->pageOrientation);
+        static::assertSame(20, $bundle->config->itemsPerPage);
+        static::assertTrue($bundle->display->displayHeader);
+        static::assertFalse($bundle->display->displayFooter);
+        static::assertFalse($bundle->display->displayPageCount);
+        static::assertFalse($bundle->display->displayLineItems);
+        static::assertFalse($bundle->display->displayPrices);
     }
 
     public function testLoadRejectsZeroItemsPerPage(): void
@@ -152,6 +258,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $this->expectException(DocumentV2Exception::class);
@@ -195,6 +302,7 @@ class DocumentConfigLoaderTest extends TestCase
                 'companyCountryId' => self::COMPANY_COUNTRY_ID,
                 'companyLogoId' => self::COMPANY_INFO_LOGO_ID,
             ], $salesChannelId),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $bundle = $loader->load(
@@ -234,6 +342,7 @@ class DocumentConfigLoaderTest extends TestCase
             $this->createSystemConfigService([
                 'companyName' => 'System Config GmbH',
             ], $salesChannelId),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $this->expectException(DocumentV2Exception::class);
@@ -277,6 +386,7 @@ class DocumentConfigLoaderTest extends TestCase
                 'companyCity' => 'System City',
                 'companyCountryId' => self::COMPANY_COUNTRY_ID,
             ], $salesChannelId),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $bundle = $loader->load(
@@ -312,6 +422,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
         );
 
         $bundle = $loader->load(
@@ -397,6 +508,27 @@ class DocumentConfigLoaderTest extends TestCase
         $media->setId($id);
 
         return $media;
+    }
+
+    /**
+     * @param array<string, array<string, scalar>> $configByTechnicalName
+     */
+    private function createAppDocumentTypeLoader(array $configByTechnicalName = []): AppDocumentTypeLoader
+    {
+        $rows = [];
+
+        foreach ($configByTechnicalName as $technicalName => $config) {
+            $rows[] = [
+                'technical_name' => $technicalName,
+                'formats' => '["html"]',
+                'config' => json_encode($config, \JSON_THROW_ON_ERROR),
+            ];
+        }
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn($rows);
+
+        return new AppDocumentTypeLoader($connection);
     }
 
     /**

@@ -178,7 +178,7 @@ final class DocumentV2Controller extends AbstractController
                 'id' => $documentId,
                 'orderId' => $this->requirePayloadString($payload, 'orderId'),
                 'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
-                'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
+                'documentTypeId' => $this->resolveDocumentTypeId($documentType, $context),
                 'documentMediaFileId' => $mediaId,
                 'referencedDocumentId' => $payload->getString('referencedDocumentId') ?: null,
                 'static' => true,
@@ -187,6 +187,7 @@ final class DocumentV2Controller extends AbstractController
                     'documentComment' => $payload->getString('documentComment'),
                     'documentDate' => $payload->getString('documentDate') ?: null,
                     'documentNumber' => $payload->getString('documentNumber'),
+                    'documentType' => $documentType,
                 ],
             ],
         ], $context);
@@ -328,19 +329,16 @@ final class DocumentV2Controller extends AbstractController
         return $fileName !== '' ? $fileName : Uuid::randomHex();
     }
 
-    private function getDocumentTypeId(string $documentType, Context $context): string
+    /**
+     * Resolves the legacy `document_type` row id for a type, if one exists.
+     */
+    private function resolveDocumentTypeId(string $documentType, Context $context): ?string
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))
             ->setLimit(1);
 
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
-
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
-        }
-
-        return $documentTypeId;
+        return $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
     }
 
     private function createResponse(

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>withDocumentTypes</name>
+        <label>Swag App Test with document types</label>
+        <label lang="de-DE">Swag App Test mit Dokumenttypen</label>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.1.0</version>
+        <license>MIT</license>
+    </meta>
+    <documents>
+        <document-type>
+            <identifier>swag_type_with_config</identifier>
+            <label>Type with config, updated</label>
+            <label lang="de-DE">Typ mit Konfiguration, aktualisiert</label>
+            <formats>
+                <format>html</format>
+            </formats>
+            <config>
+                <items-per-page>20</items-per-page>
+                <display-header>false</display-header>
+            </config>
+        </document-type>
+    </documents>
+</manifest>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>testDocument</name>
+        <label>Swag App Documents Test</label>
+        <label lang="de-DE">Swag App Dokumente Test</label>
+        <description>Test for App document types</description>
+        <description lang="de-DE">Test für App Dokumenttypen</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>../../../../Manifest/_fixtures/test/icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/testDocument/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <documents>
+        <document-type>
+            <identifier>swag_certificate</identifier>
+            <label>Certificate</label>
+            <label lang="de-DE">Zertifikat</label>
+            <formats>
+                <format>html</format>
+                <format>pdf</format>
+            </formats>
+            <config>
+                <page-size>a4</page-size>
+                <page-orientation>portrait</page-orientation>
+                <items-per-page>10</items-per-page>
+                <display-header>true</display-header>
+                <display-footer>true</display-footer>
+                <display-page-count>false</display-page-count>
+                <display-line-items>true</display-line-items>
+                <display-prices>false</display-prices>
+            </config>
+        </document-type>
+        <document-type>
+            <identifier>swag_certificate_no_config</identifier>
+            <label>Certificate without config</label>
+            <formats>
+                <format>html</format>
+            </formats>
+        </document-type>
+    </documents>
+</manifest>

@@ -58,7 +58,7 @@ class OrderDocumentTypeSentRule extends FlowRule
 
         $sentTypeIds = [];
         foreach ($documents->getElements() as $document) {
-            if ($document->getSent()) {
+            if ($document->getSent() && $document->getDocumentTypeId() !== null) {
                 $sentTypeIds[] = $document->getDocumentTypeId();
             }
         }

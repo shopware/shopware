@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
+use Shopware\Core\Framework\App\Manifest\Xml\Document\Documents;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
@@ -62,6 +63,7 @@ class Manifest
         private readonly ?Tax $tax,
         private readonly ?ShippingMethods $shippingMethods,
         private readonly ?Gateways $gateways,
+        private readonly ?Documents $documents,
     ) {
     }
 
@@ -203,6 +205,11 @@ class Manifest
         return $this->gateways;
     }
 
+    public function getDocuments(): ?Documents
+    {
+        return $this->documents;
+    }
+
     /**
      * @return array<string> all hosts referenced in the manifest file
      */
@@ -317,6 +324,8 @@ class Manifest
             $shippingMethods = $shippingMethods === null ? null : ShippingMethods::fromXml($shippingMethods);
             $gateways = $doc->getElementsByTagName('gateways')->item(0);
             $gateways = $gateways === null ? null : Gateways::fromXml($gateways);
+            $documents = $doc->getElementsByTagName('documents')->item(0);
+            $documents = $documents === null ? null : Documents::fromXml($documents);
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
@@ -338,7 +347,8 @@ class Manifest
             $storefront,
             $tax,
             $shippingMethods,
-            $gateways
+            $gateways,
+            $documents
         );
     }
 

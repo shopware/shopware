@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -90,7 +91,7 @@ class DocumentV2ControllerTest extends TestCase
         $typeRegistry = new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             new StaticDocumentType('partial_cancellation', [DocumentFormat::HTML->value, DocumentFormat::PDF->value]),
-        ]);
+        ], $this->createAppDocumentTypeLoader());
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
@@ -273,6 +274,7 @@ class DocumentV2ControllerTest extends TestCase
                     'documentComment' => '',
                     'documentDate' => '2026-07-13T00:00:00.000Z',
                     'documentNumber' => '1000',
+                    'documentType' => DocumentType::INVOICE->value,
                 ],
             ],
         ], $this->documentRepository->creates[0]);
@@ -684,7 +686,15 @@ class DocumentV2ControllerTest extends TestCase
     {
         return new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, $formats),
-        ]);
+        ], $this->createAppDocumentTypeLoader());
+    }
+
+    private function createAppDocumentTypeLoader(): AppDocumentTypeLoader
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        return new AppDocumentTypeLoader($connection);
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

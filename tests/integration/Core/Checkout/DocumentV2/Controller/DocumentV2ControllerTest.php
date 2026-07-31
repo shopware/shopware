@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DocumentV2ControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use AppSystemTestBehaviour;
     use DocumentV2Trait;
 
     /**
@@ -40,6 +43,11 @@ class DocumentV2ControllerTest extends TestCase
      * @var EntityRepository<DocumentFileCollection>
      */
     private EntityRepository $documentFileRepository;
+
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
+    private EntityRepository $documentRepository;
 
     protected function setUp(): void
     {
@@ -60,6 +68,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->documentFileRepository = static::getContainer()->get('document_file.repository');
+        $this->documentRepository = static::getContainer()->get('document.repository');
     }
 
     public function testAvailableTypesReturnsImplementedDocumentTypesAndFormats(): void
@@ -284,6 +293,60 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(DocumentFormat::PDF->mimeType(), $response->headers->get('content-type'));
         static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
         static::assertStringContainsString('uploaded-invoice.pdf', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testUploadStoresAppRegisteredDocumentTypeWithNullDocumentTypeId(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/../Generation/_fixtures/apps/withCertificateDocument');
+        $documentType = 'swag_certificate';
+
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $content = 'uploaded certificate';
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document-v2/upload?' . http_build_query([
+                'documentDate' => self::DOCUMENT_DATE,
+                'documentNumber' => '2001-' . Uuid::randomHex(),
+                'documentType' => $documentType,
+                'extension' => DocumentFormat::PDF->value,
+                'fileName' => 'uploaded-certificate',
+                'format' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+            ], '', '&', \PHP_QUERY_RFC3986),
+            [],
+            [],
+            [
+                'HTTP_CONTENT_LENGTH' => \strlen($content),
+                'HTTP_CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
+            ],
+            $content,
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($payload['documentId'] ?? null);
+
+        $document = $this->documentRepository
+            ->search(new Criteria([$payload['documentId']]), $this->context)
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(DocumentEntity::class, $document);
+        static::assertNull($document->getDocumentTypeId());
+        static::assertSame($documentType, $document->getConfig()['documentType'] ?? null);
+
+        $files = $this->loadDocumentFiles($payload['documentId']);
+        static::assertCount(1, $files);
+
+        $file = $files->first();
+        static::assertInstanceOf(DocumentFileEntity::class, $file);
+        static::assertSame(DocumentFormat::PDF->value, $file->getDocumentFormat());
     }
 
     private function createDraftOrder(): string

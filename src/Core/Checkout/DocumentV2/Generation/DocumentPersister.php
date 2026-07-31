@@ -76,11 +76,12 @@ final readonly class DocumentPersister
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
+                'documentTypeId' => $this->resolveDocumentTypeId($generationRequest, $context),
                 'referencedDocumentId' => $resolvedReference?->id,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
+                    'documentType' => $generationRequest->documentType,
                 ],
             ],
         ], $context);
@@ -159,23 +160,14 @@ final readonly class DocumentPersister
     }
 
     /**
-     * @throws DocumentV2Exception
+     * Resolves the legacy `document_type` row id for a type, if one exists.
      */
-    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function resolveDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): ?string
     {
-        // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
-        $documentType = $generationRequest->documentType;
-
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('technicalName', $documentType))
+            ->addFilter(new EqualsFilter('technicalName', $generationRequest->documentType))
             ->setLimit(1);
 
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
-
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
-        }
-
-        return $documentTypeId;
+        return $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
     }
 }

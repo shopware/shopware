@@ -4,37 +4,26 @@ namespace Shopware\Core\Checkout\DocumentV2\Type;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-final readonly class DocumentTypeRegistry
+final class DocumentTypeRegistry implements ResetInterface
 {
     /**
-     * @var array<string, list<string>>
+     * @var array<string, list<string>>|null
      */
-    private array $formatsByType;
+    private ?array $formatsByType = null;
 
     /**
      * @param iterable<AbstractDocumentType> $documentTypes
      */
-    public function __construct(iterable $documentTypes)
-    {
-        $formatsByType = [];
-
-        foreach ($documentTypes as $documentType) {
-            $technicalName = $documentType->getTechnicalName();
-
-            foreach ($documentType->getSupportedFormats() as $format) {
-                $formatsByType[$technicalName][$format] = true;
-            }
-        }
-
-        $this->formatsByType = array_map(
-            static fn (array $formats): array => array_keys($formats),
-            $formatsByType,
-        );
+    public function __construct(
+        private readonly iterable $documentTypes,
+        private readonly AppDocumentTypeLoader $appDocumentTypeLoader,
+    ) {
     }
 
     /**
@@ -42,7 +31,7 @@ final readonly class DocumentTypeRegistry
      */
     public function getDocumentTypes(): array
     {
-        return array_keys($this->formatsByType);
+        return array_keys($this->formatsByType());
     }
 
     /**
@@ -50,12 +39,12 @@ final readonly class DocumentTypeRegistry
      */
     public function getSupportedFormats(string $documentType): array
     {
-        return $this->formatsByType[$documentType] ?? [];
+        return $this->formatsByType()[$documentType] ?? [];
     }
 
     public function supports(string $documentType): bool
     {
-        return isset($this->formatsByType[$documentType]);
+        return isset($this->formatsByType()[$documentType]);
     }
 
     /**
@@ -72,5 +61,42 @@ final readonly class DocumentTypeRegistry
                 throw DocumentV2Exception::unsupportedDocumentFormat($format, $documentType);
             }
         }
+    }
+
+    public function reset(): void
+    {
+        $this->formatsByType = null;
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private function formatsByType(): array
+    {
+        if ($this->formatsByType !== null) {
+            return $this->formatsByType;
+        }
+
+        $formatsByType = [];
+
+        foreach ($this->documentTypes as $documentType) {
+            $technicalName = $documentType->getTechnicalName();
+
+            foreach ($documentType->getSupportedFormats() as $format) {
+                $formatsByType[$technicalName][$format] = true;
+            }
+        }
+
+        $merged = array_map(
+            static fn (array $formats): array => array_keys($formats),
+            $formatsByType,
+        );
+
+        foreach ($this->appDocumentTypeLoader->load() as $type => $formats) {
+            // app document types do not override core types
+            $merged[$type] ??= $formats;
+        }
+
+        return $this->formatsByType = $merged;
     }
 }

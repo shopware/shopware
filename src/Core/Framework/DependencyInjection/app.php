@@ -23,6 +23,8 @@ use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentTypeTranslation\AppDocumentTypeTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition;
@@ -85,6 +87,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ActionButtonLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\DocumentTypeLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
@@ -359,6 +362,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(BlockTemplateLoader::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1200]);
+
+    $services->set(DocumentTypeLifecycleHandler::class)
+        ->args([
+            service('app_document_type.repository'),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
 
     $services->set(ScriptFileReader::class)
         ->args([
@@ -856,6 +865,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     $services->set(AppScriptConditionTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppDocumentTypeDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppDocumentTypeTranslationDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(AppCmsBlockDefinition::class)

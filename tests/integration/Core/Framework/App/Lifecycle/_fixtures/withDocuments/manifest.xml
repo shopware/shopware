@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>withDocuments</name>
+        <label>Swag App Test with documents</label>
+        <label lang="de-DE">Swag App Test mit Dokumenten</label>
+        <description>test</description>
+        <description lang="de-DE">test</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <documents>
+        <document-type>
+            <identifier>swag_custom_invoice</identifier>
+            <label>Custom invoice</label>
+            <label lang="de-DE">Individuelle Rechnung</label>
+            <formats>
+                <format>html</format>
+                <format>pdf</format>
+            </formats>
+        </document-type>
+        <document-type>
+            <identifier>swag_custom_delivery_note</identifier>
+            <label>Custom delivery note</label>
+            <formats>
+                <format>html</format>
+            </formats>
+        </document-type>
+    </documents>
+</manifest>

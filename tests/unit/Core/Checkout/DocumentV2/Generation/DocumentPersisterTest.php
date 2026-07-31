@@ -115,10 +115,31 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame($this->renderedOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($resolvedReference->id, $documentRepository->creates[0][0]['referencedDocumentId']);
+        static::assertSame(self::DOCUMENT_TYPE, $documentRepository->creates[0][0]['config']['documentType']);
 
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    public function testPersistWithoutDocumentTypeRowStoresTypeInConfig(): void
+    {
+        [$persister, $documentRepository] = $this->createPersister(
+            documentTypeId: null,
+            mediaServiceReturn: Uuid::randomHex(),
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertNull($documentRepository->creates[0][0]['documentTypeId']);
+        static::assertSame(self::DOCUMENT_TYPE, $documentRepository->creates[0][0]['config']['documentType']);
     }
 
     #[DataProvider('persistExceptionProvider')]
@@ -164,12 +185,6 @@ class DocumentPersisterTest extends TestCase
             'documentTypeId' => Uuid::randomHex(),
             'exception' => DocumentV2Exception::documentNotPersisted('12345'),
         ];
-
-        yield 'document type not found' => [
-            'documentSearch' => null,
-            'documentTypeId' => '',
-            'exception' => DocumentV2Exception::documentTypeNotFound(self::DOCUMENT_TYPE),
-        ];
     }
 
     public function testPersistThrowsWhenDocumentNumberAlreadyExists(): void
@@ -201,7 +216,7 @@ class DocumentPersisterTest extends TestCase
      * }
      */
     private function createPersister(
-        string $documentTypeId,
+        ?string $documentTypeId,
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
@@ -231,7 +246,7 @@ class DocumentPersisterTest extends TestCase
             static function (Criteria $criteria) use ($documentTypeId): array {
                 static::assertSame(1, $criteria->getLimit());
 
-                if ($documentTypeId === '') {
+                if ($documentTypeId === null) {
                     return [];
                 }
 

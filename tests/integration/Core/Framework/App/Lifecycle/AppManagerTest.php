@@ -1080,6 +1080,34 @@ class AppManagerTest extends TestCase
         static::assertContains('example.com', $allowedHosts);
     }
 
+    public function testInstallWithDocuments(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withDocuments/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('appDocumentTypes');
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+
+        $app = $apps->first();
+        static::assertNotNull($app);
+        static::assertSame('withDocuments', $app->getName());
+
+        $documentTypes = $app->getAppDocumentTypes();
+        static::assertNotNull($documentTypes);
+        static::assertCount(2, $documentTypes);
+
+        $invoice = $documentTypes->filterByProperty('technicalName', 'swag_custom_invoice')->first();
+        static::assertNotNull($invoice);
+        static::assertSame('Custom invoice', $invoice->getLabel());
+
+        $deliveryNote = $documentTypes->filterByProperty('technicalName', 'swag_custom_delivery_note')->first();
+        static::assertNotNull($deliveryNote);
+        static::assertSame('Custom delivery note', $deliveryNote->getLabel());
+    }
+
     public function testUninstallFlowEventUsedInFlowBuilder(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
@@ -155,6 +156,8 @@ class AppEntity extends Entity
     protected ?AppMcpPromptCollection $mcpPrompts = null;
 
     protected ?AppMcpResourceCollection $mcpResources = null;
+
+    protected ?AppDocumentTypeCollection $appDocumentTypes = null;
 
     protected int $templateLoadPriority;
 
@@ -671,6 +674,16 @@ class AppEntity extends Entity
     public function setMcpResources(AppMcpResourceCollection $mcpResources): void
     {
         $this->mcpResources = $mcpResources;
+    }
+
+    public function getAppDocumentTypes(): ?AppDocumentTypeCollection
+    {
+        return $this->appDocumentTypes;
+    }
+
+    public function setAppDocumentTypes(AppDocumentTypeCollection $appDocumentTypes): void
+    {
+        $this->appDocumentTypes = $appDocumentTypes;
     }
 
     public function jsonSerialize(): array

@@ -7,8 +7,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaEntity;
@@ -23,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -42,12 +47,15 @@ class MailAttachmentsBuilderTest extends TestCase
 
     private Connection&Stub $connection;
 
+    private DocumentFileResolver&Stub $documentFileResolver;
+
     protected function setUp(): void
     {
         $this->mediaService = static::createStub(MediaService::class);
         $this->mediaRepository = static::createStub(EntityRepository::class);
         $this->documentGenerator = static::createStub(DocumentGenerator::class);
         $this->connection = static::createStub(Connection::class);
+        $this->documentFileResolver = static::createStub(DocumentFileResolver::class);
     }
 
     public function testBuildTemplateMediaAttachments(): void
@@ -106,6 +114,7 @@ class MailAttachmentsBuilderTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testBuildTemplateDocumentAttachments(): void
     {
         $context = Context::createDefaultContext();
@@ -229,6 +238,7 @@ class MailAttachmentsBuilderTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testBuildTemplateDocumentAttachmentsForXmlDocument(): void
     {
         $context = Context::createDefaultContext();
@@ -266,13 +276,91 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('application/xml', $attachment['mimeType']);
     }
 
+    public function testBuildAttachmentsAttachesEveryFormatTheDocumentV2WasGeneratedIn(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false, [$documentId]);
+
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId(Uuid::randomHex());
+        $pdfMedia->setFileName('invoice');
+        $pdfMedia->setFileExtension('pdf');
+        $pdfMedia->setMimeType('application/pdf');
+
+        $htmlMedia = new MediaEntity();
+        $htmlMedia->setId(Uuid::randomHex());
+        $htmlMedia->setFileName('invoice');
+        $htmlMedia->setFileExtension('html');
+        $htmlMedia->setMimeType('text/html');
+
+        $pdfDocumentFile = new DocumentFileEntity();
+        $pdfDocumentFile->setId(Uuid::randomHex());
+        $pdfDocumentFile->setDocumentFormat('pdf');
+        $pdfDocumentFile->setMediaId($pdfMedia->getId());
+        $pdfDocumentFile->setMedia($pdfMedia);
+
+        $htmlDocumentFile = new DocumentFileEntity();
+        $htmlDocumentFile->setId(Uuid::randomHex());
+        $htmlDocumentFile->setDocumentFormat('html');
+        $htmlDocumentFile->setMediaId($htmlMedia->getId());
+        $htmlDocumentFile->setMedia($htmlMedia);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]));
+
+        $documentFileResolver = $this->createMock(DocumentFileResolver::class);
+        $documentFileResolver->expects($this->once())
+            ->method('loadDocument')
+            ->with($documentId, $context)
+            ->willReturn($document);
+        $this->documentFileResolver = $documentFileResolver;
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $pdfMedia->getId() => 'pdf content',
+                $htmlMedia->getId() => 'html content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
+        $this->mediaService = $mediaService;
+
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator->expects($this->never())->method('readDocument');
+        $this->documentGenerator = $documentGenerator;
+
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, [], null);
+
+        static::assertSame(
+            [
+                [
+                    'id' => $documentId . ':pdf',
+                    'content' => 'pdf content',
+                    'fileName' => 'invoice.pdf',
+                    'mimeType' => 'application/pdf',
+                ],
+                [
+                    'id' => $documentId . ':html',
+                    'content' => 'html content',
+                    'fileName' => 'invoice.html',
+                    'mimeType' => 'text/html',
+                ],
+            ],
+            $attachments
+        );
+    }
+
     private function createBuilder(): MailAttachmentsBuilder
     {
         return new MailAttachmentsBuilder(
             $this->mediaService,
             $this->mediaRepository,
             $this->documentGenerator,
-            $this->connection
+            $this->connection,
+            $this->documentFileResolver,
         );
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Mail\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,7 +34,8 @@ class MailAttachmentsBuilder
         private readonly MediaService $mediaService,
         private readonly EntityRepository $mediaRepository,
         private readonly DocumentGenerator $documentGenerator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly DocumentFileResolver $documentFileResolver,
     ) {
     }
 
@@ -128,21 +131,68 @@ class MailAttachmentsBuilder
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {
-            $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
+            $attachments = array_merge($attachments, $this->buildDocumentAttachments($documentId, $context));
+        }
 
-            if ($document === null) {
-                continue;
-            }
+        return $attachments;
+    }
+
+    /**
+     * @return MailAttachments
+     */
+    private function buildDocumentAttachments(string $documentId, Context $context): array
+    {
+        if (!Feature::isActive('DOCUMENT_GENERATION_REWORK')) {
+            return $this->buildLegacyDocumentAttachment($documentId, $context);
+        }
+
+        $document = $this->documentFileResolver->loadDocument($documentId, $context);
+
+        if ($document === null) {
+            return [];
+        }
+
+        $attachments = [];
+
+        // Attach every format the document was generated in
+        foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
+            $media = $documentFile->getMedia();
+
+            $content = $context->scope(
+                Context::SYSTEM_SCOPE,
+                fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
+            );
+
+            $fileExtension = $media->getFileExtension() ?? $documentFile->getDocumentFormat();
 
             $attachments[] = [
-                'id' => $documentId,
-                'content' => $document->getContent(),
-                'fileName' => $document->getName(),
-                'mimeType' => $document->getContentType(),
+                'id' => $documentId . ':' . $documentFile->getDocumentFormat(),
+                'content' => $content,
+                'fileName' => ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
+                'mimeType' => $media->getMimeType(),
             ];
         }
 
         return $attachments;
+    }
+
+    /**
+     * @return MailAttachments
+     */
+    private function buildLegacyDocumentAttachment(string $documentId, Context $context): array
+    {
+        $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
+
+        if ($document === null) {
+            return [];
+        }
+
+        return [[
+            'id' => $documentId,
+            'content' => $document->getContent(),
+            'fileName' => $document->getName(),
+            'mimeType' => $document->getContentType(),
+        ]];
     }
 
     /**

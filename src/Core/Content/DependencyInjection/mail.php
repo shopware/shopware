@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Content\Mail\Message\SendMailHandler;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
@@ -93,6 +94,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
             service(DocumentGenerator::class),
             service(Connection::class),
+            service(DocumentFileResolver::class),
         ]);
 
     $services->set(MailPayloadFactory::class);

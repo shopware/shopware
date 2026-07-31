@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
@@ -97,6 +98,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->availableTypes();
@@ -142,6 +144,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->create(
@@ -185,6 +188,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->preview(
@@ -226,6 +230,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->upload(
@@ -296,6 +301,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         static::expectExceptionObject(
@@ -369,6 +375,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             $mediaService,
             $fileNameProvider,
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->upload(
@@ -447,6 +454,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             $mediaService,
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->download(
@@ -525,6 +533,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             $mediaService,
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         $response = $controller->downloadArchive(
@@ -577,6 +586,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         static::expectExceptionObject(
@@ -630,6 +640,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             $mediaService,
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format));
@@ -661,6 +672,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentTypeRepository,
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));

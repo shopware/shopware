@@ -205,7 +205,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     // Narrow head area: plain full width flex rows. Declared last to win over the rules above.
-    @container sw-page (max-width: 1300px) {
+    @container sw-page (max-width: 1400px) {
         .sw-page__head-area {
             grid-column-gap: 0;
             grid-template-columns: 1fr;

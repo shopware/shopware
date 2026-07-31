@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
@@ -61,6 +62,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly EntityRepository $documentTypeRepository,
         private readonly MediaService $mediaService,
         private readonly FileNameProvider $fileNameProvider,
+        private readonly DocumentFileResolver $documentFileResolver,
     ) {
     }
 
@@ -215,13 +217,13 @@ final class DocumentV2Controller extends AbstractController
         string $format,
         Context $context,
     ): Response {
-        $document = $this->loadDocument($documentId, $context);
+        $document = $this->documentFileResolver->loadDocument($documentId, $context);
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $media = $this->findMediaByFormat($document, $format);
+        $media = $this->documentFileResolver->findMediaByFormat($document, $format);
 
         if (!$media instanceof MediaEntity) {
             throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
@@ -258,7 +260,7 @@ final class DocumentV2Controller extends AbstractController
         string $documentId,
         Context $context,
     ): Response {
-        $document = $this->loadDocument($documentId, $context);
+        $document = $this->documentFileResolver->loadDocument($documentId, $context);
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotFound($documentId);
@@ -276,29 +278,6 @@ final class DocumentV2Controller extends AbstractController
             $archive->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
-    }
-
-    private function loadDocument(string $documentId, Context $context): ?DocumentEntity
-    {
-        $criteria = (new Criteria([$documentId]))
-            ->addAssociation('documentFiles.media');
-
-        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
-
-        return $document instanceof DocumentEntity ? $document : null;
-    }
-
-    private function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
-    {
-        foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-            if ($documentFile->getDocumentFormat() !== $format) {
-                continue;
-            }
-
-            return $documentFile->getMedia();
-        }
-
-        return null;
     }
 
     /**

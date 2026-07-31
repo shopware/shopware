@@ -156,7 +156,9 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.find('.sw-cms-el-config-text__tab-settings').exists()).toBe(true);
     });
 
-    it('should emits element-update when trigger @input event', async () => {
+    // CHANGE REASON: The legacy input assertion renders the removed sw-text-editor branch. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy CMS text editor.
+    it.deprecated('v6.8.0.0')('should emits element-update when trigger @input event', async () => {
         const wrapper = await createWrapper();
 
         const updatedContent = 'Updated content';
@@ -173,6 +175,34 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted('element-update')).toBeTruthy();
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
+
+    // CHANGE REASON: Verify content updates through the v6.8 Meteor text-editor model event. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
+        'should emits element-update when trigger @input event',
+        async () => {
+            const wrapper = await createWrapper(
+                {
+                    'mt-text-editor': {
+                        props: ['modelValue'],
+                        emits: ['update:modelValue'],
+                        template:
+                            '<input class="mt-text-editor-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+                    },
+                },
+                { featureActive: true },
+            );
+
+            const updatedContent = 'Updated content';
+            const input = wrapper.get('.mt-text-editor-input');
+
+            await input.setValue(updatedContent);
+            await flushPromises();
+
+            expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
+            expect(wrapper.emitted('element-update')).toBeTruthy();
+            expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        },
+    );
 
     // CHANGE REASON: The blur integration belongs to the legacy sw-text-editor branch and has no v6.8 equivalent. @removed
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-text-editor blur integration.
@@ -196,7 +226,12 @@ describe('src/module/sw-cms/elements/text/config', () => {
 
     describe('handleUpdateContent', () => {
         it('should return true when textEditor ref is not available', async () => {
-            const wrapper = await createWrapper();
+            // CHANGE REASON: Keep the no-validation case deterministic when major mode also enables METEOR_TEXT_EDITOR. @harness
+            const wrapper = await createWrapper({
+                'mt-text-editor': {
+                    template: '<div></div>',
+                },
+            });
 
             const result = await wrapper.vm.handleUpdateContent();
 

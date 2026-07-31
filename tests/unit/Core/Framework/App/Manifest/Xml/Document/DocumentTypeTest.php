@@ -41,6 +41,23 @@ class DocumentTypeTest extends TestCase
         static::assertSame([], $documentType->getConfig());
     }
 
+    public function testToArrayBackfillsSystemDefaultLanguageLabel(): void
+    {
+        $manifest = Manifest::createFromXml($this->manifestWithDocumentType(
+            '<formats><format>html</format></formats>',
+            '<label lang="de-DE">Zertifikat</label>'
+        ));
+        $documentType = $manifest->getDocuments()?->getDocumentTypes()[0] ?? null;
+        static::assertNotNull($documentType);
+
+        $data = $documentType->toArray('en-GB');
+
+        static::assertSame(
+            ['de-DE' => 'Zertifikat', 'en-GB' => 'Zertifikat'],
+            $data['label'],
+        );
+    }
+
     public function testUnknownFormatFailsSchemaValidation(): void
     {
         $this->expectException(AppException::class);
@@ -65,7 +82,7 @@ class DocumentTypeTest extends TestCase
         return $documentType;
     }
 
-    private function manifestWithDocumentType(string $documentTypeBody): string
+    private function manifestWithDocumentType(string $documentTypeBody, string $label = '<label>Certificate</label>'): string
     {
         return <<<XML
             <?xml version="1.0" encoding="UTF-8"?>
@@ -82,7 +99,7 @@ class DocumentTypeTest extends TestCase
                 <documents>
                     <document-type>
                         <identifier>swag_certificate</identifier>
-                        <label>Certificate</label>
+                        {$label}
                         {$documentTypeBody}
                     </document-type>
                 </documents>

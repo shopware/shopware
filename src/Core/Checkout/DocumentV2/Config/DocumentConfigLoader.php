@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Config;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -133,7 +134,11 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
         $effectiveCompanyInfo = $systemConfigCompanyInfo ?? $legacyConfig;
-        $appConfig = $this->appDocumentTypeLoader->loadConfig($documentType);
+
+        // core types never carry app config; avoid the app_document_type lookup on their hot path
+        $appConfig = DocumentType::tryFrom($documentType) === null
+            ? $this->appDocumentTypeLoader->loadConfig($documentType)
+            : [];
 
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context, $appConfig);
         $companyInfo = $this->buildDocumentCompanyInfo($effectiveCompanyInfo, $context, $documentType);
@@ -188,9 +193,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         Context $context,
         array $appConfig,
     ): DocumentConfig {
-        $isAppDocumentType = $globalRow === null && $salesChannelRow === null;
+        // no document_base_config row exists (app-provided types, or a type configured purely via appConfig defaults)
+        $hasNoBaseConfig = $globalRow === null && $salesChannelRow === null;
 
-        if ($isAppDocumentType) {
+        if ($hasNoBaseConfig) {
             return new DocumentConfig(
                 pageSize: (string) ($appConfig['pageSize'] ?? 'a4'),
                 pageOrientation: (string) ($appConfig['pageOrientation'] ?? 'portrait'),

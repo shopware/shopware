@@ -39,6 +39,22 @@ class DocumentType extends XmlElement
      */
     protected array $config = [];
 
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        foreach (self::TRANSLATABLE_FIELDS as $field) {
+            $translatableField = self::kebabCaseToCamelCase($field);
+
+            $data[$translatableField] = $this->ensureTranslationForDefaultLanguageExist(
+                $data[$translatableField],
+                $defaultLocale
+            );
+        }
+
+        return $data;
+    }
+
     public function getIdentifier(): string
     {
         return $this->identifier;

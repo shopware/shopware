@@ -51,6 +51,8 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
             DocumentMetaRenderData::class,
         );
 
+        // app document types legitimately have no typed render-data provider and ship their own
+        // template, so render data is optional here; core zugferd types populate it via their provider
         $renderData = $input->getData($input->documentType);
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);

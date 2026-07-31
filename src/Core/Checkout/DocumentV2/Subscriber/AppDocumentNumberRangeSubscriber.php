@@ -23,6 +23,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * so `DocumentNumberGenerator` (which looks up range type `document_<identifier>`) can generate
  * numbers for app registered document types.
  *
+ * The ranges are intentionally created `global` and are never removed on uninstall or when a type
+ * is dropped from a manifest: document numbers must stay unique per install, so a reinstalled (or
+ * differently-owned) identifier continues its existing sequence instead of restarting and re-issuing
+ * already-used numbers. Leftover range rows for gone types are harmless.
+ *
  * @internal
  *
  * @codeCoverageIgnore

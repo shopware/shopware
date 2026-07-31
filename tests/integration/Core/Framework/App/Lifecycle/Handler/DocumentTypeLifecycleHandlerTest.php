@@ -25,6 +25,8 @@ class DocumentTypeLifecycleHandlerTest extends TestCase
 
     private const APP_DIR_V2 = __DIR__ . '/_fixtures/withDocumentTypesV2';
 
+    private const APP_DIR_CORE_COLLISION = __DIR__ . '/_fixtures/withCoreCollision';
+
     private DocumentTypeLifecycleHandler $handler;
 
     /**
@@ -113,6 +115,23 @@ class DocumentTypeLifecycleHandlerTest extends TestCase
         static::getContainer()->get('app.repository')->delete([['id' => $app->getId()]], $this->context);
 
         static::assertCount(0, $this->getDocumentTypes($app->getId()));
+    }
+
+    public function testInstallSkipsDocumentTypesCollidingWithCoreIdentifiers(): void
+    {
+        $manifest = $this->appFixture->loadManifest(self::APP_DIR_CORE_COLLISION . '/manifest.xml');
+        $app = $this->appFixture->createApp($manifest);
+
+        $this->handler->install($this->appFixture->createInstallContext($app, $manifest));
+
+        $documentTypes = $this->getDocumentTypes($app->getId());
+        static::assertCount(1, $documentTypes);
+
+        static::assertNull($documentTypes->filterByProperty('technicalName', 'invoice')->first());
+
+        $valid = $documentTypes->filterByProperty('technicalName', 'swag_valid_type')->first();
+        static::assertNotNull($valid);
+        static::assertSame('Valid type', $valid->getLabel());
     }
 
     private function getDocumentTypes(string $appId): AppDocumentTypeCollection

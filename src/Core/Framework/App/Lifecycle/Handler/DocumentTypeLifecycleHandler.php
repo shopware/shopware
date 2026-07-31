@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\Context;
@@ -48,17 +49,22 @@ class DocumentTypeLifecycleHandler extends AbstractLifecycleHandler
         $upserts = [];
 
         foreach ($documentTypes as $documentType) {
-            $payload = [
-                'appId' => $appId,
-                'technicalName' => $documentType->getIdentifier(),
-                'config' => $documentType->getConfig() ?: null,
-                'formats' => $documentType->getFormats(),
-                'label' => $documentType->getLabel(),
-            ];
+            $identifier = $documentType->getIdentifier();
+
+            // a core document type of the same name always wins; never persist a shadow row for it
+            if (DocumentType::tryFrom($identifier) !== null) {
+                continue;
+            }
+
+            $payload = $documentType->toArray($context->defaultLocale);
+            $payload['appId'] = $appId;
+            $payload['technicalName'] = $identifier;
+            $payload['config'] = $payload['config'] ?: null;
+            unset($payload['identifier']);
 
             $existing = $existingDocumentTypes->filterByProperty(
                 'technicalName',
-                $documentType->getIdentifier()
+                $identifier
             )->first();
 
             if ($existing) {

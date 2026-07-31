@@ -461,3 +461,126 @@ OpenSearch is massively oversized for that workload and the MySQL fallback would
 the value of ES there is search quality, not speed. From roughly 100 k documents the write-path
 items (7, 9, 12) determine whether a full reindex takes minutes or hours, and from roughly 500 k
 documents the read-path items (14, 15, 3) dominate storefront listing latency.
+
+---
+
+## 6. Multi-tenant SaaS: many tenants on one cluster
+
+This chapter covers running many Shopware installations (one set of indices and one database per
+tenant) against a **shared** OpenSearch cluster. Trigger for this analysis: hitting the
+`maximum shards open` error at the default `cluster.max_shards_per_node: 1000` and raising it to
+~100 000 to fit 200–400 tenants.
+
+### 6.1 Where the shard explosion comes from — do the math per tenant
+
+With Shopware's current defaults, one tenant costs:
+
+| Source | Indices | Shards (default settings) |
+|---|---|---|
+| Storefront `product` | 1 live | 1 primary + 1 replica = **2** |
+| Admin search | **16** (one per admin indexer) | 3 primaries + 9 replicas = 12 each → **192** |
+| Un-cleaned old reindex copies | 1 per reindex until `es:index:cleanup` | +2 per leftover |
+
+≈ **194 shards per tenant** at defaults — 200–400 tenants is 39 000–78 000 shards, which is
+exactly the trajectory that forced the limit to ~100 k. The catalog data is *not* the problem;
+the deprecated admin 3/3 default (§ 2.1) and missing cleanup are. After the fixes below, the same
+tenant costs **4–34 shards**, and the same fleet fits in a few thousand shards:
+
+1. `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=1`, `_REPLICAS=0` (or 1) → 16–32 admin shards instead of 192.
+2. Enable admin ES **only for tenants who benefit** — it is opt-in (`SHOPWARE_ADMIN_ES_ENABLED`),
+   and 16 extra indices for admin quick-search on a 5 k-product shop is a poor trade. A tenant
+   without admin ES costs **2 shards**.
+3. The admin indexers are tagged services (`shopware.elastic.admin-searcher-index`,
+   `src/Elasticsearch/DependencyInjection/services.php`) — a SaaS build can remove indexers for
+   entities tenants don't use (newsletter recipients, landing pages, …) via container config.
+4. Run `es:index:cleanup` per tenant right after every alias swap, not on a lazy schedule — every
+   un-cleaned reindex parks a full extra index on the cluster.
+5. Tier by catalog size: below roughly 10–50 k products, MySQL search serves a tenant fine
+   (§ 5) — enabling ES per tenant only above a threshold is the biggest fleet-wide lever of all.
+
+### 6.2 Why `cluster.max_shards_per_node: 100000` is the wrong lever
+
+The limit is a **guardrail, not a tuning knob** (it counts open shards per data node ×
+node count). Raising it 100× removes the only early warning before real failure modes:
+
+- **Every shard is a full Lucene index**: heap for segment metadata, file handles, merge threads.
+  Practical budget: stay in the region of the default (~1000 shards per data node, or roughly
+  ≤ 25 shards per GB of heap) and scale *nodes*, not the limit.
+- **Cluster state contains every index's full mapping.** Shopware product mappings are large
+  (every translated field × every language, custom fields mapped per language,
+  `total_fields.limit: 50000`). Thousands of indices → cluster state of many MB, republished to
+  every node on every change.
+- **Shopware churns cluster state at runtime**: `CustomFieldUpdater` /
+  `ProductCustomFieldsUsedUpdater` issue `putMapping` on custom-field changes,
+  `LanguageSubscriber` on language creation, and every tenant reindex creates and (later) deletes
+  indices. 400 tenants doing this concurrently serializes through the single elected master —
+  master CPU and the `pending_tasks` queue become the cluster-wide bottleneck long before data
+  nodes are busy.
+- **Recovery scales with shard count**: rolling upgrades, node replacement, and full-cluster
+  restarts with 50–80 k shards can take hours to reach green, with rebalancing storms on the way.
+
+### 6.3 Isolation and safety between tenants
+
+- **Unique index prefixes are the only tenant boundary.** All lifecycle operations act on
+  wildcards derived from the prefix: cleanup and `es:reset` resolve indices via
+  `{prefix}_{entity}_*` patterns (`ElasticsearchOutdatedIndexDetector::getPrefixes()`,
+  `src/Elasticsearch/Framework/ElasticsearchOutdatedIndexDetector.php`). Choose collision-proof
+  prefixes (e.g. `sw_t<tenant-uuid>`) — never let one tenant's prefix be a prefix of another's.
+- **Scope credentials per tenant** with the OpenSearch security plugin (or fine-grained access
+  control on managed offerings): one user per tenant, permissions limited to index patterns
+  `{prefix}_*` and `{admin_prefix}*`. Then a bug or misconfigured env var cannot read — or
+  wildcard-delete via `es:reset` — another tenant's data. Note both Shopware clients accept
+  credentials in the URL (`OPENSEARCH_URL=https://user:pass@host`), and the admin client shares
+  the storefront `elasticsearch.ssl` block (§ 2.5), so per-tenant client certs are not possible —
+  use basic auth or SigV4.
+- **Per-tenant recovery**: because MySQL is the source of truth, the simplest restore for a broken
+  tenant index is `es:index` from the tenant's database, not a snapshot restore. Keep cluster
+  snapshots for whole-cluster DR; per-tenant snapshot restore (restore index, re-point alias)
+  works but is rarely worth the runbook complexity.
+
+### 6.4 Noisy neighbors
+
+Index-per-tenant gives good *data* isolation — a tenant's searches only touch its own shards —
+but heap, CPU, search/write thread pools and circuit breakers are shared per node:
+
+- **Write side — reindex storms are the main hazard.** A full reindex has no throttle and shares
+  the generic `async` transport (§ 4.8); a single large tenant enqueues tens of thousands of bulk
+  messages. Build a fleet-level reindex orchestrator: cap concurrent tenant reindexes per cluster
+  (a handful), stagger scheduled reindexes, and give ES indexing its own messenger transport +
+  worker pool per tenant so one tenant's backlog can't starve the rest. The § 4.1
+  (`refresh_interval: -1` during load) and § 4.6 (no refresh of in-progress indices) fixes
+  multiply in value here — today the 5-minute alias task of *every* tenant refreshes its
+  in-progress indices against the shared cluster.
+- **Read side.** The expensive constructs from § 3 (per-document painless price scripts,
+  `size: 10000` terms aggregations) consume shared node resources, and circuit breakers trip
+  per node, not per tenant — one tenant's heavy catalog can cause rejections for everyone.
+  Mitigations: fix § 3.1/§ 3.3 in code; enable per-index search slow logs so the offending tenant
+  is identifiable in minutes; on OpenSearch ≥ 2.18 consider **Workload Management** (query groups
+  with CPU/memory limits per user — pairs naturally with per-tenant users from § 6.3); search
+  backpressure (on by default in OS 2.x) helps absorb spikes.
+
+### 6.5 Cluster architecture: cells, not one big cluster
+
+- **Dedicated master nodes** (3, data-less) are mandatory at thousands of indices — master work
+  scales with cluster-state size and churn (§ 6.2), and colocating it with query/bulk load is how
+  shared clusters fall over.
+- **Cap tenants per cluster and scale by adding cells.** Work the budget backwards:
+  `shard budget = data_nodes × ~1000`. At ~20–35 shards/tenant (after § 6.1), a 6–10 data-node
+  cell comfortably hosts **150–300 tenants**. New tenants go to the cell with headroom; big
+  tenants can get their own. Cells also bound the blast radius of upgrades, red-cluster incidents
+  and noisy neighbors, and keep `max_shards_per_node` at a value where the guardrail still means
+  something.
+- **Monitor per cell**: active shard count vs. budget, master CPU + `pending_tasks` depth, heap
+  and circuit-breaker trips on data nodes, and recovery/rebalance activity during reindex windows.
+
+### 6.6 Fleet-level checklist
+
+| # | Action | Effect |
+|---|---|---|
+| 1 | Admin ES: 1 shard / 0–1 replicas, or disable per tenant | ~194 → 4–34 shards/tenant |
+| 2 | `es:index:cleanup` immediately after each tenant swap | no parked duplicate indices |
+| 3 | Unique prefixes + per-tenant credentials scoped to `{prefix}_*` | tenant isolation |
+| 4 | Reindex orchestrator: N concurrent tenant reindexes max, staggered schedules | write-side noisy neighbor |
+| 5 | Dedicated masters; cells of 150–300 tenants; keep `max_shards_per_node` near default | cluster stability |
+| 6 | ES only for tenants above a catalog-size threshold | largest cost/footprint lever |
+| 7 | Per-index slow logs; Workload Management (OS ≥ 2.18) with per-tenant users | read-side noisy neighbor |

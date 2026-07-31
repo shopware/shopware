@@ -113,6 +113,12 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### Request-scoped memoization on bootstrap, template and ES hot paths
+
+Several functions that run very frequently per request now avoid repeated work:
+`Feature::normalizeName()` memoizes its pure transform; `Package::getPackageName()` caches the immutable per-class attribute reflection; `TemplateFinder::find()` memoizes resolved template names per request (cleared on `kernel.reset`), removing the thousands of identical `sw_include`/`sw_icon`/`sw_thumbnails` lookups on a rendered page; the Elasticsearch `CriteriaParser` caches the Groovy script file contents instead of re-reading them from disk on every cheapest-price sort/filter/aggregation; and `SeoUrlPlaceholderHandler::replace()` skips the full-body regex when the response contains no placeholder.
+All of these are backwards-compatible and produce identical results.
+
 ## Administration
 
 ## Storefront

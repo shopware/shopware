@@ -722,12 +722,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/DependencyInjection/FrameworkExtension.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Feature.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\Parameter\\AdditionalBundleParameters::__construct() has parameter $kernelParameters with no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,

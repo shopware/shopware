@@ -144,7 +144,6 @@ class AppPrinterTest extends TestCase
      */
     private function createAppRepository(array $apps): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection($apps)]);
 
         return $repository;

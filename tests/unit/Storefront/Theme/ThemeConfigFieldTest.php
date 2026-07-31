@@ -33,12 +33,13 @@ class ThemeConfigFieldTest extends TestCase
         yield 'float' => [1.5];
         yield 'integer' => [1];
         yield 'string' => ['value'];
+        yield 'null for an emptied value' => [null];
     }
 
     public function testSetValueRejectsUnsupportedValueWhenFeatureActive(): void
     {
         $this->expectExceptionObject(FeatureException::error(
-            'Tried to access deprecated functionality: Passing a value that is neither an array, boolean, float, integer, nor string is deprecated and will not be allowed in v6.8.0.0.'
+            'Tried to access deprecated functionality: Passing a value that is neither an array, boolean, float, integer, string, nor null is deprecated and will not be allowed in v6.8.0.0.'
         ));
 
         // @phpstan-ignore argument.type (Intentional legacy value that must fail when the feature is active.)

@@ -352,7 +352,6 @@ class LifecycleManagerTest extends TestCase
      */
     private function createAppRepository(AppCollection $apps = new AppCollection()): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             $apps,
         ]);

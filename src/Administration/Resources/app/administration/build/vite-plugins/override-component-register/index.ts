@@ -47,10 +47,7 @@ export default function viteOverridePlugin(options: Options): Plugin {
                     // Ensure proper path separators
                     const importPath = relativePath.split(path.sep).join('/');
 
-                    // Numbered, not derived from the path: any path-to-identifier mapping must drop
-                    // characters that are illegal in identifiers, so `foo-bar/sw-x` and `foo_bar/sw-x`
-                    // collapse to one name and the entry declares the same binding twice, which does not
-                    // parse. A counter cannot collide.
+                    // Numbered, not path-derived: `foo-bar/sw-x` and `foo_bar/sw-x` sanitize to one name.
                     const componentName = `_swOverride${index}`;
                     componentNames.push(componentName);
 

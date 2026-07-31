@@ -26,12 +26,10 @@ function withoutQuery(id: string): string {
 }
 
 /**
- * Whether a resolved file belongs to an installed dependency rather than to authored source.
+ * Whether a file belongs to an installed dependency.
  *
- * Every authored `.vue` file must be a native setup component, and a missing `<script setup>` is a build
- * error. A dependency's `.vue` files are outside that contract: an extension author cannot add
- * `swDefinePublic()` to a package they do not own, so applying the rule there would fail their build with
- * no way out. Backslashes are normalized because Windows ids arrive with them.
+ * A missing `<script setup>` is a build error, and nobody can add `swDefinePublic()` to a package they do
+ * not own - so the rule applies to authored source only. Backslashes are normalized for Windows ids.
  */
 function isDependencyFile(fileName: string): boolean {
     return fileName.replace(/\\/g, '/').includes('/node_modules/');
@@ -47,11 +45,8 @@ function isDependencyFile(fileName: string): boolean {
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function importShopwareSetupTransform(administrationRoot: string): Promise<typeof transformShopwareSetupSfcRuntime> {
-    // `require`, not a dynamic `import()`. This plugin is bundled two ways - esbuild's ESM config bundle
-    // for the Administration build, and a CommonJS resolver for extension builds (build/plugins.vite.ts)
-    // - and no `import()` argument satisfies both: it needs a file: URL on Windows, where Node's ESM
-    // resolver reads the `C:` drive letter as a URL scheme, and the CommonJS resolver cannot load a URL
-    // ("Cannot find module 'file:///...'"). A plain path works everywhere.
+    // `require`, not `import()`: extension builds resolve this plugin as CommonJS, which cannot load the
+    // file: URL that `import()` needs on Windows. A plain path works in both.
     const requireFromAdministration = createRequire(path.join(administrationRoot, 'package.json'));
     const transformImport = requireFromAdministration(
         path.join(administrationRoot, 'build/vue-setup-transform/index.js'),
@@ -69,24 +64,12 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
  * ESLint, and editor tooling.
  */
 export default function shopwareSetupPlugin(options: Options): Plugin {
-    // Component name -> file that first declared it as a base component. The name is derived from the
-    // filename and is the public override target, so two base components must not resolve to the same
-    // name. Overrides intentionally reuse the base name, so only base components are tracked. This is
-    // the per-compilation cross-file uniqueness check the transform's componentName seam enables.
-    //
-    // Scope is one plugin instance, and `getBaseConfig()` in build/plugins.vite.ts builds one per
-    // extension - so this catches two base components colliding inside a build, not two extensions each
-    // shipping the same name. Cross-extension collisions are invisible at build time (an extension
-    // cannot see the others) and surface in the runtime component registry instead.
+    // Component name -> the base file claiming it. Only bases: overrides reuse the base name by design.
+    // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
-    // Loaded on first use, once per plugin instance. Lazily, because a bad `administrationRoot` has to
-    // surface when a `.vue` file is transformed: an eagerly created rejected promise would go unhandled
-    // in a build that never reaches one. `require`'s own cache still reads the module from disk once per
-    // process.
-    //
-    // A rejection is cached too. The only way this fails is a wrong `administrationRoot` or a missing
-    // committed bridge file, neither of which is transient, so reporting the identical error once is
-    // better than a fresh one per `.vue` file.
+    // Lazy so a bad `administrationRoot` surfaces on a real `.vue` file; an eager rejection would go
+    // unhandled in builds that never reach one. Rejections are cached too - the failure is a config
+    // error, so one error beats one per file.
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
@@ -160,14 +143,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         },
 
         watchChange(id, change) {
-            // A rename reaches us as a delete of the old path plus a create of the new one, so releasing
-            // the name on delete is what lets the new path claim it instead of colliding with a file that
-            // no longer exists. An update keeps its claim: same path, same name.
-            //
-            // Do not swap this for a `buildStart` reset: `buildStart` runs per environment in Vite 6
-            // (client and ssr share this plugin instance), so a reset would drop the claims the previous
-            // environment made, and in `build --watch` Rollup re-uses cached modules, so unchanged files
-            // would never re-register and real duplicates would stop being reported.
+            // A rename arrives as delete + create, so releasing on delete is what frees the name.
+            // Not a `buildStart` reset: that runs per environment and would drop live claims.
             if (change.event === 'delete') {
                 forgetBaseComponentFile(withoutQuery(id));
             }

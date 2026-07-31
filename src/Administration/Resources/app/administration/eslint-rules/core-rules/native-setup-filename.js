@@ -5,12 +5,10 @@
 const path = require('path');
 
 /**
- * The shape a native setup component name is expected to have: multi-segment lowercase kebab-case.
+ * The shape a native setup component name must have: multi-segment lowercase kebab-case.
  *
- * Multi-word is enforced here rather than left to `vue/multi-word-component-names`, because that rule
- * sees the *component* name and `sw-thing/index.vue` reports as the literal `index` - which the config
- * has to ignore. Only this rule knows the name really came from the directory, so only this rule can
- * hold every `.vue` file to the convention.
+ * Multi-word is checked here because `vue/multi-word-component-names` sees `index` for an index file and
+ * has to ignore it; only this rule resolves the directory-derived name.
  */
 const COMPONENT_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 
@@ -34,14 +32,11 @@ function deriveComponentName(filename) {
 /**
  * Reports SFC filenames that would register a component under a non-conventional name.
  *
- * The transform derives the component name from the filename, and that name is both a template tag and
- * the public override target - so a file like `Bad_Name.vue` produces a working but unconventional
- * component that no other Administration component resembles. The name is escaped wherever it is emitted,
- * so this is a convention rather than a correctness problem; it is enforced by lint, not by the build.
+ * The filename becomes the component's template tag and its public override target, so `Bad_Name.vue`
+ * yields a working but unconventional component. The name is escaped wherever it is emitted, so this is a
+ * convention checked by lint, not a build error.
  *
- * It applies to every `.vue` file, with no gate on the file's contents: an SFC that is not a valid native
- * setup component does not build at all, so there is no such thing as a `.vue` file whose filename is not
- * a component name.
+ * No gate on file contents: a `.vue` file that is not a valid native setup component does not build.
  *
  * @type {import('eslint').Rule.RuleModule}
  */

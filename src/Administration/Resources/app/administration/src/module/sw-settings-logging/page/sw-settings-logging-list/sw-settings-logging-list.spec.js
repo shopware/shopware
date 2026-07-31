@@ -17,7 +17,8 @@ const logEntryMock = {
     },
 };
 
-async function createWrapper() {
+// CHANGE REASON: Allow each expectation to select the legacy or v6.8 logging tabs explicitly. @harness
+async function createWrapper({ featureActive = false } = {}) {
     return mount(await wrapTestComponent('sw-settings-logging-list', { sync: true }), {
         global: {
             stubs: {
@@ -40,6 +41,15 @@ async function createWrapper() {
                 'sw-tabs-deprecated': {
                     template: '<div><slot /></div>',
                 },
+                // CHANGE REASON: Expose the v6.8 tab contract without rendering the Meteor implementation. @harness
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: [
+                        'defaultItem',
+                        'items',
+                    ],
+                    template: '<div class="mt-tabs"></div>',
+                },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
                 'sw-time-ago': true,
@@ -51,7 +61,7 @@ async function createWrapper() {
                     },
                 },
                 feature: {
-                    isActive: () => false,
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                 },
             },
         },
@@ -74,7 +84,9 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
         expect(wrapper.find('sw-settings-logging-entry-info').exists()).toBe(true);
     });
 
-    it('should load dynamic modal component', async () => {
+    // CHANGE REASON: The legacy expectation asserts the sw-tabs item removed in v6.8. @removed @upgraded
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy logging modal tabs.
+    it.deprecated('v6.8.0.0')('should load dynamic modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -88,5 +100,48 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
 
         expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(true);
+    });
+
+    // CHANGE REASON: Verify the dynamic mail modal through its v6.8 Meteor tabs and content. @upgraded
+    it.activeFeatureFlags(['v6.8.0.0'])('should load dynamic modal component', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        await wrapper.setData({
+            displayedLog: {
+                ...logEntryMock,
+                message: 'mail.sent',
+                context: {
+                    additionalData: {
+                        recipients: [],
+                        contents: {
+                            'text/html': '<p>Mail content</p>',
+                            'text/plain': 'Mail content',
+                        },
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
+        expect(tabs.props('defaultItem')).toBe('html');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings-logging.mailInfo.tabHTML',
+                name: 'html',
+            },
+            {
+                label: 'sw-settings-logging.mailInfo.tabPlain',
+                name: 'plain',
+            },
+            {
+                label: 'sw-settings-logging.entryInfo.tabRaw',
+                name: 'raw',
+            },
+        ]);
+        expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').text()).toBe('Mail content');
     });
 });

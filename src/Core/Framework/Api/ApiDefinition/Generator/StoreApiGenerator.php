@@ -83,8 +83,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $jsonSpec = $loader->loadOpenapiSpecification();
         $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
 
-        $overriddenSchemaNames = [];
-
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
                 continue;
@@ -96,12 +94,21 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
-
-            $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
-
-            foreach ($overlapping as $schemaName) {
-                $overriddenSchemaNames[] = $schemaName;
+            if (\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $jsonSchemaNames, true)) {
+                // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
+                $schema = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                );
+            } else {
+                $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyReference,
+                    DefinitionService::TYPE_JSON_API,
+                );
             }
 
             $openApi->components->merge(array_values($schema));
@@ -112,8 +119,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
-
-        $this->stripOverriddenPhpSchemas($data, $overriddenSchemaNames);
 
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
@@ -238,34 +243,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     new Parameter(['ref' => '#/components/parameters/contentType']),
                     new Parameter(['ref' => '#/components/parameters/accept']),
                 );
-            }
-        }
-    }
-
-    /**
-     * For schemas that exist in both PHP and JSON, strips the PHP-generated data
-     * down to only plugin extension fields. The JSON schema becomes the source of
-     * truth for the base definition, while plugin extensions are preserved.
-     *
-     * @param array<string, mixed> $data
-     * @param list<string> $schemaNames
-     */
-    private function stripOverriddenPhpSchemas(array &$data, array $schemaNames): void
-    {
-        foreach ($schemaNames as $schemaName) {
-            if (!isset($data['components']['schemas'][$schemaName])) {
-                continue;
-            }
-
-            $extensions = $data['components']['schemas'][$schemaName]['properties']['extensions'] ?? null;
-
-            unset($data['components']['schemas'][$schemaName]);
-
-            if ($extensions !== null) {
-                $data['components']['schemas'][$schemaName] = [
-                    'type' => 'object',
-                    'properties' => ['extensions' => $extensions],
-                ];
             }
         }
     }

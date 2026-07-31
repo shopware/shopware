@@ -15,7 +15,7 @@ declare global {
 
         interface It {
             /** Skip this test when the given major feature flag is active. */
-            deprecated(featureFlag: string): FeatureFlagTest;
+            deprecated(removedIn: string): FeatureFlagTest;
 
             /** Activate the given feature flags for the duration of this test. */
             activeFeatureFlags(featureFlags: readonly string[]): FeatureFlagTest;

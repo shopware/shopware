@@ -71,8 +71,8 @@ function runWithActiveFeatureFlags(featureFlags: readonly string[], callback: Te
 
 /** @private */
 export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated'] {
-    return (featureFlag: string) => {
-        return (getActiveFeatureFlags().includes(featureFlag) ? testFunction.skip : testFunction) as jest.FeatureFlagTest;
+    return (removedIn: string) => {
+        return (getActiveFeatureFlags().includes(removedIn) ? testFunction.skip : testFunction) as jest.FeatureFlagTest;
     };
 }
 

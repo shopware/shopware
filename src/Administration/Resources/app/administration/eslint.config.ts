@@ -541,6 +541,15 @@ export default [
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
             'jest/expect-expect': 'error',
+            'jest/no-standalone-expect': [
+                'error',
+                {
+                    additionalTestBlockFunctions: [
+                        'it.activeFeatureFlags',
+                        'it.deprecated',
+                    ],
+                },
+            ],
             'jest/no-duplicate-hooks': 'error',
             'jest/no-test-return-statement': 'error',
             'jest/prefer-hooks-in-order': 'error',

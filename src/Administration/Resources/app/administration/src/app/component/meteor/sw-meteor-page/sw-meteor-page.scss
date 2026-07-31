@@ -154,7 +154,7 @@
     }
 
     // Narrow head area: the outer columns collapse and the content runs full width
-    @container sw-meteor-page (max-width: 1300px) {
+    @container sw-meteor-page (max-width: 1400px) {
         .sw-meteor-page__head-area {
             grid-template-columns: 0 minmax(0, 1fr) auto;
         }

@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
+
 type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
 const activeFeatureFlagsSymbol = Symbol.for('shopware.activeFeatureFlags');
 
@@ -12,7 +14,12 @@ function getActiveFeatureFlags(): string[] {
 /** @private */
 export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated'] {
     return (removedIn: string) => {
-        return (getActiveFeatureFlags().includes(removedIn) ? testFunction.skip : testFunction) as jest.FeatureFlagTest;
+        const normalizedRemovedIn = normalizeFeatureFlag(removedIn);
+        const isRemoved = getActiveFeatureFlags().some((featureFlag) => {
+            return normalizeFeatureFlag(featureFlag) === normalizedRemovedIn;
+        });
+
+        return (isRemoved ? testFunction.skip : testFunction) as jest.FeatureFlagTest;
     };
 }
 
@@ -28,7 +35,7 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
 
             Object.defineProperty(callback, activeFeatureFlagsSymbol, {
                 configurable: true,
-                value: [...featureFlags],
+                value: featureFlags.map(normalizeFeatureFlag),
             });
 
             try {

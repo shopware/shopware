@@ -15,7 +15,7 @@ describe('Jest feature flag extensions', () => {
     });
 
     it('skips a deprecated test when its major feature flag is active', () => {
-        globalThis.activeFeatureFlags = ['v6.8.0.0'];
+        globalThis.activeFeatureFlags = ['V6_8_0_0'];
         const testFunction = Object.assign(jest.fn(), { skip: jest.fn() }) as unknown as jest.It;
 
         createDeprecatedTest(testFunction)('v6.8.0.0')('deprecated test', jest.fn());
@@ -77,5 +77,19 @@ describe('Jest feature flag extensions', () => {
         expect(testFunction).toHaveBeenCalledWith('feature test', callback, undefined);
         expect(registeredFeatureFlags).toEqual(['NEW_FEATURE']);
         expect(Reflect.has(callback, Symbol.for('shopware.activeFeatureFlags'))).toBeFalsy();
+    });
+
+    it('normalizes feature flags registered for a test', () => {
+        let registeredFeatureFlags: string[] = [];
+        const testFunction = jest.fn((name: string, callback: jest.ProvidesCallback) => {
+            const featureFlags: unknown = Reflect.get(callback, Symbol.for('shopware.activeFeatureFlags'));
+            registeredFeatureFlags = Array.isArray(featureFlags)
+                ? featureFlags.filter((featureFlag): featureFlag is string => typeof featureFlag === 'string')
+                : [];
+        }) as unknown as jest.It;
+
+        createActiveFeatureFlagsTest(testFunction)(['v6.8.0.0'])('feature test', jest.fn());
+
+        expect(registeredFeatureFlags).toEqual(['V6_8_0_0']);
     });
 });

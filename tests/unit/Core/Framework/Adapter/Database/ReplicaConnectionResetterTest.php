@@ -8,9 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
-use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 /**
  * @internal
@@ -57,12 +57,35 @@ class ReplicaConnectionResetterTest extends TestCase
         (new ReplicaConnectionResetter($connection))->reset();
     }
 
-    public function testResetsAfterRequestsAndHandledMessages(): void
+    public function testResetsBeforeRequestsAndReceivedMessages(): void
     {
         static::assertSame([
-            KernelEvents::TERMINATE => 'reset',
-            WorkerMessageHandledEvent::class => 'reset',
-            WorkerMessageFailedEvent::class => 'reset',
+            KernelEvents::REQUEST => ['onKernelRequest', 4096],
+            WorkerMessageReceivedEvent::class => 'reset',
         ], ReplicaConnectionResetter::getSubscribedEvents());
+    }
+
+    public function testIgnoresSubRequests(): void
+    {
+        $connection = $this->createMock(PrimaryReadReplicaConnection::class);
+        $connection->expects($this->never())->method(static::anything());
+
+        $event = $this->createStub(RequestEvent::class);
+        $event->method('isMainRequest')->willReturn(false);
+
+        (new ReplicaConnectionResetter($connection))->onKernelRequest($event);
+    }
+
+    public function testResetsOnMainRequest(): void
+    {
+        $connection = $this->createMock(PrimaryReadReplicaConnection::class);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('isConnectedToPrimary')->willReturn(true);
+        $connection->expects($this->once())->method('ensureConnectedToReplica');
+
+        $event = $this->createStub(RequestEvent::class);
+        $event->method('isMainRequest')->willReturn(true);
+
+        (new ReplicaConnectionResetter($connection))->onKernelRequest($event);
     }
 }

@@ -6,21 +6,18 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
-use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 
 /**
- * Switches a primary/replica connection back to the replica after a handled
- * request or message. The connection is held statically by the Kernel and
- * survives kernel service resets, so in long running runtimes a request that
- * wrote to the primary would otherwise pin every following request handled by
- * the same worker to the primary.
- *
- * This is an event subscriber instead of a `kernel.reset` service on purpose:
- * the ServicesResetter only resets services that were initialized during the
- * request, and nothing else instantiates this class, so a reset-only service
- * would never run (and would even be dropped from the container as unused).
+ * The connection is held statically by the Kernel and survives service
+ * resets, so in long running runtimes one write would pin every following
+ * request handled by the same worker to the primary. Switching back happens
+ * at the start of the lifecycle, as late work (e.g. kernel.terminate
+ * listeners) may still write to the primary. An event subscriber is used
+ * instead of a `kernel.reset` service, because nothing else instantiates
+ * this class and the ServicesResetter only resets initialized services.
  *
  * @internal
  */
@@ -37,10 +34,19 @@ class ReplicaConnectionResetter implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::TERMINATE => 'reset',
-            WorkerMessageHandledEvent::class => 'reset',
-            WorkerMessageFailedEvent::class => 'reset',
+            // before any listener that might read from the database
+            KernelEvents::REQUEST => ['onKernelRequest', 4096],
+            WorkerMessageReceivedEvent::class => 'reset',
         ];
+    }
+
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $this->reset();
     }
 
     public function reset(): void
@@ -49,8 +55,7 @@ class ReplicaConnectionResetter implements EventSubscriberInterface
             return;
         }
 
-        // An open transaction at this point is a bug in the request handling;
-        // switching the connection now would silently discard it.
+        // switching during an open transaction would silently discard it
         if ($this->connection->getTransactionNestingLevel() > 0) {
             return;
         }

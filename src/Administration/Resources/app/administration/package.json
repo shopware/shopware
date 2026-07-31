@@ -276,6 +276,9 @@
     "follow-redirects": "1.16.0",
     "@lhci/cli": {
       "uuid": "11.1.1"
-    }
+    },
+    "body-parser": "1.20.6",
+    "linkify-it": "5.0.2",
+    "shell-quote": "1.9.0"
   }
 }

@@ -113,6 +113,19 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### Configurable cache serialization method (optional `igbinary`)
+
+The serialization method used to store cache values can now be configured via `shopware.cache.serialization_method` (default `serialize`).
+When the `igbinary` PHP extension is installed, setting this to `igbinary` produces smaller and faster-to-(de)serialize cache payloads (object graphs such as the cached `SalesChannelContext`, system config and HTTP responses), reducing CPU usage and the memory/storage footprint of the cache backend (e.g. Redis).
+
+```yaml
+shopware:
+    cache:
+        serialization_method: igbinary   # default: serialize
+```
+
+Reads auto-detect the stored format, so switching the method (or rolling out the change across workers) does not require a cache flush: values written with either method remain decodable. If `igbinary` is configured but the extension is unavailable, Shopware transparently falls back to native `serialize`.
+
 ## Administration
 
 ## Storefront

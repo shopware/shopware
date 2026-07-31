@@ -175,6 +175,9 @@ class Framework extends Bundle
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.compress');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.compression_method');
+        if ($this->container->hasParameter('shopware.cache.serialization_method')) {
+            CacheValueCompressor::$serializeMethod = (string) $this->container->getParameter('shopware.cache.serialization_method');
+        }
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
 
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);

@@ -13,18 +13,11 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * Suppresses a storefront registration that re-submits an already consumed context token.
  *
- * A registration that completes spends its context token, so a request still presenting it is a
- * resubmission and is skipped until the marker expires. Completion is the signal rather than the
- * rotated token, because a registration that waits for a double opt-in confirmation returns without
- * rotating it.
+ * The marker records only that a token is spent, never what it became: a stale token is what a
+ * fixated session presents, so anything derived from it would be as available to an attacker as to
+ * the genuine sender.
  *
- * The marker only records that the token is spent, never what it became. A stale context token is
- * exactly what a fixated session presents, so anything derived from it would be available to an
- * attacker on the same terms as to the genuine sender, and handing back the rotated token would undo
- * the session migration that login performs.
- *
- * Best effort: needs a lock and a cache shared by the competing requests and registers unguarded
- * when either is unavailable, in which case the token is still spent.
+ * Best effort - registers unguarded when the lock or the cache is unavailable.
  *
  * @internal
  */
@@ -125,8 +118,6 @@ class RegistrationDoubleSubmitGuard
     /**
      * Runs the registration and spends the token, on every path that reaches the registration.
      *
-     * An unguarded run creates a customer just as much as a guarded one, so it spends the token too.
-     *
      * @param \Closure(): void $register the actual registration
      */
     private function registerAndMark(\Closure $register, SalesChannelContext $context, string $token, string $markerKey): void
@@ -138,8 +129,7 @@ class RegistrationDoubleSubmitGuard
 
             $registered = true;
         } finally {
-            // a rotated token stays spent even if something threw after the rotation - the customer
-            // exists either way from that point on
+            // the customer exists from the rotation on, whatever failed afterwards
             if ($registered || $context->getToken() !== $token) {
                 $this->markConsumed($markerKey);
             }
@@ -147,11 +137,7 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * Answers whether the token was already spent by a registration.
-     *
-     * The marker stays until it expires. A suppressed request stays anonymous and keeps presenting
-     * the same token, so clearing the marker as it is read would arm the guard for the next
-     * resubmission instead of suppressing it.
+     * The marker stays until it expires, so it suppresses every resubmission and not just the first.
      *
      * @phpstan-impure a competing registration can write the marker between two calls
      */
@@ -168,8 +154,7 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * Written only by the request that ran the registration, so resubmitting can neither clear the
-     * marker nor push its expiry forward.
+     * Written only by the request that ran the registration, so resubmitting cannot renew it.
      */
     private function markConsumed(string $markerKey): void
     {

@@ -13,10 +13,6 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 #[Package('after-sales')]
 class Migration1785414800MakeDocumentTypeIdNullable extends MigrationStep
 {
-    private const TABLE = 'document';
-
-    private const COLUMN = 'document_type_id';
-
     public function getCreationTimestamp(): int
     {
         return 1785414800;
@@ -24,7 +20,7 @@ class Migration1785414800MakeDocumentTypeIdNullable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!TableHelper::getColumnOfTable($connection, self::TABLE, self::COLUMN)->isNotNull) {
+        if (!TableHelper::getColumnOfTable($connection, 'document', 'document_type_id')->isNotNull) {
             return;
         }
 

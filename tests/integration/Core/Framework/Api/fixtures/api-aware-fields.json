@@ -36,6 +36,7 @@
     "app_cms_block_translation.updatedAt",
     "app_cms_block_translation.appCmsBlockId",
     "app_cms_block_translation.languageId",
+    "app_document_type.translated",
     "app_flow_action.createdAt",
     "app_flow_action.updatedAt",
     "app_flow_action.translated",

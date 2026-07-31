@@ -67,6 +67,12 @@ return [
         // class is @final, so making a parameter nullable is not a breaking change
         preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null', '/'),
 
+        // document_type_id is now nullable
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Document\DocumentEntity#$documentTypeId changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Document\DocumentEntity#getDocumentTypeId() changed from string to the non-covariant string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Document\DocumentEntity#getDocumentTypeId() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $documentTypeId of Shopware\Core\Checkout\Document\DocumentEntity#setDocumentTypeId() changed from string to string|null', '/'),
+
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
 

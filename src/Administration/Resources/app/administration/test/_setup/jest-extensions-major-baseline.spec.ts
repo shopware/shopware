@@ -34,6 +34,8 @@ describe('Jest feature flag extensions with a major baseline', () => {
         expect(deprecatedTestRan).toBeFalsy();
     });
 
+    // CHANGE REASON: Mirror production deprecated-test metadata in the major-baseline helper self-test. @removed @harness
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the v6.8 major-baseline fixture.
     it.deprecated('v6.8.0.0')('skips a deprecated test for the normalized major flag', () => {
         deprecatedTestRan = true;
     });

@@ -46,6 +46,10 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Product detail requests ignore deleted configured main variants
+
+Product detail requests no longer fail when a product's variant listing configuration references a deleted main variant. Shopware now ignores the outdated reference and loads the requested product instead. No action is required.
+
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.

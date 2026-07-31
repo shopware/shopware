@@ -20,6 +20,7 @@ function getRemovalRanges(sourceCode, featureFlags, stabilizedFeatureFlags) {
         const firstFeatureFlag = stabilizedFeatureFlags[index];
         let lastFeatureFlag = firstFeatureFlag;
 
+        // collect all non-experimental flags in one go for one consecutive removal range
         while (stabilizedFeatureFlags[index + 1]?.activeIndex === lastFeatureFlag.activeIndex + 1) {
             index += 1;
             lastFeatureFlag = stabilizedFeatureFlags[index];

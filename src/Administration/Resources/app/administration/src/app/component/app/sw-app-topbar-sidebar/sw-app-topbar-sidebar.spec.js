@@ -55,6 +55,34 @@ describe('sw-app-topbar-sidebar', () => {
         expect(button.classes()).toContain('sw-app-topbar-sidebar__icon');
     });
 
+    it('should show the tooltip on keyboard focus', async () => {
+        store.sidebars.push({ ...sidebar });
+
+        wrapper = await createWrapper();
+
+        const button = wrapper.find('button');
+        jest.spyOn(button.element, 'matches').mockImplementation((selector) => selector === ':focus-visible');
+
+        await button.trigger('focus');
+        await flushPromises();
+
+        expect(document.querySelector('[role="tooltip"]').parentElement.style.display).not.toBe('none');
+    });
+
+    it('should not show the tooltip when the closing sidebar restores focus to the button', async () => {
+        store.sidebars.push({ ...sidebar });
+
+        wrapper = await createWrapper();
+
+        const button = wrapper.find('button');
+        jest.spyOn(button.element, 'matches').mockImplementation(() => false);
+
+        await button.trigger('focus');
+        await flushPromises();
+
+        expect(document.querySelector('[role="tooltip"]').parentElement.style.display).toBe('none');
+    });
+
     it('should render an action menu with all sidebars when multiple are registered', async () => {
         store.sidebars.push({ ...sidebar }, { ...secondSidebar });
 

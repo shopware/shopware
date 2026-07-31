@@ -4,7 +4,7 @@
         placement="bottom"
         :delay-duration-in-ms="500"
     >
-        <template #default="tooltipProps">
+        <template #default="{ onFocus, ...tooltipProps }">
             <mt-button
                 v-bind="tooltipProps"
                 class="sw-app-topbar-sidebar__icon"
@@ -14,6 +14,7 @@
                 variant="tertiary"
                 size="default"
                 square
+                @focus="showTooltipOnKeyboardFocus($event, onFocus)"
                 @click="toggleSidebar(sidebars[0].locationId)"
             >
                 <mt-icon

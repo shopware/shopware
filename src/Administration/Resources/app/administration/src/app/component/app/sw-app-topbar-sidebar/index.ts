@@ -27,5 +27,12 @@ export default {
         toggleSidebar(locationId: string) {
             Shopware.Store.get('sidebar').toggleSidebar(locationId);
         },
+
+        // The sidebar returns focus to the button on close — only keyboard focus may show the tooltip
+        showTooltipOnKeyboardFocus(event: FocusEvent, showTooltip: () => void) {
+            if ((event.target as HTMLElement).matches(':focus-visible')) {
+                showTooltip();
+            }
+        },
     },
 };

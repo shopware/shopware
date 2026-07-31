@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
-use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -28,36 +27,54 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(ProductConfiguratorLoader::class)]
 class ProductConfiguratorLoaderTest extends TestCase
 {
-    public function testSortSettingsOrdersRemainingGroupsByPositionWhenConfigIsPartial(): void
+    public function testLoadOrdersGroupsNotCoveredByTheIndividualConfigurationByPosition(): void
     {
-        $optionRepository = new StaticEntityRepository([]);
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
 
-        $loader = new ProductConfiguratorLoader(
-            static::createStub(AbstractAvailableCombinationLoader::class),
-            $optionRepository,
-        );
+        $groupAId = Uuid::randomHex();
+        $groupBId = Uuid::randomHex();
+        $groupCId = Uuid::randomHex();
+
+        $optionAId = Uuid::randomHex();
+        $optionBId = Uuid::randomHex();
+        $optionCId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        $combinationResult = new AvailableCombinationResult();
+        $combinationResult->addCombination([$optionAId, $optionBId, $optionCId], true);
+
+        $combinationLoader = static::createStub(AbstractAvailableCombinationLoader::class);
+        $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
+
+        // the option order deliberately does not match the group positions
+        $optionRepository = new StaticEntityRepository([
+            new PropertyGroupOptionCollection([
+                $this->buildOption($optionCId, 'c', $groupCId, 'c', 3, settingPosition: 1),
+                $this->buildOption($optionAId, 'a', $groupAId, 'a', 1, settingPosition: 1),
+                $this->buildOption($optionBId, 'b', $groupBId, 'b', 2, settingPosition: 1),
+            ]),
+        ]);
+
+        $loader = new ProductConfiguratorLoader($combinationLoader, $optionRepository);
 
         $product = new SalesChannelProductEntity();
+        $product->setId($variantId);
+        $product->setParentId($parentId);
+        $product->setOptionIds([$optionAId, $optionBId, $optionCId]);
+        // only one group is sorted individually, the remaining ones must follow by group position
         $product->setVariantListingConfig(new VariantListingConfig(null, null, [
             [
-                'id' => 'group-b',
+                'id' => $groupBId,
                 'representation' => 'box',
                 'expressionForListings' => false,
             ],
         ]));
 
-        $groups = [
-            'group-c' => $this->createGroup('group-c', 'c', 3),
-            'group-a' => $this->createGroup('group-a', 'a', 1),
-            'group-b' => $this->createGroup('group-b', 'b', 2),
-        ];
+        $groups = $loader->load($product, $context);
 
-        $method = new \ReflectionMethod(ProductConfiguratorLoader::class, 'sortSettings');
-
-        $sorted = $method->invoke($loader, $groups, $product);
-        static::assertInstanceOf(PropertyGroupCollection::class, $sorted);
-
-        static::assertSame(['group-b', 'group-a', 'group-c'], array_values($sorted->getIds()));
+        static::assertSame([$groupBId, $groupAId, $groupCId], array_values($groups->getIds()));
     }
 
     /**
@@ -370,15 +387,5 @@ class ProductConfiguratorLoaderTest extends TestCase
         }
 
         return $option;
-    }
-
-    private function createGroup(string $id, string $name, int $position): PropertyGroupEntity
-    {
-        $group = new PropertyGroupEntity();
-        $group->setId($id);
-        $group->setName($name);
-        $group->setPosition($position);
-
-        return $group;
     }
 }

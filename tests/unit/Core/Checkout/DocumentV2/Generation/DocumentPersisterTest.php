@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -42,6 +43,8 @@ class DocumentPersisterTest extends TestCase
 
     private DocumentGenerationRequest $generationRequest;
 
+    private string $renderedOrderVersionId;
+
     private RenderInput $renderInput;
 
     private RenderState $renderState;
@@ -59,8 +62,10 @@ class DocumentPersisterTest extends TestCase
             '12345',
         );
 
+        $this->renderedOrderVersionId = Uuid::randomHex();
+
         $order = new OrderEntity();
-        $order->setVersionId(Uuid::randomHex());
+        $order->setVersionId($this->renderedOrderVersionId);
 
         $this->renderInput = new RenderInput(
             self::DOCUMENT_TYPE,
@@ -89,11 +94,18 @@ class DocumentPersisterTest extends TestCase
             mediaServiceReturn: $fileId,
         );
 
+        $resolvedReference = new ReferencedDocument(
+            id: Uuid::randomHex(),
+            documentNumber: '1000',
+            orderVersionId: Uuid::randomHex(),
+        );
+
         $document = $persister->persist(
             $this->generationRequest,
             $this->renderInput,
             $this->renderState,
             [self::FORMAT],
+            $resolvedReference,
             $this->context,
         );
 
@@ -101,7 +113,8 @@ class DocumentPersisterTest extends TestCase
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($documentRepository->creates[0][0]['id'], $document->getId());
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
-        static::assertSame($this->renderInput->order->getVersionId(), $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($this->renderedOrderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($resolvedReference->id, $documentRepository->creates[0][0]['referencedDocumentId']);
 
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
@@ -123,6 +136,7 @@ class DocumentPersisterTest extends TestCase
             $this->renderInput,
             $this->renderState,
             [self::FORMAT],
+            null,
             $this->context,
         );
     }
@@ -172,6 +186,7 @@ class DocumentPersisterTest extends TestCase
             $this->renderInput,
             $this->renderState,
             [self::FORMAT],
+            null,
             $this->context,
         );
     }

@@ -35,7 +35,7 @@ class ExtensionLoaderTest extends TestCase
 {
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('checkConfiguration')
             ->willReturnCallback(static function (string $domain): bool {
@@ -80,7 +80,7 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);

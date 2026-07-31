@@ -25,7 +25,9 @@
 
             {% block sw_page_top_bar_actions %}
             <div class="sw-page__top-bar-actions">
+                {% block sw_page_top_bar_app_button %}
                 <sw-app-topbar-button />
+                {% endblock %}
                 <div class="sw-page__sidebar-container">
                     <sw-help-center-v2 />
                 </div>

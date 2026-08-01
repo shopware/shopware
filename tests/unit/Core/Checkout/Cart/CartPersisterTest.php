@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -163,7 +164,17 @@ class CartPersisterTest extends TestCase
         $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
-        $this->expectExceptionObject(CartException::tokenNotFound('token'));
-        $persister->save($cart, Generator::generateSalesChannelContext());
+        try {
+            $persister->save($cart, Generator::generateSalesChannelContext());
+        } catch (CartTokenNotFoundException $e) {
+            // the store-api surfaces these three as status, code and meta.parameters.token
+            static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+            static::assertSame(CartException::TOKEN_NOT_FOUND_CODE, $e->getErrorCode());
+            static::assertSame(['token' => 'token'], $e->getParameters());
+
+            return;
+        }
+
+        static::fail('Expected the save to report the deleted cart.');
     }
 }

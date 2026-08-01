@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\Redis\RedisStub;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -141,8 +142,18 @@ class RedisCartPersisterTest extends TestCase
 
         $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
-        $this->expectExceptionObject(CartException::tokenNotFound($token));
-        $persister->save($cart, $context);
+        try {
+            $persister->save($cart, $context);
+        } catch (CartTokenNotFoundException $e) {
+            // the store-api surfaces these three as status, code and meta.parameters.token
+            static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
+            static::assertSame(CartException::TOKEN_NOT_FOUND_CODE, $e->getErrorCode());
+            static::assertSame(['token' => $token], $e->getParameters());
+
+            return;
+        }
+
+        static::fail('Expected the save to report the deleted cart.');
     }
 
     public function testLoad(): void

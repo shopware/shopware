@@ -46,6 +46,12 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Cart saves report a concurrently deleted cart
+
+`CartPersister::save()` and `RedisCartPersister::save()` now throw `CartException::tokenNotFound()` (`CHECKOUT__CART_TOKEN_NOT_FOUND`, HTTP 404) instead of silently discarding the write when the cart was deleted while the request was running. The store-api line-item and order routes surface it as a `404`; clients should re-fetch the cart and retry.
+
+`Cart::setToken()` now clears the persisted state, because it describes a storage entry for the previous token. Extensions that give a loaded cart a new token and store it elsewhere keep working: the next save inserts the cart under the new token instead of reporting it as deleted.
+
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.

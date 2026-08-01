@@ -27,23 +27,15 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
 
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        // @deprecated tag:v6.8.0 - inline the isValid()/getViolations() logic here when the deprecated methods are removed
-        if (Feature::silent('v6.8.0.0', fn (): bool => $this->isValid($request, $captchaConfig))) {
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
+            return new ConstraintViolationList([$this->createViolation(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION)]);
+        }
+
+        if ($this->verify($request, $captchaConfig)) {
             return new ConstraintViolationList();
         }
 
-        $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
-        if ($violations->count() === 0) {
-            $violations->add($this->createViolation(
-                $request->request->get(self::CAPTCHA_REQUEST_PARAMETER)
-                    // Token present but not verifiable: generic error instead of a 403.
-                    ? CaptchaException::INVALID_CAPTCHA_ERROR
-                    // No token: recoverable for a real customer (cookies not accepted yet).
-                    : CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION
-            ));
-        }
-
-        return $violations;
+        return new ConstraintViolationList([$this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR)]);
     }
 
     /**
@@ -53,11 +45,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
-        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
-            return false;
-        }
-
-        return $this->verify($request, $captchaConfig);
+        return $this->validate($request, $captchaConfig)->count() === 0;
     }
 
     /**

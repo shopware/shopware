@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,20 +36,23 @@ abstract class AbstractCaptcha
      * validate checks the captcha contained in the request and returns the violations
      * describing the failure. An empty list means the captcha is valid.
      *
-     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract, the default implementation that delegates to the deprecated isValid()/getViolations() will be removed
-     *
      * @param array<string, mixed> $captchaConfig
      */
+    #[BecomesAbstract(version: 'v6.8.0', description: 'The default implementation that delegates to the deprecated isValid()/getViolations() will be removed.')]
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf('Relying on the default implementation of %s::validate() is deprecated. Implement validate() in %s.', self::class, static::class)
+        );
+
         if (Feature::silent('v6.8.0.0', fn (): bool => $this->isValid($request, $captchaConfig))) {
             return new ConstraintViolationList();
         }
 
         $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
         if ($violations->count() === 0) {
-            // An empty list signals a valid captcha, so captchas that do not provide any
-            // violation details (e.g. the honeypot) still need a generic violation.
+            // An empty list means valid, so a captcha without violation details still needs one.
             $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
         }
 

@@ -159,8 +159,7 @@ class CaptchaRouteListenerTest extends TestCase
             ],
         ]);
 
-        // Non-AJAX registration without a reCAPTCHA token, e.g. because the technically
-        // required cookies were not accepted, so the reCAPTCHA script never ran (#17472).
+        // Non-AJAX registration without a reCAPTCHA token, e.g. the script never ran (#17472).
         $data = [
             'email' => 'recaptcha-test@shopware.com',
             'errorRoute' => 'frontend.account.register.page',
@@ -183,7 +182,7 @@ class CaptchaRouteListenerTest extends TestCase
         $flash = $crawler->filter('.flashbags .alert-danger');
         static::assertCount(1, $flash);
         static::assertStringContainsString(
-            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
+            'The reCAPTCHA verification could not be completed. Please try again.',
             $flash->text()
         );
         static::assertSame('true', $flash->attr('data-alert-aria'));
@@ -243,7 +242,7 @@ class CaptchaRouteListenerTest extends TestCase
         $flash = $crawler->filter('.flashbags .alert-danger');
         static::assertCount(1, $flash);
         static::assertStringContainsString(
-            'Please accept the technically required cookies to enable the reCAPTCHA verification.',
+            'The reCAPTCHA verification could not be completed. Please try again.',
             $flash->text()
         );
         static::assertSame('true', $flash->attr('data-alert-aria'));

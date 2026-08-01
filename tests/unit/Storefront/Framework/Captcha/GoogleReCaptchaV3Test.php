@@ -203,7 +203,7 @@ class GoogleReCaptchaV3Test extends TestCase
         ];
     }
 
-    public function testMissingTokenExposesCookieRequiredViolation(): void
+    public function testMissingTokenExposesTokenRequiredViolation(): void
     {
         $captcha = $this->getCaptcha();
 
@@ -212,7 +212,7 @@ class GoogleReCaptchaV3Test extends TestCase
 
         $violation = $violations->get(0);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
-        static::assertSame(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION, $violation->getCode());
+        static::assertSame(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION, $violation->getCode());
         static::assertSame('', $violation->getPropertyPath());
     }
 
@@ -256,30 +256,6 @@ class GoogleReCaptchaV3Test extends TestCase
         static::assertFalse($captcha->isValid(self::getRequest(), $this->getCaptchaConfig()));
         static::assertTrue($captcha->isValid(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
-            $this->getCaptchaConfig()
-        ));
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
-    {
-        // Plugins may still override the deprecated isValid() during 6.7 — validate()
-        // must dispatch through it so their logic keeps being honored until 6.8.
-        $captcha = new class(new Client(['handler' => HandlerStack::create(new MockHandler())])) extends GoogleReCaptchaV3 {
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return $request->request->get('custom-check') === 'pass';
-            }
-        };
-
-        static::assertCount(0, $captcha->validate(
-            self::getRequest(['custom-check' => 'pass']),
-            $this->getCaptchaConfig()
-        ));
-        static::assertCount(1, $captcha->validate(
-            self::getRequest(['custom-check' => 'fail']),
             $this->getCaptchaConfig()
         ));
     }

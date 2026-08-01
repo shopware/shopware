@@ -1987,6 +1987,11 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 `validate()` is now abstract. If your captcha previously returned `false` from `isValid()` without providing violations, return a `ConstraintViolationList` with a violation whose code maps to an `error.*` storefront snippet. Keep `shouldBreak()` returning `true` only if a failure should abort non-AJAX requests with a `403` instead of rendering the violations (like the bot-only honeypot); `supports()`, `getName()`, and `getData()` remain unchanged.
 
+Two things to check when migrating, both already in effect in 6.7:
+
+* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your logic is no longer used — they implement `validate()` natively and no longer dispatch through the deprecated pair. Since you inherit their `validate()`, no deprecation is triggered to tell you. Override `validate()` instead.
+* Do not call `isValid()` from your own `validate()`. In the core captchas the deprecated `isValid()` delegates to `validate()`, so doing so recurses until the process runs out of memory. Move the logic into `validate()` and let `isValid()` delegate to it.
+
 ## Removal of inline microdata in favour of JSON-LD structured data
 
 All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.

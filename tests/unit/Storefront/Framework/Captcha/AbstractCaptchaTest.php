@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +20,21 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(AbstractCaptcha::class)]
 class AbstractCaptchaTest extends TestCase
 {
+    public function testValidateThrowsWhenFeatureIsActive(): void
+    {
+        // validate() becomes abstract in 6.8, so relying on the delegating default must not stay silent.
+        $captcha = $this->createLegacyCaptcha(isValid: true, violations: new ConstraintViolationList());
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Relying on the default implementation of %s::validate() is deprecated. Implement validate() in %s.',
+            AbstractCaptcha::class,
+            $captcha::class
+        )));
+
+        $captcha->validate(new Request(), []);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateReturnsEmptyListForValidLegacyCaptcha(): void
     {
         $captcha = $this->createLegacyCaptcha(isValid: true, violations: new ConstraintViolationList());
@@ -25,6 +42,7 @@ class AbstractCaptchaTest extends TestCase
         static::assertCount(0, $captcha->validate(new Request(), []));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateReturnsLegacyViolationsForInvalidLegacyCaptcha(): void
     {
         $violation = new ConstraintViolation('', '', [], '', '', '', null, 'custom-violation-code');
@@ -36,6 +54,7 @@ class AbstractCaptchaTest extends TestCase
         static::assertSame($violation, $violations->get(0));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsGenericViolationForInvalidLegacyCaptchaWithoutViolations(): void
     {
         // An invalid captcha without violation details (e.g. the honeypot) must not
@@ -50,6 +69,7 @@ class AbstractCaptchaTest extends TestCase
         static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateSilencesInheritedDeprecatedGetViolations(): void
     {
         // A legacy captcha that overrides neither getViolations() nor validate() runs

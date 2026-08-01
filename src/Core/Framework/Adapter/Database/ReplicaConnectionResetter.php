@@ -51,6 +51,12 @@ class ReplicaConnectionResetter implements EventSubscriberInterface
 
     public function reset(): void
     {
+        // Never initiates the first connection: the guards below are pure
+        // in-memory checks, and in php-fpm the connection can not point at
+        // the primary when kernel.request fires (fresh process, kernel boot
+        // only reads). The switch itself is a pointer swap; the only connect
+        // it can cause is opening the replica after a write-only message in
+        // a long running worker - the same connect the next read would open.
         if (!$this->connection instanceof PrimaryReadReplicaConnection) {
             return;
         }

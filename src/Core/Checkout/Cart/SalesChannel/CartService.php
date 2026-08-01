@@ -95,7 +95,11 @@ class CartService implements ResetInterface
 
         try {
             $cart = $this->itemAddRoute->add(new Request(), $cart, $context, $items)->getCart();
-        } catch (CartTokenNotFoundException) {
+        } catch (CartTokenNotFoundException $e) {
+            if ($e->getParameter('token') !== $cart->getToken()) {
+                throw $e;
+            }
+
             // the cart was deleted concurrently, add the items to a fresh cart instead of discarding them
             $cart = $this->itemAddRoute->add(new Request(), $this->createNew($cart->getToken()), $context, $items)->getCart();
         }

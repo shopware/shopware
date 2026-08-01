@@ -109,7 +109,11 @@ class StorefrontCartFacade
 
                 return $newCart;
             }
-        } catch (CartTokenNotFoundException) {
+        } catch (CartTokenNotFoundException $e) {
+            if ($e->getParameter('token') !== $originalCart->getToken()) {
+                throw $e;
+            }
+
             // the cart was deleted concurrently, keep the switch unapplied instead of failing the page
             $this->removeSwitchNotices($originalCart->getErrors());
 

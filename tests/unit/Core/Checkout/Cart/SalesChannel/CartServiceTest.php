@@ -226,6 +226,28 @@ class CartServiceTest extends TestCase
         static::assertTrue($cart->has('item'));
     }
 
+    public function testAddDoesNotRetryWhenAnotherCartWasReportedAsDeleted(): void
+    {
+        $context = static::createStub(SalesChannelContext::class);
+
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cartFactory = $this->createMock(CartFactory::class);
+        $cartFactory->expects($this->never())->method('createNew');
+
+        $cartItemAddRoute = $this->createMock(AbstractCartItemAddRoute::class);
+        $cartItemAddRoute->expects($this->once())
+            ->method('add')
+            ->willThrowException(CartException::tokenNotFound('someone-elses-cart'));
+
+        $cartService = $this->buildCartService(cartFactory: $cartFactory, cartItemAddRoute: $cartItemAddRoute);
+
+        $this->expectExceptionObject(CartException::tokenNotFound('someone-elses-cart'));
+
+        $cartService->add($cart, new LineItem('item', LineItem::CUSTOM_LINE_ITEM_TYPE), $context);
+    }
+
     public function testAddDoesNotRetryWhenTheCartStillExists(): void
     {
         $context = static::createStub(SalesChannelContext::class);

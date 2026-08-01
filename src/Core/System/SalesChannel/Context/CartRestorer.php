@@ -230,7 +230,11 @@ class CartRestorer
             } else {
                 $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
             }
-        } catch (CartTokenNotFoundException) {
+        } catch (CartTokenNotFoundException $e) {
+            if ($e->getParameter('token') !== $customerCart->getToken()) {
+                throw $e;
+            }
+
             // the cart was deleted concurrently, continue the login with the cart we already hold
             $restoredCart = $customerCart;
         }

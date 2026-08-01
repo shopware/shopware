@@ -229,6 +229,11 @@ class CartRestorerTest extends TestCase
             $restoredCart->getLineItems()->get($guestLineItem->getReferencedId()),
             'the guest line items must survive a concurrently deleted customer cart'
         );
+        static::assertCount(
+            2,
+            $restoredCart->getLineItems(),
+            'the deleted customer cart must not be resurrected alongside the guest items'
+        );
         static::assertTrue($this->cartExists($restoredContext->getToken()));
     }
 

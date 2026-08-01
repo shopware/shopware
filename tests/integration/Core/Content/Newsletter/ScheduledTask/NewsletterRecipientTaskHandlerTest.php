@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 
 /**
@@ -27,15 +29,32 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testGetExpiredNewsletterRecipientCriteria(): void
+    public function testRunSearchesForExpiredNewsletterRecipients(): void
     {
-        $taskHandler = $this->getTaskHandler();
-        $method = new \ReflectionMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
+        $clock = new MockClock();
+        $capturedCriteria = null;
 
-        /** @var Criteria $criteria */
-        $criteria = $method->invoke($taskHandler);
+        $recipientRepository = StaticEntityRepository::of(NewsletterRecipientCollection::class, [
+            static function (Criteria $criteria) use (&$capturedCriteria): array {
+                $capturedCriteria = $criteria;
 
-        $filters = $criteria->getFilters();
+                return [];
+            },
+        ]);
+
+        $taskHandler = new NewsletterRecipientTaskHandler(
+            static::getContainer()->get('scheduled_task.repository'),
+            static::createStub(LoggerInterface::class),
+            $recipientRepository,
+            $clock
+        );
+
+        $taskHandler->run();
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        $expiredBefore = $clock->now()->modify('-30 days')->format(\DATE_ATOM);
+
+        $filters = $capturedCriteria->getFilters();
 
         $orFilter = array_shift($filters);
         static::assertInstanceOf(OrFilter::class, $orFilter);
@@ -55,7 +74,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $notSetRecipientCreatedAtFilter = array_shift($notSetRecipientFilters);
         static::assertInstanceOf(RangeFilter::class, $notSetRecipientCreatedAtFilter);
         static::assertSame('createdAt', $notSetRecipientCreatedAtFilter->getField());
-        static::assertNotEmpty($notSetRecipientCreatedAtFilter->getParameter(RangeFilter::LTE));
+        static::assertSame($expiredBefore, $notSetRecipientCreatedAtFilter->getParameter(RangeFilter::LTE));
 
         $optOutRecipientFilter = array_shift($orFilters);
         static::assertInstanceOf(AndFilter::class, $optOutRecipientFilter);
@@ -70,7 +89,9 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $optOutRecipientUpdatedAtFilter = array_shift($optOutRecipientFilters);
         static::assertInstanceOf(RangeFilter::class, $optOutRecipientUpdatedAtFilter);
         static::assertSame('updatedAt', $optOutRecipientUpdatedAtFilter->getField());
-        static::assertNotEmpty($optOutRecipientUpdatedAtFilter->getParameter(RangeFilter::LTE));
+        static::assertSame($expiredBefore, $optOutRecipientUpdatedAtFilter->getParameter(RangeFilter::LTE));
+
+        static::assertSame(999, $capturedCriteria->getLimit());
     }
 
     public function testRun(): void

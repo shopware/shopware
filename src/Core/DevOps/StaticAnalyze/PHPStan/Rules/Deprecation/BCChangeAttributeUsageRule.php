@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
@@ -63,6 +64,7 @@ class BCChangeAttributeUsageRule implements Rule
 
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
+        ParameterDefaultValueChange::class,
         ParameterNameChange::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
@@ -222,6 +224,10 @@ class BCChangeAttributeUsageRule implements Rule
             }
         }
 
+        if ($attributeClass === ParameterDefaultValueChange::class) {
+            return $this->validateParameterDefaultValueChange($attribute, $method, $symbol, $line);
+        }
+
         if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
             return [];
         }
@@ -231,7 +237,7 @@ class BCChangeAttributeUsageRule implements Rule
             return [];
         }
 
-        $parameterExists = $this->parameterExists($method, ltrim($parameterName, '$'));
+        $parameterExists = $this->parameterExists($method, \ltrim($parameterName, '$'));
 
         if ($attributeClass === NewOptionalParameter::class && $parameterExists) {
             return [$this->error($line, \sprintf(
@@ -244,6 +250,48 @@ class BCChangeAttributeUsageRule implements Rule
         if ($attributeClass !== NewOptionalParameter::class && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateParameterDefaultValueChange(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, \ltrim($parameterName, '$'));
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": parameter "%s" does not exist.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional() || !$parameter->isDefaultValueAvailable()) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": parameter "%s" has no current default value.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        $newDefaultValue = $this->argument($attribute, 'newDefaultValue', 2);
+        if ($parameter->getDefaultValue() === $newDefaultValue) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": announced default value for parameter "%s" is already current.',
                 $this->shortName($attribute),
                 $symbol,
                 $parameterName
@@ -364,13 +412,18 @@ class BCChangeAttributeUsageRule implements Rule
 
     private function parameterExists(\ReflectionMethod $method, string $parameterName): bool
     {
+        return $this->parameter($method, $parameterName) !== null;
+    }
+
+    private function parameter(\ReflectionMethod $method, string $parameterName): ?\ReflectionParameter
+    {
         foreach ($method->getParameters() as $parameter) {
             if ($parameter->getName() === $parameterName) {
-                return true;
+                return $parameter;
             }
         }
 
-        return false;
+        return null;
     }
 
     private function argument(ReflectionAttribute|FakeReflectionAttribute $attribute, string $name, int $position): mixed

@@ -218,6 +218,41 @@ class CartPersisterTest extends TestCase
         static::assertSame($cart->getToken(), $token);
     }
 
+    public function testRetokenizedCartIsInsertedInsteadOfTreatedAsDeleted(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $persister->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
+
+        // extensions hand a persisted cart a new token and store it elsewhere, e.g. as a pending order payload
+        $detachedToken = Uuid::randomHex();
+        $loaded->setToken($detachedToken);
+
+        $detached = Serialization::assertUnserializedInstanceOf(Cart::class, serialize($loaded));
+        static::assertInstanceOf(Cart::class, $detached);
+
+        $persister->save($detached, $this->getSalesChannelContext($detachedToken));
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        static::assertSame($detachedToken, $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $detachedToken]
+        ));
+        static::assertSame($cart->getToken(), $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $cart->getToken()]
+        ));
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */

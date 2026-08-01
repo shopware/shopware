@@ -298,13 +298,10 @@ class SendMailAction extends FlowAction implements DelayableAction
      */
     private function getCustomerMailTemplateTypesToSkip(MailSendSubscriberConfig $extension): array
     {
-        $customerMailTemplateTypesToSkip = $extension->getExtension(
-            self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION
+        $customerMailTemplateTypesToSkip = $extension->getExtensionOfType(
+            self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION,
+            ArrayStruct::class,
         );
-
-        if (!$customerMailTemplateTypesToSkip instanceof ArrayStruct) {
-            return [];
-        }
 
         $technicalNames = [];
 

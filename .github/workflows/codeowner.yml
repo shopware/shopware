@@ -1,12 +1,14 @@
 name: 'Code Owners'
 
 concurrency:
-  group: codeowners-${{ github.ref }}
+  group: codeowners-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, ready_for_review, synchronize]
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
@@ -19,9 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Code Repository'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: 'Fetch PR head'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
 
       - name: 'Codeowners Plus'
         uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0

@@ -121,6 +121,7 @@
     "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
     "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Bitte akzeptieren Sie die technisch erforderlichen Cookies, um die reCAPTCHA-Überprüfung zu ermöglichen.",
+    "VIOLATION::RECAPTCHA_TOKEN_REQUIRED": "Die reCAPTCHA-Überprüfung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "Es ist ein Fehler mit der Captcha-Überprüfung aufgetreten.",
     "message-default": "Leider ist etwas schiefgelaufen",
     "message-404": "Die angeforderte Seite kann nicht gefunden werden.",

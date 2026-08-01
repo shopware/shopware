@@ -34,6 +34,7 @@ use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -184,6 +185,40 @@ class CartPersisterTest extends TestCase
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertFalse($token);
+    }
+
+    public function testRepeatedSaveOfUnchangedCartIsNotTreatedAsDeleted(): void
+    {
+        $cart = new Cart('unchanged');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        // A frozen clock makes both saves write the identical row. MySQL reports changed rows rather than
+        // matched rows, so the second update affects zero rows even though the cart is still there.
+        // Without the existence check in save() that is indistinguishable from a concurrently deleted cart.
+        $persister = new CartPersister(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(CartSerializationCleaner::class),
+            static::getContainer()->get(CartCompressor::class),
+            new MockClock('2026-01-01 00:00:00'),
+        );
+
+        $context = $this->getSalesChannelContext($cart->getToken());
+
+        // the first save inserts, the second writes the now-persisted cart, and the third repeats that
+        // write byte for byte, which is the update that affects zero rows
+        $persister->save($cart, $context);
+        $persister->save($cart, $context);
+        $persister->save($cart, $context);
+
+        $token = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertSame($cart->getToken(), $token);
     }
 
     /**

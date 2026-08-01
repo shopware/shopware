@@ -124,6 +124,10 @@ class CartPersister extends AbstractCartPersister
         $result = $query->execute($data);
 
         if ($cart->isPersisted() && (int) $result === 0) {
+            // MySQL reports changed rows, not matched rows, because MYSQL_ATTR_FOUND_ROWS is not enabled.
+            // An update that matched the row but wrote identical values therefore also returns 0, which
+            // happens whenever an unmodified cart is saved twice within the same millisecond.
+            // Only a missing row means the token is really gone.
             $exists = $this->connection->fetchOne(
                 'SELECT 1 FROM cart WHERE `token` = :token',
                 ['token' => $cart->getToken()]

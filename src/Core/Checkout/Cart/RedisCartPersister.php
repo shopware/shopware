@@ -115,7 +115,9 @@ class RedisCartPersister extends AbstractCartPersister
             $options[] = self::SET_ONLY_IF_EXISTS;
         }
 
-        // a failed SET is reported as false by phpredis/Relay and as null by Predis
+        // Unlike the SQL persister, a rejected SET is unambiguous: rewriting an existing key with an
+        // identical value still succeeds, so a falsy reply can only mean the key was gone. Clients differ
+        // in what they return for that, so treat every falsy reply as a failed write.
         if (!$this->redis->set(self::PREFIX . $cart->getToken(), $content, $options)) {
             if ($cart->isPersisted()) {
                 throw CartException::tokenNotFound($cart->getToken());

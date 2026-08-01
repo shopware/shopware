@@ -111,6 +111,8 @@ class StorefrontCartFacade
             }
         } catch (CartTokenNotFoundException) {
             // the cart was deleted concurrently, keep the switch unapplied instead of failing the page
+            $this->removeSwitchNotices($originalCart->getErrors());
+
             return $originalCart;
         }
 

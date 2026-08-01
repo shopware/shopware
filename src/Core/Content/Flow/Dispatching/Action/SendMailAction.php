@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -43,12 +42,9 @@ class SendMailAction extends FlowAction implements DelayableAction
     final public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
 
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
-    private const RECIPIENT_CONFIG_CUSTOMER = 'customer';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
-    private const RECIPIENT_CONFIG_DEFAULT = 'default';
     private const RECIPIENT_CONFIG_REVOCATION_REQUEST_CUSTOMER_FORM_MAIL = 'revocationRequestCustomerFormMail';
-    private const CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION = 'customer-mail-template-types-to-skip';
 
     /**
      * @internal
@@ -115,22 +111,9 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $customerMailTemplateTypesToSkip = $this->getCustomerMailTemplateTypesToSkip($extension);
-        $mailTemplate = $this->getMailTemplate(
-            $eventConfig['mailTemplateId'],
-            $flow->getContext(),
-            $customerMailTemplateTypesToSkip !== []
-        );
+        $mailTemplate = $this->getMailTemplate($eventConfig['mailTemplateId'], $flow->getContext());
 
         if ($mailTemplate === null) {
-            return;
-        }
-
-        if ($this->shouldSkipCustomerMailTemplateType(
-            $mailTemplate,
-            $customerMailTemplateTypesToSkip,
-            $eventConfig['recipient']
-        )) {
             return;
         }
 
@@ -279,67 +262,14 @@ class SendMailAction extends FlowAction implements DelayableAction
         return $templateData;
     }
 
-    private function getMailTemplate(string $id, Context $context, bool $loadMailTemplateType = false): ?MailTemplateEntity
+    private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria([$id]);
         $criteria->setTitle('send-mail::load-mail-template');
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        if ($loadMailTemplateType) {
-            $criteria->addAssociation('mailTemplateType');
-        }
-
         return $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getCustomerMailTemplateTypesToSkip(MailSendSubscriberConfig $extension): array
-    {
-        $customerMailTemplateTypesToSkip = $extension->getExtensionOfType(
-            self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION,
-            ArrayStruct::class,
-        );
-
-        $technicalNames = [];
-
-        foreach ($customerMailTemplateTypesToSkip->all() as $technicalName) {
-            if (!\is_string($technicalName) || $technicalName === '') {
-                continue;
-            }
-
-            $technicalNames[] = $technicalName;
-        }
-
-        return $technicalNames;
-    }
-
-    /**
-     * @param array<string> $customerMailTemplateTypesToSkip
-     * @param array<string, mixed> $recipients
-     */
-    private function shouldSkipCustomerMailTemplateType(
-        MailTemplateEntity $mailTemplate,
-        array $customerMailTemplateTypesToSkip,
-        array $recipients
-    ): bool {
-        if (!\in_array(
-            $recipients['type'] ?? null,
-            [self::RECIPIENT_CONFIG_CUSTOMER, self::RECIPIENT_CONFIG_DEFAULT],
-            true
-        )) {
-            return false;
-        }
-
-        $mailTemplateType = $mailTemplate->getMailTemplateType();
-
-        if ($mailTemplateType === null) {
-            return false;
-        }
-
-        return \in_array($mailTemplateType->getTechnicalName(), $customerMailTemplateTypesToSkip, true);
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

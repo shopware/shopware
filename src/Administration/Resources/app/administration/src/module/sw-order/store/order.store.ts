@@ -241,14 +241,14 @@ const swOrderStore = Shopware.Store.register({
         saveOrder({
             salesChannelId,
             contextToken,
-            sendMail,
+            sendOrderConfirmationMail,
         }: {
             salesChannelId: string;
             contextToken: string;
-            sendMail?: boolean;
+            sendOrderConfirmationMail?: boolean;
         }) {
             return Service('checkoutStoreService').checkout(salesChannelId, contextToken, {}, {}, {
-                sendMail: sendMail ?? this.sendOrderConfirmationMail,
+                sendOrderConfirmationMail: sendOrderConfirmationMail ?? this.sendOrderConfirmationMail,
             });
         },
 

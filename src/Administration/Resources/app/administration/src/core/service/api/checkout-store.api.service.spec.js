@@ -31,10 +31,10 @@ describe('checkoutStoreService', () => {
         const salesChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
         const contextToken = 'is-exactly-32-chars-as-required-';
 
-        await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendMail: false });
+        await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendOrderConfirmationMail: false });
 
         expect(clientMock.history.post[0].url).toBe(`/_proxy-order/${salesChannelId}`);
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ sendMail: false });
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ sendOrderConfirmationMail: false });
         expect(clientMock.history.post[0].headers['sw-context-token']).toBe(contextToken);
     });
 });

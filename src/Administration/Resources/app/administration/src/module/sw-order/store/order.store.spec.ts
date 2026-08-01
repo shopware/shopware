@@ -316,7 +316,7 @@ describe('src/module/sw-order/store/order.store', () => {
     it('saves order', async () => {
         await store.saveOrder({ salesChannelId: '1', contextToken: token });
 
-        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendMail: true });
+        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: true });
     });
 
     it('saves order without confirmation mail when disabled', async () => {
@@ -324,7 +324,7 @@ describe('src/module/sw-order/store/order.store', () => {
 
         await store.saveOrder({ salesChannelId: '1', contextToken: token });
 
-        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendMail: false });
+        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: false });
     });
 
     it('removes line items', async () => {

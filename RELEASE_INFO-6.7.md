@@ -700,7 +700,7 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ### Optional order confirmation mail for Administration-created orders
 
-When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally while suppressing the order confirmation mail for that order only. Storefront checkout behavior is unchanged.
+When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally and uses the existing mail suppression context flag so the order confirmation mail is not sent for that order. Storefront checkout behavior is unchanged.
 
 ### Administration caches shared user configuration and lookup data
 

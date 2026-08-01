@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
-use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
@@ -69,8 +68,6 @@ class SalesChannelProxyController extends AbstractController
 
     private const SEARCH_ROUTE = 'search';
 
-    private const CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION = 'customer-mail-template-types-to-skip';
-
     private const ADMIN_ORDER_PERMISSIONS = [
         CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
@@ -121,16 +118,10 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
-        if ($request->request->get('sendMail', true) === false) {
-            $mailConfig = new MailSendSubscriberConfig(false);
-            $mailConfig->addArrayExtension(
-                self::CUSTOMER_MAIL_TEMPLATE_TYPES_TO_SKIP_EXTENSION,
-                [MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]
-            );
-
+        if ($request->request->get('sendOrderConfirmationMail', true) === false) {
             $salesChannelContext->getContext()->addExtension(
                 SendMailAction::MAIL_CONFIG_EXTENSION,
-                $mailConfig
+                new MailSendSubscriberConfig(true)
             );
         }
 

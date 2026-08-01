@@ -115,9 +115,7 @@ class RedisCartPersister extends AbstractCartPersister
             $options[] = self::SET_ONLY_IF_EXISTS;
         }
 
-        // Unlike the SQL persister, a rejected SET is unambiguous: rewriting an existing key with an
-        // identical value still succeeds, so a falsy reply can only mean the key was gone. Clients differ
-        // in what they return for that, so treat every falsy reply as a failed write.
+        // rewriting an existing key succeeds, so any falsy reply means the key was gone
         if (!$this->redis->set(self::PREFIX . $cart->getToken(), $content, $options)) {
             if ($cart->isPersisted()) {
                 throw CartException::tokenNotFound($cart->getToken());

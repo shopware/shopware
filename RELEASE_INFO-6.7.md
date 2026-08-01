@@ -794,60 +794,6 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally and uses the existing mail suppression context flag so the order confirmation mail is not sent for that order. Storefront checkout behavior is unchanged.
 
-### Administration caches shared user configuration and lookup data
-
-Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
-
-Current-user configuration is cached per current user through `userConfigService`. Read individual keys from the shared cached `_info/config-me` response and write changes through the same service:
-
-```js
-const userConfigService = Shopware.Service('userConfigService');
-
-const response = await userConfigService.search(['my-plugin.config-key']);
-const value = response?.data?.['my-plugin.config-key'];
-
-await userConfigService.upsert({
-    'my-plugin.config-key': nextValue,
-});
-```
-
-Shared entity reads can be cached directly on repository reads by passing a stable `cacheKey`:
-
-```js
-const criteria = new Shopware.Data.Criteria(1, 500);
-criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC', false));
-
-const currencies = await Shopware.Service('repositoryFactory')
-    .create('currency')
-    .search(criteria, Shopware.Context.api, {
-        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
-        ttl: 5 * 60 * 1000,
-    });
-```
-
-If your plugin changes cached data and needs a fresh follow-up read, either invalidate the affected cache key prefix or force the next read to reload:
-
-```js
-const cacheService = Shopware.Service('cacheService');
-const taxRepository = Shopware.Service('repositoryFactory').create('tax');
-
-cacheService.invalidateCaches({
-    // Invalidate only the cached tax entries.
-    cacheKey: ['shared-data', 'taxes'],
-});
-
-const freshTaxes = await taxRepository.search(criteria, Shopware.Context.api, {
-    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
-    // true bypasses the cached result for this read and stores the fresh response again.
-    forceReload: true,
-    ttl: 5 * 60 * 1000,
-});
-
-cacheService.invalidateCaches({
-    // Custom field sets can be invalidated independently from taxes.
-    cacheKey: ['custom-field-sets', 'product'],
-});
-```
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.

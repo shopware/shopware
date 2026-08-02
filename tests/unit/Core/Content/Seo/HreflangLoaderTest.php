@@ -10,6 +10,7 @@ use Shopware\Core\Content\Seo\HreflangLoader;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -117,5 +118,41 @@ class HreflangLoaderTest extends TestCase
         $urls = array_map(static fn ($item) => $item->getUrl(), $result->getElements());
         static::assertContains('https://test.de/nice-product', $urls);
         static::assertContains('https://test.de/en/nice-product-en', $urls);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the route-name fallback in HreflangLoaderParameter::isHomepage()
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testHomepageRouteWithoutFlagStillLoadsHomepageHreflang(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setHreflangActive(true);
+
+        $languageId1 = Uuid::randomHex();
+        $languageId2 = Uuid::randomHex();
+        $domainId1 = Uuid::randomHex();
+        $domainId2 = Uuid::randomHex();
+
+        $this->connection
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    ['languageId' => Uuid::fromHexToBytes($languageId1), 'id' => Uuid::fromHexToBytes($domainId1), 'url' => 'https://test.de', 'locale' => 'de-DE', 'onlyLocale' => false],
+                    ['languageId' => Uuid::fromHexToBytes($languageId2), 'id' => Uuid::fromHexToBytes($domainId2), 'url' => 'https://test.de/en', 'locale' => 'en-GB', 'onlyLocale' => false],
+                ],
+                // only reached on the generic path, i.e. when the homepage is not recognised
+                []
+            );
+
+        // three-argument construction, the only form available before the $homepage flag was added
+        $parameter = new HreflangLoaderParameter('frontend.home.page', [], $salesChannelContext);
+
+        $result = $this->loader->load($parameter);
+
+        static::assertCount(2, $result);
+        $urls = array_map(static fn ($item) => $item->getUrl(), $result->getElements());
+        static::assertContains('https://test.de', $urls);
+        static::assertContains('https://test.de/en', $urls);
     }
 }

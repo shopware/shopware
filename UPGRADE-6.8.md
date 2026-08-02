@@ -2658,3 +2658,17 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
 
 If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
+
+## Homepage detection in `HreflangLoaderParameter`
+
+`HreflangLoader` decides whether a request targets the homepage by reading the `$homepage` constructor flag of `HreflangLoaderParameter`, instead of comparing the route name against `frontend.home.page`.
+
+Until 6.8 a deprecated fallback still recognises the route name when the flag is not set. From 6.8 that fallback is removed, so the flag must be passed explicitly — otherwise no homepage hreflang links are generated:
+
+```php
+// deprecated, keeps working until 6.8
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext);
+
+// required from 6.8
+new HreflangLoaderParameter('frontend.home.page', $routeParameters, $salesChannelContext, true);
+```

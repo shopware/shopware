@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
+use Shopware\Storefront\Framework\Captcha\DeprecatedCaptchaValidation;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -78,8 +79,8 @@ class HoneypotCaptchaTest extends TestCase
         };
 
         // The honeypot is empty, so the native check would let this through.
-        static::assertCount(1, $captcha->runValidation(new Request(request: ['custom-check' => 'fail']), []));
-        static::assertCount(0, $captcha->runValidation(new Request(request: ['custom-check' => 'pass']), []));
+        static::assertCount(1, DeprecatedCaptchaValidation::validate($captcha, new Request(request: ['custom-check' => 'fail']), []));
+        static::assertCount(0, DeprecatedCaptchaValidation::validate($captcha, new Request(request: ['custom-check' => 'pass']), []));
     }
 
     /**
@@ -98,7 +99,8 @@ class HoneypotCaptchaTest extends TestCase
             }
         };
 
-        $violations = $captcha->runValidation(
+        $violations = DeprecatedCaptchaValidation::validate(
+            $captcha,
             new Request(request: [HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot']),
             []
         );
@@ -128,7 +130,7 @@ class HoneypotCaptchaTest extends TestCase
             $captcha::class
         )));
 
-        $captcha->runValidation(new Request(), []);
+        DeprecatedCaptchaValidation::validate($captcha, new Request(), []);
     }
 
     /**

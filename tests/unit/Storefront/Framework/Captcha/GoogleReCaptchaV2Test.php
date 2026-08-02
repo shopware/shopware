@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
+use Shopware\Storefront\Framework\Captcha\DeprecatedCaptchaValidation;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -256,13 +257,15 @@ class GoogleReCaptchaV2Test extends TestCase
         };
 
         // Google accepts the token, but the subclass rejects the request.
-        static::assertCount(1, $captcha->runValidation(
+        static::assertCount(1, DeprecatedCaptchaValidation::validate(
+            $captcha,
             self::getRequest([GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'token', 'custom-check' => 'fail']),
             $this->getCaptchaConfig()
         ));
 
         // ... and the other way round: no token at all, which the native path would reject.
-        static::assertCount(0, $captcha->runValidation(
+        static::assertCount(0, DeprecatedCaptchaValidation::validate(
+            $captcha,
             self::getRequest(['custom-check' => 'pass']),
             $this->getCaptchaConfig()
         ));
@@ -286,7 +289,8 @@ class GoogleReCaptchaV2Test extends TestCase
             }
         };
 
-        $violations = $captcha->runValidation(
+        $violations = DeprecatedCaptchaValidation::validate(
+            $captcha,
             self::getRequest([GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         );
@@ -315,7 +319,7 @@ class GoogleReCaptchaV2Test extends TestCase
             $captcha::class
         )));
 
-        $captcha->runValidation(self::getRequest(), $this->getCaptchaConfig());
+        DeprecatedCaptchaValidation::validate($captcha, self::getRequest(), $this->getCaptchaConfig());
     }
 
     /**

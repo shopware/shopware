@@ -14,6 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Captcha\DeprecatedCaptchaValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -61,11 +62,12 @@ class BasicCaptchaTest extends TestCase
         };
 
         // The submitted value matches the session, so the native check would let this through.
-        static::assertCount(1, $captcha->runValidation(
+        static::assertCount(1, DeprecatedCaptchaValidation::validate(
+            $captcha,
             new Request(request: [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value', 'custom-check' => 'fail']),
             []
         ));
-        static::assertCount(0, $captcha->runValidation(new Request(request: ['custom-check' => 'pass']), []));
+        static::assertCount(0, DeprecatedCaptchaValidation::validate($captcha, new Request(request: ['custom-check' => 'pass']), []));
     }
 
     /**
@@ -83,7 +85,7 @@ class BasicCaptchaTest extends TestCase
             }
         };
 
-        $violations = $captcha->runValidation(new Request(request: []), []);
+        $violations = DeprecatedCaptchaValidation::validate($captcha, new Request(request: []), []);
 
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
@@ -110,7 +112,7 @@ class BasicCaptchaTest extends TestCase
             $captcha::class
         )));
 
-        $captcha->runValidation(new Request(request: []), []);
+        DeprecatedCaptchaValidation::validate($captcha, new Request(request: []), []);
     }
 
     #[TestDox('is not breaking and exposes its technical name')]

@@ -43,6 +43,10 @@ class HoneypotCaptcha extends AbstractCaptcha
 
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
+        if ($this->hasDeprecatedOverride(self::class)) {
+            return $this->validateWithDeprecatedMethods($request, $captchaConfig);
+        }
+
         $violations = new ConstraintViolationList();
 
         if (!$this->isHoneypotEmpty($request)) {
@@ -60,7 +64,9 @@ class HoneypotCaptcha extends AbstractCaptcha
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
-        return $this->validate($request, $captchaConfig)->count() === 0;
+        // Deliberately not routed through validate(): a subclass overriding this method would otherwise
+        // be dispatched back into itself by hasDeprecatedOverride().
+        return $this->isHoneypotEmpty($request);
     }
 
     /**

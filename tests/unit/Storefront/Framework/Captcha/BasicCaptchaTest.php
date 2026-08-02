@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -42,6 +44,77 @@ class BasicCaptchaTest extends TestCase
         $captcha = new BasicCaptcha($requestStack, static::createStub(SystemConfigService::class));
 
         static::assertSame($expected, $captcha->validate(new Request(request: $request), [])->count() === 0);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
+    {
+        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
+        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        $captcha = new class($this->createRequestStack(), static::createStub(SystemConfigService::class)) extends BasicCaptcha {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return $request->request->get('custom-check') === 'pass';
+            }
+        };
+
+        // The submitted value matches the session, so the native check would let this through.
+        static::assertCount(1, $captcha->validate(
+            new Request(request: [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value', 'custom-check' => 'fail']),
+            []
+        ));
+        static::assertCount(0, $captcha->validate(new Request(request: ['custom-check' => 'pass']), []));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated getViolations() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassOverridingDeprecatedGetViolationsIsStillDispatched(): void
+    {
+        $captcha = new class($this->createRequestStack(), static::createStub(SystemConfigService::class)) extends BasicCaptcha {
+            public function getViolations(): ConstraintViolationList
+            {
+                return new ConstraintViolationList([
+                    new ConstraintViolation('', '', [], '', '', '', null, 'plugin-custom-code'),
+                ]);
+            }
+        };
+
+        // No captcha value at all, so the native check rejects and the violations are consulted.
+        $violations = $captcha->validate(new Request(request: []), []);
+
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        // BasicCaptcha's own INVALID_CAPTCHA_CODE would mean the subclass was ignored.
+        static::assertSame('plugin-custom-code', $violation->getCode());
+        static::assertNotSame(BasicCaptcha::INVALID_CAPTCHA_CODE, $violation->getCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
+    {
+        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
+        // rather than have its check silently dropped.
+        $captcha = new class($this->createRequestStack(), static::createStub(SystemConfigService::class)) extends BasicCaptcha {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return false;
+            }
+        };
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Overriding %s::isValid() is deprecated, implement validate() instead.',
+            $captcha::class
+        )));
+
+        $captcha->validate(new Request(request: []), []);
     }
 
     #[TestDox('is not breaking and exposes its technical name')]
@@ -175,5 +248,16 @@ class BasicCaptchaTest extends TestCase
             'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'],
             'expected' => true,
         ];
+    }
+
+    private function createRequestStack(string $captchaValue = 'valid-captcha-value'): RequestStack
+    {
+        $requestStack = new RequestStack();
+        $sessionRequest = new Request();
+        $sessionRequest->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack->push($sessionRequest);
+        $sessionRequest->getSession()->set('basic_captcha_session', $captchaValue);
+
+        return $requestStack;
     }
 }

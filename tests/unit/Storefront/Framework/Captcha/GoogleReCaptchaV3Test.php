@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -261,6 +263,164 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
+    {
+        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
+        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return $request->request->get('custom-check') === 'pass';
+            }
+        };
+
+        // Google accepts the token, but the subclass rejects the request.
+        static::assertCount(1, $captcha->validate(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'custom-check' => 'fail']),
+            $this->getCaptchaConfig()
+        ));
+
+        // ... and the other way round: no token at all, which the native path would reject.
+        static::assertCount(0, $captcha->validate(
+            self::getRequest(['custom-check' => 'pass']),
+            $this->getCaptchaConfig()
+        ));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated getViolations() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassOverridingDeprecatedGetViolationsIsStillDispatched(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
+            public function getViolations(): ConstraintViolationList
+            {
+                return new ConstraintViolationList([
+                    new ConstraintViolation('', '', [], '', '', '', null, 'plugin-custom-code'),
+                ]);
+            }
+        };
+
+        $violations = $captcha->validate(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        );
+
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame('plugin-custom-code', $violation->getCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassDelegatingToParentValidateStillHonoursItsIsValid(): void
+    {
+        $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
+            public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+            {
+                return parent::validate($request, $captchaConfig);
+            }
+
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return true;
+            }
+        };
+
+        // parent::validate() has to keep routing through the subclass' isValid(), even though the
+        // native path would reject the missing token.
+        static::assertCount(0, $captcha->validate(self::getRequest(), $this->getCaptchaConfig()));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassCallingParentIsValidDoesNotRecurse(): void
+    {
+        // isValid() must not route back through validate(), otherwise validate() dispatches
+        // straight back into the subclass until the process runs out of memory.
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return parent::isValid($request, $captchaConfig) && $request->request->get('extra') === 'ok';
+            }
+        };
+
+        static::assertCount(1, $captcha->validate(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        ));
+        static::assertCount(0, $captcha->validate(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'extra' => 'ok']),
+            $this->getCaptchaConfig()
+        ));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSubclassIsValidCallingValidateDoesNotRecurse(): void
+    {
+        // Calling validate() from the overridden isValid() would dispatch straight back into it,
+        // so the second entry has to fall through to the native check instead of looping.
+        $mockHandler = new MockHandler([
+            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
+        ]);
+        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return $this->validate($request, $captchaConfig)->count() === 0;
+            }
+        };
+
+        static::assertCount(0, $captcha->validate(
+            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
+            $this->getCaptchaConfig()
+        ));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
+    {
+        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
+        // rather than have its check silently dropped.
+        $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return false;
+            }
+        };
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Overriding %s::isValid() is deprecated, implement validate() instead.',
+            $captcha::class
+        )));
+
+        $captcha->validate(self::getRequest(), $this->getCaptchaConfig());
+    }
+
+    /**
      * @return iterable<string, array{0: string, 1: bool, 2: bool}>
      */
     public static function requestDataSupportProvider(): iterable
@@ -293,10 +453,13 @@ class GoogleReCaptchaV3Test extends TestCase
 
     private function getCaptcha(?MockHandler $mockHandler = null): GoogleReCaptchaV3
     {
-        return new GoogleReCaptchaV3(
-            new Client([
-                'handler' => HandlerStack::create($mockHandler ?? new MockHandler()),
-            ])
-        );
+        return new GoogleReCaptchaV3($this->getClient($mockHandler));
+    }
+
+    private function getClient(?MockHandler $mockHandler = null): Client
+    {
+        return new Client([
+            'handler' => HandlerStack::create($mockHandler ?? new MockHandler()),
+        ]);
     }
 }

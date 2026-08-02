@@ -1987,10 +1987,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 `validate()` is now abstract. If your captcha previously returned `false` from `isValid()` without providing violations, return a `ConstraintViolationList` with a violation whose code maps to an `error.*` storefront snippet. Keep `shouldBreak()` returning `true` only if a failure should abort non-AJAX requests with a `403` instead of rendering the violations (like the bot-only honeypot); `supports()`, `getName()`, and `getData()` remain unchanged.
 
-Two things to check when migrating, both already in effect in 6.7:
+Two things to check when migrating:
 
-* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your logic is no longer used — they implement `validate()` natively and no longer dispatch through the deprecated pair. Since you inherit their `validate()`, no deprecation is triggered to tell you. Override `validate()` instead.
-* Do not call `isValid()` from your own `validate()`. In the core captchas the deprecated `isValid()` delegates to `validate()`, so doing so recurses until the process runs out of memory. Move the logic into `validate()` and let `isValid()` delegate to it.
+* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your implementation stops being used once the pair is removed. Throughout 6.7 it keeps being dispatched and triggers a deprecation naming the overriding class on every check; with the 6.8 feature flag active it throws instead, so you can find these captchas before upgrading. Override `validate()` instead, and drop the overridden `isValid()`/`getViolations()` — keeping them alongside a `validate()` that calls `parent::validate()` still routes the check through the deprecated pair.
+* While you still inherit `validate()`, do not call it from your own `isValid()` or `getViolations()`: the inherited implementation dispatches back into the overridden method, so the two call each other. Put the logic in `validate()`, and where you need to keep `isValid()` let it call `parent::isValid()` rather than `validate()` (the core captchas' own checks are private).
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

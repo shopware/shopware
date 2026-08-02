@@ -22,4 +22,13 @@ echo \json_encode(['matrix' => [
     ],
     'php' => $php,
     'db' => $db,
+    'include' => [
+        // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
+        // skips without it.
+        [
+            'test' => ['testsuite' => 'migration'],
+            'php' => '8.2',
+            'db' => 'mysql:8.4',
+        ],
+    ],
 ]], \JSON_THROW_ON_ERROR);

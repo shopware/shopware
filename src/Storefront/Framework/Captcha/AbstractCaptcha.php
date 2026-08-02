@@ -33,13 +33,9 @@ abstract class AbstractCaptcha
     }
 
     /**
-     * @internal entry point used by the {@see CaptchaRouteListener}, so a captcha that still only
-     * implements the deprecated isValid()/getViolations() keeps being consulted. Implement
-     * {@see validate()} instead of overriding this.
+     * @internal implement {@see validate()}, this only keeps the deprecated pair dispatched
      *
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations(),
-     * the callers will use validate() directly. Called from inside the core, so it does not trigger a
-     * deprecation itself.
+     * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed, callers will use validate() directly
      *
      * @param array<string, mixed> $captchaConfig
      */
@@ -53,8 +49,7 @@ abstract class AbstractCaptcha
     }
 
     /**
-     * validate checks the captcha contained in the request and returns the violations
-     * describing the failure. An empty list means the captcha is valid.
+     * validate returns the violations describing the failure, an empty list means the captcha is valid.
      *
      * @param array<string, mixed> $captchaConfig
      */
@@ -115,10 +110,6 @@ abstract class AbstractCaptcha
     }
 
     /**
-     * Runs the captcha through the deprecated isValid()/getViolations() pair, so implementations that
-     * still only provide those keep working. Called from inside the core, therefore it does not trigger
-     * a deprecation itself — the caller does.
-     *
      * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations()
      *
      * @param array<string, mixed> $captchaConfig
@@ -131,7 +122,7 @@ abstract class AbstractCaptcha
 
         $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
         if ($violations->count() === 0) {
-            // An empty list means valid, so a captcha without violation details still needs one.
+            // An empty list would read as valid, so a failure always needs a violation.
             $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
         }
 
@@ -139,10 +130,6 @@ abstract class AbstractCaptcha
     }
 
     /**
-     * Returns true when one of the deprecated methods is overridden below the captcha that provides
-     * validate(), which means the implementation was written against the pre-validate() API and has to
-     * keep deciding until the pair is removed in 6.8.
-     *
      * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations()
      */
     private function hasDeprecatedOverride(): bool
@@ -150,16 +137,12 @@ abstract class AbstractCaptcha
         $providesValidate = (new \ReflectionMethod($this, 'validate'))->getDeclaringClass()->getName();
 
         foreach (['isValid', 'getViolations'] as $method) {
-            // Only a class *below* the one providing validate() counts: a captcha implements isValid()
-            // itself and inherits getViolations() from an ancestor, and a subclass that implements
-            // validate() has migrated even if it kept the deprecated methods around.
+            // Strictly below: a captcha declares isValid() itself and inherits getViolations().
             $declaringClass = (new \ReflectionMethod($this, $method))->getDeclaringClass()->getName();
             if (!is_subclass_of($declaringClass, $providesValidate)) {
                 continue;
             }
 
-            // Unlike the core captchas this one cannot be migrated for the extension author, so it has to
-            // be nudged here — validateWithDeprecatedMethods() silences the deprecations of the pair itself.
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 \sprintf('Overriding %s::%s() is deprecated, implement validate() instead.', $declaringClass, $method)

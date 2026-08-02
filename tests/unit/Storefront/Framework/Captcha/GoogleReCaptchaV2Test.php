@@ -192,7 +192,6 @@ class GoogleReCaptchaV2Test extends TestCase
         ]);
         $captcha = $this->getCaptcha($mockHandler);
 
-        // Present-but-invalid token -> generic captcha violation.
         $violations = $captcha->validate(
             self::getRequest([GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
@@ -206,8 +205,7 @@ class GoogleReCaptchaV2Test extends TestCase
 
     public function testShouldBreakReturnsFalse(): void
     {
-        // reCAPTCHA failures always carry customer-facing violations, so they must be
-        // shown to the customer instead of breaking the request with a 403.
+        // reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
         static::assertFalse($this->getCaptcha()->shouldBreak());
     }
 
@@ -246,8 +244,7 @@ class GoogleReCaptchaV2Test extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
     {
-        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
-        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        // isValid() was the only hook before validate(), so it has to keep deciding until 6.8.
         $mockHandler = new MockHandler([
             new Response(200, [], json_encode(['success' => true], \JSON_THROW_ON_ERROR)),
         ]);
@@ -305,8 +302,7 @@ class GoogleReCaptchaV2Test extends TestCase
      */
     public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
     {
-        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
-        // rather than have its check silently dropped.
+        // The pair is gone in 6.8, so relying on it has to fail loudly instead of being dropped.
         $captcha = new class($this->getClient()) extends GoogleReCaptchaV2 {
             public function isValid(Request $request, array $captchaConfig): bool
             {

@@ -52,8 +52,7 @@ class BasicCaptchaTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
     {
-        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
-        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        // isValid() was the only hook before validate(), so it has to keep deciding until 6.8.
         $captcha = new class($this->createRequestStack(), static::createStub(SystemConfigService::class)) extends BasicCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {
@@ -84,13 +83,11 @@ class BasicCaptchaTest extends TestCase
             }
         };
 
-        // No captcha value at all, so the native check rejects and the violations are consulted.
         $violations = $captcha->runValidation(new Request(request: []), []);
 
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
-        // BasicCaptcha's own INVALID_CAPTCHA_CODE would mean the subclass was ignored.
         static::assertSame('plugin-custom-code', $violation->getCode());
         static::assertNotSame(BasicCaptcha::INVALID_CAPTCHA_CODE, $violation->getCode());
     }
@@ -100,8 +97,7 @@ class BasicCaptchaTest extends TestCase
      */
     public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
     {
-        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
-        // rather than have its check silently dropped.
+        // The pair is gone in 6.8, so relying on it has to fail loudly instead of being dropped.
         $captcha = new class($this->createRequestStack(), static::createStub(SystemConfigService::class)) extends BasicCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {

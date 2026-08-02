@@ -175,10 +175,8 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        // The registration page is re-rendered with a danger flash instead of a 403 error page
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
-        // The failure is announced as a danger flash, not just present somewhere in the page
         $flash = $crawler->filter('.flashbags .alert-danger');
         static::assertCount(1, $flash);
         static::assertStringContainsString(
@@ -189,7 +187,6 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertSame('assertive', $flash->attr('aria-live'));
 
         static::assertCount(1, $crawler->filter('form[action="/account/register"]'));
-        // The entered form data is preserved across the failed submit
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertStringContainsString('recaptcha-test@shopware.com', $content);
@@ -229,8 +226,7 @@ class CaptchaRouteListenerTest extends TestCase
             ],
         ]);
 
-        // The conversion form posts no errorRoute and its template renders only
-        // field-bound violations — the captcha failure must be visible via a flash.
+        // This form renders only field-bound violations, so the failure must reach a flash.
         $crawler = $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));
 
         $response = $browser->getResponse();
@@ -238,7 +234,6 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertInstanceOf(Response::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
 
-        // The failure is announced as a danger flash on the re-rendered conversion form
         $flash = $crawler->filter('.flashbags .alert-danger');
         static::assertCount(1, $flash);
         static::assertStringContainsString(

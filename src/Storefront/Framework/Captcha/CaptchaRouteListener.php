@@ -71,9 +71,7 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
                 continue;
             }
 
-            // Breaking captchas (e.g. the bot-only honeypot) hard-fail non-AJAX requests
-            // with a 403; all other failures render the violations gracefully via the
-            // error controller instead of an error page.
+            // Breaking captchas (e.g. the bot-only honeypot) get a 403 instead of a rendered violation.
             if ($captcha->shouldBreak() && !$request->isXmlHttpRequest()) {
                 throw CaptchaException::invalid($captcha);
             }

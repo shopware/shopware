@@ -225,7 +225,6 @@ class GoogleReCaptchaV3Test extends TestCase
         ]);
         $captcha = $this->getCaptcha($mockHandler);
 
-        // Present-but-invalid token (score below threshold) -> generic captcha violation.
         $violations = $captcha->validate(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
@@ -239,8 +238,7 @@ class GoogleReCaptchaV3Test extends TestCase
 
     public function testShouldBreakReturnsFalse(): void
     {
-        // reCAPTCHA failures always carry customer-facing violations, so they must be
-        // shown to the customer instead of breaking the request with a 403.
+        // reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
         static::assertFalse($this->getCaptcha()->shouldBreak());
     }
 
@@ -268,8 +266,7 @@ class GoogleReCaptchaV3Test extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
     {
-        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
-        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        // isValid() was the only hook before validate(), so it has to keep deciding until 6.8.
         $mockHandler = new MockHandler([
             new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
         ]);
@@ -328,8 +325,7 @@ class GoogleReCaptchaV3Test extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassImplementingValidateIsNotRoutedThroughTheDeprecatedMethods(): void
     {
-        // Implementing validate() means the captcha has migrated, so a left-over isValid()
-        // must not take the check over again.
+        // Implementing validate() means migrated, so a left-over isValid() must be ignored.
         $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
             public function validate(Request $request, array $captchaConfig): ConstraintViolationList
             {
@@ -357,8 +353,7 @@ class GoogleReCaptchaV3Test extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassCallingParentIsValidDoesNotRecurse(): void
     {
-        // isValid() must not route back through validate(), otherwise validate() dispatches
-        // straight back into the subclass until the process runs out of memory.
+        // Must terminate: validate() must not dispatch back into the overriding isValid().
         $mockHandler = new MockHandler([
             new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
             new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
@@ -386,8 +381,7 @@ class GoogleReCaptchaV3Test extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassIsValidCallingValidateDoesNotRecurse(): void
     {
-        // Calling validate() from the overridden isValid() would dispatch straight back into it,
-        // so the second entry has to fall through to the native check instead of looping.
+        // Must terminate: validate() must not dispatch back into the overriding isValid().
         $mockHandler = new MockHandler([
             new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
         ]);
@@ -409,8 +403,7 @@ class GoogleReCaptchaV3Test extends TestCase
      */
     public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
     {
-        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
-        // rather than have its check silently dropped.
+        // The pair is gone in 6.8, so relying on it has to fail loudly instead of being dropped.
         $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
             public function isValid(Request $request, array $captchaConfig): bool
             {

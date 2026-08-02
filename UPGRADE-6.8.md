@@ -1983,14 +1983,9 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 ## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
 
-`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means the captcha is valid, a non-empty list describes the failure and is rendered as a form error in the storefront.
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet. `supports()`, `shouldBreak()`, `getName()` and `getData()` are unchanged.
 
-`validate()` is now abstract. If your captcha previously returned `false` from `isValid()` without providing violations, return a `ConstraintViolationList` with a violation whose code maps to an `error.*` storefront snippet. Keep `shouldBreak()` returning `true` only if a failure should abort non-AJAX requests with a `403` instead of rendering the violations (like the bot-only honeypot); `supports()`, `getName()`, and `getData()` remain unchanged.
-
-Two things to check when migrating:
-
-* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your implementation stops being used once the pair is removed. Throughout 6.7 it keeps being dispatched and triggers a deprecation naming the overriding class on every check; with the 6.8 feature flag active it throws instead, so you can find these captchas before upgrading. Implementing `validate()` is what marks the captcha as migrated — a left-over `isValid()` is then ignored, so you can move the logic over in one step.
-* If your captcha implements only `isValid()`/`getViolations()` and therefore relies on the inherited `validate()`, do not call `validate()` from them: that default implementation exists to call back into them, so the two would call each other until the process runs out of memory. Move the logic into `validate()` instead.
+Throughout 6.7 an overridden `isValid()`/`getViolations()` keeps being dispatched and triggers a deprecation; with the 6.8 flag active it throws, so you can find these captchas before upgrading. Implementing `validate()` marks a captcha as migrated and a left-over `isValid()` is then ignored — but until you do, never call `validate()` from `isValid()`, as the inherited implementation calls back into it and the two would recurse.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

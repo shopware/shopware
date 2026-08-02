@@ -90,9 +90,7 @@ class ErrorController extends StorefrontController
     ): Response {
         $formViolations = new ConstraintViolationException($violations, []);
         if (!$request->isXmlHttpRequest()) {
-            // Violations not bound to a field (e.g. reCAPTCHA) are shown as flash messages,
-            // so they are visible on every form without per-template support. Field-bound
-            // violations (e.g. basic captcha) render at their fields via formViolations.
+            // Violations without a field render as flash messages, so every form shows them.
             foreach ($violations as $violation) {
                 if ($violation->getPropertyPath() === '') {
                     $this->addFlash(self::DANGER, $this->trans('error.' . $violation->getCode()));
@@ -102,8 +100,7 @@ class ErrorController extends StorefrontController
             $errorRoute = (string) $request->request->get('errorRoute');
             $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
-            // Carry the posted error parameters so error routes with required parameters
-            // (e.g. customer-group registration's {customerGroupId}) can still be generated.
+            // Error routes with required parameters (e.g. {customerGroupId}) need them to be carried over.
             return $this->forwardToRoute($route, ['formViolations' => $formViolations], $this->decodeParam($request, 'errorParameters'));
         }
 

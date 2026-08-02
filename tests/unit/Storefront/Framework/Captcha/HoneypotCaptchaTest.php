@@ -48,8 +48,7 @@ class HoneypotCaptchaTest extends TestCase
     #[TestDox('deprecated isValid() validates through the Symfony validator before 6.8')]
     public function testDeprecatedIsValidUsesValidator(): void
     {
-        // Before 6.8 the honeypot is checked with the Symfony validator, which reports a
-        // violation for a filled field and none for an empty one.
+        // Before 6.8 the honeypot is checked with the Symfony validator.
         $emptyValidator = static::createStub(ValidatorInterface::class);
         $emptyValidator->method('validate')->willReturn(new ConstraintViolationList());
         static::assertTrue((new HoneypotCaptcha($emptyValidator))->isValid(new Request(), []));
@@ -70,8 +69,7 @@ class HoneypotCaptchaTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
     {
-        // Before validate() existed, isValid() was the only hook a plugin could use to tighten
-        // (or loosen) a core captcha, so it has to keep deciding until it is removed in 6.8.
+        // isValid() was the only hook before validate(), so it has to keep deciding until 6.8.
         $captcha = new class($this->createValidator()) extends HoneypotCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {
@@ -108,7 +106,6 @@ class HoneypotCaptchaTest extends TestCase
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
-        // The generic INVALID_CAPTCHA_ERROR would mean the subclass was ignored.
         static::assertSame('plugin-custom-code', $violation->getCode());
         static::assertNotSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
     }
@@ -118,8 +115,7 @@ class HoneypotCaptchaTest extends TestCase
      */
     public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
     {
-        // The deprecated pair is gone in 6.8, so a captcha still relying on it has to fail loudly
-        // rather than have its check silently dropped.
+        // The pair is gone in 6.8, so relying on it has to fail loudly instead of being dropped.
         $captcha = new class($this->createValidator()) extends HoneypotCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {
@@ -142,8 +138,7 @@ class HoneypotCaptchaTest extends TestCase
     {
         yield 'absent honeypot field is valid' => [[], true];
         yield 'empty honeypot field is valid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => ''], true];
-        // InputBag::get() returns a present-but-null value as null (not the default), so without the
-        // null-coalescing fix `null === ''` would wrongly reject this empty submission.
+        // InputBag::get() returns a present-but-null value as null, which still means empty.
         yield 'present-but-null honeypot field is valid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null], true];
         yield 'filled honeypot field is invalid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot'], false];
     }

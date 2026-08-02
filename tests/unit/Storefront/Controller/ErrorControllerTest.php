@@ -121,8 +121,7 @@ class ErrorControllerTest extends TestCase
 
         $this->controller->onCaptchaFailure($this->violations, $request);
 
-        // Error parameters must be carried through so routes with required parameters
-        // (e.g. customer-group registration's {customerGroupId}) can be generated.
+        // Routes with required parameters (e.g. {customerGroupId}) need them carried through.
         static::assertSame('frontend.account.customer-group-registration.page', $this->controller->forwardToRoute);
         static::assertSame(['customerGroupId' => 'group-123'], $this->controller->forwardToRouteParameters);
     }

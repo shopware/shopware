@@ -74,7 +74,6 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));
 
-        // The bot-only honeypot: breaking captcha, generic violation from the validate() stub.
         $captcha = $this->createCaptcha(self::createViolations(CaptchaException::INVALID_CAPTCHA_ERROR), shouldBreak: true);
 
         $this->expectExceptionObject(CaptchaException::invalid($captcha));
@@ -95,7 +94,6 @@ class CaptchaRouteListenerTest extends TestCase
         $originalController = $event->getController();
         $this->createListener($captcha)->validateCaptcha($event);
 
-        // AJAX requests get the violations rendered as a JSON alert instead of a 403.
         static::assertCount(1, $violations);
         static::assertNotSame($originalController, $event->getController());
         static::assertIsCallable($event->getController());
@@ -108,8 +106,7 @@ class CaptchaRouteListenerTest extends TestCase
             attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true, '_route' => 'frontend.account.register.page']
         ));
 
-        // reCAPTCHA without a token: non-breaking captcha with an actionable violation must
-        // NOT throw on a non-AJAX request, but render the violations gracefully (#17472).
+        // A non-breaking captcha must render its violations rather than throw (#17472).
         $violations = self::createViolations(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION);
         $captcha = $this->createCaptcha($violations, shouldBreak: false);
 
@@ -127,8 +124,7 @@ class CaptchaRouteListenerTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubclassOverridingDeprecatedIsValidIsDispatchedThroughTheListener(): void
     {
-        // End-to-end guard for the regression: the listener only calls validate(), so a core
-        // captcha that a plugin tightened through the deprecated isValid() must still reject.
+        // End-to-end guard: a core captcha tightened through isValid() must still reject.
         $captcha = new class(new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR))]))])) extends GoogleReCaptchaV3 {
             public function isValid(Request $request, array $captchaConfig): bool
             {
@@ -151,7 +147,6 @@ class CaptchaRouteListenerTest extends TestCase
         (new CaptchaRouteListener([$captcha], $systemConfigService, static::createStub(ContainerInterface::class)))
             ->validateCaptcha($event);
 
-        // Google accepted the token, so without the dispatch the controller would be untouched.
         static::assertNotSame($originalController, $event->getController());
     }
 

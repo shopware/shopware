@@ -57,8 +57,7 @@ class AbstractCaptchaTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsGenericViolationForInvalidLegacyCaptchaWithoutViolations(): void
     {
-        // An invalid captcha without violation details (e.g. the honeypot) must not
-        // return an empty list, as an empty list signals a valid captcha.
+        // An empty list signals a valid captcha, so a failure always needs a violation.
         $captcha = $this->createLegacyCaptcha(isValid: false, violations: new ConstraintViolationList());
 
         $violations = $captcha->validate(new Request(), []);
@@ -72,9 +71,7 @@ class AbstractCaptchaTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateSilencesInheritedDeprecatedGetViolations(): void
     {
-        // A legacy captcha that overrides neither getViolations() nor validate() runs
-        // through the deprecated AbstractCaptcha::getViolations(), which the stub must
-        // call inside Feature::silent() so core never triggers self-deprecations.
+        // The inherited getViolations() must be called silently so core never self-deprecates.
         $captcha = new class extends AbstractCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {

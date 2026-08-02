@@ -36,8 +36,7 @@ class HoneypotCaptchaTest extends TestCase
 
     public function testShouldBreakReturnsTrue(): void
     {
-        // The honeypot is bot-only: its failures must abort non-AJAX requests with a 403
-        // instead of showing a customer-visible error. shouldBreak() is the sole guard for this.
+        // The honeypot is bot-only, so it must abort with a 403 rather than a visible error.
         static::assertTrue($this->captcha->shouldBreak());
     }
 
@@ -46,8 +45,7 @@ class HoneypotCaptchaTest extends TestCase
      */
     public function testDeprecatedIsValidStillValidates(): void
     {
-        // DisabledFeatures is only processed for unit-test namespaces, so skip explicitly
-        // when the major flag is active (e.g. in the integration-major workflow).
+        // DisabledFeatures is unit-namespace only, so the major flag is skipped explicitly.
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
         static::assertTrue($this->captcha->isValid(self::getRequest(), []));

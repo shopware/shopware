@@ -82,6 +82,9 @@ Product specific line item rule conditions (manufacturer, category, tags, proper
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
+### `MediaFileExtensionWhitelistEvent` is dispatched once per info config request
+
+`InfoController::config()` resolved the private media extension whitelist through both `MediaFileExtensionListProvider::getAllowedExtensions()` and `getMimeTypesByExtension()`, and the latter calls the former internally — so every `/api/_info/config` request dispatched `MediaFileExtensionWhitelistEvent` twice. Listeners that append extensions, write logs or count invocations ran two times per request. The controller now resolves the list once and derives the allowed extensions from it; the response payload is unchanged.
 
 ### Media path cache busting is configurable
 

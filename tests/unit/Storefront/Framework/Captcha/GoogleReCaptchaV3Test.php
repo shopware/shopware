@@ -281,13 +281,13 @@ class GoogleReCaptchaV3Test extends TestCase
         };
 
         // Google accepts the token, but the subclass rejects the request.
-        static::assertCount(1, $captcha->validate(
+        static::assertCount(1, $captcha->runValidation(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'custom-check' => 'fail']),
             $this->getCaptchaConfig()
         ));
 
         // ... and the other way round: no token at all, which the native path would reject.
-        static::assertCount(0, $captcha->validate(
+        static::assertCount(0, $captcha->runValidation(
             self::getRequest(['custom-check' => 'pass']),
             $this->getCaptchaConfig()
         ));
@@ -311,7 +311,7 @@ class GoogleReCaptchaV3Test extends TestCase
             }
         };
 
-        $violations = $captcha->validate(
+        $violations = $captcha->runValidation(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         );
@@ -326,8 +326,10 @@ class GoogleReCaptchaV3Test extends TestCase
      * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
      */
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassDelegatingToParentValidateStillHonoursItsIsValid(): void
+    public function testSubclassImplementingValidateIsNotRoutedThroughTheDeprecatedMethods(): void
     {
+        // Implementing validate() means the captcha has migrated, so a left-over isValid()
+        // must not take the check over again.
         $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
             public function validate(Request $request, array $captchaConfig): ConstraintViolationList
             {
@@ -340,9 +342,13 @@ class GoogleReCaptchaV3Test extends TestCase
             }
         };
 
-        // parent::validate() has to keep routing through the subclass' isValid(), even though the
-        // native path would reject the missing token.
-        static::assertCount(0, $captcha->validate(self::getRequest(), $this->getCaptchaConfig()));
+        // The native check rejects the missing token; the left-over isValid() would have accepted it.
+        $violations = $captcha->runValidation(self::getRequest(), $this->getCaptchaConfig());
+
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION, $violation->getCode());
     }
 
     /**
@@ -364,11 +370,11 @@ class GoogleReCaptchaV3Test extends TestCase
             }
         };
 
-        static::assertCount(1, $captcha->validate(
+        static::assertCount(1, $captcha->runValidation(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         ));
-        static::assertCount(0, $captcha->validate(
+        static::assertCount(0, $captcha->runValidation(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'extra' => 'ok']),
             $this->getCaptchaConfig()
         ));
@@ -392,7 +398,7 @@ class GoogleReCaptchaV3Test extends TestCase
             }
         };
 
-        static::assertCount(0, $captcha->validate(
+        static::assertCount(0, $captcha->runValidation(
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         ));
@@ -417,7 +423,7 @@ class GoogleReCaptchaV3Test extends TestCase
             $captcha::class
         )));
 
-        $captcha->validate(self::getRequest(), $this->getCaptchaConfig());
+        $captcha->runValidation(self::getRequest(), $this->getCaptchaConfig());
     }
 
     /**

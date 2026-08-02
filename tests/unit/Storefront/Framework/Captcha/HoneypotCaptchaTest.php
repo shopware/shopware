@@ -80,8 +80,8 @@ class HoneypotCaptchaTest extends TestCase
         };
 
         // The honeypot is empty, so the native check would let this through.
-        static::assertCount(1, $captcha->validate(new Request(request: ['custom-check' => 'fail']), []));
-        static::assertCount(0, $captcha->validate(new Request(request: ['custom-check' => 'pass']), []));
+        static::assertCount(1, $captcha->runValidation(new Request(request: ['custom-check' => 'fail']), []));
+        static::assertCount(0, $captcha->runValidation(new Request(request: ['custom-check' => 'pass']), []));
     }
 
     /**
@@ -100,7 +100,7 @@ class HoneypotCaptchaTest extends TestCase
             }
         };
 
-        $violations = $captcha->validate(
+        $violations = $captcha->runValidation(
             new Request(request: [HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot']),
             []
         );
@@ -132,7 +132,7 @@ class HoneypotCaptchaTest extends TestCase
             $captcha::class
         )));
 
-        $captcha->validate(new Request(), []);
+        $captcha->runValidation(new Request(), []);
     }
 
     /**

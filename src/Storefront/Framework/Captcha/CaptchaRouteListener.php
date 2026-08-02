@@ -66,7 +66,7 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
                 continue;
             }
 
-            $violations = $captcha->validate($request, $captchaConfig);
+            $violations = $captcha->runValidation($request, $captchaConfig);
             if ($violations->count() === 0) {
                 continue;
             }

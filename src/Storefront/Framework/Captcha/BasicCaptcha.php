@@ -48,10 +48,6 @@ class BasicCaptcha extends AbstractCaptcha
 
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        if ($this->hasDeprecatedOverride(self::class)) {
-            return $this->validateWithDeprecatedMethods($request, $captchaConfig);
-        }
-
         if ($this->checkCaptcha($request)) {
             return new ConstraintViolationList();
         }
@@ -66,10 +62,7 @@ class BasicCaptcha extends AbstractCaptcha
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
-        // Deliberately not routed through validate(): a subclass overriding this method would otherwise
-        // be dispatched back into itself by hasDeprecatedOverride(). Note this consumes the captcha
-        // session, exactly as the pre-validate() implementation did.
-        return $this->checkCaptcha($request);
+        return $this->validate($request, $captchaConfig)->count() === 0;
     }
 
     public function shouldBreak(): bool

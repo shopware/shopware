@@ -13,11 +13,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 abstract class AbstractCaptcha
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations()
-     */
-    private bool $dispatchingDeprecatedOverride = false;
-
-    /**
      * supports returns true if this captcha needs to be valid for the request
      * to be let through. This may be determined based on the given request, but
      * also the shop's configuration or other sources.
@@ -35,6 +30,26 @@ abstract class AbstractCaptcha
         }
 
         return (bool) $captchaConfig['isActive'];
+    }
+
+    /**
+     * @internal entry point used by the {@see CaptchaRouteListener}, so a captcha that still only
+     * implements the deprecated isValid()/getViolations() keeps being consulted. Implement
+     * {@see validate()} instead of overriding this.
+     *
+     * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations(),
+     * the callers will use validate() directly. Called from inside the core, so it does not trigger a
+     * deprecation itself.
+     *
+     * @param array<string, mixed> $captchaConfig
+     */
+    final public function runValidation(Request $request, array $captchaConfig): ConstraintViolationList
+    {
+        if ($this->hasDeprecatedOverride()) {
+            return $this->validateWithDeprecatedMethods($request, $captchaConfig);
+        }
+
+        return $this->validate($request, $captchaConfig);
     }
 
     /**
@@ -108,48 +123,38 @@ abstract class AbstractCaptcha
      *
      * @param array<string, mixed> $captchaConfig
      */
-    protected function validateWithDeprecatedMethods(Request $request, array $captchaConfig): ConstraintViolationList
+    private function validateWithDeprecatedMethods(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        $this->dispatchingDeprecatedOverride = true;
-
-        try {
-            if (Feature::silent('v6.8.0.0', fn (): bool => $this->isValid($request, $captchaConfig))) {
-                return new ConstraintViolationList();
-            }
-
-            $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
-            if ($violations->count() === 0) {
-                // An empty list means valid, so a captcha without violation details still needs one.
-                $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
-            }
-
-            return $violations;
-        } finally {
-            $this->dispatchingDeprecatedOverride = false;
+        if (Feature::silent('v6.8.0.0', fn (): bool => $this->isValid($request, $captchaConfig))) {
+            return new ConstraintViolationList();
         }
+
+        $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
+        if ($violations->count() === 0) {
+            // An empty list means valid, so a captcha without violation details still needs one.
+            $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
+        }
+
+        return $violations;
     }
 
     /**
-     * Returns true when a class below $captcha still overrides one of the deprecated methods. Captchas
-     * implementing validate() natively call this first and hand over to validateWithDeprecatedMethods(),
-     * so a subclass written against the pre-validate() API keeps deciding until it is removed in 6.8.
-     * Pass self::class from the captcha whose native validate() is running.
+     * Returns true when one of the deprecated methods is overridden below the captcha that provides
+     * validate(), which means the implementation was written against the pre-validate() API and has to
+     * keep deciding until the pair is removed in 6.8.
      *
      * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be removed together with isValid()/getViolations()
      */
-    protected function hasDeprecatedOverride(string $captcha): bool
+    private function hasDeprecatedOverride(): bool
     {
-        // The overridden method called back into validate(). Run the native check instead of dispatching
-        // into it a second time, which would recurse until the process runs out of memory.
-        if ($this->dispatchingDeprecatedOverride) {
-            return false;
-        }
+        $providesValidate = (new \ReflectionMethod($this, 'validate'))->getDeclaringClass()->getName();
 
         foreach (['isValid', 'getViolations'] as $method) {
-            // Only a class *below* $captcha counts: the captcha declaring the native validate() implements
-            // isValid() itself, and inherits getViolations() from an ancestor.
+            // Only a class *below* the one providing validate() counts: a captcha implements isValid()
+            // itself and inherits getViolations() from an ancestor, and a subclass that implements
+            // validate() has migrated even if it kept the deprecated methods around.
             $declaringClass = (new \ReflectionMethod($this, $method))->getDeclaringClass()->getName();
-            if (!is_subclass_of($declaringClass, $captcha)) {
+            if (!is_subclass_of($declaringClass, $providesValidate)) {
                 continue;
             }
 

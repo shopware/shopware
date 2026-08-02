@@ -26,10 +26,6 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
 
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        if ($this->hasDeprecatedOverride(self::class)) {
-            return $this->validateWithDeprecatedMethods($request, $captchaConfig);
-        }
-
         if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return new ConstraintViolationList([$this->createViolation(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION)]);
         }
@@ -48,9 +44,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
 
-        // Deliberately not routed through validate(): a subclass overriding this method would otherwise
-        // be dispatched back into itself by hasDeprecatedOverride().
-        return (bool) $request->request->get(self::CAPTCHA_REQUEST_PARAMETER) && $this->verify($request, $captchaConfig);
+        return $this->validate($request, $captchaConfig)->count() === 0;
     }
 
     /**

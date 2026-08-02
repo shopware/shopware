@@ -62,11 +62,11 @@ class BasicCaptchaTest extends TestCase
         };
 
         // The submitted value matches the session, so the native check would let this through.
-        static::assertCount(1, $captcha->validate(
+        static::assertCount(1, $captcha->runValidation(
             new Request(request: [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value', 'custom-check' => 'fail']),
             []
         ));
-        static::assertCount(0, $captcha->validate(new Request(request: ['custom-check' => 'pass']), []));
+        static::assertCount(0, $captcha->runValidation(new Request(request: ['custom-check' => 'pass']), []));
     }
 
     /**
@@ -85,7 +85,7 @@ class BasicCaptchaTest extends TestCase
         };
 
         // No captcha value at all, so the native check rejects and the violations are consulted.
-        $violations = $captcha->validate(new Request(request: []), []);
+        $violations = $captcha->runValidation(new Request(request: []), []);
 
         static::assertCount(1, $violations);
         $violation = $violations->get(0);
@@ -114,7 +114,7 @@ class BasicCaptchaTest extends TestCase
             $captcha::class
         )));
 
-        $captcha->validate(new Request(request: []), []);
+        $captcha->runValidation(new Request(request: []), []);
     }
 
     #[TestDox('is not breaking and exposes its technical name')]

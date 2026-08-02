@@ -1989,8 +1989,8 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 Two things to check when migrating:
 
-* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your implementation stops being used once the pair is removed. Throughout 6.7 it keeps being dispatched and triggers a deprecation naming the overriding class on every check; with the 6.8 feature flag active it throws instead, so you can find these captchas before upgrading. Override `validate()` instead, and drop the overridden `isValid()`/`getViolations()` — keeping them alongside a `validate()` that calls `parent::validate()` still routes the check through the deprecated pair.
-* While you still inherit `validate()`, do not call it from your own `isValid()` or `getViolations()`: the inherited implementation dispatches back into the overridden method, so the two call each other. Put the logic in `validate()`, and where you need to keep `isValid()` let it call `parent::isValid()` rather than `validate()` (the core captchas' own checks are private).
+* If you extend one of the core captchas (`GoogleReCaptchaV2`, `GoogleReCaptchaV3`, `BasicCaptcha`, `HoneypotCaptcha`) and override only `isValid()` or `getViolations()`, your implementation stops being used once the pair is removed. Throughout 6.7 it keeps being dispatched and triggers a deprecation naming the overriding class on every check; with the 6.8 feature flag active it throws instead, so you can find these captchas before upgrading. Implementing `validate()` is what marks the captcha as migrated — a left-over `isValid()` is then ignored, so you can move the logic over in one step.
+* If your captcha implements only `isValid()`/`getViolations()` and therefore relies on the inherited `validate()`, do not call `validate()` from them: that default implementation exists to call back into them, so the two would call each other until the process runs out of memory. Move the logic into `validate()` instead.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

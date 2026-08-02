@@ -82,6 +82,9 @@ Product specific line item rule conditions (manufacturer, category, tags, proper
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
+### Homepage hreflang links restored for existing `HreflangLoaderParameter` callers
+
+`HreflangLoader` determines the homepage from the `$homepage` constructor flag of `HreflangLoaderParameter` rather than by comparing the route name. Because that flag defaults to `false`, extensions constructing the parameter with the three arguments that existed before silently stopped receiving homepage hreflang links: the generic path resolves `frontend.home.page` to `/`, the `seo_url` lookup matches nothing, and the storefront emits no hreflang tags. Neither the parameter class nor `HreflangLoaderInterface` is marked `@internal`, so plugins, themes and headless integrations may legitimately build it. `isHomepage()` now falls back to the route name while the flag is unset, restoring the previous behaviour. That fallback is deprecated and removed in 6.8 — pass `true` as the fourth constructor argument for the homepage (see `UPGRADE-6.8.md`).
 
 ### Media path cache busting is configurable
 

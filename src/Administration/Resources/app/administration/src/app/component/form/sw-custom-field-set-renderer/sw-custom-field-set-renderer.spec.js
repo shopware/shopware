@@ -1366,431 +1366,279 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
-    function expectMeteorCustomFieldTabs(expectedItems) {
-        expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual(expectedItems);
-    }
+    const twoCustomFieldSets = () =>
+        createEntityCollection([
+            {
+                id: 'set1',
+                name: 'set1',
+                config: {},
+                customFields: [
+                    {
+                        name: 'field1',
+                        type: 'text',
+                        config: {
+                            label: 'field1Label',
+                        },
+                    },
+                ],
+            },
+            {
+                id: 'set2',
+                name: 'set2',
+                config: {},
+                customFields: [
+                    {
+                        name: 'field2',
+                        type: 'text',
+                        config: {
+                            label: 'field2Label',
+                        },
+                    },
+                ],
+            },
+        ]);
 
-    function expectLegacyCustomFieldTabs(expectedItems, assertLegacyLabels = false) {
+    const propsWithInactiveSetSelection = () => ({
+        entity: {
+            customFields: {
+                field1: null,
+            },
+            customFieldSetSelectionActive: true,
+            customFieldSets: createEntityCollection([{ id: 'set2' }]),
+            getEntityName: () => {
+                return 'product';
+            },
+        },
+        sets: twoCustomFieldSets(),
+        showCustomFieldSetSelection: false,
+    });
+
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')('should not filter custom field sets when selection not active', async () => {
+        wrapper = await createWrapper(propsWithInactiveSetSelection());
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+        expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not filter custom field sets when selection not active', async () => {
+        wrapper = await createWrapper(propsWithInactiveSetSelection());
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+        expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+            { label: 'set1', name: 'set1' },
+            { label: 'set2', name: 'set2' },
+        ]);
+    });
+
+    const propsWithoutCustomFieldSetsColumn = () => ({
+        entity: {
+            customFields: {
+                field1: null,
+            },
+            customFieldSetSelectionActive: null,
+        },
+        sets: twoCustomFieldSets(),
+        showCustomFieldSetSelection: true,
+    });
+
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')(
+        'should not filter custom field sets when entity has no customFieldSets column',
+        async () => {
+            wrapper = await createWrapper(propsWithoutCustomFieldSetsColumn());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+        },
+    );
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should not filter custom field sets when entity has no customFieldSets column',
+        async () => {
+            wrapper = await createWrapper(propsWithoutCustomFieldSetsColumn());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+                { label: 'set1', name: 'set1' },
+                { label: 'set2', name: 'set2' },
+            ]);
+        },
+    );
+
+    const propsWithSetLabel = (label) => ({
+        entity: {
+            customFields: {
+                field1: null,
+            },
+            customFieldSetSelectionActive: null,
+        },
+        sets: createEntityCollection([
+            {
+                id: 'set1',
+                name: 'set1',
+                config: {
+                    label: {
+                        'en-GB': label,
+                    },
+                },
+                customFields: [
+                    {
+                        name: 'field1',
+                        type: 'text',
+                        config: {
+                            label: 'field1Label',
+                        },
+                    },
+                ],
+            },
+        ]),
+        showCustomFieldSetSelection: true,
+    });
+
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    it.deprecated('v6.8.0.0')('should render the correct tab label given from the config', async () => {
+        wrapper = await createWrapper(propsWithSetLabel('Set 1 Label'));
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
+
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(expectedItems.length);
+        expect(tabs).toHaveLength(1);
+        expect(tabs.map((tab) => tab.text())).toEqual(['Set 1 Label']);
+    });
 
-        if (assertLegacyLabels) {
-            expect(tabs.map((tab) => tab.text())).toEqual(expectedItems.map(({ label }) => label));
-        }
-    }
-
-    function expectLegacyCustomFieldTabLabels(expectedItems) {
-        expectLegacyCustomFieldTabs(expectedItems, true);
-    }
-
-    const shouldNotFilterCustomFieldSetsWhenSelectionIsInactive = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSetSelectionActive: true,
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                getEntityName: () => {
-                    return 'product';
-                },
-            },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: 'set2',
-                    name: 'set2',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field2',
-                            type: 'text',
-                            config: {
-                                label: 'field2Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: false,
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectTabs([
-            { label: 'set1', name: 'set1' },
-            { label: 'set2', name: 'set2' },
-        ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
-    it.deprecated('v6.8.0.0')(
-        'should not filter custom field sets when selection not active',
-        () => shouldNotFilterCustomFieldSetsWhenSelectionIsInactive(expectLegacyCustomFieldTabs),
-    );
-
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should not filter custom field sets when selection not active',
-        () => shouldNotFilterCustomFieldSetsWhenSelectionIsInactive(expectMeteorCustomFieldTabs),
-    );
-
-    const shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSetSelectionActive: null,
-            },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: 'set2',
-                    name: 'set2',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field2',
-                            type: 'text',
-                            config: {
-                                label: 'field2Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectTabs([
-            { label: 'set1', name: 'set1' },
-            { label: 'set2', name: 'set2' },
-        ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
-    it.deprecated('v6.8.0.0')(
-        'should not filter custom field sets when entity has no customFieldSets column',
-        () => shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn(expectLegacyCustomFieldTabs),
-    );
-
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should not filter custom field sets when entity has no customFieldSets column',
-        () => shouldNotFilterCustomFieldSetsWithoutCustomFieldSetsColumn(expectMeteorCustomFieldTabs),
-    );
-
-    const shouldRenderConfiguredTabLabel = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSetSelectionActive: null,
-            },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {
-                        label: {
-                            'en-GB': 'Set 1 Label',
-                        },
-                    },
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the correct tab label given from the config', async () => {
+        wrapper = await createWrapper(propsWithSetLabel('Set 1 Label'));
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expectTabs([{ label: 'Set 1 Label', name: 'set1' }]);
-    };
+        expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+            { label: 'Set 1 Label', name: 'set1' },
+        ]);
+    });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
-    it.deprecated('v6.8.0.0')(
-        'should render the correct tab label given from the config',
-        () => shouldRenderConfiguredTabLabel(expectLegacyCustomFieldTabLabels),
-    );
-
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should render the correct tab label given from the config',
-        () => shouldRenderConfiguredTabLabel(expectMeteorCustomFieldTabs),
-    );
-
-    const shouldRenderFallbackTabLabel = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSetSelectionActive: null,
-            },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {
-                        label: {
-                            'en-GB': null,
-                        },
-                    },
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
+    it.deprecated('v6.8.0.0')('should render the fallback tab label when no label exists in the config', async () => {
+        wrapper = await createWrapper(propsWithSetLabel(null));
 
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-        expectTabs([{ label: 'set1', name: 'set1' }]);
-    };
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
-    it.deprecated('v6.8.0.0')(
-        'should render the fallback tab label when no label exists in the config',
-        () => shouldRenderFallbackTabLabel(expectLegacyCustomFieldTabLabels),
-    );
+        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+        expect(tabs).toHaveLength(1);
+        expect(tabs.map((tab) => tab.text())).toEqual(['set1']);
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should render the fallback tab label when no label exists in the config',
-        () => shouldRenderFallbackTabLabel(expectMeteorCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithSetLabel(null));
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+                { label: 'set1', name: 'set1' },
+            ]);
+        },
     );
 
-    const shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
+    const propsWithoutSelectionActiveColumn = () => ({
+        entity: {
+            customFields: {
+                field1: null,
             },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: 'set2',
-                    name: 'set2',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field2',
-                            type: 'text',
-                            config: {
-                                label: 'field2Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectTabs([
-            { label: 'set1', name: 'set1' },
-            { label: 'set2', name: 'set2' },
-        ]);
-    };
+            customFieldSets: createEntityCollection([{ id: 'set2' }]),
+        },
+        sets: twoCustomFieldSets(),
+        showCustomFieldSetSelection: true,
+    });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
-        () => shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn(expectLegacyCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithoutSelectionActiveColumn());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+        },
     );
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
-        () => shouldNotFilterCustomFieldSetsWithoutSelectionActiveColumn(expectMeteorCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithoutSelectionActiveColumn());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+                { label: 'set1', name: 'set1' },
+                { label: 'set2', name: 'set2' },
+            ]);
+        },
     );
 
-    const shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null,
+    const propsWithoutParentAndSelectionActive = () => ({
+        entity: {
+            customFields: {
+                field1: null,
             },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: 'set2',
-                    name: 'set2',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field2',
-                            type: 'text',
-                            config: {
-                                label: 'field2Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectTabs([
-            { label: 'set1', name: 'set1' },
-            { label: 'set2', name: 'set2' },
-        ]);
-    };
+            customFieldSets: createEntityCollection([{ id: 'set2' }]),
+            customFieldSetSelectionActive: null,
+        },
+        sets: twoCustomFieldSets(),
+        showCustomFieldSetSelection: true,
+    });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
-        () => shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive(expectLegacyCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithoutParentAndSelectionActive());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+        },
     );
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
-        () => shouldNotFilterCustomFieldSetsWithoutParentOrSelectionActive(expectMeteorCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithoutParentAndSelectionActive());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+                { label: 'set1', name: 'set1' },
+                { label: 'set2', name: 'set2' },
+            ]);
+        },
     );
 
-    const shouldNotFilterCustomFieldSetsWhenParentHasNoSelection = async (expectTabs) => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null,
-                },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null,
-            },
-            sets: createEntityCollection([
-                {
-                    id: 'set1',
-                    name: 'set1',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field1',
-                            type: 'text',
-                            config: {
-                                label: 'field1Label',
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: 'set2',
-                    name: 'set2',
-                    config: {},
-                    customFields: [
-                        {
-                            name: 'field2',
-                            type: 'text',
-                            config: {
-                                label: 'field2Label',
-                            },
-                        },
-                    ],
-                },
-            ]),
-            parentEntity: {
-                id: 'parentId',
-            },
-            showCustomFieldSetSelection: true,
-        };
-
-        wrapper = await createWrapper(props);
-
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        expectTabs([
-            { label: 'set1', name: 'set1' },
-            { label: 'set2', name: 'set2' },
-        ]);
-    };
+    const propsWithParentWithoutSelection = () => ({
+        ...propsWithoutParentAndSelectionActive(),
+        parentEntity: {
+            id: 'parentId',
+        },
+    });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
-        () => shouldNotFilterCustomFieldSetsWhenParentHasNoSelection(expectLegacyCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithParentWithoutSelection());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+        },
     );
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
-        () => shouldNotFilterCustomFieldSetsWhenParentHasNoSelection(expectMeteorCustomFieldTabs),
+        async () => {
+            wrapper = await createWrapper(propsWithParentWithoutSelection());
+
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
+                { label: 'set1', name: 'set1' },
+                { label: 'set2', name: 'set2' },
+            ]);
+        },
     );
 
     it('should initialize new custom fields on entity change', async () => {

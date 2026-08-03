@@ -174,6 +174,7 @@ class QueryBuilder extends DBALQueryBuilder
      */
     private static function sanitizeSqlComment(string $comment): string
     {
+        // https://www.php.net/manual/en/regexp.reference.unicode.php
         return preg_replace('/\p{Cc}/u', ' ', $comment) ?? '';
     }
 

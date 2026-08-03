@@ -199,7 +199,12 @@ class AggregationParser
             return null;
         }
 
-        if (str_contains($name, '?') || str_contains($name, ':') || preg_match('/\p{Cc}/u', $name) === 1) {
+        if (
+            str_contains($name, '?')
+            || str_contains($name, ':')
+            // https://www.php.net/manual/en/regexp.reference.unicode.php
+            || preg_match('/\p{Cc}/u', $name) === 1
+        ) {
             $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a question mark, colon, or control character.'), '/aggregations/' . $index);
 
             return null;

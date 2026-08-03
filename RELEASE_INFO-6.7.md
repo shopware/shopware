@@ -4,6 +4,14 @@
 
 ## API
 
+### Message queue admin endpoints now require ACL privileges
+
+Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/message-queue/consume` and `POST /api/_action/scheduled-task/run` require the new `system:queue:process` privilege.
+* `GET /api/_action/scheduled-task/min-run-interval` requires the existing `scheduled_task:read` privilege.
+
+Administration users are not affected: both privileges are granted to every authenticated Administration user at runtime, because these endpoints back the admin worker that processes the message queue in every admin session. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only. External workers should keep using the `bin/console messenger:consume` and `scheduled-task:run` CLI commands, which are unaffected.
 ### SEO admin action endpoints now require ACL privileges
 
 Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -117,6 +125,9 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
+### MCP entity tools validate association read privileges
+
+The experimental MCP tools `shopware-entity-read`, `shopware-entity-search`, and `shopware-entity-aggregate` now validate the supplied criteria with the same association ACL checks as the Admin API. Loading, filtering, sorting, or aggregating over an association now requires the `<association-entity>:read` privilege in addition to the top-level `<entity>:read` privilege — for example, reading `order` with the `orderCustomer` association requires both `order:read` and `order_customer:read`. Integrations that relied on the missing check must add the association read privileges to their ACL role; requests without such criteria are unaffected.
 ### MCP tools can be enabled per session through toolsets
 
 The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
@@ -231,6 +242,10 @@ cacheService.invalidateCaches({
     cacheKey: ['custom-field-sets', 'product'],
 });
 ```
+
+### Plugins can use the global Meteor snackbar
+
+Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
 
 ## Storefront
 

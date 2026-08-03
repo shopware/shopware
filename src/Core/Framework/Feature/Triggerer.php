@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  *
- * Wrapper around the native trigger_deprecation function to make calls testable
+ * Wrapper around the native trigger_* functions to make calls testable
  */
 #[Package('framework')]
 class Triggerer

@@ -20,6 +20,7 @@ test('As a shop customer, I want to see reviews of a product.', {
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
+    SelectReviewFilterOption,
           }) => {
 
     const productWithRating1 = await TestDataService.createBasicProduct();
@@ -175,36 +176,22 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
 
     await test.step('Validate the functionality of the filters.', async () => {
 
-        const btn_loader = StorefrontProductDetail.page.locator('.element-loader-backdrop').locator('.loader');
-
         const reviewFilterAcceptable = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Acceptable');
-        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
-        await ShopCustomer.presses(reviewFilterAcceptable.reviewFilterOptionCheckbox);
-        await ShopCustomer.expects(btn_loader).toBeVisible();
-        await btn_loader.waitFor({ state: 'hidden' });
-        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
+        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
+        await ShopCustomer.attemptsTo(SelectProductReviewOption('Acceptable'));
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
         
-        await ShopCustomer.presses(reviewFilterAcceptable.reviewFilterOptionCheckbox);
-        await ShopCustomer.expects(btn_loader).toBeVisible();
-        await btn_loader.waitFor({ state: 'hidden' });
-        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeVisible();
+        await ShopCustomer.attemptsTo(SelectProductReviewOption('Acceptable'));
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
 
         const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
-        await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
-        await ShopCustomer.presses(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox);
-        await ShopCustomer.expects(btn_loader).toBeVisible();
-        await btn_loader.waitFor({ state: 'hidden' });
-        await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
+        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
+        await ShopCustomer.attemptsTo(SelectProductReviewOption('Unsatisfactory'));
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
         
-        await ShopCustomer.presses(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox);
-        await ShopCustomer.expects(btn_loader).toBeVisible();
-        await btn_loader.waitFor({ state: 'hidden' });
-        await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeVisible();
+        await ShopCustomer.attemptsTo(SelectProductReviewOption('Unsatisfactory'));
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).not.toBeChecked();
 
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);

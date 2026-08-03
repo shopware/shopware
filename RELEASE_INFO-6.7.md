@@ -4,7 +4,59 @@
 
 ## API
 
+### SEO admin action endpoints now require ACL privileges
+
+Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `PATCH /api/_action/seo-url/canonical` requires `seo_url:update`.
+* `POST /api/_action/seo-url/create-custom-url` requires `seo_url:create`.
+* `POST /api/_action/seo-url-template/context` and `GET /api/_action/seo-url-template/default/{routeName}` require `seo_url_template:read`.
+
+Administration users are not affected: `seo_url:update` is now part of the "Products editor", "Categories editor", and "Landing pages editor" permissions in the role editor — these are the roles whose users write canonical URLs when saving — and a migration grants it to existing roles that already hold one of those permissions. The template privileges are already part of the system configuration permission that the SEO settings page requires. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+
+### Increment and queue-stats admin endpoints now require ACL privileges
+
+Seven admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST|GET /api/_action/increment/{pool}`, `POST /api/_action/decrement/{pool}`, `POST /api/_action/reset-increment/{pool}`, and `DELETE /api/_action/delete-increment/{pool}` require the new `increment:manage` privilege.
+* `GET /api/_info/queue.json` and `GET /api/_info/message-stats.json` require the existing `message_queue_stats:read` privilege.
+
+Administration users are not affected: `increment:manage` is granted to every authenticated Administration user at runtime (the endpoints back module-usage tracking, which runs in every admin session), and `message_queue_stats:read` already is such a default privilege. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only.
+
+### Media action routes now enforce ACL privileges
+
+The Admin API media action routes now enforce their corresponding ACL privileges. Clients must have `media:create` to upload new media, upload from a URL, or create an external media link; `media:update` to upload content to existing media or rename media; `media_thumbnail:create` or `media_thumbnail:delete` to add or remove external thumbnails; and `media:read` to use the media filename lookup route.
+
+The V2 upload and upload-from-URL routes already required `media:create` through their media repository write, and the filename lookup route already required `media:read` through its repository query. The external-link, legacy upload and rename, and external-thumbnail add and delete routes now enforce permissions that their system-scoped DAL writes did not previously require. Integrations and users that call those routes must update their ACL role.
+
+### Template rendering endpoints require update privileges
+
+The `POST /api/_action/product-export/preview` and `POST /api/_action/product-export/validate` endpoints now require the `product_export:update` ACL privilege. The `POST /api/_action/mail-template/simulate` endpoint now requires `mail_template:update`. Admin API integrations and users that use these endpoints must be granted the respective existing privilege.
+
+### Admin action endpoints now require ACL privileges
+
+Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/sso/invite-user` requires the existing `user:create` privilege.
+* `POST /api/app-system/shop-id/change` requires the new `system:app:change` privilege.
+* `POST /api/_action/trigger-event/{eventName}` requires the new `flow:dispatch` privilege.
+* `POST /api/_action/extension-sdk/run-action` requires `app.all` or the app-specific `app.{appName}` privilege.
+
+The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
+
 ## Core
+
+### Media path cache busting is configurable
+
+The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
+
+### `product-export:generate --force` now regenerates scheduler-managed exports
+
+`--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
 ### Built-in translation system configurable via `shopware.translation`
 
@@ -31,6 +83,16 @@ shopware:
 
 List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
+### Product export body media URLs are RFC 3986 encoded
+
+Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
+
+Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
+### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
+
+Migration DDL now retries once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4 rejects a statement through MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151). The `MigrationStep` DDL helpers do this automatically; raw DDL statements in extension migrations should go through `MigrationStep::executeDdlStatement()`. The method is `@internal` only because it will be removed once MySQL fixes the bug; it is safe to call in the meantime.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
@@ -43,6 +105,7 @@ Most extensions are not affected: OpenAPI annotations and attributes continue to
 Extensions or development tools that call swagger-php programmatically should check for removed v4/v5 APIs such as `OpenApi\Generator::scan()` and `OpenApi\Util::finder()`.
 The migration is usually straightforward because the instance API `OpenApi\Generator::generate()` is available in swagger-php 4, 5, and 6.
 See `UPGRADE-6.7.md` for concrete examples.
+
 ### Locale-aware sorting for product property group options
 
 `Shopware\Core\Content\Product\AbstractPropertyGroupSorter::sort()` is deprecated and will be removed with Shopware 6.8. Use the new `sortUsingLocaleCode()` method instead, which sorts property group options using locale-aware (ICU) collation.
@@ -50,6 +113,32 @@ See `UPGRADE-6.7.md` for concrete examples.
 ### MCP server no longer requires the `MCP_SERVER` feature flag
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
+
+### MCP tools can be enabled per session through toolsets
+
+The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
+
+Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
+
+### MCP clients are notified when app capabilities change
+
+The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
+
+### MCP tools can be discovered on demand
+
+A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
+
+The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
+
+### MCP list responses apply allowlists before pagination
+
+MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
+
+### MCP tools expose a group for operator-facing selection
+
+MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
+
+Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 
 ### New BC-change attributes for planned API changes
 
@@ -68,13 +157,162 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### Whole-phrase product-search matches rank higher
+
+Elasticsearch product search now adds an explicit phrase-proximity boost for multi-word searches, weighted above single-word matches. A product whose field contains the full search phrase in order now ranks above one that only contains the individual words scattered around. The same documents still match — this only re-ranks — but `_score` values and borderline orderings shift, which can affect a configured `core.search.minScore`. The per-match-type boosts are configurable via `elasticsearch.search.boost.*`.
+
+### Product export pagination changed to keyset; `getTotal()` deprecated
+
+The product export now paginates products by an `autoIncrement` keyset cursor instead of `LIMIT`/`OFFSET`, removing the `getTotalCount()` timeout on large catalogs.
+
+- `ProductExportResult::getTotal()` and its `$total` constructor argument are deprecated; the export no longer computes a grand total. Use `hasNextBatch()` and `getOffset()` instead.
+- The read buffer size is now configurable via `shopware.product_export.read_buffer_size` (default 200). Raise it to reduce per-batch overhead, lower it if a batch hits the worker memory limit.
+
+### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
+
+`SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
+
 ## Administration
 
+### Administration caches shared user configuration and lookup data
+
+Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
+
+Current-user configuration is cached per current user through `userConfigService`. Read individual keys from the shared cached `_info/config-me` response and write changes through the same service:
+
+```js
+const userConfigService = Shopware.Service('userConfigService');
+
+const response = await userConfigService.search(['my-plugin.config-key']);
+const value = response?.data?.['my-plugin.config-key'];
+
+await userConfigService.upsert({
+    'my-plugin.config-key': nextValue,
+});
+```
+
+Shared entity reads can be cached directly on repository reads by passing a stable `cacheKey`:
+
+```js
+const criteria = new Shopware.Data.Criteria(1, 500);
+criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC', false));
+
+const currencies = await Shopware.Service('repositoryFactory')
+    .create('currency')
+    .search(criteria, Shopware.Context.api, {
+        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+        ttl: 5 * 60 * 1000,
+    });
+```
+
+If your plugin changes cached data and needs a fresh follow-up read, either invalidate the affected cache key prefix or force the next read to reload:
+
+```js
+const cacheService = Shopware.Service('cacheService');
+const taxRepository = Shopware.Service('repositoryFactory').create('tax');
+
+cacheService.invalidateCaches({
+    // Invalidate only the cached tax entries.
+    cacheKey: ['shared-data', 'taxes'],
+});
+
+const freshTaxes = await taxRepository.search(criteria, Shopware.Context.api, {
+    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
+    // true bypasses the cached result for this read and stores the fresh response again.
+    forceReload: true,
+    ttl: 5 * 60 * 1000,
+});
+
+cacheService.invalidateCaches({
+    // Custom field sets can be invalidated independently from taxes.
+    cacheKey: ['custom-field-sets', 'product'],
+});
+```
+
 ## Storefront
+
+### `theme:create` gains `--full` and granular scaffold flags
+
+`bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
+
+### `PluginManager.override()` now works for async plugins
+
+Overriding a lazily loaded core storefront plugin no longer silently falls back to the core class. Three defects caused the override to be registered but never applied:
+
+* A core plugin class that finished loading after the override was registered overwrote the override in the registry.
+* An element kept the plugin instance it was first initialized with, even after the registered class had changed.
+* Re-registering an async plugin with a plain (non-lazy) class left it flagged as async, so it was never initialized at all.
+
+Overriding a plugin that is already initialized on the page now replaces its live instances instead of doing nothing. This replacement happens whenever the class registered under a plugin name differs from the class an existing instance was built with, so it is not limited to `PluginManager.override()` and it can happen during any later initialization pass, for example the one that runs after AJAX-loaded content.
+
+Before an outdated instance is replaced, the PluginManager calls its `destroy()` method and resets its `$emitter`.
+
+**Be aware of the current limitation:** the instance being replaced is the previously registered class, which is usually a core plugin, and most core plugins do not implement `destroy()` yet. Anything such an instance registered outside of itself — most importantly listeners added with `addEventListener` — therefore stays active, and both the replaced and the new instance react to the same event. The PluginManager logs a `console.warn` naming every plugin that is replaced without implementing `destroy()`. Registering your override before the storefront initializes its plugins, which is what a theme entry file does by default, avoids the replacement entirely and is the recommended way to override a plugin.
+
+`PluginBaseClass` now declares a `destroy()` method. Implement it in your own plugins to clean up anything `init()` registered outside the instance:
+
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    init() {
+        this._onClick = this._onClick.bind(this);
+        this.el.addEventListener('click', this._onClick);
+    }
+
+    destroy() {
+        this.el.removeEventListener('click', this._onClick);
+    }
+}
+```
+
+Note that `PluginManager.override()` still requires the exact selector the plugin was registered with. Overriding `FormCmsHandler` for example only takes effect with the selector `.cms-element-form form`.
+
+### `PluginManager.extend()` can extend plugins under a new name again
+
+`PluginManager.extend(fromName, newName, ...)` threw a `TypeError` for every plugin, because it assigned to the non-writable `prototype` property of the generated class. Extending a lazily loaded plugin additionally failed because the unloaded plugin cannot be used as a base class. Both cases now work; for a lazily loaded parent, the extended class is built once the parent has been loaded.
+
+### Storefront extension bundles use their own webpack chunk loading global
+
+Every storefront extension build inherits the core storefront webpack context and therefore used the default `webpackChunk` chunk loading global, the same one the core storefront and all other extensions use. Sharing that global lets one build's webpack runtime process another build's chunks, so a dynamic `import()` can resolve to a module from a different bundle when chunk ids collide.
+
+Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
 
 ## App System
 
 ## Hosting & Configuration
+
+### Optional `Clear-Site-Data` header on customer logout
+
+On customer logout the storefront can send a [`Clear-Site-Data`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data) header, so the browser drops data left over from the session. Disabled by default:
+
+```yaml
+# config/packages/storefront.yaml
+storefront:
+    security:
+        clear_site_data_on_logout: ['storage']
+```
+
+Allowed directives are `cache`, `cookies` and `storage`; anything else is rejected at container build time. Choose them deliberately, as the header applies to the whole origin and not just to the storefront:
+
+* `cookies` covers the registrable domain (eTLD+1), so on a shared domain it also logs the merchant out of the Administration and resets the cookie consent.
+* `storage` clears `localStorage`, `sessionStorage`, IndexedDB and service workers, which breaks a PWA on the same origin.
+* `cache` makes the browser download all assets again after every logout.
+
+The header requires a trustworthy origin (HTTPS or `http://localhost`) and is ignored by Safari on the logout redirect.
+
+### Fallback thumbnail sizes for remote thumbnails
+
+When remote thumbnails are enabled, operators can optionally configure `shopware.media.remote_thumbnails.fallback_sizes`. It defaults to `[]` and accepts entries with `width` and `height`:
+
+```yaml
+# config/packages/shopware.yaml
+shopware:
+    media:
+        remote_thumbnails:
+            fallback_sizes:
+                - { width: 400, height: 400 }
+```
+
+Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
 
 # 6.7.13.0
 
@@ -86,27 +324,6 @@ Store API requests now remain stateless unless application or extension code exp
 
 ## Core
 
-### MCP tools can be enabled per session through toolsets
-
-The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
-
-Tool execution is still bounded by the configured MCP allowlist. Enabling a toolset only changes which allowlisted tools are advertised for that session.
-### MCP clients are notified when app capabilities change
-
-The experimental MCP server now queues `notifications/*/list_changed` messages for active sessions when an app's MCP tools, resources, or prompts change (install, update, activation, deactivation, deletion), so clients can refresh their discovered capabilities.
-### MCP tools can be discovered on demand
-
-A fresh MCP session advertises only the three server-owned discovery meta-tools in `tools/list`: `shopware-tool-search`, `shopware-toolsets-list`, and `shopware-toolset-enable`. Every other tool is deferred and reachable in two ways: `shopware-tool-search` returns relevant tool definitions inline for a free-text query, and `shopware-toolset-enable` enables a whole toolset for the session (see the toolset section above). Tool visibility is derived solely from the tool's group — the `discovery` group is the always-advertised surface — so a tool opts into the default surface via `#[McpToolGroup('discovery')]`, not a per-tool flag.
-
-The per-integration MCP allowlist remains the call-time security boundary. `shopware-tool-search` only returns tools that are already allowed for the current integration, and tools outside the allowlist remain uncallable.
-### MCP list responses apply allowlists before pagination
-
-MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the current integration allowlist before protocol pagination is calculated. Clients using `nextCursor` receive full pages of allowed capabilities instead of pages that may be partially or completely empty because hidden capabilities were filtered after paging.
-### MCP tools expose a group for operator-facing selection
-
-MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
-
-Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
 The `product.description_teaser.indexer` that fills `descriptionTeaser` for products predating the column (introduced in 6.7.12) is now a one-time post-update indexer: it runs once through the post-update flow after the update and is no longer executed by `bin/console dal:refresh:index`. It rebuilds each teaser from the current description and rewrites only the rows whose stored value is missing or out of date. Ongoing changes continue to be kept in sync synchronously on write by the product description-teaser subscriber.
@@ -138,6 +355,7 @@ The translation update orchestration was extracted into the new internal service
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)
+
 ### Standard integrations now honor `sw-app-user-id`
 
 Admin API requests authenticated with a standard integration access key now support the `sw-app-user-id` header the same way app integrations already do. When the header contains a valid user id, the resolved permissions are restricted to the intersection of the integration ACL privileges and the user's ACL privileges. Invalid or empty `sw-app-user-id` values continue to be ignored.
@@ -162,10 +380,6 @@ Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` ins
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
-
-### Whole-phrase product-search matches rank higher
-
-Elasticsearch product search now adds an explicit phrase-proximity boost for multi-word searches, weighted above single-word matches. A product whose field contains the full search phrase in order now ranks above one that only contains the individual words scattered around. The same documents still match — this only re-ranks — but `_score` values and borderline orderings shift, which can affect a configured `core.search.minScore`. The per-match-type boosts are configurable via `elasticsearch.search.boost.*`.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 
@@ -411,6 +625,7 @@ Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and wi
 Unlike `addFields()`, which is an allowlist that returns `PartialEntity` instances and drops everything not listed, `excludeFields()` returns the regular entity type (e.g. `ProductEntity`) with the excluded properties left at their default value. Typed getters, `instanceof` checks and `*.loaded` subscribers therefore keep working. It cannot be combined with `addFields()` on the same criteria, and required or write-protected top-level fields cannot be excluded — attempting to exclude one (e.g. `stock`) or an unknown field throws a `DataAbstractionLayerException`.
 
 Product listings now use this instead of the previous field allowlist: when reduced listing loading (`core.listing.partialDataLoading`) is enabled, listings load full product entities minus `description`, `keywords` and `customSearchKeywords`, so `customFields`, associations and other data remain available. As a result the `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PARTIAL_LISTING_FIELDS` constant is deprecated and will be removed in `v6.8.0.0`.
+
 ### Mail template simulation supports form data
 
 Mail template simulation now provides sample data for the `contactFormData`, `reviewFormData` and `revocationRequestFormData` variables, so simulating these form templates no longer fails.
@@ -579,63 +794,10 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 
 ## Administration
 
-### Administration caches shared user configuration and lookup data
-
-Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
-
-Current-user configuration is cached per current user through `userConfigService`. Read individual keys from the shared cached `_info/config-me` response and write changes through the same service:
-
-```js
-const userConfigService = Shopware.Service('userConfigService');
-
-const response = await userConfigService.search(['my-plugin.config-key']);
-const value = response?.data?.['my-plugin.config-key'];
-
-await userConfigService.upsert({
-    'my-plugin.config-key': nextValue,
-});
-```
-
-Shared entity reads can be cached directly on repository reads by passing a stable `cacheKey`:
-
-```js
-const criteria = new Shopware.Data.Criteria(1, 500);
-criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC', false));
-
-const currencies = await Shopware.Service('repositoryFactory')
-    .create('currency')
-    .search(criteria, Shopware.Context.api, {
-        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
-        ttl: 5 * 60 * 1000,
-    });
-```
-
-If your plugin changes cached data and needs a fresh follow-up read, either invalidate the affected cache key prefix or force the next read to reload:
-
-```js
-const cacheService = Shopware.Service('cacheService');
-const taxRepository = Shopware.Service('repositoryFactory').create('tax');
-
-cacheService.invalidateCaches({
-    // Invalidate only the cached tax entries.
-    cacheKey: ['shared-data', 'taxes'],
-});
-
-const freshTaxes = await taxRepository.search(criteria, Shopware.Context.api, {
-    cacheKey: ['shared-data', 'taxes', Shopware.Context.api.languageId ?? 'default'],
-    // true bypasses the cached result for this read and stores the fresh response again.
-    forceReload: true,
-    ttl: 5 * 60 * 1000,
-});
-
-cacheService.invalidateCaches({
-    // Custom field sets can be invalidated independently from taxes.
-    cacheKey: ['custom-field-sets', 'product'],
-});
-```
 ### Reworked search behaviour options
 
 The "Search behaviour" card in `Settings > Search` presents the search mode as "Broad search (OR)" and "Exact search (AND)" with short one-line descriptions, replacing the previous "OR"/"AND" labels with example texts. The broad option is now listed first; the stored configuration (`product_search_config.andLogic`) and the template blocks are unchanged. Extensions that override the mode selection (e.g. Advanced Search) can swap the offered options based on their own configuration.
+
 ### Digital product upload validation uses backend private media metadata
 
 Administration upload validation for digital products now derives private upload MIME metadata from the effective backend private extension allowlist. Extensions added through `shopware.filesystem.private_allowed_extensions` or `MediaFileExtensionWhitelistEvent` are reflected in `/api/_info/config` and in the digital-product upload UI.
@@ -1009,6 +1171,7 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 The new `parent.name` search field allows variants to be found through their parent product name and ranked independently from the variant's own `name`.
 
 The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
+
 ### Reduced product data in listings via description teaser
 
 Product listings can now load a shortened, HTML-free excerpt of the product description instead of the full text, which significantly reduces database load, transfer size and memory usage for catalogs with large descriptions. Previously the complete description was loaded for every product box even though the storefront only displays a few clamped lines.
@@ -1561,6 +1724,12 @@ To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and a
 
 ## API
 
+### Store API breadcrumbs include non-navigable folder categories
+
+`GET /store-api/breadcrumb/{id}` now includes folder categories in the returned hierarchy. Folder entries use `type: "folder"`, an empty `path`, and no SEO URLs.
+
+Headless storefronts and integrations must not assume every breadcrumb item is navigable; render folder entries as labels.
+
 ### SEO URL paths reject characters that are not URL-allowed on write
 
 Writes to `seo_url.seoPathInfo` now reject strings containing sequences that are not allowed in URLs: a stray `%` that does not form a valid percent-escape (`%XX`), the fragment marker `#`, backslashes, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
@@ -1623,10 +1792,12 @@ If your integration or plugin assumes a 32-character `display_group`, compares a
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
+
 ### Deprecation of `permisionsLocked` property of `SalesChannelContext`
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+
 ### Elasticsearch: Extracted field query builders from TokenQueryBuilder
 
 The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
@@ -1683,8 +1854,11 @@ The codemod converts Options API to Composition API (`data` → `ref`, `computed
 Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
 
 See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
+
 ### [Internal] Twig to Native Block Runtime Adapter
+
 A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
+
 ### Fixed mixin-based route guards for lazy-loaded administration routes
 
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
@@ -2087,13 +2261,13 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
-
 ### Avoid excessive use of @extend in Storefront SCSS
 
 We have refactored the SCSS of the checkout related routes (cart, confirm, finish, register) to use `@include` mixins instead of `@extend` to apply the Bootstrap grid layout.
 Using `@extend` on generic tooling classes was causing very large combined selectors. We are now using the grid mixins that are documented by Bootstrap.
 
 #### Before
+
 ```scss
 .checkout-main {
     @extend .col-lg-8;
@@ -2101,6 +2275,7 @@ Using `@extend` on generic tooling classes was causing very large combined selec
 ```
 
 #### After
+
 ```scss
 .checkout-main {
     @include make-col-ready();
@@ -2165,16 +2340,19 @@ The repair runs automatically once per installation and is marked as completed i
 ## Critical Fixes
 
 ### Double signature verification in app-reregistration flow
+
 Introduces a secure, asynchronous app secret rotation feature to the app system, including both API and CLI interfaces.
 Added a new API endpoint and command for rotating app secrets, implemented the underlying rotation logic, and adjusted the app registration process to support secret updates and dual signature confirmation.
 This increases security by enforcing a two-step verification process during app re-registration, ensuring that only authorized parties can update app secrets.
 
 ### LoginRoute and AccountService don't throw CustomerNotFoundException
+
 The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
 Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
 This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
 
 ### Improve OrderRoute deepLinkCode filter type validation
+
 Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
 
 # 6.7.8.0
@@ -2182,6 +2360,7 @@ Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::loa
 ## Features
 
 ### New internal comment for state machine state history entries
+
 A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
@@ -2551,6 +2730,7 @@ The following routes now support cache tagging, enabling automatic invalidation 
 ## Core
 
 ### Rework of DAL query generation for nested filters groups
+
 The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
 
 Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
@@ -2707,6 +2887,7 @@ The loading spinner shown while the admin is booting up no longer spins indefini
 The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
 
 The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
+
 ### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
@@ -2723,11 +2904,13 @@ The following changes are relevant when HTTP caching policies feature is enabled
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 
 ### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+
 Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
 The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
 A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
 
 ### Better handling of JS plugin initialization for async content
+
 When content was loaded asyncronously within offcanvas elements or modals, all JS plugins of the page were initialized again, causing that update methods of all plugins to be called. We added a new method `initializePluginsInParentElement()` to the plugin manager to enable plugin initialization scoped to a parent element. This creates the possibility to initlize plugins only within newly added or async fetched content. The correposnding calls were updated in the following plugins:
 
 *  `ajax-offcanvas.plugin.js`
@@ -2782,17 +2965,20 @@ Additionally, the cache will be passed as soon as there is a flash message that 
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 
 ### Send email on customer password change
+
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
 
 ## API
 
 ### Video cover management `/api/_action/media/{mediaId}/video-cover`
+
 Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
 Accepts `coverMediaId` (string or null) in request body.
 Cover image reference is stored in `metaData.video.coverMediaId`.
 When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
 
 ### StoreAPI HTTP caching support
+
 HTTP caching support was added for the following Store API endpoints:
 - `/store-api/breadcrumb/{id}`
 - `/store-api/category`
@@ -2821,12 +3007,14 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
+
 Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
 sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
+
 The endpoint now selects the document file type based on the `Accept` header.
 When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
 
@@ -2903,7 +3091,9 @@ If you have using the rule `LineItemProductStatesRule`, product stream filters, 
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
 ## Administration
+
 When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
 ### Axios upgrade with dual-client dispatcher
 
 The Administration now supports axios 1.x alongside the existing axios 0.30.2 to address security vulnerability CVE-2023-45857. A dual-client dispatcher pattern has been implemented that allows both versions to coexist, enabling a gradual migration path for plugins and custom code.
@@ -3171,8 +3361,8 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
 
-
 ### Added specific `add-product-by-number` template
+
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
 
 Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,

@@ -30,11 +30,11 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
                 '\'physical\''
             );
 
-            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
         if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
-            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
         $batchSize = 5000;

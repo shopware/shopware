@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
@@ -221,6 +222,24 @@ class ParameterDefaultValueChangeCases
 
     #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'scopes', newDefaultValue: ['system', 'crud'])]
     public function defaultChangesToArray(array $scopes = ['system']): void
+    {
+    }
+}
+
+class ParameterRemovalCases
+{
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'required')]
+    public function requiredParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
+    public function optionalParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]
+    public function leadingDollar(string $required, ?string $optional = null): void
     {
     }
 }

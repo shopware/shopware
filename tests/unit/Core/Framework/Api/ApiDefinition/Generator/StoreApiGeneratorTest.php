@@ -253,6 +253,16 @@ class StoreApiGeneratorTest extends TestCase
         static::assertNotContains('requiredField', $entities['Simple']['required']);
     }
 
+    public function testUndefinedRequiredPropertiesAreRemovedFromJsonSchemas(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        $invalidRequiredSchema = $schema['components']['schemas']['SchemaWithInvalidRequiredProperty'];
+
+        static::assertSame(['existing'], $invalidRequiredSchema['required']);
+        static::assertSame(['existingNested'], $invalidRequiredSchema['properties']['nested']['required']);
+    }
+
     public function testGroupsParametersParsing(): void
     {
         $schema = $this->generator->generate(

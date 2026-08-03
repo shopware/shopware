@@ -23,7 +23,7 @@ return RectorConfig::configure()
     ])
     ->withFileExtensions(['php'])
     // TEMPORARY jobSize measurement for issue 18890, revert before merge (default is 16)
-    ->withParallel(jobSize: 64)
+    ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',
 

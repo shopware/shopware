@@ -232,6 +232,10 @@ cacheService.invalidateCaches({
 });
 ```
 
+### Plugins can use the global Meteor snackbar
+
+Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
+
 ## Storefront
 
 ### `theme:create` gains `--full` and granular scaffold flags

@@ -54,22 +54,26 @@ class DiscountCompositionBuilderTest extends TestCase
     public function testAdjustCompositionItemValuesForNegativeTargetPrice(): void
     {
         $targetPrice = new CalculatedPrice(
-            -20,
-            -20,
+            -20.0,
+            -20.0,
             new CalculatedTaxCollection(),
             new TaxRuleCollection(),
         );
-
+    
         $items = [
-            new DiscountCompositionItem('A', 1, 10),
-            new DiscountCompositionItem('B', 1, 30),
+            new DiscountCompositionItem('A', 1, 10.0),
+            new DiscountCompositionItem('B', 1, 30.0),
         ];
-
-        $adjusted = (new DiscountCompositionBuilder())->adjustCompositionItemValues($targetPrice, $items);
-
-        static::assertInstanceOf($adjusted[0], DiscountCompositionItem::class);
-        static::assertInstanceOf($adjusted[1], DiscountCompositionItem::class);
-        
+    
+        $adjusted = (new DiscountCompositionBuilder())->adjustCompositionItemValues(
+            $targetPrice,
+            $items,
+        );
+    
+        static::assertCount(2, $adjusted);
+        static::assertInstanceOf(DiscountCompositionItem::class, $adjusted[0]);
+        static::assertInstanceOf(DiscountCompositionItem::class, $adjusted[1]);
+    
         static::assertSame(5.0, $adjusted[0]->getDiscountValue());
         static::assertSame(15.0, $adjusted[1]->getDiscountValue());
     }

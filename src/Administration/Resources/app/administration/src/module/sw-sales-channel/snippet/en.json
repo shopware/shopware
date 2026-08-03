@@ -104,7 +104,7 @@
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
             "labelIsExternalStorefront": "External storefront",
-            "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront.",
+            "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",
             "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
             "foreignKeyDelete": "This sales channel cannot be deleted because it is still in use by {assignment}.",

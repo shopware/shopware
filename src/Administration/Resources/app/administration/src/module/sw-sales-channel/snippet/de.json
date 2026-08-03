@@ -104,7 +104,7 @@
             "labelInputLanguage": "Sprache",
             "labelInputSnippet": "Textbaustein-Set",
             "labelIsExternalStorefront": "Externes Storefront",
-            "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen.",
+            "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen. Pro Sprache kann nur ein externes Storefront für einen einzelnen Verkaufskanal festgelegt werden.",
             "buttonDeleteDomain": "Domain löschen",
             "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
             "foreignKeyDelete": "Dieser Verkaufskanal kann nicht gelöscht werden, da er noch von {assignment} verwendet wird.",

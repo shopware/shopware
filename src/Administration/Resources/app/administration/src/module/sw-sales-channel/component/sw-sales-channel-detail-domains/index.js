@@ -165,6 +165,18 @@ export default {
 
             return criteria;
         },
+
+        isExternalStorefrontDisabled() {
+            if (!this.currentDomain.languageId) {
+                return false;
+            }
+
+            const usedLanguageIds = this.salesChannel.domains
+                .filter((domain) => domain.id !== this.currentDomain.id && domain.isExternalStorefront)
+                .map((domain) => domain.languageId);
+
+            return usedLanguageIds.includes(this.currentDomain.languageId);
+        },
     },
 
     created() {
@@ -421,6 +433,12 @@ export default {
 
         onLanguageSelect(id) {
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
+
+            if (!this.currentDomain.isExternalStorefront || !this.isExternalStorefrontDisabled) {
+                return;
+            }
+
+            this.currentDomain.isExternalStorefront = false;
         },
 
         onOptionSelect(name, entity) {

@@ -202,6 +202,7 @@
             v-if="salesChannelIsHeadless"
             v-model:checked="currentDomain.isExternalStorefront"
             class="sw-sales-channel-detail-domains__is-external-storefront"
+            :disabled="isExternalStorefrontDisabled && !currentDomain.isExternalStorefront"
             :label="$t('sw-sales-channel.detail.labelIsExternalStorefront')"
             :help-text="$t('sw-sales-channel.detail.helpTextIsExternalStorefront')"
         />

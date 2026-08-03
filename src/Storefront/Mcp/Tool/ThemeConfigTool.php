@@ -32,8 +32,7 @@ use Shopware\Storefront\Theme\ThemeService;
 class ThemeConfigTool extends McpToolResponse
 {
     /**
-     * Upper bound for the sales channel names listed in a "not found" error, so the hint stays
-     * small enough to be useful to the model.
+     * Upper bound for the sales channel names listed in a "not found" error.
      */
     private const MAX_SUGGESTED_NAMES = 20;
 
@@ -71,11 +70,9 @@ class ThemeConfigTool extends McpToolResponse
             return $error;
         }
 
-        // Resolving happens after the privilege check so the error hints never leak sales channel
-        // names to an unauthorized caller. Infrastructure failures below are deliberately not
-        // caught: per the McpToolResponse contract, only expected/business errors become an error
-        // envelope, while unexpected exceptions propagate so they are logged server-side instead
-        // of exposing driver or schema details to the client.
+        // Resolving runs after the privilege check so the error hints cannot enumerate sales
+        // channel names. Infrastructure failures stay uncaught on purpose: per the McpToolResponse
+        // contract only business errors become an error envelope.
         $resolved = $this->resolveSalesChannelId($salesChannelId);
 
         if (isset($resolved['error'])) {
@@ -141,39 +138,28 @@ class ThemeConfigTool extends McpToolResponse
 
     /**
      * Accepts either a sales channel UUID or its name, because agents typically know the name
-     * shown in the admin, not the ID. Anything unresolvable comes back as a message instead of an
-     * exception, so the client sees a usable error rather than a generic JSON-RPC failure.
+     * shown in the admin, not the ID.
      *
      * @return array{id: string}|array{error: string}
      */
     private function resolveSalesChannelId(string $input): array
     {
         $input = trim($input);
+        // Uuid::isValid() only matches lowercase hex, but agents copy uppercase IDs.
         $uuid = strtolower($input);
-
-        if (Uuid::isValid($uuid)) {
-            $id = $this->connection->fetchOne(
-                'SELECT LOWER(HEX(`id`)) FROM `sales_channel` WHERE `id` = :id',
-                ['id' => Uuid::fromHexToBytes($uuid)],
-            );
-
-            if ($id !== false) {
-                return ['id' => (string) $id];
-            }
-
-            // No channel carries that ID. Fall through instead of failing here, because a sales
-            // channel may legitimately be named like a UUID, in which case the name lookup below
-            // still resolves it.
-        }
 
         // sales_channel_translation.name uses utf8mb4_unicode_ci, so the match is case-insensitive.
         // DISTINCT collapses the one row per language a single channel has.
         $ids = $this->fetchStrings(
             'SELECT DISTINCT LOWER(HEX(`sc`.`id`))
              FROM `sales_channel` `sc`
-             INNER JOIN `sales_channel_translation` `sct` ON `sct`.`sales_channel_id` = `sc`.`id`
-             WHERE `sct`.`name` = :name',
-            ['name' => $input],
+             LEFT JOIN `sales_channel_translation` `sct` ON `sct`.`sales_channel_id` = `sc`.`id`
+             WHERE `sc`.`id` = :id OR `sct`.`name` = :name',
+            [
+                // A non-UUID input binds NULL, which no ID can equal.
+                'id' => Uuid::isValid($uuid) ? Uuid::fromHexToBytes($uuid) : null,
+                'name' => $input,
+            ],
         );
 
         if (\count($ids) === 1) {
@@ -189,7 +175,7 @@ class ThemeConfigTool extends McpToolResponse
         }
 
         return ['error' => \sprintf(
-            'Sales channel name "%s" is ambiguous, %d channels share it. Pass one of these IDs instead: %s.',
+            'Sales channel "%s" is ambiguous, %d channels match it. Pass one of these IDs instead: %s.',
             $input,
             \count($ids),
             implode(', ', $ids),

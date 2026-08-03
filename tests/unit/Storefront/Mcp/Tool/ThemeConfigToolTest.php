@@ -51,7 +51,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $output = $tool($salesChannelId, 'get');
@@ -76,7 +76,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $config = json_encode(['sw-color-brand-primary' => ['value' => '#0000ff']], \JSON_THROW_ON_ERROR);
@@ -105,7 +105,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $config = json_encode($configValues, \JSON_THROW_ON_ERROR);
@@ -135,7 +135,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId, [$salesChannelId]),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $output = $tool('Storefront', 'get');
@@ -152,13 +152,15 @@ class ThemeConfigToolTest extends TestCase
      */
     public function testNonUuidInputReturnsCleanErrorInsteadOfThrowing(): void
     {
+        $lookupParams = [];
+
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
 
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false, [], ['Storefront']),
+            $this->createConnection(false, [], ['Storefront'], $lookupParams),
         );
 
         $output = $tool('not-a-uuid', 'get');
@@ -166,6 +168,8 @@ class ThemeConfigToolTest extends TestCase
 
         static::assertFalse($data['success']);
         static::assertStringContainsString('not-a-uuid', $data['error']);
+        // The input never reaches Uuid::fromHexToBytes(); it is bound as a name only.
+        static::assertNull($lookupParams['id']);
     }
 
     public function testUnknownSalesChannelNameListsAvailableNames(): void
@@ -176,7 +180,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false, [], ['Storefront', 'Headless']),
+            $this->createConnection(false, [], ['Storefront', 'Headless']),
         );
 
         $output = $tool('Storfront', 'get');
@@ -199,7 +203,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false, [$firstId, $secondId]),
+            $this->createConnection(false, [$firstId, $secondId]),
         );
 
         $output = $tool('Storefront', 'get');
@@ -215,6 +219,7 @@ class ThemeConfigToolTest extends TestCase
     {
         $themeId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
+        $lookupParams = [];
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects($this->once())
@@ -228,7 +233,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId], [], $lookupParams),
         );
 
         $output = $tool(strtoupper($salesChannelId), 'get');
@@ -236,6 +241,9 @@ class ThemeConfigToolTest extends TestCase
 
         static::assertTrue($data['success']);
         static::assertSame($themeId, $data['data']['themeId']);
+        // Uuid::isValid() only matches lowercase hex, so without the lowercasing the uppercase
+        // input would never be bound as an ID.
+        static::assertSame(Uuid::fromHexToBytes($salesChannelId), $lookupParams['id']);
     }
 
     public function testUnknownSalesChannelUuidReturnsError(): void
@@ -246,7 +254,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false, [], ['Storefront']),
+            $this->createConnection(false, [], ['Storefront']),
         );
 
         $output = $tool(Uuid::randomHex(), 'get');
@@ -267,7 +275,7 @@ class ThemeConfigToolTest extends TestCase
         $failure = new \RuntimeException('SQLSTATE[HY000] host db-01 refused');
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willThrowException($failure);
+        $connection->method('fetchFirstColumn')->willThrowException($failure);
 
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
@@ -283,15 +291,12 @@ class ThemeConfigToolTest extends TestCase
         $tool(Uuid::randomHex(), 'get');
     }
 
-    /**
-     * A sales channel may legitimately be named like a UUID. The ID lookup misses, so resolution
-     * has to fall through to the name lookup instead of stopping at "not found".
-     */
-    public function testUuidShapedNameFallsBackToNameLookup(): void
+    public function testUuidShapedNameIsResolved(): void
     {
         $themeId = Uuid::randomHex();
         $uuidShapedName = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
+        $lookupParams = [];
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects($this->once())
@@ -305,7 +310,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection(false, $themeId, [$salesChannelId]),
+            $this->createConnection($themeId, [$salesChannelId], [], $lookupParams),
         );
 
         $output = $tool($uuidShapedName, 'get');
@@ -313,6 +318,10 @@ class ThemeConfigToolTest extends TestCase
 
         static::assertTrue($data['success']);
         static::assertSame($themeId, $data['data']['themeId']);
+        // Both candidates are bound in the same lookup, so a UUID that matches no ID cannot
+        // shadow a channel carrying it as a name.
+        static::assertSame(Uuid::fromHexToBytes($uuidShapedName), $lookupParams['id']);
+        static::assertSame($uuidShapedName, $lookupParams['name']);
     }
 
     public function testErrorReportsNoneWhenShopHasNoSalesChannels(): void
@@ -323,7 +332,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false),
+            $this->createConnection(false),
         );
 
         $output = $tool('Storefront', 'get');
@@ -343,7 +352,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false, [], $names),
+            $this->createConnection(false, [], $names),
         );
 
         $output = $tool('Unknown', 'get');
@@ -365,7 +374,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection($salesChannelId, false),
+            $this->createConnection(false, [$salesChannelId]),
         );
 
         $output = $tool($salesChannelId, 'get');
@@ -373,6 +382,28 @@ class ThemeConfigToolTest extends TestCase
 
         static::assertFalse($data['success']);
         static::assertStringContainsString('No theme assigned', $data['error']);
+    }
+
+    public function testSurroundingWhitespaceIsTrimmed(): void
+    {
+        $themeId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $lookupParams = [];
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool(
+            static::createStub(ThemeService::class),
+            $contextProvider,
+            $this->createConnection($themeId, [$salesChannelId], [], $lookupParams),
+        );
+
+        $output = $tool('  Storefront  ', 'get');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertSame('Storefront', $lookupParams['name']);
     }
 
     public function testUnknownActionReturnsError(): void
@@ -405,7 +436,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $output = $tool($salesChannelId, 'get');
@@ -426,7 +457,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $output = $tool($salesChannelId, 'update', '{}', false);
@@ -451,7 +482,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             $themeService,
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $config = json_encode(['sw-color-brand-primary' => ['value' => '#ff0000']], \JSON_THROW_ON_ERROR);
@@ -473,7 +504,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection($salesChannelId, $themeId),
+            $this->createConnection($themeId, [$salesChannelId]),
         );
 
         $output = $tool($salesChannelId, 'update', 'not-json', false);
@@ -517,26 +548,35 @@ class ThemeConfigToolTest extends TestCase
     }
 
     /**
-     * The tool issues up to four distinct queries. Dispatching on the SQL keeps each test's intent
-     * readable instead of depending on call order.
+     * The tool issues three queries: the sales channel lookup, the name hint list and the theme
+     * lookup. The two column queries are told apart by their parameters rather than their SQL, so
+     * the stub survives any rewording of the statements.
      *
-     * @param list<string> $idsByName sales channel IDs the name lookup resolves to
+     * @param list<string> $resolvedIds sales channel IDs the lookup resolves to
      * @param list<string> $availableNames names offered as a hint when nothing resolves
+     * @param array<string, mixed> $lookupParams receives the parameters bound by the lookup
      */
     private function createConnection(
-        string|false $salesChannelId,
         string|false $themeId,
-        array $idsByName = [],
+        array $resolvedIds = [],
         array $availableNames = [],
+        array &$lookupParams = [],
     ): Connection {
         $connection = static::createStub(Connection::class);
 
-        $connection->method('fetchOne')->willReturnCallback(
-            static fn (string $sql): string|false => str_contains($sql, 'theme_sales_channel') ? $themeId : $salesChannelId
-        );
+        // resolveThemeId() is the only remaining fetchOne() caller.
+        $connection->method('fetchOne')->willReturn($themeId);
 
         $connection->method('fetchFirstColumn')->willReturnCallback(
-            static fn (string $sql): array => str_contains($sql, 'INNER JOIN') ? $idsByName : $availableNames
+            static function (string $sql, array $params) use ($resolvedIds, $availableNames, &$lookupParams): array {
+                if ($params === []) {
+                    return $availableNames;
+                }
+
+                $lookupParams = $params;
+
+                return $resolvedIds;
+            }
         );
 
         return $connection;

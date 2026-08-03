@@ -69,7 +69,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           shard: ${{ matrix.shard }}
           shard-count: ${{ matrix.shard-count }}
-          workers: 1
+          workers: 4
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}

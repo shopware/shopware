@@ -54,15 +54,15 @@ class QueryBuilderTest extends TestCase
         static::assertSame($title, $matches[1]);
     }
 
-    public function testCriteriaTitleWithLineBreaksStaysInTheSqlComment(): void
+    public function testCriteriaTitleWithControlCharactersStaysInTheSqlComment(): void
     {
         $this->queryBuilder->select('id')
             ->from('product_manufacturer')
-            ->setTitle("first\r\nsecond");
+            ->setTitle("first\0\r\nsecond");
 
         $sql = $this->queryBuilder->getSQL();
 
-        static::assertStringStartsWith('-- first  second' . \PHP_EOL, $sql);
+        static::assertStringStartsWith('-- first   second' . \PHP_EOL, $sql);
         static::assertSame(1, substr_count($sql, \PHP_EOL));
     }
 }

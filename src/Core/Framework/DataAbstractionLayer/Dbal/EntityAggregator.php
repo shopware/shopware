@@ -126,7 +126,7 @@ class EntityAggregator implements EntityAggregatorInterface
         if (
             str_contains($aggregation->getName(), '?')
             || str_contains($aggregation->getName(), ':')
-            || strpbrk($aggregation->getName(), "\r\n") !== false
+            || preg_match('/\p{Cc}/u', $aggregation->getName()) === 1
         ) {
             throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
         }

@@ -78,6 +78,10 @@ class LineItemDimensionLengthRule extends Rule
      */
     private function matchLengthDimension(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {

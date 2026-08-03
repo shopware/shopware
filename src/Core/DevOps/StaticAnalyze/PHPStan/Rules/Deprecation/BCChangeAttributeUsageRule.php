@@ -57,13 +57,12 @@ class BCChangeAttributeUsageRule implements Rule
     /**
      * Attributes whose legacy usage is detectable at runtime: a narrowed parameter can
      * check the passed value, and the default implementation of a method becoming
-     * abstract only runs when a subclass still relies on it. Parameter removals need
-     * additional handling because PHP cannot distinguish an omitted parameter from a
-     * preceding optional parameter when later named arguments are supplied.
+     * abstract only runs when a subclass still relies on it.
      */
     private const RUNTIME_DETECTABLE = [
         BecomesAbstract::class,
         NewRequiredParameter::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
     ];
 
@@ -142,7 +141,7 @@ class BCChangeAttributeUsageRule implements Rule
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
                 }
-                if ($specific === [] && $this->isRuntimeDetectable($attribute, $method) && !$this->isFrameworkInvoked($method)) {
+                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true) && !$this->isFrameworkInvoked($method)) {
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
@@ -420,25 +419,6 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return false;
-    }
-
-    private function isRuntimeDetectable(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method): bool
-    {
-        if (\in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true)) {
-            return true;
-        }
-
-        if ($attribute->getName() !== ParameterRemoval::class) {
-            return false;
-        }
-
-        $parameterName = $this->argument($attribute, 'parameterName', 1);
-        $parameters = $method->getParameters();
-        $lastParameter = $parameters[array_key_last($parameters)] ?? null;
-
-        // Only a final parameter can be detected using func_num_args(). For a preceding
-        // parameter, PHP counts through later named arguments even when it was omitted.
-        return \is_string($parameterName) && $lastParameter?->getName() === $parameterName;
     }
 
     /**

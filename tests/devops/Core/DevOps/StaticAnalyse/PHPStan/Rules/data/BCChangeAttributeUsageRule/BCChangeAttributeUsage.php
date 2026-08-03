@@ -292,5 +292,8 @@ class ParameterRemovalCases
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
     public function optionalParameterBeforeLaterParameter(?string $legacy = null, ?string $following = null): void
     {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
+        }
     }
 }

@@ -650,6 +650,28 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     describe('app menu entries', () => {
+        it('expands the branch owning the active app after app modules are loaded', async () => {
+            const adminMenuStore = Shopware.Store.get('adminMenu');
+
+            adminMenuStore.expandSidebar();
+            adminMenuStore.clearExpandedMenuEntries();
+            wrapper.vm.activeBranchKey = null;
+            wrapper.vm.$route.name = 'sw.extension.module';
+            wrapper.vm.$route.matched = [{ name: 'sw.extension.module' }];
+            wrapper.vm.$route.params = {
+                appName: 'testAppB',
+                moduleName: 'default',
+            };
+            wrapper.vm.appModulesService.fetchAppModules = () => Promise.resolve(testApps);
+
+            await wrapper.vm.refreshApps();
+            await flushPromises();
+
+            const activeBranch = wrapper.vm.mainMenuEntries.find((entry) => entry.id === 'sw.first.top.level');
+
+            expect(wrapper.vm.isNavigationEntryExpanded(activeBranch)).toBe(true);
+        });
+
         it('renders apps under there parent navigation entry', async () => {
             Shopware.Store.get('shopwareApps').apps = testApps;
             await flushPromises();

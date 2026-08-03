@@ -70,7 +70,7 @@ class ReplicaConnectionResetterTest extends TestCase
         $connection = $this->createMock(PrimaryReadReplicaConnection::class);
         $connection->expects($this->never())->method(static::anything());
 
-        $event = $this->createStub(RequestEvent::class);
+        $event = static::createStub(RequestEvent::class);
         $event->method('isMainRequest')->willReturn(false);
 
         (new ReplicaConnectionResetter($connection))->onKernelRequest($event);
@@ -83,7 +83,7 @@ class ReplicaConnectionResetterTest extends TestCase
         $connection->method('isConnectedToPrimary')->willReturn(true);
         $connection->expects($this->once())->method('ensureConnectedToReplica');
 
-        $event = $this->createStub(RequestEvent::class);
+        $event = static::createStub(RequestEvent::class);
         $event->method('isMainRequest')->willReturn(true);
 
         (new ReplicaConnectionResetter($connection))->onKernelRequest($event);

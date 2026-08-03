@@ -101,6 +101,7 @@ class MySQLFactory
             // requests. Without this option DBAL aliases the replica to the
             // primary once the primary was used, which pins long running
             // workers to the primary for their whole lifetime.
+            // See https://symfony.com/doc/current/doctrine/dbal.html#using-primary-replica-connections-read-replicas
             if (!\array_key_exists('keepReplica', $parameters)) {
                 $parameters['keepReplica'] = true;
             } else {

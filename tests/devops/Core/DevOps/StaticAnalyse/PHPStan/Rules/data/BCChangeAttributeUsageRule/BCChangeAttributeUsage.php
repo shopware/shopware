@@ -288,4 +288,9 @@ class ParameterRemovalCases
     public function leadingDollar(string $required, ?string $optional = null): void
     {
     }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function optionalParameterBeforeLaterParameter(?string $legacy = null, ?string $following = null): void
+    {
+    }
 }

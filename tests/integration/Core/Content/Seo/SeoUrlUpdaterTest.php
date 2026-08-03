@@ -206,8 +206,7 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNotNull($seoUrl);
         static::assertSame($this->headlessSalesChannel['id'], $seoUrl->getSalesChannelId());
         static::assertSame(ProductStoreApiUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
-        // the relative template is prefixed with the external storefront domain url
-        static::assertSame('http://localhost/headless/visible-product', $seoUrl->getSeoPathInfo());
+        static::assertSame('visible-product', $seoUrl->getSeoPathInfo());
 
         static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
     }
@@ -293,8 +292,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('headless-inherit'));
         static::assertNotNull($seoUrl);
-        // inherited relative template, prefixed with the external storefront domain url
-        static::assertSame('http://localhost/headless/inherited-product', $seoUrl->getSeoPathInfo());
+        static::assertSame('inherited-product', $seoUrl->getSeoPathInfo());
     }
 
     /**

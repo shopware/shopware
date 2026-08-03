@@ -4,6 +4,8 @@
 
 import createWrapper from './create-wrapper';
 
+type MenuItemVm = { rowActive: boolean; childRouteActive: boolean; collapsibleOpen: boolean };
+
 const extensionsEntry = () => ({
     id: 'sw-extension',
     label: 'sw-extension.mainMenu.mainMenuItemExtensionStore',
@@ -40,6 +42,41 @@ const myExtensionsRoute = {
     ],
 };
 
+// Synthetic fixture in the shape menu.service builds for app modules:
+// entries share one route name and differ only by their params.
+const appModuleRoute = {
+    name: 'sw.extension.module',
+    matched: [{ name: 'sw.extension.module' }],
+    params: { appName: 'PetShop', moduleName: 'cat-toys' },
+};
+
+const appModuleEntry = (withOwnRoute = false) => ({
+    id: 'app-PetShop-main',
+    label: 'Pet shop',
+    level: 2,
+    ...(withOwnRoute ? { path: 'sw.extension.module', params: { appName: 'PetShop', moduleName: 'pet-overview' } } : {}),
+    children: [
+        {
+            id: 'app-PetShop-dog-food',
+            path: 'sw.extension.module',
+            params: { appName: 'PetShop', moduleName: 'dog-food' },
+            label: 'Dog food',
+            parent: 'app-PetShop-main',
+            level: 3,
+            children: [],
+        },
+        {
+            id: 'app-PetShop-cat-toys',
+            path: 'sw.extension.module',
+            params: { appName: 'PetShop', moduleName: 'cat-toys' },
+            label: 'Cat toys',
+            parent: 'app-PetShop-main',
+            level: 3,
+            children: [],
+        },
+    ],
+});
+
 describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
     beforeEach(() => {
         Shopware.Store.get('settingsItems').settingsGroups.shop = [];
@@ -70,7 +107,7 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.rowActive).toBe(false);
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(false);
     });
 
     it('should mark the "Extensions" parent active on a child route when the sidebar is collapsed', async () => {
@@ -85,7 +122,7 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         await flushPromises();
 
         // Collapsed: the parent itself carries the active highlight.
-        expect(wrapper.vm.rowActive).toBe(true);
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
     });
 
     it('should set the "Extensions" parent highlight to its active child when the branch is open', async () => {
@@ -101,8 +138,8 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         await flushPromises();
 
         // Open branch: the child shows the "current page" highlight, the parent shows the child-active state.
-        expect(wrapper.vm.rowActive).toBe(false);
-        expect(wrapper.vm.childRouteActive).toBe(true);
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(false);
+        expect((wrapper.vm as unknown as MenuItemVm).childRouteActive).toBe(true);
     });
 
     it('should mark the active extension child item active', async () => {
@@ -123,7 +160,7 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.rowActive).toBe(true);
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
     });
 
     it('should keep a core module parent active on a detail page via the parentPath bridge', async () => {
@@ -160,6 +197,45 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.rowActive).toBe(true);
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
+    });
+
+    it('should hand the highlight to the active app child inside the collapsed flyout', async () => {
+        const wrapper = await createWrapper({
+            route: appModuleRoute,
+            props: {
+                entry: appModuleEntry(),
+                menuDepth: 2,
+                sidebarExpanded: false,
+            },
+        });
+
+        await flushPromises();
+
+        const vm = wrapper.vm as unknown as MenuItemVm;
+
+        // The branch owning the active route opens inside the flyout and the child takes the highlight
+        expect(vm.collapsibleOpen).toBe(true);
+        expect(vm.rowActive).toBe(false);
+        expect(vm.childRouteActive).toBe(true);
+    });
+
+    it('should open a linked app parent with its own route when a child route is active', async () => {
+        const wrapper = await createWrapper({
+            route: appModuleRoute,
+            props: {
+                entry: appModuleEntry(true),
+                menuDepth: 2,
+                sidebarExpanded: false,
+            },
+        });
+
+        await flushPromises();
+
+        const vm = wrapper.vm as unknown as MenuItemVm;
+
+        expect(vm.collapsibleOpen).toBe(true);
+        expect(vm.rowActive).toBe(false);
+        expect(vm.childRouteActive).toBe(true);
     });
 });

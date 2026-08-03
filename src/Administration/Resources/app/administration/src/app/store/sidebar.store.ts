@@ -72,6 +72,11 @@ const sidebarsStore = Shopware.Store.register({
                 return;
             }
 
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+                this.closeSidebar(locationId);
+                return;
+            }
+
             this.closingSidebar = locationId;
             window.setTimeout(() => {
                 // Skip if it was reopened in the meantime.

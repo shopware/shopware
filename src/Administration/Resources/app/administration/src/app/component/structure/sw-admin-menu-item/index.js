@@ -201,7 +201,7 @@ export default {
         },
 
         routeKeepsFolderOpen() {
-            if (!this.sidebarExpanded || !this.children.length || this.entry.path || this.suppressRouteKeepsFolderOpen) {
+            if (!this.children.length || this.suppressRouteKeepsFolderOpen) {
                 return false;
             }
 

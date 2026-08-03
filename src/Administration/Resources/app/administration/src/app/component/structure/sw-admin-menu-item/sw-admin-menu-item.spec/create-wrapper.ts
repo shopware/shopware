@@ -9,8 +9,27 @@ import { mount } from '@vue/test-utils';
 import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 
-async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null } = {}) {
-    const collectRoutes = (entry) => {
+type MenuEntry = {
+    path?: string;
+    privilege?: string;
+    children?: MenuEntry[];
+    [key: string]: unknown;
+};
+
+type CreateWrapperOptions = {
+    props?: { entry?: MenuEntry } & Record<string, unknown>;
+    privileges?: string[];
+    route?: {
+        name?: string;
+        params?: Record<string, unknown>;
+        matched?: { name?: string }[];
+        meta?: Record<string, unknown>;
+    };
+    routerRoutes?: { name?: string; meta?: { privilege?: string } }[] | null;
+};
+
+async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null }: CreateWrapperOptions = {}) {
+    const collectRoutes = (entry?: MenuEntry): MenuEntry[] => {
         if (!entry) {
             return [];
         }
@@ -34,7 +53,7 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
                 })),
     };
 
-    const can = (privilege) => {
+    const can = (privilege?: string): boolean => {
         if (!privilege) {
             return true;
         }
@@ -66,8 +85,10 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
             provide: {
                 acl: {
                     can,
+                    // Deliberately unbound, mirroring the runtime provide shape
+                    // eslint-disable-next-line @typescript-eslint/unbound-method
                     hasActiveSettingModules: aclService.hasActiveSettingModules,
-                    state: aclService.state,
+                    state: (aclService as unknown as { state?: unknown }).state,
                 },
                 feature: {},
             },

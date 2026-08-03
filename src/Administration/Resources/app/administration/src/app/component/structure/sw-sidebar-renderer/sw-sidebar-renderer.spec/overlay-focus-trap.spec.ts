@@ -1,10 +1,13 @@
 import { mount } from '@vue/test-utils';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
+import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
 import initializeSidebar from 'src/app/init/sidebar.init';
 
+type SidebarRendererVm = { sidebarDisplayOptions: { isOverlayMode: boolean } };
+
 describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', () => {
-    let mockLocalStorage;
-    let outsideButton;
+    let mockLocalStorage: { getItem: jest.Mock; setItem: jest.Mock };
+    let outsideButton: HTMLButtonElement;
 
     // Narrow enough that a resizable sidebar opens straight into overlay mode
     const OVERLAY_PAGE_WIDTH = 1400;
@@ -26,7 +29,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         );
     }
 
-    async function createOverlayWrapper({ resizable = true } = {}) {
+    async function createOverlayWrapper({ resizable = true }: { resizable?: boolean } = {}) {
         const wrapper = await createWrapper();
 
         await ui.sidebar.add({
@@ -41,7 +44,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         return wrapper;
     }
 
-    function focusIsTrappedInside(panelElement) {
+    function focusIsTrappedInside(panelElement: Element): boolean {
         outsideButton.focus();
 
         return panelElement.contains(document.activeElement);
@@ -51,9 +54,10 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         initializeSidebar();
 
         // focus-trap needs layout boxes, which jsdom does not compute
-        HTMLElement.prototype.getClientRects = () => [
-            { width: 10, height: 10 },
-        ];
+        HTMLElement.prototype.getClientRects = () =>
+            [
+                { width: 10, height: 10 },
+            ] as unknown as DOMRectList;
 
         mockLocalStorage = {
             getItem: jest.fn(),
@@ -63,7 +67,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     });
 
     beforeEach(() => {
-        window.innerWidth = OVERLAY_PAGE_WIDTH;
+        (window as { innerWidth: number }).innerWidth = OVERLAY_PAGE_WIDTH;
         mockLocalStorage.getItem.mockReturnValue(null);
 
         Shopware.Store.get('sidebar').sidebars = [];
@@ -74,7 +78,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
-            permissions: [],
+            permissions: [] as unknown as privileges,
             version: '1.0.0',
             type: 'app',
             integrationId: '123',
@@ -120,7 +124,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     });
 
     it('should not trap the focus in docked mode', async () => {
-        window.innerWidth = 2600;
+        (window as { innerWidth: number }).innerWidth = 2600;
 
         const wrapper = await createOverlayWrapper();
 
@@ -135,7 +139,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         const wrapper = await createOverlayWrapper({ resizable: false });
 
         // Non-resizable sidebars keep the default width and never enter overlay mode
-        expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
+        expect((wrapper.vm as unknown as SidebarRendererVm).sidebarDisplayOptions.isOverlayMode).toBe(false);
 
         const panel = wrapper.find('.sw-sidebar-renderer.is-active');
         expect(panel.attributes('role')).toBeUndefined();
@@ -147,7 +151,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     it('should release the trap without closing the sidebar when overlay mode ends', async () => {
         const wrapper = await createOverlayWrapper();
 
-        window.innerWidth = 2600;
+        (window as { innerWidth: number }).innerWidth = 2600;
         window.dispatchEvent(new Event('resize'));
         await flushPromises();
 
@@ -182,7 +186,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         const wrapper = await createOverlayWrapper();
 
         const panel = wrapper.find('.sw-sidebar-renderer.is-active');
-        const closeButton = wrapper.find('.sw-sidebar-renderer__button-close');
+        const closeButton = wrapper.find<HTMLElement>('.sw-sidebar-renderer__button-close');
         closeButton.element.focus();
 
         await wrapper.find('.sw-sidebar-renderer__resize-handle').trigger('mousedown', { clientX: 100 });

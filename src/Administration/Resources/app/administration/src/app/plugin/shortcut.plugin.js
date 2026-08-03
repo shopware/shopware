@@ -155,6 +155,19 @@ export default {
 
             // check if function exists
             if (typeof matchedShortcut.instance[matchedShortcut.functionName] === 'function') {
+                if (combinedKey === 'ESCAPE') {
+                    // Overlays consume Escape in later listeners, so defer the decision
+                    window.setTimeout(() => {
+                        if (event.defaultPrevented) {
+                            return;
+                        }
+
+                        matchedShortcut.instance[matchedShortcut.functionName].call(matchedShortcut.instance);
+                    });
+
+                    return;
+                }
+
                 // Without this the key also performs its default action, e.g. typing "f"
                 event.preventDefault();
 

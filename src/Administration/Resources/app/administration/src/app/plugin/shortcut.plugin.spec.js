@@ -608,7 +608,49 @@ describe('app/plugins/shortcut.plugin', () => {
             key: 'Escape',
         });
 
+        // Escape is deferred by one tick
+        await new Promise((resolve) => {
+            window.setTimeout(resolve);
+        });
+
         expect(onEscMock).toHaveBeenCalledWith();
+    });
+
+    it('should NOT call the onEsc method when another handler already consumed Escape', async () => {
+        const onEscMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        const consumeEscape = (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+            }
+        };
+        document.addEventListener('keydown', consumeEscape);
+
+        const event = new KeyboardEvent('keydown', {
+            key: 'Escape',
+            bubbles: true,
+            cancelable: true,
+        });
+        wrapper.element.dispatchEvent(event);
+
+        await new Promise((resolve) => {
+            window.setTimeout(resolve);
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+
+        document.removeEventListener('keydown', consumeEscape);
     });
 
     it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {

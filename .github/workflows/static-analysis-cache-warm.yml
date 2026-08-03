@@ -71,7 +71,6 @@ jobs:
           restore-keys: |
             rector-result-cache-
 
-      # baseline data for the runner sizing evaluation, see issue 18890
       - name: Show analysis environment
         run: |
           echo "cores: $(nproc)"

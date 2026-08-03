@@ -22,9 +22,8 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
-    // chunks of 128 files per worker job cut the cold full-repo analysis from ~11 to 7-9
-    // minutes on the 4-core CI runners: the default of 16 spends a quarter to a third of
-    // all CPU time on per-chunk overhead (measurements in issue 18890)
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk
+    // overhead, which eats a quarter to a third of all CPU time at the default of 16
     ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',

@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
@@ -54,11 +54,20 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
     public function testReportGroupsStoreApiSchemaMigrationState(): void
     {
-        $report = $this->createReporter()->report($this->createDefinitions());
+        $report = $this->createReporter(
+            schemaPath: $this->createSchemaPath([
+                'components' => [
+                    'schemas' => [
+                        'CalculatedPrice' => ['type' => 'object'],
+                    ],
+                ],
+            ]),
+            allowlistPath: $this->createAllowlistPath(['AclRole']),
+        )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->phpGeneratedOnly);
-        static::assertContains('AppAdministrationSnippet', $report->phpGeneratedOnly);
-        static::assertContains('AppAdministrationSnippet', $report->phpGeneratedOnlyAllowed);
+        static::assertContains('AclRole', $report->phpGeneratedOnly);
+        static::assertContains('AclRole', $report->phpGeneratedOnlyAllowed);
         static::assertContains('GroupByTest', $report->phpGeneratedOnlyWithoutAllowlist);
         static::assertContains('CalculatedPrice', $report->jsonWithoutPhpGenerated);
         static::assertSame([], $report->jsonOverridesPhpGenerated);
@@ -74,7 +83,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                     ],
                 ],
             ]),
-            allowlistPath: $this->createAllowlistPath(['AppAdministrationSnippet']),
+            allowlistPath: $this->createAllowlistPath(['AclRole']),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->jsonWithoutPhpGenerated);
@@ -125,12 +134,16 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
 
     public function testCoreScopeIgnoresExtensionDefinitionsAndSchemaFiles(): void
     {
-        $reporter = $this->createReporter(new BundleSchemaPathCollection([new ShopwareBundleWithName()]));
+        $reporter = $this->createReporter(
+            new BundleSchemaPathCollection([new ShopwareBundleWithName()]),
+            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            allowlistPath: $this->createAllowlistPath(['AclRole']),
+        );
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
         $coreReport = $reporter->report($definitions, CoreStoreApiSchemaMigrationScopeProvider::SCOPE);
         static::assertContains('GroupByTest', $coreReport->phpGeneratedOnly);
-        static::assertContains('AppAdministrationSnippet', $coreReport->phpGeneratedOnly);
+        static::assertContains('AclRole', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Extension', $coreReport->phpGeneratedOnly);
         static::assertNotContains('Presentation', $coreReport->jsonWithoutPhpGenerated);
 
@@ -291,7 +304,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         return (new StaticDefinitionInstanceRegistry(
             array_merge([
-                AppAdministrationSnippetDefinition::class,
+                AclRoleDefinition::class,
                 GroupByTestDefinition::class,
             ], $additionalDefinitionClasses),
             static::createStub(ValidatorInterface::class),

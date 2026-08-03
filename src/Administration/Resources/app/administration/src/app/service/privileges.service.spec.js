@@ -13,6 +13,7 @@ const defaultUserPrivileges = [
     'log_entry:create',
     'currency:read',
     'country:read',
+    'scheduled_task:read',
 ];
 
 describe('src/app/service/privileges.service.js', () => {

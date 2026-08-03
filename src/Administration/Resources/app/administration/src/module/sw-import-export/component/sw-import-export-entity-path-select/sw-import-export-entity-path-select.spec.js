@@ -651,7 +651,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'manufacturer',
             'visibilities',
         ].forEach((property) => expect(data.properties).toContain(property));
-        const expectedTranslationOptions = [
+        expect(data.options).toEqual([
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -733,9 +733,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 label: 'translations.DEFAULT.productVersionId',
                 value: 'translations.DEFAULT.productVersionId',
             },
-        ];
-        expect(data.options).toHaveLength(expectedTranslationOptions.length);
-        expect(data.options).toEqual(expect.arrayContaining(expectedTranslationOptions));
+        ]);
 
         data = wrapper.vm.processVisibilities(data);
 
@@ -746,7 +744,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        const expectedVisibilityOptions = [
+        expect(data.options).toEqual([
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -831,9 +829,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' },
-        ];
-        expect(data.options).toHaveLength(expectedVisibilityOptions.length);
-        expect(data.options).toEqual(expect.arrayContaining(expectedVisibilityOptions));
+        ]);
 
         data = wrapper.vm.processPrice(data);
 
@@ -843,7 +839,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        const expectedPriceOptions = [
+        expect(data.options).toEqual([
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -975,9 +971,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 label: 'purchasePrices.DEFAULT.listPrice.linked',
                 value: 'purchasePrices.DEFAULT.listPrice.linked',
             },
-        ];
-        expect(data.options).toHaveLength(expectedPriceOptions.length);
-        expect(data.options).toEqual(expect.arrayContaining(expectedPriceOptions));
+        ]);
     });
 
     it('should process assignedProducts and remove property from properties array', async () => {

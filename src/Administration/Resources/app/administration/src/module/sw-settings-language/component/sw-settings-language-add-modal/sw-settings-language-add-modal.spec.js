@@ -78,6 +78,18 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
         expect(frOption.disabled).toBe(true);
     });
 
+    it('disables the language select while loading', async () => {
+        const { wrapper } = await createWrapper();
+        const select = wrapper.find('.sw-settings-language-add-modal__language-select');
+
+        expect(select.attributes('disabled')).toBeUndefined();
+
+        wrapper.vm.isLoading = true;
+        await wrapper.vm.$nextTick();
+
+        expect(select.attributes('disabled')).toBe('true');
+    });
+
     it('pins Acholi to the bottom regardless of its alphabetical position', async () => {
         const { wrapper } = await createWrapper();
 

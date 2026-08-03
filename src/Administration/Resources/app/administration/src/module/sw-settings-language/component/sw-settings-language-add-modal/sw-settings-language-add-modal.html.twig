@@ -12,6 +12,7 @@
         :placeholder="$t('sw-settings-language.addModal.placeholderLanguage')"
         :options="languageOptions"
         :is-loading="isLoading"
+        :disabled="isLoading || undefined"
         label-property="label"
         value-property="value"
     />

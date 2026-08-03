@@ -6,6 +6,9 @@ includes:
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
+    # TEMPORARY chunk-size measurement, revert before merge (default jobSize is 20)
+    parallel:
+        jobSize: 100
     tmpDir: var/cache/phpstan
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container

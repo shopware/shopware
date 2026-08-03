@@ -279,6 +279,9 @@ class ParameterRemovalCases
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
     public function optionalParameter(string $required, ?string $optional = null): void
     {
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $optional is deprecated');
+        }
     }
 
     #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]

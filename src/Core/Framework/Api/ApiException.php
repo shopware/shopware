@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api;
 
+use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorNotFoundException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -64,6 +66,7 @@ class ApiException extends HttpException
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
+    public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -520,6 +523,21 @@ class ApiException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_IDS_PARAMETER,
             'Parameter `ids` is no array or empty',
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function apiDefinitionGeneratorNotFound(string $format): self|ApiDefinitionGeneratorNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ApiDefinitionGeneratorNotFoundException($format);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_DEFINITION_GENERATOR_NOT_FOUND,
+            'Definition generator for format "{{ format }}" not found.',
+            ['format' => $format]
         );
     }
 }

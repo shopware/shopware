@@ -218,8 +218,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertIsString($payload['documentId'] ?? null);
 
         $document = static::getContainer()->get('document.repository')
-            ->search(new Criteria([$payload['documentId']]), $this->context)
-            ->first();
+            ->search(new Criteria([$payload['documentId']]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertSame($invoiceId, $document->getReferencedDocumentId());

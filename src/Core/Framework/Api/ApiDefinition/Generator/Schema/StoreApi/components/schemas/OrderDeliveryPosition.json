@@ -1,0 +1,131 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderDeliveryPosition": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "orderDeliveryId",
+                    "orderLineItemId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderDeliveryId": {
+                        "description": "Unique identity of order delivery.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderDeliveryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderLineItemId": {
+                        "description": "Unique identity of line items in an order.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderLineItemVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "price": {
+                        "required": [
+                            "unitPrice",
+                            "totalPrice",
+                            "quantity"
+                        ],
+                        "properties": {
+                            "unitPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "totalPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantity": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedTaxes": {
+                                "type": "object"
+                            },
+                            "taxRules": {
+                                "type": "object"
+                            },
+                            "referencePrice": {
+                                "type": "object"
+                            },
+                            "listPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "discount": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "regulationPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "unitPrice": {
+                        "description": "Price of product per item (where, quantity=1).",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "totalPrice": {
+                        "description": "Cost of product based on quantity.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "quantity": {
+                        "description": "Number of items of each product.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

@@ -80,10 +80,10 @@ Debugging tests
 npx playwright test --debug
 ```
 
-Reduce worker count
+Override the worker count (the default is 50% of your CPU cores locally, 4 on CI)
 
 ```
-npx playwright test --workers 4
+npx playwright test --workers 1
 ```
 
 Running tests in UI Mode

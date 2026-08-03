@@ -33,7 +33,7 @@ class AdvancedPackageRules extends SetGroupScopeFilter
         foreach ($packages as $package) {
             [$metaData, $cartItems] = $this->filterPackage($package, $discount->getPriceDefinition(), $context);
 
-            if (\count($metaData) > 0) {
+            if ($metaData !== []) {
                 $filtered->add($this->createFilteredValuesPackage($metaData, $cartItems));
             }
         }

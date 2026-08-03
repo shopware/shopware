@@ -48,7 +48,9 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ### `EntitySearchResult` retains its entity name in v6.8.0
 
-The planned v6.8.0 change to `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method. The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name.
+`EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
+
+The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name.
 
 ### Line item rule conditions only evaluate product line items
 
@@ -561,34 +563,6 @@ class MyScheduledTaskHandler extends ScheduledTaskHandler implements Dynamically
 Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone.
 
 Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
-
-### `EntitySearchResult` and result subclasses no longer expose a collection API
-
-`EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` remain supported result wrappers in v6.8.0, but no longer behave as collections. They remain `Struct`, so extensions, states, and JSON serialization keep working.
-
-Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
-
-To prepare, for all three classes:
-
-- Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result. The `entities` property remains available in PHP and Twig as the single collection of result entities.
-- In Twig, use `{% for x in searchResult.entities %}` instead of `{% for x in searchResult %}`, and `searchResult.entities` instead of `searchResult.elements`.
-- Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
-
-For `EntitySearchResult`:
-
-- The wrapper becomes immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` become `readonly`, and the setters (`setPage()`, `setLimit()`, `setEntity()`, `setCustomFields()`) will be removed.
-- Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0.
-- `EntitySearchResult::__construct()` is deprecated. Use `EntitySearchResult::create($total, $entities, $aggregations, $criteria, $context)` instead; its signature is stable in v6.8.0.
-
-For `ProductListingResult`:
-
-- Build it with the new `ProductListingResult::fromSearchResult(...)` factory instead of `createFrom` + setters. The factory signature is stable across the v6.8.0 cut.
-- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain supported. Only the surface inherited from `EntitySearchResult` goes away.
-
-For `ProductReviewResult`:
-
-- Build it with the new `ProductReviewResult::fromSearchResult(...)` factory instead of `createFrom` + setters.
-- The class becomes fully immutable: `$matrix`, `$productId`, `$customerReview`, `$totalReviewsInCurrentLanguage`, and `$parentId` become `readonly`, and the setters (`setMatrix()`, `setProductId()`, `setCustomerReview()`, `setTotalReviewsInCurrentLanguage()`, `setParentId()`) will be removed — pass the values to `fromSearchResult()` instead.
 
 ### Faster category creation and editing
 

@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -117,7 +116,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $criteria
             ->setTitle('product-export::products')
-            ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);
 
         if ($productExport->isIncludeVariants()) {
@@ -127,7 +125,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 new EqualsFilter('childCount', 0),
             ]));
         } else {
-            // Only fetch main and standalone products so getTotal() and pagination reflect the renderable count
+            // Only fetch main and standalone products
             $criteria->addFilter(new EqualsFilter('parentId', null));
         }
 
@@ -144,10 +142,21 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
         );
 
-        $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
+        // Pagination is delegated to SalesChannelRepositoryIterator: when the criteria has no sorting
+        // it seeks by an autoIncrement keyset (constant cost, no COUNT); when a subscriber added its
+        // own sorting via ProductExportProductCriteriaEvent it falls back to resumable offset
+        // pagination. Either way $offset is the opaque resume position carried across batches.
+        $offset = $exportBehavior->offset();
+        $iterator = new SalesChannelRepositoryIterator(
+            $this->productRepository,
+            $context,
+            $criteria,
+            $offset > 0 ? $offset : null
+        );
 
-        $total = $iterator->getTotal();
-        if ($total === 0) {
+        $result = $iterator->fetch();
+
+        if ($result === null && $offset === 0) {
             $exception = ProductExportException::productExportNotFound($productExport->getId());
 
             $loggingEvent = new ProductExportLoggingEvent(
@@ -179,28 +188,50 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             )
         );
 
-        if ($productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL) {
-            $content .= $this->generateJsonlBody($iterator, $productExport, $context, $productContext->getContext(), $exportBehavior);
-        } else {
-            while ($productResult = $iterator->fetch()) {
-                foreach ($productResult->getEntities() as $product) {
-                    $data = $productContext->getContext();
-                    $data['product'] = $product;
+        $isJsonl = $productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL;
+        $body = '';
+        $fetched = 0;
 
-                    $renderedBody = $this->renderProductBody($productExport, $context, $data);
+        while ($result !== null) {
+            $fetched = $result->getEntities()->count();
 
-                    if ($renderedBody === null) {
-                        continue;
-                    }
-
-                    $content .= $renderedBody;
+            foreach ($result->getEntities() as $product) {
+                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                    continue; // Skip main product if variants are included
+                }
+                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
+                    continue; // Skip variants unless they are included
                 }
 
-                if ($exportBehavior->batchMode()) {
-                    break;
+                $data = $productContext->getContext();
+                $data['product'] = $product;
+
+                $renderedBody = $this->renderProductBody($productExport, $context, $data);
+                if ($renderedBody === null) {
+                    continue;
+                }
+
+                if ($isJsonl) {
+                    $row = $this->normalizeJsonlRow($productExport, $renderedBody);
+                    $body .= $body === '' ? $row : \PHP_EOL . $row;
+                } else {
+                    $body .= $renderedBody;
                 }
             }
+
+            // In batch mode the partial-generation handler dispatches the next message.
+            if ($exportBehavior->batchMode()) {
+                break;
+            }
+
+            $result = $iterator->fetch();
         }
+
+        if ($isJsonl && $body !== '') {
+            $body .= \PHP_EOL;
+        }
+
+        $content .= $body;
 
         if ($exportBehavior->generateFooter()) {
             $content .= $this->productExportRender->renderFooter($productExport, $context);
@@ -225,62 +256,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         return new ProductExportResult(
             $encodingEvent->getEncodedContent(),
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
-            $iterator->getTotal()
+            $fetched,
+            $iterator->getOffset(),
+            $exportBehavior->batchMode() && $fetched === $this->readBufferSize
         );
-    }
-
-    /**
-     * @param array<string, mixed> $baseContext
-     * @param SalesChannelRepositoryIterator<SalesChannelProductCollection> $iterator
-     */
-    private function generateJsonlBody(
-        SalesChannelRepositoryIterator $iterator,
-        ProductExportEntity $productExport,
-        SalesChannelContext $context,
-        array $baseContext,
-        ExportBehavior $exportBehavior
-    ): string {
-        $content = '';
-
-        while ($productResult = $iterator->fetch()) {
-            foreach ($productResult->getEntities() as $product) {
-                \assert($product instanceof SalesChannelProductEntity);
-
-                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                    continue; // Skip main product if variants are included
-                }
-                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                    continue; // Skip variants unless they are included
-                }
-
-                $data = $baseContext;
-                $data['product'] = $product;
-
-                $renderedBody = $this->renderProductBody($productExport, $context, $data);
-
-                if ($renderedBody === null) {
-                    continue;
-                }
-
-                $normalizedRow = $this->normalizeJsonlRow($productExport, $renderedBody);
-
-                if ($content !== '') {
-                    $content .= \PHP_EOL;
-                }
-
-                $content .= $normalizedRow;
-            }
-
-            if ($exportBehavior->batchMode()) {
-                break;
-            }
-        }
-
-        if ($content === '') {
-            return '';
-        }
-
-        return $content . \PHP_EOL;
     }
 
     private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string

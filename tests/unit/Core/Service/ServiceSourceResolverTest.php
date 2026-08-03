@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -90,7 +91,7 @@ class ServiceSourceResolverTest extends TestCase
     public function testFilesystemForVersion(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
@@ -157,7 +158,7 @@ class ServiceSourceResolverTest extends TestCase
     public function testAppIsDownloadedIfItDoesNotExistOnFilesystem(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
@@ -200,7 +201,7 @@ class ServiceSourceResolverTest extends TestCase
     public function testFilesystemWithManifest(): void
     {
         $client = $this->createMock(Client::class);
-        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
 
@@ -412,7 +413,7 @@ class ServiceSourceResolverTest extends TestCase
      */
     private function successfulDownloadVersionCommonExpectations(
         MockObject $client,
-        MockObject $temporaryDirectoryFactory,
+        TemporaryDirectoryFactory&Stub $temporaryDirectoryFactory,
         MockObject $appExtractor,
         MockObject $filesystem,
         string $appName,

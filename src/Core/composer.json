@@ -78,6 +78,7 @@
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
+        "php-http/discovery": "^1.20",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
         "psr/container": "^2.0.2",
@@ -168,7 +169,7 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "symfony/runtime": true
         }
     }

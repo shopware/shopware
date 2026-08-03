@@ -211,7 +211,7 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
+     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>, 4?: bool}>
      */
     public static function customerDataProvider(): iterable
     {

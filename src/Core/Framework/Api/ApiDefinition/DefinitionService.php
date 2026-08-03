@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -11,7 +12,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 /**
  * @phpstan-type Api DefinitionService::API|DefinitionService::STORE_API
  * @phpstan-type ApiType DefinitionService::TYPE_JSON_API|DefinitionService::TYPE_JSON
- * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array<mixed>}
+ * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array<mixed>, tags?: array<mixed>}
  * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
  */
 #[Package('framework')]
@@ -73,9 +74,6 @@ class DefinitionService
         return $apiType;
     }
 
-    /**
-     * @throws ApiDefinitionGeneratorNotFoundException
-     */
     private function getGenerator(string $format, string $type): ApiDefinitionGeneratorInterface
     {
         foreach ($this->generators as $generator) {
@@ -84,12 +82,10 @@ class DefinitionService
             }
         }
 
-        throw new ApiDefinitionGeneratorNotFoundException($format);
+        throw ApiException::apiDefinitionGeneratorNotFound($format);
     }
 
     /**
-     * @throws ApiDefinitionGeneratorNotFoundException
-     *
      * @return array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface>
      */
     private function getDefinitions(string $type): array
@@ -102,6 +98,6 @@ class DefinitionService
             return $this->salesChannelDefinitionRegistry->getDefinitions();
         }
 
-        throw new ApiDefinitionGeneratorNotFoundException($type);
+        throw ApiException::apiDefinitionGeneratorNotFound($type);
     }
 }

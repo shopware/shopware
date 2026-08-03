@@ -99,6 +99,7 @@ class SeoResolver extends AbstractSeoResolver
         $query->andWhere('(' . implode(' OR ', $seoPathConditions) . ')');
         $query->setTitle('seo-url::resolve');
 
+        /** @var list<array{id: string, pathInfo: string, seoPathInfo: string, isCanonical: string|null, salesChannelId: string|null}> $seoPaths */
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
 
         usort($seoPaths, function ($a, $b) use ($normalizedQueryString) {
@@ -119,8 +120,8 @@ class SeoResolver extends AbstractSeoResolver
             }
 
             if ($normalizedQueryString !== null) {
-                $aMatches = $this->storedQueryMatches($a['seoPathInfo'] ?? null, $normalizedQueryString);
-                $bMatches = $this->storedQueryMatches($b['seoPathInfo'] ?? null, $normalizedQueryString);
+                $aMatches = $this->storedQueryMatches($a['seoPathInfo'], $normalizedQueryString);
+                $bMatches = $this->storedQueryMatches($b['seoPathInfo'], $normalizedQueryString);
                 if ($aMatches !== $bMatches) {
                     return $aMatches ? -1 : 1;
                 }

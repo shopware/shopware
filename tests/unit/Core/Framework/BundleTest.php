@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Feature\FeatureException;
@@ -83,13 +84,18 @@ class BundleTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
      */
-    public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(): void
-    {
-        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes';
+    #[DataProvider('xmlRouteDefinitionCases')]
+    public function testConfigureRoutesTriggersDeprecationForXmlRouteDefinitions(
+        string $fixture,
+        string $xmlFile,
+        string $phpFile,
+    ): void {
+        $bundlePath = self::FIXTURES_DIR . '/' . $fixture;
 
         $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes.php).',
-            $bundlePath . '/Resources/config/routes.xml',
+            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (%s).',
+            $bundlePath . '/Resources/config/' . $xmlFile,
+            $phpFile,
         )));
 
         $this->captureRouteImports($bundlePath, 'test');
@@ -97,32 +103,14 @@ class BundleTest extends TestCase
 
     /**
      * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+     *
+     * @return iterable<string, array{string, string, string}>
      */
-    public function testConfigureRoutesTriggersDeprecationForXmlFilesInRoutesDirectory(): void
+    public static function xmlRouteDefinitionCases(): iterable
     {
-        $bundlePath = self::FIXTURES_DIR . '/with-xml-routes-dir';
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (nested.php).',
-            $bundlePath . '/Resources/config/routes/nested.xml',
-        )));
-
-        $this->captureRouteImports($bundlePath, 'test');
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
-     */
-    public function testConfigureRoutesTriggersDeprecationForEnvironmentSpecificXmlRouteDefinitions(): void
-    {
-        $bundlePath = self::FIXTURES_DIR . '/with-xml-env-routes';
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: The XML configuration file "%s" in bundle "BundleStub" is deprecated and will not be loaded in v6.8.0.0. Migrate the route definitions to PHP format (routes_test.php).',
-            $bundlePath . '/Resources/config/routes_test.xml',
-        )));
-
-        $this->captureRouteImports($bundlePath, 'test');
+        yield 'routes.xml in the config directory' => ['with-xml-routes', 'routes.xml', 'routes.php'];
+        yield 'xml file nested in the routes directory' => ['with-xml-routes-dir', 'routes/nested.xml', 'nested.php'];
+        yield 'environment-specific routes_test.xml' => ['with-xml-env-routes', 'routes_test.xml', 'routes_test.php'];
     }
 
     /**

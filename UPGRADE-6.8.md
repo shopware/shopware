@@ -163,6 +163,18 @@ The Agentic Commerce sales channel features — including product export provide
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
 
+## Removed document template variables
+
+The following variables in `src/Core/Framework/Resources/views/documents/includes/position_header.html.twig` have been deprecated and were removed without replacement:
+
+- `companyTaxEnabled`
+- `displayAdditionalNoteDelivery`
+- `isDeliveryCountry`
+
+Extensions that rely on these variables in document template overrides must remove their usage without replacement.
+
+The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` was deprecated and removed without replacement. Extensions that rely on this variable in document template overrides must remove its usage without replacement.
+
 ## Shipping price matrix ranges use currency conversion
 
 Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
@@ -252,6 +264,68 @@ Previously, these routes could return unrelated records or fail because the unde
 # Core
 
 <details>
+
+## XML configuration is no longer supported
+
+Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
+
+Migrate service definitions to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
+
+Before (`src/Resources/config/services.xml`):
+
+```xml
+<container xmlns="http://symfony.com/schema/dic/services">
+    <services>
+        <service id="Swag\Example\Service\MyService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>
+```
+
+After (`src/Resources/config/services.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Doctrine\DBAL\Connection;
+use Swag\Example\Service\MyService;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->services()
+        ->set(MyService::class)
+        ->args([service(Connection::class)])
+        ->tag('kernel.event_subscriber');
+};
+```
+
+Migrate route definitions the same way, using the `RoutingConfigurator`.
+
+Before (`src/Resources/config/routes.xml`):
+
+```xml
+<routes xmlns="http://symfony.com/schema/routing">
+    <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
+</routes>
+```
+
+After (`src/Resources/config/routes.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+return static function (RoutingConfigurator $routes): void {
+    $routes->import('../../Storefront/Controller/**/*Controller.php', 'attribute');
+};
+```
+
+XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
 
 ## Landing page slot config must not be null
 

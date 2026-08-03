@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -144,8 +145,7 @@ class InvoiceDataProviderTest extends TestCase
         );
 
         $result = $provider->provideRenderingData(
-            $order,
-            $request,
+            new ProviderInput($order, $request),
             Context::createDefaultContext()
         );
 
@@ -166,7 +166,7 @@ class InvoiceDataProviderTest extends TestCase
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertEquals(
             new \DateTimeImmutable('2026-06-04T12:00:00+00:00'),
@@ -187,7 +187,7 @@ class InvoiceDataProviderTest extends TestCase
             documentDate: 'not-a-date',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertNull($result->paymentDueDate);
     }
@@ -206,7 +206,7 @@ class InvoiceDataProviderTest extends TestCase
 
         $this->expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     public function testProvideRenderingDataResolvesDeliveryDateFromDeliveriesWhenV68IsInactive(): void
@@ -228,7 +228,7 @@ class InvoiceDataProviderTest extends TestCase
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);
     }
@@ -248,7 +248,7 @@ class InvoiceDataProviderTest extends TestCase
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertInstanceOf(\DateTimeImmutable::class, $result->deliveryDate);
         static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);

@@ -36,17 +36,15 @@ class EntitySeoUrlFunctionExtension extends AbstractExtension
         return $this->entityRouteResolver->generateSeoUrlPlaceholder(
             $name,
             $primaryKey,
-            $this->isSalesChannelHeadless($context)
+            $this->getSalesChannelTypeId($context)
         );
     }
 
     /**
      * @param array<string, mixed> $context
      */
-    private function isSalesChannelHeadless(array $context): bool
+    private function getSalesChannelTypeId(array $context): ?string
     {
-        $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
-
-        return $salesChannelContext?->isHeadless() === true;
+        return TwigContextHelper::getSalesChannelContext($context)?->getSalesChannel()->getTypeId();
     }
 }

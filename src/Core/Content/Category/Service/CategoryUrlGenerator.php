@@ -32,10 +32,10 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
             return null;
         }
 
-        $isHeadless = $salesChannel?->isHeadless() === true;
+        $salesChannelTypeId = $salesChannel?->getTypeId();
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {
-            return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $category->getId(), $isHeadless);
+            return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $category->getId(), $salesChannelTypeId);
         }
 
         $linkType = $category->getTranslation('linkType');
@@ -47,13 +47,13 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 
         switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, $internalLink, $isHeadless);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(ProductDefinition::ENTITY_NAME, $internalLink, $salesChannelTypeId);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $internalLink, $isHeadless);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(CategoryDefinition::ENTITY_NAME, $internalLink, $salesChannelTypeId);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
-                return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, $internalLink, $isHeadless);
+                return $this->entityRouteResolver->generateSeoUrlPlaceholder(LandingPageDefinition::ENTITY_NAME, $internalLink, $salesChannelTypeId);
 
             case CategoryDefinition::LINK_TYPE_EXTERNAL:
             default:

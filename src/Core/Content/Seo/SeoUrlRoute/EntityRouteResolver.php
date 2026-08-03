@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -24,18 +25,18 @@ class EntityRouteResolver
     ) {
     }
 
-    public function getRouteNameForEntityName(string $entityName, bool $isHeadless = false): string
+    public function getRouteNameForEntityName(string $entityName, ?string $salesChannelTypeId = null): string
     {
-        return $this->getRouteConfig($entityName, $isHeadless)->getRouteName();
+        return $this->getRouteConfig($entityName, $salesChannelTypeId)->getRouteName();
     }
 
     /**
      * Generates a SEO URL placeholder for the given entity.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
      */
-    public function generateSeoUrlPlaceholder(string $entityName, string $primaryKey, bool $isHeadless = false): string
+    public function generateSeoUrlPlaceholder(string $entityName, string $primaryKey, ?string $salesChannelTypeId = null): string
     {
-        $config = $this->getRouteConfig($entityName, $isHeadless);
+        $config = $this->getRouteConfig($entityName, $salesChannelTypeId);
 
         return $this->seoUrlPlaceholderHandler->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
@@ -44,16 +45,16 @@ class EntityRouteResolver
      * Generates a concrete URL for the given entity via the Symfony router.
      * Returns store-api route when no route is registered for the entity type (e.g. headless setups).
      */
-    public function generateUrl(string $entityName, string $primaryKey, bool $isHeadless = false): string
+    public function generateUrl(string $entityName, string $primaryKey, ?string $salesChannelTypeId = null): string
     {
-        $config = $this->getRouteConfig($entityName, $isHeadless);
+        $config = $this->getRouteConfig($entityName, $salesChannelTypeId);
 
         return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
-    private function getRouteConfig(string $entityName, bool $isHeadless = false): SeoUrlRouteConfig
+    private function getRouteConfig(string $entityName, ?string $salesChannelTypeId = null): SeoUrlRouteConfig
     {
-        if ($isHeadless) {
+        if ($salesChannelTypeId === Defaults::SALES_CHANNEL_TYPE_API) {
             try {
                 return $this->getEntitySeoUrlRouteConfig($entityName);
             } catch (SeoUrlRouteConfigException) {

@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\Extension\EntitySeoUrlFunctionExtension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Twig\TwigFunction;
 
 /**
@@ -42,30 +44,34 @@ class EntitySeoUrlFunctionExtensionTest extends TestCase
         static::assertTrue($functions[0]->needsContext());
     }
 
-    public function testResolvesEntityPlaceholderForNonHeadlessSalesChannel(): void
+    public function testForwardsNullSalesChannelTypeIdWhenContextIsMissing(): void
     {
         $primaryKey = Uuid::randomHex();
 
         $this->entityRouteResolver
             ->expects($this->once())
             ->method('generateSeoUrlPlaceholder')
-            ->with('product', $primaryKey, false)
+            ->with('product', $primaryKey, null)
             ->willReturn('entity-url');
 
         static::assertSame('entity-url', $this->extension->entitySeoUrl([], 'product', $primaryKey));
     }
 
-    public function testMarksPlaceholderAsHeadlessForHeadlessSalesChannel(): void
+    public function testForwardsSalesChannelTypeIdFromContext(): void
     {
         $primaryKey = Uuid::randomHex();
 
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+
         $salesChannelContext = static::createStub(SalesChannelContext::class);
-        $salesChannelContext->method('isHeadless')->willReturn(true);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
         $this->entityRouteResolver
             ->expects($this->once())
             ->method('generateSeoUrlPlaceholder')
-            ->with('product', $primaryKey, true)
+            ->with('product', $primaryKey, Defaults::SALES_CHANNEL_TYPE_API)
             ->willReturn('headless-url');
 
         static::assertSame(

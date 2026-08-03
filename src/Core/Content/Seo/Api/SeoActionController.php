@@ -328,7 +328,7 @@ class SeoActionController extends AbstractController
         $result = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
         $result = \is_array($result) ? $result : iterator_to_array($result);
 
-        if (!$salesChannel->isHeadless()) {
+        if ($salesChannel->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
             return $result;
         }
 

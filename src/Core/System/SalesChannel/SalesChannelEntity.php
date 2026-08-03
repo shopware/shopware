@@ -25,7 +25,6 @@ use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -1036,10 +1035,5 @@ class SalesChannelEntity extends Entity
     public function setBusinessTimeZone(?string $businessTimeZone): void
     {
         $this->businessTimeZone = $businessTimeZone;
-    }
-
-    public function isHeadless(): bool
-    {
-        return $this->typeId === Defaults::SALES_CHANNEL_TYPE_API;
     }
 }

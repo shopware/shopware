@@ -102,7 +102,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
         ]));
 
         $result = new ElementDataCollection();
-        $result->add('product_media_slot-id', EntitySearchResult::create(
+        $result->add('product_media_slot-id', new EntitySearchResult(
+            'product_media',
             2,
             $this->createProductMediaCollectionWithMediaAssociation(),
             null,

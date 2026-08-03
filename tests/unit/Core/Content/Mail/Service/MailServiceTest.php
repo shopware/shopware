@@ -97,7 +97,8 @@ class MailServiceTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $context = Context::createDefaultContext();
 
-        $salesChannelResult = EntitySearchResult::create(
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
             1,
             new SalesChannelCollection([$salesChannel]),
             null,
@@ -146,7 +147,8 @@ class MailServiceTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $context = Context::createDefaultContext();
 
-        $salesChannelResult = EntitySearchResult::create(
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
             1,
             new SalesChannelCollection([$salesChannel]),
             null,
@@ -226,7 +228,8 @@ class MailServiceTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $context = Context::createDefaultContext();
 
-        $salesChannelResult = EntitySearchResult::create(
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
             1,
             new SalesChannelCollection([$salesChannel]),
             null,
@@ -277,7 +280,8 @@ class MailServiceTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $context = Context::createDefaultContext();
 
-        $salesChannelResult = EntitySearchResult::create(
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
             1,
             new SalesChannelCollection([$salesChannel]),
             null,
@@ -352,7 +356,8 @@ class MailServiceTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $context = Context::createDefaultContext();
 
-        $salesChannelResult = EntitySearchResult::create(
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
             1,
             new SalesChannelCollection([$salesChannel]),
             null,

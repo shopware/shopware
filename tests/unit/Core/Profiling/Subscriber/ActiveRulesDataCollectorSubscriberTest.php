@@ -53,7 +53,8 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
         $ruleRepository = static::createStub(EntityRepository::class);
         $ruleRepository
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'rule',
                 1,
                 new RuleCollection([$activeRule]),
                 null,

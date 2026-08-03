@@ -65,7 +65,8 @@ class StaticSalesChannelRepository extends SalesChannelRepository
 
         if ($result instanceof EntityCollection) {
             /** @var TEntityCollection $result */
-            return EntitySearchResult::create(
+            return new EntitySearchResult(
+                $this->getDummyEntityName(),
                 $result->count(),
                 $result,
                 null,
@@ -78,7 +79,8 @@ class StaticSalesChannelRepository extends SalesChannelRepository
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
 
-            return EntitySearchResult::create(
+            return new EntitySearchResult(
+                $this->getDummyEntityName(),
                 0,
                 $collection,
                 $result,

@@ -33,7 +33,8 @@ class EntityReadToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $entity = new ArrayEntity(['id' => 'prod-123', 'name' => 'Test Product']);
-        $collection = EntitySearchResult::create(
+        $collection = new EntitySearchResult(
+            'product',
             1,
             new EntityCollection([$entity]),
             null,
@@ -76,7 +77,8 @@ class EntityReadToolTest extends TestCase
     public function testReturnsErrorWhenEntityNotFound(): void
     {
         $context = Context::createDefaultContext();
-        $emptyCollection = EntitySearchResult::create(
+        $emptyCollection = new EntitySearchResult(
+            'product',
             0,
             new EntityCollection(),
             null,

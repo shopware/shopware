@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -74,7 +75,8 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $flow = new StorableFlow('', $context, [], [CustomerGroupAware::CUSTOMER_GROUP_ID => $customerGroupId]);
         $flow->setConfig($config);
 
-        $entitySearchResult = EntitySearchResult::create(
+        $entitySearchResult = new EntitySearchResult(
+            CustomerGroupDefinition::ENTITY_NAME,
             1,
             new CustomerGroupCollection([$customerGroup]),
             null,

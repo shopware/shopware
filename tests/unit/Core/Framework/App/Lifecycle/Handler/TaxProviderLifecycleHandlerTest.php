@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
+use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -257,7 +258,8 @@ class TaxProviderLifecycleHandlerTest extends TestCase
             $taxProvider->setAppId($appId);
         }
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            TaxProviderDefinition::ENTITY_NAME,
             $result->count(),
             $result,
             null,

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
@@ -248,7 +249,8 @@ class CheckoutFinishPageLoaderTest extends TestCase
             $order->setTotalRounding($totalRounding);
         }
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new EntityCollection([$order]),
             null,

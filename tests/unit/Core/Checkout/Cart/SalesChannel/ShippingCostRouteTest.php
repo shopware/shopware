@@ -274,7 +274,8 @@ class ShippingCostRouteTest extends TestCase
         SalesChannelContext $context,
         array $expectedIds,
     ): EntityRepository {
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            'shipping_method',
             $shippingMethods->count(),
             $shippingMethods,
             null,

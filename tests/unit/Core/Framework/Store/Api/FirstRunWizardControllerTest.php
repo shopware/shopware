@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -83,7 +84,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -124,7 +126,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -162,7 +165,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -203,7 +207,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -269,7 +274,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -310,7 +316,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppEntity::class,
                 0,
                 new AppCollection(),
                 null,
@@ -592,7 +599,8 @@ class FirstRunWizardControllerTest extends TestCase
      */
     private function createPluginSearchResult(Context $context, array $pluginData): EntitySearchResult
     {
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            PluginEntity::class,
             \count($pluginData),
             $this->createPluginCollection($pluginData),
             null,

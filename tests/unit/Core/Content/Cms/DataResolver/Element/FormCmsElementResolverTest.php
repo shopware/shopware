@@ -17,6 +17,7 @@ use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -129,7 +130,8 @@ class FormCmsElementResolverTest extends TestCase
         $salutationRoute->expects($this->once())
             ->method('load')
             ->willReturn(new SalutationRouteResponse(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    SalutationDefinition::ENTITY_NAME,
                     $salutationCollection->count(),
                     $salutationCollection,
                     null,

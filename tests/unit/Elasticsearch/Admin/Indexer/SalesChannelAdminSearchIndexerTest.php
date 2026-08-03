@@ -88,7 +88,8 @@ class SalesChannelAdminSearchIndexerTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'sales_channel',
                 1,
                 new EntityCollection([$salesChannel]),
                 null,

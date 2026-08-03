@@ -243,7 +243,8 @@ class CountryAgnosticFileLinterTest extends TestCase
 
         $collection = new PluginCollection([$plugin]);
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'plugin',
             1,
             $collection,
             null,
@@ -263,7 +264,8 @@ class CountryAgnosticFileLinterTest extends TestCase
 
         $collection = new AppCollection([$app]);
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'app',
             1,
             $collection,
             null,

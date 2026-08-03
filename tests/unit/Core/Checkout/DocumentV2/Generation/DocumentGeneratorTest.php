@@ -89,7 +89,8 @@ class DocumentGeneratorTest extends TestCase
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
                     1,
                     new OrderCollection([$order]),
                     null,
@@ -178,7 +179,8 @@ class DocumentGeneratorTest extends TestCase
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame(Defaults::LIVE_VERSION, $searchContext->getVersionId());
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
                     1,
                     new OrderCollection([$order]),
                     null,
@@ -408,7 +410,8 @@ class DocumentGeneratorTest extends TestCase
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame($createdOrderVersionId, $searchContext->getVersionId());
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
                     1,
                     new OrderCollection([$order]),
                     null,
@@ -613,7 +616,8 @@ class DocumentGeneratorTest extends TestCase
                     static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
                 }
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
                     1,
                     new OrderCollection([$order]),
                     null,

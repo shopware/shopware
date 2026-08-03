@@ -48,7 +48,8 @@ class SalesChannelListResourceTest extends TestCase
         $collection = new SalesChannelCollection([$channel]);
         $context = Context::createDefaultContext();
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            'sales_channel',
             1,
             $collection,
             null,

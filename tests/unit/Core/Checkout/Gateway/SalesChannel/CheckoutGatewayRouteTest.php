@@ -19,12 +19,14 @@ use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -65,7 +67,8 @@ class CheckoutGatewayRouteTest extends TestCase
         $paymentMethod->setId(Uuid::randomHex());
 
         $paymentMethods = new PaymentMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                PaymentMethodDefinition::ENTITY_NAME,
                 1,
                 new PaymentMethodCollection([$paymentMethod]),
                 null,
@@ -82,7 +85,8 @@ class CheckoutGatewayRouteTest extends TestCase
         $shippingMethod->setAvailabilityRuleId($ruleId);
 
         $shippingMethods = new ShippingMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ShippingMethodDefinition::ENTITY_NAME,
                 1,
                 new ShippingMethodCollection([$shippingMethod]),
                 null,
@@ -155,7 +159,8 @@ class CheckoutGatewayRouteTest extends TestCase
         $context = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod);
 
         $paymentMethods = new PaymentMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                PaymentMethodDefinition::ENTITY_NAME,
                 0,
                 new PaymentMethodCollection(),
                 null,
@@ -165,7 +170,8 @@ class CheckoutGatewayRouteTest extends TestCase
         );
 
         $shippingMethods = new ShippingMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ShippingMethodDefinition::ENTITY_NAME,
                 0,
                 new ShippingMethodCollection(),
                 null,

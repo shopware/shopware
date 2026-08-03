@@ -204,7 +204,8 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
-        $result->add('product_id', EntitySearchResult::create(
+        $result->add('product_id', new EntitySearchResult(
+            'product',
             1,
             new ProductCollection([$product]),
             null,

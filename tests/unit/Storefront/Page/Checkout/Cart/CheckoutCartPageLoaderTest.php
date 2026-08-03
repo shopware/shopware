@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
@@ -100,7 +101,8 @@ class CheckoutCartPageLoaderTest extends TestCase
         );
 
         $countryResponse = new CountryRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CountryDefinition::ENTITY_NAME,
                 2,
                 $countries,
                 null,
@@ -137,7 +139,8 @@ class CheckoutCartPageLoaderTest extends TestCase
         ]);
 
         $countryResponse = new CountryRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CountryDefinition::ENTITY_NAME,
                 2,
                 $countries,
                 null,

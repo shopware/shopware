@@ -151,7 +151,7 @@ class ResponseTypeRegistryTest extends TestCase
         $col = new CategoryCollection([$category]);
         $criteria = new Criteria();
         /** @var EntitySearchResult<CategoryCollection> */
-        $searchResult = EntitySearchResult::create(1, $col, null, $criteria, $context);
+        $searchResult = new EntitySearchResult('category', 1, $col, null, $criteria, $context);
 
         $definition = static::getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);

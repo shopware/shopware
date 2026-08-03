@@ -59,7 +59,8 @@ class AppRegistrationServiceTest extends TestCase
         $this->appRepositoryMock = static::createStub(EntityRepository::class);
         $this->testApp = $this->createAppEntity();
         $this->appRepositoryMock->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$this->testApp]),
                 null,
@@ -266,7 +267,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRepositoryMock = $this->createMock(EntityRepository::class);
         $appRepositoryMock->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$this->testApp]),
                 null,

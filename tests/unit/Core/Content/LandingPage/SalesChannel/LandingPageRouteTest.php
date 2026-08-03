@@ -136,7 +136,8 @@ class LandingPageRouteTest extends TestCase
      */
     private function createCmsPageResult(CmsPageCollection $pages): EntitySearchResult
     {
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'cms_page',
             $pages->count(),
             $pages,
             null,

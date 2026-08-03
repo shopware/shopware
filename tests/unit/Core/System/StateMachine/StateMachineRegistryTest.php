@@ -421,7 +421,7 @@ class StateMachineRegistryTest extends TestCase
      */
     private function createSearchResult(string $entityName, EntityCollection $collection, Context $context): EntitySearchResult
     {
-        return EntitySearchResult::create($collection->count(), $collection, null, new Criteria(), $context);
+        return new EntitySearchResult($entityName, $collection->count(), $collection, null, new Criteria(), $context);
     }
 
     private function createTransitionResult(bool $hasTransitioned): StateMachineTransitionResult

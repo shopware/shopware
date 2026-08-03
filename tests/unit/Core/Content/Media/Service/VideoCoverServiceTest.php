@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -281,7 +282,8 @@ class VideoCoverServiceTest extends TestCase
             $collection->add($entity);
         }
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            MediaDefinition::class,
             1,
             $collection,
             null,

@@ -232,7 +232,8 @@ class UserMcpAllowlistControllerTest extends TestCase
     {
         $collection = new UserCollection($entities);
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'user',
             \count($entities),
             $collection,
             null,

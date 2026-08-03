@@ -51,7 +51,8 @@ class McpPromptPersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpPromptCollection([$existingEntity]);
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            AppMcpPromptEntity::class,
             1,
             $collection,
             null,
@@ -81,7 +82,8 @@ class McpPromptPersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpPromptCollection([$existingEntity]);
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            AppMcpPromptEntity::class,
             1,
             $collection,
             null,
@@ -123,7 +125,8 @@ class McpPromptPersisterTest extends TestCase
 
     public function testUpdatePromptsWithNewPromptCallsUpsertWithoutId(): void
     {
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            AppMcpPromptEntity::class,
             0,
             new AppMcpPromptCollection([]),
             null,

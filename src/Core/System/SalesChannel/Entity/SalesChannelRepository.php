@@ -114,7 +114,7 @@ class SalesChannelRepository
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
-            return EntitySearchResult::create($entities->count(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
+            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
         }
 
         // nested sub-operation: profiled (span) but not metered; keep in sync with EntityRepository
@@ -124,7 +124,7 @@ class SalesChannelRepository
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
-            return EntitySearchResult::create($ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
+            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
         }
 
         $readCriteria = $criteria->cloneForRead($ids->getIds());
@@ -150,7 +150,7 @@ class SalesChannelRepository
             }
         }
 
-        $result = EntitySearchResult::create($ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
+        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
         $result->addState(...$ids->getStates());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);

@@ -91,7 +91,8 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
         $propertyGroup = new PropertyGroupEntity();
         $propertyGroup->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'property_group',
                 1,
                 new EntityCollection([$propertyGroup]),
                 null,

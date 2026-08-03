@@ -91,7 +91,8 @@ class CustomerAdminSearchIndexerTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'customer',
                 1,
                 new EntityCollection([$customer]),
                 null,

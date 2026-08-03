@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Gateway\Command\AddShippingMethodCommand;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddShippingMethodCommandHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -43,7 +44,8 @@ class AddShippingMethodCommandHandlerTest extends TestCase
         $shippingMethod->setUniqueIdentifier(Uuid::randomHex());
         $shippingMethod->setTechnicalName('test');
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            ShippingMethodDefinition::ENTITY_NAME,
             1,
             new ShippingMethodCollection([$shippingMethod]),
             null,
@@ -96,7 +98,8 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
     public function testShippingMethodNotFoundThrows(): void
     {
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            ShippingMethodDefinition::ENTITY_NAME,
             0,
             new ShippingMethodCollection(),
             null,

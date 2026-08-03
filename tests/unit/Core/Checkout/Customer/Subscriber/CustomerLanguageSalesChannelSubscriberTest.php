@@ -166,7 +166,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
-            ->willReturn(EntitySearchResult::create(1, $salesChannels, null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -206,7 +206,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
-            ->willReturn(EntitySearchResult::create(1, $salesChannels, null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -248,7 +248,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
-            ->willReturn(EntitySearchResult::create(0, new EntityCollection(), null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 0, new EntityCollection(), null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -296,7 +296,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
-            ->willReturn(EntitySearchResult::create(1, $salesChannels, null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -336,7 +336,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository->expects($this->once())
             ->method('search')
             ->with(static::isInstanceOf(Criteria::class), $context)
-            ->willReturn(EntitySearchResult::create(1, $salesChannels, null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, $salesChannels, null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -387,7 +387,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -430,7 +430,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 
@@ -467,7 +467,7 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
         $salesChannelRepository = $this->createMock(EntityRepository::class);
         $salesChannelRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
+            ->willReturn(new EntitySearchResult('sales_channel', 1, new EntityCollection([$salesChannel]), null, new Criteria(), $context));
 
         $this->createSubscriber($salesChannelRepository)->validate($event);
 

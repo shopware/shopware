@@ -90,7 +90,8 @@ class CreditLineItemFactoryTest extends TestCase
         $mediaEntity = new MediaEntity();
         $mediaEntity->setId('test-cover-id');
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'media',
             1,
             new EntityCollection([$mediaEntity]),
             null,

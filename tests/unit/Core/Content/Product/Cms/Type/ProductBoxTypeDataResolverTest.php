@@ -147,7 +147,8 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
-        $result->add('product_id', EntitySearchResult::create(
+        $result->add('product_id', new EntitySearchResult(
+            'product',
             1,
             new ProductCollection([clone $product]),
             null,
@@ -192,7 +193,8 @@ class ProductBoxTypeDataResolverTest extends TestCase
     {
         $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
-        $result->add('product_id', EntitySearchResult::create(
+        $result->add('product_id', new EntitySearchResult(
+            'product',
             0,
             new ProductCollection(),
             null,

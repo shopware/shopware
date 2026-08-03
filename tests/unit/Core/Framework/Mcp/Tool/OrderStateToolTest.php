@@ -281,7 +281,7 @@ class OrderStateToolTest extends TestCase
             $collection->add($order);
         }
 
-        $result = EntitySearchResult::create($collection->count(), $collection, null, new Criteria(), $context);
+        $result = new EntitySearchResult('order', $collection->count(), $collection, null, new Criteria(), $context);
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);

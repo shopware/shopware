@@ -353,7 +353,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$app]),
                 null,
@@ -398,7 +399,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$app]),
                 null,
@@ -498,7 +500,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$app]),
                 null,
@@ -543,7 +546,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$app]),
                 null,
@@ -750,7 +754,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'app',
                 1,
                 new AppCollection([$app]),
                 null,

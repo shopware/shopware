@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -74,7 +75,8 @@ class SetOrderCustomFieldActionTest extends TestCase
         $flow = new StorableFlow('', $context, [], [OrderAware::ORDER_ID => $orderId]);
         $flow->setConfig($config);
 
-        $entitySearchResult = EntitySearchResult::create(
+        $entitySearchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,

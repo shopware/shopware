@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -54,7 +55,8 @@ class AccountServiceTest extends TestCase
         $customer->setDoubleOptInRegistration(false);
 
         $customerRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -128,7 +130,8 @@ class AccountServiceTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -161,7 +164,8 @@ class AccountServiceTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 0,
                 new CustomerCollection(),
                 null,
@@ -202,7 +206,8 @@ class AccountServiceTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -257,7 +262,8 @@ class AccountServiceTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -359,7 +365,8 @@ class AccountServiceTest extends TestCase
         $repo
             ->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -428,7 +435,8 @@ class AccountServiceTest extends TestCase
         $repo
             ->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 0,
                 new CustomerCollection(),
                 null,
@@ -481,7 +489,8 @@ class AccountServiceTest extends TestCase
         $customer->setDoubleOptInRegistration(true);
 
         $customerRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,

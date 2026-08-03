@@ -66,7 +66,8 @@ class CategoryAdminSearchIndexerTest extends TestCase
         $category = new CategoryEntity();
         $category->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'category',
                 1,
                 new EntityCollection([$category]),
                 null,

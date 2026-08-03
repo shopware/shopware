@@ -59,7 +59,8 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition->compile($definitionInstanceRegistry);
 
         $customerRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CustomerEntity::class,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -204,7 +205,8 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition->compile($definitionInstanceRegistry);
 
         $customerRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CustomerEntity::class,
                 1,
                 new CustomerCollection([$customer]),
                 null,
@@ -290,7 +292,8 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerDefinition->compile($definitionInstanceRegistry);
 
         $customerRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                CustomerEntity::class,
                 1,
                 new CustomerCollection([$customer]),
                 null,

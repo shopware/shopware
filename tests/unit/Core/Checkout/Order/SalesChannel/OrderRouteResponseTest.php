@@ -21,7 +21,8 @@ class OrderRouteResponseTest extends TestCase
 {
     public function testPublicAPI(): void
     {
-        $object = EntitySearchResult::create(
+        $object = new EntitySearchResult(
+            'order',
             0,
             new OrderCollection(),
             null,

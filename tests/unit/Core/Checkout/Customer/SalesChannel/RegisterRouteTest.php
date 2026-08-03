@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -635,7 +636,8 @@ class RegisterRouteTest extends TestCase
         $countryRepository
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
                     1,
                     new CountryCollection([$country]),
                     null,
@@ -754,7 +756,8 @@ class RegisterRouteTest extends TestCase
         $countryRepository
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
                     1,
                     new CountryCollection([$country]),
                     null,
@@ -1087,7 +1090,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(true);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
             1,
             new CustomerCollection([$customerEntity]),
             null,

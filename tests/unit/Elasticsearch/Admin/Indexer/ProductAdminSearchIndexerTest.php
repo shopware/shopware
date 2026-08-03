@@ -68,7 +68,8 @@ class ProductAdminSearchIndexerTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'product',
                 1,
                 new EntityCollection([$product]),
                 null,

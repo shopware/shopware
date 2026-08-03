@@ -91,7 +91,8 @@ class PromotionAdminSearchIndexerTest extends TestCase
         $promotion = new PromotionEntity();
         $promotion->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'promotion',
                 1,
                 new EntityCollection([$promotion]),
                 null,

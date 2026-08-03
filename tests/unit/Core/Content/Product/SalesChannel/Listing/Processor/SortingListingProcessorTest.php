@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -72,7 +73,8 @@ class SortingListingProcessorTest extends TestCase
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
                 1,
                 new ProductSortingCollection([$productSorting]),
                 null,
@@ -114,7 +116,8 @@ class SortingListingProcessorTest extends TestCase
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
                 1,
                 new ProductSortingCollection([$productSorting]),
                 null,

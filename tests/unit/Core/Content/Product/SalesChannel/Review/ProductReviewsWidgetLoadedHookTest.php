@@ -69,7 +69,8 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
         $productReview = new ProductReviewEntity();
         $productReview->setUniqueIdentifier($ids->get('productReview'));
         $reviewResult = ProductReviewResult::fromSearchResult(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'review',
                 1,
                 new ProductReviewCollection([$productReview]),
                 null,

@@ -745,7 +745,7 @@ SVG;
         $this->setFixtureContext($context);
 
         $collection = new MediaCollection([$png]);
-        $searchResult = EntitySearchResult::create(1, $collection, null, new Criteria(), $context);
+        $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects($this->exactly(2))

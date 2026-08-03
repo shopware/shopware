@@ -88,7 +88,8 @@ class ShippingMethodAdminSearchIndexerTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'shipping_method',
                 1,
                 new EntityCollection([$shippingMethod]),
                 null,

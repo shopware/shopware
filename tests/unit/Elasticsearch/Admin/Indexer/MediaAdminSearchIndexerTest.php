@@ -91,7 +91,8 @@ class MediaAdminSearchIndexerTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'media',
                 1,
                 new EntityCollection([$media]),
                 null,

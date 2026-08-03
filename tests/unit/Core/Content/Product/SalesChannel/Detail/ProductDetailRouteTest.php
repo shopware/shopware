@@ -113,7 +113,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->exactly(1))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -157,7 +158,7 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                EntitySearchResult::create(4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
         $route = $this->buildRoute($productRepository);
 
@@ -213,7 +214,7 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                EntitySearchResult::create(4, new ProductCollection([$productTerm]), null, new Criteria(), $this->context->getContext())
+                new EntitySearchResult('product', 4, new ProductCollection([$productTerm]), null, new Criteria(), $this->context->getContext())
             );
         $request = new Request();
         $request->query->set('search', 'term');
@@ -254,7 +255,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -292,7 +294,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -339,7 +342,8 @@ class ProductDetailRouteTest extends TestCase
                 return true;
             }))
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -379,7 +383,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -421,7 +426,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -464,7 +470,7 @@ class ProductDetailRouteTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                EntitySearchResult::create(4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+                new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
         $this->systemConfig->method('getBool')->willReturn(true);
@@ -485,7 +491,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -523,7 +530,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$productEntity]),
                     null,
@@ -538,7 +546,8 @@ class ProductDetailRouteTest extends TestCase
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $cmsPageLoader->expects($this->once())
             ->method('load')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'cms_page',
                 1,
                 new CmsPageCollection([$cmsPage]),
                 null,
@@ -601,7 +610,8 @@ class ProductDetailRouteTest extends TestCase
         $productRepository->expects($this->exactly(1))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([$product]),
                     null,

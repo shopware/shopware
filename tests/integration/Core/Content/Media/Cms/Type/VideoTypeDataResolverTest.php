@@ -145,7 +145,8 @@ class VideoTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,
@@ -181,7 +182,8 @@ class VideoTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             0,
             new MediaCollection(),
             null,
@@ -240,7 +242,8 @@ class VideoTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,
@@ -281,7 +284,8 @@ class VideoTypeDataResolverTest extends TestCase
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             0,
             new MediaCollection(),
             null,
@@ -323,7 +327,8 @@ class VideoTypeDataResolverTest extends TestCase
             $product,
         );
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,

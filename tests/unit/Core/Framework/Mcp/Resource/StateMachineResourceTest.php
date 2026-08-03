@@ -53,7 +53,8 @@ class StateMachineResourceTest extends TestCase
         $collection = new StateMachineCollection([$machine]);
         $context = Context::createDefaultContext();
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            'state_machine',
             1,
             $collection,
             null,

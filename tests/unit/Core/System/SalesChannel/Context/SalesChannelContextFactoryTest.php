@@ -99,7 +99,8 @@ class SalesChannelContextFactoryTest extends TestCase
                         new EqualsFilter('salesChannels.id', $baseContext->getSalesChannelId()),
                     ], $criteria->getFilters());
 
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        PaymentMethodDefinition::ENTITY_NAME,
                         0,
                         new PaymentMethodCollection(),
                         null,
@@ -114,7 +115,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerDefinition::ENTITY_NAME,
                         1,
                         new CustomerCollection([$customer]),
                         null,
@@ -129,7 +131,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerAddressDefinition::ENTITY_NAME,
                         2,
                         $addresses,
                         null,
@@ -226,7 +229,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerDefinition::ENTITY_NAME,
                         1,
                         new CustomerCollection([$customer]),
                         null,
@@ -241,7 +245,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerAddressDefinition::ENTITY_NAME,
                         2,
                         $addresses,
                         null,
@@ -327,7 +332,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $customerRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($customer) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerDefinition::ENTITY_NAME,
                         1,
                         new CustomerCollection([$customer]),
                         null,
@@ -342,7 +348,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $addressRepository = new StaticEntityRepository(
             [
                 static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return EntitySearchResult::create(
+                    return new EntitySearchResult(
+                        CustomerAddressDefinition::ENTITY_NAME,
                         2,
                         $addresses,
                         null,

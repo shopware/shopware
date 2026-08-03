@@ -64,7 +64,8 @@ class OrderAdminSearchIndexerTest extends TestCase
         $order = new OrderEntity();
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'order',
                 1,
                 new EntityCollection([$order]),
                 null,

@@ -66,7 +66,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         ]);
 
         $this->productRepository->method('search')->willReturn(
-            EntitySearchResult::create(2, new EntityCollection([$productA, $productB]), null, new Criteria(), $context->getContext())
+            new EntitySearchResult('product', 2, new EntityCollection([$productA, $productB]), null, new Criteria(), $context->getContext())
         );
 
         $this->maxPurchaseCalculator->method('calculate')->willReturnMap([
@@ -104,7 +104,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         ]);
 
         $this->productRepository->method('search')->willReturn(
-            EntitySearchResult::create(1, new EntityCollection([$product]), null, new Criteria(), $context->getContext())
+            new EntitySearchResult('product', 1, new EntityCollection([$product]), null, new Criteria(), $context->getContext())
         );
 
         $this->maxPurchaseCalculator->method('calculate')->willReturn(5);
@@ -124,7 +124,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         $productId = Uuid::randomHex();
 
         $this->productRepository->method('search')->willReturn(
-            EntitySearchResult::create(0, new EntityCollection(), null, new Criteria(), $context->getContext())
+            new EntitySearchResult('product', 0, new EntityCollection(), null, new Criteria(), $context->getContext())
         );
 
         $request = new Request(['ids' => [$productId]]);

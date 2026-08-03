@@ -85,7 +85,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $delivery->setOrderId('order_id');
         $delivery->setOrder($order);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_delivery',
             1,
             new OrderDeliveryCollection([$delivery]),
             null,
@@ -104,7 +105,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $orderRepo
             ->expects($this->exactly(2))
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
+            ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
 
         $expectedEvent = new OrderStateMachineStateChangeEvent('enter.order_delivery.next_state', $order, $context);
 
@@ -134,7 +135,8 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testOnOrderDeliveryStateChangeNotFound(): void
     {
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_delivery',
             0,
             new OrderDeliveryCollection(),
             null,
@@ -184,7 +186,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $delivery->setId('order_delivery_id');
         $delivery->setOrderId('order_id');
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_delivery',
             1,
             new OrderDeliveryCollection([$delivery]),
             null,
@@ -252,7 +255,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $transaction->setOrder($order);
         $transaction->setPaymentMethod($paymentMethod);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_transaction',
             1,
             new OrderTransactionCollection([$transaction]),
             null,
@@ -271,7 +275,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $orderRepo
             ->expects($this->exactly(2))
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
+            ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
 
         $expectedEvent = new OrderStateMachineStateChangeEvent('enter.order_transaction.next_state', $order, $context);
 
@@ -317,7 +321,8 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testOnOrderTransactionStateChangeWithoutTransaction(): void
     {
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_transaction',
             0,
             new OrderTransactionCollection(),
             null,
@@ -366,7 +371,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $transaction = new OrderTransactionEntity();
         $transaction->setId('order_transaction_id');
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_transaction',
             1,
             new OrderTransactionCollection([$transaction]),
             null,
@@ -416,7 +422,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $transaction->setId('order_transaction_id');
         $transaction->setPaymentMethod(new PaymentMethodEntity());
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'order_transaction',
             1,
             new OrderTransactionCollection([$transaction]),
             null,
@@ -474,7 +481,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $orderRepo
             ->expects($this->exactly(2))
             ->method('search')
-            ->willReturn(EntitySearchResult::create(1, new OrderCollection([$order]), null, new Criteria(['order_id']), Context::createDefaultContext()));
+            ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), Context::createDefaultContext()));
 
         $expectedEvent = new OrderStateMachineStateChangeEvent('enter.order_transaction.next_state', $order, Context::createDefaultContext());
 
@@ -538,7 +545,8 @@ class OrderStateChangeEventListenerTest extends TestCase
         $expectedCriteria = new Criteria();
         $expectedCriteria->addAssociation('stateMachine');
 
-        $states = EntitySearchResult::create(
+        $states = new EntitySearchResult(
+            'state_machine_state',
             1,
             new StateMachineStateCollection([$state]),
             null,

@@ -133,7 +133,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $order->setOrderCustomer($customer);
 
         $orderRepository->expects($this->once())->method('search')->willReturn(
-            EntitySearchResult::create(1, new OrderCustomerCollection([$customer]), null, new Criteria(), $context),
+            new EntitySearchResult('order_customer', 1, new OrderCustomerCollection([$customer]), null, new Criteria(), $context),
         );
 
         $event = new EntityWrittenEvent(

@@ -54,7 +54,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -133,7 +134,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl(null);
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -180,7 +182,8 @@ class AppContextGatewayTest extends TestCase
         $expectedAppCriteria->addFilter(new EqualsFilter('name', 'app_test'));
         $expectedAppCriteria->addFilter(new EqualsFilter('active', true));
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             0,
             new AppCollection(),
             null,
@@ -228,7 +231,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -281,7 +285,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -339,7 +344,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -400,7 +406,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,
@@ -468,7 +475,8 @@ class AppContextGatewayTest extends TestCase
         $app->setName('app_test');
         $app->setContextGatewayUrl('https://example.com/gateway/context');
 
-        $appResult = EntitySearchResult::create(
+        $appResult = new EntitySearchResult(
+            'app',
             1,
             new AppCollection([$app]),
             null,

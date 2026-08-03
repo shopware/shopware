@@ -90,7 +90,8 @@ class DocumentGeneratorTest extends TestCase
         );
 
         $documentRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'document',
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -144,7 +145,8 @@ class DocumentGeneratorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $documentRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'document',
                 1,
                 new DocumentCollection([$document]),
                 null,

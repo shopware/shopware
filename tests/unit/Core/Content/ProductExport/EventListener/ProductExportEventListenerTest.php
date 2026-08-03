@@ -54,7 +54,8 @@ class ProductExportEventListenerTest extends TestCase
 
         $productExportRepository
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'product_export',
                 1,
                 new ProductExportCollection([$entity]),
                 null,

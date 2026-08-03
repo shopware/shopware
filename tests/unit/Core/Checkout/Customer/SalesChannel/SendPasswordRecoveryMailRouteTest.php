@@ -77,7 +77,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     $customerCollection,
                     null,
@@ -120,7 +121,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer_recovery',
                     1,
                     $customerRecoveryCollection,
                     null,

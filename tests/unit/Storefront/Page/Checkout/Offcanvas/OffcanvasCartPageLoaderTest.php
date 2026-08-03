@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -91,7 +92,8 @@ class OffcanvasCartPageLoaderTest extends TestCase
         ]);
 
         $shippingMethodResponse = new ShippingMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ShippingMethodDefinition::ENTITY_NAME,
                 2,
                 $shippingMethods,
                 null,

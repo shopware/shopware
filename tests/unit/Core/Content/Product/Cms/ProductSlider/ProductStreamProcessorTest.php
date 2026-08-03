@@ -287,7 +287,8 @@ class ProductStreamProcessorTest extends TestCase
         $resolverContext = $this->getResolverContext();
         $data = new ElementDataCollection();
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'tax',
             2,
             new TaxCollection(),
             null,
@@ -309,7 +310,8 @@ class ProductStreamProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'product',
             0,
             new ProductCollection(),
             null,
@@ -342,7 +344,8 @@ class ProductStreamProcessorTest extends TestCase
         $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $products = $this->getProducts();
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'product',
             $products->count(),
             $products,
             null,

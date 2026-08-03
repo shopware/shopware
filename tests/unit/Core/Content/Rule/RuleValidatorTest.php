@@ -55,7 +55,8 @@ class RuleValidatorTest extends TestCase
         $definition = $this->getRuleConditionDefinition();
         $storedCondition = $this->createCustomerGroupCondition($conditionId);
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            RuleConditionDefinition::ENTITY_NAME,
             1,
             new RuleConditionCollection([$storedCondition]),
             null,

@@ -7,11 +7,13 @@ namespace Shopware\Tests\Unit\Storefront\Pagelet\Footer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
@@ -60,7 +62,8 @@ class FooterPageletLoaderTest extends TestCase
         $paymentMethodCollection = new PaymentMethodCollection();
         $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute->method('load')->willReturn(new PaymentMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                PaymentMethodDefinition::ENTITY_NAME,
                 0,
                 $paymentMethodCollection,
                 null,
@@ -72,7 +75,8 @@ class FooterPageletLoaderTest extends TestCase
         $shippingMethodCollection = new ShippingMethodCollection();
         $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $shippingMethodRoute->method('load')->willReturn(new ShippingMethodRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                ShippingMethodDefinition::ENTITY_NAME,
                 0,
                 $shippingMethodCollection,
                 null,

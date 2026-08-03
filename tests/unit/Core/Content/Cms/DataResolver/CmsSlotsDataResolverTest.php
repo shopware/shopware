@@ -208,7 +208,8 @@ class CmsSlotsDataResolverTest extends TestCase
         $other = (new SalesChannelProductEntity())->assign(['id' => 'id-2']);
 
         // the merged direct read fetches the ids of all slots at once, each slot only gets its own ids back
-        $this->productRepository->method('search')->willReturn(EntitySearchResult::create(
+        $this->productRepository->method('search')->willReturn(new EntitySearchResult(
+            'product',
             2,
             new SalesChannelProductCollection([$wanted, $other]),
             null,

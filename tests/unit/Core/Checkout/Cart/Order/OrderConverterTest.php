@@ -593,7 +593,8 @@ class OrderConverterTest extends TestCase
         $addressRepository
             ->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'order_address',
                 1,
                 $addresses,
                 null,
@@ -862,7 +863,8 @@ class OrderConverterTest extends TestCase
         $customerRepository = static::createStub(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     new EntityCollection($customerRepositoryResultArray),
                     null,
@@ -875,7 +877,8 @@ class OrderConverterTest extends TestCase
         $orderAddressRepository = static::createStub(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'orderAddress',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -902,7 +905,8 @@ class OrderConverterTest extends TestCase
                 $productDownload->setProductId($value[0] ?? null);
             }
 
-            return EntitySearchResult::create(
+            return new EntitySearchResult(
+                'productDownload',
                 1,
                 new EntityCollection([$productDownload]),
                 null,

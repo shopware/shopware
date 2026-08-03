@@ -116,7 +116,8 @@ class CmsPageAdminSearchIndexerTest extends TestCase
         $cmsPage = new CmsPageEntity();
         $cmsPage->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'cms_page',
                 1,
                 new EntityCollection([$cmsPage]),
                 null,

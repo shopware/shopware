@@ -31,6 +31,7 @@ use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOve
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Environment;
@@ -609,7 +610,8 @@ class SalesChannelFileRendererTest extends TestCase
                     $criteriaAssertion($criteria, $context);
                 }
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    SalesChannelDefinition::ENTITY_NAME,
                     $salesChannel instanceof SalesChannelEntity ? 1 : 0,
                     new SalesChannelCollection($salesChannel instanceof SalesChannelEntity ? [$salesChannel] : []),
                     null,

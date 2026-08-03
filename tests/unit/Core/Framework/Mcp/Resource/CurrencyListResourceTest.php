@@ -34,7 +34,8 @@ class CurrencyListResourceTest extends TestCase
         $collection = new CurrencyCollection([$currency]);
         $context = Context::createDefaultContext();
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            'currency',
             1,
             $collection,
             null,

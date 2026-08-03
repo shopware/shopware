@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -54,7 +55,8 @@ class ZugferdRendererTest extends TestCase
         $order->setId(self::ORDER_ID);
         $order->setSalesChannelId(Uuid::randomHex());
 
-        $orderSearchResult = EntitySearchResult::create(
+        $orderSearchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,

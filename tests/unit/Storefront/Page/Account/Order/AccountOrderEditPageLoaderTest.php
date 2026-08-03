@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -80,7 +81,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $orderResponse = new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 1,
                 $orders,
                 null,
@@ -161,7 +163,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $orderResponse = new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 1,
                 $orders,
                 null,
@@ -241,7 +244,8 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $orderResponse = new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 1,
                 $orders,
                 null,

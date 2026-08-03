@@ -411,7 +411,7 @@ class ProductListingLoaderTest extends TestCase
             $products->add((new ProductEntity())->assign(['id' => $id]));
         }
 
-        return EntitySearchResult::create($products->count(), $products, new AggregationResultCollection(), $criteria, $this->salesChannelContext->getContext());
+        return new EntitySearchResult('product', $products->count(), $products, new AggregationResultCollection(), $criteria, $this->salesChannelContext->getContext());
     }
 
     /**

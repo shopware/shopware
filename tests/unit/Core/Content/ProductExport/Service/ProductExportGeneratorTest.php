@@ -118,7 +118,8 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->productRepository->expects($this->once())
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'product',
                 0,
                 new SalesChannelProductCollection(),
                 null,
@@ -760,7 +761,8 @@ class ProductExportGeneratorTest extends TestCase
     ): EntitySearchResult {
         $criteria = new Criteria([$product->getId()]);
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'product',
             1,
             new SalesChannelProductCollection([$product]),
             null,
@@ -778,7 +780,8 @@ class ProductExportGeneratorTest extends TestCase
     {
         $criteria = new Criteria(array_map(static fn (SalesChannelProductEntity $product): string => $product->getId(), $products));
 
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'product',
             \count($products),
             new SalesChannelProductCollection($products),
             null,
@@ -792,7 +795,8 @@ class ProductExportGeneratorTest extends TestCase
      */
     private function createEmptyProductSearchResult(SalesChannelContext $context): EntitySearchResult
     {
-        return EntitySearchResult::create(
+        return new EntitySearchResult(
+            'product',
             0,
             new SalesChannelProductCollection(),
             null,

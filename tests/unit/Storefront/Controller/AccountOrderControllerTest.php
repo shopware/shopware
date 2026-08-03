@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
@@ -123,7 +124,8 @@ class AccountOrderControllerTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $accountRouteResponse = new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 1,
                 $orders,
                 null,
@@ -217,7 +219,8 @@ class AccountOrderControllerTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $accountRouteResponse = new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 1,
                 $orders,
                 null,

@@ -22,7 +22,8 @@ class ElementDataCollectionTest extends TestCase
     public function testItIterates(): void
     {
         $collection = new ElementDataCollection();
-        $collection->add('a', EntitySearchResult::create(
+        $collection->add('a', new EntitySearchResult(
+            'product',
             0,
             new ProductCollection(),
             null,

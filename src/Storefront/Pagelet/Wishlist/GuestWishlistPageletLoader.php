@@ -46,7 +46,8 @@ class GuestWishlistPageletLoader
         if ($productsIds !== []) {
             $response = $this->productListRoute->load($criteria, $context);
         } else {
-            $response = new ProductListResponse(EntitySearchResult::create(
+            $response = new ProductListResponse(new EntitySearchResult(
+                'wishlist',
                 0,
                 new ProductCollection(),
                 null,

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
+use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Administration\Snippet\CachedSnippetFinder;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
+use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -338,7 +340,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         }
 
         $collection = new AppAdministrationSnippetCollection($appSnippets);
-        $entitySearchResult = EntitySearchResult::create(
+        $entitySearchResult = new EntitySearchResult(
+            AppAdministrationSnippetDefinition::ENTITY_NAME,
             $collection->count(),
             $collection,
             null,
@@ -387,7 +390,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
         }
 
         $collection = new LocaleCollection($localeEntities);
-        $entitySearchResult = EntitySearchResult::create(
+        $entitySearchResult = new EntitySearchResult(
+            LocaleDefinition::ENTITY_NAME,
             $collection->count(),
             $collection,
             null,

@@ -66,7 +66,8 @@ class RotateAppSecretCommandTest extends TestCase
                 static::isInstanceOf(Context::class)
             )
             ->willReturnCallback(function (Criteria $criteria, Context $context) use ($app1, $app2): EntitySearchResult {
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'app',
                     2,
                     new AppCollection([$app1, $app2]),
                     null,
@@ -123,7 +124,8 @@ class RotateAppSecretCommandTest extends TestCase
                 static::isInstanceOf(Context::class)
             )
             ->willReturnCallback(function (Criteria $criteria, Context $context) use ($app): EntitySearchResult {
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'app',
                     1,
                     new AppCollection([$app]),
                     null,
@@ -197,7 +199,8 @@ class RotateAppSecretCommandTest extends TestCase
                 static::isInstanceOf(Context::class)
             )
             ->willReturnCallback(function (Criteria $criteria, Context $context): EntitySearchResult {
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'app',
                     0,
                     new AppCollection([]),
                     null,
@@ -241,7 +244,8 @@ class RotateAppSecretCommandTest extends TestCase
         $appRepository->expects($this->once())
             ->method('search')
             ->willReturnCallback(function (Criteria $criteria, Context $context) use ($app): EntitySearchResult {
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'app',
                     1,
                     new AppCollection([$app]),
                     null,

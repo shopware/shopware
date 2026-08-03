@@ -272,9 +272,8 @@ Changes affecting all three classes:
 
 `EntitySearchResult`:
 
-- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
-- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
-- The constructor was made private. Create results with `EntitySearchResult::create($total, $entities, $aggregations, $criteria, $context)`.
+- The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
 - The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:

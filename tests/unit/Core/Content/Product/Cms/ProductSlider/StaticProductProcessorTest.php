@@ -208,7 +208,8 @@ class StaticProductProcessorTest extends TestCase
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            'tax',
             2,
             new EntityCollection(),
             null,

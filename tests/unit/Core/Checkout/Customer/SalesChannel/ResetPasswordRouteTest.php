@@ -59,7 +59,8 @@ class ResetPasswordRouteTest extends TestCase
 
         $customerRecoveryRepository = static::createStub(EntityRepository::class);
         $customerRecoveryRepository->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'customer_recovery',
                 1,
                 $recoveryCollection,
                 null,
@@ -182,7 +183,8 @@ class ResetPasswordRouteTest extends TestCase
 
         $customerRecoveryRepository = static::createStub(EntityRepository::class);
         $customerRecoveryRepository->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'customer_recovery',
                 1,
                 new CustomerRecoveryCollection([$recovery]),
                 null,

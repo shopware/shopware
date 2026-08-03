@@ -104,7 +104,8 @@ class ProductListingLoaderExtensionsTests extends TestCase
             name: ResolveListingExtension::NAME,
             extension: $extension,
             function: static function () {
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection([
                         (new ProductEntity())->assign(['id' => 'plugin-id']),

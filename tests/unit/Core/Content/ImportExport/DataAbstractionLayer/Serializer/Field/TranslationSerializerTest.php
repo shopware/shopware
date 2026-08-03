@@ -66,7 +66,8 @@ class TranslationSerializerTest extends TestCase
     public function testSerialization(): void
     {
         $languageRepository = new StaticEntityRepository([
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'language',
                 1,
                 new LanguageCollection([
                     (new LanguageEntity())->assign([

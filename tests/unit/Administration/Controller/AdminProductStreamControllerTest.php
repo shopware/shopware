@@ -70,7 +70,8 @@ class AdminProductStreamControllerTest extends TestCase
                 static::assertInstanceOf(ProductAvailableFilter::class, $criteria->getFilters()[0]);
                 static::assertCount(0, $criteria->getGroupFields());
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'product',
                     1,
                     new ProductCollection(),
                     null,
@@ -105,7 +106,8 @@ class AdminProductStreamControllerTest extends TestCase
                 static::assertContainsEquals(new FieldGrouping('displayGroup'), $criteria->getGroupFields());
                 static::assertContainsEquals(new NotEqualsFilter('displayGroup', null), $criteria->getFilters());
 
-                return EntitySearchResult::create(
+                return new EntitySearchResult(
+                    'product',
                     0,
                     new ProductCollection(),
                     null,

@@ -35,7 +35,7 @@ class EntityAggregateToolTest extends TestCase
         $aggregations = new AggregationResultCollection();
         $aggregations->add(new CountResult('total', 42));
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), $aggregations, new Criteria(), $context);
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
 
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
@@ -56,7 +56,7 @@ class EntityAggregateToolTest extends TestCase
         $aggregations->add(new CountResult('total', 100));
         $aggregations->add(new AvgResult('avgValue', 99.5));
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), $aggregations, new Criteria(), $context);
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
 
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"},{"type":"avg","name":"avgValue","field":"amountTotal"}]');
@@ -75,7 +75,7 @@ class EntityAggregateToolTest extends TestCase
         $aggregations = new AggregationResultCollection();
         $aggregations->add(new AvgResult('myAvg', 55.5));
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), $aggregations, new Criteria(), $context);
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), $aggregations, new Criteria(), $context);
 
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"avg","name":"myAvg","field":"amountTotal"}]');
@@ -108,7 +108,7 @@ class EntityAggregateToolTest extends TestCase
             ->willReturnCallback(function (Criteria $criteria) use (&$capturedCriteria, $context): EntitySearchResult {
                 $capturedCriteria = $criteria;
 
-                return EntitySearchResult::create(0, new EntityCollection(), null, new Criteria(), $context);
+                return new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context);
             });
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
@@ -147,7 +147,7 @@ class EntityAggregateToolTest extends TestCase
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(0, new EntityCollection(), null, new Criteria(), $context)
+            new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context)
         );
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
@@ -187,7 +187,7 @@ class EntityAggregateToolTest extends TestCase
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
-            EntitySearchResult::create(0, new EntityCollection(), null, new Criteria(), $context)
+            new EntitySearchResult('order', 0, new EntityCollection(), null, new Criteria(), $context)
         );
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);

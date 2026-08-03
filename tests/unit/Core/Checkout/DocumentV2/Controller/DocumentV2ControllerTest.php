@@ -29,6 +29,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -710,7 +711,8 @@ class DocumentV2ControllerTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setLanguageId(Uuid::randomHex());
 
-        $orderSearchResult = EntitySearchResult::create(
+        $orderSearchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,

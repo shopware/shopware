@@ -127,7 +127,8 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
             $product,
         );
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,
@@ -180,7 +181,8 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = EntitySearchResult::create(
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,

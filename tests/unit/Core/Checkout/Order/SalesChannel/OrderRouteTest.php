@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
@@ -84,7 +85,8 @@ class OrderRouteTest extends TestCase
                 return $event;
             });
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,
@@ -161,7 +163,8 @@ class OrderRouteTest extends TestCase
                 return $event;
             });
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,
@@ -282,7 +285,8 @@ class OrderRouteTest extends TestCase
             ->method('getCustomer')
             ->willReturn(null);
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,

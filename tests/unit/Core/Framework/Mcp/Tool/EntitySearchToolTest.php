@@ -37,7 +37,8 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(25);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'product',
             0,
             new EntityCollection(),
             null,
@@ -84,7 +85,8 @@ class EntitySearchToolTest extends TestCase
         $criteria->setOffset(10);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'product',
             42,
             new EntityCollection(),
             null,
@@ -129,7 +131,8 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(5);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(
+        $result = new EntitySearchResult(
+            'product',
             3,
             new EntityCollection(),
             null,
@@ -180,7 +183,7 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(25);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), null, $criteria, $context);
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
@@ -222,7 +225,7 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(50);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), null, $criteria, $context);
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
@@ -264,7 +267,7 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(25);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), null, $criteria, $context);
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
@@ -306,7 +309,7 @@ class EntitySearchToolTest extends TestCase
         $criteria->setLimit(25);
         $criteria->setIncludes([]);
 
-        $result = EntitySearchResult::create(0, new EntityCollection(), null, $criteria, $context);
+        $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
         $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);

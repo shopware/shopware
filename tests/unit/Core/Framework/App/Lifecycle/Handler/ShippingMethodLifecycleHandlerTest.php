@@ -113,7 +113,8 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
     {
         $appShippingMethodMock = static::createStub(EntityRepository::class);
         $appShippingMethodMock->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                AppShippingMethodEntity::class,
                 0,
                 new EntityCollection(),
                 null,

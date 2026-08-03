@@ -34,7 +34,7 @@ class ElasticsearchLanguageProviderTest extends TestCase
                 static::assertCount(1, $sortings);
                 static::assertSame('id', $sortings[0]->getField());
 
-                return EntitySearchResult::create(0, new LanguageCollection(), null, $criteria, Context::createDefaultContext());
+                return new EntitySearchResult('foo', 0, new LanguageCollection(), null, $criteria, Context::createDefaultContext());
             });
 
         $dispatcher = new EventDispatcher();

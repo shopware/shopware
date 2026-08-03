@@ -126,14 +126,14 @@ class StaticEntityRepository extends EntityRepository
 
         if ($result instanceof EntityCollection) {
             /** @var TEntityCollection $result */
-            return EntitySearchResult::create($result->count(), $result, null, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);
         }
 
         if ($result instanceof AggregationResultCollection) {
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
 
-            return EntitySearchResult::create(0, $collection, $result, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName(), 0, $collection, $result, $criteria, $context);
         }
 
         throw new \RuntimeException('Invalid mock repository configuration');

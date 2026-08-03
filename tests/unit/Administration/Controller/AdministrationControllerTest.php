@@ -156,7 +156,8 @@ class AdministrationControllerTest extends TestCase
         $currencyCollection->add($currency);
 
         $currencyRepository->expects($this->once())->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'currency',
                 1,
                 $currencyCollection,
                 null,
@@ -196,7 +197,8 @@ class AdministrationControllerTest extends TestCase
         $currencyCollection->add($currency);
 
         $currencyRepository->expects($this->once())->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'currency',
                 1,
                 $currencyCollection,
                 null,
@@ -252,7 +254,8 @@ class AdministrationControllerTest extends TestCase
         $currencyCollection->add($currency);
 
         $currencyRepository->expects($this->once())->method('search')->willReturn(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                'currency',
                 1,
                 $currencyCollection,
                 null,
@@ -654,7 +657,8 @@ class AdministrationControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $languageRepository = static::createStub(EntityRepository::class);
         $languageRepository->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                'language',
                 2,
                 new LanguageCollection($languages),
                 null,

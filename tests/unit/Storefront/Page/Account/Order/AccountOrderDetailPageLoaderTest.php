@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
@@ -105,7 +106,8 @@ class AccountOrderDetailPageLoaderTest extends TestCase
     private function orderResponse(OrderCollection $orders): OrderRouteResponse
     {
         return new OrderRouteResponse(
-            EntitySearchResult::create(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
                 $orders->count(),
                 $orders,
                 null,

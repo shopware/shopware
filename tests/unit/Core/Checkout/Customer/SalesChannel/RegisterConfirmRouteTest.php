@@ -79,7 +79,8 @@ class RegisterConfirmRouteTest extends TestCase
         $this->customerRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     new CustomerCollection([$customer]),
                     null,
@@ -101,7 +102,8 @@ class RegisterConfirmRouteTest extends TestCase
         $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     new CustomerCollection([$customer]),
                     null,
@@ -138,7 +140,8 @@ class RegisterConfirmRouteTest extends TestCase
         $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     new CustomerCollection([$customer]),
                     null,
@@ -159,7 +162,8 @@ class RegisterConfirmRouteTest extends TestCase
         $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
-                EntitySearchResult::create(
+                new EntitySearchResult(
+                    'customer',
                     1,
                     new CustomerCollection([$customer]),
                     null,

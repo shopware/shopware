@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
+use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 
 /**
@@ -240,7 +241,8 @@ class StoreRequestOptionsProviderTest extends TestCase
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($invokedCount)
             ->method('search')
-            ->willReturn(EntitySearchResult::create(
+            ->willReturn(new EntitySearchResult(
+                UserDefinition::ENTITY_NAME,
                 $collection->count(),
                 $collection,
                 null,

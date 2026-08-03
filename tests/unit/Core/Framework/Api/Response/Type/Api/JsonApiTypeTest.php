@@ -34,7 +34,8 @@ class JsonApiTypeTest extends TestCase
             '_uniqueIdentifier' => 'product-id',
         ]);
 
-        $searchResult = EntitySearchResult::create(
+        $searchResult = new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
             1,
             new ProductCollection([$product]),
             null,

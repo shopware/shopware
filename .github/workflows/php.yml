@@ -140,9 +140,11 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: var/cache/rector
-          key: "rector-result-cache-${{ github.run_id }}"
+          # TEMPORARY cold-run measurement for issue 18890, revert before merge:
+          # the key matches nothing, so the analysis runs without a result cache
+          key: "rector-cold-baseline-${{ github.run_id }}"
           restore-keys: |
-            rector-result-cache-
+            rector-cold-baseline-never-matches-
 
       # baseline data for the runner sizing evaluation, see issue 18890: rector scales
       # with the core count, so wall times are only comparable with the environment printed

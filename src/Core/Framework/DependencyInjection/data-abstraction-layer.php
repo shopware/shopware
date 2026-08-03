@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateHydratorCommand;
@@ -872,6 +873,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntitySearcherInterface::class),
             service(RequestCriteriaBuilder::class),
             service(SyncFkResolver::class),
+            service(SyncMetricsInstrumentor::class),
+        ]);
+
+    $services->set(SyncMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
         ]);
 
     $services->set(SyncFkResolver::class)

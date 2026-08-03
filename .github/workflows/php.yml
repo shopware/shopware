@@ -64,10 +64,10 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      # per-run key + prefix restore, like the PHPStan and Rector result caches: the old
-      # composer.json-hash key was never re-saved once it existed, so the stored cache went
-      # stale against php-cs-fixer's internal signature (PHP/fixer version, rules) and PRs
-      # silently paid a full 10+ minute scan despite an exact-key cache hit (issue 18890)
+      # per-run key + prefix restore, like the PHPStan and Rector result caches: a static
+      # key is never re-saved once it exists, so the stored cache goes stale against
+      # php-cs-fixer's internal signature (PHP/fixer version, rules) and the run silently
+      # pays a full scan despite a cache hit
       - name: "Restore result cache"
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -82,7 +82,6 @@ jobs:
       - name: Analyze composer dependencies
         run: composer dependency-analyzer
 
-      # baseline data for the runner sizing evaluation, see issue 18890
       - name: Show analysis environment
         run: |
           echo "cores: $(nproc)"

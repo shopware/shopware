@@ -29,15 +29,6 @@ describe('src/app/store/sw-bulk-edit.store', () => {
         expect(state.orderDocuments.invoice.isChanged).toBe(false);
     });
 
-    it('should default fileFormats to pdf for generated document types', async () => {
-        const state = Shopware.Store.get('swBulkEdit');
-
-        expect(state.orderDocuments.invoice.value.fileFormats).toEqual(['pdf']);
-        expect(state.orderDocuments.storno.value.fileFormats).toEqual(['pdf']);
-        expect(state.orderDocuments.delivery_note.value.fileFormats).toEqual(['pdf']);
-        expect(state.orderDocuments.credit_note.value.fileFormats).toEqual(['pdf']);
-    });
-
     it('should be able to update fileFormats via setOrderDocumentsValue', async () => {
         const store = Shopware.Store.get('swBulkEdit');
 

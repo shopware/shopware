@@ -428,6 +428,8 @@ The admin menu only supports up to three levels of nesting.`,
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
                 Shopware.Store.get('shopwareApps').apps = modules;
+
+                this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
             });
         },
 

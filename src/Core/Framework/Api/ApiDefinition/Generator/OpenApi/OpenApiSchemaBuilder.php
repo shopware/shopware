@@ -99,13 +99,10 @@ EOF,
 
     private function enrichComponents(Components $components, string $api): void
     {
-        $schemas = $this->getDefaultSchemas();
-
-        if ($api === DefinitionService::STORE_API) {
-            unset($schemas['relationships'], $schemas['relationship']);
+        if ($api !== DefinitionService::STORE_API) {
+            $components->merge(array_values($this->getDefaultSchemas()));
         }
 
-        $components->merge(array_values($schemas));
         $components->merge(array_values($this->createSecurityScheme($api)));
         $components->merge(array_values($this->createDefaultResponses()));
     }

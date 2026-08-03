@@ -84,10 +84,30 @@ class OpenApiSchemaBuilderTest extends TestCase
 
         (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
 
-        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
+        $schemas = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'] ?? [];
 
-        static::assertArrayNotHasKey('relationships', $schema);
-        static::assertArrayNotHasKey('relationship', $schema);
+        foreach ([
+            'success',
+            'failure',
+            'info',
+            'meta',
+            'data',
+            'resource',
+            'relationshipLinks',
+            'links',
+            'link',
+            'attributes',
+            'relationships',
+            'relationship',
+            'relationshipToOne',
+            'relationshipToMany',
+            'linkage',
+            'pagination',
+            'jsonapi',
+            'error',
+        ] as $schemaName) {
+            static::assertArrayNotHasKey($schemaName, $schemas);
+        }
     }
 
     /**

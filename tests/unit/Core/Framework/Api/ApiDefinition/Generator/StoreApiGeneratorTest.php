@@ -142,7 +142,7 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
-    public function testStoreApiLoadsJsonApiRelationshipSchemasFromJson(): void
+    public function testStoreApiLoadsJsonApiBaseSchemasFromJson(): void
     {
         $schema = $this->generator->generate(
             $this->definitionRegistry->getDefinitions(),
@@ -151,6 +151,29 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
         $entities = $schema['components']['schemas'];
+
+        foreach ([
+            'success',
+            'failure',
+            'info',
+            'meta',
+            'data',
+            'resource',
+            'relationshipLinks',
+            'links',
+            'link',
+            'attributes',
+            'relationships',
+            'relationship',
+            'relationshipToOne',
+            'relationshipToMany',
+            'linkage',
+            'pagination',
+            'jsonapi',
+            'error',
+        ] as $schemaName) {
+            static::assertArrayHasKey($schemaName, $entities);
+        }
 
         static::assertSame(
             ['$ref' => '#/components/schemas/relationship'],

@@ -41,10 +41,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
     it.deprecated('v6.8.0.0')('product: should not find any missing required fields', () => {
-        const violations = importExportProfileMappingService.validate(
-            'product',
-            mappings.productProfileOnlyRequired,
-        );
+        const violations = importExportProfileMappingService.validate('product', mappings.productProfileOnlyRequired);
 
         expect(violations.missingRequiredFields).toHaveLength(0);
         expect(violations.duplicateMappings).toHaveLength(0);
@@ -53,10 +50,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should not find any missing required fields',
         withRequiredProductType(() => {
-            const violations = importExportProfileMappingService.validate(
-                'product',
-                requiredProductMappingsWithType,
-            );
+            const violations = importExportProfileMappingService.validate('product', requiredProductMappingsWithType);
 
             expect(violations.missingRequiredFields).toHaveLength(0);
             expect(violations.duplicateMappings).toHaveLength(0);
@@ -99,9 +93,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
     it.deprecated('v6.8.0.0')('product: should find missing required field name', () => {
-        const mapping = mappings.productProfileOnlyRequired.filter(
-            (field) => field.key !== 'translations.DEFAULT.name',
-        );
+        const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'translations.DEFAULT.name');
         const violations = importExportProfileMappingService.validate('product', mapping);
 
         expect(violations.missingRequiredFields).toHaveLength(1);
@@ -113,9 +105,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should find missing required field name',
         withRequiredProductType(() => {
-            const mapping = requiredProductMappingsWithType.filter(
-                (field) => field.key !== 'translations.DEFAULT.name',
-            );
+            const mapping = requiredProductMappingsWithType.filter((field) => field.key !== 'translations.DEFAULT.name');
             const violations = importExportProfileMappingService.validate('product', mapping);
 
             expect(violations.missingRequiredFields).toHaveLength(1);

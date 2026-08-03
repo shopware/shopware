@@ -463,18 +463,21 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * It is skipped under the flag because it is designed to fail once a notice's version has
      * arrived, and the entry cannot be removed before the major ships.
      */
-    it.deprecated('v6.8.0.0')('fails once a change notice reached its deprecation version (delete the entry then)', async () => {
-        const wrapper = await createWrapper();
+    it.deprecated('v6.8.0.0')(
+        'fails once a change notice reached its deprecation version (delete the entry then)',
+        async () => {
+            const wrapper = await createWrapper();
 
-        const outdated = wrapper.vm.changeNotices
-            .filter((notice) => Shopware.Feature.isActive(notice.deprecationVersion))
-            .map((notice) => notice.key);
+            const outdated = wrapper.vm.changeNotices
+                .filter((notice) => Shopware.Feature.isActive(notice.deprecationVersion))
+                .map((notice) => notice.key);
 
-        expect(
-            outdated,
-            `Deprecated settings messages not removed! Please remove the outdated notices from 'sw-settings-index/index.ts': ${outdated.join(', ')}`,
-        ).toEqual([]);
-    });
+            expect(
+                outdated,
+                `Deprecated settings messages not removed! Please remove the outdated notices from 'sw-settings-index/index.ts': ${outdated.join(', ')}`,
+            ).toEqual([]);
+        },
+    );
 
     describe('search functionality', () => {
         it('should filter items based on search term (term is part of label, case insensitive, white space around)', async () => {

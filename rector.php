@@ -22,9 +22,9 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
-    // chunks of 128 files per worker job cut the cold full-repo analysis from ~11 to ~7
-    // minutes on the 4-core CI runners; the default of 16 spends a third of all CPU time
-    // on per-chunk overhead, and 256 regresses again (measurements in issue 18890)
+    // chunks of 128 files per worker job cut the cold full-repo analysis from ~11 to 7-9
+    // minutes on the 4-core CI runners: the default of 16 spends a quarter to a third of
+    // all CPU time on per-chunk overhead (measurements in issue 18890)
     ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',

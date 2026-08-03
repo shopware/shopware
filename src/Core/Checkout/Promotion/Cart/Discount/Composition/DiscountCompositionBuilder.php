@@ -36,6 +36,7 @@ class DiscountCompositionBuilder
         $compositionItems = [];
         $totalDiscount = 0.0;
 
+        /** @var DiscountCompositionItem $item */
         foreach ($targetItems as $item) {
             $totalDiscount += abs($item->getDiscountValue());
         }

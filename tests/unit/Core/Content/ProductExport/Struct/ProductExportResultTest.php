@@ -22,7 +22,7 @@ class ProductExportResultTest extends TestCase
 
     public function testPassingNonDefaultTotalTriggersDeprecation(): void
     {
-        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Passing a non-default value for $total is deprecated'));
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Passing $total is deprecated'));
 
         new ProductExportResult('content', [], 1);
     }

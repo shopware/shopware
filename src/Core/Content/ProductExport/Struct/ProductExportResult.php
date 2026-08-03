@@ -22,7 +22,7 @@ class ProductExportResult
         private readonly bool $hasNextBatch = false
     ) {
         if ($total !== 0) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $total is deprecated');
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $total is deprecated');
         }
     }
 

@@ -88,7 +88,8 @@ jobs:
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
+    # TEMPORARY runner-size trial, revert before merge
+    runs-on: runs-on=${{ github.run_id }}/runner=sw-amd64/cpu=8
     name: "PHPStan"
     steps:
       - name: Setup Shopware
@@ -108,12 +109,19 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: var/cache/phpstan
-          key: "phpstan-result-cache-${{ github.run_id }}"
+          # TEMPORARY cold-run measurement, revert before merge: the key matches nothing
+          key: "phpstan-cold-${{ github.run_id }}"
           restore-keys: |
-            phpstan-result-cache-
+            phpstan-cold-never-matches-
+
+      # TEMPORARY measurement instrumentation, revert before merge
+      - name: Show analysis environment
+        run: |
+          echo "cores: $(nproc)"
+          free -h | head -2
 
       - name: PHPStan
-        run: composer run phpstan -- --error-format=table --no-progress
+        run: time composer run phpstan -- --error-format=table --no-progress
 
       - name: "Save result cache"
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

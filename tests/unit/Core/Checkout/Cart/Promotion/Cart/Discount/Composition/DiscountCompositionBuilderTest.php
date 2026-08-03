@@ -67,6 +67,9 @@ class DiscountCompositionBuilderTest extends TestCase
 
         $adjusted = (new DiscountCompositionBuilder())->adjustCompositionItemValues($targetPrice, $items);
 
+        static::assertInstanceOf($adjusted[0], DiscountCompositionItem::class);
+        static::assertInstanceOf($adjusted[1], DiscountCompositionItem::class);
+        
         static::assertSame(5.0, $adjusted[0]->getDiscountValue());
         static::assertSame(15.0, $adjusted[1]->getDiscountValue());
     }

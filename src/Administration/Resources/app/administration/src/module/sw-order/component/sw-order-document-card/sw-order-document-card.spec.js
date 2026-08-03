@@ -455,6 +455,36 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(false);
     });
 
+    it('should download a V2 archive when using the download all action with the feature flag active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    documentFiles: [
+                        {
+                            documentFormat: 'html',
+                        },
+                        {
+                            documentFormat: 'pdf',
+                        },
+                    ],
+                    documentMediaFile: null,
+                    documentA11yMediaFile: null,
+                },
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
+
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['document1']);
+        dispatchEventSpy.mockRestore();
+    });
+
     it('should render the legacy context menu actions when the feature flag is inactive', async () => {
         wrapper = await createWrapper();
 
@@ -574,7 +604,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             null,
         );
         expect(getDocumentV2Mock).not.toHaveBeenCalled();
-        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('1234');
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['1234']);
         dispatchEventSpy.mockRestore();
     });
 

@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
+ * @phpstan-type MailAttachments array<int, array{id?: string, documentId?: string, content: string, fileName: string, mimeType: string|null}>
  */
 #[Package('after-sales')]
 class MailAttachmentsBuilder
@@ -166,7 +166,8 @@ class MailAttachmentsBuilder
             $fileExtension = $media->getFileExtension() ?? $documentFile->getDocumentFormat();
 
             $attachments[] = [
-                'id' => $documentId . ':' . $documentFile->getDocumentFormat(),
+                'id' => $documentFile->getId(),
+                'documentId' => $documentId,
                 'content' => $content,
                 'fileName' => ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
                 'mimeType' => $media->getMimeType(),
@@ -189,6 +190,7 @@ class MailAttachmentsBuilder
 
         return [[
             'id' => $documentId,
+            'documentId' => $documentId,
             'content' => $document->getContent(),
             'fileName' => $document->getName(),
             'mimeType' => $document->getContentType(),

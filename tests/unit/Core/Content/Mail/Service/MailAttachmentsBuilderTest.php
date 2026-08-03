@@ -202,24 +202,28 @@ class MailAttachmentsBuilderTest extends TestCase
                     'fileName' => '',
                     'mimeType' => 'application/pdf',
                     'id' => $idA,
+                    'documentId' => $idA,
                 ],
                 [
                     'content' => '',
                     'fileName' => '',
                     'mimeType' => 'application/pdf',
                     'id' => $idB,
+                    'documentId' => $idB,
                 ],
                 [
                     'content' => '',
                     'fileName' => '',
                     'mimeType' => 'application/pdf',
                     'id' => $idC,
+                    'documentId' => $idC,
                 ],
                 [
                     'content' => '',
                     'fileName' => '',
                     'mimeType' => 'application/pdf',
                     'id' => $idD,
+                    'documentId' => $idD,
                 ],
                 [
                     'content' => '',
@@ -271,6 +275,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $attachment = $attachments[0];
         static::assertArrayHasKey('id', $attachment);
         static::assertSame($xmlDocId, $attachment['id']);
+        static::assertSame($xmlDocId, $attachment['documentId']);
         static::assertSame('<?xml version="1.0"?>', $attachment['content']);
         static::assertSame('invoice.xml', $attachment['fileName']);
         static::assertSame('application/xml', $attachment['mimeType']);
@@ -337,13 +342,15 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame(
             [
                 [
-                    'id' => $documentId . ':pdf',
+                    'id' => $pdfDocumentFile->getId(),
+                    'documentId' => $documentId,
                     'content' => 'pdf content',
                     'fileName' => 'invoice.pdf',
                     'mimeType' => 'application/pdf',
                 ],
                 [
-                    'id' => $documentId . ':html',
+                    'id' => $htmlDocumentFile->getId(),
+                    'documentId' => $documentId,
                     'content' => 'html content',
                     'fileName' => 'invoice.html',
                     'mimeType' => 'text/html',

@@ -37,7 +37,7 @@ shopware:
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
       - name: DOCUMENT_GENERATION_REWORK
-        default: false
+        default: true
         major: true
         toggleable: true
         description: "Experimental! Enable the new document generation implementation and its accompanying UI changes."

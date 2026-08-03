@@ -74,7 +74,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
-                        fileFormats: ['pdf'],
+                        fileFormats: [],
                     },
                 },
                 storno: {
@@ -83,7 +83,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
-                        fileFormats: ['pdf'],
+                        fileFormats: [],
                     },
                 },
                 delivery_note: {
@@ -96,7 +96,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
-                        fileFormats: ['pdf'],
+                        fileFormats: [],
                     },
                 },
                 credit_note: {
@@ -105,7 +105,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
-                        fileFormats: ['pdf'],
+                        fileFormats: [],
                     },
                 },
                 download: {

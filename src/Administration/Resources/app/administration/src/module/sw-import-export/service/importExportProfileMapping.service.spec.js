@@ -4,32 +4,12 @@
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 import * as mappings from './mocks/mappings.mock';
+import withRequiredProductType from 'src/../test/_helper_/withRequiredProductType';
 
-function withRequiredProductType(callback) {
-    return async () => {
-        const typeFlags = Shopware.EntityDefinition.get('product').properties.type.flags;
-        const previousRequired = typeFlags.required;
-
-        typeFlags.required = true;
-
-        try {
-            await callback();
-        } finally {
-            if (previousRequired === undefined) {
-                delete typeFlags.required;
-            } else {
-                typeFlags.required = previousRequired;
-            }
-        }
-    };
-}
-
-function getRequiredProductMappings(withProductType = false) {
-    return [
-        ...mappings.productProfileOnlyRequired,
-        ...(withProductType ? [{ key: 'type', mappedKey: 'type' }] : []),
-    ];
-}
+const requiredProductMappingsWithType = [
+    ...mappings.productProfileOnlyRequired,
+    { key: 'type', mappedKey: 'type' },
+];
 
 // NOTE FOR REVIEWERS: Product type becomes required in v6.8, so active mapping fixtures include it before asserting any other missing field.
 describe('module/sw-import-export/service/importExportProfileMapping.service.spec.js', () => {
@@ -52,24 +32,35 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(typeof importExportProfileMappingService.validate).toBe('function');
     });
 
-    const findsNoMissingRequiredProductFields = (withProductType = false) => {
+    // Guards the assumption withRequiredProductType() relies on: the entity schema mock is a 6.7
+    // snapshot in which product.type is optional. Once the mock is regenerated from a v6.8 instance
+    // this fails, and the v6.8 variants below should assert against the real schema instead.
+    it('pins the product type flag in the entity schema mock', () => {
+        expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBeUndefined();
+    });
+
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('product: should not find any missing required fields', () => {
         const violations = importExportProfileMappingService.validate(
             'product',
-            getRequiredProductMappings(withProductType),
+            mappings.productProfileOnlyRequired,
         );
 
         expect(violations.missingRequiredFields).toHaveLength(0);
         expect(violations.duplicateMappings).toHaveLength(0);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('product: should not find any missing required fields', () =>
-        findsNoMissingRequiredProductFields(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should not find any missing required fields',
-        withRequiredProductType(() => findsNoMissingRequiredProductFields(true)),
+        withRequiredProductType(() => {
+            const violations = importExportProfileMappingService.validate(
+                'product',
+                requiredProductMappingsWithType,
+            );
+
+            expect(violations.missingRequiredFields).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(0);
+        }),
     );
 
     [
@@ -81,29 +72,34 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         'taxId',
         'productNumber',
     ].forEach((fieldName) => {
-        const findsMissingRequiredProductField = (withProductType = false) => {
-            const mapping = getRequiredProductMappings(withProductType).filter((field) => field.key !== fieldName);
+        // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+        it.deprecated('v6.8.0.0')(`product: should find missing required field ${fieldName}`, () => {
+            const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== fieldName);
             const violations = importExportProfileMappingService.validate('product', mapping);
 
             expect(violations.missingRequiredFields).toHaveLength(1);
             expect(violations.duplicateMappings).toHaveLength(0);
 
             expect(violations.missingRequiredFields).toContain(fieldName);
-        };
-
-        // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-        it.deprecated('v6.8.0.0')(`product: should find missing required field ${fieldName}`, () =>
-            findsMissingRequiredProductField(),
-        );
+        });
 
         it.activeFeatureFlags(['v6.8.0.0'])(
             `product: should find missing required field ${fieldName}`,
-            withRequiredProductType(() => findsMissingRequiredProductField(true)),
+            withRequiredProductType(() => {
+                const mapping = requiredProductMappingsWithType.filter((field) => field.key !== fieldName);
+                const violations = importExportProfileMappingService.validate('product', mapping);
+
+                expect(violations.missingRequiredFields).toHaveLength(1);
+                expect(violations.duplicateMappings).toHaveLength(0);
+
+                expect(violations.missingRequiredFields).toContain(fieldName);
+            }),
         );
     });
 
-    const findsMissingRequiredProductName = (withProductType = false) => {
-        const mapping = getRequiredProductMappings(withProductType).filter(
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('product: should find missing required field name', () => {
+        const mapping = mappings.productProfileOnlyRequired.filter(
             (field) => field.key !== 'translations.DEFAULT.name',
         );
         const violations = importExportProfileMappingService.validate('product', mapping);
@@ -112,18 +108,26 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
 
         expect(violations.missingRequiredFields).toContain('name');
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('product: should find missing required field name', () => findsMissingRequiredProductName());
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should find missing required field name',
-        withRequiredProductType(() => findsMissingRequiredProductName(true)),
+        withRequiredProductType(() => {
+            const mapping = requiredProductMappingsWithType.filter(
+                (field) => field.key !== 'translations.DEFAULT.name',
+            );
+            const violations = importExportProfileMappingService.validate('product', mapping);
+
+            expect(violations.missingRequiredFields).toHaveLength(1);
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields).toContain('name');
+        }),
     );
 
-    const findsMissingRequiredProductCreatedAt = (withProductType = false) => {
-        const mapping = getRequiredProductMappings(withProductType).filter(
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('product: should find missing required field createdAt', () => {
+        const mapping = mappings.productProfileOnlyRequired.filter(
             (field) => field.key !== 'translations.DEFAULT.createdAt',
         );
         const violations = importExportProfileMappingService.validate('product', mapping);
@@ -132,19 +136,25 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
 
         expect(violations.missingRequiredFields).toContain('createdAt');
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('product: should find missing required field createdAt', () =>
-        findsMissingRequiredProductCreatedAt(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should find missing required field createdAt',
-        withRequiredProductType(() => findsMissingRequiredProductCreatedAt(true)),
+        withRequiredProductType(() => {
+            const mapping = requiredProductMappingsWithType.filter(
+                (field) => field.key !== 'translations.DEFAULT.createdAt',
+            );
+            const violations = importExportProfileMappingService.validate('product', mapping);
+
+            expect(violations.missingRequiredFields).toHaveLength(1);
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields).toContain('createdAt');
+        }),
     );
 
-    const returnsAllMissingRequiredProductFields = (withProductType = false) => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('product: should return all missing required fields', () => {
         const violations = importExportProfileMappingService.validate('product', []);
 
         expect(violations.duplicateMappings).toHaveLength(0);
@@ -163,19 +173,35 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
                 'canonicalProductVersionId',
                 'cmsPageVersionId',
                 'createdAt',
-                ...(withProductType ? ['type'] : []),
             ].sort(),
         );
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
-    it.deprecated('v6.8.0.0')('product: should return all missing required fields', () =>
-        returnsAllMissingRequiredProductFields(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should return all missing required fields',
-        withRequiredProductType(() => returnsAllMissingRequiredProductFields(true)),
+        withRequiredProductType(() => {
+            const violations = importExportProfileMappingService.validate('product', []);
+
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields.sort()).toEqual(
+                [
+                    'id',
+                    'versionId',
+                    'parentVersionId',
+                    'productManufacturerVersionId',
+                    'productMediaVersionId',
+                    'taxId',
+                    'productNumber',
+                    'stock',
+                    'name',
+                    'canonicalProductVersionId',
+                    'cmsPageVersionId',
+                    'createdAt',
+                    'type',
+                ].sort(),
+            );
+        }),
     );
 
     it('product: should find missing required when parentProduct is existing', async () => {
@@ -233,8 +259,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
     });
 
-    const findsMissingRequiredMediaId = (withProductType = false) => {
-        const mapping = getRequiredProductMappings(withProductType).filter((field) => field.key !== 'id');
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('media: should find missing required field id', () => {
+        const mapping = mappings.productProfileOnlyRequired.filter((field) => field.key !== 'id');
 
         const violations = importExportProfileMappingService.validate('product', mapping);
 
@@ -242,18 +269,25 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
 
         expect(violations.missingRequiredFields).toContain('id');
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('media: should find missing required field id', () => findsMissingRequiredMediaId());
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'media: should find missing required field id',
-        withRequiredProductType(() => findsMissingRequiredMediaId(true)),
+        withRequiredProductType(() => {
+            const mapping = requiredProductMappingsWithType.filter((field) => field.key !== 'id');
+
+            const violations = importExportProfileMappingService.validate('product', mapping);
+
+            expect(violations.missingRequiredFields).toHaveLength(1);
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields).toContain('id');
+        }),
     );
 
-    const findsMissingRequiredMediaCreatedAt = (withProductType = false) => {
-        const mapping = getRequiredProductMappings(withProductType).filter(
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('media: should find missing required field createdAt', () => {
+        const mapping = mappings.productProfileOnlyRequired.filter(
             (field) => field.key !== 'translations.DEFAULT.createdAt',
         );
         const violations = importExportProfileMappingService.validate('product', mapping);
@@ -262,23 +296,28 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(0);
 
         expect(violations.missingRequiredFields).toContain('createdAt');
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('media: should find missing required field createdAt', () =>
-        findsMissingRequiredMediaCreatedAt(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'media: should find missing required field createdAt',
-        withRequiredProductType(() => findsMissingRequiredMediaCreatedAt(true)),
+        withRequiredProductType(() => {
+            const mapping = requiredProductMappingsWithType.filter(
+                (field) => field.key !== 'translations.DEFAULT.createdAt',
+            );
+            const violations = importExportProfileMappingService.validate('product', mapping);
+
+            expect(violations.missingRequiredFields).toHaveLength(1);
+            expect(violations.duplicateMappings).toHaveLength(0);
+
+            expect(violations.missingRequiredFields).toContain('createdAt');
+        }),
     );
 
-    const detectsDuplicateMappingKeys = (withProductType = false) => {
-        const requiredProductMappings = getRequiredProductMappings(withProductType);
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
+    it.deprecated('v6.8.0.0')('should detect duplicate mapping keys', () => {
         const mapping = [
-            ...requiredProductMappings,
-            requiredProductMappings.find((mapping) => mapping.key === 'id'),
+            ...mappings.productProfileOnlyRequired,
+            mappings.productProfileOnlyRequired.find((mapping) => mapping.key === 'id'),
         ];
 
         const violations = importExportProfileMappingService.validate('product', mapping);
@@ -287,14 +326,23 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(violations.duplicateMappings).toHaveLength(1);
 
         expect(violations.duplicateMappings.at(0).key).toBe('id');
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type mapping.
-    it.deprecated('v6.8.0.0')('should detect duplicate mapping keys', () => detectsDuplicateMappingKeys());
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should detect duplicate mapping keys',
-        withRequiredProductType(() => detectsDuplicateMappingKeys(true)),
+        withRequiredProductType(() => {
+            const mapping = [
+                ...requiredProductMappingsWithType,
+                requiredProductMappingsWithType.find((mapping) => mapping.key === 'id'),
+            ];
+
+            const violations = importExportProfileMappingService.validate('product', mapping);
+
+            expect(violations.missingRequiredFields).toHaveLength(0);
+            expect(violations.duplicateMappings).toHaveLength(1);
+
+            expect(violations.duplicateMappings.at(0).key).toBe('id');
+        }),
     );
 
     it('category: should list all required fields with depth 1', async () => {
@@ -333,7 +381,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         ]);
     });
 
-    const listsProductCrossSellingRequiredFieldsAtDepthThree = (withProductType = false) => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('product_cross_selling: should list all required fields with depth 3', () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_cross_selling', 3);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
@@ -350,19 +399,36 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
-            ...(withProductType ? ['product.type'] : []),
             'translations.DEFAULT.name',
         ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
-    it.deprecated('v6.8.0.0')('product_cross_selling: should list all required fields with depth 3', () =>
-        listsProductCrossSellingRequiredFieldsAtDepthThree(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product_cross_selling: should list all required fields with depth 3',
-        withRequiredProductType(() => listsProductCrossSellingRequiredFieldsAtDepthThree(true)),
+        withRequiredProductType(() => {
+            const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields(
+                'product_cross_selling',
+                3,
+            );
+
+            expect(Object.keys(systemRequiredFields)).toEqual([
+                'id',
+                'position',
+                'type',
+                'product.id',
+                'product.price.DEFAULT.net',
+                'product.price.DEFAULT.gross',
+                'product.productNumber',
+                'product.stock',
+                'product.tax.id',
+                'product.tax.taxRate',
+                'product.tax.name',
+                'product.tax.position',
+                'product.translations.DEFAULT.name',
+                'product.type',
+                'translations.DEFAULT.name',
+            ]);
+        }),
     );
 
     it('media: should list all required fields with depth 1', async () => {
@@ -445,7 +511,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         ]);
     });
 
-    const listsProductRequiredFieldsAtDepthOne = (withProductType = false) => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('product: should list all required fields with depth 1', () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 1);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
@@ -456,21 +523,29 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'stock',
             'tax.id',
             'translations.DEFAULT.name',
-            ...(withProductType ? ['type'] : []),
         ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
-    it.deprecated('v6.8.0.0')('product: should list all required fields with depth 1', () =>
-        listsProductRequiredFieldsAtDepthOne(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should list all required fields with depth 1',
-        withRequiredProductType(() => listsProductRequiredFieldsAtDepthOne(true)),
+        withRequiredProductType(() => {
+            const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 1);
+
+            expect(Object.keys(systemRequiredFields)).toEqual([
+                'id',
+                'price.DEFAULT.net',
+                'price.DEFAULT.gross',
+                'productNumber',
+                'stock',
+                'tax.id',
+                'translations.DEFAULT.name',
+                'type',
+            ]);
+        }),
     );
 
-    const listsProductRequiredFieldsAtDepthThree = (withProductType = false) => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('product: should list all required fields with depth 3', () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 3);
 
         expect(Object.keys(systemRequiredFields)).toEqual([
@@ -484,18 +559,28 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'tax.name',
             'tax.position',
             'translations.DEFAULT.name',
-            ...(withProductType ? ['type'] : []),
         ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
-    it.deprecated('v6.8.0.0')('product: should list all required fields with depth 3', () =>
-        listsProductRequiredFieldsAtDepthThree(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product: should list all required fields with depth 3',
-        withRequiredProductType(() => listsProductRequiredFieldsAtDepthThree(true)),
+        withRequiredProductType(() => {
+            const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 3);
+
+            expect(Object.keys(systemRequiredFields)).toEqual([
+                'id',
+                'price.DEFAULT.net',
+                'price.DEFAULT.gross',
+                'productNumber',
+                'stock',
+                'tax.id',
+                'tax.taxRate',
+                'tax.name',
+                'tax.position',
+                'translations.DEFAULT.name',
+                'type',
+            ]);
+        }),
     );
 
     it('property_group_option: should list all required fields with depth 1', async () => {
@@ -534,7 +619,8 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         ]);
     });
 
-    const listsProductConfiguratorRequiredFieldsAtDepthThree = (withProductType = false) => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    it.deprecated('v6.8.0.0')('product_configurator_setting: should list all required fields with depth 3', () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields(
             'product_configurator_setting',
             3,
@@ -552,7 +638,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
-            ...(withProductType ? ['product.type'] : []),
             'option.id',
             'option.group.id',
             'option.group.displayType',
@@ -560,15 +645,36 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'option.group.translations.DEFAULT.name',
             'option.translations.DEFAULT.name',
         ]);
-    };
-
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
-    it.deprecated('v6.8.0.0')('product_configurator_setting: should list all required fields with depth 3', () =>
-        listsProductConfiguratorRequiredFieldsAtDepthThree(),
-    );
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'product_configurator_setting: should list all required fields with depth 3',
-        withRequiredProductType(() => listsProductConfiguratorRequiredFieldsAtDepthThree(true)),
+        withRequiredProductType(() => {
+            const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields(
+                'product_configurator_setting',
+                3,
+            );
+
+            expect(Object.keys(systemRequiredFields)).toEqual([
+                'id',
+                'product.id',
+                'product.price.DEFAULT.net',
+                'product.price.DEFAULT.gross',
+                'product.productNumber',
+                'product.stock',
+                'product.tax.id',
+                'product.tax.taxRate',
+                'product.tax.name',
+                'product.tax.position',
+                'product.translations.DEFAULT.name',
+                'product.type',
+                'option.id',
+                'option.group.id',
+                'option.group.displayType',
+                'option.group.sortingType',
+                'option.group.translations.DEFAULT.name',
+                'option.translations.DEFAULT.name',
+            ]);
+        }),
     );
 });

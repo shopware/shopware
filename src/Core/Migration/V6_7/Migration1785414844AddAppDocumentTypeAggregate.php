@@ -29,6 +29,7 @@ class Migration1785414844AddAppDocumentTypeAggregate extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
+                UNIQUE KEY `uniq.app_document_type.technical_name` (`technical_name`),
                 KEY `fk.app_document_type.app_id` (`app_id`),
                 CONSTRAINT `fk.app_document_type.app_id` FOREIGN KEY (`app_id`) REFERENCES `app` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -52,8 +54,10 @@ final readonly class ZugferdXmlRenderer extends AbstractDocumentRenderer
         );
 
         // app document types legitimately have no typed render-data provider and ship their own
-        // template, so render data is optional here; core zugferd types populate it via their provider
-        $renderData = $input->getData($input->documentType);
+        // template, so render data is only optional for those
+        $renderData = DocumentType::tryFrom($input->documentType) !== null
+            ? $input->requireData($input->documentType, AbstractRenderData::class)
+            : $input->getData($input->documentType);
 
         $template = \sprintf(self::TEMPLATE_PATTERN, $input->documentType);
 

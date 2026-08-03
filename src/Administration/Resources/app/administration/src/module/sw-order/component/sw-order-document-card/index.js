@@ -548,5 +548,9 @@ export default {
 
             return fileTypesArray.join(', ').toUpperCase();
         },
+
+        documentTypeLabel(item) {
+            return item.documentType?.name ?? item.config?.documentType ?? '';
+        },
     },
 };

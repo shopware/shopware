@@ -4,11 +4,15 @@ namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -51,7 +55,7 @@ class DocumentTypeLifecycleHandler extends AbstractLifecycleHandler
         foreach ($documentTypes as $documentType) {
             $identifier = $documentType->getIdentifier();
 
-            // a core document type of the same name always wins; never persist a shadow row for it
+            // never persist core type shadow
             if (DocumentType::tryFrom($identifier) !== null) {
                 continue;
             }
@@ -76,10 +80,35 @@ class DocumentTypeLifecycleHandler extends AbstractLifecycleHandler
         }
 
         if ($upserts !== []) {
+            $this->assertIdentifiersAreUnclaimed($upserts, $appId, $context->context);
+
             $this->appDocumentTypeRepository->upsert($upserts, $context->context);
         }
 
         $this->deleteRemovedDocumentTypes($existingDocumentTypes, $context->context);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $upserts
+     */
+    private function assertIdentifiersAreUnclaimed(array $upserts, string $appId, Context $context): void
+    {
+        $identifiers = array_column($upserts, 'technicalName');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('technicalName', $identifiers));
+        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('appId', $appId)]));
+        $criteria->addAssociation('app');
+        $criteria->setLimit(1);
+
+        $conflict = $this->appDocumentTypeRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($conflict !== null) {
+            throw AppException::documentTypeAlreadyRegistered(
+                $conflict->getTechnicalName(),
+                $conflict->getApp()?->getName() ?? $conflict->getAppId(),
+            );
+        }
     }
 
     private function deleteRemovedDocumentTypes(AppDocumentTypeCollection $toBeRemoved, Context $context): void

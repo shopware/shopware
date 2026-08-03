@@ -329,9 +329,6 @@ final class DocumentV2Controller extends AbstractController
         return $fileName !== '' ? $fileName : Uuid::randomHex();
     }
 
-    /**
-     * Resolves the legacy `document_type` row id for a type, if one exists.
-     */
     private function resolveDocumentTypeId(string $documentType, Context $context): ?string
     {
         $criteria = (new Criteria())

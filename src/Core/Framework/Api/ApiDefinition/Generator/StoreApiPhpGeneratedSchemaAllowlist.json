@@ -5,7 +5,7 @@
         "AppActionButton",
         "AppAdministrationSnippet",
         "AppCmsBlock",
-          "AppDocumentType",
+        "AppDocumentType",
         "AppFlowAction",
         "AppFlowEvent",
         "AppMcpPrompt",

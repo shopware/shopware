@@ -133,12 +133,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
+
         $effectiveCompanyInfo = $systemConfigCompanyInfo ?? $legacyConfig;
 
-        // core types never carry app config; avoid the app_document_type lookup on their hot path
-        $appConfig = DocumentType::tryFrom($documentType) === null
-            ? $this->appDocumentTypeLoader->loadConfig($documentType)
-            : [];
+        $appConfig = $this->appDocumentTypeLoader->loadConfig($documentType);
 
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context, $appConfig);
         $companyInfo = $this->buildDocumentCompanyInfo($effectiveCompanyInfo, $context, $documentType);
@@ -193,17 +191,19 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         Context $context,
         array $appConfig,
     ): DocumentConfig {
-        // no document_base_config row exists (app-provided types, or a type configured purely via appConfig defaults)
-        $hasNoBaseConfig = $globalRow === null && $salesChannelRow === null;
+        // no document_base_config row exists, which is expected for app provided types
+        if ($globalRow === null && $salesChannelRow === null) {
+            if (DocumentType::tryFrom($documentType) !== null) {
+                throw DocumentV2Exception::invalidDocumentType($documentType);
+            }
 
-        if ($hasNoBaseConfig) {
             return new DocumentConfig(
                 pageSize: (string) ($appConfig['pageSize'] ?? 'a4'),
                 pageOrientation: (string) ($appConfig['pageOrientation'] ?? 'portrait'),
                 itemsPerPage: (int) ($appConfig['itemsPerPage'] ?? 10),
                 filenamePrefix: null,
                 filenameSuffix: null,
-                logo: null,
+                logo: $this->resolveLogo(null, null, $systemConfigCompanyInfo, $context),
             );
         }
 

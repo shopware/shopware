@@ -61,9 +61,10 @@ final readonly class DocumentPersister
         Context $context,
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
+        $documentTypeId = $this->resolveDocumentTypeId($generationRequest, $context);
 
         // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
-        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
+        $this->assertDocumentNumberIsUnique($generationRequest, $documentTypeId, $input->documentNumber, $context);
 
         $persistedFiles = $this->writeMediaFiles(
             $state,
@@ -76,7 +77,7 @@ final readonly class DocumentPersister
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $this->resolveDocumentTypeId($generationRequest, $context),
+                'documentTypeId' => $documentTypeId,
                 'referencedDocumentId' => $resolvedReference?->id,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
@@ -144,12 +145,18 @@ final readonly class DocumentPersister
      */
     private function assertDocumentNumberIsUnique(
         DocumentGenerationRequest $generationRequest,
+        ?string $documentTypeId,
         string $documentNumber,
         Context $context,
     ): void {
+        // app provided types have no document_type row, so they are only identifiable via the config snapshot
+        $typeFilter = $documentTypeId !== null
+            ? new EqualsFilter('documentTypeId', $documentTypeId)
+            : new EqualsFilter('config.documentType', $generationRequest->documentType);
+
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
+            ->addFilter($typeFilter)
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
@@ -159,9 +166,6 @@ final readonly class DocumentPersister
         }
     }
 
-    /**
-     * Resolves the legacy `document_type` row id for a type, if one exists.
-     */
     private function resolveDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): ?string
     {
         $criteria = (new Criteria())

@@ -61,6 +61,7 @@ class AppException extends HttpException
     final public const APP_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_CONTEXT_GATEWAY_REQUEST_FAILED';
     final public const APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION = 'FRAMEWORK__APP_RESTRICT_DELETE_PREVENTS_DEACTIVATION';
     final public const CONFLICTING_PRIVILEGE_UPDATE = 'FRAMEWORK__APP_CONFLICTING_PRIVILEGE_UPDATE';
+    final public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'FRAMEWORK__APP_DOCUMENT_TYPE_ALREADY_REGISTERED';
     final public const INVALID_PERMISSIONS = 'FRAMEWORK__APP_INVALID_PERMISSIONS';
     final public const REQUIRES_ADMIN_API_SOURCE = 'FRAMEWORK__APP_ACTION_REQUIRES_ADMIN_API_SOURCE';
     final public const MISSING_USER_IN_CONTEXT_SOURCE = 'FRAMEWORK__APP_MISSING_USER_IN_CONTEXT_SOURCE';
@@ -492,6 +493,16 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONFLICTING_PRIVILEGE_UPDATE,
             'A privilege cannot be present in both the accept and revoke lists simultaneously.'
+        );
+    }
+
+    public static function documentTypeAlreadyRegistered(string $identifier, string $owningAppName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::DOCUMENT_TYPE_ALREADY_REGISTERED,
+            'The document type "{{ identifier }}" is already registered by app "{{ owningAppName }}"',
+            ['identifier' => $identifier, 'owningAppName' => $owningAppName]
         );
     }
 

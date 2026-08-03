@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
-use PhpCsFixer\Runner\Parallel\ParallelConfig;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
-    // TEMPORARY chunk-size measurement, revert before merge (default filesPerProcess is 10)
-    ->setParallelConfig(new ParallelConfig(8, 100))
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk
+    // overhead; 100 files per process cut the cold full scan from ~14 to ~8 minutes
+    ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,

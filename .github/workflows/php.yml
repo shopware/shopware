@@ -72,10 +72,9 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
-          # TEMPORARY cold-run measurement, revert before merge: the key matches nothing
-          key: "cs-fixer-cold-${{ github.run_id }}"
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
           restore-keys: |
-            cs-fixer-cold-never-matches-
+            cs-fixer-result-cache-
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
@@ -83,13 +82,8 @@ jobs:
       - name: Analyze composer dependencies
         run: composer dependency-analyzer
 
-      - name: Show analysis environment
-        run: |
-          echo "cores: $(nproc)"
-          free -h | head -2
-
       - name: Code Style
-        run: time composer run cs
+        run: composer run cs
 
       - name: "Save result cache"
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

@@ -8,6 +8,9 @@ use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 #[CoversClass(ProductExportResult::class)]
 class ProductExportResultTest extends TestCase

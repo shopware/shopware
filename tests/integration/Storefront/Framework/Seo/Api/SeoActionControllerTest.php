@@ -601,10 +601,9 @@ class SeoActionControllerTest extends TestCase
 
         static::assertCount(1, $seoUrls);
 
-        $newSeoPathInfo = 'https://foo.bar/my-awesome-seo-path';
         $seoUrl = [
             'foreignKey' => $id,
-            'seoPathInfo' => $newSeoPathInfo,
+            'seoPathInfo' => 'my-awesome-seo-path',
             'pathInfo' => '/store-api/product/' . $id,
             'salesChannelId' => $salesChannelId,
             'isModified' => true,

@@ -160,9 +160,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SeoUrlValidationFactory::class);
 
     $services->set(ValidSeoPathInfoValidator::class)
-        ->args([
-            service(Connection::class),
-        ])
         ->tag('validator.constraint_validator');
 
     $services->set(SeoUrlWriteValidator::class)

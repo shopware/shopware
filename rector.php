@@ -22,6 +22,8 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
+    ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',
 

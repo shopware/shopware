@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -24,6 +25,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Thumbnail\Processor\GdImageThumbnailProcessor;
+use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
@@ -32,6 +34,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -58,6 +61,8 @@ class ThumbnailServiceTest extends TestCase
 
     private LoggerInterface $logger;
 
+    private Filesystem $filesystem;
+
     /**
      * @var StaticEntityRepository<MediaThumbnailCollection>
      */
@@ -77,6 +82,7 @@ class ThumbnailServiceTest extends TestCase
         $this->connection = static::createStub(Connection::class);
         $this->thumbnailSizeCalculator = new ThumbnailSizeCalculator();
         $this->logger = new NullLogger();
+        $this->filesystem = new Filesystem();
         $this->context = Context::createDefaultContext();
         $this->thumbnailRepository = new StaticEntityRepository([]);
         $this->mediaFolderRepository = new StaticEntityRepository([]);
@@ -92,7 +98,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
-        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
         $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
@@ -142,7 +148,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertNotNull($mediaFolderEntity->getConfiguration(), 'Media folder configuration should not be null');
         $mediaFolderEntity->getConfiguration()->setKeepAspectRatio(true);
 
-        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
         $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
@@ -253,7 +259,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity('abc');
         $mediaFolderEntity = $this->createMediaFolderEntity('def');
 
-        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
         $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
@@ -304,7 +310,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity('abc');
         $mediaFolderEntity = $this->createMediaFolderEntity('abc');
 
-        $file = file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
         $filesystemPublic->expects($this->once())->method('read')->willReturn($file);
 
@@ -486,7 +492,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
-        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $filesystemPublic = static::createStub(FilesystemOperator::class);
         $filesystemPublic->method('read')->willReturn($file);
         $filesystemPublic->method('fileSize')->willReturn(100);
@@ -537,7 +543,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity = $this->createMediaThumbnailEntity();
         $mediaFolderEntity = $this->createMediaFolderEntity();
 
-        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
         $deletedPaths = [];
 
         $filesystemPublic = static::createStub(FilesystemOperator::class);
@@ -595,7 +601,7 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGenerateContinuesBatchWhenSingleMediaFails(): void
     {
-        $file = (string) file_get_contents(__DIR__ . '/shopware-logo.png');
+        $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
 
         $writtenPaths = [];
         $deletedPaths = [];
@@ -692,10 +698,58 @@ class ThumbnailServiceTest extends TestCase
         static::assertCount(1, $this->thumbnailRepository->deletes);
     }
 
+    #[DataProvider('exifOrientationProvider')]
+    public function testGenerateRotatesImageForExifOrientation(int $orientation, float $angle): void
+    {
+        $fixture = __DIR__ . \sprintf('/fixtures/shopware-logo-orientation-%d.jpg', $orientation);
+        $image = new \stdClass();
+        $processor = $this->createMock(ThumbnailProcessorInterface::class);
+        $processor->expects($this->once())->method('createImageFromString')->willReturn($image);
+        $processor->expects($this->once())->method('rotate')->with($image, $angle)->willReturn($image);
+        $processor->method('getWidth')->with($image)->willReturn(1530);
+        $processor->method('getHeight')->with($image)->willReturn(1021);
+        $processor->method('createNewImage')->willReturn($image);
+        $processor->method('convertImage')->willReturn('thumbnail');
+
+        $filesystemPublic = static::createStub(FilesystemOperator::class);
+        $filesystemPublic->method('read')->willReturn($this->filesystem->readFile($fixture));
+        $filesystemPublic->method('fileSize')->willReturn(100);
+        $filesystemPublic->method('write')->willReturnCallback(static function (): void {});
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturnCallback(static function ($sql, $params): array {
+            return [Uuid::fromBytesToHex($params['ids'][0]) => '/thumbnail.jpg'];
+        });
+
+        $media = $this->createMediaEntity(
+            $this->createMediaThumbnailEntity(),
+            $this->createMediaFolderEntity()
+        );
+        $media->setPath($fixture);
+        $media->setFileName('shopware');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
+
+        $service = $this->createThumbnailService($filesystemPublic, connection: $connection, processor: $processor);
+
+        static::assertSame(1, $service->generate(new MediaCollection([$media]), $this->context));
+    }
+
+    /**
+     * @return \Generator<string, array{orientation: int, angle: float}>
+     */
+    public static function exifOrientationProvider(): \Generator
+    {
+        yield 'rotate 180 degrees' => ['orientation' => 3, 'angle' => 180.0];
+        yield 'rotate 90 degrees counter-clockwise' => ['orientation' => 6, 'angle' => -90.0];
+        yield 'rotate 90 degrees clockwise' => ['orientation' => 8, 'angle' => 90.0];
+    }
+
     private function createThumbnailService(
         ?FilesystemOperator $filesystemPublic = null,
         ?EntityIndexer $indexer = null,
         ?Connection $connection = null,
+        ?ThumbnailProcessorInterface $processor = null,
     ): ThumbnailService {
         return new ThumbnailService(
             $this->thumbnailRepository,
@@ -706,7 +760,7 @@ class ThumbnailServiceTest extends TestCase
             $indexer ?? $this->indexer,
             $this->thumbnailSizeCalculator,
             $connection ?? $this->connection,
-            new GdImageThumbnailProcessor(),
+            $processor ?? new GdImageThumbnailProcessor(),
             $this->logger
         );
     }
@@ -724,7 +778,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaType = new ImageType();
         $mediaEntity->setMediaType($mediaType);
         $mediaEntity->setFileSize(100);
-        $mediaEntity->setPath(__DIR__ . '/shopware-logo.png');
+        $mediaEntity->setPath(__DIR__ . '/fixtures/shopware-logo.png');
         $mediaEntity->setPrivate(false);
         $mediaEntity->setTitle('Test Image');
         $mediaEntity->setMetaDataRaw('{"example": "metadata"}');
@@ -761,7 +815,7 @@ class ThumbnailServiceTest extends TestCase
         $mediaThumbnailEntity->setWidth(100);
         $mediaThumbnailEntity->setHeight(100);
         $mediaThumbnailEntity->setMediaId('media-id-1');
-        $mediaThumbnailEntity->setPath(__DIR__ . '/shopware-logo.png');
+        $mediaThumbnailEntity->setPath(__DIR__ . '/fixtures/shopware-logo.png');
         $mediaThumbnailEntity->setMediaThumbnailSizeId($mediaThumbnailSizeId);
 
         return $mediaThumbnailEntity;

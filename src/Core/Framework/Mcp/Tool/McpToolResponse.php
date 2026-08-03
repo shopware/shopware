@@ -148,11 +148,22 @@ abstract class McpToolResponse
     {
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s', $privilege));
+                return $this->missingPrivilegesError([$privilege]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Canonical error format for privilege denials — all tools must use this
+     * so clients can match on a single "Missing privilege:" prefix.
+     *
+     * @param non-empty-list<string> $privileges
+     */
+    protected function missingPrivilegesError(array $privileges): string
+    {
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
     }
 
     /**

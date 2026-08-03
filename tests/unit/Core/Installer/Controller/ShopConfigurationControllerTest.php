@@ -53,8 +53,6 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&AdminConfigurationService $adminConfigService;
 
-    private TranslationConfig $translationConfig;
-
     private ShopConfigurationController $controller;
 
     /**
@@ -76,7 +74,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
         $this->translator = static::createStub(TranslatorInterface::class);
 
-        $this->translationConfig = new TranslationConfig(
+        $translationConfig = new TranslationConfig(
             new Uri('http://localhost:8000'),
             [],
             [],
@@ -93,7 +91,7 @@ class ShopConfigurationControllerTest extends TestCase
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
-            $this->translationConfig,
+            $translationConfig,
             [
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],

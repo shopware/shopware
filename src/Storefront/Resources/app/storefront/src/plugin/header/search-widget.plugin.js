@@ -43,6 +43,36 @@ export default class SearchWidgetPlugin extends Plugin {
         this.searchSuggestLinks = [];
 
         this._registerEvents();
+        this._restoreSearchTerm();
+    }
+
+    /**
+     * Restores the submitted search term in the input field on the search result page.
+     * The header is rendered via ESI, so the search term of the current page is not
+     * available during rendering and has to be taken from the current URL instead.
+     *
+     * @private
+     */
+    _restoreSearchTerm() {
+        // respect a term which was already rendered server-side
+        if (this._inputField.value !== '') {
+            return;
+        }
+
+        const currentUrl = new URL(window.location.href);
+
+        // the form action points to the search result page, so it tells us whether we are on it
+        if (new URL(this.el.action, window.location.origin).pathname !== currentUrl.pathname) {
+            return;
+        }
+
+        const term = currentUrl.searchParams.get(this._inputField.name);
+
+        if (!term) {
+            return;
+        }
+
+        this._inputField.value = term;
     }
 
     /**

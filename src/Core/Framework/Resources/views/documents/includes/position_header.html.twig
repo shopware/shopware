@@ -39,11 +39,11 @@ All blocks of this template are available in the template which renders this tem
                         {% set taxStatusNet = order.price.taxStatus == constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_NET') %}
 
                         {%- if not feature('v6.8.0.0') -%}
-                            {#- @deprecated tag:v6.8.0 - companyTaxEnabled will be removed without replace -#}
+                            {#- @deprecated tag:v6.8.0 - companyTaxEnabled will be removed without replacement -#}
                             {%- set companyTaxEnabled = billingAddress.country.companyTax.enabled -%}
-                            {#- @deprecated tag:v6.8.0 - displayAdditionalNoteDelivery will be removed without replace -#}
+                            {#- @deprecated tag:v6.8.0 - displayAdditionalNoteDelivery will be removed without replacement -#}
                             {%- set displayAdditionalNoteDelivery = config.displayAdditionalNoteDelivery -%}
-                            {#- @deprecated tag:v6.8.0 - isDeliveryCountry will be removed without replace -#}
+                            {#- @deprecated tag:v6.8.0 - isDeliveryCountry will be removed without replacement -#}
                             {%- set isDeliveryCountry = billingAddress.country.id in config.deliveryCountries -%}
                             {%- set displayVAT = (not companyTaxEnabled or not (displayAdditionalNoteDelivery and isDeliveryCountry)) -%}
                         {%- endif -%}

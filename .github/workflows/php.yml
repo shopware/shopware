@@ -144,13 +144,8 @@ jobs:
           restore-keys: |
             rector-result-cache-
 
-      - name: Show analysis environment
-        run: |
-          echo "cores: $(nproc)"
-          free -h | head -2
-
       - name: Rector
-        run: time composer rector
+        run: composer rector
 
       - name: "Save result cache"
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

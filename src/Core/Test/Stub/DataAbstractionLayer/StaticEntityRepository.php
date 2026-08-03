@@ -55,7 +55,9 @@ class StaticEntityRepository extends EntityRepository
     public array $creates = [];
 
     /**
-     * @var array<array<string, mixed|null>>
+     * Each `delete()` call appends the array of id payloads it was given.
+     *
+     * @var list<array<array<string, mixed|null>>>
      */
     public array $deletes = [];
 

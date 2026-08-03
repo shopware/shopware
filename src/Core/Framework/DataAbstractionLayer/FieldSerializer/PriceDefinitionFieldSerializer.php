@@ -51,7 +51,8 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     ): \Generator {
         $value = \json_decode(\json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        if ($value !== null) {
+        // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
+        if (\is_array($value)) {
             if (!\array_key_exists('type', $value)) {
                 throw new InvalidPriceFieldTypeException('none');
             }

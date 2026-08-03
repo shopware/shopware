@@ -232,6 +232,22 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 
+    it('should recalculate shipping cost while the field is not out of focus yet', async () => {
+        jest.useFakeTimers();
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+        const shippingCostInput = wrapper.find('.sw-order-detail-details__shipping-cost input');
+
+        shippingCostInput.element.value = '20';
+        await shippingCostInput.trigger('input');
+
+        jest.advanceTimersByTime(1000);
+
+        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
+        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
+        expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+    });
+
     it('should be able to edit internal comment', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();

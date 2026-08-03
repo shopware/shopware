@@ -47,7 +47,7 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "cweagans/composer-patches": true,
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
@@ -102,6 +102,7 @@
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
+        "php-http/discovery": "^1.20",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",

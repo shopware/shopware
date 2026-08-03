@@ -247,6 +247,8 @@ class OpenApiDefinitionSchemaBuilder
                 $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $since;
             }
 
+            $requiredAttributes = $this->filterRequiredProperties($requiredAttributes, $attributes);
+
             if ($requiredAttributes !== []) {
                 $schema[$schemaName . 'JsonApi']->allOf[1]->required = $requiredAttributes;
             }
@@ -277,6 +279,8 @@ class OpenApiDefinitionSchemaBuilder
 
             $attributes[] = $extensionRelationshipsProperty;
         }
+
+        $requiredProperties = $this->filterRequiredProperties($requiredProperties, $attributes);
 
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again
         if (\count($attributes) === 1 && $attributes[0]->property === 'id') {
@@ -350,6 +354,30 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ]),
         ];
+    }
+
+    /**
+     * @param list<string> $requiredProperties
+     * @param list<Property> $properties
+     *
+     * @return list<string>
+     */
+    private function filterRequiredProperties(array $requiredProperties, array $properties): array
+    {
+        $propertyNames = [];
+
+        foreach ($properties as $property) {
+            if (!\is_string($property->property)) {
+                continue;
+            }
+
+            $propertyNames[$property->property] = true;
+        }
+
+        return array_values(array_filter(
+            $requiredProperties,
+            static fn (string $requiredProperty): bool => isset($propertyNames[$requiredProperty])
+        ));
     }
 
     private function snakeCaseToCamelCase(string $input): string

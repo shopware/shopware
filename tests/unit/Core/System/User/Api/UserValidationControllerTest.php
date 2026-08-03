@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ShopwareTests\Unit\Core\System\User\Api;
+namespace Shopware\Tests\Unit\Core\System\User\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

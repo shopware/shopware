@@ -104,6 +104,10 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'ParameterRemoval on "ParameterRemovalCases::requiredParameter()": parameter "required" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
                 231,
             ],
+            [
+                'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter name "$optional" must be given without the leading "$".',
+                241,
+            ],
         ]);
     }
 

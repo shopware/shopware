@@ -46,6 +46,10 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### `EntitySearchResult` retains its entity name in v6.8.0
+
+The planned v6.8.0 change to `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method. The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name.
+
 ### Line item rule conditions only evaluate product line items
 
 Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
@@ -572,8 +576,9 @@ To prepare, for all three classes:
 
 For `EntitySearchResult`:
 
-- The wrapper becomes immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` become `readonly`, and the setters (`setPage()`, `setLimit()`, `setEntity()`, `setCustomFields()`) will be removed.
-- The entity name remains available through `$entity` and `getEntity()`. Do not call `setEntity()`; construct the result with the correct entity name instead.
+- The wrapper becomes immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` become `readonly`, and the setters (`setPage()`, `setLimit()`, `setEntity()`, `setCustomFields()`) will be removed.
+- Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0.
+- `EntitySearchResult::__construct()` is deprecated. Use `EntitySearchResult::create($total, $entities, $aggregations, $criteria, $context)` instead; its signature is stable in v6.8.0.
 
 For `ProductListingResult`:
 

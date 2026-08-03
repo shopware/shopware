@@ -67,6 +67,7 @@ class BCChangeAttributeUsageRule implements Rule
         NewOptionalParameter::class,
         ParameterDefaultValueChange::class,
         ParameterNameChange::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];

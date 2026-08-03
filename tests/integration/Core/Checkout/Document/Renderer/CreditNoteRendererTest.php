@@ -38,7 +38,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -181,11 +180,7 @@ class CreditNoteRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $snapshot = Feature::isActive('v6.8.0.0')
-            ? 'credit_note_renderer_default_v6_8'
-            : 'credit_note_renderer_default_v6_7';
-
-        $this->assertSnapshot($snapshot, [
+        $this->assertSnapshot('credit_note_renderer_default', [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,

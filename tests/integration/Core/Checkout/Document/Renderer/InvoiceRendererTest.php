@@ -155,11 +155,7 @@ class InvoiceRendererTest extends TestCase
         $contentHtml = $renderedHtml->getContent();
         static::assertIsString($contentHtml);
 
-        $snapshot = Feature::isActive('v6.8.0.0')
-            ? 'invoice_renderer_default_v6_8'
-            : 'invoice_renderer_default_v6_7';
-
-        $this->assertSnapshot($snapshot, [
+        $this->assertSnapshot('invoice_renderer_default', [
             [
                 'type' => self::TYPE_HTML,
                 'actual' => $contentHtml,

@@ -235,6 +235,117 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertFalse($bundle->display->displayPrices);
     }
 
+    public function testLoadUsesSystemConfigLogoForTypesWithoutBaseConfigRow(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'App Type GmbH',
+                'companyStreet' => 'App Street 1',
+                'companyZipcode' => '11111',
+                'companyCity' => 'App City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+                'companyLogoId' => self::COMPANY_INFO_LOGO_ID,
+            ], $salesChannelId),
+            $this->createAppDocumentTypeLoader(),
+        );
+
+        $bundle = $loader->load(
+            'app_registered_document_type',
+            $salesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(self::COMPANY_INFO_LOGO_ID, $bundle->config->logo?->getId());
+    }
+
+    public function testLoadReadsBaseConfigRowForPluginRegisteredType(): void
+    {
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'Letter',
+            companyName: 'Plugin GmbH',
+            itemsPerPage: 25,
+        );
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
+        );
+
+        $bundle = $loader->load(
+            'plugin_registered_document_type',
+            Uuid::randomHex(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('Letter', $bundle->config->pageSize);
+        static::assertSame(25, $bundle->config->itemsPerPage);
+        static::assertSame('Plugin GmbH', $bundle->company->companyName);
+    }
+
+    public function testLoadRejectsCoreTypeWithoutBaseConfigRow(): void
+    {
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->createAppDocumentTypeLoader(),
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType(DocumentType::INVOICE->value));
+
+        $loader->load(
+            DocumentType::INVOICE->value,
+            Uuid::randomHex(),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testLoadRejectsZeroItemsPerPage(): void
     {
         $globalRow = $this->createBaseConfig(

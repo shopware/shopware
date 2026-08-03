@@ -814,6 +814,28 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(fileTypes.text()).toBe('PDF, HTML');
     });
 
+    it('should fall back to the config document type for app registered types', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                {
+                    ...documentFixture,
+                    documentType: null,
+                    config: {
+                        ...documentFixture.config,
+                        documentType: 'swag_certificate',
+                    },
+                },
+            ]),
+        });
+
+        await flushPromises();
+
+        const row = wrapper.find('.sw-data-grid__row--0');
+        expect(row.find('.sw-data-grid__cell--documentType-name').text()).toBe('swag_certificate');
+    });
+
     it('should render the delete-button when attachView is false', async () => {
         global.activeAclRoles = ['document.deleter'];
         wrapper = await createWrapper();

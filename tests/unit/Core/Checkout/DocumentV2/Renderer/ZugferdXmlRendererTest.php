@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -191,6 +192,58 @@ class ZugferdXmlRendererTest extends TestCase
             new RenderState(),
             Context::createDefaultContext(),
         );
+    }
+
+    public function testShouldThrowWhenCoreTypeHasNoRenderData(): void
+    {
+        $renderer = $this->createRenderer(
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
+        );
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(DocumentType::INVOICE->value, AbstractRenderData::class),
+        );
+
+        $renderer->renderToString(
+            new RenderInput(
+                DocumentType::INVOICE->value,
+                '12345',
+                $this->createOrder(),
+                [DocumentMetaProvider::KEY => $this->createMeta()],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testShouldRenderAppTypeWithoutRenderData(): void
+    {
+        $expectedTemplate = '@Framework/documents/zugferd/swag_certificate.xml.twig';
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->once())
+            ->method('find')
+            ->with($expectedTemplate)
+            ->willReturn($expectedTemplate);
+
+        $env = static::createStub(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<root/>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        $result = $renderer->renderToString(
+            new RenderInput(
+                'swag_certificate',
+                '12345',
+                $this->createOrder(),
+                [DocumentMetaProvider::KEY => $this->createMeta()],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(DocumentFormat::ZUGFERD_XML->value, $result->format);
     }
 
     private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): ZugferdXmlRenderer

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppDocumentType\AppDocumentTypeCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Handler\DocumentTypeLifecycleHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -132,6 +133,23 @@ class DocumentTypeLifecycleHandlerTest extends TestCase
         $valid = $documentTypes->filterByProperty('technicalName', 'swag_valid_type')->first();
         static::assertNotNull($valid);
         static::assertSame('Valid type', $valid->getLabel());
+    }
+
+    public function testInstallRejectsDocumentTypeIdentifierClaimedByAnotherApp(): void
+    {
+        $manifest = $this->appFixture->loadManifest(self::APP_DIR . '/manifest.xml');
+        $owningApp = $this->appFixture->createApp($manifest);
+
+        $this->handler->install($this->appFixture->createInstallContext($owningApp, $manifest));
+
+        $competingApp = $this->appFixture->createAppFromData(['name' => 'CompetingApp']);
+
+        $this->expectExceptionObject(AppException::documentTypeAlreadyRegistered(
+            'swag_type_with_config',
+            $owningApp->getName(),
+        ));
+
+        $this->handler->install($this->appFixture->createInstallContext($competingApp, $manifest));
     }
 
     private function getDocumentTypes(string $appId): AppDocumentTypeCollection

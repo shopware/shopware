@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -206,6 +207,63 @@ class DocumentPersisterTest extends TestCase
         );
     }
 
+    public function testUniqueDocumentNumberCheckFiltersByDocumentTypeIdForCoreTypes(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+        $filters = null;
+
+        [$persister] = $this->createPersister(
+            $documentTypeId,
+            uniquenessSearch: static function (Criteria $criteria) use (&$filters): array {
+                $filters = $criteria->getFilters();
+
+                return [];
+            },
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertEquals([
+            new EqualsFilter('documentNumber', '12345'),
+            new EqualsFilter('documentTypeId', $documentTypeId),
+        ], $filters);
+    }
+
+    public function testUniqueDocumentNumberCheckFiltersByConfigTypeWhenNoDocumentTypeRowExists(): void
+    {
+        $filters = null;
+
+        [$persister] = $this->createPersister(
+            documentTypeId: null,
+            uniquenessSearch: static function (Criteria $criteria) use (&$filters): array {
+                $filters = $criteria->getFilters();
+
+                return [];
+            },
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertEquals([
+            new EqualsFilter('documentNumber', '12345'),
+            new EqualsFilter('config.documentType', self::DOCUMENT_TYPE),
+        ], $filters);
+    }
+
     /**
      * @param list<string> $existingDocumentIds
      *
@@ -220,9 +278,10 @@ class DocumentPersisterTest extends TestCase
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
+        ?callable $uniquenessSearch = null,
     ): array {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
-            $existingDocumentIds,
+            $uniquenessSearch ?? $existingDocumentIds,
             $documentSearch ?? static function (
                 Criteria $criteria,
                 Context $context,

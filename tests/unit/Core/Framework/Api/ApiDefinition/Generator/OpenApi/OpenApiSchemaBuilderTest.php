@@ -60,24 +60,34 @@ class OpenApiSchemaBuilderTest extends TestCase
         static::assertSame('Shopware Admin API', $openApi->info->title);
     }
 
-    public function testEnrichKeepsRelationshipsAsAContainerOfRelationshipObjects(): void
+    public function testEnrichAddsRelationshipSchemasForAdminApi(): void
     {
-        foreach ([DefinitionService::API, DefinitionService::STORE_API] as $api) {
-            $openApi = new OpenApi([]);
+        $openApi = new OpenApi([]);
 
-            (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, $api);
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
 
-            $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
+        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
 
-            static::assertSame(
-                ['$ref' => '#/components/schemas/relationship'],
-                $schema['relationships']['additionalProperties']
-            );
-            static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($schema['relationship']['properties']));
-            static::assertSame(1, $schema['relationship']['minProperties']);
-            static::assertFalse($schema['relationship']['additionalProperties']);
-            static::assertArrayNotHasKey('anyOf', $schema['relationship']);
-        }
+        static::assertSame(
+            ['$ref' => '#/components/schemas/relationship'],
+            $schema['relationships']['additionalProperties']
+        );
+        static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($schema['relationship']['properties']));
+        static::assertSame(1, $schema['relationship']['minProperties']);
+        static::assertFalse($schema['relationship']['additionalProperties']);
+        static::assertArrayNotHasKey('anyOf', $schema['relationship']);
+    }
+
+    public function testEnrichDoesNotAddRelationshipSchemasForStoreApi(): void
+    {
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
+
+        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
+
+        static::assertArrayNotHasKey('relationships', $schema);
+        static::assertArrayNotHasKey('relationship', $schema);
     }
 
     /**

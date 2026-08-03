@@ -142,6 +142,26 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
+    public function testStoreApiLoadsJsonApiRelationshipSchemasFromJson(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+        $entities = $schema['components']['schemas'];
+
+        static::assertSame(
+            ['$ref' => '#/components/schemas/relationship'],
+            $entities['relationships']['additionalProperties']
+        );
+        static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($entities['relationship']['properties']));
+        static::assertSame(1, $entities['relationship']['minProperties']);
+        static::assertFalse($entities['relationship']['additionalProperties']);
+        static::assertArrayNotHasKey('anyOf', $entities['relationship']);
+    }
+
     public function testOnlyPhpGeneratedSchemaRetainsJsonApiComponent(): void
     {
         $definitionRegistry = new StaticDefinitionInstanceRegistry(

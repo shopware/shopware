@@ -168,12 +168,13 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * SQL has no built-in escaping for line comments. Since only carriage returns and line feeds terminate a `--`
-     * comment in the supported database platforms, replacing them prevents the title from changing the query grammar.
+     * SQL has no built-in escaping for comments. Line breaks terminate a `--` comment, and other control characters
+     * can be interpreted differently by SQL parsers. Replacing Unicode control characters prevents titles from
+     * changing the query grammar.
      */
     private static function sanitizeSqlComment(string $comment): string
     {
-        return str_replace(["\r", "\n"], ' ', $comment);
+        return preg_replace('/\p{Cc}/u', ' ', $comment) ?? '';
     }
 
     /**

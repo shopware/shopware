@@ -362,6 +362,34 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a question mark, colon, or line break.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a question mark, colon, or control character.', $error['detail']);
+    }
+
+    public function testControlCharacterNotAllowedInAggregationName(): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+        $this->parser->buildAggregations(
+            self::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => "max\0agg",
+                        'type' => 'max',
+                        'field' => 'tax.taxRate',
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+        static::assertSame('The aggregation name should not contain a question mark, colon, or control character.', $error['detail']);
     }
 }

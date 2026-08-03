@@ -268,11 +268,7 @@ EOF,
                 'schema' => 'relationship',
                 'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
                 'type' => 'object',
-                'anyOf' => [
-                    ['required' => ['data']],
-                    ['required' => ['meta']],
-                    ['required' => ['links']],
-                ],
+                'minProperties' => 1,
                 'properties' => [
                     'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
                     'data' => [

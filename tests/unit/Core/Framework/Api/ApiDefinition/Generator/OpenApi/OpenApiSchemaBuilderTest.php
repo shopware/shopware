@@ -74,14 +74,9 @@ class OpenApiSchemaBuilderTest extends TestCase
                 $schema['relationships']['additionalProperties']
             );
             static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($schema['relationship']['properties']));
-            static::assertSame(
-                [
-                    ['required' => ['data']],
-                    ['required' => ['meta']],
-                    ['required' => ['links']],
-                ],
-                $schema['relationship']['anyOf']
-            );
+            static::assertSame(1, $schema['relationship']['minProperties']);
+            static::assertFalse($schema['relationship']['additionalProperties']);
+            static::assertArrayNotHasKey('anyOf', $schema['relationship']);
         }
     }
 

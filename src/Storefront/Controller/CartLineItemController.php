@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -256,14 +255,10 @@ class CartLineItemController extends StorefrontController
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            try {
-                $cart = $this->cartService->add($cart, $product, $context);
+            $cart = $this->cartService->add($cart, $product, $context);
 
-                if (!$this->traceErrors($cart)) {
-                    $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
-                }
-            } catch (CartTokenNotFoundException) {
-                $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
+            if (!$this->traceErrors($cart)) {
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
             }
 
             return $this->createActionResponse($request);
@@ -334,7 +329,7 @@ class CartLineItemController extends StorefrontController
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
                 }
-            } catch (ProductNotFoundException|RoutingException|CartTokenNotFoundException) {
+            } catch (ProductNotFoundException|RoutingException) {
                 $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
 

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -75,7 +74,6 @@ class CartPersister extends AbstractCartPersister
 
     /**
      * @throws InvalidUuidException
-     * @throws CartTokenNotFoundException when the persisted cart was deleted concurrently
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
@@ -124,16 +122,6 @@ class CartPersister extends AbstractCartPersister
         $result = $query->execute($data);
 
         if ($cart->isPersisted() && (int) $result === 0) {
-            // MySQL reports changed rows, so an update writing identical values also returns 0
-            $exists = $this->connection->fetchOne(
-                'SELECT 1 FROM cart WHERE `token` = :token',
-                ['token' => $cart->getToken()]
-            );
-
-            if ($exists === false) {
-                throw CartException::tokenNotFound($cart->getToken());
-            }
-
             return;
         }
 

@@ -200,43 +200,6 @@ class CartRestorerTest extends TestCase
         static::assertSame(3, $restoredCustomerLineItem2->getQuantity());
     }
 
-    public function testRestoreByTokenKeepsGuestItemsWhenCustomerCartIsDeletedDuringMerge(): void
-    {
-        ['context' => $guestContext, 'cart' => $guestCart] = $this->createContextAndFilledCart(1, 3);
-        $guestLineItem = $guestCart->getLineItems()->getAt(0);
-        static::assertInstanceOf(LineItem::class, $guestLineItem);
-        static::assertIsString($guestLineItem->getReferencedId());
-
-        ['context' => $customerContext] = $this->createContextAndFilledCart(4, 3, true);
-        $customerToken = $customerContext->getToken();
-
-        // simulate a concurrent order placement that removes the customer cart right before the merge is saved
-        $connection = $this->connection;
-        $deleteCustomerCart = static function () use ($connection, $customerToken): void {
-            $connection->executeStatement('DELETE FROM `cart` WHERE `token` = :token', ['token' => $customerToken]);
-        };
-        $this->eventDispatcher->addListener(BeforeCartMergeEvent::class, $deleteCustomerCart);
-
-        try {
-            $restoredContext = $this->cartRestorer->restoreByToken($customerToken, $this->customerId, $guestContext);
-        } finally {
-            $this->eventDispatcher->removeListener(BeforeCartMergeEvent::class, $deleteCustomerCart);
-        }
-
-        $restoredCart = $this->cartService->getCart($restoredContext->getToken(), $restoredContext);
-
-        static::assertNotNull(
-            $restoredCart->getLineItems()->get($guestLineItem->getReferencedId()),
-            'the guest line items must survive a concurrently deleted customer cart'
-        );
-        static::assertCount(
-            2,
-            $restoredCart->getLineItems(),
-            'the deleted customer cart must not be resurrected alongside the guest items'
-        );
-        static::assertTrue($this->cartExists($restoredContext->getToken()));
-    }
-
     public function testRestoreByTokenWithNotExistingToken(): void
     {
         $formerContext = $this->createSalesChannelContext('formerToken');

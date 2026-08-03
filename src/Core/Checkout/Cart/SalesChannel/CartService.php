@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
@@ -93,16 +92,7 @@ class CartService implements ResetInterface
             $items = [$items];
         }
 
-        try {
-            $cart = $this->itemAddRoute->add(new Request(), $cart, $context, $items)->getCart();
-        } catch (CartTokenNotFoundException $e) {
-            if ($e->getParameter('token') !== $cart->getToken()) {
-                throw $e;
-            }
-
-            // the cart was deleted concurrently, add the items to a fresh cart instead of discarding them
-            $cart = $this->itemAddRoute->add(new Request(), $this->createNew($cart->getToken()), $context, $items)->getCart();
-        }
+        $cart = $this->itemAddRoute->add(new Request(), $cart, $context, $items)->getCart();
 
         return $this->cart[$cart->getToken()] = $cart;
     }

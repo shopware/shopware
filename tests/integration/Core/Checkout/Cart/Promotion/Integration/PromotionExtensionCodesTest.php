@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
@@ -280,11 +279,7 @@ class PromotionExtensionCodesTest extends TestCase
 
         $this->cartService->order($cart, $context, new RequestDataBag());
 
-        try {
-            $this->cartService->remove($cart, $discountId, $context);
-            static::fail(CartTokenNotFoundException::class . ' was not thrown');
-        } catch (CartTokenNotFoundException) {
-        }
+        $this->cartService->remove($cart, $discountId, $context);
 
         $after = $extension->getCodes();
         static::assertEmpty($after);

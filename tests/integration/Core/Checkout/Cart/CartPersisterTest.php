@@ -34,7 +34,6 @@ use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -174,12 +173,7 @@ class CartPersisterTest extends TestCase
 
         $persister->save($cart, $context);
         $persister->delete($cart->getToken(), $context);
-
-        try {
-            $persister->save($cart, $context);
-            static::fail(CartTokenNotFoundException::class . ' was not thrown');
-        } catch (CartTokenNotFoundException) {
-        }
+        $persister->save($cart, $context);
 
         $token = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
@@ -187,38 +181,7 @@ class CartPersisterTest extends TestCase
         static::assertFalse($token);
     }
 
-    public function testRepeatedSaveOfUnchangedCartIsNotTreatedAsDeleted(): void
-    {
-        $cart = new Cart('unchanged');
-        $cart->add(
-            (new LineItem('A', 'test'))
-                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
-                ->setLabel('test')
-        );
-
-        // a frozen clock makes the repeated saves write an identical row
-        $persister = new CartPersister(
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(CartSerializationCleaner::class),
-            static::getContainer()->get(CartCompressor::class),
-            new MockClock('2026-01-01 00:00:00'),
-        );
-
-        $context = $this->getSalesChannelContext($cart->getToken());
-
-        // insert, write the now-persisted cart, then repeat that write and affect zero rows
-        $persister->save($cart, $context);
-        $persister->save($cart, $context);
-        $persister->save($cart, $context);
-
-        $token = static::getContainer()->get(Connection::class)
-            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
-
-        static::assertSame($cart->getToken(), $token);
-    }
-
-    public function testRetokenizedCartIsInsertedInsteadOfTreatedAsDeleted(): void
+    public function testRetokenizedCartIsInsertedUnderTheNewToken(): void
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->add(
@@ -232,7 +195,7 @@ class CartPersisterTest extends TestCase
 
         $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
 
-        // extensions hand a persisted cart a new token and store it elsewhere, e.g. as a pending order payload
+        // extensions hand a persisted cart a new token and store it elsewhere, e.g. as a quote payload
         $detachedToken = Uuid::randomHex();
         $loaded->setToken($detachedToken);
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
@@ -21,9 +20,6 @@ abstract class AbstractCartPersister
 
     abstract public function load(string $token, SalesChannelContext $context): Cart;
 
-    /**
-     * @throws CartTokenNotFoundException when the persisted cart was deleted concurrently
-     */
     abstract public function save(Cart $cart, SalesChannelContext $context): void;
 
     abstract public function delete(string $token, SalesChannelContext $context): void;

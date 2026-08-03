@@ -8,16 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartFactory;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartDeleteRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -179,100 +176,11 @@ class CartServiceTest extends TestCase
         static::assertSame($cart, $cartService->createNew('test'));
     }
 
-    public function testAddRetriesWithFreshCartWhenCartWasDeletedConcurrently(): void
-    {
-        $context = static::createStub(SalesChannelContext::class);
-
-        $deletedCart = new Cart('test');
-        $deletedCart->setPersisted(true);
-
-        $freshCart = new Cart('test');
-        $cartFactory = $this->createMock(CartFactory::class);
-        $cartFactory->expects($this->once())
-            ->method('createNew')
-            ->with('test')
-            ->willReturn($freshCart);
-
-        $item = new LineItem('item', LineItem::CUSTOM_LINE_ITEM_TYPE);
-        $retriedCart = new Cart('test');
-        $retriedCart->add($item);
-
-        $calls = 0;
-        $cartItemAddRoute = $this->createMock(AbstractCartItemAddRoute::class);
-        $cartItemAddRoute->expects($this->exactly(2))
-            ->method('add')
-            ->willReturnCallback(
-                function (Request $request, Cart $cart, SalesChannelContext $usedContext, ?array $items) use (&$calls, $deletedCart, $freshCart, $retriedCart, $item): CartResponse {
-                    ++$calls;
-
-                    if ($calls === 1) {
-                        static::assertSame($deletedCart, $cart);
-
-                        throw CartException::tokenNotFound('test');
-                    }
-
-                    static::assertSame($freshCart, $cart);
-                    static::assertSame([$item], $items);
-
-                    return new CartResponse($retriedCart);
-                }
-            );
-
-        $cartService = $this->buildCartService(cartFactory: $cartFactory, cartItemAddRoute: $cartItemAddRoute);
-
-        $cart = $cartService->add($deletedCart, $item, $context);
-
-        static::assertSame($retriedCart, $cart);
-        static::assertTrue($cart->has('item'));
-    }
-
-    public function testAddDoesNotRetryWhenAnotherCartWasReportedAsDeleted(): void
-    {
-        $context = static::createStub(SalesChannelContext::class);
-
-        $cart = new Cart('test');
-        $cart->setPersisted(true);
-
-        $cartFactory = $this->createMock(CartFactory::class);
-        $cartFactory->expects($this->never())->method('createNew');
-
-        $cartItemAddRoute = $this->createMock(AbstractCartItemAddRoute::class);
-        $cartItemAddRoute->expects($this->once())
-            ->method('add')
-            ->willThrowException(CartException::tokenNotFound('someone-elses-cart'));
-
-        $cartService = $this->buildCartService(cartFactory: $cartFactory, cartItemAddRoute: $cartItemAddRoute);
-
-        $this->expectExceptionObject(CartException::tokenNotFound('someone-elses-cart'));
-
-        $cartService->add($cart, new LineItem('item', LineItem::CUSTOM_LINE_ITEM_TYPE), $context);
-    }
-
-    public function testAddDoesNotRetryWhenTheCartStillExists(): void
-    {
-        $context = static::createStub(SalesChannelContext::class);
-        $cart = new Cart('test');
-        $item = new LineItem('item', LineItem::CUSTOM_LINE_ITEM_TYPE);
-
-        $cartFactory = $this->createMock(CartFactory::class);
-        $cartFactory->expects($this->never())->method('createNew');
-
-        $cartItemAddRoute = $this->createMock(AbstractCartItemAddRoute::class);
-        $cartItemAddRoute->expects($this->once())
-            ->method('add')
-            ->willReturn(new CartResponse($cart));
-
-        $cartService = $this->buildCartService(cartFactory: $cartFactory, cartItemAddRoute: $cartItemAddRoute);
-
-        static::assertSame($cart, $cartService->add($cart, $item, $context));
-    }
-
     private function buildCartService(
         ?AbstractCartDeleteRoute $cartDeleteRoute = null,
         ?AbstractCartItemUpdateRoute $cartItemUpdateRoute = null,
         ?AbstractCartItemRemoveRoute $cartItemRemoveRoute = null,
         ?CartFactory $cartFactory = null,
-        ?AbstractCartItemAddRoute $cartItemAddRoute = null,
     ): CartService {
         return new CartService(
             static::createStub(AbstractCartPersister::class),
@@ -280,7 +188,7 @@ class CartServiceTest extends TestCase
             static::createStub(CartCalculator::class),
             static::createStub(AbstractCartLoadRoute::class),
             $cartDeleteRoute ?? $this->cartDeleteRoute,
-            $cartItemAddRoute ?? static::createStub(AbstractCartItemAddRoute::class),
+            static::createStub(AbstractCartItemAddRoute::class),
             $cartItemUpdateRoute ?? $this->cartItemUpdateRoute,
             $cartItemRemoveRoute ?? $this->cartItemRemoveRoute,
             static::createStub(AbstractCartOrderRoute::class),

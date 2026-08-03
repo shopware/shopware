@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
@@ -49,7 +48,7 @@ class CartRestorer
             $currentContext->getSalesChannelId(),
         );
 
-        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== []) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions'])) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
@@ -74,7 +73,7 @@ class CartRestorer
             $customerId
         );
 
-        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== [] || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if ($customerPayload === [] || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
@@ -224,19 +223,10 @@ class CartRestorer
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
         $cartsAreIdentical = $token === $customerContext->getToken();
 
-        try {
-            if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
-                $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
-            } else {
-                $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
-            }
-        } catch (CartTokenNotFoundException $e) {
-            if ($e->getParameter('token') !== $customerCart->getToken()) {
-                throw $e;
-            }
-
-            // the cart was deleted concurrently, continue the login with the cart we already hold
-            $restoredCart = $customerCart;
+        if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
+            $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);
+        } else {
+            $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
         }
 
         $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));

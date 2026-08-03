@@ -112,6 +112,18 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'ParameterDefaultValueChange on "ParameterDefaultValueChangeCases::unchangedDefault()": announced default value for parameter "value" is already current.',
                 256,
             ],
+            [
+                'ParameterRemoval on "ParameterRemovalCases::requiredParameter()": parameter "required" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
+                274,
+            ],
+            [
+                'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter name "$optional" must be given without the leading "$".',
+                284,
+            ],
+            [
+                'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter "$optional" does not exist.',
+                284,
+            ],
         ]);
     }
 

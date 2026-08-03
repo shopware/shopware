@@ -268,3 +268,21 @@ class ParameterDefaultValueChangeCases
     {
     }
 }
+
+class ParameterRemovalCases
+{
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'required')]
+    public function requiredParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
+    public function optionalParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]
+    public function leadingDollar(string $required, ?string $optional = null): void
+    {
+    }
+}

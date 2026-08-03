@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +35,7 @@ class MediaUploadController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
@@ -67,7 +68,7 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $fileName = $request->request->getString('fileName');
@@ -86,7 +87,7 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]
+    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:read']], methods: ['GET'])]
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->getString('fileName');

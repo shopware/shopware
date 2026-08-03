@@ -313,11 +313,11 @@ class BCChangeAttributeUsageRule implements Rule
     private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
     {
         $parameterName = $this->argument($attribute, 'parameterName', 1);
-        if (!\is_string($parameterName)) {
+        if (!\is_string($parameterName) || \str_starts_with($parameterName, '$')) {
             return [];
         }
 
-        $parameter = $this->parameter($method, \ltrim($parameterName, '$'));
+        $parameter = $this->parameter($method, $parameterName);
         if ($parameter === null) {
             return [$this->error($line, \sprintf(
                 'ParameterRemoval on "%s": parameter "%s" does not exist.',

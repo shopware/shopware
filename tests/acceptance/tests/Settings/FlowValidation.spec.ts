@@ -48,7 +48,6 @@ test(
         });
 
         await test.step('Validate order state and customer tag via UI', async () => {
-            await TestDataService.clearCaches();
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
             await ShopAdmin.expects(AdminOrderDetail.orderStatus).toContainText('In Progress');
             await ShopAdmin.expects(AdminOrderDetail.orderPaymentStatus).toContainText('Paid');

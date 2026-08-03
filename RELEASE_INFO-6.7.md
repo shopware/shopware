@@ -46,6 +46,9 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Line item rule conditions only evaluate product line items
+
+Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
@@ -88,6 +91,10 @@ List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) repl
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
+### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
+
+Migration DDL now retries once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4 rejects a statement through MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151). The `MigrationStep` DDL helpers do this automatically; raw DDL statements in extension migrations should go through `MigrationStep::executeDdlStatement()`. The method is `@internal` only because it will be removed once MySQL fixes the bug; it is safe to call in the meantime.
 
 ### Polyfill packages are installed as declared dependencies
 
@@ -224,6 +231,10 @@ cacheService.invalidateCaches({
     cacheKey: ['custom-field-sets', 'product'],
 });
 ```
+
+### Plugins can use the global Meteor snackbar
+
+Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
 
 ## Storefront
 

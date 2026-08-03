@@ -523,7 +523,7 @@ export default {
         },
 
         downloadDocumentArchive(documentId) {
-            return this.documentV2Service.getDocumentArchive(documentId).then((response) => {
+            return this.documentV2Service.getDocumentArchive([documentId]).then((response) => {
                 if (response.data) {
                     const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');

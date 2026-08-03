@@ -45,6 +45,11 @@ async function createWrapper(
                             return Promise.resolve();
                         },
                     },
+                    documentV2Service: {
+                        getDocumentArchive: () => {
+                            return Promise.resolve();
+                        },
+                    },
                 },
             },
         },
@@ -59,6 +64,8 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         const bulkEditStore = Shopware.Store.get('swBulkEdit');
 
         bulkEditStore.resetDocumentGenerationResult();
@@ -404,6 +411,64 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
         wrapper.vm.orderDocumentApiService.download.mockRestore();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should download the document archive via the v2 endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        window.URL.createObjectURL = jest.fn();
+
+        wrapper.vm.documentV2Service.getDocumentArchive = jest.fn(() =>
+            Promise.resolve({
+                headers: {
+                    'content-disposition': 'filename=documents.zip',
+                },
+                data: 'archive content',
+            }),
+        );
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: [
+                    'documentId1',
+                    'documentId2',
+                ],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(wrapper.vm.documentV2Service.getDocumentArchive).toHaveBeenCalledWith([
+            'documentId1',
+            'documentId2',
+        ]);
+        expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
+
+        wrapper.vm.documentV2Service.getDocumentArchive.mockRestore();
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
+    it('should call createNotificationError when the v2 archive download fails', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.documentV2Service.getDocumentArchive = jest
+            .fn()
+            .mockImplementation(() => Promise.reject(new Error('error occured')));
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: ['documentId1'],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(wrapper.vm.documentV2Service.getDocumentArchive).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
+        wrapper.vm.documentV2Service.getDocumentArchive.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
     });
 

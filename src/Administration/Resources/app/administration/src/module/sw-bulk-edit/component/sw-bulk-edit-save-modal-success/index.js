@@ -21,6 +21,8 @@ export default {
     inject: [
         'repositoryFactory',
         'orderDocumentApiService',
+        'documentV2Service',
+        'feature',
     ],
 
     emits: [
@@ -300,8 +302,12 @@ export default {
             }
 
             this.document[documentType].isDownloading = true;
-            return this.orderDocumentApiService
-                .download(documentIds)
+
+            const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2Service.getDocumentArchive(documentIds)
+                : this.orderDocumentApiService.download(documentIds);
+
+            return request
                 .then((response) => {
                     if (!response.data) {
                         return;

@@ -724,7 +724,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
 
-        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('document1');
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['document1']);
         dispatchEventSpy.mockRestore();
     });
 
@@ -839,7 +839,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '',
         );
         expect(getDocumentV2Mock).not.toHaveBeenCalled();
-        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith('1234');
+        expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['1234']);
         dispatchEventSpy.mockRestore();
     });
 

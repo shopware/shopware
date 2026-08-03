@@ -2973,7 +2973,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @param array{ids: string[]} $case
+     * @param array{ids: list<string>, rules: list<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {

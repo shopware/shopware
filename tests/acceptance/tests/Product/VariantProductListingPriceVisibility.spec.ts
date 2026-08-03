@@ -65,7 +65,7 @@ test(
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for products to be visible on storefront.', async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);

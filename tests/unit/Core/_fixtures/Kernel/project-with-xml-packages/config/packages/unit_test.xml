@@ -4,7 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <services>
-        <service id="shopware.usage_data.gateway.client" class="Symfony\Component\HttpClient\MockHttpClient" public="true"/>
-    </services>
+    <parameters>
+        <parameter key="unit_test.project.xml_package">loaded</parameter>
+    </parameters>
 </container>

@@ -423,7 +423,7 @@ export default {
                 address.countryId,
                 address.countryStateId,
             ]
-                .map((value) => value ?? '')
+                .filter(v => v)
                 .join('|');
         },
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
@@ -20,6 +21,11 @@ class Feature
      * @internal
      */
     public static bool $emitDeprecations = true;
+
+    /**
+     * @internal
+     */
+    public static ?Triggerer $triggerer = null;
 
     /**
      * @var array<string, true>
@@ -134,7 +140,7 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
+            (self::$triggerer ??= new Triggerer())->error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
         // Specific configurations are higher priority then FEATURE_ALL
@@ -292,12 +298,12 @@ class Feature
         }
 
         if ($introducedIn === null) {
-            trigger_deprecation('', '', $message);
+            (self::$triggerer ??= new Triggerer())->deprecation('', '', $message);
 
             return;
         }
 
-        trigger_deprecation('shopware/core', $introducedIn, $message);
+        (self::$triggerer ??= new Triggerer())->deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

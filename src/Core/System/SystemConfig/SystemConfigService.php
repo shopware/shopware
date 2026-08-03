@@ -385,14 +385,6 @@ class SystemConfigService implements ResetInterface
     {
         $relevantSettings = $this->getDomain($prefix);
 
-        if (!(Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))) {
-            $config = [
-                [
-                    'cards' => $config,
-                ],
-            ];
-        }
-
         foreach ($config as $tab) {
             foreach ($tab['cards'] as $card) {
                 foreach ($card['elements'] as $element) {
@@ -427,14 +419,6 @@ class SystemConfigService implements ResetInterface
     {
         $prefix = $extensionName . '.config.';
         $configKeys = [];
-
-        if (!(Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))) {
-            $config = [
-                [
-                    'cards' => $config,
-                ],
-            ];
-        }
 
         foreach ($config as $tab) {
             foreach ($tab['cards'] as $card) {

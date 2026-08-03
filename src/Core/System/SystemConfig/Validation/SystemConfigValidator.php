@@ -3,13 +3,12 @@
 namespace Shopware\Core\System\SystemConfig\Validation;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,7 +23,7 @@ class SystemConfigValidator
      * @internal
      */
     public function __construct(
-        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigDefinitionService $configurationService,
         private readonly DataValidator $validator
     ) {
     }
@@ -72,9 +71,7 @@ class SystemConfigValidator
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $formConfig will be of type `list<SystemConfigTab>`
-     *
-     * @param array<mixed> $formConfig
+     * @param list<SystemConfigTab> $formConfig
      * @param array<string> $inputConfigKeys
      *
      * @return array<string, Constraint[]>
@@ -83,31 +80,14 @@ class SystemConfigValidator
     {
         $constraints = [];
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            /** @var SystemConfigTab $tab */
-            foreach ($formConfig as $tab) {
-                foreach ($tab->cards as $card) {
-                    foreach ($card->elements as $element) {
-                        if (!\in_array($element->name, $inputConfigKeys, true)) {
-                            continue;
-                        }
-
-                        $constraints[$element->name] = $this->buildConstraintsWithConfigs($element->config, $allowNulls);
-                    }
-                }
-            }
-        } else {
-            foreach ($formConfig as $card) {
-                $elements = $card['elements'] ?? [];
-
-                foreach ($elements as $element) {
-                    if (!\in_array($element['name'], $inputConfigKeys, true)) {
+        foreach ($formConfig as $tab) {
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    if (!\in_array($element->name, $inputConfigKeys, true)) {
                         continue;
                     }
 
-                    $elementConfig = $element['config'];
-
-                    $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
+                    $constraints[$element->name] = $this->buildConstraintsWithConfigs($element->config, $allowNulls);
                 }
             }
         }
@@ -148,16 +128,12 @@ class SystemConfigValidator
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `list<SystemConfigTab>`
-     *
-     * @return array<mixed>
+     * @return list<SystemConfigTab>
      */
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            return (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
-                ? $this->configurationService->getSystemConfiguration($domain, $context)
-                : $this->configurationService->getConfiguration($domain, $context);
+            return $this->configurationService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

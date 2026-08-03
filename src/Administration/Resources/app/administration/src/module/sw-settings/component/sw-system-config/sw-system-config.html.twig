@@ -37,14 +37,14 @@
     {% endblock %}
 
     <template
-        v-for="(tab, tabIndex) in (feature.isActive('v6.8.0.0') || feature.isActive('SYSTEM_CONFIG_TABS') ? config : [{}])"
+        v-for="(tab, tabIndex) in config"
         :key="tabIndex"
     >
         {% block sw_system_config_content_tab %}
-        <template v-if="(!feature.isActive('v6.8.0.0') && !feature.isActive('SYSTEM_CONFIG_TABS')) || activeTab === getTabName(tab)">
+        <template v-if="activeTab === getTabName(tab)">
             {% block sw_system_config_content_card %}
             <mt-card
-                v-for="(card, index) in (feature.isActive('v6.8.0.0') || feature.isActive('SYSTEM_CONFIG_TABS') ? tab.cards : config)"
+                v-for="(card, index) in tab.cards"
                 :key="index"
                 position-identifier="sw-system-config-content"
                 :class="[ `sw-system-config__card--${index}`, card.name ? `sw-system-config__card--${kebabCase(card.name)}` : null ]"

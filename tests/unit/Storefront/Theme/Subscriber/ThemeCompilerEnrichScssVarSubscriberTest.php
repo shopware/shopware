@@ -8,8 +8,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -25,19 +24,19 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 #[CoversClass(ThemeCompilerEnrichScssVarSubscriber::class)]
 class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 {
-    private ConfigurationService&Stub $configService;
+    private SystemConfigDefinitionService&Stub $configService;
 
     private StorefrontPluginRegistry&Stub $storefrontPluginRegistry;
 
     protected function setUp(): void
     {
-        $this->configService = static::createStub(ConfigurationService::class);
+        $this->configService = static::createStub(SystemConfigDefinitionService::class);
         $this->storefrontPluginRegistry = static::createStub(StorefrontPluginRegistry::class);
     }
 
     public function testEnrichExtensionVarsReturnsNothingWithNoStorefrontPlugin(): void
     {
-        $configService = $this->createMock(ConfigurationService::class);
+        $configService = $this->createMock(SystemConfigDefinitionService::class);
         $configService->expects($this->never())->method('getResolvedConfiguration');
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $this->storefrontPluginRegistry);
@@ -52,32 +51,6 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
     }
 
     public function testOnlyDBExceptionIsSilenced(): void
-    {
-        $exception = new \InvalidArgumentException();
-        $this->configService->method('getResolvedSystemConfiguration')->willThrowException($exception);
-        $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection([
-                new StorefrontPluginConfiguration('test'),
-            ])
-        );
-
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
-        $this->expectExceptionObject($exception);
-
-        $subscriber->enrichExtensionVars(
-            new ThemeCompilerEnrichScssVariablesEvent(
-                [],
-                TestDefaults::SALES_CHANNEL,
-                Context::createDefaultContext()
-            )
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed. testOnlyDBExceptionIsSilenced will cover the new behavior
-     */
-    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
-    public function testOnlyDBExceptionIsSilencedDeprecated(): void
     {
         $exception = new \InvalidArgumentException();
         $this->configService->method('getResolvedConfiguration')->willThrowException($exception);

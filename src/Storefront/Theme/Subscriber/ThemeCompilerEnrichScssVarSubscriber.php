@@ -4,12 +4,11 @@ namespace Shopware\Storefront\Theme\Subscriber;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,7 +23,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigDefinitionService $configurationService,
         private readonly StorefrontPluginRegistry $storefrontPluginRegistry
     ) {
     }
@@ -54,17 +53,11 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
                 $allConfigs = array_merge(
                     $allConfigs,
-                    (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
-                        ? $this->configurationService->getResolvedSystemConfiguration(
-                            $configuration->getTechnicalName() . '.config',
-                            $event->getContext(),
-                            $event->getSalesChannelId()
-                        )
-                        : $this->configurationService->getResolvedConfiguration(
-                            $configuration->getTechnicalName() . '.config',
-                            $event->getContext(),
-                            $event->getSalesChannelId()
-                        )
+                    $this->configurationService->getResolvedConfiguration(
+                        $configuration->getTechnicalName() . '.config',
+                        $event->getContext(),
+                        $event->getSalesChannelId()
+                    )
                 );
             }
         } catch (DBALException $e) {
@@ -73,69 +66,28 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            /** @var SystemConfigTab $tab */
-            foreach ($allConfigs as $tab) {
-                foreach ($tab->cards as $card) {
-                    foreach ($card->elements as $element) {
-                        if (!$this->hasCssValue($element)) {
-                            continue;
-                        }
+        foreach ($allConfigs as $tab) {
+            \assert($tab instanceof SystemConfigTab);
 
-                        $event->addVariable($element->config['css'], $element->value ?? $element->config['defaultValue']);
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    if (!$this->hasCssValue($element)) {
+                        continue;
                     }
+
+                    $event->addVariable($element->config['css'], $element->value ?? $element->config['defaultValue']);
                 }
-            }
-
-            return;
-        }
-
-        foreach ($allConfigs as $card) {
-            if (!isset($card['elements']) || !\is_array($card['elements'])) {
-                continue;
-            }
-
-            foreach ($card['elements'] as $element) {
-                if (!$this->hasCssValue($element)) {
-                    continue;
-                }
-
-                $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
             }
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $element will be of type `SystemConfigElement`
-     */
-    private function hasCssValue(mixed $element): bool
+    private function hasCssValue(SystemConfigElement $element): bool
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            /** @var SystemConfigElement $element */
-            if (!isset($element->config['css'])) {
-                return false;
-            }
-
-            if (!\is_string($element->value ?? $element->config['defaultValue'])) {
-                return false;
-            }
-
-            return true;
-        }
-
-        if (!\is_array($element)) {
+        if (!isset($element->config['css'])) {
             return false;
         }
 
-        if (!\is_array($element['config'])) {
-            return false;
-        }
-
-        if (!isset($element['config']['css'])) {
-            return false;
-        }
-
-        if (!\is_string($element['value'] ?? $element['defaultValue'])) {
+        if (!\is_string($element->value ?? $element->config['defaultValue'])) {
             return false;
         }
 

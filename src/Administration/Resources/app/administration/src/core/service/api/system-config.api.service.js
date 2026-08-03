@@ -19,6 +19,20 @@ class SystemConfigApiService extends ApiService {
         this.errorResolver = new ErrorResolverSystemConfig();
     }
 
+    check(domain, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient
+            .get('_action/system-config/check-config', {
+                params: { domain, ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigApiService.check instead.
+     */
     checkConfig(domain, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config/check', {
@@ -30,6 +44,20 @@ class SystemConfigApiService extends ApiService {
             });
     }
 
+    getSchema(domain, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient
+            .get('_action/system-config/get-schema', {
+                params: { domain, ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigApiService.getSchema instead.
+     */
     getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config/schema', {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 
 /**
@@ -27,7 +27,7 @@ class SystemConfigValidatorTest extends TestCase
     #[DataProvider('validateProvider')]
     public function testValidate(array $inputValues, array $formConfigs, bool $expectErrors): void
     {
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock = $this->createMock(SystemConfigDefinitionService::class);
         $validator = new SystemConfigValidator(
             $configurationServiceMock,
             self::getContainer()->get(DataValidator::class)

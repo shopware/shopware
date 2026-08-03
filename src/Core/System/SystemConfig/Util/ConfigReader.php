@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SystemConfig\Util;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
@@ -55,9 +54,7 @@ class ConfigReader extends XmlReader
     {
         \assert($xml->firstChild instanceof \DOMElement);
 
-        return (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
-            ? $this->getTabDefinitions($xml->firstChild)
-            : $this->getCardDefinitions($xml->firstChild);
+        return $this->getTabDefinitions($xml->firstChild);
     }
 
     /**

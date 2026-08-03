@@ -13,17 +13,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-/**
- * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService instead
- */
 #[Package('framework')]
-class ConfigurationService
+class SystemConfigDefinitionService
 {
     /**
      * @internal
@@ -47,12 +47,10 @@ class ConfigurationService
      * @throws BundleConfigNotFoundException
      * @throws UtilException when config.xml exists but contains invalid XML
      *
-     * @return array<mixed>
+     * @return list<SystemConfigTab>
      */
     public function getConfiguration(string $domain, Context $context): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
-
         $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
@@ -69,64 +67,62 @@ class ConfigurationService
 
         $domain = rtrim($domain, '.') . '.';
 
-        // collect all cards from the tabs into the config array to keep the legacy structure
-        $config = array_values(array_reduce($config, fn (array $carry, array $tab) => [
-            ...$carry,
-            ...($tab['cards'] ?? []),
-        ], []));
+        $tabs = [];
 
-        foreach ($config as $i => $card) {
-            if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
-                unset($config[$i]);
+        foreach ($config as $tab) {
+            $cards = [];
 
-                continue;
-            }
-
-            foreach ($card['elements'] ?? [] as $j => $field) {
-                $newField = ['name' => $domain . $field['name']];
-
-                if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
-                    unset($card['elements'][$j]);
-
+            foreach ($tab['cards'] ?? [] as $card) {
+                if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
                     continue;
                 }
 
-                if (\array_key_exists('type', $field)) {
-                    $newField['type'] = $field['type'];
+                $elements = [];
+
+                foreach ($card['elements'] ?? [] as $element) {
+                    if (\array_key_exists('flag', $element) && !Feature::isActive($element['flag'])) {
+                        continue;
+                    }
+
+                    $config = $element;
+
+                    unset($config['name'], $config['type']);
+
+                    $elements[] = new SystemConfigElement(
+                        $domain . $element['name'],
+                        $config,
+                        $element['type'] ?? null
+                    );
                 }
 
-                unset($field['type'], $field['name']);
-                $newField['config'] = $field;
-                $card['elements'][$j] = $newField;
+                $cards[] = new SystemConfigCard(
+                    $elements,
+                    $card['title'] ?? [],
+                    $card['name'] ?? null
+                );
             }
 
-            if (isset($card['elements']) && \is_array($card['elements'])) {
-                $card['elements'] = array_values($card['elements']);
-            }
-
-            $config[$i] = $card;
+            $tabs[] = new SystemConfigTab(
+                $cards,
+                $tab['title'] ?? null,
+                $tab['name'] ?? null
+            );
         }
 
-        return array_values($config);
+        return $tabs;
     }
 
     /**
-     * @return array<mixed>
+     * @return list<SystemConfigTab>
      */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
-
         $config = [];
 
         if ($this->checkConfiguration($domain, $context)) {
-            $config = array_merge(
-                $config,
-                $this->enrichValues(
-                    $this->getConfiguration($domain, $context),
-                    $salesChannelId
-                )
-            );
+            $config = $this->getConfiguration($domain, $context);
+
+            $this->enrichConfigurationValues($config, $salesChannelId);
         }
 
         return $config;
@@ -134,8 +130,6 @@ class ConfigurationService
 
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
-
         try {
             $this->getConfiguration($domain, $context);
 
@@ -144,6 +138,41 @@ class ConfigurationService
             $this->logConfigurationException($domain, $e);
 
             return false;
+        }
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
+    {
+        $technicalName = \array_slice(explode('\\', $scope), -1)[0];
+
+        foreach ($this->bundles as $bundle) {
+            if ($bundle->getName() === $technicalName && $bundle instanceof Bundle) {
+                return $this->configReader->getConfigFromBundle($bundle, $configName);
+            }
+        }
+
+        $app = $this->getAppByName($technicalName, $context);
+
+        return $app ? $this->appConfigReader->read($app) : null;
+    }
+
+    /**
+     * @param list<SystemConfigTab> $config
+     */
+    private function enrichConfigurationValues(array $config, ?string $salesChannelId): void
+    {
+        foreach ($config as $tab) {
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    $element->value = $this->systemConfigService->get(
+                        $element->name,
+                        $salesChannelId
+                    ) ?? $element->config['defaultValue'] ?? '';
+                }
+            }
         }
     }
 
@@ -176,24 +205,6 @@ class ConfigurationService
         };
     }
 
-    /**
-     * @return array<mixed>|null
-     */
-    private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
-    {
-        $technicalName = \array_slice(explode('\\', $scope), -1)[0];
-
-        foreach ($this->bundles as $bundle) {
-            if ($bundle->getName() === $technicalName && $bundle instanceof Bundle) {
-                return $this->configReader->getConfigFromBundle($bundle, $configName);
-            }
-        }
-
-        $app = $this->getAppByName($technicalName, $context);
-
-        return $app ? $this->appConfigReader->read($app) : null;
-    }
-
     private function getAppByName(string $name, Context $context): ?AppEntity
     {
         $criteria = new Criteria();
@@ -203,28 +214,5 @@ class ConfigurationService
         $result = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         return $result;
-    }
-
-    /**
-     * @param array<mixed> $config
-     *
-     * @return array<mixed>
-     */
-    private function enrichValues(array $config, ?string $salesChannelId): array
-    {
-        foreach ($config as &$card) {
-            if (!\is_array($card['elements'] ?? false)) {
-                continue;
-            }
-
-            foreach ($card['elements'] as &$element) {
-                $element['value'] = $this->systemConfigService->get(
-                    $element['name'],
-                    $salesChannelId
-                ) ?? $element['config']['defaultValue'] ?? '';
-            }
-        }
-
-        return $config;
     }
 }

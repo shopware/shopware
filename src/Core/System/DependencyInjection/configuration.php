@@ -16,6 +16,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
@@ -34,7 +35,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SystemConfigValidator::class)
         ->args([
-            service(ConfigurationService::class),
+            service(SystemConfigDefinitionService::class),
             service(DataValidator::class),
         ])
         ->tag('shopware.system_config.validation');
@@ -61,12 +62,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
         ]);
 
+    $services->set(SystemConfigDefinitionService::class)
+        ->args([
+            service('kernel.bundles'),
+            service(ConfigReader::class),
+            service(AppConfigReader::class),
+            service('app.repository'),
+            service(SystemConfigService::class),
+            service('logger'),
+        ]);
+
     $services->set(ConfigReader::class);
 
     $services->set(SystemConfigController::class)
         ->public()
         ->args([
             service(ConfigurationService::class),
+            service(SystemConfigDefinitionService::class),
             service(SystemConfigService::class),
             service(SystemConfigValidator::class),
         ])

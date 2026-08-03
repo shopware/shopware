@@ -46,52 +46,58 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                         updateExtensionData: jest.fn(),
                     },
                     systemConfigApiService: {
-                        getConfig: () => {
+                        getSchema: () => {
                             return Promise.resolve([
                                 {
-                                    title: {
-                                        'en-GB': 'Store',
-                                    },
+                                    title: null,
                                     name: null,
-                                    elements: [
+                                    cards: [
                                         {
-                                            name: 'apiUri',
-                                            type: 'text',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'API URI',
-                                                },
+                                            title: {
+                                                'en-GB': 'Store',
                                             },
-                                        },
-                                        {
-                                            name: 'licenseHost',
-                                            type: 'text',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'License host',
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'apiUri',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'API URI',
+                                                        },
+                                                    },
                                                 },
-                                            },
-                                        },
-                                        {
-                                            name: 'shopSecret',
-                                            type: 'text',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'Shop secret',
+                                                {
+                                                    name: 'licenseHost',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'License host',
+                                                        },
+                                                    },
                                                 },
-                                            },
-                                        },
-                                        {
-                                            name: 'shopwareId',
-                                            type: 'text',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'Shopware ID',
+                                                {
+                                                    name: 'shopSecret',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shop secret',
+                                                        },
+                                                    },
                                                 },
-                                            },
+                                                {
+                                                    name: 'shopwareId',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shopware ID',
+                                                        },
+                                                    },
+                                                },
+                                            ],
                                         },
                                     ],
-                                },
+                                }
                             ]);
                         },
                         getValues: () => {

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -27,7 +26,7 @@ use Shopware\Core\Framework\Store\Struct\StoreCategoryCollection;
 use Shopware\Core\Framework\Store\Struct\StoreCollection;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -43,7 +42,7 @@ class ExtensionLoader
     public function __construct(
         private readonly AppLoader $appLoader,
         private readonly SourceResolver $sourceResolver,
-        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigDefinitionService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly InAppPurchase $inAppPurchase,
@@ -187,9 +186,7 @@ class ExtensionLoader
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
             'isTheme' => false,
-            'configurable' => (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
-                ? $this->configurationService->checkSystemConfiguration(\sprintf('%s.config', $plugin->getName()), $context)
-                : $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
+            'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
             'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),

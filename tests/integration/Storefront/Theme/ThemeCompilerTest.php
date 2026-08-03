@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -435,9 +435,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationService(array $plugins): ConfigurationService
+    private function getConfigurationService(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationService(
+        return new SystemConfigDefinitionService(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -450,7 +450,7 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationServiceDbException(array $plugins): ConfigurationService
+    private function getConfigurationServiceDbException(array $plugins): SystemConfigDefinitionService
     {
         return new ConfigurationServiceException(
             $plugins,
@@ -483,7 +483,7 @@ PHP_EOL;
 /**
  * @internal
  */
-class ConfigurationServiceException extends ConfigurationService
+class ConfigurationServiceException extends SystemConfigDefinitionService
 {
     /**
      * @throws Exception

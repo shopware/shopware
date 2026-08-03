@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -28,6 +29,28 @@ class SystemConfigControllerTest extends TestCase
     {
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->checkSystemConfiguration($request, $context);
+
+        static::assertSame('false', $result->getContent());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testCheckConfigurationEmptyDomain will cover the new behavior
+     */
+    public function testCheckConfigurationEmptyDomainDeprecated(): void
+    {
+        $controller = new SystemConfigController(
+            static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -43,12 +66,13 @@ class SystemConfigControllerTest extends TestCase
 
     public function testCheckConfiguration(): void
     {
-        $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService = static::createStub(SystemConfigDefinitionService::class);
         $configurationService
-            ->method('checkSystemConfiguration')
+            ->method('checkConfiguration')
             ->willReturn(true);
 
         $controller = new SystemConfigController(
+            static::createStub(ConfigurationService::class),
             $configurationService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
@@ -59,7 +83,7 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $result = $controller->checkConfiguration($request, $context);
+        $result = $controller->checkSystemConfiguration($request, $context);
 
         static::assertSame('true', $result->getContent());
     }
@@ -67,7 +91,6 @@ class SystemConfigControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testCheckConfiguration will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testCheckConfigurationDeprecated(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
@@ -77,6 +100,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -93,12 +117,13 @@ class SystemConfigControllerTest extends TestCase
 
     public function testGetConfiguration(): void
     {
-        $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService = static::createStub(SystemConfigDefinitionService::class);
         $configurationService
-            ->method('getSystemConfiguration')
+            ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
+            static::createStub(ConfigurationService::class),
             $configurationService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
@@ -109,7 +134,7 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $result = $controller->getConfiguration($request, $context);
+        $result = $controller->getSystemConfiguration($request, $context);
 
         static::assertSame('{"foo":"bar"}', $result->getContent());
     }
@@ -117,7 +142,6 @@ class SystemConfigControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed. testGetConfiguration will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testGetConfigurationDeprecated(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
@@ -127,6 +151,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -143,12 +168,13 @@ class SystemConfigControllerTest extends TestCase
 
     public function testGetConfigurationWithName(): void
     {
-        $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService = static::createStub(SystemConfigDefinitionService::class);
         $configurationService
-            ->method('getSystemConfiguration')
+            ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
+            static::createStub(ConfigurationService::class),
             $configurationService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
@@ -160,13 +186,12 @@ class SystemConfigControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
-        $controller->getConfiguration($request, $context);
+        $controller->getSystemConfiguration($request, $context);
     }
 
     /**
      * @deprecated tag:v6.8.0 - will be removed. testGetConfigurationWithName will cover the new behavior
      */
-    #[DisabledFeatures(['v6.8.0.0', 'SYSTEM_CONFIG_TABS'])]
     public function testGetConfigurationWithNameDeprecated(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
@@ -176,6 +201,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             $configurationService,
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -193,6 +219,7 @@ class SystemConfigControllerTest extends TestCase
     {
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -213,6 +240,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfig,
             static::createStub(SystemConfigValidator::class)
         );
@@ -234,6 +262,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfig,
             static::createStub(SystemConfigValidator::class)
         );
@@ -261,6 +290,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfig,
             static::createStub(SystemConfigValidator::class)
         );
@@ -307,6 +337,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfig,
             static::createStub(SystemConfigValidator::class)
         );
@@ -319,8 +350,6 @@ class SystemConfigControllerTest extends TestCase
     #[DataProvider('batchSaveConfigurationProvider')]
     public function testBatchSaveConfiguration(Request $request, ?string $expectedSalesChannelId, ?bool $expectedSilent): void
     {
-        $configurationServiceMock = static::createStub(ConfigurationService::class);
-
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $setMultiple = $systemConfigServiceMock->expects($this->once())
             ->method('setMultiple');
@@ -335,7 +364,8 @@ class SystemConfigControllerTest extends TestCase
         $systemConfigValidatorMock->method('validate');
 
         $systemConfigController = new SystemConfigController(
-            $configurationServiceMock,
+            static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfigServiceMock,
             $systemConfigValidatorMock
         );
@@ -376,6 +406,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfig,
             static::createStub(SystemConfigValidator::class)
         );
@@ -393,6 +424,7 @@ class SystemConfigControllerTest extends TestCase
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             static::createStub(SystemConfigService::class),
             $systemConfigValidatorMock
         );
@@ -415,6 +447,7 @@ class SystemConfigControllerTest extends TestCase
 
         $systemConfigController = new SystemConfigController(
             static::createStub(ConfigurationService::class),
+            static::createStub(SystemConfigDefinitionService::class),
             $systemConfigService,
             static::createStub(SystemConfigValidator::class)
         );

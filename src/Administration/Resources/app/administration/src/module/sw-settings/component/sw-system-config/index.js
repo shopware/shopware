@@ -99,19 +99,11 @@ export default {
         },
 
         showGlobalSection() {
-            if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
-                return this.showTabs || this.config.at(0)?.cards.length > 1;
-            }
-
-            return this.config.length > 1;
+            return this.showTabs || this.config.at(0)?.cards.length > 1;
         },
 
         showTabs() {
-            if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
-                return this.config?.length > 1;
-            }
-
-            return false;
+            return this.config?.length > 1;
         },
 
         tabItems() {
@@ -169,9 +161,7 @@ export default {
                 await this.readConfig();
                 await this.readAll();
 
-                if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
-                    this.activeTab = this.getTabName(this.config.at(0));
-                }
+                this.activeTab = this.getTabName(this.config.at(0));
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
@@ -188,31 +178,17 @@ export default {
         },
 
         async readConfig() {
-            this.config = await this.systemConfigApiService.getConfig(this.domain);
+            this.config = await this.systemConfigApiService.getSchema(this.domain);
 
-            this.config.every((item) => {
-                if (this.feature.isActive('v6.8.0.0') || this.feature.isActive('SYSTEM_CONFIG_TABS')) {
-                    const tab = item;
-
-                    return tab?.cards.every((card) => {
-                        return card?.elements.every((field) => {
-                            if (field?.config?.css) {
-                                this.hasCssFields = true;
-                                return false;
-                            }
-                            return true;
-                        });
+            this.config.every((tab) => {
+                return tab?.cards.every((card) => {
+                    return card?.elements.every((field) => {
+                        if (field?.config?.css) {
+                            this.hasCssFields = true;
+                            return false;
+                        }
+                        return true;
                     });
-                }
-
-                const card = item;
-
-                return card?.elements.every((field) => {
-                    if (field?.config?.css) {
-                        this.hasCssFields = true;
-                        return false;
-                    }
-                    return true;
                 });
             });
         },
@@ -307,11 +283,13 @@ export default {
         getCacheRelevantFieldNames() {
             const fieldNames = new Set();
 
-            this.config.forEach((card) => {
-                card.elements?.forEach((element) => {
-                    if (element.config?.cacheRelevant === true) {
-                        fieldNames.add(element.name);
-                    }
+            this.config.forEach((tab) => {
+                tab.cards?.forEach((card) => {
+                    card.elements?.forEach((element) => {
+                        if (element.config?.cacheRelevant === true) {
+                            fieldNames.add(element.name);
+                        }
+                    });
                 });
             });
 

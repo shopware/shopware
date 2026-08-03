@@ -9,7 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
-    ->setParallelConfig(ParallelConfigFactory::detect())
+    // TEMPORARY chunk-size measurement, revert before merge (default filesPerProcess is 10)
+    ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,

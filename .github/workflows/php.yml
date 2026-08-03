@@ -72,9 +72,10 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
-          key: "cs-fixer-result-cache-${{ github.run_id }}"
+          # TEMPORARY cold-run measurement, revert before merge: the key matches nothing
+          key: "cs-fixer-cold-${{ github.run_id }}"
           restore-keys: |
-            cs-fixer-result-cache-
+            cs-fixer-cold-never-matches-
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run

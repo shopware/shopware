@@ -60,6 +60,31 @@ class OpenApiSchemaBuilderTest extends TestCase
         static::assertSame('Shopware Admin API', $openApi->info->title);
     }
 
+    public function testEnrichKeepsRelationshipsAsAContainerOfRelationshipObjects(): void
+    {
+        foreach ([DefinitionService::API, DefinitionService::STORE_API] as $api) {
+            $openApi = new OpenApi([]);
+
+            (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, $api);
+
+            $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
+
+            static::assertSame(
+                ['$ref' => '#/components/schemas/relationship'],
+                $schema['relationships']['additionalProperties']
+            );
+            static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($schema['relationship']['properties']));
+            static::assertSame(
+                [
+                    ['required' => ['data']],
+                    ['required' => ['meta']],
+                    ['required' => ['links']],
+                ],
+                $schema['relationship']['anyOf']
+            );
+        }
+    }
+
     /**
      * @return array<int, OpenApiResponse>
      */

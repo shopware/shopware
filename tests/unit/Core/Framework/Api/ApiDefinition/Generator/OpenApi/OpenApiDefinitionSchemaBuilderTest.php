@@ -63,6 +63,22 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('ComplexJsonApi', $schema);
     }
 
+    public function testRequiredAssociationIsOnlyRequiredInFlatSchema(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+        $flatSchema = json_decode($schema['Complex']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $jsonApiSchema = json_decode($schema['ComplexJsonApi']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertContains('idField', $flatSchema['required']);
+        static::assertContains('simpleManys', $flatSchema['required']);
+        static::assertContains('idField', $jsonApiSchema['allOf'][1]['required']);
+        static::assertNotContains('simpleManys', $jsonApiSchema['allOf'][1]['required']);
+    }
+
     public function testTypeConversion(): void
     {
         $schema = $this->schemaBuilder->getSchemaByDefinition(

@@ -260,23 +260,29 @@ EOF,
                 'schema' => 'relationships',
                 'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
                 'type' => 'object',
+                'additionalProperties' => [
+                    '$ref' => '#/components/schemas/relationship',
+                ],
+            ]),
+            'relationship' => new Schema([
+                'schema' => 'relationship',
+                'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
+                'type' => 'object',
                 'anyOf' => [
                     ['required' => ['data']],
                     ['required' => ['meta']],
                     ['required' => ['links']],
-                    [
-                        'type' => 'object',
-                        'properties' => [
-                            'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
-                            'data' => [
-                                'description' => 'Member, whose value represents "resource linkage".',
-                                'oneOf' => [
-                                    ['$ref' => '#/components/schemas/relationshipToOne'],
-                                    ['$ref' => '#/components/schemas/relationshipToMany'],
-                                ],
-                            ],
+                ],
+                'properties' => [
+                    'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
+                    'data' => [
+                        'description' => 'Member, whose value represents "resource linkage".',
+                        'oneOf' => [
+                            ['$ref' => '#/components/schemas/relationshipToOne'],
+                            ['$ref' => '#/components/schemas/relationshipToMany'],
                         ],
                     ],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
                 'additionalProperties' => false,
             ]),

@@ -82,6 +82,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw-user-sso-invitation-modal', () => {
+    beforeEach(() => {
+        // Drop any `…Once` a previous test left unconsumed and keep the default awaitable.
+        ssoInvitationService.inviteUser.mockReset();
+        ssoInvitationService.inviteUser.mockResolvedValue(undefined);
+    });
+
     it('should throw "modal-close" event', async () => {
         const wrapper = await createWrapper();
 

@@ -26,7 +26,7 @@ describe('src/app/component/base/sw-tabs', () => {
         expect(wrapper.html()).not.toContain('mt-tabs');
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])('should render the mt-tabs', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the mt-tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-tabs');

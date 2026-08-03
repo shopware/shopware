@@ -26,13 +26,13 @@ describe('src/app/component/base/sw-popover', () => {
         expect(wrapper.html()).not.toContain('mt-floating-ui');
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])('should render the mt-floating-ui', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the mt-floating-ui', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-floating-ui');
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])(
+    it.activeFeatureFlags(['v6.8.0.0'])(
         'should pass the "resizeWidth" prop to the "matchReferenceWidth" property in mt-floating-ui with true',
         async () => {
             const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
@@ -50,7 +50,7 @@ describe('src/app/component/base/sw-popover', () => {
         },
     );
 
-    it.activeFeatureFlags(['V6_8_0_0'])(
+    it.activeFeatureFlags(['v6.8.0.0'])(
         'should pass the "resizeWidth" prop to the "matchReferenceWidth" property in mt-floating-ui with false',
         async () => {
             const wrapper = await createWrapper({
@@ -64,7 +64,7 @@ describe('src/app/component/base/sw-popover', () => {
         },
     );
 
-    it.activeFeatureFlags(['V6_8_0_0'])('should show deprecation warning when resizeWidth is used', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should show deprecation warning when resizeWidth is used', async () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
 
         await createWrapper({
@@ -81,7 +81,7 @@ describe('src/app/component/base/sw-popover', () => {
         warnSpy.mockRestore();
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])('should not show deprecation warning when resizeWidth is false', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should not show deprecation warning when resizeWidth is false', async () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
 
         await createWrapper({
@@ -98,7 +98,7 @@ describe('src/app/component/base/sw-popover', () => {
         warnSpy.mockRestore();
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])('should prefer match-reference-width attribute over resizeWidth prop', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should prefer match-reference-width attribute over resizeWidth prop', async () => {
         const wrapper = await createWrapper({
             props: {
                 resizeWidth: false,
@@ -112,7 +112,7 @@ describe('src/app/component/base/sw-popover', () => {
         expect(floatingUi.attributes('match-reference-width')).toBe('true');
     });
 
-    it.activeFeatureFlags(['V6_8_0_0'])(
+    it.activeFeatureFlags(['v6.8.0.0'])(
         'should prefer matchReferenceWidth camelCase attribute over resizeWidth prop',
         async () => {
             const wrapper = await createWrapper({

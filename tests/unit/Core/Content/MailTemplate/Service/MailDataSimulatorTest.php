@@ -609,7 +609,6 @@ class TestMailTemplateEntityDefinition extends EntityDefinition
 
     public function __construct(private readonly FieldCollection $definitionFields)
     {
-        parent::__construct();
     }
 
     public function getEntityName(): string

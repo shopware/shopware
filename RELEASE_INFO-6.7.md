@@ -4,6 +4,14 @@
 
 ## API
 
+### Message queue admin endpoints now require ACL privileges
+
+Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/message-queue/consume` and `POST /api/_action/scheduled-task/run` require the new `system:queue:process` privilege.
+* `GET /api/_action/scheduled-task/min-run-interval` requires the existing `scheduled_task:read` privilege.
+
+Administration users are not affected: both privileges are granted to every authenticated Administration user at runtime, because these endpoints back the admin worker that processes the message queue in every admin session. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only. External workers should keep using the `bin/console messenger:consume` and `scheduled-task:run` CLI commands, which are unaffected.
 ### SEO admin action endpoints now require ACL privileges
 
 Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -46,15 +54,26 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Deprecated XML configuration
+
+Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
+
+**Plugin authors:** migrate your `services.xml` to `services.php` using Symfony's `ContainerConfigurator` and your `routes.xml` to `routes.php` using the `RoutingConfigurator`; package configuration can move to YAML or PHP. PHP configuration has been fully supported by the plugin system for years, service ids and wiring stay identical, and both formats can coexist during the transition. YAML definitions remain supported. See the migration example in `UPGRADE-6.8.md`.
+
+### Document templates use the DocumentV2 VAT display condition behind the 6.8 feature flag
+
+The document templates now use the shipping-based `intraCommunityDelivery` condition for displaying VAT information when the `v6.8.0.0` feature flag is active, matching the DocumentV2 document generation path. With the feature flag disabled, the existing billing-address and configured delivery-country behavior remains unchanged. Extensions and themes that render or assert the legacy document templates should test their output with the feature flag enabled before upgrading to Shopware 6.8.
+
+### Line item rule conditions only evaluate product line items
+
+Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
+
 ### `EntitySearchResult` retains its entity name in v6.8.0
 
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name.
 
-### Line item rule conditions only evaluate product line items
-
-Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
@@ -123,6 +142,9 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
+### MCP entity tools validate association read privileges
+
+The experimental MCP tools `shopware-entity-read`, `shopware-entity-search`, and `shopware-entity-aggregate` now validate the supplied criteria with the same association ACL checks as the Admin API. Loading, filtering, sorting, or aggregating over an association now requires the `<association-entity>:read` privilege in addition to the top-level `<entity>:read` privilege — for example, reading `order` with the `orderCustomer` association requires both `order:read` and `order_customer:read`. Integrations that relied on the missing check must add the association read privileges to their ACL role; requests without such criteria are unaffected.
 ### MCP tools can be enabled per session through toolsets
 
 The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
@@ -715,6 +737,8 @@ The `StoreApiGenerator` now checks whether a component schema already exists in 
 JSON schema files are now the sole source of truth for any entity they define. Properties, required fields, and other schema details from the PHP `EntityDefinition` will not be merged into the JSON schema.
 
 If you maintain a bundle that provides both a PHP `EntityDefinition` and a JSON schema file under `Resources/Schema/StoreApi/components/schemas/` for the same entity, ensure the JSON file is complete. The PHP `EntityDefinition` remains responsible for DAL and internal entity handling.
+
+All core Store API entity components are now JSON-owned. The unused PHP-generated `LanguageJsonApi`, `MainCategoryJsonApi`, `NewsletterRecipientJsonApi`, `PaymentMethodJsonApi`, `SalutationJsonApi`, and `ShippingMethodJsonApi` compatibility components are no longer emitted; use their flat component counterparts instead.
 
 See the [JSON as the Source of Truth for API Schema](https://github.com/shopware/shopware/discussions/15100) RFC for the full rationale and roadmap.
 

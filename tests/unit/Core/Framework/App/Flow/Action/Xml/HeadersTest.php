@@ -30,6 +30,9 @@ XML));
         static::assertSame('auth-token', $headers->getParameters()[1]->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

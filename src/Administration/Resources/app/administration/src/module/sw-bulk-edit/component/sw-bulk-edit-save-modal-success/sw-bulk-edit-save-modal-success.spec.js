@@ -135,7 +135,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 return Promise.resolve([
                     {
                         id: '1',
-                        documentTypeId: '1',
+                        documentType: {
+                            technicalName: 'invoice',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',
@@ -144,7 +146,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     },
                     {
                         id: '2',
-                        documentTypeId: '1',
+                        documentType: {
+                            technicalName: 'invoice',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',
@@ -153,7 +157,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     },
                     {
                         id: '3',
-                        documentTypeId: '2',
+                        documentType: {
+                            technicalName: 'credit_note',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',

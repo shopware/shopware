@@ -74,10 +74,11 @@ export default {
 
         latestDocumentsCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addAssociation('documentType');
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'documentTypeId',
-                    this.selectedDocumentTypes.map((item) => item.id),
+                    'documentType.technicalName',
+                    this.selectedDocumentTypes.map((item) => item.technicalName),
                 ),
             );
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
@@ -266,7 +267,7 @@ export default {
                 const latestDoc = latestDocuments[documentType.technicalName];
 
                 const documentsGrouped = documents.filter((document) => {
-                    return document.documentTypeId === documentType.id;
+                    return document.documentType?.technicalName === documentType.technicalName;
                 });
 
                 const latestDocKeyedByOrderId = {};

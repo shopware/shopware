@@ -72,18 +72,17 @@ class ThemeConfigTool extends McpToolResponse
         }
 
         // Resolving happens after the privilege check so the error hints never leak sales channel
-        // names to an unauthorized caller.
-        try {
-            $resolved = $this->resolveSalesChannelId($salesChannelId);
+        // names to an unauthorized caller. Infrastructure failures below are deliberately not
+        // caught: per the McpToolResponse contract, only expected/business errors become an error
+        // envelope, while unexpected exceptions propagate so they are logged server-side instead
+        // of exposing driver or schema details to the client.
+        $resolved = $this->resolveSalesChannelId($salesChannelId);
 
-            if (isset($resolved['error'])) {
-                return $this->error($resolved['error']);
-            }
-
-            $themeId = $this->resolveThemeId($resolved['id']);
-        } catch (\Throwable $e) {
-            return $this->error('Failed to resolve sales channel: ' . $e->getMessage());
+        if (isset($resolved['error'])) {
+            return $this->error($resolved['error']);
         }
+
+        $themeId = $this->resolveThemeId($resolved['id']);
 
         if ($themeId === null) {
             return $this->error(\sprintf('No theme assigned to sales channel "%s".', $salesChannelId));
@@ -158,14 +157,13 @@ class ThemeConfigTool extends McpToolResponse
                 ['id' => Uuid::fromHexToBytes($uuid)],
             );
 
-            if ($id === false) {
-                return ['error' => \sprintf(
-                    'Sales channel "%s" not found. Use the shopware://sales-channels resource to look up IDs, or pass the sales channel name instead.',
-                    $input,
-                )];
+            if ($id !== false) {
+                return ['id' => (string) $id];
             }
 
-            return ['id' => (string) $id];
+            // No channel carries that ID. Fall through instead of failing here, because a sales
+            // channel may legitimately be named like a UUID, in which case the name lookup below
+            // still resolves it.
         }
 
         // sales_channel_translation.name uses utf8mb4_unicode_ci, so the match is case-insensitive.

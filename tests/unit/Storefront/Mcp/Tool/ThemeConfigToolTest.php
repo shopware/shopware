@@ -246,7 +246,7 @@ class ThemeConfigToolTest extends TestCase
         $tool = new ThemeConfigTool(
             static::createStub(ThemeService::class),
             $contextProvider,
-            $this->createConnection(false, false),
+            $this->createConnection(false, false, [], ['Storefront']),
         );
 
         $output = $tool(Uuid::randomHex(), 'get');
@@ -257,10 +257,17 @@ class ThemeConfigToolTest extends TestCase
         static::assertStringNotContainsString('No theme assigned', $data['error']);
     }
 
-    public function testDatabaseFailureReturnsError(): void
+    /**
+     * Infrastructure failures are not business errors. Per the McpToolResponse contract they must
+     * propagate so they get logged server-side, rather than putting driver or schema details from
+     * the exception message into a response any caller with theme:read can read.
+     */
+    public function testDatabaseFailurePropagatesInsteadOfLeakingDetails(): void
     {
+        $failure = new \RuntimeException('SQLSTATE[HY000] host db-01 refused');
+
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willThrowException(new \RuntimeException('Connection refused'));
+        $connection->method('fetchOne')->willThrowException($failure);
 
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
@@ -271,11 +278,81 @@ class ThemeConfigToolTest extends TestCase
             $connection,
         );
 
-        $output = $tool(Uuid::randomHex(), 'get');
+        $this->expectExceptionObject($failure);
+
+        $tool(Uuid::randomHex(), 'get');
+    }
+
+    /**
+     * A sales channel may legitimately be named like a UUID. The ID lookup misses, so resolution
+     * has to fall through to the name lookup instead of stopping at "not found".
+     */
+    public function testUuidShapedNameFallsBackToNameLookup(): void
+    {
+        $themeId = Uuid::randomHex();
+        $uuidShapedName = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+
+        $themeService = $this->createMock(ThemeService::class);
+        $themeService->expects($this->once())
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId)
+            ->willReturn([]);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool(
+            $themeService,
+            $contextProvider,
+            $this->createConnection(false, $themeId, [$salesChannelId]),
+        );
+
+        $output = $tool($uuidShapedName, 'get');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($data['success']);
+        static::assertSame($themeId, $data['data']['themeId']);
+    }
+
+    public function testErrorReportsNoneWhenShopHasNoSalesChannels(): void
+    {
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool(
+            static::createStub(ThemeService::class),
+            $contextProvider,
+            $this->createConnection(false, false),
+        );
+
+        $output = $tool('Storefront', 'get');
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($data['success']);
-        static::assertStringContainsString('Connection refused', $data['error']);
+        static::assertStringContainsString('Available sales channels: none.', $data['error']);
+    }
+
+    public function testAvailableNamesAreTruncated(): void
+    {
+        $names = array_map(static fn (int $i): string => 'Channel ' . $i, range(1, 25));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($this->createAdminContext(['theme:read']));
+
+        $tool = new ThemeConfigTool(
+            static::createStub(ThemeService::class),
+            $contextProvider,
+            $this->createConnection(false, false, [], $names),
+        );
+
+        $output = $tool('Unknown', 'get');
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('"Channel 20"', $data['error']);
+        static::assertStringNotContainsString('"Channel 21"', $data['error']);
+        static::assertStringContainsString('and 5 more', $data['error']);
     }
 
     public function testNoThemeReturnsError(): void

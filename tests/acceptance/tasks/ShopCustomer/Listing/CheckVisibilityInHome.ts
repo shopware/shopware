@@ -36,11 +36,11 @@ export const CheckVisibilityInHome = base.extend<{ CheckVisibilityInHome: Task }
                 const productLocators = await StorefrontHome.getListingItemByProductName(productName);
 
                 // The homepage listing can lag behind the Store API, so render it with a
-                // cache busting parameter until the product shows up. On SaaS the listing is
-                // OpenSearch-backed and only reflects new products after an index refresh,
-                // which is triggered by the delayed cache clear.
+                // cache busting parameter until the product shows up. On hosted instances
+                // (SaaS and PaaS) the listing is OpenSearch-backed and only reflects new
+                // products after an index refresh, triggered by the delayed cache clear.
                 await ShopCustomer.expects(async () => {
-                    if (InstanceMeta.isSaaS) {
+                    if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                         await TestDataService.clearCaches();
                     }
                     await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);

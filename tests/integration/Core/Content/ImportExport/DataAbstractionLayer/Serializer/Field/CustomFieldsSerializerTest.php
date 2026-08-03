@@ -65,7 +65,7 @@ class CustomFieldsSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{field: Field, inputValue: mixed, expected: mixed}>
+     * @return iterable<string, array{mappings: array<int, Mapping>, field: Field, inputValue: mixed, expected: mixed}>
      */
     public static function serializeDataProvider(): iterable
     {
@@ -191,7 +191,7 @@ class CustomFieldsSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{field: Field, inputValue: mixed, expected: mixed}>
+     * @return iterable<string, array{mappings: array<int, Mapping>, field: Field, inputValue: mixed, expected: mixed}>
      */
     public static function deserializeDataProvider(): iterable
     {

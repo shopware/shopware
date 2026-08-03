@@ -246,12 +246,6 @@ Administration plugins can now add and remove snackbars through `Shopware.Servic
 
 ## Storefront
 
-### Header search input keeps the search term on the search result page
-
-The header search input is filled again with the submitted search term on the search result page. Since the header is rendered via ESI, the search term of the surrounding page is not available while the header is rendered, so `page.searchTerm` in `storefront/layout/header/search.html.twig` resolved to an empty string. `SearchWidgetPlugin` now restores the term from the current URL instead, which keeps the header cacheable independently of the search term.
-
-If your theme overrides the header search template, make sure the form keeps pointing at the search result page via its `action` attribute and that the input keeps the `search` name — both are used to detect the search result page and to read the term. A term rendered server-side is never overwritten.
-
 ### `theme:create` gains `--full` and granular scaffold flags
 
 `bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.

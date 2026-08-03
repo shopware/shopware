@@ -27,16 +27,11 @@ export default {
         'feature',
         'customEntityDefinitionService',
         'systemConfigApiService',
-        'shortcutService',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
     ],
-
-    shortcuts: {
-        s: 'onToggleSidebarShortcut',
-    },
 
     data() {
         return {
@@ -469,25 +464,6 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             this.toggleSidebar();
-        },
-
-        onToggleSidebarShortcut() {
-            // skip the toggle when navigation sequences end with "S" like "GS" and "AS" —
-            if (this.shortcutService?.isPendingCombinationKey?.('S')) {
-                return;
-            }
-
-            // The off-canvas panel opens and closes instead, the event keeps the search bar toggle in sync.
-            if (this.isMobileViewport) {
-                if (this.isOffCanvasShown) {
-                    this.dismissOffCanvas();
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', true);
-                }
-                return;
-            }
-
-            this.onToggleSidebar();
         },
 
         startSidebarToggleWindow() {

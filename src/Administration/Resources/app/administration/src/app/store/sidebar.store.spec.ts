@@ -86,6 +86,19 @@ describe('src/app/store/sidebar.store.ts', () => {
         expect(store.closingSidebar).toBeNull();
     });
 
+    it('keeps closing the active sidebar when an inactive sidebar requests to close', () => {
+        addSidebar('a');
+        addSidebar('b');
+        store.setActiveSidebar('a');
+
+        store.requestCloseSidebar('a');
+        store.requestCloseSidebar('b');
+        jest.advanceTimersByTime(400);
+
+        expect(store.sidebars[0].active).toBe(false);
+        expect(store.closingSidebar).toBeNull();
+    });
+
     it('keeps the sidebar open when it is reactivated during the close animation', () => {
         addSidebar('a');
         store.setActiveSidebar('a');

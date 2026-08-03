@@ -1500,8 +1500,6 @@
     "keyboardShortcutAddRule": "A R",
     "functionAddSaleschannel": "Add Sales Channel",
     "keyboardShortcutAddSaleschannel": "A S",
-    "functionToggleMainMenu": "Open / close main navigation",
-    "keyboardShortcutToggleMainMenu": "S",
     "functionGoToDashboard": "Open dashboard",
     "keyboardShortcutGoToDashboard": "G H",
     "functionGoToProducts": "Open products",

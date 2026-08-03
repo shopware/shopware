@@ -30,34 +30,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         stopEventListener,
         isShortcutsDisabled,
         setShortcutsDisabled,
-        isPendingCombinationKey,
     };
-
-    /**
-     * Returns true when the given key would complete a currently buffered
-     * navigation key sequence (e.g. "S" while "A" is buffered completes "AS").
-     * Lets single-key component shortcuts skip firing in the middle of a
-     * registered sequence.
-     */
-    function isPendingCombinationKey(key) {
-        if (shortcutsDisabled || state.buffer.length === 0) {
-            return false;
-        }
-
-        if (Date.now() - state.lastKeyTime > keystrokeDelay) {
-            return false;
-        }
-
-        const combination = [
-            ...state.buffer,
-            key.toUpperCase(),
-        ].join('');
-
-        const path = shortcutFactory.getPathByCombination(combination);
-
-        // Sequences the user may not navigate to never fire, so they must not swallow shortcuts
-        return Boolean(path) && Shopware.Service('acl').hasAccessToRoute(path);
-    }
 
     function startEventListener() {
         if (shortcutsDisabled) {

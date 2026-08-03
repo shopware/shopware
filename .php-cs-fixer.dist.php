@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
+use PhpCsFixer\Runner\Parallel\ParallelConfig;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
     // TEMPORARY chunk-size measurement, revert before merge (default filesPerProcess is 10)
-    ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
+    ->setParallelConfig(new ParallelConfig(8, 100))
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,

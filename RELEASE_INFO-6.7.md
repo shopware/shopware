@@ -274,6 +274,13 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
+### Static analysis reports N+1 queries
+
+`shopware/phpstan-extension` gained the `NoQueryInLoopRule` rule (part of `rules.neon`, so it is active automatically with `phpstan/extension-installer`). It reports database queries that are executed inside a loop body under the `shopware.queryInLoop` identifier: the DBAL read methods on `Connection` and `QueryBuilder` (`fetch*`, `iterate*`, `executeQuery()`), and the `EntityRepository`/`SalesChannelRepository` methods (`search()`, `searchIds()`, `aggregate()`, `create()`, `update()`, `upsert()`, `delete()`).
+
+Loops that already process a whole set of records per iteration are not reported: chunked sources (`foreach (array_chunk($ids, 250) as $chunk)`), any `foreach` that binds a list per iteration (`foreach ($chunks as $chunk)`, `foreach ($idsByLanguage as $languageId => $ids)`), pagination loops driven by an `IterableQuery`, `RepositoryIterator` or `SalesChannelRepositoryIterator` (`while ($ids = $iterator->fetch())`), `while`/`do-while` loops that drain a worklist (`while ($pendingIds !== [])`) or a paginated query (`LIMIT :limit`, `setLimit()`, `setOffset()`), and loops with a statically fixed iteration count. Test classes are skipped.
+
+If your plugin picks up the new errors, either load the data for all iterations before the loop, or — when the loop legitimately runs one query per group rather than per record — suppress the report with a reason: `// @phpstan-ignore shopware.queryInLoop (one query per entity definition)`.
 
 ## Administration
 

@@ -94,7 +94,12 @@ class BCChangeAttributeUsageRule implements Rule
 
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
-            $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
+            $common = $this->validateCommon($attribute, $class->getShortName(), $classLine);
+            $errors = [...$errors, ...$common];
+            if ($common !== []) {
+                continue;
+            }
+
             $specific = $this->validateClassLevel($attribute, $class, $classLine);
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
@@ -110,7 +115,12 @@ class BCChangeAttributeUsageRule implements Rule
             $symbol = \sprintf('%s::%s()', $class->getShortName(), $method->getName());
             $line = $method->getStartLine() ?: $classLine;
             foreach ($this->bcChangeAttributes($method->getAttributes()) as $attribute) {
-                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $common = $this->validateCommon($attribute, $symbol, $line);
+                $errors = [...$errors, ...$common];
+                if ($common !== []) {
+                    continue;
+                }
+
                 $specific = $this->validateMethodLevel($attribute, $method, $symbol, $line);
                 if ($specific === [] && $attribute->getName() === ExceptionChange::class) {
                     $specific = $this->validateExceptionChange($attribute, $node->getClassReflection(), $method->getName(), $symbol, $line);
@@ -313,7 +323,7 @@ class BCChangeAttributeUsageRule implements Rule
     private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
     {
         $parameterName = $this->argument($attribute, 'parameterName', 1);
-        if (!\is_string($parameterName) || \str_starts_with($parameterName, '$')) {
+        if (!\is_string($parameterName)) {
             return [];
         }
 

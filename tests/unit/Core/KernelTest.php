@@ -11,88 +11,44 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
+ * The container dumping side of the kernel is covered by
+ * \Shopware\Tests\Integration\Core\KernelTest, as it requires a real boot.
+ *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
-    private string $tmpProjectDir;
+    /**
+     * A path that is never touched: the tests below only compose strings from it.
+     */
+    private const PROJECT_DIR = '/project-dir';
 
-    private Filesystem $filesystem;
+    private const PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE = __DIR__ . '/_fixtures/Kernel/project-without-twig-component-bundle';
 
-    protected function setUp(): void
-    {
-        $this->tmpProjectDir = __DIR__ . '/tmpToBeRemoved';
-        $this->filesystem = new Filesystem();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->tmpProjectDir);
-    }
+    private const PROJECT_WITH_TWIG_COMPONENT_BUNDLE = __DIR__ . '/_fixtures/Kernel/project-with-twig-component-bundle';
 
     public function testGetCacheDir(): void
     {
-        static::assertStringStartsWith($this->tmpProjectDir . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
-    }
-
-    public function testDumpContainerDumpsPreloadFile(): void
-    {
-        $containerBuilder = new ContainerBuilder();
-        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
-        $containerBuilder->compile();
-
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
-            new ConfigCache($this->tmpProjectDir . '/cache-file', true),
-            $containerBuilder,
-            'Shopware_Core_KernelDevDebugContainer',
-            'Container',
-        );
-
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
-    }
-
-    public function testDumpContainerDoesNotDumpPreloadFileIfWarmupCacheDirIsGiven(): void
-    {
-        $containerBuilder = new ContainerBuilder();
-        // An underscore at the end indicates a warmup cache directory
-        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
-        $containerBuilder->compile();
-
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
-            new ConfigCache($this->tmpProjectDir . '/cache', true),
-            $containerBuilder,
-            'Shopware_Core_KernelDevDebugContainer',
-            'Container',
-        );
-
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
-
-        // Do not create the preload file in warmup cache
-        static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
+        static::assertStringStartsWith(self::PROJECT_DIR . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
     }
 
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $this->writeBundlesConfig([]);
         $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
 
-        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+        $kernel = $this->createKernel(projectDir: self::PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE);
+
+        $bundles = iterator_to_array($kernel->registerBundles());
 
         static::assertSame([TwigComponentBundle::class], array_values(array_map(
             static fn (object $bundle): string => $bundle::class,
@@ -104,11 +60,9 @@ class KernelTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $this->writeBundlesConfig([
-            TwigComponentBundle::class => ['all' => true],
-        ]);
+        $kernel = $this->createKernel(projectDir: self::PROJECT_WITH_TWIG_COMPONENT_BUNDLE);
 
-        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+        $bundles = iterator_to_array($kernel->registerBundles());
 
         static::assertSame([TwigComponentBundle::class], array_values(array_map(
             static fn (object $bundle): string => $bundle::class,
@@ -118,7 +72,7 @@ class KernelTest extends TestCase
 
     public function testConfigureRoutesImportsProjectRoutesScopedToEnvironment(): void
     {
-        $confDir = $this->tmpProjectDir . '/config';
+        $confDir = self::PROJECT_DIR . '/config';
 
         $captured = $this->captureRouteImports('test');
 
@@ -129,7 +83,7 @@ class KernelTest extends TestCase
 
     public function testConfigureRoutesDoesNotImportForeignEnvironmentGlobs(): void
     {
-        $confDir = $this->tmpProjectDir . '/config';
+        $confDir = self::PROJECT_DIR . '/config';
 
         $captured = $this->captureRouteImports('prod');
 
@@ -137,7 +91,7 @@ class KernelTest extends TestCase
         static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
-    private function createKernel(string $environment = 'fooBar'): Kernel
+    private function createKernel(string $environment = 'fooBar', string $projectDir = self::PROJECT_DIR): Kernel
     {
         return new Kernel(
             $environment,
@@ -146,7 +100,7 @@ class KernelTest extends TestCase
             'cacheId',
             '6.6.6',
             static::createStub(Connection::class),
-            $this->tmpProjectDir,
+            $projectDir,
         );
     }
 
@@ -156,8 +110,8 @@ class KernelTest extends TestCase
     private function captureRouteImports(string $environment): array
     {
         $captured = [];
-        $loader = static::createStub(PhpFileLoader::class);
-        $loader->method('import')->willReturnCallback(
+        $routeLoader = static::createStub(PhpFileLoader::class);
+        $routeLoader->method('import')->willReturnCallback(
             function (mixed $resource, ?string $type = null) use (&$captured): array {
                 $captured[] = [$resource, $type];
 
@@ -165,24 +119,15 @@ class KernelTest extends TestCase
             }
         );
 
-        (new \ReflectionMethod(Kernel::class, 'configureRoutes'))->invoke(
-            $this->createKernel($environment),
-            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
-        );
+        $resolver = static::createStub(LoaderResolverInterface::class);
+        $resolver->method('resolve')->willReturn($routeLoader);
+
+        $loader = static::createStub(LoaderInterface::class);
+        $loader->method('getResolver')->willReturn($resolver);
+
+        // `loadRoutes()` is the public routing entry point Symfony registers as `kernel::loadRoutes`
+        $this->createKernel($environment)->loadRoutes($loader);
 
         return $captured;
-    }
-
-    /**
-     * @param array<string, array<string, bool>> $bundles
-     */
-    private function writeBundlesConfig(array $bundles): void
-    {
-        $configDir = $this->tmpProjectDir . '/config';
-        $this->filesystem->mkdir($configDir);
-        $this->filesystem->dumpFile(
-            $configDir . '/bundles.php',
-            "<?php\n\nreturn " . var_export($bundles, true) . ";\n"
-        );
     }
 }

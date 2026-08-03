@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
@@ -66,6 +67,7 @@ class BCChangeAttributeUsageRule implements Rule
         NewOptionalParameter::class,
         ParameterDefaultValueChange::class,
         ParameterNameChange::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];
@@ -228,6 +230,10 @@ class BCChangeAttributeUsageRule implements Rule
             return $this->validateParameterDefaultValueChange($attribute, $method, $symbol, $line);
         }
 
+        if ($attributeClass === ParameterRemoval::class) {
+            return $this->validateParameterRemoval($attribute, $method, $symbol, $line);
+        }
+
         if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
             return [];
         }
@@ -293,6 +299,36 @@ class BCChangeAttributeUsageRule implements Rule
             return [$this->error($line, \sprintf(
                 '%s on "%s": announced default value for parameter "%s" is already current.',
                 $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, $parameterName);
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" does not exist.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional()) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
                 $symbol,
                 $parameterName
             ))];

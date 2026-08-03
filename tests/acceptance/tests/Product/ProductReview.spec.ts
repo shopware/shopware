@@ -20,7 +20,6 @@ test('As a shop customer, I want to see reviews of a product.', {
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
-    SelectReviewFilterOption,
           }) => {
 
     const productWithRating1 = await TestDataService.createBasicProduct();
@@ -39,10 +38,6 @@ test('As a shop customer, I want to see reviews of a product.', {
 
 test('As a shop customer, I want to submit a review, so that I can share my experience with the product', {
     tag: ['@Product', '@Reviews', '@Storefront'],
-    annotation: {
-        type: 'issue',
-        description: 'https://github.com/shopware/shopware/issues/13219',
-  },
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -133,14 +128,11 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
 test('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
     tag: ['@Product', '@Reviews', '@Storefront'],
-    annotation: {
-        type: 'issue',
-        description: 'https://github.com/shopware/shopware/issues/14414',
-  },
 }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
+    SelectProductReviewOption,
           }) => {
 
     const productWithRating1 = await TestDataService.createBasicProduct();
@@ -186,7 +178,7 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
 
         const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
-        await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
+        await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).not.toBeChecked();
         await ShopCustomer.attemptsTo(SelectProductReviewOption('Unsatisfactory'));
         await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeChecked();
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);

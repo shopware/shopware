@@ -24,7 +24,12 @@ class UserValidationController extends AbstractController
     {
     }
 
-    #[Route(path: 'api/_action/user/check-email-unique', name: 'api.action.check-email-unique', methods: ['POST'])]
+    #[Route(
+        path: 'api/_action/user/check-email-unique',
+        name: 'api.action.check-email-unique',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
+        methods: ['POST']
+    )]
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('email')) {
@@ -43,7 +48,12 @@ class UserValidationController extends AbstractController
         );
     }
 
-    #[Route(path: 'api/_action/user/check-username-unique', name: 'api.action.check-username-unique', methods: ['POST'])]
+    #[Route(
+        path: 'api/_action/user/check-username-unique',
+        name: 'api.action.check-username-unique',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
+        methods: ['POST']
+    )]
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('username')) {

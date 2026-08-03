@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\Context;
@@ -67,8 +66,7 @@ class ProductListingResultTest extends TestCase
         $criteria->setLimit(10);
         $criteria->setOffset(20);
 
-        $source = new EntitySearchResult(
-            ProductDefinition::ENTITY_NAME,
+        $source = EntitySearchResult::create(
             42,
             new ProductCollection(),
             new AggregationResultCollection(),
@@ -94,8 +92,7 @@ class ProductListingResultTest extends TestCase
     {
         $entities = new ProductCollection();
 
-        return new EntitySearchResult(
-            ProductDefinition::ENTITY_NAME,
+        return EntitySearchResult::create(
             $entities->count(),
             $entities,
             null,

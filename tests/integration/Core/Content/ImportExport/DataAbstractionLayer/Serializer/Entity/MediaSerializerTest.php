@@ -131,7 +131,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver->expects($this->never())
             ->method('persistFileToMedia');
 
-        $searchResult = new EntitySearchResult('media', 1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
+        $searchResult = EntitySearchResult::create(1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
         $mediaRepository->method('search')->willReturn($searchResult);
 
         $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);

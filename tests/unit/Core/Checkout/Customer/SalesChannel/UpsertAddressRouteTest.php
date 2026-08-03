@@ -137,8 +137,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
         $salesChannelAddressRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                CustomerAddressDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 new CustomerAddressCollection([$address]),
                 null,
@@ -218,8 +217,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $salesChannelAddressRepository = $this->createMock(SalesChannelRepository::class);
         $salesChannelAddressRepository->expects($this->once())->method('search')->willReturn(
-            new EntitySearchResult(
-                'customer_address',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$address]),
                 null,

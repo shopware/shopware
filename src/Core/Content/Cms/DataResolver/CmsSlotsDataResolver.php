@@ -363,8 +363,7 @@ class CmsSlotsDataResolver
                 $filtered = $searchResult->getEntities()->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
                 // ElementDataCollection expects the result wrapper, not the inner collection
-                $result->add($key, new EntitySearchResult(
-                    $this->definitionRegistry->get($definition)->getEntityName(),
+                $result->add($key, EntitySearchResult::create(
                     $filtered->count(),
                     $filtered,
                     $searchResult->getAggregations(),

@@ -360,8 +360,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $customerEntity->setEmail($customerData['email']);
 
         /* depending on whether the customer is already registered the search result returns a customer or not */
-        $customerSearchResult = new EntitySearchResult(
-            'customer',
+        $customerSearchResult = EntitySearchResult::create(
             $isRegistered ? 1 : 0,
             new EntityCollection([$customerEntity]),
             null,
@@ -375,8 +374,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId($recipientData['id']);
         $newsletterRecipientEntity->setEmail($recipientData['email']);
 
-        $newsletterRecipientSearchResult = new EntitySearchResult(
-            'newsletter_recipient',
+        $newsletterRecipientSearchResult = EntitySearchResult::create(
             1,
             new EntityCollection([$newsletterRecipientEntity]),
             null,

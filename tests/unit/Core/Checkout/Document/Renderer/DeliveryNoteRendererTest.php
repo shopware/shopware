@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -44,8 +43,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $order = $this->createOrder();
         $orderId = $order->getId();
-        $orderSearchResult = new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        $orderSearchResult = EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,

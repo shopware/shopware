@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
@@ -162,8 +161,7 @@ class ProductListingLoader
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if ($ids === []) {
-            $result = new EntitySearchResult(
-                ProductDefinition::ENTITY_NAME,
+            $result = EntitySearchResult::create(
                 0,
                 new ProductCollection(),
                 $aggregations,
@@ -183,7 +181,7 @@ class ProductListingLoader
 
         $this->addExtensions($clone, $idResult, $productSearchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result = EntitySearchResult::create($idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
         $result->addExtensions($productSearchResult->getExtensions());
 

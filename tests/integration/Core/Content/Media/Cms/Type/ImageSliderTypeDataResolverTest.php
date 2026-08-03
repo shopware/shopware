@@ -244,8 +244,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $productMediaCollection = $this->getProductMediaCollection();
         $resolverContext = $this->getResolverContextWithoutMedia();
         $result = new ElementDataCollection();
-        $result->add('product_media_id', new EntitySearchResult(
-            'product_media',
+        $result->add('product_media_id', EntitySearchResult::create(
             5,
             $productMediaCollection,
             null,
@@ -282,8 +281,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
-        $result->add('media_id', new EntitySearchResult(
-            'media',
+        $result->add('media_id', EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,
@@ -504,8 +502,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
     protected function getEntitySearchResult(ProductMediaCollection $productMediaCollection, EntityResolverContext $resolverContext): ElementDataCollection
     {
         $result = new ElementDataCollection();
-        $result->add('media_id', new EntitySearchResult(
-            'media',
+        $result->add('media_id', EntitySearchResult::create(
             5,
             $productMediaCollection->getMedia(),
             null,

@@ -110,8 +110,7 @@ class CategoryRouteTest extends TestCase
         $categoryRepositoryMock
             ->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'category',
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new CategoryCollection([$category]),
                 null,
@@ -137,8 +136,7 @@ class CategoryRouteTest extends TestCase
                     ],
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
-            )->willReturn(new EntitySearchResult(
-                'cms-page',
+            )->willReturn(EntitySearchResult::create(
                 1,
                 new CmsPageCollection([$cmsPage]),
                 null,
@@ -283,8 +281,7 @@ class CategoryRouteTest extends TestCase
         $categoryRepositoryMock
             ->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'category',
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new CategoryCollection([$category]),
                 null,

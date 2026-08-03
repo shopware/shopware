@@ -56,8 +56,7 @@ class ShippingMethodRouteTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setUniqueIdentifier('foo');
 
-        $result = new EntitySearchResult(
-            'shipping_method',
+        $result = EntitySearchResult::create(
             1,
             $entities = new ShippingMethodCollection([$shippingMethod]),
             null,
@@ -105,8 +104,7 @@ class ShippingMethodRouteTest extends TestCase
         $shippingMethod2->setUniqueIdentifier('rule_2');
         $shippingMethod2->setAvailabilityRuleId('rule_2');
 
-        $result = new EntitySearchResult(
-            'shipping_method',
+        $result = EntitySearchResult::create(
             2,
             new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]),
             null,

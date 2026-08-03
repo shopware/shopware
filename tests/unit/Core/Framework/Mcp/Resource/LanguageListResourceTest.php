@@ -37,8 +37,7 @@ class LanguageListResourceTest extends TestCase
         $collection = new LanguageCollection([$language]);
         $context = Context::createDefaultContext();
 
-        $searchResult = new EntitySearchResult(
-            'language',
+        $searchResult = EntitySearchResult::create(
             1,
             $collection,
             null,

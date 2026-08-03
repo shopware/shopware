@@ -7,11 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
@@ -168,8 +166,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $this->setSearchReturn($context, new CustomerCollection([$customer]));
 
         $this->customerGroupRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                CustomerGroupDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 new CustomerGroupCollection([$requestedCustomerGroup]),
                 null,
@@ -226,8 +223,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
         $this->customerRepositoryMock->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult(
-                    CustomerDefinition::ENTITY_NAME,
+                EntitySearchResult::create(
                     $collection->count(),
                     $collection,
                     null,
@@ -254,8 +250,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $collection = new CustomerGroupCollection(\array_values($customerGroups));
 
         $this->customerGroupRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                CustomerGroupDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 $collection->count(),
                 $collection,
                 null,

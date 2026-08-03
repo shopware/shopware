@@ -91,8 +91,7 @@ class ManufacturerAdminSearchIndexerTest extends TestCase
         $productManufacturer = new ProductManufacturerEntity();
         $productManufacturer->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_manufacturer',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$productManufacturer]),
                 null,

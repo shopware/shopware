@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
@@ -20,7 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Salutation\SalutationSorter;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -74,8 +72,7 @@ class AccountLoginPageLoaderTest extends TestCase
         $country->setUniqueIdentifier(Uuid::randomHex());
         $countries = new CountryCollection([$country]);
         $countryResponse = new CountryRouteResponse(
-            new EntitySearchResult(
-                CountryDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 $countries,
                 null,
@@ -99,8 +96,7 @@ class AccountLoginPageLoaderTest extends TestCase
 
         $salutations = new SalutationCollection([$salutation, $salutation2]);
         $salutationResponse = new SalutationRouteResponse(
-            new EntitySearchResult(
-                SalutationDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 2,
                 $salutations,
                 null,

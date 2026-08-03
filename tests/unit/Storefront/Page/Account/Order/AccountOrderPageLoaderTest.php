@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
@@ -66,8 +65,7 @@ class AccountOrderPageLoaderTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $orderResponse = new OrderRouteResponse(
-            new EntitySearchResult(
-                OrderDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 $orders,
                 null,

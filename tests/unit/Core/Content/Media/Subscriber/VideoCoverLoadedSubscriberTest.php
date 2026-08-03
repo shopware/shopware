@@ -218,8 +218,7 @@ class VideoCoverLoadedSubscriberTest extends TestCase
     {
         $collection = new MediaCollection($entities);
 
-        return new EntitySearchResult(
-            MediaDefinition::class,
+        return EntitySearchResult::create(
             \count($entities),
             $collection,
             null,

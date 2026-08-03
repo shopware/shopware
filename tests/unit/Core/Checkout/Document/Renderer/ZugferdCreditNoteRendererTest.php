@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -265,8 +264,7 @@ class ZugferdCreditNoteRendererTest extends TestCase
      */
     private function createOrderSearchResult(OrderEntity $order, Context $context): EntitySearchResult
     {
-        return new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        return EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,

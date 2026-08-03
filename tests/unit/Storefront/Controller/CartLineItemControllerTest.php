@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
@@ -381,8 +380,7 @@ class CartLineItemControllerTest extends TestCase
             ->method('load')
             ->willReturn(
                 new ProductListResponse(
-                    new EntitySearchResult(
-                        ProductDefinition::ENTITY_NAME,
+                    EntitySearchResult::create(
                         1,
                         new ProductCollection([$product]),
                         null,
@@ -432,8 +430,7 @@ class CartLineItemControllerTest extends TestCase
             ->method('load')
             ->willReturn(
                 new ProductListResponse(
-                    new EntitySearchResult(
-                        ProductDefinition::ENTITY_NAME,
+                    EntitySearchResult::create(
                         0,
                         new ProductCollection([]),
                         null,
@@ -484,8 +481,7 @@ class CartLineItemControllerTest extends TestCase
             )
             ->willReturn(
                 new ProductListResponse(
-                    new EntitySearchResult(
-                        ProductDefinition::ENTITY_NAME,
+                    EntitySearchResult::create(
                         1,
                         new ProductCollection([$product]),
                         null,

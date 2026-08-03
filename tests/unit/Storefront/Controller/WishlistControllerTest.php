@@ -66,8 +66,7 @@ class WishlistControllerTest extends TestCase
 
         $response = new LoadWishlistRouteResponse(
             new CustomerWishlistEntity(),
-            new EntitySearchResult(
-                'product',
+            EntitySearchResult::create(
                 1,
                 new ProductCollection([$product]),
                 null,

@@ -52,8 +52,7 @@ class McpResourcePersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpResourceCollection([$existingEntity]);
-        $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+        $searchResult = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -84,8 +83,7 @@ class McpResourcePersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpResourceCollection([$existingEntity]);
-        $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+        $searchResult = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -129,8 +127,7 @@ class McpResourcePersisterTest extends TestCase
 
     public function testUpdateResourcesWithNewResourceCallsUpsertWithoutId(): void
     {
-        $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+        $searchResult = EntitySearchResult::create(
             0,
             new AppMcpResourceCollection([]),
             null,

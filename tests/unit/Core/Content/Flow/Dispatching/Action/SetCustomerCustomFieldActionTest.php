@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -75,8 +74,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $flow = new StorableFlow('', $context, [], [CustomerAware::CUSTOMER_ID => $customerId]);
         $flow->setConfig($config);
 
-        $entitySearchResult = new EntitySearchResult(
-            CustomerDefinition::ENTITY_NAME,
+        $entitySearchResult = EntitySearchResult::create(
             1,
             new CustomerCollection([$customer]),
             null,

@@ -521,8 +521,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -570,8 +569,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -640,8 +638,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -703,8 +700,7 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -738,8 +734,7 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection([]),
                 null,
@@ -759,8 +754,7 @@ class ThemeServiceTest extends TestCase
 
         $themeRepository = $this->createMock(EntityRepository::class);
         $themeRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -800,8 +794,7 @@ class ThemeServiceTest extends TestCase
         $themeId = Uuid::randomHex();
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection([]),
                 null,

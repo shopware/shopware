@@ -59,8 +59,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $this->productExportRepository = $this->createMock(EntityRepository::class);
         $this->productExportRepository
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'product_export',
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new ProductExportCollection([$this->productExport]),
                 null,

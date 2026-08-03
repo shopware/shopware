@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
@@ -60,8 +59,7 @@ class AccountOverviewPageLoaderTest extends TestCase
         $orders = new OrderCollection([$order]);
 
         $orderResponse = new OrderRouteResponse(
-            new EntitySearchResult(
-                OrderDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 $orders,
                 null,

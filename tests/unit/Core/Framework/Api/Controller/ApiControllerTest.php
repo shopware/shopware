@@ -135,8 +135,7 @@ class ApiControllerTest extends TestCase
             static::assertSame($expectedFilterField, $filter->getField());
             static::assertSame($parentId, $filter->getValue());
 
-            return new EntitySearchResult(
-                'child_entity',
+            return EntitySearchResult::create(
                 0,
                 new EntityCollection(),
                 null,

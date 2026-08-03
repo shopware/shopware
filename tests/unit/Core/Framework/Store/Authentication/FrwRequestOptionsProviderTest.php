@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
@@ -34,8 +33,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             'frwUserToken' => 'frw-user-token',
         ]);
 
-        $result = new EntitySearchResult(
-            UserConfigDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             new UserConfigCollection([$userConfig]),
             null,
@@ -68,8 +66,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $userConfig->setUniqueIdentifier('user-config-id');
         $userConfig->setValue([]);
 
-        $result = new EntitySearchResult(
-            UserConfigDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             new UserConfigCollection([$userConfig]),
             null,
@@ -96,8 +93,7 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $result = new EntitySearchResult(
-            UserConfigDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             new UserConfigCollection(),
             null,

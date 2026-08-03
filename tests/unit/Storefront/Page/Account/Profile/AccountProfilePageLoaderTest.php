@@ -17,7 +17,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Salutation\SalutationSorter;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -77,8 +76,7 @@ class AccountProfilePageLoaderTest extends TestCase
 
         $salutations = new SalutationCollection([$salutation, $salutation2]);
         $salutationResponse = new SalutationRouteResponse(
-            new EntitySearchResult(
-                SalutationDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 2,
                 $salutations,
                 null,

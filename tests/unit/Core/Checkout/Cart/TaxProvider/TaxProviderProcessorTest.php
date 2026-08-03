@@ -42,7 +42,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
-use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
@@ -91,8 +90,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -184,8 +182,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -242,8 +239,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider1, $taxProvider2]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             2,
             $collection,
             null,
@@ -292,8 +288,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -328,8 +323,7 @@ class TaxProviderProcessorTest extends TestCase
         $registry = new TaxProviderRegistry([]);
         $collection = new TaxProviderCollection([]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             0,
             $collection,
             null,
@@ -381,8 +375,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -433,8 +426,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $collection = new TaxProviderCollection([$taxProvider]);
 
-        $result = new EntitySearchResult(
-            TaxProviderDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             $collection,
             null,

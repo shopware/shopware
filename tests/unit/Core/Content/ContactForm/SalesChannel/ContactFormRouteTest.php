@@ -56,8 +56,7 @@ class ContactFormRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        $salutationEntitySearchResult = new EntitySearchResult(
-            'salutation',
+        $salutationEntitySearchResult = EntitySearchResult::create(
             1,
             new EntityCollection([]),
             null,

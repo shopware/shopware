@@ -91,8 +91,7 @@ class LandingPageAdminSearchIndexerTest extends TestCase
         $landingPage = new LandingPageEntity();
         $landingPage->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'landing_page',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$landingPage]),
                 null,

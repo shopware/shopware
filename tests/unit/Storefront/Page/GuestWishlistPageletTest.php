@@ -84,8 +84,7 @@ class GuestWishlistPageletTest extends TestCase
             $product3 = new ProductEntity();
             static::assertIsString($criteria->getIds()[2]);
             $product3->setUniqueIdentifier($criteria->getIds()[2]);
-            $searchResult = new EntitySearchResult(
-                'product',
+            $searchResult = EntitySearchResult::create(
                 3,
                 new ProductCollection([$product1, $product2, $product3]),
                 null,

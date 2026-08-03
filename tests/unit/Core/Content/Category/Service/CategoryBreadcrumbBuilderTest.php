@@ -209,7 +209,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 static::assertInstanceOf(EqualsFilter::class, $activeFilter);
                 static::assertTrue($activeFilter->getValue());
 
-                return new EntitySearchResult('category', 1, new CategoryCollection([$categoryEntity]), null, $criteria, $context);
+                return EntitySearchResult::create(1, new CategoryCollection([$categoryEntity]), null, $criteria, $context);
             });
 
         $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -452,8 +452,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $categoryRepositoryMock = static::createStub(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
-            new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
+            EntitySearchResult::create(1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
+            EntitySearchResult::create(1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
         );
 
         return $categoryRepositoryMock;
@@ -469,8 +469,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $productRepositoryMock = static::createStub(SalesChannelRepository::class);
         $productRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
-            new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
+            EntitySearchResult::create(1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
+            EntitySearchResult::create(1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
         );
 
         return $productRepositoryMock;

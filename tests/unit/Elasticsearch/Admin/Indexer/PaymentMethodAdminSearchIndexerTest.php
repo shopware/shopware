@@ -88,8 +88,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'payment_method',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$paymentMethod]),
                 null,

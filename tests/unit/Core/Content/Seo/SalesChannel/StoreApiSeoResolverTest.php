@@ -65,8 +65,7 @@ class StoreApiSeoResolverTest extends TestCase
         );
 
         $productEntity = $this->createProductEntity();
-        $response = new ProductListResponse(new EntitySearchResult(
-            'product',
+        $response = new ProductListResponse(EntitySearchResult::create(
             1,
             new ProductCollection([$productEntity]),
             null,
@@ -116,8 +115,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $productEntity->setCrossSellings($productCrossSellingCollection);
 
-        $response = new ProductListResponse(new EntitySearchResult(
-            'product',
+        $response = new ProductListResponse(EntitySearchResult::create(
             1,
             new ProductCollection([$productEntity]),
             null,
@@ -163,8 +161,7 @@ class StoreApiSeoResolverTest extends TestCase
             static::createStub(SalesChannelContext::class),
         );
 
-        $searchResult = new EntitySearchResult(
-            'product',
+        $searchResult = EntitySearchResult::create(
             0,
             new ProductCollection([]),
             null,
@@ -205,8 +202,7 @@ class StoreApiSeoResolverTest extends TestCase
         );
 
         $product = $this->createProductEntity();
-        $nestedResult = new EntitySearchResult(
-            'product',
+        $nestedResult = EntitySearchResult::create(
             1,
             new ProductCollection([$product]),
             null,
@@ -214,8 +210,7 @@ class StoreApiSeoResolverTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $searchResult = new EntitySearchResult(
-            'product',
+        $searchResult = EntitySearchResult::create(
             0,
             new ProductCollection([]),
             null,
@@ -263,8 +258,7 @@ class StoreApiSeoResolverTest extends TestCase
             static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
-            new ProductListResponse(new EntitySearchResult(
-                'product',
+            new ProductListResponse(EntitySearchResult::create(
                 1,
                 new ProductCollection([$productEntity]),
                 null,
@@ -283,8 +277,7 @@ class StoreApiSeoResolverTest extends TestCase
     {
         $productEntity = $this->createProductEntity();
 
-        $response = new ProductListResponse(new EntitySearchResult(
-            'product',
+        $response = new ProductListResponse(EntitySearchResult::create(
             1,
             new ProductCollection([$productEntity]),
             null,
@@ -337,8 +330,7 @@ class StoreApiSeoResolverTest extends TestCase
             $seoUrlCollection->add($seoUrlEntity);
         }
 
-        $entitySearchResult = new EntitySearchResult(
-            'seoUrl',
+        $entitySearchResult = EntitySearchResult::create(
             1,
             $seoUrlCollection,
             null,

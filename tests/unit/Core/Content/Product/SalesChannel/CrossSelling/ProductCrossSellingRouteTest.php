@@ -81,8 +81,7 @@ class ProductCrossSellingRouteTest extends TestCase
         $crossSelling->setSortDirection('ASC');
 
         $this->crossSellingRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_cross_selling',
+            EntitySearchResult::create(
                 1,
                 new ProductCrossSellingCollection([$crossSelling]),
                 null,
@@ -97,8 +96,7 @@ class ProductCrossSellingRouteTest extends TestCase
         $child->setParentId($childParentId);
 
         $this->listingLoader->method('load')->willReturn(
-            new EntitySearchResult(
-                'product',
+            EntitySearchResult::create(
                 1,
                 new ProductCollection([$child]),
                 null,
@@ -142,8 +140,7 @@ class ProductCrossSellingRouteTest extends TestCase
         $crossSelling->setSortDirection('ASC');
 
         $this->crossSellingRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_cross_selling',
+            EntitySearchResult::create(
                 1,
                 new ProductCrossSellingCollection([$crossSelling]),
                 null,
@@ -164,8 +161,7 @@ class ProductCrossSellingRouteTest extends TestCase
             ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
                 static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
 
-                return new EntitySearchResult(
-                    'product',
+                return EntitySearchResult::create(
                     0,
                     new ProductCollection(),
                     null,
@@ -193,8 +189,7 @@ class ProductCrossSellingRouteTest extends TestCase
         $crossSelling->setSortDirection('ASC');
 
         $this->crossSellingRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_cross_selling',
+            EntitySearchResult::create(
                 1,
                 new ProductCrossSellingCollection([$crossSelling]),
                 null,
@@ -204,8 +199,7 @@ class ProductCrossSellingRouteTest extends TestCase
         );
 
         $this->listingLoader->method('load')->willReturn(
-            new EntitySearchResult(
-                'product',
+            EntitySearchResult::create(
                 0,
                 new ProductCollection(),
                 null,
@@ -248,8 +242,7 @@ class ProductCrossSellingRouteTest extends TestCase
         $crossSelling->setSortDirection('ASC');
 
         $this->crossSellingRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_cross_selling',
+            EntitySearchResult::create(
                 1,
                 new ProductCrossSellingCollection([$crossSelling]),
                 null,
@@ -273,8 +266,7 @@ class ProductCrossSellingRouteTest extends TestCase
                 static::assertContainsEquals(new EqualsFilter('product.product_stream', $streamId), $criteria->getFilters());
                 static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
 
-                return new EntitySearchResult(
-                    'product',
+                return EntitySearchResult::create(
                     0,
                     new ProductCollection(),
                     null,

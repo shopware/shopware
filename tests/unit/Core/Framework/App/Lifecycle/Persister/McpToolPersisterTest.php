@@ -56,8 +56,7 @@ class McpToolPersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpToolCollection([$existingEntity]);
-        $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+        $searchResult = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -89,8 +88,7 @@ class McpToolPersisterTest extends TestCase
         $existingEntity->setAppId('app-id');
 
         $collection = new AppMcpToolCollection([$existingEntity]);
-        $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+        $searchResult = EntitySearchResult::create(
             1,
             $collection,
             null,
@@ -134,8 +132,7 @@ class McpToolPersisterTest extends TestCase
 
     public function testUpdateToolsWithNewToolCallsUpsertWithoutId(): void
     {
-        $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+        $searchResult = EntitySearchResult::create(
             0,
             new AppMcpToolCollection([]),
             null,

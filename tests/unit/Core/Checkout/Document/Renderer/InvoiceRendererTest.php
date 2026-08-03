@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
@@ -25,7 +24,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -73,7 +71,7 @@ class InvoiceRendererTest extends TestCase
         $order = $this->createOrder($orderSettings);
         $orderId = $order->getId();
         $orderCollection = new OrderCollection([$order]);
-        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+        $orderSearchResult = EntitySearchResult::create(1, $orderCollection, null, new Criteria(), $context);
 
         $documentConfigSearchResult = $this->createDocumentConfigSearchResult($config, $context);
 
@@ -165,7 +163,7 @@ class InvoiceRendererTest extends TestCase
 
         $orderId = $order->getId();
         $orderCollection = new OrderCollection([$order]);
-        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+        $orderSearchResult = EntitySearchResult::create(1, $orderCollection, null, new Criteria(), $context);
 
         $DELanguageId = Uuid::randomHex();
 
@@ -243,7 +241,7 @@ class InvoiceRendererTest extends TestCase
 
         $orderId = $order->getId();
         $orderCollection = new OrderCollection([$order]);
-        $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
+        $orderSearchResult = EntitySearchResult::create(1, $orderCollection, null, new Criteria(), $context);
 
         $connectionMock = static::createStub(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn([
@@ -504,8 +502,7 @@ class InvoiceRendererTest extends TestCase
         $documentBaseConfigEntity->setConfig($config);
         $documentBaseConfigCollection = new DocumentBaseConfigCollection([$documentBaseConfigEntity]);
 
-        return new EntitySearchResult(
-            DocumentBaseConfigDefinition::ENTITY_NAME,
+        return EntitySearchResult::create(
             1,
             $documentBaseConfigCollection,
             null,

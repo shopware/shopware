@@ -130,8 +130,7 @@ class MediaGeneratorTest extends TestCase
      */
     private function searchResult(array $defaultFolders): EntitySearchResult
     {
-        return new EntitySearchResult(
-            'media_default_folder',
+        return EntitySearchResult::create(
             \count($defaultFolders),
             new MediaDefaultFolderCollection($defaultFolders),
             null,

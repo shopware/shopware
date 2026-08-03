@@ -64,8 +64,7 @@ class MediaRouteTest extends TestCase
 
         $request = new Request([], ['ids' => $ids]);
 
-        $mediaEntitySearchResult = new EntitySearchResult(
-            'media',
+        $mediaEntitySearchResult = EntitySearchResult::create(
             2,
             new MediaCollection([$mediaEntity1, $mediaEntity2]),
             null,

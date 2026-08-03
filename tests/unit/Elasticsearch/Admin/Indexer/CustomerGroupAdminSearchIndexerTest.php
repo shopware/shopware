@@ -88,8 +88,7 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'customer_group',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$customerGroup]),
                 null,

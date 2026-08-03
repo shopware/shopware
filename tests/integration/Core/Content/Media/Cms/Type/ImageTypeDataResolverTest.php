@@ -195,8 +195,7 @@ class ImageTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,
@@ -233,8 +232,7 @@ class ImageTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,
@@ -272,8 +270,7 @@ class ImageTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             0,
             new MediaCollection(),
             null,
@@ -333,8 +330,7 @@ class ImageTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,
@@ -376,8 +372,7 @@ class ImageTypeDataResolverTest extends TestCase
 
         $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             0,
             new MediaCollection(),
             null,
@@ -420,8 +415,7 @@ class ImageTypeDataResolverTest extends TestCase
             $product,
         );
 
-        $mediaSearchResult = new EntitySearchResult(
-            'media',
+        $mediaSearchResult = EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,

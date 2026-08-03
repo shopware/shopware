@@ -277,8 +277,7 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     {
         $collection = new IntegrationCollection($entities);
 
-        return new EntitySearchResult(
-            'integration',
+        return EntitySearchResult::create(
             \count($entities),
             $collection,
             null,

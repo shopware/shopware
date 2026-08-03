@@ -254,8 +254,7 @@ class RequirementsValidatorTest extends TestCase
         $pluginB->setActive(true);
 
         $pluginRepo = static::createStub(EntityRepository::class);
-        $pluginRepo->method('search')->willReturn(new EntitySearchResult(
-            'plugin',
+        $pluginRepo->method('search')->willReturn(EntitySearchResult::create(
             1,
             new PluginCollection([$pluginB]),
             null,
@@ -280,8 +279,7 @@ class RequirementsValidatorTest extends TestCase
     private function createValidator(): RequirementsValidator
     {
         $pluginRepo = static::createStub(EntityRepository::class);
-        $pluginRepo->method('search')->willReturn(new EntitySearchResult(
-            'plugin',
+        $pluginRepo->method('search')->willReturn(EntitySearchResult::create(
             0,
             new PluginCollection(),
             null,

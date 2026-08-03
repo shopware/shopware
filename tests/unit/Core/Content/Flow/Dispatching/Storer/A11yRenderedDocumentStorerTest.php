@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -110,8 +109,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $documentCollections->add($documentWithNoA11yMediaFile);
 
         $repository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 $documentCollections,
                 null,
@@ -247,8 +245,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $document->setDocumentA11yMediaFile($a11yDocument);
 
         $repository = new StaticEntityRepository([
-            new EntitySearchResult(
-                DocumentDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 new DocumentCollection([$document]),
                 null,

@@ -353,8 +353,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app',
+            EntitySearchResult::create(
                 1,
                 new AppCollection([$app]),
                 null,
@@ -399,8 +398,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app',
+            EntitySearchResult::create(
                 1,
                 new AppCollection([$app]),
                 null,
@@ -500,8 +498,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true);
 
         $this->appRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app',
+            EntitySearchResult::create(
                 1,
                 new AppCollection([$app]),
                 null,
@@ -546,8 +543,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app',
+            EntitySearchResult::create(
                 1,
                 new AppCollection([$app]),
                 null,
@@ -754,8 +750,7 @@ class LicenseSyncSubscriberTest extends TestCase
         $serviceEntry = new ServiceEntry('serviceA', 'description', 'host', 'appEndpoint', true, 'licenseSyncEndPoint');
 
         $this->appRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app',
+            EntitySearchResult::create(
                 1,
                 new AppCollection([$app]),
                 null,

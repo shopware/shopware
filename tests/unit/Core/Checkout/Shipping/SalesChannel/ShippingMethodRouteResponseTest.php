@@ -24,8 +24,7 @@ class ShippingMethodRouteResponseTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setUniqueIdentifier('foo');
 
-        $result = new EntitySearchResult(
-            'shipping-method',
+        $result = EntitySearchResult::create(
             1,
             $collection = new ShippingMethodCollection([$shippingMethod]),
             null,

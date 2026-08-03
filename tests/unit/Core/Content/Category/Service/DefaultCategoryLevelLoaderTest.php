@@ -59,8 +59,7 @@ class DefaultCategoryLevelLoaderTest extends TestCase
 
         $this->categoryRepository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'category',
+            ->willReturn(EntitySearchResult::create(
                 0,
                 $expectedCollection,
                 null,

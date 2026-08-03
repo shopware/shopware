@@ -87,8 +87,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media_01');
 
-        $result->add('media_id', new EntitySearchResult(
-            'media',
+        $result->add('media_id', EntitySearchResult::create(
             1,
             new MediaCollection([$media]),
             null,

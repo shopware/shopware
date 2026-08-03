@@ -88,8 +88,7 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
         $newsletterRecipient = new NewsletterRecipientEntity();
         $newsletterRecipient->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'newsletter_recipient',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$newsletterRecipient]),
                 null,

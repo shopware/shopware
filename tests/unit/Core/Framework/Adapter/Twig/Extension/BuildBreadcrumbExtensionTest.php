@@ -7,7 +7,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
@@ -146,8 +145,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
             $categories->add($category);
         }
 
-        $entitySearchResult = new EntitySearchResult(
-            CategoryDefinition::ENTITY_NAME,
+        $entitySearchResult = EntitySearchResult::create(
             1,
             $categories,
             null,

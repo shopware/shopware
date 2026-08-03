@@ -161,7 +161,7 @@ class MailAttachmentsBuilderTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->with($criteria, $context)
-            ->willReturn(new EntitySearchResult('media', 2, new MediaCollection($entities), null, $criteria, $context));
+            ->willReturn(EntitySearchResult::create(2, new MediaCollection($entities), null, $criteria, $context));
         $this->mediaRepository = $mediaRepository;
 
         $mediaService = $this->createMock(MediaService::class);

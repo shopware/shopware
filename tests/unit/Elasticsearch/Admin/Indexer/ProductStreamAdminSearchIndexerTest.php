@@ -88,8 +88,7 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
         $productStream = new ProductStreamEntity();
         $productStream->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_stream',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([$productStream]),
                 null,

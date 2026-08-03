@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\User\UserCollection;
-use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 
 /**
@@ -57,8 +56,7 @@ class LocaleProviderTest extends TestCase
         $userRepository = static::createMock(EntityRepository::class);
         $userRepository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                UserDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new UserCollection([$user]),
                 null,
@@ -78,8 +76,7 @@ class LocaleProviderTest extends TestCase
         $userRepository = static::createMock(EntityRepository::class);
         $userRepository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                UserDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new UserCollection([]),
                 null,

@@ -92,8 +92,7 @@ class CustomLineItemFactoryTest extends TestCase
         $mediaEntity = new MediaEntity();
         $mediaEntity->setId('test-cover-id');
 
-        $result = new EntitySearchResult(
-            'media',
+        $result = EntitySearchResult::create(
             1,
             new EntityCollection([$mediaEntity]),
             null,

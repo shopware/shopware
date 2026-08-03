@@ -133,8 +133,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
-        $result->add('product_id', new EntitySearchResult(
-            'product',
+        $result->add('product_id', EntitySearchResult::create(
             1,
             new ProductCollection([$product]),
             null,
@@ -196,8 +195,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($saleChannelContext, new Request());
 
         $result = new ElementDataCollection();
-        $result->add('product_id', new EntitySearchResult(
-            'product',
+        $result->add('product_id', EntitySearchResult::create(
             1,
             new ProductCollection([$product]),
             null,

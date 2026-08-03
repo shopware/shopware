@@ -63,8 +63,7 @@ class WishlistPageLoader
             $page->setWishlist(
                 new LoadWishlistRouteResponse(
                     new CustomerWishlistEntity(),
-                    new EntitySearchResult(
-                        'wishlist',
+                    EntitySearchResult::create(
                         0,
                         new ProductCollection(),
                         null,

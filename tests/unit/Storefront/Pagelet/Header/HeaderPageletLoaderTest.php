@@ -19,7 +19,6 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Currency\SalesChannel\CurrencyRouteResponse;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRouteResponse;
@@ -47,8 +46,7 @@ class HeaderPageletLoaderTest extends TestCase
         ])));
 
         $languageRoute = static::createStub(AbstractLanguageRoute::class);
-        $languageRoute->method('load')->willReturn(new LanguageRouteResponse(new EntitySearchResult(
-            LanguageDefinition::ENTITY_NAME,
+        $languageRoute->method('load')->willReturn(new LanguageRouteResponse(EntitySearchResult::create(
             1,
             new LanguageCollection([
                 (new LanguageEntity())->assign(['id' => $salesChannelContext->getLanguageId()]),

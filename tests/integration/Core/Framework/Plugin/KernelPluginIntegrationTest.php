@@ -375,7 +375,7 @@ class KernelPluginIntegrationTest extends TestCase
 
         $pluginRepoMock
             ->method('search')
-            ->willReturn(new EntitySearchResult('plugin', 0, $emptyPluginCollection, null, new Criteria(), Context::createDefaultContext()));
+            ->willReturn(EntitySearchResult::create(0, $emptyPluginCollection, null, new Criteria(), Context::createDefaultContext()));
 
         return new PluginLifecycleService(
             $pluginRepoMock,

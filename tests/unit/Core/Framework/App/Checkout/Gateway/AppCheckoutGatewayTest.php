@@ -79,8 +79,7 @@ class AppCheckoutGatewayTest extends TestCase
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->setCheckoutGatewayUrl('https://example.com');
 
-        $result = new EntitySearchResult(
-            'app',
+        $result = EntitySearchResult::create(
             1,
             new AppCollection([$app]),
             null,

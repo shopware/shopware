@@ -54,8 +54,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())
             ->method('search')
-                ->willReturn(new EntitySearchResult(
-                    UserConfigDefinition::ENTITY_NAME,
+                ->willReturn(EntitySearchResult::create(
                     0,
                     new UserConfigCollection([]),
                     null,
@@ -80,8 +79,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                UserConfigDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new UserConfigCollection([$userConfig]),
                 null,
@@ -106,8 +104,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                UserConfigDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new UserConfigCollection([$userConfig]),
                 null,
@@ -144,8 +141,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                UserConfigDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new UserConfigCollection([$userConfig]),
                 null,

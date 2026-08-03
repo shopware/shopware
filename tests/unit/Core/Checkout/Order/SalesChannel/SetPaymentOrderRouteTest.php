@@ -340,8 +340,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $orderLater = new OrderEntity();
         $orderLater->setId(Uuid::randomHex());
 
-        new EntitySearchResult(
-            'order',
+        EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,
@@ -354,16 +353,14 @@ class SetPaymentOrderRouteTest extends TestCase
             ->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult(
-                    'order',
+                EntitySearchResult::create(
                     1,
                     new OrderCollection([$order]),
                     null,
                     new Criteria(),
                     Context::createDefaultContext(),
                 ),
-                new EntitySearchResult(
-                    'order',
+                EntitySearchResult::create(
                     1,
                     new OrderCollection([$orderLater]),
                     null,

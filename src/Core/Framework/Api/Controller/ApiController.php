@@ -292,7 +292,7 @@ class ApiController extends AbstractController
 
         $aggregations = $context->scope(Context::CRUD_API_SCOPE, static fn (Context $context): AggregationResultCollection => $repository->aggregate($criteria, $context));
 
-        $result = new EntitySearchResult($entityName, 0, new EntityCollection(), $aggregations, $criteria, $context);
+        $result = EntitySearchResult::create(0, new EntityCollection(), $aggregations, $criteria, $context);
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $context);
 

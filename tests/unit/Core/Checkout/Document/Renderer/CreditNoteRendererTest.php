@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -80,8 +79,7 @@ class CreditNoteRendererTest extends TestCase
             'documentNumber' => 'INVOICE-1',
         ]];
 
-        $orderSearchResult = new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        $orderSearchResult = EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,
@@ -189,8 +187,7 @@ class CreditNoteRendererTest extends TestCase
 
         $invoiceData = [];
 
-        $orderSearchResult = new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        $orderSearchResult = EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,
@@ -245,8 +242,7 @@ class CreditNoteRendererTest extends TestCase
             'documentNumber' => 'INVOICE-1',
         ]];
 
-        $orderSearchResult = new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        $orderSearchResult = EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,
@@ -312,8 +308,7 @@ class CreditNoteRendererTest extends TestCase
             'documentNumber' => 'INVOICE-1',
         ]];
 
-        $orderSearchResult = new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
+        $orderSearchResult = EntitySearchResult::create(
             1,
             new OrderCollection([$order]),
             null,

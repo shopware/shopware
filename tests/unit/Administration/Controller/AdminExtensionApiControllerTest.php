@@ -209,8 +209,7 @@ class AdminExtensionApiControllerTest extends TestCase
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($this->once())->method('search')
             ->willReturn(
-                new EntitySearchResult(
-                    'app',
+                EntitySearchResult::create(
                     2,
                     $collection,
                     null,

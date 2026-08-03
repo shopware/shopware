@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
@@ -255,8 +254,7 @@ class ProductReviewLoaderTest extends TestCase
     ): EntitySearchResult {
         $criteria = $this->createCriteria($request, $salesChannelContext);
 
-        return new EntitySearchResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return EntitySearchResult::create(
             1,
             $reviews,
             new AggregationResultCollection(

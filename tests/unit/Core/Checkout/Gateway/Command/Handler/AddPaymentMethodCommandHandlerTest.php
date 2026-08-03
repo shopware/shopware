@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\AddPaymentMethodCommand;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddPaymentMethodCommandHandler;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Context;
@@ -44,8 +43,7 @@ class AddPaymentMethodCommandHandlerTest extends TestCase
         $paymentMethod->setUniqueIdentifier(Uuid::randomHex());
         $paymentMethod->setTechnicalName('test');
 
-        $result = new EntitySearchResult(
-            PaymentMethodDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             1,
             new PaymentMethodCollection([$paymentMethod]),
             null,
@@ -98,8 +96,7 @@ class AddPaymentMethodCommandHandlerTest extends TestCase
 
     public function testPaymentMethodNotFoundThrows(): void
     {
-        $result = new EntitySearchResult(
-            PaymentMethodDefinition::ENTITY_NAME,
+        $result = EntitySearchResult::create(
             0,
             new PaymentMethodCollection(),
             null,

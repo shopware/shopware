@@ -45,8 +45,7 @@ class TriggerFlowControllerTest extends TestCase
         $appFlowEvent->setName('custom.checkout.event');
 
         $this->appFlowEventRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app_flow_event',
+            EntitySearchResult::create(
                 1,
                 new AppFlowEventCollection([$appFlowEvent]),
                 null,
@@ -67,8 +66,7 @@ class TriggerFlowControllerTest extends TestCase
         $context = Context::createDefaultContext();
         /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app_flow_event',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([]),
                 null,
@@ -91,8 +89,7 @@ class TriggerFlowControllerTest extends TestCase
         $context = Context::createDefaultContext();
         /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'app_flow_event',
+            EntitySearchResult::create(
                 1,
                 new EntityCollection([]),
                 null,

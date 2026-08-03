@@ -573,7 +573,7 @@ For `EntitySearchResult`:
 
 - The wrapper becomes immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` become `readonly`, and the setters (`setPage()`, `setLimit()`, `setEntity()`, `setCustomFields()`) will be removed.
 - Stop using `getEntity()` / `setEntity()` and the `$entity` field. The entity name is no longer exposed by the result wrapper in v6.8.0.
-- Code that constructs a result directly (`new EntitySearchResult(...)`) must be updated for the v6.8.0 constructor: the `$entity` parameter is removed and the remaining parameters reorder.
+- `EntitySearchResult::__construct()` is deprecated. Use `EntitySearchResult::create($total, $entities, $aggregations, $criteria, $context)` instead; its signature is stable in v6.8.0.
 
 For `ProductListingResult`:
 

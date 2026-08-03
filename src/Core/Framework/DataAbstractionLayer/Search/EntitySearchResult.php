@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -44,9 +43,10 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     protected ?int $limit = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Use self::create() instead.
+     *
      * @param TEntityCollection $entities
      */
-    #[ParameterRemoval('v6.8.0', 'entity', '$entity parameter will be removed and the remaining parameters will reorder accordingly. See UPGRADE-6.8.md')]
     final public function __construct(
         /**
          * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
@@ -72,11 +72,32 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
          */
         protected Context $context,
     ) {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'self::create()'));
+
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
         Feature::silent('v6.8.0.0', fn () => parent::__construct($entities));
+    }
+
+    /**
+     * Creates a result with the constructor signature used in v6.8.0.
+     *
+     * @template TCollection of EntityCollection
+     *
+     * @param TCollection $entities
+     *
+     * @return self<TCollection>
+     */
+    public static function create(
+        int $total,
+        EntityCollection $entities,
+        ?AggregationResultCollection $aggregations,
+        Criteria $criteria,
+        Context $context,
+    ): self {
+        return Feature::silent('v6.8.0.0', static fn (): self => new self('', $total, $entities, $aggregations, $criteria, $context));
     }
 
     /**

@@ -52,8 +52,7 @@ trait ProductSliderUnitTrait
      */
     private function getEntitySearchResult(ProductCollection $products): EntitySearchResult
     {
-        return new EntitySearchResult(
-            'product',
+        return EntitySearchResult::create(
             $products->count(),
             $products,
             null,

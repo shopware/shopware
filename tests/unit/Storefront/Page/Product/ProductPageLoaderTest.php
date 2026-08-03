@@ -15,7 +15,6 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
@@ -82,8 +81,7 @@ class ProductPageLoaderTest extends TestCase
 
         $reviewCollection = new ProductReviewCollection([$review]);
 
-        $entityResult = new EntitySearchResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        $entityResult = EntitySearchResult::create(
             1,
             $reviewCollection,
             new AggregationResultCollection([
@@ -157,8 +155,7 @@ class ProductPageLoaderTest extends TestCase
         $request = new Request([], [], ['productId' => $productId]);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        $entityResult = new EntitySearchResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        $entityResult = EntitySearchResult::create(
             0,
             new ProductReviewCollection([]),
             new AggregationResultCollection([
@@ -230,8 +227,7 @@ class ProductPageLoaderTest extends TestCase
             ->willReturn(new ProductDetailRouteResponse($product, null));
 
         if ($reviewRepository === null) {
-            $entityResult = new EntitySearchResult(
-                ProductReviewDefinition::ENTITY_NAME,
+            $entityResult = EntitySearchResult::create(
                 0,
                 new ProductReviewCollection([]),
                 new AggregationResultCollection([new TermsResult('ratingMatrix', [])]),
@@ -331,8 +327,7 @@ class ProductPageLoaderTest extends TestCase
         $review->setComment('this product changed my life');
 
         return ProductReviewResult::fromSearchResult(
-            new EntitySearchResult(
-                ProductReviewDefinition::ENTITY_NAME,
+            EntitySearchResult::create(
                 1,
                 new ProductReviewCollection([$review]),
                 null,

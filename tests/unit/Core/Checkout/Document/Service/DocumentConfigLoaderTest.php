@@ -65,8 +65,7 @@ class DocumentConfigLoaderTest extends TestCase
         $document2->setGlobal(false);
         $document2->setSalesChannels(new DocumentBaseConfigSalesChannelCollection([$documentSalesChannel]));
 
-        $result = new EntitySearchResult(
-            'document_base_config',
+        $result = EntitySearchResult::create(
             2,
             new DocumentBaseConfigCollection([$document1, $document2]),
             null,
@@ -121,8 +120,7 @@ class DocumentConfigLoaderTest extends TestCase
         $context = Context::createDefaultContext();
 
         $configRepository = new StaticEntityRepository(
-            [new EntitySearchResult(
-                'document_base_config',
+            [EntitySearchResult::create(
                 1,
                 new DocumentBaseConfigCollection([$document]),
                 null,

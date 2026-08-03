@@ -64,8 +64,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
         $themeId = Uuid::randomHex();
 
         $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
+            EntitySearchResult::create(
                 1,
                 new ThemeCollection(
                     [
@@ -255,8 +254,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
                         $foundTheme = $themeCollection->get($searchId);
 
                         if ($foundTheme) {
-                            return new EntitySearchResult(
-                                'theme',
+                            return EntitySearchResult::create(
                                 1,
                                 new ThemeCollection([$foundTheme]),
                                 null,
@@ -268,8 +266,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
                 }
 
                 // Default: return the full collection for the main search
-                return new EntitySearchResult(
-                    'theme',
+                return EntitySearchResult::create(
                     $themeCollection->count(),
                     $themeCollection,
                     null,

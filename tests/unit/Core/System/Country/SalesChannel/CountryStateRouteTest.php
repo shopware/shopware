@@ -52,8 +52,7 @@ class CountryStateRouteTest extends TestCase
         $countryStateRepository = $this->createMock(EntityRepository::class);
         $countryStateRepository->expects($this->once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(
-                'country_state',
+            ->willReturn(EntitySearchResult::create(
                 0,
                 new CountryStateCollection(),
                 null,

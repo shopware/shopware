@@ -6,9 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
@@ -167,8 +165,7 @@ class StorybookServiceTest extends TestCase
         $product->setUniqueIdentifier('product-id-123');
 
         $this->productRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                ProductDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new SalesChannelProductCollection([$product]),
                 null,
@@ -194,8 +191,7 @@ class StorybookServiceTest extends TestCase
         $media->setUniqueIdentifier('media-id-123');
 
         $this->mediaRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                MediaDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 1,
                 new MediaCollection([$media]),
                 null,
@@ -217,8 +213,7 @@ class StorybookServiceTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->productRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                ProductDefinition::ENTITY_NAME,
+            ->willReturn(EntitySearchResult::create(
                 0,
                 new SalesChannelProductCollection(),
                 null,

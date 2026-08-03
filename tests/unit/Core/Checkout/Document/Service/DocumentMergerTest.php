@@ -52,8 +52,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = $this->createMock(EntityRepository::class);
         $documentRepository->expects($this->once())->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -103,8 +102,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = $this->createMock(EntityRepository::class);
         $documentRepository->expects($this->once())->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -146,8 +144,7 @@ class DocumentMergerTest extends TestCase
         $fpdi->method('Output')->willReturn(self::PDF_CONTENT);
 
         $documentRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
@@ -200,8 +197,7 @@ class DocumentMergerTest extends TestCase
         $documentRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult(
-                    'document',
+                EntitySearchResult::create(
                     1,
                     new DocumentCollection([$document]),
                     null,
@@ -209,8 +205,7 @@ class DocumentMergerTest extends TestCase
                     Context::createDefaultContext(),
                 ),
                 // The Second search is executed after a document was generated and returns the document WITH media
-                new EntitySearchResult(
-                    'document',
+                EntitySearchResult::create(
                     1,
                     new DocumentCollection([$documentWithMedia]),
                     null,
@@ -278,16 +273,14 @@ class DocumentMergerTest extends TestCase
         $documentRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult(
-                    'document',
+                EntitySearchResult::create(
                     1,
                     new DocumentCollection([$document]),
                     null,
                     new Criteria(),
                     Context::createDefaultContext(),
                 ),
-                new EntitySearchResult(
-                    'document',
+                EntitySearchResult::create(
                     1,
                     new DocumentCollection([$documentWithMedia]),
                     null,
@@ -347,8 +340,7 @@ class DocumentMergerTest extends TestCase
         $secondDocument = $this->createDocument(false, false);
 
         $documentRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
@@ -389,8 +381,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
@@ -439,8 +430,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
@@ -488,8 +478,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
@@ -531,8 +520,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$document]),
                 null,
@@ -582,8 +570,7 @@ class DocumentMergerTest extends TestCase
 
         $documentRepository = static::createStub(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'document',
+            EntitySearchResult::create(
                 2,
                 new DocumentCollection([$document1, $document2]),
                 null,

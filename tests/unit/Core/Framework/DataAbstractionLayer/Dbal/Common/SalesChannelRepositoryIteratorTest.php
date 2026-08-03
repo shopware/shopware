@@ -64,7 +64,7 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 
                 ++$calls;
 
-                return new EntitySearchResult('product', $collection->count(), $collection, null, $criteria, $context->getContext());
+                return EntitySearchResult::create($collection->count(), $collection, null, $criteria, $context->getContext());
             });
 
         $iterator = new SalesChannelRepositoryIterator($repository, $context, $criteria);
@@ -100,7 +100,7 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 
                 $collection = new SalesChannelProductCollection();
 
-                return new EntitySearchResult('product', 0, $collection, null, $criteria, $context->getContext());
+                return EntitySearchResult::create(0, $collection, null, $criteria, $context->getContext());
             });
 
         $iterator = new SalesChannelRepositoryIterator($repository, $context, $criteria, 41);
@@ -130,7 +130,7 @@ class SalesChannelRepositoryIteratorTest extends TestCase
 
                 $collection = new SalesChannelProductCollection([$this->product(1)]);
 
-                return new EntitySearchResult('product', 1, $collection, null, $criteria, $context->getContext());
+                return EntitySearchResult::create(1, $collection, null, $criteria, $context->getContext());
             });
 
         $iterator = new SalesChannelRepositoryIterator($repository, $context, $criteria);

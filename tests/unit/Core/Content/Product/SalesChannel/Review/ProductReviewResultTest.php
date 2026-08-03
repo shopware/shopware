@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
@@ -80,8 +79,7 @@ class ProductReviewResultTest extends TestCase
         $criteria->setLimit(10);
         $criteria->setOffset(20);
 
-        $source = new EntitySearchResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        $source = EntitySearchResult::create(
             42,
             new ProductReviewCollection(),
             new AggregationResultCollection(),
@@ -112,8 +110,7 @@ class ProductReviewResultTest extends TestCase
     {
         $entities = new ProductReviewCollection();
 
-        return new EntitySearchResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return EntitySearchResult::create(
             $entities->count(),
             $entities,
             null,

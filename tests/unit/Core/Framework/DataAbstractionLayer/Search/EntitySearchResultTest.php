@@ -26,8 +26,7 @@ class EntitySearchResultTest extends TestCase
     {
         $entity = new ArrayEntity(['id' => Uuid::randomHex()]);
         $entityCollection = new EntityCollection([$entity]);
-        $result = new EntitySearchResult(
-            ArrayEntity::class,
+        $result = EntitySearchResult::create(
             100,
             $entityCollection,
             null,
@@ -83,8 +82,7 @@ class EntitySearchResultTest extends TestCase
         $additionalEntity = new ArrayEntity(['id' => Uuid::randomHex()]);
         $entityCollection = new EntityCollection([$existingEntity]);
 
-        $entitySearchResult = new EntitySearchResult(
-            ArrayEntity::class,
+        $entitySearchResult = EntitySearchResult::create(
             $entityCollection->count(),
             $entityCollection,
             null,

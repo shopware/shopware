@@ -42,8 +42,7 @@ class AppSecretRotationControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
 
-        $searchResult = new EntitySearchResult(
-            'app',
+        $searchResult = EntitySearchResult::create(
             1,
             new AppCollection([$app]),
             null,
@@ -127,8 +126,7 @@ class AppSecretRotationControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
 
-        $searchResult = new EntitySearchResult(
-            'app',
+        $searchResult = EntitySearchResult::create(
             0,
             new AppCollection([]),
             null,

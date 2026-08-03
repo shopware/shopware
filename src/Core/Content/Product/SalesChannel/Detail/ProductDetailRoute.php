@@ -124,6 +124,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
+            if (!$product instanceof SalesChannelProductEntity && $mainVariantId !== null && $this->isParentProductRequest($requestedProductId, $parentProductId)) {
+                $productId = $this->findBestVariant($requestedProductId, $context);
+                $criteria->setIds([$productId]);
+                $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+            }
+
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
@@ -264,29 +270,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 || isset($variantListingConfig['mainVariantId'])
             ) {
                 $mainVariantId = $variantListingConfig['mainVariantId'] ?? null;
-
-                if (\is_string($mainVariantId) && Uuid::isValid($mainVariantId) && !$this->mainVariantExists($mainVariantId, $context)) {
-                    $mainVariantId = null;
-                }
             }
         }
 
         return [$mainVariantId, $productData['parentId'] ?? $productId];
-    }
-
-    private function mainVariantExists(string $mainVariantId, SalesChannelContext $context): bool
-    {
-        return $this->connection->fetchOne(
-            '# product-detail-route::main-variant-exists
-            SELECT 1
-            FROM product
-            WHERE id = :id
-            AND version_id = :versionId',
-            [
-                'id' => Uuid::fromHexToBytes($mainVariantId),
-                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
-            ]
-        ) !== false;
     }
 
     /**

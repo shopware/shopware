@@ -315,35 +315,57 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
-    public function testLoadIgnoresOrphanedMainVariantFromVariantListingConfig(): void
+    public function testLoadFallsBackToBestVariantWhenConfiguredMainVariantIsNotAvailable(): void
     {
         $productId = Uuid::randomHex();
+        $mainVariantId = Uuid::randomHex();
+        $bestVariantId = Uuid::randomHex();
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
-                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . Uuid::randomHex() . '"}',
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
                 'parentId' => null,
             ]);
-        $connection->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn(false);
 
         $productEntity = new SalesChannelProductEntity();
-        $productEntity->setId($productId);
+        $productEntity->setId($bestVariantId);
         $productEntity->setCmsPageId('4');
-        $productEntity->setUniqueIdentifier('requested-product');
+        $productEntity->setUniqueIdentifier('best-variant');
         $productEntity->setAvailable(true);
         $productRepository = $this->createMock(SalesChannelRepository::class);
         $productRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(
+                1,
+                [
+                    $bestVariantId => [
+                        'primaryKey' => $bestVariantId,
+                        'data' => [],
+                    ],
+                ],
+                new Criteria(),
+                $this->context->getContext()
+            ));
+        $searchCall = 0;
+        $productRepository->expects($this->exactly(2))
             ->method('search')
-            ->with(static::callback(static function (Criteria $criteria) use ($productId): bool {
-                static::assertSame([$productId], $criteria->getIds());
+            ->with(static::callback(function (Criteria $criteria) use (&$searchCall, $mainVariantId, $bestVariantId): bool {
+                ++$searchCall;
+                static::assertSame($searchCall === 1 ? [$mainVariantId] : [$bestVariantId], $criteria->getIds());
 
                 return true;
             }))
-            ->willReturn(
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'product',
+                    0,
+                    new ProductCollection(),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                ),
                 new EntitySearchResult(
                     'product',
                     1,
@@ -356,7 +378,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->buildRoute($productRepository, $connection)->load($productId, new Request(), $this->context, new Criteria());
 
-        static::assertSame('requested-product', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('best-variant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testResolveVariantIdFromEvent(): void

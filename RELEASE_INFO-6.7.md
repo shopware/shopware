@@ -128,6 +128,9 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
+### MCP entity tools validate association read privileges
+
+The experimental MCP tools `shopware-entity-read`, `shopware-entity-search`, and `shopware-entity-aggregate` now validate the supplied criteria with the same association ACL checks as the Admin API. Loading, filtering, sorting, or aggregating over an association now requires the `<association-entity>:read` privilege in addition to the top-level `<entity>:read` privilege — for example, reading `order` with the `orderCustomer` association requires both `order:read` and `order_customer:read`. Integrations that relied on the missing check must add the association read privileges to their ACL role; requests without such criteria are unaffected.
 ### MCP tools can be enabled per session through toolsets
 
 The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.

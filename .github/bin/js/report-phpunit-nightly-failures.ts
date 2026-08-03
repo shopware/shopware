@@ -240,10 +240,7 @@ function buildParentLines(groups: DomainGroup[], runUrl: string): string[] {
   if (groups.length === 0) {
     lines.push('');
     lines.push(
-      'No junit reports were produced although PHPUnit jobs failed. Either the failure happened outside PHPUnit ' +
-        '(setup step, crash before reporting), or the junit wiring drifted (`--log-junit` path, `junit-phpunit-*` ' +
-        'artifact pattern) and reports are silently no longer delivered. If this note shows up on consecutive runs, ' +
-        'treat it as a defect of this reporting pipeline, not as an empty inventory. Check the run logs.'
+      'No junit reports were produced: the failure is outside PHPUnit, or a shard died before reporting. Check the run logs.'
     );
     return lines;
   }

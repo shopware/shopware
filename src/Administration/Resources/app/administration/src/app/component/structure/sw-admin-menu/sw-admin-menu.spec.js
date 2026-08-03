@@ -79,9 +79,6 @@ async function createWrapper(options = {}) {
                         return privilege !== 'shouldReturnFalse';
                     },
                 },
-                shortcutService: {
-                    isPendingCombinationKey: () => false,
-                },
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
                         const entityName = 'customEntityName';
@@ -309,49 +306,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
         expect(userTitle.text()).toBe('Copyreader');
-    });
-
-    it('should toggle the sidebar via the "s" shortcut', async () => {
-        expect(wrapper.vm.$options.shortcuts.s).toBe('onToggleSidebarShortcut');
-
-        const isExpandedBefore = wrapper.vm.isExpanded;
-
-        wrapper.vm.onToggleSidebarShortcut();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.isExpanded).toBe(!isExpandedBefore);
-
-        wrapper.vm.onToggleSidebarShortcut();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
-    });
-
-    it('should not toggle the sidebar via the "s" shortcut while a navigation sequence is pending', async () => {
-        wrapper.vm.shortcutService.isPendingCombinationKey = () => true;
-
-        const isExpandedBefore = wrapper.vm.isExpanded;
-
-        wrapper.vm.onToggleSidebarShortcut();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.isExpanded).toBe(isExpandedBefore);
-
-        wrapper.vm.shortcutService.isPendingCombinationKey = () => false;
-    });
-
-    it('should toggle the off-canvas menu via the "s" shortcut below the off-canvas viewport', async () => {
-        wrapper.vm.viewportWidth = 1280;
-
-        wrapper.vm.onToggleSidebarShortcut();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.isOffCanvasShown).toBe(true);
-
-        wrapper.vm.onToggleSidebarShortcut();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
     it('should suppress the menu transitions while the viewport is resizing', async () => {

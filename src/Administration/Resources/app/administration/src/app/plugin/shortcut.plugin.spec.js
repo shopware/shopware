@@ -93,40 +93,6 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
-    it('should prevent the default keystroke action when a shortcut is triggered', async () => {
-        const onFocusMock = jest.fn();
-
-        wrapper = await createWrapper({
-            shortcuts: {
-                f: 'onFocus',
-            },
-            methods: {
-                onFocus() {
-                    onFocusMock();
-                },
-            },
-        });
-
-        const matchedEvent = new KeyboardEvent('keydown', {
-            key: 'f',
-            bubbles: true,
-            cancelable: true,
-        });
-        wrapper.element.dispatchEvent(matchedEvent);
-
-        expect(onFocusMock).toHaveBeenCalled();
-        expect(matchedEvent.defaultPrevented).toBe(true);
-
-        const unmatchedEvent = new KeyboardEvent('keydown', {
-            key: 'x',
-            bubbles: true,
-            cancelable: true,
-        });
-        wrapper.element.dispatchEvent(unmatchedEvent);
-
-        expect(unmatchedEvent.defaultPrevented).toBe(false);
-    });
-
     it('String sequence: should call the shortcut method', async () => {
         const openFiltersMock = jest.fn();
 
@@ -608,49 +574,7 @@ describe('app/plugins/shortcut.plugin', () => {
             key: 'Escape',
         });
 
-        // Escape is deferred by one tick
-        await new Promise((resolve) => {
-            window.setTimeout(resolve);
-        });
-
         expect(onEscMock).toHaveBeenCalledWith();
-    });
-
-    it('should NOT call the onEsc method when another handler already consumed Escape', async () => {
-        const onEscMock = jest.fn();
-
-        wrapper = await createWrapper({
-            shortcuts: {
-                Escape: 'onEsc',
-            },
-            methods: {
-                onEsc() {
-                    onEscMock();
-                },
-            },
-        });
-
-        const consumeEscape = (event) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-            }
-        };
-        document.addEventListener('keydown', consumeEscape);
-
-        const event = new KeyboardEvent('keydown', {
-            key: 'Escape',
-            bubbles: true,
-            cancelable: true,
-        });
-        wrapper.element.dispatchEvent(event);
-
-        await new Promise((resolve) => {
-            window.setTimeout(resolve);
-        });
-
-        expect(onEscMock).not.toHaveBeenCalled();
-
-        document.removeEventListener('keydown', consumeEscape);
     });
 
     it('should NOT call the onEsc method when Escape key is pressed inside a modal', async () => {

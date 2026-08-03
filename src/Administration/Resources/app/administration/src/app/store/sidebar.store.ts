@@ -14,6 +14,15 @@ export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
 // Keep in sync with the close animation duration in sw-sidebar-renderer.scss.
 const CLOSE_ANIMATION_DURATION = 400;
 
+let pendingCloseTimeout: number | null = null;
+
+function clearPendingClose(): void {
+    if (pendingCloseTimeout !== null) {
+        window.clearTimeout(pendingCloseTimeout);
+        pendingCloseTimeout = null;
+    }
+}
+
 const sidebarsStore = Shopware.Store.register({
     id: 'sidebar',
 
@@ -60,15 +69,18 @@ const sidebarsStore = Shopware.Store.register({
 
             sidebar.active = false;
 
-            // A pending close timeout skips itself once the id is cleared
             if (this.closingSidebar === locationId) {
                 this.closingSidebar = null;
+                clearPendingClose();
             }
         },
 
         // Play the closing animation, then deactivate once it finishes.
         requestCloseSidebar(locationId: string): void {
-            if (this.closingSidebar === locationId) {
+            const sidebar = this.sidebars.find((item) => item.locationId === locationId);
+
+            // Only the active sidebar can close, so an inactive one must not cancel a pending close
+            if (!sidebar?.active || this.closingSidebar === locationId) {
                 return;
             }
 
@@ -77,15 +89,18 @@ const sidebarsStore = Shopware.Store.register({
                 return;
             }
 
+            clearPendingClose();
             this.closingSidebar = locationId;
-            window.setTimeout(() => {
+
+            pendingCloseTimeout = window.setTimeout(() => {
+                pendingCloseTimeout = null;
+
                 // Skip if it was reopened in the meantime.
                 if (this.closingSidebar !== locationId) {
                     return;
                 }
 
                 this.closeSidebar(locationId);
-                this.closingSidebar = null;
             }, CLOSE_ANIMATION_DURATION);
         },
 
@@ -96,6 +111,7 @@ const sidebarsStore = Shopware.Store.register({
 
             if (this.closingSidebar === locationId) {
                 this.closingSidebar = null;
+                clearPendingClose();
             }
         },
 
@@ -115,6 +131,7 @@ const sidebarsStore = Shopware.Store.register({
                 this.closingSidebar === null && this.sidebars.some((item) => item.active && item.locationId !== locationId);
 
             this.closingSidebar = null;
+            clearPendingClose();
 
             this.sidebars.forEach((item) => {
                 item.active = false;

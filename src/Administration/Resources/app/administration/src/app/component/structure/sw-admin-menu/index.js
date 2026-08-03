@@ -332,6 +332,16 @@ The admin menu only supports up to three levels of nesting.`,
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
+        dismissOffCanvas() {
+            // Explicit dismissal restores focus to the opener
+            if (this.offCanvasFocusTrap) {
+                this.offCanvasFocusTrap.deactivate();
+                return;
+            }
+
+            this.closeOffCanvas();
+        },
+
         activateOffCanvasFocusTrap() {
             this.$nextTick(() => {
                 const panelElement = this.$refs.swAdminMenu;
@@ -469,7 +479,11 @@ The admin menu only supports up to three levels of nesting.`,
 
             // The off-canvas panel opens and closes instead, the event keeps the search bar toggle in sync.
             if (this.isMobileViewport) {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', !this.isOffCanvasShown);
+                if (this.isOffCanvasShown) {
+                    this.dismissOffCanvas();
+                } else {
+                    Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', true);
+                }
                 return;
             }
 
@@ -679,6 +693,8 @@ The admin menu only supports up to three levels of nesting.`,
                     return;
                 }
 
+                this.deactivateFlyoutFocusTrap(false);
+
                 this.flyoutFocusTrap = createFocusTrap(flyoutElement, {
                     escapeDeactivates: true,
                     clickOutsideDeactivates: true,
@@ -802,7 +818,8 @@ The admin menu only supports up to three levels of nesting.`,
             );
             const ownerKey = owner ? (owner.id ?? owner.path) : null;
 
-            if (ownerKey === this.activeBranchKey) {
+            // The cached owner may have been collapsed manually
+            if (ownerKey === this.activeBranchKey && (!owner || this.isNavigationEntryExpanded(owner))) {
                 return;
             }
 

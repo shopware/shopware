@@ -2,6 +2,9 @@
  * @sw-package discovery
  */
 
+/**
+ * @private
+ */
 export default {
     id: 'sw-catalogue',
     moduleType: 'core',

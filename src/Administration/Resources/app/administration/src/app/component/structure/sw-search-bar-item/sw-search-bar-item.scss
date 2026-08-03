@@ -94,7 +94,7 @@ $sw-search-bar-item-hover-color-background: var(--color-interaction-secondary-ho
         }
 
         // Shortcut hints add no value when the page gets narrow.
-        @container sw-page (max-width: 960px) {
+        @container (max-width: 960px) {
             &.is--active .sw-shortcut-overview-item {
                 display: none;
             }

@@ -229,6 +229,32 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(true);
     });
 
+    it('should re-expand the branch owning the active route after it was collapsed manually', async () => {
+        const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
+
+        const [
+            branchA,
+            branchB,
+        ] = branches;
+
+        Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
+        wrapper.vm.activeBranchKey = null;
+
+        wrapper.vm.$route.name = branchA.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(true);
+
+        wrapper.vm.onMenuBranchToggle({ entry: branchA, open: false });
+        wrapper.vm.onMenuBranchToggle({ entry: branchB, open: true });
+
+        wrapper.vm.$route.name = branchA.children[0].path;
+        wrapper.vm.expandAncestorBranchesForCurrentRoute();
+
+        expect(wrapper.vm.isNavigationEntryExpanded(branchA)).toBe(true);
+        expect(wrapper.vm.isNavigationEntryExpanded(branchB)).toBe(false);
+    });
+
     it('should show the snippet for the admin title', async () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: true,
@@ -417,6 +443,66 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
 
+        attachedWrapper.unmount();
+    });
+
+    it('should return the focus to the opener when the off-canvas menu is dismissed explicitly', async () => {
+        const opener = document.createElement('button');
+        document.body.appendChild(opener);
+
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        opener.focus();
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeTruthy();
+
+        // jsdom skips the trap's initial focus
+        attachedWrapper.vm.$refs.swAdminMenu.querySelector('.sw-admin-menu__navigation-link').focus();
+
+        await attachedWrapper.find('.sw-admin-menu__off-canvas-close').trigger('click');
+        await flushPromises();
+        // focus-trap returns the focus in a deferred tick
+        await new Promise((resolve) => {
+            window.setTimeout(resolve);
+        });
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+        expect(attachedWrapper.vm.isOffCanvasShown).toBe(false);
+        expect(document.activeElement).toBe(opener);
+
+        opener.remove();
+        attachedWrapper.unmount();
+    });
+
+    it('should not move the focus back when the off-canvas menu closes contextually', async () => {
+        const opener = document.createElement('button');
+        document.body.appendChild(opener);
+
+        const attachedWrapper = await createWrapper({ attachTo: document.body });
+        attachedWrapper.vm.viewportWidth = 1280;
+
+        opener.focus();
+        attachedWrapper.vm.onToggleCanvas(true);
+        await flushPromises();
+
+        // jsdom skips the trap's initial focus
+        const panelLink = attachedWrapper.vm.$refs.swAdminMenu.querySelector('.sw-admin-menu__navigation-link');
+        panelLink.focus();
+
+        attachedWrapper.vm.closeOffCanvas();
+        await flushPromises();
+        await new Promise((resolve) => {
+            window.setTimeout(resolve);
+        });
+
+        expect(attachedWrapper.vm.offCanvasFocusTrap).toBeNull();
+        expect(attachedWrapper.vm.isOffCanvasShown).toBe(false);
+        expect(document.activeElement).toBe(panelLink);
+
+        opener.remove();
         attachedWrapper.unmount();
     });
 

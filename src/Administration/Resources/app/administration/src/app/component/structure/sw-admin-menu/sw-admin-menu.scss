@@ -9,13 +9,16 @@
     cursor: pointer;
 }
 
-// Typography comes from mt-text — layout is ours.
 .sw-admin-menu__version-footer {
     overflow: hidden;
     display: flex;
     align-items: center;
     gap: var(--scale-size-4);
     margin: var(--scale-size-8);
+}
+
+.sw-admin-menu__user-actions-menu {
+    min-width: var(--scale-size-256);
 }
 
 .sw-admin-menu__backdrop-enter-active,
@@ -524,8 +527,15 @@
     .sw-admin-menu .sw-admin-menu__header-logo-box,
     .sw-admin-menu .sw-admin-menu__header-logo-expand-button,
     .sw-admin-menu .sw-admin-menu__user-actions-toggle,
-    .sw-admin-menu .sw-admin-menu__user-actions-toggle-icon-wrapper {
+    .sw-admin-menu .sw-admin-menu__user-actions-toggle-icon-wrapper,
+    .sw-admin-menu__backdrop-enter-active,
+    .sw-admin-menu__backdrop-leave-active {
         transition: none;
+    }
+
+    .sw-admin-menu__flyout-content,
+    .sw-admin-menu__flyout-content.is--closing {
+        animation: none;
     }
 }
 

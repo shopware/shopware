@@ -7,7 +7,7 @@ import createWrapper from './create-wrapper';
 import catalogues from './catalogues';
 
 describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
         Shopware.Store.get('settingsItems').settingsGroups.shop = [];
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
     });
@@ -49,7 +49,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
 
             // Must be emitted from this listener: the route change lands at its end
             expect(wrapper.emitted('flyout-navigate')).toEqual([[{ disclosesChildren: true }]]);
-            expect(wrapper.vm.collapsibleOpen).toBe(true);
+            expect((wrapper.vm as unknown as { collapsibleOpen: boolean }).collapsibleOpen).toBe(true);
         });
 
         it('should not announce a navigation while the sidebar is expanded', async () => {
@@ -98,7 +98,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
     });
 
     describe('collapsed flyout keyboard access', () => {
-        async function createCollapsedParent(props = {}) {
+        async function createCollapsedParent(props: Record<string, unknown> = {}) {
             return createWrapper({
                 props: {
                     entry: catalogues,
@@ -170,7 +170,9 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             expect(trigger.attributes('aria-expanded')).toBe('true');
             expect(trigger.attributes('aria-controls')).toBe('sw-admin-menu-flyout');
 
-            await wrapper.setProps({ flyoutActive: false });
+            await (wrapper as unknown as { setProps: (props: Record<string, unknown>) => Promise<void> }).setProps({
+                flyoutActive: false,
+            });
 
             expect(trigger.attributes('aria-expanded')).toBe('false');
             // Falls back to the collapsible's own aria-controls target
@@ -203,9 +205,9 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             expect(row.attributes('id')).toMatch(/^mt-tooltip--.+__trigger$/);
             expect(row.attributes('aria-describedby')).toMatch(/^mt-tooltip--.+__tooltip$/);
 
-            const tooltip = document.getElementById(row.attributes('aria-describedby'));
+            const tooltip = document.getElementById(row.attributes('aria-describedby') as string);
             expect(tooltip).not.toBeNull();
-            expect(tooltip.textContent).toContain('sw-dashboard.general.mainMenuItemGeneral');
+            expect(tooltip!.textContent).toContain('sw-dashboard.general.mainMenuItemGeneral');
         });
 
         it('should open the tooltip when the row is hovered while the sidebar is collapsed', async () => {
@@ -219,15 +221,15 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             });
 
             const row = wrapper.find('.sw-admin-menu__navigation-item-row');
-            const tooltip = document.getElementById(row.attributes('aria-describedby'));
+            const tooltip = document.getElementById(row.attributes('aria-describedby') as string);
 
-            expect(tooltip.parentElement.style.display).toBe('none');
+            expect(tooltip!.parentElement!.style.display).toBe('none');
 
             await row.trigger('mouseover');
             jest.advanceTimersByTime(300);
             await wrapper.vm.$nextTick();
 
-            expect(tooltip.parentElement.style.display).not.toBe('none');
+            expect(tooltip!.parentElement!.style.display).not.toBe('none');
 
             jest.useRealTimers();
         });
@@ -276,16 +278,16 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             });
 
             const row = wrapper.find('.sw-admin-menu__navigation-item-row');
-            const tooltip = document.getElementById(row.attributes('id').replace('__trigger', '__tooltip'));
+            const tooltip = document.getElementById((row.attributes('id') as string).replace('__trigger', '__tooltip'));
 
-            expect(tooltip.parentElement.style.display).toBe('none');
+            expect(tooltip!.parentElement!.style.display).toBe('none');
 
             await row.trigger('mouseover');
             await row.trigger('focus');
             jest.advanceTimersByTime(300);
             await wrapper.vm.$nextTick();
 
-            expect(tooltip.parentElement.style.display).toBe('none');
+            expect(tooltip!.parentElement!.style.display).toBe('none');
 
             jest.useRealTimers();
         });
@@ -298,7 +300,11 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
                 },
             });
 
-            const stripped = wrapper.vm.collapsedTooltipTriggerProps({
+            const stripped = (
+                wrapper.vm as unknown as {
+                    collapsedTooltipTriggerProps: (attrs: Record<string, unknown>) => Record<string, unknown>;
+                }
+            ).collapsedTooltipTriggerProps({
                 id: 'trigger-id',
                 onMouseover: () => {},
                 onMouseleave: () => {},

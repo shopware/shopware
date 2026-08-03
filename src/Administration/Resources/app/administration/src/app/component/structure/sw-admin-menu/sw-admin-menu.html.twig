@@ -4,7 +4,7 @@
     <div
         v-if="isMobileViewport && isOffCanvasShown"
         class="sw-admin-menu__backdrop"
-        @click="closeOffCanvas"
+        @click="dismissOffCanvas"
     ></div>
 </transition>
 {% endblock %}
@@ -82,7 +82,7 @@
             size="default"
             square
             :aria-label="$t('global.sw-admin-menu.linkCloseMenu')"
-            @click.stop="closeOffCanvas"
+            @click.stop="dismissOffCanvas"
         >
             <template #iconFront>
                 <mt-icon
@@ -235,6 +235,7 @@
 
             <mt-dropdown-menu-portal>
                 <mt-action-menu
+                    class="sw-admin-menu__user-actions-menu"
                     :match-trigger-width="true"
                     :side-offset="4"
                     side="top"

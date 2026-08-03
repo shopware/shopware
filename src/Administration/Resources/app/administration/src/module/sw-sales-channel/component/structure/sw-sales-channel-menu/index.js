@@ -26,6 +26,7 @@ export default {
             salesChannelsLoaded: false,
             showModal: false,
             isLoading: true,
+            isMobileViewport: false,
         };
     },
 
@@ -35,7 +36,8 @@ export default {
         },
 
         isSidebarExpanded() {
-            return this.adminMenuStore.isExpanded;
+            // The off-canvas panel always shows the expanded layout
+            return this.adminMenuStore.isExpanded || this.isMobileViewport;
         },
 
         salesChannelRepository() {
@@ -149,11 +151,19 @@ export default {
 
     methods: {
         createdComponent() {
+            this.mobileViewportQuery = this.$device.getMediaQuery('(max-width: 1280px)');
+            this.mobileViewportQuery.addEventListener('change', this.syncMobileViewport);
+            this.syncMobileViewport();
+
             this.registerListener();
 
             this.salesChannelFavoritesService.initService().finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        syncMobileViewport() {
+            this.isMobileViewport = this.mobileViewportQuery.matches;
         },
 
         registerListener() {
@@ -164,6 +174,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.mobileViewportQuery?.removeEventListener('change', this.syncMobileViewport);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);

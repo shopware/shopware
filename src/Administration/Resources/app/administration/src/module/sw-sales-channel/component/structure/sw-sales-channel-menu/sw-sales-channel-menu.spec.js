@@ -546,6 +546,23 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(menuItem.attributes('sidebar-expanded')).toBe('true');
     });
 
+    it('should treat the mobile off-canvas panel as expanded for the menu items', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        expect(wrapper.vm.mobileViewportQuery.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+
+        const menuItem = wrapper.find('.sw-admin-menu__sales-channel-item');
+        expect(menuItem.attributes('sidebar-expanded')).toBe('false');
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        expect(menuItem.attributes('sidebar-expanded')).toBe('true');
+    });
+
     it('should show an add channel menu item when no sales channels exist', async () => {
         global.activeAclRoles = ['sales_channel.creator'];
 

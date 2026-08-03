@@ -46,6 +46,32 @@ describe('src/app/store/sidebar.store.ts', () => {
         expect(store.sidebars[0].active).toBe(false);
     });
 
+    it('deactivates the sidebar immediately when the user prefers reduced motion', () => {
+        // jsdom has no matchMedia implementation
+        const originalMatchMedia = window.matchMedia;
+        Object.defineProperty(window, 'matchMedia', {
+            value: jest.fn().mockReturnValue({ matches: true } as MediaQueryList),
+            configurable: true,
+            writable: true,
+        });
+
+        try {
+            addSidebar('a');
+            store.setActiveSidebar('a');
+
+            store.requestCloseSidebar('a');
+
+            expect(store.closingSidebar).toBeNull();
+            expect(store.sidebars[0].active).toBe(false);
+        } finally {
+            Object.defineProperty(window, 'matchMedia', {
+                value: originalMatchMedia,
+                configurable: true,
+                writable: true,
+            });
+        }
+    });
+
     it('ignores a repeated close request for the same sidebar', () => {
         addSidebar('a');
         store.setActiveSidebar('a');

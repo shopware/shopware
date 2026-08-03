@@ -18,8 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('fundamentals@discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class CountryStateController extends StorefrontController
 {
     /**
@@ -43,7 +43,7 @@ class CountryStateController extends StorefrontController
     )]
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
-        $countryId = (string) $request->get('countryId');
+        $countryId = $request->query->getString('countryId', $request->request->getString('countryId'));
 
         if (!$countryId) {
             throw RoutingException::missingRequestParameter('countryId');

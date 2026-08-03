@@ -225,7 +225,13 @@ class FileSaver
         $event->mediaWithMimeType(mediaId: $media->getId(), path: $path, mimeType: $media->getMimeType());
 
         try {
-            $this->getFileSystem($media)->writeStream($path, $stream);
+            // Pass an explicit ContentType so text-based files keep their charset when served directly from S3/CDN.
+            // Without it the S3 adapter auto-detects a bare `text/plain`, breaking umlauts in the browser.
+            // Non-S3 adapters ignore this config key.
+            $mimeType = $media->getMimeType();
+            $config = $mimeType !== null ? ['ContentType' => FileInfoHelper::addCharset($mimeType)] : [];
+
+            $this->getFileSystem($media)->writeStream($path, $stream, $config);
 
             $this->eventDispatcher->dispatch($event);
         } finally {

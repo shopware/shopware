@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * @internal
  */
+#[Package('framework')]
 class CleanPersonalDataCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

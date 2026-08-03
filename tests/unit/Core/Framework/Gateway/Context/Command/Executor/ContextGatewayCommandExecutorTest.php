@@ -53,10 +53,10 @@ class ContextGatewayCommandExecutorTest extends TestCase
             ->willReturn($newContext);
 
         $executor = new ContextGatewayCommandExecutor(
-            $this->createMock(AbstractContextSwitchRoute::class),
+            static::createStub(AbstractContextSwitchRoute::class),
             $registry,
-            $this->createMock(ContextGatewayCommandValidator::class),
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ContextGatewayCommandValidator::class),
+            static::createStub(ExceptionLogger::class),
             $salesChannelService
         );
 
@@ -82,10 +82,10 @@ class ContextGatewayCommandExecutorTest extends TestCase
             ->willReturn($newContext);
 
         $executor = new ContextGatewayCommandExecutor(
-            $this->createMock(AbstractContextSwitchRoute::class),
+            static::createStub(AbstractContextSwitchRoute::class),
             $registry,
-            $this->createMock(ContextGatewayCommandValidator::class),
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ContextGatewayCommandValidator::class),
+            static::createStub(ExceptionLogger::class),
             $salesChannelService
         );
 
@@ -129,9 +129,9 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $executor = new ContextGatewayCommandExecutor(
             $switchRoute,
             $registry,
-            $this->createMock(ContextGatewayCommandValidator::class),
-            $this->createMock(ExceptionLogger::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            static::createStub(ContextGatewayCommandValidator::class),
+            static::createStub(ExceptionLogger::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
         );
 
         $response = $executor->execute($commands, $context);
@@ -155,11 +155,11 @@ class ContextGatewayCommandExecutorTest extends TestCase
             ->with(GatewayException::handlerNotFound(StubContextGatewayCommand::getDefaultKeyName()));
 
         $executor = new ContextGatewayCommandExecutor(
-            $this->createMock(AbstractContextSwitchRoute::class),
+            static::createStub(AbstractContextSwitchRoute::class),
             $registry,
-            $this->createMock(ContextGatewayCommandValidator::class),
+            static::createStub(ContextGatewayCommandValidator::class),
             $logger,
-            $this->createMock(SalesChannelContextServiceInterface::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
         );
 
         $response = $executor->execute($commands, $context);

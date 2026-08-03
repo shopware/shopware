@@ -10,11 +10,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AwsS3v3Factory::class)]
 class AwsS3v3FactoryTest extends TestCase
 {

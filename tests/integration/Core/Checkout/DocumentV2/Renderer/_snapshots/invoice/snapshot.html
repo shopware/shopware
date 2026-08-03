@@ -276,6 +276,13 @@
         .page-count {
             width: 100%;
             float: left;
+            display: none;
+        }
+
+        @media dompdf {
+            .page-count {
+                display: block;
+            }
         }
 
         .pagenum:after {
@@ -314,8 +321,7 @@
             padding: 0;
         }
     </style>
-            
-                            <style type="text/css">
+                            <style type="text/css" media="screen">
             body {
             max-width: 1200px;
             margin: auto;
@@ -340,6 +346,32 @@
 
         .page-count {
             display: none;
+        }
+
+        .page_break ~ header,
+        .page_break ~ .letter-header,
+        .page_break ~ .letter-body .document-title-container {
+            display: none;
+        }
+
+        .letter-body:has(+ .page_break) .line-item-table {
+            border-bottom: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table thead th {
+            font-size: 0;
+            line-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table thead th > span {
+            display: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table tbody tr:first-child > td {
+            padding-top: 1px;
         }
 
         .line-item-table-header > th.incl-vat > span {
@@ -415,7 +447,7 @@
                 
                 Max Mustermann<br/>Ebbinghoff 10<br/>48624 Schöppingen<br/>Germany<br/>
 
-                                    </div>
+                        </div>
 
         <div class="sender-address-container" tabindex="0">
                             <table>
@@ -494,9 +526,7 @@
                 
                                     <th class="numbers">Quantity</th>
                 
-                                                                                                                                                            
-                        
-                                                    <th class="numbers">VAT</th>
+                                                                                                                <th class="numbers">VAT</th>
                                                                             <th class="numbers incl-vat">
                                 Unit price
                                                                                                             <span>Incl. VAT</span>
@@ -527,11 +557,11 @@
                 
                                                                                         <td class="align-right">19 % </td>
                                                                             <td class="align-right">
-                                                                                                                                                €100.00
+                                                                                                            €100.00
                                     
                                                             </td>
                                                                             <td class="align-right">
-                                                                                                                                                €100.00
+                                                                                                            €100.00
                                                                                                 </td>
                                                                                 </tr>
     
@@ -562,11 +592,11 @@
                 
                                                                                         <td class="align-right">7 % </td>
                                                                             <td class="align-right">
-                                                                                                                                                €101.00
+                                                                                                            €101.00
                                     
                                                             </td>
                                                                             <td class="align-right">
-                                                                                                                                                €101.00
+                                                                                                            €101.00
                                                                                                 </td>
                                                                                 </tr>
     
@@ -597,11 +627,11 @@
                 
                                                                                         <td class="align-right">19 % <br>7 % </td>
                                                                             <td class="align-right">
-                                                                                                                                                &minus;€20.10
+                                                                                                            &minus;€20.10
                                     
                                                             </td>
                                                                             <td class="align-right">
-                                                                                                                                                &minus;€20.10
+                                                                                                            &minus;€20.10
                                                                                                 </td>
                                                                                 </tr>
     

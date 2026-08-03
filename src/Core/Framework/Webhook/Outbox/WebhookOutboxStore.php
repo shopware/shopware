@@ -504,8 +504,10 @@ class WebhookOutboxStore
             ['sequence' => $sequence, 'id' => $eventLogId]
         );
 
+        // Restart the stream's cleanup grace window on every delivery write.
         $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            'INSERT INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)
+             ON DUPLICATE KEY UPDATE created_at = :now',
             [
                 'id' => Uuid::randomBytes(),
                 'pk' => $insert->partitionKey,

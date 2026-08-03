@@ -31,7 +31,7 @@ class ImagickThumbnailProcessorTest extends TestCase
         parent::setUp();
 
         $this->processor = new ImagickThumbnailProcessor();
-        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../shopware-logo.png'));
+        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../fixtures/shopware-logo.png'));
         static::assertSame(266, $this->processor->getHeight($this->image));
         static::assertSame(499, $this->processor->getWidth($this->image));
     }
@@ -94,5 +94,15 @@ class ImagickThumbnailProcessorTest extends TestCase
         // ImageMagick recognizes 'image/avif', but the actual encoder delegate (libheif/libaom) may
         // not be compiled in. As such is the case in the pipeline, additionally expect an empty file.
         yield 'image/avif' => ['image/avif', ['image/avif', 'application/x-empty']];
+    }
+
+    public function testConvertImageProducesProgressiveJpeg(): void
+    {
+        $binary = $this->processor->convertImage($this->image, 'image/jpeg', 80);
+
+        static::assertNotEmpty($binary);
+        $image = new \Imagick();
+        $image->readImageBlob($binary);
+        static::assertSame(\Imagick::INTERLACE_JPEG, $image->getImageInterlaceScheme());
     }
 }

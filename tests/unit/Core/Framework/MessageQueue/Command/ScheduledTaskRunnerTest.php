@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Component\Clock\NativeClock;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScheduledTaskRunner::class)]
 class ScheduledTaskRunnerTest extends TestCase
 {
@@ -25,7 +27,7 @@ class ScheduledTaskRunnerTest extends TestCase
 
         $runner = new ScheduledTaskRunner(
             $scheduler,
-            $this->createMock(CacheItemPoolInterface::class),
+            static::createStub(CacheItemPoolInterface::class),
             new NativeClock()
         );
 

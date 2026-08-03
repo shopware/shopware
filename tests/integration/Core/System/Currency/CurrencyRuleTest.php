@@ -87,7 +87,7 @@ class CurrencyRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->conditionRepository->delete([['id' => $id]], Context::createDefaultContext());
     }
 }

@@ -111,7 +111,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        $type = $documentTypeRepository->search($criteria, $context)->first();
+        $type = $documentTypeRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(DocumentTypeEntity::class, $type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
@@ -459,7 +459,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $this->orderRepository->upsert([$order], $context);
 
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
 
         static::assertNotNull($order);
 

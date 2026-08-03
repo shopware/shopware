@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage;
@@ -18,6 +19,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementRedisStorage::class)]
 class IncrementRedisStorageTest extends TestCase
 {

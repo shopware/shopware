@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
@@ -13,17 +14,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ThemeService;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * This tool lives in the Storefront bundle because it depends on ThemeService,
  * which is a Storefront service. Placing it in Core/Framework would create an
  * inverted dependency (Core -> Storefront). The McpToolCompilerPass discovers
  * any service tagged shopware.mcp.tool regardless of bundle.
  */
-#[McpTool(name: 'shopware-theme-config', description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. Pass a salesChannelId to scope to a specific channel (see shopware://sales-channels for IDs).')]
+#[Package('discovery')]
+#[McpTool(
+    name: 'shopware-theme-config',
+    description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. Pass a salesChannelId to scope to a specific channel (see shopware://sales-channels for IDs).'
+)]
+#[McpToolGroup('theme')]
 #[McpToolRequires('theme:read')]
 #[McpToolRequires('theme:update')]
-#[Package('framework')]
 class ThemeConfigTool extends McpToolResponse
 {
     /**

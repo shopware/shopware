@@ -15,12 +15,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerial
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ListFieldSerializer::class)]
 class ListFieldSerializerTest extends TestCase
 {
@@ -31,8 +33,8 @@ class ListFieldSerializerTest extends TestCase
     public function testCanEncodeListField(?string $fieldType, ?array $keyValue, ?string $expected): void
     {
         $serializer = new ListFieldSerializer(
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
 
         $result = iterator_to_array(
@@ -40,7 +42,7 @@ class ListFieldSerializerTest extends TestCase
                 new ListField('testStorage', 'testProperty', $fieldType),
                 EntityExistence::createEmpty(),
                 new KeyValuePair('testStorage', $keyValue, true),
-                $this->createMock(WriteParameterBag::class)
+                static::createStub(WriteParameterBag::class)
             )
         );
 
@@ -70,8 +72,8 @@ class ListFieldSerializerTest extends TestCase
     public function testEncodeThrowsExceptionWithUnsupportedField(): void
     {
         $serializer = new ListFieldSerializer(
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
 
         // ListFieldSerializer only supports ListField, so we create an unsupported field type
@@ -81,9 +83,9 @@ class ListFieldSerializerTest extends TestCase
         iterator_to_array(
             $serializer->encode(
                 $field,
-                $this->createMock(EntityExistence::class),
-                $this->createMock(KeyValuePair::class),
-                $this->createMock(WriteParameterBag::class)
+                static::createStub(EntityExistence::class),
+                static::createStub(KeyValuePair::class),
+                static::createStub(WriteParameterBag::class)
             )
         );
     }
@@ -95,8 +97,8 @@ class ListFieldSerializerTest extends TestCase
     public function testDecode(ListField $field, ?string $input, ?array $expected): void
     {
         $serializer = new ListFieldSerializer(
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
 
         $actual = $serializer->decode($field, $input);

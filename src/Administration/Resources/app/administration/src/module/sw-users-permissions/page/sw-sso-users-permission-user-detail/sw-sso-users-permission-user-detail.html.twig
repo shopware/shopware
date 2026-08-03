@@ -30,7 +30,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $t('sw-users-permissions.users.user-detail.labelButtonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -261,7 +261,7 @@
                                 variant="danger"
                                 @click="onDeleteAccessKey(item.id)"
                             >
-                                {{ $t('sw-users-permissions.users.user-detail.contextMenuDelete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -309,7 +309,7 @@
                     :is-loading="isLoading"
                     @click="onConfirmDeleteAccessKey"
                 >
-                    {{ $t('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
             </template>
             {% endblock %}

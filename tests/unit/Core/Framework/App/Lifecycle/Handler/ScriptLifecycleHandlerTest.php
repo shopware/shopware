@@ -4,12 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -17,6 +17,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScriptLifecycleHandler::class)]
 class ScriptLifecycleHandlerTest extends TestCase
 {
@@ -53,7 +54,6 @@ class ScriptLifecycleHandlerTest extends TestCase
      */
     private function buildScriptRepository(array $scriptIds): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<ScriptCollection> $scriptRepository */
         $scriptRepository = new StaticEntityRepository([]);
         $scriptRepository->addSearch($scriptIds);
 
@@ -65,11 +65,10 @@ class ScriptLifecycleHandlerTest extends TestCase
      */
     private function buildPersister(StaticEntityRepository $scriptRepository): ScriptLifecycleHandler
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         return new ScriptLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $scriptRepository,
             $appRepository,
         );

@@ -36,6 +36,33 @@ const defaultConfig = {
     productStreamLimit: {
         value: 10,
     },
+    displayMode: {
+        value: 'standard',
+    },
+    elMinWidth: {
+        value: null,
+    },
+    verticalAlign: {
+        value: null,
+    },
+    boxLayout: {
+        value: 'standard',
+    },
+    border: {
+        value: false,
+    },
+    navigationArrows: {
+        value: 'outside',
+    },
+    speed: {
+        value: 300,
+    },
+    rotate: {
+        value: false,
+    },
+    autoplayTimeout: {
+        value: 5000,
+    },
 };
 
 const productStreamMock = {
@@ -47,7 +74,7 @@ const productStreamMock = {
     invalid: false,
 };
 
-async function createWrapper(customCmsElementConfig) {
+async function createWrapper(customCmsElementConfig = {}, { featureActive = false, activeTab = 'content' } = {}) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-product-slider', {
             sync: true,
@@ -75,6 +102,26 @@ async function createWrapper(customCmsElementConfig) {
                         template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-single-select': true,
@@ -105,6 +152,9 @@ async function createWrapper(customCmsElementConfig) {
                     },
                 },
                 provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     cmsService: {
                         getCmsBlockRegistry: () => {
                             return {};
@@ -129,6 +179,11 @@ async function createWrapper(customCmsElementConfig) {
                     },
                 },
             },
+            data() {
+                return {
+                    activeTab,
+                };
+            },
         },
     );
 }
@@ -138,6 +193,45 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         Shopware.Store.register({
             id: 'cmsPage',
         });
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-product-slider');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'settings',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-products').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('settings');
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-content-products').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-product-slider__tab-settings-display-mode').exists()).toBe(true);
     });
 
     it('should render product assignment type select', async () => {

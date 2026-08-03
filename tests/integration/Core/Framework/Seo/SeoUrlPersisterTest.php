@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -35,6 +35,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -405,7 +406,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertTrue($seoUrl->getIsDeleted());
     }
 
-    #[Group('slow')]
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsNotDeleted(): void
     {
         $isActive = true;
@@ -940,7 +940,7 @@ class SeoUrlPersisterTest extends TestCase
                 (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),
                 Context::createDefaultContext()
             )
-            ->first();
+            ->getEntities()->first();
 
         if ($salesChannel === null) {
             static::markTestSkipped('Sales channel with type of storefront is required');

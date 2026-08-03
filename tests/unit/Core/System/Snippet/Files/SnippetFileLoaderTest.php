@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -44,11 +45,13 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseS
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
@@ -785,6 +788,7 @@ class SnippetFileLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: static::createStub(ClientInterface::class),
             config: $this->config,
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

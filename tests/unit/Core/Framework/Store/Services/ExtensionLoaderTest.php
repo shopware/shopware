@@ -35,7 +35,7 @@ class ExtensionLoaderTest extends TestCase
 {
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('checkConfiguration')
             ->willReturnCallback(static function (string $domain): bool {
@@ -80,7 +80,7 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -230,13 +230,13 @@ class ExtensionLoaderTest extends TestCase
         ?LoggerInterface $logger = null,
     ): ExtensionLoader {
         return new ExtensionLoader(
-            $this->createMock(AppLoader::class),
-            $this->createMock(SourceResolver::class),
-            $configurationService ?? $this->createMock(ConfigurationService::class),
-            $this->createMock(LocaleProvider::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(AppLoader::class),
+            static::createStub(SourceResolver::class),
+            $configurationService ?? static::createStub(ConfigurationService::class),
+            static::createStub(LocaleProvider::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
-            $logger ?? $this->createMock(LoggerInterface::class),
+            $logger ?? static::createStub(LoggerInterface::class),
             $eventDispatcher,
         );
     }

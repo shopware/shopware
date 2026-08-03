@@ -78,6 +78,27 @@ class CustomerEmailUniqueSubscriberTest extends TestCase
         static::assertSame(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE, $content['errors'][0]['code']);
     }
 
+    public function testSyncApiCreateRejectsDuplicateEmailWithSyncOperationPointer(): void
+    {
+        $this->setCustomerBoundToSalesChannel(false);
+
+        $email = Uuid::randomHex() . '@example.com';
+        $this->createCustomer($email);
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [[
+            'key' => 'write-customer',
+            'action' => 'upsert',
+            'entity' => 'customer',
+            'payload' => [$this->createCustomerPayload($email)],
+        ]]);
+
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('/write-customer/0/email', $content['errors'][0]['source']['pointer']);
+    }
+
     public function testRepositoryCreateAllowsDuplicateEmailForDifferentBoundSalesChannelsWhenCustomersAreBoundToSalesChannel(): void
     {
         $this->setCustomerBoundToSalesChannel(true);

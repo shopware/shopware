@@ -1,5 +1,18 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+test(
+    'As a shop customer, I want to see reviews of a product.',
+    {
+        tag: [
+            '@Product',
+            '@Reviews',
+            '@Storefront',
+        ],
+    },
+    async ({ ShopCustomer, TestDataService, StorefrontProductDetail }) => {
+        const productWithRating1 = await TestDataService.createBasicProduct();
+        await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
+        await TestDataService.createProductReview(productWithRating1.id, { points: 4 });
 
 test('As a shop customer, I want to see reviews of a product.', {
     tag: ['@Product', '@Reviews', '@Storefront'],

@@ -144,7 +144,7 @@
                         :disabled="!customerEditMode"
                         @click="onEditAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -153,7 +153,7 @@
                         :disabled="!customerEditMode"
                         @click="onDuplicateAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuDuplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -181,7 +181,7 @@
                         :disabled="!customerEditMode || isDefaultAddress(item.id)"
                         @click="onDeleteAddress(item.id)"
                     >
-                        {{ $t('sw-customer.detailAddresses.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -223,7 +223,7 @@
                                 size="small"
                                 @click="onConfirmDeleteAddress(item.id)"
                             >
-                                {{ $t('sw-customer.detailAddresses.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

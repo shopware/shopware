@@ -147,8 +147,8 @@
           <udt:Indicator>true</udt:Indicator>
         </ram:ChargeIndicator>
         <ram:ActualAmount>0.00</ram:ActualAmount>
-        <ram:ReasonCode>DL</ram:ReasonCode>
-        <ram:Reason>Delivery</ram:Reason>
+        <ram:ReasonCode>SAA</ram:ReasonCode>
+        <ram:Reason>Shipping and handling</ram:Reason>
         <ram:CategoryTradeTax>
           <ram:TypeCode>VAT</ram:TypeCode>
           <ram:CategoryCode>S</ram:CategoryCode>
@@ -160,8 +160,8 @@
           <udt:Indicator>true</udt:Indicator>
         </ram:ChargeIndicator>
         <ram:ActualAmount>0.00</ram:ActualAmount>
-        <ram:ReasonCode>DL</ram:ReasonCode>
-        <ram:Reason>Delivery</ram:Reason>
+        <ram:ReasonCode>SAA</ram:ReasonCode>
+        <ram:Reason>Shipping and handling</ram:Reason>
         <ram:CategoryTradeTax>
           <ram:TypeCode>VAT</ram:TypeCode>
           <ram:CategoryCode>S</ram:CategoryCode>

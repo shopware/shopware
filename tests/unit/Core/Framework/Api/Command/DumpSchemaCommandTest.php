@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -15,6 +16,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DumpSchemaCommand::class)]
 class DumpSchemaCommandTest extends TestCase
 {
@@ -22,7 +24,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('getSchema');
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'schema');
@@ -54,7 +56,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('generate')->with('openapi-3', DefinitionService::API);
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);
@@ -67,7 +69,7 @@ class DumpSchemaCommandTest extends TestCase
     {
         $definitionService = $this->createMock(DefinitionService::class);
         $definitionService->expects($this->once())->method('generate')->with('openapi-3', DefinitionService::STORE_API);
-        $cache = $this->createMock(CacheInterface::class);
+        $cache = static::createStub(CacheInterface::class);
         $cmd = new DumpSchemaCommand($definitionService, $cache);
 
         $cmd = new CommandTester($cmd);

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `File` namespace provides generic public files scoped to a sales channel. Agentic files such as `llms.txt`, `agents.md`, and `.well-known/ai-catalog.json` are the first file family, but the backend is intentionally not tied to agentic use cases.
+The `File` namespace provides generic public files scoped to a sales channel. Agentic files such as `llms.txt`, `AGENTS.md`, and `.well-known/ai-catalog.json` are the first file family, but the backend is intentionally not tied to agentic use cases.
 
 Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. The current default file family is `agentic`, so `Resources/views/files/agentic/llms.txt.twig` is served as `/llms.txt` when enabled for a sales channel.
 
@@ -15,6 +15,7 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 ## Key Decisions
 
 - Discovery is template based. Core, plugins, apps, and themes contribute files by shipping Twig templates in the registered template system. There is no provider interface for individual files.
+- File names are matched case-insensitively. When templates differ only by case, they form one template chain and the lexicographically first spelling is exposed as the canonical public path.
 - The database stores sales-channel state only: one `sales_channel_file` row per sales channel, file family, and file name. The row controls enablement and stores merchant overrides in `template_overrides`, keyed by Twig namespace. The reserved `user_provided_content` key stores plain merchant notes that are rendered through a generated Twig override for the dedicated block of the same name.
 - Shipped template content is never copied into the database. When code templates change, no migration is needed to update stored rows.
 - Public serving is a fallback. Normal routes keep precedence because `SalesChannelFileNotFoundSubscriber` only handles unresolved 404s for main `GET` and `HEAD` requests that already have a sales channel context.

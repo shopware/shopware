@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775460999AddParentNameToProductSearchConfig;
@@ -28,6 +29,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class SearchKeywordUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

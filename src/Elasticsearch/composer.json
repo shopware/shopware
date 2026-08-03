@@ -9,7 +9,11 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/runtime": true
+        }
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues/",
@@ -29,16 +33,25 @@
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "ext-curl": "*",
         "async-aws/core": "^1.22",
+        "guzzlehttp/guzzle": "^7.5.0",
+        "guzzlehttp/psr7": "^2.4",
+        "psr/clock": "^1.0.0",
+        "psr/http-client": "^1.0.3",
+        "psr/http-message": "^1.1 || ^2.0",
+        "psr/log": "^3.0.0",
         "doctrine/dbal": "~4.4.0",
         "monolog/monolog": "^3.3.1",
         "opensearch-project/opensearch-php": "^2.6.0",
         "shopware/core": "*",
         "shyim/opensearch-php-dsl": "^1.1.4",
+        "symfony/config": "~7.4.0",
+        "symfony/console": "~7.4.0",
+        "symfony/dependency-injection": "~7.4.0",
         "symfony/event-dispatcher": "~7.4.0",
+        "symfony/event-dispatcher-contracts": "~3.6.0",
         "symfony/http-foundation": "~7.4.0",
-        "symfony/messenger": "~7.4.12"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5.19"
+        "symfony/messenger": "~7.4.12",
+        "symfony/routing": "~7.4.12",
+        "symfony/stopwatch": "~7.4.0"
     }
 }

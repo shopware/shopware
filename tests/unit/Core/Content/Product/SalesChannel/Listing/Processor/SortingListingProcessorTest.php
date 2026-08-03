@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SortingListingProcessor::class)]
 class SortingListingProcessorTest extends TestCase
 {
@@ -41,7 +43,6 @@ class SortingListingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$this->buildSortings()]);
 
         $processor = new SortingListingProcessor(
@@ -152,7 +153,6 @@ class SortingListingProcessorTest extends TestCase
     {
         $sortings = $this->buildSortings();
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$sortings]);
 
         $processor = new SortingListingProcessor(
@@ -177,7 +177,6 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->expectException(ProductException::class);
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([
             $this->buildSortings(),
         ]);

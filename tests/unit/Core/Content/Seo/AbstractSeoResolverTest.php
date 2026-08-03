@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AbstractSeoResolver::class)]
 class AbstractSeoResolverTest extends TestCase
 {

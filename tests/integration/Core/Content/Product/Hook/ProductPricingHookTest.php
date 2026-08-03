@@ -64,7 +64,8 @@ class ProductPricingHookTest extends TestCase
         $salesChannelContext->setRuleIds([$ids->get('rule-A')]);
 
         $products = static::getContainer()->get('sales_channel.product.repository')
-            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);
+            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext)
+            ->getEntities();
 
         $stubs = static::getContainer()->get(ScriptPriceStubs::class);
 

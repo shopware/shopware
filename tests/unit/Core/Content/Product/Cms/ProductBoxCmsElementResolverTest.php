@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductBoxCmsElementResolver::class)]
 class ProductBoxCmsElementResolverTest extends TestCase
 {
@@ -98,7 +100,12 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         static::assertNotNull($collection);
         static::assertCount(1, $collection->all());
-        static::assertSame([$productId], $collection->all()[ProductDefinition::class]['product_id']->getIds());
+
+        $criteria = $collection->all()[ProductDefinition::class]['product_id'];
+        static::assertSame([$productId], $criteria->getIds());
+        static::assertTrue($criteria->hasAssociation('manufacturer'));
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectWithMappedConfigButWithoutEntityResolverContext(): void

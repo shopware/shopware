@@ -34,7 +34,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $cmsPages = $this->getCmsPagesWithTestData();
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(
@@ -46,7 +45,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $result = $loader->load(new Request(), new Criteria(), Generator::generateSalesChannelContext());
 
-        $elements = $result->getElements();
+        $elements = $result->getEntities()->getElements();
         static::assertContainsOnlyInstancesOf(CmsPageEntity::class, $elements);
 
         $this->assertCmsPage1($elements['page-1']);
@@ -60,7 +59,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $cmsPages = $this->getCmsPagesWithTestData();
         $cmsPages->remove('page-2');
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(
@@ -91,7 +89,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $config
         );
 
-        $page = $result->getElements()['page-1'];
+        $page = $result->getEntities()->getElements()['page-1'];
         static::assertInstanceOf(CmsPageEntity::class, $page);
 
         $section = $page->getSections()?->get('section-1');

@@ -43,7 +43,7 @@ class MailTemplateService
         $criteria = new Criteria([$templateId]);
         $criteria->addAssociation('mailTemplateType');
         $criteria->addAssociation('media.media');
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
 
         if ($mailTemplate === null) {
             throw MailTemplateException::templateNotFound();

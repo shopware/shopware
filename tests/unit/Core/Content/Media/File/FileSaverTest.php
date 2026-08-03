@@ -26,6 +26,7 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -496,7 +497,7 @@ class FileSaverTest extends TestCase
             $this->locationBuilder,
             $this->mediaPathStrategy,
             new MediaFileCleanupService($filesystemPublic, $filesystemPrivate, static::createStub(ThumbnailService::class), $this->messageBus, $remoteThumbnailsEnabled),
-            new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
+            new MediaFileExtensionValidator(new MediaFileExtensionListProvider($eventDispatcher, ['png'], ['png'])),
             new NativeClock()
         );
     }

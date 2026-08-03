@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptStoreApiRouteTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -315,7 +317,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
     }
 
-    public function testCachingWithInvalidationState(): void
+    public function testCachingIsBypassedForLoggedInCustomer(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
@@ -364,8 +366,13 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('store-api-cache-script::response', $traces);
-        // assert that when the invalidation state is present the response is not cached
-        static::assertCount(2, $traces['store-api-cache-script::response']);
+        if (Feature::isActive('v6.8.0.0')) {
+            // invalidation states were removed with v6.8.0.0, the response stays cached after login
+            static::assertCount(1, $traces['store-api-cache-script::response']);
+        } else {
+            // assert that when the invalidation state is present the response is not cached
+            static::assertCount(2, $traces['store-api-cache-script::response']);
+        }
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);

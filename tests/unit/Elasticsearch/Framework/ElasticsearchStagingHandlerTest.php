@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchStagingHandler::class)]
 class ElasticsearchStagingHandlerTest extends TestCase
 {
@@ -22,15 +24,15 @@ class ElasticsearchStagingHandlerTest extends TestCase
     {
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             [],
         );
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowIndexing')->willReturn(true);
 
-        $detector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $detector = static::createStub(ElasticsearchOutdatedIndexDetector::class);
         $detector->method('getAllUsedIndices')->willReturn(['index1', 'index2']);
 
         $handler = new ElasticsearchStagingHandler(true, $helper, $detector);
@@ -44,12 +46,12 @@ class ElasticsearchStagingHandlerTest extends TestCase
     {
         $event = new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             [],
         );
 
-        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper = static::createStub(ElasticsearchHelper::class);
         $helper->method('allowIndexing')->willReturn($indexing);
 
         $detector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);

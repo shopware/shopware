@@ -15,7 +15,7 @@ use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
  * - Add custom validation and issues
  * - Transform directives based on custom logic
  */
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsDirectiveParsingEvent implements ShopwareEvent
 {
     public function __construct(

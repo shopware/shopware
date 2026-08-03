@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -37,9 +38,10 @@ class AclEnforcementTest extends TestCase
     {
         $tool = new EntitySearchTool(
             $this->createRegistryWithEntity(),
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product'), 'product:read');
@@ -49,9 +51,10 @@ class AclEnforcementTest extends TestCase
     {
         $tool = new EntityReadTool(
             $this->createRegistryWithEntity(),
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product', 'some-id'), 'product:read');
@@ -62,7 +65,7 @@ class AclEnforcementTest extends TestCase
         $tool = new EntityDeleteTool(
             $this->createRegistryWithEntity(),
             $this->createDeniedContextProvider(),
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $this->assertAclDenied(($tool)('product', 'some-id'), 'product:delete');
@@ -73,7 +76,7 @@ class AclEnforcementTest extends TestCase
         $tool = new EntityUpsertTool(
             $this->createRegistryWithEntity(),
             $this->createDeniedContextProvider(),
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $this->assertAclDenied(($tool)('product', '{"name":"test"}'), 'product:create');
@@ -82,7 +85,7 @@ class AclEnforcementTest extends TestCase
     public function testSystemConfigReadToolDenied(): void
     {
         $tool = new SystemConfigReadTool(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->createDeniedContextProvider(),
         );
 
@@ -92,7 +95,7 @@ class AclEnforcementTest extends TestCase
     public function testSystemConfigWriteToolDenied(): void
     {
         $tool = new SystemConfigWriteTool(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->createDeniedContextProvider(),
         );
 
@@ -102,9 +105,9 @@ class AclEnforcementTest extends TestCase
     public function testOrderStateToolDenied(): void
     {
         $tool = new OrderStateTool(
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
             $this->createDeniedContextProvider(),
-            $this->createMock(StateMachineRegistry::class),
+            static::createStub(StateMachineRegistry::class),
             static::createStub(Connection::class),
         );
 
@@ -115,8 +118,9 @@ class AclEnforcementTest extends TestCase
     {
         $tool = new EntityAggregateTool(
             $this->createRegistryWithEntity(),
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product', '[]'), 'product:read');
@@ -124,7 +128,7 @@ class AclEnforcementTest extends TestCase
 
     public function testSystemConfigReadToolAllowed(): void
     {
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $configService->method('get')->willReturn('test-value');
 
         $tool = new SystemConfigReadTool(
@@ -137,7 +141,7 @@ class AclEnforcementTest extends TestCase
 
     public function testSystemConfigWriteToolAllowed(): void
     {
-        $configService = $this->createMock(SystemConfigService::class);
+        $configService = static::createStub(SystemConfigService::class);
         $configService->method('get')->willReturn('old-value');
 
         $tool = new SystemConfigWriteTool(
@@ -150,14 +154,14 @@ class AclEnforcementTest extends TestCase
 
     public function testEntityDeleteToolAllowed(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getRepository')->willReturn($this->createMock(EntityRepository::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
 
         $tool = new EntityDeleteTool(
             $registry,
             $this->createAllowedContextProvider('product:delete'),
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
         );
 
         $this->assertAclAllowed(($tool)('product', 'some-id'));
@@ -165,7 +169,7 @@ class AclEnforcementTest extends TestCase
 
     private function createRegistryWithEntity(): DefinitionInstanceRegistry
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
 
         return $registry;
@@ -177,7 +181,7 @@ class AclEnforcementTest extends TestCase
         $source->setPermissions([]);
         $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
-        $provider = $this->createMock(McpContextProvider::class);
+        $provider = static::createStub(McpContextProvider::class);
         $provider->method('getContext')->willReturn($context);
 
         return $provider;
@@ -189,7 +193,7 @@ class AclEnforcementTest extends TestCase
         $source->setPermissions($permissions);
         $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
-        $provider = $this->createMock(McpContextProvider::class);
+        $provider = static::createStub(McpContextProvider::class);
         $provider->method('getContext')->willReturn($context);
 
         return $provider;

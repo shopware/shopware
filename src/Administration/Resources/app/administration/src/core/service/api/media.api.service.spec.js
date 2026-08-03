@@ -138,31 +138,30 @@ describe('storeService', () => {
     it('test getDefaultFolderId with folder', async () => {
         const mediaApiService = getMediaApiService();
 
-        let searchCount = 0;
+        const search = jest.fn(() =>
+            Promise.resolve([
+                {
+                    id: 'test',
+                    folder: {
+                        id: 'product_download_id',
+                    },
+                },
+            ]),
+        );
 
         const spyRepository = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => {
             return {
-                search: async () => {
-                    searchCount += 1;
-
-                    return Promise.resolve([
-                        {
-                            id: 'test',
-                            folder: {
-                                id: 'product_download_id',
-                            },
-                        },
-                    ]);
-                },
+                search,
             };
         });
 
         expect(await mediaApiService.getDefaultFolderId('product_download')).toBe('product_download_id');
-        expect(await mediaApiService.getDefaultFolderId('product_download')).toBe('product_download_id');
-        expect(mediaApiService.cacheDefaultFolder).toMatchObject({
-            product_download: 'product_download_id',
+        expect(search).toHaveBeenCalledWith(expect.anything(), {
+            cacheKey: [
+                'media-default-folder',
+                'product_download',
+            ],
         });
-        expect(searchCount).toBe(1);
 
         spyRepository.mockRestore();
     });
@@ -331,9 +330,9 @@ describe('storeService', () => {
         expect(result).toBeUndefined();
     });
 
-    it('uses default maxConcurrentUploads of 10', () => {
+    it('uses default maxConcurrentUploads of 5', () => {
         const mediaApiService = getMediaApiService();
-        expect(mediaApiService.maxConcurrentUploads).toBe(10);
+        expect(mediaApiService.maxConcurrentUploads).toBe(5);
     });
 
     it('assigns video cover via API route', async () => {
@@ -349,6 +348,49 @@ describe('storeService', () => {
             JSON.stringify({ coverMediaId: 'cover-id' }),
             expect.objectContaining({
                 headers: expect.objectContaining({ Authorization: expect.any(String) }),
+            }),
+        );
+    });
+
+    it('downloads media as blob via API route', async () => {
+        const mediaApiService = getMediaApiService();
+        const mediaBlob = new Blob(['media-content']);
+        const httpClientGetSpy = jest.spyOn(mediaApiService.httpClient, 'get').mockResolvedValue({
+            data: mediaBlob,
+        });
+
+        const response = await mediaApiService.downloadMedia('media-id');
+
+        expect(response).toBe(mediaBlob);
+        expect(httpClientGetSpy).toHaveBeenCalledWith(
+            '/_action/media/media-id/download',
+            expect.objectContaining({
+                responseType: 'blob',
+                headers: expect.objectContaining({
+                    Authorization: expect.any(String),
+                    'Content-Type': 'application/json',
+                }),
+            }),
+        );
+    });
+
+    it('prepares media download via API route', async () => {
+        const mediaApiService = getMediaApiService();
+        const responsePayload = { type: 'external', url: 'https://cdn.example.test/download' };
+        const httpClientGetSpy = jest.spyOn(mediaApiService.httpClient, 'get').mockResolvedValue({
+            data: responsePayload,
+        });
+
+        const response = await mediaApiService.prepareDownloadMedia('media-id');
+
+        expect(response).toBe(responsePayload);
+        expect(httpClientGetSpy).toHaveBeenCalledWith(
+            '/_action/media/media-id/download/prepare',
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    Authorization: expect.any(String),
+                    'Content-Type': 'application/json',
+                }),
             }),
         );
     });

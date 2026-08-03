@@ -9,15 +9,19 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Lists optional MCP capability plugins that extend the core platform.
  * AI clients should read this resource when a requested tool is not available.
  *
  * @internal
  */
-#[McpResource(uri: 'shopware://extensions', name: 'shopware-extensions', description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://extensions',
+    name: 'shopware-extensions',
+    description: 'Optional MCP capability plugins. Read this when a requested tool is not available to find the right extension and its install command.'
+)]
 class ExtensionsResource
 {
     public function __construct(
@@ -84,7 +88,7 @@ class ExtensionsResource
     }
 
     /**
-     * @param array{name: string, type: string, install_command: string} $extension
+     * @param array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null} $extension
      */
     private function resolveInstallCommand(array $extension, string $status): ?string
     {

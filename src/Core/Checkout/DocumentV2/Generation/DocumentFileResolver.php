@@ -34,6 +34,19 @@ class DocumentFileResolver
         return $document instanceof DocumentEntity ? $document : null;
     }
 
+    /**
+     * @param list<string> $documentIds
+     */
+    public function loadDocuments(array $documentIds, Context $context): DocumentCollection
+    {
+        $criteria = (new Criteria($documentIds))
+            ->addAssociation('documentFiles.media')
+            ->addAssociation('documentType')
+            ->addAssociation('order');
+
+        return $this->documentRepository->search($criteria, $context)->getEntities();
+    }
+
     public function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
     {
         foreach ($document->getDocumentFiles() ?? [] as $documentFile) {

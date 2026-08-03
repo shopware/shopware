@@ -211,13 +211,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentArchiveUnavailable(string $documentId): self
+    /**
+     * @param list<string> $documentIds
+     */
+    public static function documentArchiveUnavailable(array $documentIds): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_ARCHIVE_UNAVAILABLE,
-            'Document with id "{{ documentId }}" has no generated files to archive.',
-            ['documentId' => $documentId],
+            'None of the requested documents have generated files to archive: "{{ documentIds }}".',
+            ['documentIds' => implode(', ', $documentIds)],
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
@@ -26,7 +27,7 @@ final class DocumentArchiveGenerator
     ) {
     }
 
-    public function archive(DocumentEntity $document, Context $context): ?RenderedDocument
+    public function archive(DocumentCollection $documents, Context $context): ?RenderedDocument
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-');
 
@@ -43,12 +44,12 @@ final class DocumentArchiveGenerator
         }
 
         try {
-            if (!$this->writeDocumentFiles($archive, $document, $context)) {
+            if (!$this->writeDocumentFiles($archive, $documents, $context)) {
                 return null;
             }
 
             return new RenderedDocument(
-                name: $this->createArchiveName($document),
+                name: $this->createArchiveName($documents),
                 fileExtension: 'zip',
                 contentType: 'application/zip',
                 content: $this->filesystem->readFile($tempFile),
@@ -61,21 +62,23 @@ final class DocumentArchiveGenerator
     /**
      * @return bool whether any files were written to the archive
      */
-    private function writeDocumentFiles(\ZipArchive $archive, DocumentEntity $document, Context $context): bool
+    private function writeDocumentFiles(\ZipArchive $archive, DocumentCollection $documents, Context $context): bool
     {
         try {
             $hasFiles = false;
 
-            foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-                $media = $documentFile->getMedia();
-                $entryName = $this->createEntryName($documentFile, $media, $document->getId());
-                $content = $this->loadMediaContent($media, $context);
+            foreach ($documents as $document) {
+                foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
+                    $media = $documentFile->getMedia();
+                    $entryName = $this->createEntryName($document, $documentFile, $media);
+                    $content = $this->loadMediaContent($media, $context);
 
-                if (!$archive->addFromString($entryName, $content)) {
-                    throw DocumentV2Exception::documentArchiveFailed();
+                    if (!$archive->addFromString($entryName, $content)) {
+                        throw DocumentV2Exception::documentArchiveFailed();
+                    }
+
+                    $hasFiles = true;
                 }
-
-                $hasFiles = true;
             }
 
             return $hasFiles;
@@ -92,24 +95,40 @@ final class DocumentArchiveGenerator
         );
     }
 
-    private function createEntryName(DocumentFileEntity $documentFile, MediaEntity $media, string $documentId): string
+    /**
+     * TODO: Maybe use the same filename generation which will be used in the create modal PR
+     * Prefixes every entry with order number, document type and document number so files from
+     * different documents never collide in the same archive.
+     */
+    private function createEntryName(DocumentEntity $document, DocumentFileEntity $documentFile, MediaEntity $media): string
     {
         $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($documentFile->getDocumentFormat());
 
         if ($fileExtension === null) {
-            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $documentFile->getDocumentFormat());
+            throw DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), $documentFile->getDocumentFormat());
         }
 
-        $fileName = $media->getFileName() ?? $documentId;
+        $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
+        $documentNumber = $document->getConfig()['documentNumber'] ?? $document->getId();
+        $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'document';
+
+        $fileName = \sprintf('%s_%s_%s_%s', $orderNumber, $technicalName, $documentNumber, $documentFile->getDocumentFormat());
 
         return \sprintf('%s.%s', $fileName, $fileExtension);
     }
 
-    private function createArchiveName(DocumentEntity $document): string
+    private function createArchiveName(DocumentCollection $documents): string
     {
-        $documentNumber = $document->getConfig()['documentNumber'] ?? null;
-        $fileName = \is_string($documentNumber) && $documentNumber !== '' ? $documentNumber : $document->getId();
+        if ($documents->count() === 1) {
+            $document = $documents->first();
+            \assert($document !== null);
 
-        return $fileName . '.zip';
+            $documentNumber = $document->getConfig()['documentNumber'] ?? null;
+            $fileName = \is_string($documentNumber) && $documentNumber !== '' ? $documentNumber : $document->getId();
+
+            return $fileName . '.zip';
+        }
+
+        return 'documents.zip';
     }
 }

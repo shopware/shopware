@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -503,9 +504,20 @@ class DocumentV2ControllerTest extends TestCase
         $htmlDocumentFile->setMediaId($htmlMediaId);
         $htmlDocumentFile->setMedia($htmlMedia);
 
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderNumber('10000');
+
+        $documentType = new DocumentTypeEntity();
+        $documentType->setId(Uuid::randomHex());
+        $documentType->setTechnicalName(DocumentType::INVOICE->value);
+
         $document = new DocumentEntity();
         $document->setId($documentId);
         $document->setDeepLinkCode($deepLinkCode);
+        $document->setOrderId($order->getId());
+        $document->setOrder($order);
+        $document->setDocumentType($documentType);
         $document->setConfig(['documentNumber' => '1000']);
         $document->setDocumentFiles(new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]));
 
@@ -538,7 +550,12 @@ class DocumentV2ControllerTest extends TestCase
         );
 
         $response = $controller->downloadArchive(
-            $documentId,
+            Request::create(
+                '/api/_action/order/document-v2/download-archive',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode(['documentIds' => [$documentId]], \JSON_THROW_ON_ERROR),
+            ),
             Context::createDefaultContext(),
         );
 
@@ -554,11 +571,71 @@ class DocumentV2ControllerTest extends TestCase
 
         $zip = new \ZipArchive();
         static::assertTrue($zip->open($tempFile));
-        static::assertSame('pdf content', $zip->getFromName('invoice_1000_pdf.pdf'));
-        static::assertSame('html content', $zip->getFromName('invoice_1000_html.html'));
+        static::assertSame('pdf content', $zip->getFromName('10000_invoice_1000_pdf.pdf'));
+        static::assertSame('html content', $zip->getFromName('10000_invoice_1000_html.html'));
         $zip->close();
 
         (new Filesystem())->remove($tempFile);
+    }
+
+    public function testDownloadArchiveThrowsWhenDocumentIdsAreMissing(): void
+    {
+        $controller = new DocumentV2Controller(
+            $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
+            new DocumentRendererRegistry([]),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
+        );
+
+        static::expectExceptionObject(DocumentV2Exception::invalidRequestParameter('documentIds'));
+
+        $controller->downloadArchive(
+            Request::create(
+                '/api/_action/order/document-v2/download-archive',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode(['documentIds' => []], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testDownloadArchiveThrowsWhenNoDocumentsAreFound(): void
+    {
+        $documentIds = [Uuid::randomHex(), Uuid::randomHex()];
+
+        $this->documentRepository->searches[] = new DocumentCollection([]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
+            new DocumentRendererRegistry([]),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            new DocumentFileResolver($this->documentRepository),
+        );
+
+        static::expectExceptionObject(DocumentV2Exception::documentArchiveUnavailable($documentIds));
+
+        $controller->downloadArchive(
+            Request::create(
+                '/api/_action/order/document-v2/download-archive',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode(['documentIds' => $documentIds], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
     }
 
     public function testDownloadThrowsWhenRequestedFormatIsUnavailable(): void

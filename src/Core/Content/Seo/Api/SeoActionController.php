@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -325,8 +326,30 @@ class SeoActionController extends AbstractController
         }
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
+        $result = \is_array($result) ? $result : iterator_to_array($result);
 
-        return \is_array($result) ? $result : iterator_to_array($result);
+        if (!$salesChannel->isHeadless()) {
+            return $result;
+        }
+
+        $externalStorefrontDomain = $this->getExternalStorefrontDomain($salesChannel, $context);
+        if ($externalStorefrontDomain === null) {
+            return $result;
+        }
+
+        foreach ($result as $seoUrl) {
+            $seoUrl->setSeoPathInfo(rtrim($externalStorefrontDomain, '/') . '/' . ltrim($seoUrl->getSeoPathInfo(), '/'));
+        }
+
+        return $result;
+    }
+
+    private function getExternalStorefrontDomain(SalesChannelEntity $salesChannel, Context $context): ?string
+    {
+        return $salesChannel->getDomains()
+            ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
+                && $domain->getLanguageId() === $context->getLanguageId())
+            ?->getUrl();
     }
 
     private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface

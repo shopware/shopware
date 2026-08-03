@@ -126,14 +126,14 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function testReplaceDoesNotPrependHostForHeadlessSalesChannel(): void
+    public function testReplacePrependsExternalStorefrontDomainForHeadlessSalesChannel(): void
     {
         $productId = Uuid::randomHex();
 
         $result = $this->createMock(Result::class);
         $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
             [
-                'seo_path_info' => 'https://foo.bar/product/' . $productId,
+                'seo_path_info' => 'product/' . $productId,
                 'path_info' => '/store-api/product/' . $productId,
                 'sales_channel_id' => TestDefaults::SALES_CHANNEL,
             ],
@@ -148,60 +148,61 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         static::assertSame('SEO: https://foo.bar/product/' . $productId, $actual);
     }
 
-    public function testReplacePrependsHostForHeadlessSalesChannelWithoutExternalStorefrontDomain(): void
+    public function testReplaceKeepsRelativePathForHeadlessSalesChannelWithoutExternalStorefrontDomain(): void
     {
         $productId = Uuid::randomHex();
 
         $result = $this->createMock(Result::class);
         $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
             [
-                'seo_path_info' => 'https://foo.bar/product/' . $productId,
+                'seo_path_info' => 'product/' . $productId,
                 'path_info' => '/store-api/product/' . $productId,
                 'sales_channel_id' => TestDefaults::SALES_CHANNEL,
             ],
         ]);
         $this->connection->method('executeQuery')->willReturn($result);
 
-        // domain exists but is not marked as external storefront -> not a trusted headless url
         $context = $this->createHeadlessSalesChannelContext(false);
 
         $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
         $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
 
-        static::assertSame('SEO: https://my-storefront.com/https://foo.bar/product/' . $productId, $actual);
+        static::assertSame('SEO: product/' . $productId, $actual);
     }
 
-    public function testReplacePrependsHostForHeadlessSalesChannelWhenUrlDoesNotMatchExternalStorefrontDomain(): void
+    public function testReplaceKeepsRelativePathForHeadlessSalesChannelWhenExternalStorefrontDomainLanguageDiffers(): void
     {
         $productId = Uuid::randomHex();
 
         $result = $this->createMock(Result::class);
         $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
             [
-                'seo_path_info' => 'https://not-trusted.example/product/' . $productId,
+                'seo_path_info' => 'product/' . $productId,
                 'path_info' => '/store-api/product/' . $productId,
                 'sales_channel_id' => TestDefaults::SALES_CHANNEL,
             ],
         ]);
         $this->connection->method('executeQuery')->willReturn($result);
 
-        $context = $this->createHeadlessSalesChannelContext(true);
+        $context = $this->createHeadlessSalesChannelContext(true, Uuid::randomHex());
 
         $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
         $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
 
-        static::assertSame('SEO: https://my-storefront.com/https://not-trusted.example/product/' . $productId, $actual);
+        static::assertSame('SEO: product/' . $productId, $actual);
     }
 
-    private function createHeadlessSalesChannelContext(bool $externalStorefront): SalesChannelContext
+    private function createHeadlessSalesChannelContext(bool $externalStorefront, ?string $domainLanguageId = null): SalesChannelContext
     {
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+
         $domain = new SalesChannelDomainEntity();
         $domain->setId(Uuid::randomHex());
         $domain->setUrl('https://foo.bar');
         $domain->setIsExternalStorefront($externalStorefront);
+        $domain->setLanguageId($domainLanguageId ?? $context->getLanguageId());
 
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
         $context->getSalesChannel()->setDomains(new SalesChannelDomainCollection([$domain]));
 
         return $context;

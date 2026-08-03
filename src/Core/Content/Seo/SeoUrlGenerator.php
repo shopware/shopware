@@ -67,7 +67,6 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        $domain = null;
         if ($salesChannel->isHeadless()) {
             $domain = $salesChannel->getDomains()
                 ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
@@ -88,7 +87,7 @@ class SeoUrlGenerator
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template), $domain);
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
             }
         }
     }
@@ -104,7 +103,6 @@ class SeoUrlGenerator
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
         string $templateName,
-        ?SalesChannelDomainEntity $domain,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
@@ -138,15 +136,7 @@ class SeoUrlGenerator
             $seoUrl->setSeoPathInfo($seoPathInfo);
             $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            if (!$salesChannel->isHeadless() || $domain === null) {
-                yield $seoUrl;
-
-                continue;
-            }
-
-            $seoUrl->setSeoPathInfo(rtrim($domain->getUrl(), '/') . '/' . $seoPathInfo);
-
-            yield clone $seoUrl;
+            yield $seoUrl;
         }
     }
 

@@ -51,11 +51,17 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
-                    if ($this->isHeadlessSeoUrl($value, $context)) {
+                    if (!$context->isHeadless()) {
+                        $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+
                         continue;
                     }
 
-                    $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+                    $externalStorefrontDomain = $this->getExternalStorefrontDomain($context);
+                    if ($externalStorefrontDomain === null) {
+                        continue;
+                    }
+                    $seoMapping[$key] = rtrim($externalStorefrontDomain, '/') . '/' . ltrim($value, '/');
                 }
 
                 return (string) \preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
@@ -65,23 +71,17 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         });
     }
 
-    private function isHeadlessSeoUrl(string $seoUrl, SalesChannelContext $context): bool
+    private function getExternalStorefrontDomain(SalesChannelContext $context): ?string
     {
-        if (!$context->isHeadless()) {
-            return false;
-        }
-
         foreach ($context->getSalesChannel()->getDomains() ?? [] as $domain) {
-            if (!$domain->getIsExternalStorefront()) {
+            if (!$domain->getIsExternalStorefront() || $domain->getLanguageId() !== $context->getLanguageId()) {
                 continue;
             }
 
-            if (str_starts_with($seoUrl, $domain->getUrl())) {
-                return true;
-            }
+            return $domain->getUrl();
         }
 
-        return false;
+        return null;
     }
 
     /**

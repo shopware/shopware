@@ -107,7 +107,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertSame($this->salesChannel->getId(), $urls[0]->getSalesChannelId());
     }
 
-    public function testGenerateForHeadlessPrefixesExternalStorefrontDomainUrl(): void
+    public function testGenerateForHeadlessStoresRelativeSeoPathInfo(): void
     {
         $entity = new ArrayEntity(['id' => 'entity-1']);
 
@@ -143,9 +143,8 @@ class SeoUrlGeneratorTest extends TestCase
             false
         );
 
-        // one url per external storefront domain, prefixed with the domain url
         static::assertCount(1, $urls);
-        static::assertSame('https://headless.example/seo-path', $urls[0]->getSeoPathInfo());
+        static::assertSame('seo-path', $urls[0]->getSeoPathInfo());
     }
 
     public function testGenerateForHeadlessWithoutExternalStorefrontDomainReturnsNothing(): void

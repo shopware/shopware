@@ -555,6 +555,53 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(blockDrag.block.sectionId).toBe('2222');
     });
 
+    it('should not duplicate a block when dragging across multiple sections', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.page.sections.push(
+            new Entity('3333', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+            new Entity('4444', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+            new Entity('5555', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+        );
+
+        const blockDrag = {
+            block: getBlockData(0, '1a2b'),
+            sectionIndex: 0,
+        };
+
+        wrapper.vm.onBlockDragSort(
+            blockDrag,
+            {
+                block: getBlockData(0, 'drop-target-1'),
+                sectionIndex: 2,
+            },
+            true,
+        );
+        wrapper.vm.onBlockDragSort(
+            blockDrag,
+            {
+                block: getBlockData(0, 'drop-target-2'),
+                sectionIndex: 4,
+            },
+            true,
+        );
+
+        const sections = wrapper.vm.page.sections;
+        const sectionsContainingBlock = sections.filter((section) => section.blocks.has('1a2b'));
+
+        expect(sectionsContainingBlock).toHaveLength(1);
+        expect(sectionsContainingBlock[0].id).toBe('5555');
+    });
+
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', async () => {
         const wrapper = await createWrapper();
 

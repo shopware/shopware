@@ -146,7 +146,7 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * @param array{name: string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
+     * @param array{name: string, title: ?string, description: ?string, group: string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null $toolData
      * @param \Closure|array{0: object|string, 1: string}|string $handler
      */
     private function renderToolDetail(SymfonyStyle $io, Tool $tool, \Closure|array|string $handler, ?array $toolData): void

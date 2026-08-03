@@ -27,7 +27,7 @@ class GdImageThumbnailProcessorTest extends TestCase
         parent::setUp();
 
         $this->processor = new GdImageThumbnailProcessor();
-        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../shopware-logo.png'));
+        $this->image = $this->processor->createImageFromString((string) file_get_contents(__DIR__ . '/../fixtures/shopware-logo.png'));
         static::assertSame(266, $this->processor->getHeight($this->image));
         static::assertSame(499, $this->processor->getWidth($this->image));
     }

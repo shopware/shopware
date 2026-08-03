@@ -52,10 +52,6 @@ export default Shopware.Component.wrapComponentConfig({
          * here — it is no longer relevant.
          */
         changeNotices(): { key: string; deprecationVersion: string }[] {
-            if (Shopware.Feature.isActive('v6.8.0.0')) {
-                return [];
-            }
-
             return [
                 {
                     key: 'sw-settings.index.textSettingRenameBanner',

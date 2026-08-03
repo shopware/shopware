@@ -12,10 +12,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductSearchTermInterpreter::class)]
 class ProductSearchTermInterpreterTest extends TestCase
 {

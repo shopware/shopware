@@ -1,4 +1,60 @@
+# 6.7.14.0
+
+## Product export templates: media URLs are encoded automatically
+
+`ProductExportRenderer::renderBody()` now automatically RFC 3986-encodes `MediaEntity::url` and `MediaThumbnailEntity::url` values in the body-template data context. This covers media URLs such as `product.cover.media.url` and `product.media.*.media.url`; other string values, including product descriptions, SEO URLs, and custom fields, are unchanged.
+
+**Action required if your custom body template already encodes media URLs manually.**
+Templates that apply `|url_encode`, `|sw_encode_url`, `|sw_encode_media_url`, `|replace({' ': '%20'})`, or any other manual percent-encoding to a media URL will now produce double-encoded output, for example `%20` becomes `%2520`.
+
+Remove the manual encoding from your template body:
+
+```twig
+{# Before — no longer needed, will double-encode #}
+<g:image_link>{{ product.cover.media.url|url_encode }}</g:image_link>
+
+{# After — encoding is applied automatically #}
+<g:image_link>{{ product.cover.media.url }}</g:image_link>
+```
+
+For a URL-valued custom field or another non-media string, apply `sw_encode_url` explicitly:
+
+```twig
+<link>{{ product.customFields.external_url|sw_encode_url }}</link>
+```
+
+This affects the body template only. Header and footer templates, and URLs assembled entirely inside a Twig expression are not changed.
+
+## MCP server no longer uses the `MCP_SERVER` feature flag
+
+The experimental MCP server is now always enabled and the `MCP_SERVER` feature flag has been removed.
+
+- If you set `MCP_SERVER=1` (or `MCP_SERVER=0`) in your `.env`, remove it. The flag no longer has any effect.
+- The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
+- The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
+
+## OpenAPI generator dependency upgraded to swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
+Extensions that only provide OpenAPI metadata through `OpenApi\Annotations` or `OpenApi\Attributes` are expected to keep working, but extension build tools or tests that use swagger-php's programmatic API may need small changes.
+
+The common migration path is:
+
+* Replace `OpenApi\Generator::scan($sources, ['logger' => $logger])` with `(new OpenApi\Generator($logger))->generate($sources)`.
+* Replace `OpenApi\Util::finder($directory)` with the directory path itself when passing sources to `Generator::generate()`, or use swagger-php 6's `SourceFinder` if you only target v6.
+* If custom processors need to support both old and new swagger-php versions, use `method_exists($generator, 'getProcessorPipeline')`: use `getProcessorPipeline()` / `setProcessorPipeline()` for v5/v6 and fall back to `getProcessors()` / `setProcessors()` for v4.
+* Prefer `OpenApi\Generator::isDefault($value)` over direct comparisons with `Generator::UNDEFINED` when code should keep working across versions.
+
+If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
+For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
 # 6.7.13.0
+
+## Storefront form validation messages use Shopware snippets
+
+Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.
+
+If a plugin provides custom constraints used by these forms, add matching translations to `Resources/snippet/storefront.<locale>.json` below the `error` key. For example, the violation code `VIOLATION::MY_CUSTOM_ERROR` requires the snippet key `error.VIOLATION::MY_CUSTOM_ERROR`.
 
 ## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
 

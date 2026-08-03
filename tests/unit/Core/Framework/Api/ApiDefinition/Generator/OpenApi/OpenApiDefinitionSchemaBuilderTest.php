@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithJsonOverride;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginExtensionForJsonOverride;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ComplexDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
@@ -15,6 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiDefinitionSchemaBuilder::class)]
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
@@ -30,6 +34,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 SimpleDefinition::class,
                 ComplexDefinition::class,
                 SimpleExtendedDefinition::class,
+                DefinitionWithJsonOverride::class,
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
@@ -123,6 +128,29 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+    }
+
+    public function testExtensionSchemaDoesNotGenerateBaseDefinitionFields(): void
+    {
+        $definition = $this->definitionRegistry->get(DefinitionWithJsonOverride::class);
+        $extension = new PluginExtensionForJsonOverride();
+        $definition->addExtension($extension);
+
+        try {
+            $fullSchema = $this->schemaBuilder->getSchemaByDefinition($definition, '/json-override-entity', true);
+            $schema = $this->schemaBuilder->getExtensionSchemaByDefinition($definition, '/json-override-entity', true);
+            $fullProperties = json_decode($fullSchema['JsonOverrideEntity']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+            $properties = json_decode($schema['JsonOverrideEntity']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+
+            static::assertSame(['extensions'], array_keys($properties));
+            static::assertSame($fullProperties['extensions'], $properties['extensions']);
+            static::assertSame('object', $properties['extensions']['type']);
+            static::assertSame('object', $properties['extensions']['properties']['pluginEntities']['type']);
+            static::assertSame('string', $properties['extensions']['properties']['pluginLabel']['type']);
+            static::assertSame('boolean', $properties['extensions']['properties']['pluginActive']['type']);
+        } finally {
+            $definition->removeExtension($extension);
+        }
     }
 
     public function testAssociationDescriptions(): void

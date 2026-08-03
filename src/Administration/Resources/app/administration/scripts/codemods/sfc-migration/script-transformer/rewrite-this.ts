@@ -1,4 +1,4 @@
-import type { PropertyAccessExpression } from 'ts-morph';
+import type { Node as TsNode, PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
 import { createIdentifierTemplate, identTemplate, isIdentifierToken } from './identifier-template';
@@ -110,6 +110,7 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
             const expression = node.getExpression();
             const firstArgument = node.getArguments()[0];
 
+            // Example: `this.$emit('save')`
             if (
                 Node.isPropertyAccessExpression(expression) &&
                 getDirectThisPropertyName(expression) === '$emit' &&
@@ -123,12 +124,121 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
     return [...names];
 }
 
+/**
+ * Names that `rewriteThisInBody` can turn into a setup-safe expression. Used by
+ * `findUnsupportedThisUsage` to decide whether a `this.<name>` access would be
+ * emitted verbatim (and therefore break at runtime).
+ */
+function isSupportedThisPropertyName(name: string, ctx: RewriteContext): boolean {
+    return (
+        name === '$emit' ||
+        name === '$router' ||
+        name === '$route' ||
+        name === '$nextTick' ||
+        name === '$slots' ||
+        name === '$props' ||
+        name === '$attrs' ||
+        name === '$tc' ||
+        name === '$t' ||
+        name === '$refs' ||
+        name === '$el' ||
+        name === '$store' ||
+        name === '$parent' ||
+        name === '$root' ||
+        name === '$options' ||
+        name === '$forceUpdate' ||
+        ctx.propNames.has(name) ||
+        ctx.dataNames.has(name) ||
+        ctx.computedNames.has(name) ||
+        ctx.methodNames.has(name) ||
+        ctx.injectNames.has(name)
+    );
+}
+
+/**
+ * Detects a `this.<method>()` call inside a data initializer. In setup those
+ * methods become `const` declarations emitted after the data refs, so calling
+ * them from a ref initializer would hit a temporal-dead-zone ReferenceError.
+ */
+export function findDataInitializerMethodCall(valueText: string, methodNames: Set<string>): string | null {
+    for (const callExpression of getSnippetCallExpressions({ text: valueText, kind: 'expression' })) {
+        const expression = callExpression.getExpression();
+
+        if (!Node.isPropertyAccessExpression(expression)) {
+            continue;
+        }
+
+        const thisPropertyName = getDirectThisPropertyName(expression);
+        if (thisPropertyName && methodNames.has(thisPropertyName)) {
+            return thisPropertyName;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Returns a human-readable reason when a snippet still depends on the Options
+ * API instance in a way that cannot be rewritten into setup: dynamic
+ * `this[key]` access, a bare `this` reference (aliasing, destructuring,
+ * `.bind(this)`), or an unknown `this.<name>` property. Callers drop the member
+ * and record the reason instead of emitting non-equivalent code.
+ */
+export function findUnsupportedThisUsage(snippet: CodeSnippet, ctx: RewriteContext): string | null {
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+    const inSnippet = (node: TsNode): boolean => isNodeInsideSnippet(node, snippetStart, snippetEnd);
+
+    const dynamicAccess = sourceFile
+        .getDescendantsOfKind(SyntaxKind.ElementAccessExpression)
+        .filter(inSnippet)
+        .some((node) => node.getExpression().isKind(SyntaxKind.ThisKeyword));
+    if (dynamicAccess) {
+        return 'dynamic this access';
+    }
+
+    const bareThis = sourceFile
+        .getDescendantsOfKind(SyntaxKind.ThisKeyword)
+        .filter(inSnippet)
+        .find((node) => !isThisPropertyObject(node));
+    if (bareThis) {
+        const parent = bareThis.getParent();
+
+        // `const vm = this` keeps a named alias of the instance; other bare
+        // `this` uses (destructuring, `.bind(this)`, `scope: this`) are grouped
+        // under a single reason.
+        return Node.isVariableDeclaration(parent) && Node.isIdentifier(parent.getNameNode()) ? 'this alias' : 'bare this';
+    }
+
+    for (const propertyAccess of getSnippetPropertyAccesses(snippet)) {
+        if (getThisRefName(propertyAccess)) {
+            continue;
+        }
+
+        const name = getDirectThisPropertyName(propertyAccess);
+        if (!name || isSupportedThisPropertyName(name, ctx)) {
+            continue;
+        }
+
+        return `unknown this property '${name}'`;
+    }
+
+    return null;
+}
+
+/** true when the `this` keyword is the object of a `this.<name>` access. */
+function isThisPropertyObject(thisNode: TsNode): boolean {
+    const parent = thisNode.getParent();
+
+    return Node.isPropertyAccessExpression(parent) && parent.getExpression().getStart() === thisNode.getStart();
+}
+
 export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): ScriptSnippet {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, kind);
-    // TODO: Silent ignore: only property accesses are inspected. Bare `this`,
-    // element access (`this[key]`), destructuring, aliases, and `.bind(this)`
-    // can remain in generated setup code without a blocker.
+    // Only property accesses are rewritten here; instance dependencies that
+    // cannot be rewritten (bare `this`, `this[key]`, unknown `this.<name>`) are
+    // filtered out earlier via findUnsupportedThisUsage.
     const replacements = sourceFile
+        // Example: `this.product.name` contains `this.product` and `this.product.name` property accesses.
         .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
         .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
         .map((node) => {
@@ -227,9 +337,8 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
             return tIdent;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
-            // transitional bridge that must be reviewed after generation.
-            // TODO: Silent ignore: $el placeholder usage still reports fully
-            // migratable unless a separate blocker is added.
+            // transitional bridge. collectPlaceholderApiReasons keeps the
+            // migration partial so the placeholder is reviewed after generation.
             return '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
         case '$store':
             // Vuex access needs a store-specific Pinia/composable migration.
@@ -237,24 +346,15 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
             // non-functional placeholder.
             return "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()";
         case '$parent':
-            // TODO: Silent ignore: placeholder rewrites for instance APIs
-            // change runtime behavior but do not currently force partial
-            // migration status.
+            // Placeholder rewrites for instance APIs change runtime behavior;
+            // collectPlaceholderApiReasons reports them so the migration stays
+            // partial.
             return '/* TODO: $parent */ undefined';
         case '$root':
-            // TODO: Silent ignore: placeholder rewrites for instance APIs
-            // change runtime behavior but do not currently force partial
-            // migration status.
             return '/* TODO: $root */ undefined';
         case '$options':
-            // TODO: Silent ignore: placeholder rewrites for instance APIs
-            // change runtime behavior but do not currently force partial
-            // migration status.
             return '/* TODO: $options */ {}';
         case '$forceUpdate':
-            // TODO: Silent ignore: placeholder rewrites for instance APIs
-            // change runtime behavior but do not currently force partial
-            // migration status.
             return '/* TODO: $forceUpdate */ (() => {})';
         default:
             break;
@@ -272,7 +372,7 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
         return name;
     }
 
-    // TODO: Silent ignore: unknown `this.<name>` accesses are left in setup
-    // output instead of becoming a blocker.
+    // Unknown `this.<name>` is left unrewritten here; findUnsupportedThisUsage
+    // drops the containing member before emission, so it never reaches output.
     return null;
 }

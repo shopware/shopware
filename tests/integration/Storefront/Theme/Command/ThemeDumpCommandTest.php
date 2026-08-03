@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -25,6 +27,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -32,6 +35,11 @@ class ThemeDumpCommandTest extends TestCase
     private string $parentThemeId;
 
     private string $childThemeId;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $dumpedConfig = null;
 
     protected function tearDown(): void
     {
@@ -116,7 +124,7 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            $this->createStaticFileConfigDumperMock(),
             $themeFilesystemResolverMock
         );
         $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
@@ -124,7 +132,36 @@ class ThemeDumpCommandTest extends TestCase
         $commandTester = new CommandTester($themeDumpCommand);
         $commandTester->execute([], ['interactive' => false]);
 
+        // Without interaction the domain is resolved from the theme's storefront sales channel instead of being
+        // dumped as an empty string.
         $commandTester->assertCommandIsSuccessful();
+        static::assertIsArray($this->dumpedConfig);
+        static::assertNotSame('', $this->dumpedConfig['domainUrl']);
+    }
+
+    public function testExecuteResolvesSingleDomainWithoutInteraction(): void
+    {
+        ['themeId' => $themeId, 'domainUrl' => $domainUrl] = $this->setUpSingleDomainTheme();
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            static::getContainer()->get('theme.repository'),
+            $this->createStaticFileConfigDumperMock(),
+            $themeFilesystemResolverMock
+        );
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $commandTester->execute(['theme-id' => $themeId], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertIsArray($this->dumpedConfig);
+        static::assertSame($domainUrl, $this->dumpedConfig['domainUrl']);
     }
 
     public function testInteractiveModeDisplaysThemeAssignmentInfos(): void
@@ -264,6 +301,65 @@ class ThemeDumpCommandTest extends TestCase
 
             $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
         }
+    }
+
+    /**
+     * @return array{themeId: string, domainUrl: string}
+     */
+    private function setUpSingleDomainTheme(): array
+    {
+        $themeRepository = static::getContainer()->get('theme.repository');
+        $themeSalesChannelRepository = static::getContainer()->get('theme_sales_channel.repository');
+        $context = Context::createDefaultContext();
+
+        $themeId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $domainUrl = 'http://localhost/single/' . $themeId;
+
+        $themeRepository->create(
+            [
+                [
+                    'id' => $themeId,
+                    'name' => 'Single domain theme',
+                    // Has to match a technical name known to the plugin registry mock.
+                    'technicalName' => 'parentTheme',
+                    'author' => 'test',
+                    'active' => true,
+                ],
+            ],
+            $context
+        );
+
+        $this->createSalesChannel([
+            'id' => $salesChannelId,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => $domainUrl,
+                ],
+            ],
+        ]);
+
+        $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
+
+        return ['themeId' => $themeId, 'domainUrl' => $domainUrl];
+    }
+
+    private function createStaticFileConfigDumperMock(): StaticFileConfigDumper&MockObject
+    {
+        $staticFileConfigDumper = $this->createMock(StaticFileConfigDumper::class);
+        $staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
+            /**
+             * @param array<string, mixed> $dump
+             */
+            function (string $filePath, array $dump): void {
+                $this->dumpedConfig = $dump;
+            }
+        );
+
+        return $staticFileConfigDumper;
     }
 }
 

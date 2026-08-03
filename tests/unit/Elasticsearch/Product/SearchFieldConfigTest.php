@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SearchFieldConfig::class)]
 class SearchFieldConfigTest extends TestCase
 {
@@ -58,5 +60,50 @@ class SearchFieldConfigTest extends TestCase
         static::assertSame(2, $searchConfig->getPrefixLength('bohrcraft'));
         static::assertSame(3, $searchConfig->getPrefixLength('bohrcraftX'));
         static::assertSame(3, $searchConfig->getPrefixLength('Tellerkopfschraube'));
+    }
+
+    public function testUseExactSubfield(): void
+    {
+        static::assertFalse((new SearchFieldConfig('fooField', 1000.0, true))->useExactSubfield());
+        static::assertTrue((new SearchFieldConfig('fooField', 1000.0, true, false, true, true))->useExactSubfield());
+    }
+
+    public function testIsPhrase(): void
+    {
+        static::assertFalse((new SearchFieldConfig('fooField', 1000.0, true))->isPhrase());
+        static::assertTrue((new SearchFieldConfig('fooField', 1000.0, true, false, true, false, true))->isPhrase());
+    }
+
+    public function testWithPhraseReturnsPhraseEnabledClone(): void
+    {
+        $config = new SearchFieldConfig('fooField', 1000.0, true, true, true, true);
+        $phrase = $config->withPhrase();
+
+        static::assertNotSame($config, $phrase);
+        static::assertFalse($config->isPhrase(), 'the original must stay unchanged');
+        static::assertTrue($phrase->isPhrase());
+
+        // every other property is carried over to the clone
+        static::assertSame('fooField', $phrase->getField());
+        static::assertSame(1000.0, $phrase->getRanking());
+        static::assertTrue($phrase->tokenize());
+        static::assertTrue($phrase->isAndLogic());
+        static::assertTrue($phrase->usePrefixMatch());
+        static::assertTrue($phrase->useExactSubfield());
+    }
+
+    public function testWithoutNgramReturnsTokenizeDisabledClone(): void
+    {
+        $config = new SearchFieldConfig('fooField', 1000.0, true, true);
+        $withoutNgram = $config->withoutNgram();
+
+        static::assertNotSame($config, $withoutNgram);
+        static::assertTrue($config->tokenize(), 'the original must stay unchanged');
+        static::assertFalse($withoutNgram->tokenize());
+
+        // every other property is carried over to the clone
+        static::assertSame('fooField', $withoutNgram->getField());
+        static::assertSame(1000.0, $withoutNgram->getRanking());
+        static::assertTrue($withoutNgram->isAndLogic());
     }
 }

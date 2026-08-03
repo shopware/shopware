@@ -8,11 +8,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleHierarchyBuilder::class)]
 class BundleHierarchyBuilderTest extends TestCase
 {

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TemplateLifecycleHandler::class)]
 class TemplateLifecycleHandlerTest extends TestCase
 {
@@ -216,7 +218,6 @@ class TemplateLifecycleHandlerTest extends TestCase
         }, array_keys($templates), $templates)));
         $app->setActive(true);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         return $repo;

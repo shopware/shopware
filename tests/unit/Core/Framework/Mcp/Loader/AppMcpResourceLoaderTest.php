@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
+use Mcp\Capability\Registry\ResourceReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Server\RequestContext;
 use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,9 +22,9 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppMcpResourceLoader::class)]
 #[CoversClass(AbstractAppMcpLoader::class)]
-#[Package('framework')]
 class AppMcpResourceLoaderTest extends TestCase
 {
     private Connection&Stub $connection;
@@ -72,7 +73,7 @@ class AppMcpResourceLoaderTest extends TestCase
         $registry->expects($this->once())
             ->method('registerResource')
             ->with(
-                static::callback(function (Resource $resource): bool {
+                static::callback(function (ResourceDefinition $resource): bool {
                     static::assertSame('my-app-order-stats', $resource->name);
                     static::assertSame('app-example://order-stats', $resource->uri);
                     static::assertSame('Live order statistics', $resource->description);
@@ -81,7 +82,6 @@ class AppMcpResourceLoaderTest extends TestCase
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -106,13 +106,12 @@ class AppMcpResourceLoaderTest extends TestCase
         $registry->expects($this->once())
             ->method('registerResource')
             ->with(
-                static::callback(function (Resource $resource): bool {
+                static::callback(function (ResourceDefinition $resource): bool {
                     static::assertNull($resource->mimeType);
 
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -137,13 +136,12 @@ class AppMcpResourceLoaderTest extends TestCase
         $registry->expects($this->once())
             ->method('registerResource')
             ->with(
-                static::callback(function (Resource $resource): bool {
+                static::callback(function (ResourceDefinition $resource): bool {
                     static::assertSame('my-app-mystery-resource', $resource->description);
 
                     return true;
                 }),
                 static::isCallable(),
-                true,
             );
 
         $this->loader->load($registry);
@@ -180,8 +178,10 @@ class AppMcpResourceLoaderTest extends TestCase
         $registry = $this->createMock(RegistryInterface::class);
         $registry->expects($this->once())
             ->method('registerResource')
-            ->willReturnCallback(function (Resource $resource, callable $callback) use (&$capturedCallback): void {
+            ->willReturnCallback(function (ResourceDefinition $resource, callable $callback) use (&$capturedCallback): ResourceReference {
                 $capturedCallback = $callback;
+
+                return static::createStub(ResourceReference::class);
             });
 
         $loader->load($registry);

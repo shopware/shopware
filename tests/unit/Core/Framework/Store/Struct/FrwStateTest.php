@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(FrwState::class)]
 class FrwStateTest extends TestCase
 {

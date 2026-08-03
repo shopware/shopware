@@ -11,7 +11,7 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-#[Package('framework')]
+#[Package('discovery')]
 class HeaderPagelet extends NavigationPagelet
 {
     /**

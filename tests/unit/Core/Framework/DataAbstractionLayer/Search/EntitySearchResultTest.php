@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -16,6 +17,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntitySearchResult::class)]
 class EntitySearchResultTest extends TestCase
 {
@@ -25,7 +27,7 @@ class EntitySearchResultTest extends TestCase
         $entity = new ArrayEntity(['id' => Uuid::randomHex()]);
         $entityCollection = new EntityCollection([$entity]);
         $result = new EntitySearchResult(
-            ArrayEntity::class,
+            'array',
             100,
             $entityCollection,
             null,
@@ -45,7 +47,7 @@ class EntitySearchResultTest extends TestCase
 
         $firstInstance = $newInstance->first();
         static::assertNotNull($firstInstance);
-        static::assertSame(ArrayEntity::class, $newInstance->getEntity());
+        static::assertSame('array', $newInstance->getEntity());
         static::assertSame(ArrayEntity::class, $firstInstance::class);
         static::assertSame(8, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
@@ -66,7 +68,7 @@ class EntitySearchResultTest extends TestCase
 
         $firstInstance = $newInstance->first();
         static::assertNotNull($firstInstance);
-        static::assertSame(ArrayEntity::class, $newInstance->getEntity());
+        static::assertSame('array', $newInstance->getEntity());
         static::assertSame(ArrayEntity::class, $firstInstance::class);
         static::assertSame(4, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
@@ -82,7 +84,7 @@ class EntitySearchResultTest extends TestCase
         $entityCollection = new EntityCollection([$existingEntity]);
 
         $entitySearchResult = new EntitySearchResult(
-            ArrayEntity::class,
+            'array',
             $entityCollection->count(),
             $entityCollection,
             null,
@@ -119,7 +121,7 @@ class EntitySearchResultTest extends TestCase
         $entityCollection = new EntityCollection($entities);
 
         return new EntitySearchResult(
-            ArrayEntity::class,
+            'array',
             $entityCollection->count(),
             $entityCollection,
             null,

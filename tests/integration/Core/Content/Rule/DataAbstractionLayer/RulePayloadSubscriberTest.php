@@ -182,7 +182,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->executeStatement();
 
-        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
@@ -221,7 +221,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->executeStatement();
 
-        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = static::getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());

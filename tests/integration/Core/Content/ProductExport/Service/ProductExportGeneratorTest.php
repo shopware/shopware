@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -44,6 +45,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -70,7 +72,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -79,13 +81,29 @@ class ProductExportGeneratorTest extends TestCase
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
     }
 
+    public function testExportEncodesMediaUrls(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.cover.media.url }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString('product%20image.jpg', $exportResult->getContent());
+    }
+
     public function testProductExportGenerationEvents(): void
     {
         $productExportId = $this->createTestEntity();
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
@@ -161,7 +179,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportBehavior = new ExportBehavior();
@@ -231,7 +249,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -248,7 +266,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -267,7 +285,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $result = $this->service->generate($productExport, new ExportBehavior());
@@ -316,7 +334,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -348,7 +366,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = static::getContainer()->get('sales_channel.repository');
 
-        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannel = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         return $salesChannel->getId();
@@ -359,7 +377,7 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
-        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
 
         return $salesChannelDomain;
@@ -434,6 +452,8 @@ class ProductExportGeneratorTest extends TestCase
 
         for ($i = 0; $i < 10; ++$i) {
             $groupId = Uuid::randomHex();
+            $productMediaId = Uuid::randomHex();
+            $mediaId = Uuid::randomHex();
 
             $products[] = [
                 'id' => Uuid::randomHex(),
@@ -445,6 +465,20 @@ class ProductExportGeneratorTest extends TestCase
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'coverId' => $productMediaId,
+                'media' => [
+                    [
+                        'id' => $productMediaId,
+                        'position' => 1,
+                        'media' => [
+                            'id' => $mediaId,
+                            'fileName' => 'product image',
+                            'fileExtension' => 'jpg',
+                            'mimeType' => 'image/jpeg',
+                            'path' => 'media/product image.jpg',
+                        ],
+                    ],
                 ],
                 'options' => [
                     [

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\Common;
 use PHPUnit\Event\Telemetry\HRTime;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TimeKeeper::class)]
 class TimeKeeperTest extends TestCase
 {

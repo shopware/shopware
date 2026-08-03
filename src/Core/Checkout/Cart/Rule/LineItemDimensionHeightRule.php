@@ -33,7 +33,7 @@ class LineItemDimensionHeightRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->matchWeightDimension($scope->getLineItem());
+            return $this->matchHeightDimension($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -41,7 +41,7 @@ class LineItemDimensionHeightRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($this->matchWeightDimension($lineItem)) {
+            if ($this->matchHeightDimension($lineItem)) {
                 return true;
             }
         }
@@ -74,8 +74,12 @@ class LineItemDimensionHeightRule extends Rule
     /**
      * @throws UnsupportedOperatorException
      */
-    private function matchWeightDimension(LineItem $lineItem): bool
+    private function matchHeightDimension(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {

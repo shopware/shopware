@@ -7,7 +7,6 @@ use Composer\IO\NullIO;
 use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -56,7 +56,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -485,14 +485,14 @@ class PluginLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTestTheme'));
 
-        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount(1, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context, $keepUserData);
 
         $pluginUninstalled = $this->getTestPlugin($this->context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
-        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+        static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getEntities()->getElements());
     }
 
     /**

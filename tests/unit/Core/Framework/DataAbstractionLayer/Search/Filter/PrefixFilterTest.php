@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Filter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PrefixFilter::class)]
 class PrefixFilterTest extends TestCase
 {

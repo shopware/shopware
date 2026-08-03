@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Api\ShippingMethodTechnicalNameFkResolver;
 use Shopware\Core\Framework\Api\Sync\FkReference;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShippingMethodTechnicalNameFkResolver::class)]
 class ShippingMethodTechnicalNameFkResolverTest extends TestCase
 {

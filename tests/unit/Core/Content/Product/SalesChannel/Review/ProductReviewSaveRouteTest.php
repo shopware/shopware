@@ -15,6 +15,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -28,6 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {

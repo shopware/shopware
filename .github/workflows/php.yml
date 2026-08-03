@@ -64,13 +64,17 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Cache CS Fixer
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # per-run key + prefix restore, like the PHPStan and Rector result caches: the old
+      # composer.json-hash key was never re-saved once it existed, so the stored cache went
+      # stale against php-cs-fixer's internal signature (PHP/fixer version, rules) and PRs
+      # silently paid a full 10+ minute scan despite an exact-key cache hit (issue 18890)
+      - name: "Restore result cache"
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
-          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
           restore-keys: |
-            ${{ runner.os }}-cs-fixer-
+            cs-fixer-result-cache-
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
@@ -78,8 +82,21 @@ jobs:
       - name: Analyze composer dependencies
         run: composer dependency-analyzer
 
+      # baseline data for the runner sizing evaluation, see issue 18890
+      - name: Show analysis environment
+        run: |
+          echo "cores: $(nproc)"
+          free -h | head -2
+
       - name: Code Style
-        run: composer run cs
+        run: time composer run cs
+
+      - name: "Save result cache"
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: ./var/cache/cs_fixer
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
 
       - name: Lint Snippets
         run: bin/console translation:validate

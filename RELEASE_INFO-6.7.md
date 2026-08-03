@@ -558,14 +558,15 @@ Sales Channels now have an optional business timezone setting. When configured, 
 
 Without a value, document rendering keeps its previous behaviour, which depends on the entry point: documents generated during a Storefront request can pick up the customer's browser timezone, while documents generated from the Administration or the message queue use Twig's configured default timezone. Starting with Shopware 6.8, this entry-point dependency is removed: without a business timezone, documents always render in Twig's configured default timezone (UTC unless changed via the `twig.date.timezone` configuration), regardless of how the document is generated.
 
-### `EntitySearchResult` and result subclasses deprecated
+### `EntitySearchResult` and result subclasses no longer expose a collection API
 
-`EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` are deprecated for v6.8.0.
-In v6.8.0 `EntitySearchResult` will no longer extend `EntityCollection`, and the two subclasses will no longer extend `EntitySearchResult`. The classes remain `Struct`, so extensions, states, and JSON serialization keep working.
+`EntitySearchResult`, `ProductListingResult`, and `ProductReviewResult` remain supported result wrappers in v6.8.0, but no longer extend `EntityCollection` / `EntitySearchResult`. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+
+Previously, both the inherited collection and the `entities` property were mutable collections. They could drift apart, so the result wrappers now expose their one authoritative collection through `entities`.
 
 To prepare, for all three classes:
 
-- Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result.
+- Call collection methods (`first`, `last`, `filter`, `getElements`, `slice`, …) on `$result->getEntities()` instead of directly on the result. The `entities` property remains available in PHP and Twig.
 - In Twig, use `{% for x in searchResult.entities %}` instead of `{% for x in searchResult %}`, and `searchResult.entities` instead of `searchResult.elements`.
 - Stop relying on `instanceof EntityCollection` for any result, or on `instanceof EntitySearchResult` for a `ProductListingResult` / `ProductReviewResult`. Parameter and return types declared as those will reject results in v6.8.0.
 

@@ -9,8 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
-    // bigger chunks keep the workers busy with actual analysis instead of per-chunk
-    // overhead; 100 files per process cut the cold full scan from ~14 to ~8 minutes
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
     ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
     ->setRiskyAllowed(true)
     ->setRules([

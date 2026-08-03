@@ -108,6 +108,10 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter name "$optional" must be given without the leading "$".',
                 241,
             ],
+            [
+                'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter "$optional" does not exist.',
+                241,
+            ],
         ]);
     }
 

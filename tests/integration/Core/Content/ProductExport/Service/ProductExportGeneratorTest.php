@@ -312,7 +312,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $criteria = $this->createProductExportCriteria($productExportId);
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $result = $this->service->generate($productExport, new ExportBehavior(false, false, false, false, false));

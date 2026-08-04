@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -501,12 +500,6 @@ class ProductExportGeneratorTest extends TestCase
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
 
         $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnOnConsecutiveCalls(
-                IdSearchResult::fromIds(['product-id'], new Criteria(), $context->getContext()),
-                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
-            );
-        $this->productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 $this->createProductSearchResult($product, $context),
@@ -548,7 +541,7 @@ class ProductExportGeneratorTest extends TestCase
             ->willReturn(['api_filter' => null, 'invalid' => 1]);
         $this->connection->expects($this->never())->method('delete');
 
-        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($this->createMock(TwigVariableParser::class));
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn(static::createStub(TwigVariableParser::class));
 
         static::expectException(NoFilterException::class);
 

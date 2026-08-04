@@ -64,6 +64,32 @@ test('a trunk PR without any milestone label is invalid', () => {
     assert.match(verdict.message, /no `milestone\/\*` label/);
 });
 
+test('a missing label is a race while the labeler is still running', () => {
+    // Regression: this failed on every newly opened pull request.
+    const racing = evaluateMilestoneLabel({
+        baseRefName: 'trunk',
+        defaultBranch: 'trunk',
+        labels: [],
+        versionBranches: VERSION_BRANCHES,
+        labelerPending: true,
+    });
+
+    assert.equal(racing.status, 'skipped');
+    assert.equal(evaluate([]).status, 'invalid');
+});
+
+test('a wrong label is invalid even while the labeler is still running', () => {
+    const verdict = evaluateMilestoneLabel({
+        baseRefName: 'trunk',
+        defaultBranch: 'trunk',
+        labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`],
+        versionBranches: VERSION_BRANCHES,
+        labelerPending: true,
+    });
+
+    assert.equal(verdict.status, 'invalid');
+});
+
 test('a draft without a milestone label is left alone', () => {
     // Authors deliberately drop the label from long-running drafts, and a draft
     // cannot merge — set_milestone_label puts it back on ready_for_review.

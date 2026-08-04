@@ -123,7 +123,9 @@ class ProductDocumentInheritanceTest extends TestCase
 
         $variant = $this->loadProduct($variantId, false);
 
-        static::assertCount(0, $variant->getProductDocuments() ?? new ProductDocumentCollection());
+        $productDocuments = $variant->getProductDocuments();
+        static::assertInstanceOf(ProductDocumentCollection::class, $productDocuments);
+        static::assertCount(0, $productDocuments);
     }
 
     /**

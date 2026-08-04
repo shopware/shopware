@@ -9,10 +9,11 @@
 
 import path from 'path';
 import { renderCheckReport, renderSetupReport } from '../report';
+import { collectSkippedTargets } from '../check-types';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check-types';
 import type { SetupExtensionToolingResult } from '../setup';
-import { aggregateModeResolution, collectSkippedTargets } from '../shared';
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution } from '../shared';
+import { firstDrift } from '../shared';
+import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig } from '../shared';
 
 // picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
 // is exact for the renderer's output.
@@ -23,11 +24,12 @@ export function stripAnsi(value: string): string {
     return value.replace(ANSI_SGR_PATTERN, '');
 }
 
-export function resolution(mode: ModeResolution['mode'], overrides: Partial<ModeResolution> = {}): ModeResolution {
-    return { mode, verified: true, ...overrides };
+/** An extension-owned config at `path`; a `detail` implies it does not compose. */
+export function owned(configPath: string, detail?: string): OwnedConfig {
+    return detail === undefined ? { path: configPath, composes: true } : { path: configPath, composes: false, detail };
 }
 
-type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget> & { sourcePaths?: string[] };
+type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget>;
 
 export function target(name: string, overrides: Partial<AdministrationTarget> = {}): AdministrationTarget {
     const sourcePath = overrides.sourcePath ?? `custom/plugins/${name}/src`;
@@ -39,22 +41,16 @@ export function target(name: string, overrides: Partial<AdministrationTarget> = 
         bridgePresent: overrides.bridgePresent ?? false,
         tsconfig: overrides.tsconfig ?? null,
         eslintConfig: overrides.eslintConfig ?? null,
-        ts: overrides.ts ?? resolution('managed'),
-        eslint: overrides.eslint ?? resolution('managed'),
-        checkTsconfig: overrides.checkTsconfig ?? '',
-        specTsconfig: overrides.specTsconfig ?? '',
     };
 }
 
 export function project(name: string, overrides: ProjectOverrides = {}): ExtensionToolingProject {
-    const sourcePath = overrides.sourcePath ?? overrides.sourcePaths?.[0] ?? `custom/plugins/${name}/src`;
-
     return {
         name: overrides.name ?? name,
         technicalNames: overrides.technicalNames ?? [name],
         basePath: overrides.basePath ?? `custom/plugins/${name}`,
         vendor: overrides.vendor ?? false,
-        targets: overrides.targets ?? [target(name, { ...overrides, sourcePath })],
+        targets: overrides.targets ?? [target(name, overrides)],
     };
 }
 
@@ -68,8 +64,8 @@ export function extension(
 ): ExtensionCheckResult {
     return {
         project: project_,
-        tsResolution: overrides.tsResolution ?? aggregateModeResolution(project_, 'ts'),
-        eslintResolution: overrides.eslintResolution ?? aggregateModeResolution(project_, 'eslint'),
+        tsResolution: overrides.tsResolution ?? firstDrift(project_, 'tsconfig'),
+        eslintResolution: overrides.eslintResolution ?? firstDrift(project_, 'eslintConfig'),
         typescript: overrides.typescript ?? run('passed'),
         typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
         eslint: overrides.eslint ?? run('passed'),
@@ -83,10 +79,6 @@ export function checkReport(...args: Parameters<typeof renderCheckReport>): stri
     return stripAnsi(renderCheckReport(...args));
 }
 
-export function setupReport(...args: Parameters<typeof renderSetupReport>): string {
-    return stripAnsi(renderSetupReport(...args));
-}
-
 export function report(
     results: ExtensionCheckResult[],
     overrides: Partial<CheckExtensionsResult> = {},
@@ -96,6 +88,10 @@ export function report(
         { results, fatalDiagnostics: [], warnings: [], baselineUpdates: [], exitCode: 0, ...overrides },
         { verbose },
     );
+}
+
+export function setupReport(...args: Parameters<typeof renderSetupReport>): string {
+    return stripAnsi(renderSetupReport(...args));
 }
 
 export function setupResult(

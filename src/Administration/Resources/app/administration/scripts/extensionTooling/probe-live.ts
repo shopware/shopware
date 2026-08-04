@@ -13,13 +13,16 @@
 
 import path from 'path';
 import { runCommand } from './probe-command';
-import { ESLINT_NOT_COMPOSED_DETAIL, analyzeTsConfigStatically, detailForTsReason, tsUnmanagedReason } from './probe-static';
-import type { AdministrationTarget, ModeResolution } from './shared';
+import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
+import type { AdministrationTarget, OwnedConfig } from './shared';
 
 /** Shown when a config-load failure produced no recognizable error line. */
 export const ESLINT_LOAD_FAILED_DETAIL =
     'own ESLint config failed to load — run with --verbose for the underlying error (often an ESLint ' +
     'version or plugin-resolution mismatch).';
+
+/** Shown when a config loads cleanly but the factory's runtime contract rule never applies. */
+export const ESLINT_NOT_COMPOSED_DETAIL = 'own ESLint config does not compose the Shopware preset — see setup guidance.';
 
 /**
  * Picks the actionable line from failed ESLint output. ESLint prefixes fatal
@@ -53,13 +56,14 @@ export async function probeTsMode(
     target: AdministrationTarget,
     projectRoot: string,
     administrationRoot: string,
-): Promise<ModeResolution> {
+): Promise<OwnedConfig | null> {
     if (!target.tsconfig) {
-        return target.ts;
+        return target.tsconfig;
     }
 
+    const relativePath = target.tsconfig.path;
     const tscPath = path.join(administrationRoot, 'node_modules', 'typescript', 'bin', 'tsc');
-    const tsconfigPath = path.resolve(projectRoot, target.tsconfig);
+    const tsconfigPath = path.resolve(projectRoot, relativePath);
     const probe = await runCommand(
         process.execPath,
         [
@@ -75,25 +79,22 @@ export async function probeTsMode(
         const firstErrorLine =
             probe.output.split('\n').find((line) => line.trim() !== '') ?? 'the tsconfig does not resolve.';
 
-        return {
-            mode: 'unmanaged',
-            reason: 'config-error',
-            detail: firstErrorLine,
-            probeOutput: probe.output,
-            verified: true,
-        };
+        return { path: relativePath, composes: false, detail: firstErrorLine };
     }
 
     const composes = probe.output.includes('extension-tooling/admin-types') || probe.output.includes('admin-types.d.ts');
 
     if (composes) {
-        return { mode: 'bridged', verified: true };
+        return { path: relativePath, composes: true };
     }
 
-    const analysis = analyzeTsConfigStatically(tsconfigPath);
-    const reason = tsUnmanagedReason(analysis);
+    // The live probe is authoritative that it does not compose; borrow the
+    // static verdict only for its human explanation.
+    const verdict = tsconfigVerdict(tsconfigPath, relativePath);
 
-    return { mode: 'unmanaged', reason, detail: detailForTsReason(reason, analysis), verified: true };
+    return verdict.composes
+        ? { path: relativePath, composes: false, detail: 'the tsconfig does not reach the Shopware type surface.' }
+        : verdict;
 }
 
 /**
@@ -108,13 +109,15 @@ export async function probeEslintMode(
     administrationRoot: string,
     eslintBaseArguments: string[],
     sampleFile: string | null,
-): Promise<ModeResolution> {
+): Promise<OwnedConfig | null> {
     if (!target.eslintConfig) {
-        return target.eslint;
+        return target.eslintConfig;
     }
 
+    const relativePath = target.eslintConfig.path;
+
     if (!sampleFile) {
-        return { mode: 'bridged', verified: true };
+        return { path: relativePath, composes: true };
     }
 
     const eslintPath = path.join(administrationRoot, 'node_modules', 'eslint', 'bin', 'eslint.js');
@@ -130,18 +133,16 @@ export async function probeEslintMode(
     );
 
     if (probe.status !== 0) {
-        return {
-            mode: 'unmanaged',
-            reason: 'config-error',
-            detail: selectEslintErrorLine(probe.output),
-            probeOutput: probe.output,
-            verified: true,
-        };
+        return { path: relativePath, composes: false, detail: selectEslintErrorLine(probe.output) };
     }
 
     if (probe.output.includes('plugin-rules/no-src-imports')) {
-        return { mode: 'bridged', verified: true };
+        return { path: relativePath, composes: true };
     }
 
-    return { mode: 'unmanaged', reason: 'factory-not-composed', detail: ESLINT_NOT_COMPOSED_DETAIL, verified: true };
+    // The live probe is authoritative that it does not compose; borrow the
+    // static verdict's explanation, falling back to a stable sentence.
+    const verdict = eslintConfigVerdict(path.resolve(projectRoot, relativePath), relativePath);
+
+    return { path: relativePath, composes: false, detail: verdict.detail ?? ESLINT_NOT_COMPOSED_DETAIL };
 }

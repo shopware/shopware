@@ -33,6 +33,23 @@ const templateFilePatterns = [
     ...vueFilePatterns,
     ...defaultTwigFiles,
 ];
+/** Extensions consume the Administration through the global Shopware object, never through its sources. */
+const NO_ADMIN_INTERNALS_RULE = [
+    'error',
+    {
+        patterns: [
+            {
+                group: [
+                    'src',
+                    'src/*',
+                    '@administration/*',
+                    '**/src/Administration/Resources/app/administration/src/*',
+                ],
+                message: 'Use the global Shopware object instead of importing Administration internals.',
+            },
+        ],
+    },
+];
 const typedRules = Object.assign({}, ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}));
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
@@ -49,15 +66,27 @@ const vueParser = vueParserSetup.languageOptions.parser;
  *   Administration extensions (e.g. real server-side Twig templates).
  * - `legacyTwig`: lint `.html.twig` component templates through the Twig-Vue
  *   processor. Disable for SFC-only extensions.
- * - `internalApiSeverity`: severity for the API-boundary rules (usage of
- *   `@deprecated` members). Internal plugins that intentionally consume
- *   internal APIs may lower this in their own config.
- * - `typedSpecs`: type-aware-lint spec files (adds jest globals on top of the
- *   type-checked rules). Requires a discoverable spec program — the generated
- *   root config enables it, because the spec leaves are referenced from the root
- *   solution tsconfig. Shim-based configs leave it off, so their specs are
- *   parsed standalone; `vue-tsc` still type-checks them.
+ * - `internalApiSeverity`: umbrella severity for the API-boundary rules
+ *   (usage of `@deprecated` members). Internal plugins that intentionally
+ *   consume internal APIs may lower this in their own config.
  * - `ignores`: additional global ignore patterns.
+ *
+ * Host options — the Administration's own config composes this factory too
+ * (so the base rules cannot drift apart); these knobs decouple the pieces a
+ * host needs to own itself. Extension defaults reproduce the umbrella knob:
+ *
+ * - `deprecatedApiSeverity`: severity of `@typescript-eslint/no-deprecated`
+ *   alone (defaults to `internalApiSeverity`).
+ * - `templateDeprecationSeverity`: severity of the `sw-deprecation-rules`
+ *   template rules alone (defaults to `internalApiSeverity`). A host that
+ *   needs rule *options* re-declares the entries in a later config block —
+ *   flat-config rule entries replace wholesale.
+ * - `srcImportBoundary`: `false` disables the "never import Administration
+ *   internals" rules — only sensible for the Administration itself, which IS
+ *   `src`.
+ * - `specFiles`: `'untyped'` (default) parses spec files standalone with the
+ *   type-checked rules off; `'typed'` omits that block entirely, for hosts
+ *   whose tsconfig covers spec files with jest types.
  */
 export function shopwareAdminExtension(options = {}) {
     const {
@@ -65,8 +94,11 @@ export function shopwareAdminExtension(options = {}) {
         extensionRoots = [],
         legacyTwig = true,
         internalApiSeverity = 'error',
-        typedSpecs = false,
         ignores = [],
+        deprecatedApiSeverity = internalApiSeverity,
+        templateDeprecationSeverity = internalApiSeverity,
+        srcImportBoundary = true,
+        specFiles = 'untyped',
     } = options;
 
     if (!tsconfigRootDir) {
@@ -87,30 +119,18 @@ export function shopwareAdminExtension(options = {}) {
         );
     };
 
-    // With a discoverable spec program (the generated root config references the
-    // spec leaves) the type-checked rules already apply to specs, so the block
-    // only adds the jest globals. Without one there is no program to resolve
-    // them against, so type-aware linting is off and specs are parsed
-    // standalone — `vue-tsc` still type-checks them either way.
-    let specFilesConfig;
-
-    if (typedSpecs) {
-        specFilesConfig = {
-            name: 'shopware/admin-extension/spec-files',
-            files: scope(specFilePatterns),
-            languageOptions: { globals: { ...globals.jest } },
-        };
-    } else {
-        specFilesConfig = {
-            ...tseslint.configs.disableTypeChecked,
-            name: 'shopware/admin-extension/spec-files',
-            files: scope(specFilePatterns),
-            languageOptions: {
-                ...tseslint.configs.disableTypeChecked.languageOptions,
-                globals: { ...globals.jest },
-            },
-        };
-    }
+    // No program covers spec files, so type-aware rules have nothing to resolve
+    // them against: specs are parsed standalone with the jest globals available
+    // and the type-checked rules switched off.
+    const specFilesConfig = {
+        ...tseslint.configs.disableTypeChecked,
+        name: 'shopware/admin-extension/spec-files',
+        files: scope(specFilePatterns),
+        languageOptions: {
+            ...tseslint.configs.disableTypeChecked.languageOptions,
+            globals: { ...globals.jest },
+        },
+    };
 
     const config = [
         {
@@ -188,23 +208,8 @@ export function shopwareAdminExtension(options = {}) {
                 'plugin-rules': swPluginRules,
             },
             rules: {
-                'plugin-rules/no-src-imports': 'error',
-                'no-restricted-imports': [
-                    'error',
-                    {
-                        patterns: [
-                            {
-                                group: [
-                                    'src',
-                                    'src/*',
-                                    '@administration/*',
-                                    '**/src/Administration/Resources/app/administration/src/*',
-                                ],
-                                message: 'Use the global Shopware object instead of importing Administration internals.',
-                            },
-                        ],
-                    },
-                ],
+                'plugin-rules/no-src-imports': srcImportBoundary ? 'error' : 'off',
+                'no-restricted-imports': srcImportBoundary ? NO_ADMIN_INTERNALS_RULE : 'off',
             },
         },
         {
@@ -214,7 +219,7 @@ export function shopwareAdminExtension(options = {}) {
                 ...vueFilePatterns,
             ]),
             rules: {
-                '@typescript-eslint/no-deprecated': internalApiSeverity,
+                '@typescript-eslint/no-deprecated': deprecatedApiSeverity,
             },
         },
         {
@@ -224,11 +229,11 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules': swDeprecationRules,
             },
             rules: {
-                'sw-deprecation-rules/no-deprecated-components': internalApiSeverity,
-                'sw-deprecation-rules/no-deprecated-component-usage': internalApiSeverity,
+                'sw-deprecation-rules/no-deprecated-components': templateDeprecationSeverity,
+                'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
             },
         },
-        specFilesConfig,
+        ...(specFiles === 'typed' ? [] : [specFilesConfig]),
     ];
 
     if (legacyTwig) {

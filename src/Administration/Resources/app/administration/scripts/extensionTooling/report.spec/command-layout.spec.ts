@@ -10,7 +10,7 @@
 
 import { DEFAULT_TOOLING_COMMANDS, resolveToolingCommands } from '../shared';
 import { serializeBaseline } from '../baseline';
-import { checkReport, extension, project, resolution, run, setupReport, setupResult } from './helpers';
+import { checkReport, extension, owned, project, run, setupReport, setupResult } from './helpers';
 
 const FLEX_ADMIN_ROOT = '/shop/vendor/shopware/administration/Resources/app/administration';
 const MONOREPO_ADMIN_ROOT = '/shop/src/Administration/Resources/app/administration';
@@ -51,14 +51,13 @@ describe('extension tooling command layout', () => {
         expect(output).not.toContain('composer admin:check-extensions -- --update-baseline');
     });
 
-    it('renders the setup shim next-step with the layout-aware command', () => {
+    it('renders the setup next-step with the layout-aware command', () => {
         const needsBridge = project('NeedsBridge', {
-            tsconfig: 'custom/plugins/NeedsBridge/src/tsconfig.json',
-            ts: resolution('unmanaged', { reason: 'not-extending' }),
+            tsconfig: owned('custom/plugins/NeedsBridge/src/tsconfig.json', 'the extends chain does not reach the preset.'),
         });
         const output = setupReport(setupResult([needsBridge]), { commands: flexCommands });
 
-        expect(output).toContain('bin/console administration:setup-extension-tooling -- --shim=NeedsBridge');
-        expect(output).not.toContain('composer admin:setup-extension-tooling -- --shim=NeedsBridge');
+        expect(output).toContain('bin/console administration:setup-extension-tooling');
+        expect(output).not.toContain('composer admin:setup-extension-tooling');
     });
 });

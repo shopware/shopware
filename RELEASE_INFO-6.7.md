@@ -12,6 +12,7 @@ Three admin endpoints that previously only required authentication now enforce A
 * `GET /api/_action/scheduled-task/min-run-interval` requires the existing `scheduled_task:read` privilege.
 
 Administration users are not affected: both privileges are granted to every authenticated Administration user at runtime, because these endpoints back the admin worker that processes the message queue in every admin session. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only. External workers should keep using the `bin/console messenger:consume` and `scheduled-task:run` CLI commands, which are unaffected.
+
 ### Plugin filesystem metadata is read-only through the Admin API
 
 The `plugin.path` and `plugin.managedByComposer` fields can no longer be created or changed through generic Admin API writes. Plugin discovery and extension management continue to maintain these values automatically. Integrations must not write plugin filesystem metadata directly.

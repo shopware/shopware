@@ -329,8 +329,8 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equalsAny', 'value' => 'foo'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false];
-        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true];
-        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], false];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false];
     }
 
@@ -392,8 +392,19 @@ class QueryStringParserTest extends TestCase
             false,
         ];
 
-        yield 'With false as bool value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => false], null, true];
-        yield 'With 0 as int value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => 0], null, true];
+        yield 'With false as bool value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => false],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', false))),
+            false,
+        ];
+
+        yield 'With 0 as int value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 0],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 0))),
+            false,
+        ];
 
         yield 'With 1 as int value' => [
             ['type' => 'equalsAll', 'field' => 'foo', 'value' => 1],

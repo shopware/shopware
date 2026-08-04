@@ -26,8 +26,8 @@ class EntityNotExistsTest extends TestCase
         $entityNotExists = new EntityNotExists(
             entity: 'product_review',
             context: $context,
-            criteria: $criteria,
             primaryProperty: 'customerId',
+            criteria: $criteria,
         );
 
         static::assertSame('product_review', $entityNotExists->getEntity());
@@ -89,12 +89,12 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        static::expectException(FrameworkException::class);
+        $this->expectException(FrameworkException::class);
 
         new EntityNotExists(
             context: $context,
-            criteria: $criteria,
             primaryProperty: 'customerId',
+            criteria: $criteria,
         );
     }
 
@@ -104,9 +104,8 @@ class EntityNotExistsTest extends TestCase
 
         $criteria = new Criteria();
 
-        static::expectException(FrameworkException::class);
+        $this->expectException(FrameworkException::class);
 
-        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'criteria' => $criteria,
@@ -119,7 +118,7 @@ class EntityNotExistsTest extends TestCase
         Feature::skipTestIfActive('v6.8.0.0', $this);
         $context = Context::createDefaultContext();
 
-        static::expectException(FrameworkException::class);
+        $this->expectException(FrameworkException::class);
 
         /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
@@ -137,7 +136,7 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        static::expectException(FrameworkException::class);
+        $this->expectException(FrameworkException::class);
 
         /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([

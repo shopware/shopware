@@ -736,13 +736,16 @@ class RequestCriteriaBuilderTest extends TestCase
 
     public function testSimpleFilterAddsExceptionWithArrayInValue(): void
     {
+        $field = 'name';
         $payload = [
             'filter' => [
-                'name' => ['test'],
+                $field => ['test'],
             ],
         ];
 
-        $this->expectException(SearchRequestException::class);
+        $this->expectExceptionObject(new SearchRequestException([
+            '/filter/' => [DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field)],
+        ]));
 
         try {
             $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
@@ -765,7 +768,9 @@ class RequestCriteriaBuilderTest extends TestCase
             ],
         ];
 
-        $this->expectException(SearchRequestException::class);
+        $this->expectExceptionObject(new SearchRequestException([
+            '/filter/' => [DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be an array.', '/filter')],
+        ]));
 
         try {
             $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
@@ -774,6 +779,29 @@ class RequestCriteriaBuilderTest extends TestCase
 
             static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
             static::assertSame('The filter parameter has to be an array.', $error['detail']);
+            static::assertSame('400', $error['status']);
+
+            throw $e;
+        }
+    }
+
+    public function testFilterElementIsNotArray(): void
+    {
+        $payload = [
+            'filter' => 123,
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/filter/' => [DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.', '/filter')],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The filter parameter has to be a list of filters.', $error['detail']);
             static::assertSame('400', $error['status']);
 
             throw $e;
@@ -803,7 +831,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
-        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -836,7 +864,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $request = new Request([], $payload, [], [], []);
         $request->setMethod(Request::METHOD_POST);
 
-        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,

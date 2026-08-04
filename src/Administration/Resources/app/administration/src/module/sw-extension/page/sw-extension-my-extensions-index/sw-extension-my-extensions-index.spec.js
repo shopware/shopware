@@ -12,9 +12,6 @@ async function createWrapper(query = {}) {
         {
             global: {
                 provide: {
-                    feature: {
-                        isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
-                    },
                 },
                 stubs: {
                     'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),

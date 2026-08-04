@@ -39,9 +39,6 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-ai-copilot-badge': true,
                 },
                 provide: {
-                    feature: {
-                        isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
-                    },
                     shopwareExtensionService: {
                         updateExtensionData: jest.fn(),
                     },

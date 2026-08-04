@@ -152,6 +152,12 @@ async function createWrapper(
                         template: '<div class="mt-banner"><slot /></div>',
                     },
                     'sw-category-tree-field': {
+                        props: {
+                            allowedTypes: {
+                                type: Array,
+                                required: false,
+                            },
+                        },
                         template: `
                         <div class="sw-category-tree-field-stub">
                           <div class="sw-category-tree-field-label" @click="$emit(\'categories-load-more\')"></div>
@@ -252,6 +258,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
+        expect(wrapper.getComponent({ name: 'sw-category-tree-field' }).props('allowedTypes')).toEqual(['page']);
     });
 
     it('should render tabs when type is shop page', async () => {

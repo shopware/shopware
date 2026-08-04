@@ -217,3 +217,8 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
+
+        - # Will be fixed with PHPStan update (temporary ignore)
+            message: '#Parameter \#1 \$addresses of method Shopware\\Core\\Content\\Mail\\Service\\MailFactory::.*Addresses\(\) expects#'
+            identifier: argument.type
+            path: src/Core/Content/Mail/Service/MailFactory.php

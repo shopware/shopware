@@ -42,8 +42,10 @@ class ContactFormServiceTest extends TestCase
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            static::assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
+            static::assertStringContainsString('Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -91,11 +93,11 @@ class ContactFormServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            static::assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        $listenerClosure = static function (MailSentEvent $event): void {
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
+            static::assertStringContainsString('Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -129,11 +131,11 @@ class ContactFormServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            static::assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        $listenerClosure = static function (MailSentEvent $event): void {
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
+            static::assertStringContainsString('Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -167,11 +169,11 @@ class ContactFormServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            static::assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        $listenerClosure = static function (MailSentEvent $event): void {
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
+            static::assertStringContainsString('Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -208,8 +210,10 @@ class ContactFormServiceTest extends TestCase
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            static::assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
+            static::assertStringContainsString('Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);

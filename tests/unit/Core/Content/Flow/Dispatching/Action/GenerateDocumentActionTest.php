@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
@@ -22,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -278,6 +281,10 @@ class GenerateDocumentActionTest extends TestCase
                 $mediaService,
             ),
             new DocumentDependencyResolver($rendererRegistry),
+            new ReferencedDocumentResolver(
+                new ReferenceInvoiceLoader(static::createStub(Connection::class)),
+                static::createStub(Connection::class),
+            ),
             $orderRepository,
         );
 

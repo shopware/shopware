@@ -173,7 +173,7 @@ class ProductDocumentInheritanceTest extends TestCase
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance($considerInheritance);
 
-        $product = $this->productRepository->search($criteria, $context)->get($productId);
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
 
         return $product;

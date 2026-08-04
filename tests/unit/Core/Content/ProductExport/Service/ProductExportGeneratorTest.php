@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -73,7 +74,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private MockObject&SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
-    private MockObject&Environment $twig;
+    private Stub&Environment $twig;
 
     private ProductDefinition $productDefinition;
 
@@ -102,7 +103,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->contextPersister = $this->createMock(SalesChannelContextPersister::class);
         $this->connection = $this->createMock(Connection::class);
         $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $this->twig = $this->createMock(Environment::class);
+        $this->twig = static::createStub(Environment::class);
         $this->productDefinition = $productDefinition;
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);

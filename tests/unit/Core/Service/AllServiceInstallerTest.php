@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
@@ -30,7 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(AllServiceInstaller::class)]
 class AllServiceInstallerTest extends TestCase
 {
-    private ServiceRegistryClient&MockObject $registryClient;
+    private ServiceRegistryClient&Stub $registryClient;
 
     private ServiceLifecycle&MockObject $serviceLifecycle;
 
@@ -40,7 +41,7 @@ class AllServiceInstallerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->registryClient = $this->createMock(ServiceRegistryClient::class);
+        $this->registryClient = static::createStub(ServiceRegistryClient::class);
         $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);

@@ -290,6 +290,7 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertCount(1, $attachments);
         $attachment = $attachments[0];
         static::assertArrayHasKey('id', $attachment);
+        static::assertArrayHasKey('documentId', $attachment);
         static::assertSame($xmlDocId, $attachment['id']);
         static::assertSame($xmlDocId, $attachment['documentId']);
         static::assertSame('<?xml version="1.0"?>', $attachment['content']);
@@ -347,6 +348,8 @@ class MailAttachmentsBuilderTest extends TestCase
         $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, [], null);
 
         static::assertCount(1, $attachments);
+        static::assertArrayHasKey('id', $attachments[0]);
+        static::assertArrayHasKey('documentId', $attachments[0]);
         static::assertSame($pdfFile->getId(), $attachments[0]['id']);
         static::assertSame($documentId, $attachments[0]['documentId']);
         static::assertSame('pdf-content', $attachments[0]['content']);
@@ -364,7 +367,7 @@ class MailAttachmentsBuilderTest extends TestCase
             'fileFormats' => ['pdf'],
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchOne')
             ->willReturn($documentId);
@@ -422,6 +425,8 @@ class MailAttachmentsBuilderTest extends TestCase
         $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
 
         static::assertCount(1, $attachments);
+        static::assertArrayHasKey('id', $attachments[0]);
+        static::assertArrayHasKey('documentId', $attachments[0]);
         static::assertSame($pdfFile->getId(), $attachments[0]['id']);
         static::assertSame($documentId, $attachments[0]['documentId']);
         static::assertSame('pdf-content', $attachments[0]['content']);
@@ -438,7 +443,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $extension = new MailSendSubscriberConfig(false);
         $eventConfig = ['documentType' => 'invoice'];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchOne')
             ->willReturn($documentId);
@@ -495,6 +500,8 @@ class MailAttachmentsBuilderTest extends TestCase
         $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
 
         static::assertCount(2, $attachments);
+        static::assertArrayHasKey('id', $attachments[0]);
+        static::assertArrayHasKey('id', $attachments[1]);
         static::assertSame($pdfFile->getId(), $attachments[0]['id']);
         static::assertSame('pdf-content', $attachments[0]['content']);
         static::assertSame($xmlFile->getId(), $attachments[1]['id']);

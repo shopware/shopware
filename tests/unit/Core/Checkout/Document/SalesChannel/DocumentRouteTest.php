@@ -415,10 +415,10 @@ class DocumentRouteTest extends TestCase
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::GUEST_LOGIN, self::DUMMY_DOCUMENT_ID . '-127.0.0.1');
+            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
         $rateLimiter->expects($this->once())
             ->method('reset')
-            ->with(RateLimiter::GUEST_LOGIN, self::DUMMY_DOCUMENT_ID . '-127.0.0.1');
+            ->with(RateLimiter::GUEST_LOGIN, \strtolower(self::DUMMY_DOCUMENT_ID) . '-127.0.0.1');
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),

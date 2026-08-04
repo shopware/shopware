@@ -69,7 +69,7 @@ class SecurityExtension extends AbstractExtension
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $function
+     * @param callable-string|callable(mixed): mixed|\Closure $function
      */
     public function reduce(?iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
     {
@@ -95,7 +95,7 @@ class SecurityExtension extends AbstractExtension
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $arrow
+     * @param callable-string|callable(mixed): mixed|\Closure $arrow
      *
      * @return iterable<mixed>
      */
@@ -124,7 +124,7 @@ class SecurityExtension extends AbstractExtension
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $arrow
+     * @param callable-string|callable(mixed): int|\Closure $arrow
      *
      * @return array<mixed>
      */

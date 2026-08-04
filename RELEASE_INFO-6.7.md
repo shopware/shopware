@@ -59,12 +59,21 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
 
 **Plugin authors:** migrate your `services.xml` to `services.php` using Symfony's `ContainerConfigurator` and your `routes.xml` to `routes.php` using the `RoutingConfigurator`; package configuration can move to YAML or PHP. PHP configuration has been fully supported by the plugin system for years, service ids and wiring stay identical, and both formats can coexist during the transition. YAML definitions remain supported. See the migration example in `UPGRADE-6.8.md`.
+
 ### Document templates use the DocumentV2 VAT display condition behind the 6.8 feature flag
 
 The document templates now use the shipping-based `intraCommunityDelivery` condition for displaying VAT information when the `v6.8.0.0` feature flag is active, matching the DocumentV2 document generation path. With the feature flag disabled, the existing billing-address and configured delivery-country behavior remains unchanged. Extensions and themes that render or assert the legacy document templates should test their output with the feature flag enabled before upgrading to Shopware 6.8.
+
 ### Line item rule conditions only evaluate product line items
 
 Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
+
+### `EntitySearchResult` retains its entity name in v6.8.0
+
+`EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
+
+The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
+
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
@@ -196,6 +205,17 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 ## Administration
 
+### Conditional visibility for app-registered tabs
+
+`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.
+
+Re-calling `addTabItem()` for the same `componentSectionId` now updates the existing entry (label and visibility) instead of adding a duplicate, so an app can toggle a tab's visibility for the current context by re-registering it.
+
+```javascript
+sw.ui.tabs('sw-order-detail').addTabItem({
+    label: 'my-plugin.tabTitle',
+    componentSectionId: 'my-plugin-tab',
+    visible: order.stateMachineState.technicalName === 'open',
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -349,6 +369,10 @@ Fallback sizes apply only in remote-thumbnail mode to media in known folders who
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
+
+### Admin Elasticsearch listings fall back to the database on deep pagination
+
+Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
 
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 

@@ -156,23 +156,19 @@ class CustomFieldSetPersisterTest extends TestCase
 
         $fixture = $this->loadFixtureSingleSet();
 
-        $this->connection->method('fetchAllKeyValue')->willReturnCallback(
+        // existing set lookup by extension_name (plugin behavior), keyed by binary id, value is the name
+        $this->connection->method('fetchAllKeyValue')->willReturn([Uuid::fromHexToBytes($setId) => 'test_set']);
+
+        // the relations and fields of all known sets are read in one query each, grouped by set id
+        $this->connection->method('fetchAllAssociative')->willReturnCallback(
             function (string $sql) use ($setId, $obsoleteRelationId, $obsoleteFieldId): array {
-                if (str_contains($sql, 'FROM custom_field_set ')) {
-                    // existing set lookup by extension_name (plugin behavior),
-                    // keyed by binary id, value is the name
-                    return [Uuid::fromHexToBytes($setId) => 'test_set'];
-                }
-
                 if (str_contains($sql, 'FROM custom_field_set_relation')) {
-                    // keyed by entity_name, value is the binary id; this relation is
-                    // no longer defined in the XML -> obsolete
-                    return ['obsolete_entity' => Uuid::fromHexToBytes($obsoleteRelationId)];
+                    // this relation is no longer defined in the XML -> obsolete
+                    return [['setId' => $setId, 'key' => 'obsolete_entity', 'id' => Uuid::fromHexToBytes($obsoleteRelationId)]];
                 }
 
-                // keyed by field name, value is the binary id; this field is
-                // no longer defined in the XML -> obsolete
-                return ['obsolete_field' => Uuid::fromHexToBytes($obsoleteFieldId)];
+                // this field is no longer defined in the XML -> obsolete
+                return [['setId' => $setId, 'key' => 'obsolete_field', 'id' => Uuid::fromHexToBytes($obsoleteFieldId)]];
             }
         );
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -67,6 +68,16 @@ class CustomFieldSetPersister
         $obsoleteRelations = [];
         $obsoleteFields = [];
 
+        // Read the relations and fields of all known sets up front instead of two queries per set
+        $relationsBySet = $this->fetchGroupedBySet(
+            'SELECT LOWER(HEX(set_id)) AS setId, entity_name AS `key`, id FROM custom_field_set_relation WHERE set_id IN (:ids)',
+            array_values($existingCustomFieldSets)
+        );
+        $fieldsBySet = $this->fetchGroupedBySet(
+            'SELECT LOWER(HEX(set_id)) AS setId, name AS `key`, id FROM custom_field WHERE set_id IN (:ids)',
+            array_values($existingCustomFieldSets)
+        );
+
         foreach ($customFields->getCustomFieldSets() as $customFieldSet) {
             if (!\array_key_exists($customFieldSet->getName(), $existingCustomFieldSets)) {
                 $existingRelations = $existingFields = [];
@@ -82,18 +93,8 @@ class CustomFieldSetPersister
 
             $customFieldSetId = $existingCustomFieldSets[$customFieldSet->getName()];
 
-            $existingRelations = Uuid::fromBytesToHexList(
-                $this->connection->fetchAllKeyValue(
-                    'SELECT entity_name, id FROM custom_field_set_relation WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
-                )
-            );
-            $existingFields = Uuid::fromBytesToHexList(
-                $this->connection->fetchAllKeyValue(
-                    'SELECT name, id FROM custom_field WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
-                )
-            );
+            $existingRelations = $relationsBySet[$customFieldSetId] ?? [];
+            $existingFields = $fieldsBySet[$customFieldSetId] ?? [];
             $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
             if ($extensionName !== null) {
                 $entityData['extensionName'] = $extensionName;
@@ -156,6 +157,33 @@ class CustomFieldSetPersister
         }
 
         return $existingCustomFieldSets;
+    }
+
+    /**
+     * Reads rows of `setId`, `key` and `id` for all given custom field set ids at once.
+     *
+     * @param list<string> $customFieldSetIds
+     *
+     * @return array<string, array<string, string>> the hex ids, keyed by custom field set id and row key
+     */
+    private function fetchGroupedBySet(string $query, array $customFieldSetIds): array
+    {
+        if ($customFieldSetIds === []) {
+            return [];
+        }
+
+        $grouped = [];
+        $rows = $this->connection->fetchAllAssociative(
+            $query,
+            ['ids' => Uuid::fromHexToBytesList($customFieldSetIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        foreach ($rows as $row) {
+            $grouped[(string) $row['setId']][(string) $row['key']] = Uuid::fromBytesToHex((string) $row['id']);
+        }
+
+        return $grouped;
     }
 
     /**

@@ -59,7 +59,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
     }
 
     let analysis: ShopwareSetupScriptAnalysis;
-    let replacement: ReturnType<typeof lowerShopwareSetupBlock>;
+    let scriptEdits: ReturnType<typeof lowerShopwareSetupBlock>;
     let templateAnalysis: TemplateAnalysis = emptyTemplateAnalysis();
 
     try {
@@ -72,35 +72,14 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
 
         // Which override locals must be forwarded is only known after the template pass, so it is passed
         // straight into lowering (empty in base mode) rather than written back onto `analysis`.
-        replacement = lowerShopwareSetupBlock(block, analysis, templateAnalysis.privateBindings);
+        scriptEdits = lowerShopwareSetupBlock(block, analysis, templateAnalysis.privateBindings);
     } catch (error) {
         throw withBlockOffset(error, block);
     }
 
-    // A template-less override still needs to render (a comment node is enough): the hidden override
-    // component must mount so its setup registers the override callback, and Vue warns about
-    // components without a template or render function.
-    const registrationTemplateEdits =
-        block.mode === 'override' && !block.template
-            ? [
-                  {
-                      start: 0,
-                      end: 0,
-                      replacement: '<template><!-- Shopware override registration component --></template>\n',
-                  },
-              ]
-            : [];
-
-    // Only the script *content* is replaced: the author's `<script setup ...>` and `</script>` tags stay
-    // in the source untouched, so nothing has to reproduce their attributes.
     const transformed = applySourceEdits(source, [
-        ...registrationTemplateEdits,
         ...templateAnalysis.edits,
-        {
-            start: block.contentStart,
-            end: block.contentEnd,
-            replacement,
-        },
+        ...scriptEdits,
     ]);
 
     return {

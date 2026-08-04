@@ -15,6 +15,7 @@
  */
 
 import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
+import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
@@ -54,12 +55,16 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
 /**
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
+ *
+ * Emits up to two edits: the script content, plus a generated `<template>` for an override that has
+ * none. That second one is this mode's business - the hidden component only registers its callback once
+ * it mounts, and Vue warns about a component with neither template nor render function.
  */
 function buildOverrideScript(
     block: ShopwareSetupBlock,
     analysis: OverrideSetupScriptAnalysis,
     overridePrivateBindings: Set<string>,
-): SourceChunk[] {
+): SourceEdit[] {
     // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
     // deterministic and never collide.
     const previousStateName = '__swSetupPreviousState';
@@ -125,7 +130,24 @@ function buildOverrideScript(
         generated('\n});\n'),
     );
 
-    return chunks;
+    const registrationTemplate: SourceEdit[] = block.template
+        ? []
+        : [
+              {
+                  start: 0,
+                  end: 0,
+                  replacement: '<template><!-- Shopware override registration component --></template>\n',
+              },
+          ];
+
+    return [
+        ...registrationTemplate,
+        {
+            start: block.contentStart,
+            end: block.contentEnd,
+            replacement: chunks,
+        },
+    ];
 }
 
 /**

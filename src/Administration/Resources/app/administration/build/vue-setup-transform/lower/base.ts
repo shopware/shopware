@@ -13,7 +13,8 @@
  * itself never moves.
  */
 
-import { generated, type SourceChunk } from '../source-edits/chunks';
+import { generated } from '../source-edits/chunks';
+import type { SourceEdit } from '../source-edits/apply-source-edits';
 import { transformRanges } from '../source-edits/transform-ranges';
 import type { BaseSetupScriptAnalysis } from '../script-analyzer';
 import { SHOPWARE_SETUP_INTERNAL_PREFIX } from '../script-analyzer/macros';
@@ -61,8 +62,10 @@ function formatStateMap(names: string[], spaces: number): string {
 
 /**
  * Lowers base mode into a native body plus the generated override-functionality footer.
+ *
+ * One edit, over the script content only: the author's `<script setup>` tags are left alone.
  */
-function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAnalysis): SourceChunk[] {
+function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAnalysis): SourceEdit[] {
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
@@ -93,8 +96,14 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAna
     ].join('\n');
 
     return [
-        ...body,
-        generated(`\n\n${footer}\n`),
+        {
+            start: block.contentStart,
+            end: block.contentEnd,
+            replacement: [
+                ...body,
+                generated(`\n\n${footer}\n`),
+            ],
+        },
     ];
 }
 

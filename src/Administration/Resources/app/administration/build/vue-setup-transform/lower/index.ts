@@ -5,15 +5,19 @@
 /**
  * Selects the mode-specific lowering stage for an analyzed Shopware setup block.
  *
- * The analyzer hands this module a normalized semantic model; the lowerers turn that model into
- * source chunks, which the top-level transform splices back into the complete SFC. Rendering to text
- * happens once, there - so original ranges stay addressable for later sourcemaps.
+ * The analyzer hands this module a normalized semantic model; the lowerers turn that model into source
+ * edits - which ranges of the SFC they replace, and with which chunks. Rendering to text happens once,
+ * in the top-level transform, so original ranges stay addressable for later sourcemaps.
+ *
+ * Every edit a lowering mode needs comes from here, including edits outside the script block: an
+ * override with no `<template>` gets one generated, because needing it is a fact about how that mode
+ * lowers, not about the SFC.
  */
 
 import { buildBaseScript } from './base';
 import { buildOverrideScript } from './override';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
-import type { SourceChunk } from '../source-edits/chunks';
+import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
 /**
@@ -28,7 +32,7 @@ function lowerShopwareSetupBlock(
     // Which override-local bindings the template forwards - known only after template analysis, so it
     // arrives here rather than on `analysis`. Always empty in base mode.
     overridePrivateBindings: Set<string>,
-): SourceChunk[] {
+): SourceEdit[] {
     return analysis.mode === 'base'
         ? buildBaseScript(block, analysis)
         : buildOverrideScript(block, analysis, overridePrivateBindings);

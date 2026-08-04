@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 /**
  * @internal only for use by the app-system
  *
+ * @phpstan-type WebhookFromXml array{name: string, eventName: string, url: string, appId: string, active?: bool, onlyLiveVersion?: bool, errorCount?: int}
  * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
 #[Package('framework')]
@@ -113,7 +114,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     }
 
     /**
-     * @param array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int} $webhook
+     * @param WebhookFromXml $webhook
      *
      * @return WebhookRecord
      */
@@ -140,7 +141,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     }
 
     /**
-     * @return array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}>
+     * @return list<WebhookFromXml>
      */
     private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
@@ -150,7 +151,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
             $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
-        $webhooks = array_map(function ($action) use ($appId) {
+        $webhooks = array_map(static function ($action) use ($appId) {
             $name = $action->getMeta()->getName();
 
             return [
@@ -169,8 +170,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
 
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
-            /** @var array{name: string, event: string, url: string} $payload */
+        return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();

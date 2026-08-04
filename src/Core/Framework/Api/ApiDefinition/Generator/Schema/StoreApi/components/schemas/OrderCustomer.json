@@ -1,0 +1,80 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderCustomer": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "email",
+                    "firstName",
+                    "lastName"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "email": {
+                        "description": "Email address of the customer.",
+                        "type": "string"
+                    },
+                    "salutationId": {
+                        "description": "Unique identity of salutation.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "description": "First name of the customer.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Last name of the customer.",
+                        "type": "string"
+                    },
+                    "company": {
+                        "description": "Name of the company.",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "Title name given to the customer like Dr, prof. etc.",
+                        "type": "string"
+                    },
+                    "vatIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "customerNumber": {
+                        "description": "Unique number assigned to the customer.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

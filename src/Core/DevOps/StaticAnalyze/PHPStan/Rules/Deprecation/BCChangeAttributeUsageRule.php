@@ -24,8 +24,10 @@ use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
@@ -59,13 +61,35 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private const RUNTIME_DETECTABLE = [
         BecomesAbstract::class,
+        NewRequiredParameter::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
+    ];
+
+    /**
+     * Methods carrying these attributes are invoked by the framework with exactly the
+     * declared parameters, so a runtime trigger would fire on every legitimate request.
+     */
+    private const FRAMEWORK_INVOKED_ATTRIBUTES = [
+        'Symfony\Component\Routing\Attribute\Route',
+        'Symfony\Component\Routing\Annotation\Route',
+    ];
+
+    /**
+     * These attributes announce a parameter that will only be added in the next major.
+     * The named parameter must therefore not be part of the current method signature.
+     */
+    private const NEW_PARAMETER_ATTRIBUTES = [
+        NewOptionalParameter::class,
+        NewRequiredParameter::class,
     ];
 
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
+        NewRequiredParameter::class,
         ParameterDefaultValueChange::class,
         ParameterNameChange::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];
@@ -117,7 +141,7 @@ class BCChangeAttributeUsageRule implements Rule
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
                 }
-                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true)) {
+                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true) && !$this->isFrameworkInvoked($method)) {
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
@@ -228,6 +252,10 @@ class BCChangeAttributeUsageRule implements Rule
             return $this->validateParameterDefaultValueChange($attribute, $method, $symbol, $line);
         }
 
+        if ($attributeClass === ParameterRemoval::class) {
+            return $this->validateParameterRemoval($attribute, $method, $symbol, $line);
+        }
+
         if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
             return [];
         }
@@ -239,15 +267,16 @@ class BCChangeAttributeUsageRule implements Rule
 
         $parameterExists = $this->parameterExists($method, \ltrim($parameterName, '$'));
 
-        if ($attributeClass === NewOptionalParameter::class && $parameterExists) {
+        if (\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && $parameterExists) {
             return [$this->error($line, \sprintf(
-                'NewOptionalParameter on "%s": parameter "%s" already exists.',
+                '%s on "%s": parameter "%s" already exists.',
+                $this->shortName($attribute),
                 $symbol,
                 $parameterName
             ))];
         }
 
-        if ($attributeClass !== NewOptionalParameter::class && !$parameterExists) {
+        if (!\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
                 $this->shortName($attribute),
@@ -304,6 +333,36 @@ class BCChangeAttributeUsageRule implements Rule
     /**
      * @return list<IdentifierRuleError>
      */
+    private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, $parameterName);
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" does not exist.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional()) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
     private function validateExtenderOnlyOnFinal(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, string $subject, int $line): array
     {
         if (!$this->reflectionProvider->hasClass($attribute->getName())) {
@@ -349,6 +408,17 @@ class BCChangeAttributeUsageRule implements Rule
             $this->shortName($attribute),
             $symbol
         ))];
+    }
+
+    private function isFrameworkInvoked(\ReflectionMethod $method): bool
+    {
+        foreach ($method->getAttributes() as $attribute) {
+            if (\in_array($attribute->getName(), self::FRAMEWORK_INVOKED_ATTRIBUTES, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

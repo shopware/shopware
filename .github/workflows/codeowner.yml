@@ -25,9 +25,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # The checkout keeps no credentials, so the fetch has to carry its own token:
-      # this file is synced to the private mirror, where an anonymous fetch fails
-      # with "could not read Username for 'https://github.com'".
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

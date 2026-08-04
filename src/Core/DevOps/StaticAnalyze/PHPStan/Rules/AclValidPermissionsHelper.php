@@ -32,6 +32,7 @@ class AclValidPermissionsHelper
         'user_change_me',
         'notification:create',
         'flow:dispatch',
+        'system:queue:process',
     ];
 
     /**

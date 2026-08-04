@@ -5,10 +5,14 @@ namespace Shopware\Tests\Unit\Core\System\User\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Api\UserValidationController;
+use Shopware\Core\System\User\Service\UserValidationService;
+use Shopware\Core\System\User\UserException;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -30,11 +34,41 @@ class UserValidationControllerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $payload
+     */
+    #[DataProvider('missingParameterProvider')]
+    public function testValidationRoutesRejectMissingParameters(
+        string $method,
+        array $payload,
+        string $missingParameter,
+    ): void {
+        $controller = new UserValidationController(static::createStub(UserValidationService::class));
+
+        static::expectExceptionObject(UserException::missingRequestParameter($missingParameter));
+
+        $controller->{$method}(
+            Request::create('/', Request::METHOD_POST, $payload),
+            Context::createDefaultContext(),
+        );
+    }
+
+    /**
      * @return \Generator<string, array{0: string, 1: list<string>}>
      */
     public static function aclProtectedRouteProvider(): \Generator
     {
         yield 'email uniqueness validation' => ['api.action.check-email-unique', ['user:read']];
         yield 'username uniqueness validation' => ['api.action.check-username-unique', ['user:read']];
+    }
+
+    /**
+     * @return \Generator<string, array{0: string, 1: array<string, string>, 2: string}>
+     */
+    public static function missingParameterProvider(): \Generator
+    {
+        yield 'email is missing' => ['isEmailUnique', ['id' => 'id'], 'email'];
+        yield 'email id is missing' => ['isEmailUnique', ['email' => 'email'], 'id'];
+        yield 'username is missing' => ['isUsernameUnique', ['id' => 'id'], 'username'];
+        yield 'username id is missing' => ['isUsernameUnique', ['username' => 'username'], 'id'];
     }
 }

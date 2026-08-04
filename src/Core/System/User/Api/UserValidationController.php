@@ -28,7 +28,7 @@ class UserValidationController extends AbstractController
         path: 'api/_action/user/check-email-unique',
         name: 'api.action.check-email-unique',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
@@ -52,7 +52,7 @@ class UserValidationController extends AbstractController
         path: 'api/_action/user/check-username-unique',
         name: 'api.action.check-username-unique',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {

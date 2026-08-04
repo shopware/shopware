@@ -85,9 +85,12 @@ class ProductCategoryDenormalizer
                 continue;
             }
 
+            // `category_version_id` is intentionally not constrained: the inserts below always write
+            // the live category version, so matching it against `$versionId` would never delete
+            // anything in a non live version context
             RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $productId, $versionId): void {
                 $this->connection->executeStatement(
-                    'DELETE FROM product_category_tree WHERE `category_id` IN (:categoryIds) AND `product_id` = :productId AND `product_version_id` = :version AND `category_version_id` = :version',
+                    'DELETE FROM product_category_tree WHERE `category_id` IN (:categoryIds) AND `product_id` = :productId AND `product_version_id` = :version',
                     ['categoryIds' => Uuid::fromHexToBytesList($toBeDeleted), 'productId' => $productId, 'version' => $versionId],
                     ['categoryIds' => ArrayParameterType::BINARY]
                 );

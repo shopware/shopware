@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,6 +64,57 @@ class ProductCategoryDenormalizerTest extends TestCase
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['variant-testable-product'], $categoryIds)
         );
+    }
+
+    public function testUpdateRemovesObsoleteTreeRowsInANonLiveVersionContext(): void
+    {
+        $denormalizer = static::getContainer()->get(ProductCategoryDenormalizer::class);
+
+        $versionId = Uuid::randomHex();
+        $versionBytes = Uuid::fromHexToBytes($versionId);
+        $liveBytes = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $productId = Uuid::randomHex();
+        $productBytes = Uuid::fromHexToBytes($productId);
+        $categoryBytes = Uuid::randomBytes();
+
+        $this->connection->insert('category', [
+            'id' => $categoryBytes,
+            'version_id' => $liveBytes,
+            'type' => 'page',
+            'product_assignment_type' => 'product',
+            'created_at' => '2000-01-01 00:00:00.000',
+        ]);
+
+        // product living in a draft version, without any category assignment
+        $this->connection->insert('product', [
+            'id' => $productBytes,
+            'version_id' => $versionBytes,
+            'categories' => $productBytes,
+            'product_number' => 'denormalizer-version-' . $productId,
+            'stock' => 1,
+            'created_at' => '2000-01-01 00:00:00.000',
+        ]);
+
+        // tree row left over from an earlier indexing run; the category version is always the live one
+        $this->connection->insert('product_category_tree', [
+            'product_id' => $productBytes,
+            'product_version_id' => $versionBytes,
+            'category_id' => $categoryBytes,
+            'category_version_id' => $liveBytes,
+        ]);
+
+        $denormalizer->update([$productId], $this->context->createWithVersionId($versionId));
+
+        $remaining = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM product_category_tree WHERE product_id = :productId AND product_version_id = :versionId',
+            ['productId' => $productBytes, 'versionId' => $versionBytes]
+        );
+
+        $this->connection->executeStatement('DELETE FROM product WHERE id = :id', ['id' => $productBytes]);
+        $this->connection->executeStatement('DELETE FROM category WHERE id = :id', ['id' => $categoryBytes]);
+
+        static::assertSame(0, (int) $remaining);
     }
 
     /**

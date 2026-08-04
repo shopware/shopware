@@ -145,7 +145,10 @@ const baseRules = {
             // literal name "index" for a component actually called `sw-thing`. Multi-word naming is still
             // enforced for those files by `sw-core-rules/native-setup-filename`, which resolves the
             // directory-derived name.
-            ignores: ['index.html', 'index'],
+            ignores: [
+                'index.html',
+                'index',
+            ],
         },
     ],
     'func-names': 'off',

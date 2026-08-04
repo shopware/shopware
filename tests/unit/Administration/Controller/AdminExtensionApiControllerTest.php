@@ -323,7 +323,10 @@ class AdminExtensionApiControllerTest extends TestCase
         static::assertJsonStringEqualsJsonString('{"uri":""}', $response->getContent());
     }
 
-    protected function assertEntityRepositoryWithEntity(AppEntity $entity): void
+    /**
+     * @return MockObject&EntityRepository<AppCollection>
+     */
+    protected function assertEntityRepositoryWithEntity(AppEntity $entity): EntityRepository
     {
         $collection = new EntityCollection();
         $collection->add($entity);
@@ -340,6 +343,8 @@ class AdminExtensionApiControllerTest extends TestCase
                     $this->context
                 )
             );
+
+        return $this->entityRepository;
     }
 
     /**
@@ -377,6 +382,9 @@ class AdminExtensionApiControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param EntityRepository<AppCollection>|null $entityRepository
+     */
     private function buildController(
         ?Executor $executor = null,
         ?AppPayloadServiceHelper $appPayloadServiceHelper = null,

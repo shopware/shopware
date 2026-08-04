@@ -32,8 +32,11 @@ class ModuleLoaderTest extends TestCase
             new AppUrlChangeDetectedException('old-url', 'new-url', ShopId::v2('shop-id'))
         );
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
+
         $moduleLoader = new ModuleLoader(
-            new StaticEntityRepository([new AppCollection()]),
+            $appRepository,
             $shopIdProvider,
             static::createStub(QuerySigner::class),
         );
@@ -79,8 +82,11 @@ class ModuleLoaderTest extends TestCase
         $source = new AdminApiSource(null);
         $source->setPermissions(['app.AllowedApp']);
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$app])]);
+
         $moduleLoader = new ModuleLoader(
-            new StaticEntityRepository([new AppCollection([$app])]),
+            $appRepository,
             $shopIdProvider,
             $querySigner,
         );
@@ -117,8 +123,11 @@ class ModuleLoaderTest extends TestCase
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$app])]);
+
         $moduleLoader = new ModuleLoader(
-            new StaticEntityRepository([new AppCollection([$app])]),
+            $appRepository,
             $shopIdProvider,
             static::createStub(QuerySigner::class),
         );
@@ -148,8 +157,11 @@ class ModuleLoaderTest extends TestCase
         $source = new AdminApiSource(null);
         $source->setPermissions(['app.AllowedApp']);
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$app])]);
+
         $moduleLoader = new ModuleLoader(
-            new StaticEntityRepository([new AppCollection([$app])]),
+            $appRepository,
             $shopIdProvider,
             $querySigner,
         );

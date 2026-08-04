@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
@@ -39,12 +40,15 @@ class AllServiceInstallerTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
+    private LoggerInterface&MockObject $logger;
+
     protected function setUp(): void
     {
         $this->registryClient = static::createStub(ServiceRegistryClient::class);
         $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     public function testDiscoveredServicesAreHandedToServiceLifecycle(): void
@@ -97,6 +101,30 @@ class AllServiceInstallerTest extends TestCase
         );
 
         static::assertSame(['Service1', 'Service3'], $installer->reconcile(Context::createDefaultContext()));
+    }
+
+    public function testReconcileContinuesWhenAServiceThrowsDuringInstallation(): void
+    {
+        $installer = $this->installer($this->buildAppRepository());
+
+        $this->registryClient->method('getAll')->willReturn([$this->entry('BrokenService'), $this->entry('ValidService')]);
+
+        $exception = AppXmlParsingException::cannotParseContent('Invalid manifest');
+        $this->serviceLifecycle->method('install')->willReturnCallback(
+            static fn (ServiceEntry $entry): bool => match ($entry->name) {
+                'BrokenService' => throw $exception,
+                default => true,
+            }
+        );
+
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot install service "BrokenService" because of error: "%s"', $exception->getMessage()));
+
+        // the throw from BrokenService must not prevent ValidService from being installed
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+
+        static::assertSame(['ValidService'], $installer->reconcile(Context::createDefaultContext()));
     }
 
     public function testReconcileReturnsEmptyArrayWhenRegistryHasNoServices(): void
@@ -177,7 +205,7 @@ class AllServiceInstallerTest extends TestCase
             $this->serviceLifecycle,
             $this->messageBus,
             $this->eventDispatcher,
-            static::createStub(LoggerInterface::class),
+            $this->logger,
         );
     }
 

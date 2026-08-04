@@ -8,6 +8,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -137,6 +139,39 @@ class AdminExtensionApiControllerTest extends TestCase
         );
     }
 
+    public function testRunActionAllowsUserWithAppSpecificPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
+    public function testRunActionAllowsUserWithAppAllPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.all']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
+    public function testRunActionThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
+    {
+        $this->expectExceptionObject(ApiException::missingPrivileges(['app.test-app']));
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['product:read']);
+        $context = Context::createDefaultContext($source);
+
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->never())->method('execute');
+
+        $this->buildController(executor: $executor)->runAction(
+            new RequestDataBag(['appName' => 'test-app']),
+            $context
+        );
+    }
+
     public function testSignUriThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
         $this->expectException(AppNotFoundException::class);
@@ -201,6 +236,26 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity->setAllowedHosts($allowedHosts);
 
         return $entity;
+    }
+
+    private function assertRunActionExecutesWith(AdminApiSource $source): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+
+        $executor = $this->createMock(Executor::class);
+        $executor->expects($this->once())->method('execute');
+
+        $this->buildController(executor: $executor, entityRepository: $entityRepository)->runAction(
+            new RequestDataBag([
+                'appName' => $entity->getName(),
+                'url' => 'https://foo.bar',
+                'ids' => [Uuid::randomHex()],
+                'entity' => 'app',
+                'action' => 'do-nothing',
+            ]),
+            Context::createDefaultContext($source),
+        );
     }
 
     /**

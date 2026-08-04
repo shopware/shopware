@@ -665,7 +665,6 @@ class PresignedMediaUploadServiceTest extends TestCase
      */
     private function createService(array $searches = []): array
     {
-        /** @var StaticEntityRepository<MediaCollection> $repo */
         $repo = new StaticEntityRepository($searches);
 
         $service = new PresignedMediaUploadService(

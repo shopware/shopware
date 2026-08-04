@@ -220,7 +220,6 @@ class AllServiceInstallerTest extends TestCase
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection($apps)]);
 
         return $appRepository;

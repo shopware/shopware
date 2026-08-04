@@ -71,8 +71,16 @@ class VariantListingUpdater
             ]
         );
 
-        $childDisplayGroupMapping = $this->connection->fetchAllKeyValue(
-            'SELECT parent_id, display_group FROM product WHERE parent_id IN (:ids) AND version_id = :versionId',
+        // Number of variants per parent whose display_group does not match the value the
+        // `$singleVariant` statement would write. Counting in SQL is required: a parent has many
+        // variants and they can hold diverging values, so a single sampled row cannot tell us
+        // whether the update is still needed. `<=>` is the NULL safe comparison.
+        $outdatedVariantCount = $this->connection->fetchAllKeyValue(
+            'SELECT parent_id, COUNT(*) FROM product
+                WHERE parent_id IN (:ids)
+                    AND version_id = :versionId
+                    AND NOT (display_group <=> SHA2(HEX(parent_id), 256))
+                GROUP BY parent_id',
             [
                 'ids' => array_keys($listingConfiguration),
                 'versionId' => $versionBytes,
@@ -108,10 +116,8 @@ class VariantListingUpdater
             }
 
             if ($groups === []) {
-                $currentDisplayGroup = $childDisplayGroupMapping[$parentId] ?? null;
-
                 // display single variant in listing
-                if (\array_key_exists($parentId, $childDisplayGroupMapping) && $currentDisplayGroup !== $displayGroupValue) {
+                if ((int) ($outdatedVariantCount[$parentId] ?? 0) > 0) {
                     $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
                 }
 

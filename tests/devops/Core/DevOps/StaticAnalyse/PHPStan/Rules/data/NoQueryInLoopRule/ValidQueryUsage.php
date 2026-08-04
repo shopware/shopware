@@ -135,6 +135,51 @@ class ValidQueryUsage
     }
 
     /**
+     * @param list<array<string, mixed>> $snippetSets
+     */
+    private function handle(string $id, array $snippetSets): void
+    {
+    }
+
+    /**
+     * A query memoised by a null check runs on the first iteration only.
+     *
+     * @param list<string> $ids
+     */
+    public function memoisedLookup(array $ids): void
+    {
+        $snippetSets = null;
+
+        foreach ($ids as $id) {
+            if ($snippetSets === null) {
+                $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
+            }
+
+            $this->handle($id, $snippetSets);
+        }
+    }
+
+    /**
+     * The cleanup query of an error handler that rethrows is reached at most once: the throw leaves the loop.
+     *
+     * @param list<string> $statements
+     */
+    public function cleanupOnFailure(array $statements): void
+    {
+        $checks = $this->connection->fetchOne('SELECT @@FOREIGN_KEY_CHECKS');
+
+        foreach ($statements as $statement) {
+            try {
+                $this->connection->executeStatement($statement);
+            } catch (\Throwable $e) {
+                $this->connection->fetchOne('SELECT @@FOREIGN_KEY_CHECKS = ' . (string) $checks);
+
+                throw $e;
+            }
+        }
+    }
+
+    /**
      * A worklist consumed until empty, with each iteration querying the whole pending set.
      */
     public function drainWorklist(string $parentId): void

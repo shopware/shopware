@@ -59,13 +59,35 @@ describe('scripts/extensionTooling/check orchestration', () => {
             const base = { durationMs: 60000, timedOut: false };
 
             if (args.includes('--showConfig')) {
+                // The probe resolves composition from whether the config's
+                // extends chain reaches the bridge's admin-types surface; an
+                // auto-bridged config extends the generated .shopware/ tsconfig.
+                const configPath = args[args.indexOf('--project') + 1];
+                const composes = fs.readFileSync(configPath, 'utf8').includes('.shopware/tsconfig.json');
                 const files = listTypeCheckableFiles(projectRoot, ['custom/plugins']);
 
-                return { ...base, status: 0, output: JSON.stringify({ files }) };
+                return {
+                    ...base,
+                    status: 0,
+                    output: JSON.stringify({
+                        files: composes
+                            ? [
+                                  ...files,
+                                  'admin-types.d.ts',
+                              ]
+                            : files,
+                    }),
+                };
             }
 
             if (args[0].includes('eslint')) {
-                return { ...base, status: 0, output: '' };
+                // --print-config is the composition probe; the auto-bridged
+                // config carries the factory's runtime-contract rule.
+                return {
+                    ...base,
+                    status: 0,
+                    output: args.includes('--print-config') ? 'plugin-rules/no-src-imports' : '',
+                };
             }
 
             return { ...base, ...vueTscOutput };
@@ -196,8 +218,8 @@ describe('scripts/extensionTooling/check orchestration', () => {
             tool: 'TypeScript',
             sourcePath: 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/src',
             configPath: 'custom/plugins/Mixed/src/BundleB/Resources/app/administration/tsconfig.json',
-            resolution: { mode: 'unmanaged', reason: 'not-extending' },
         });
+        expect(result.skippedTargets?.[0].detail).toContain('extends chain does not reach');
         expect(check.exitCode).toBe(1);
     }, 60000);
 

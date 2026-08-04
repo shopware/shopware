@@ -21,6 +21,22 @@ function linkRealToolchain(administrationRoot: string): void {
     fs.symlinkSync(path.join(realAdministrationRoot, 'node_modules'), path.join(administrationRoot, 'node_modules'), 'dir');
 }
 
+/**
+ * Replaces the skeleton's stub extension-tooling assets with the real preset,
+ * bridge factory, and type surface — required when a scaffolded (auto-bridged)
+ * config must actually resolve as composing under the live probe.
+ */
+function copyRealTooling(administrationRoot: string): void {
+    const toolingDir = path.join(administrationRoot, 'extension-tooling');
+
+    for (const toolingFile of fs.readdirSync(path.join(realAdministrationRoot, 'extension-tooling'))) {
+        fs.copyFileSync(
+            path.join(realAdministrationRoot, 'extension-tooling', toolingFile),
+            path.join(toolingDir, toolingFile),
+        );
+    }
+}
+
 describe('scripts/extensionTooling/check checkExtensions', () => {
     let projectRoot: string;
     let administrationRoot: string;
@@ -36,6 +52,11 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
     });
 
     it('refuses to autofix vendor extensions unless they are named via --only', async () => {
+        // Auto-bridging scaffolds the vendor extension a composing config; the
+        // real toolchain and factory let the live probe confirm composition so
+        // the ESLint stream (and its vendor --fix gate) actually runs.
+        copyRealTooling(administrationRoot);
+        linkRealToolchain(administrationRoot);
         writeFile(path.join(projectRoot, 'vendor/acme/vendor-fix/composer.json'), '{}\n');
         writeFile(path.join(projectRoot, 'vendor/acme/vendor-fix/src/Resources/app/administration/src/main.js'), [
             'export default {};',
@@ -65,6 +86,11 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
     });
 
     it('reports a vacuous TypeScript pass as no-files without spawning vue-tsc', async () => {
+        // The plugin is auto-bridged (composing), so a real toolchain lets the
+        // probe confirm composition; with zero type-checkable files the runtime
+        // stream is empty, so vue-tsc is never spawned (durationMs 0).
+        copyRealTooling(administrationRoot);
+        linkRealToolchain(administrationRoot);
         writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/composer.json'), '{}\n');
         writeFile(path.join(projectRoot, 'custom/plugins/JsOnly/src/Resources/app/administration/src/main.js'), [
             'export default {};',
@@ -79,8 +105,6 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
 
         const check = await checkExtensions({ projectRoot, administrationRoot });
 
-        // The skeleton admin has no vue-tsc — a spawn attempt would surface as
-        // tooling-error, so no-files proves the run was skipped.
         expect(check.results[0].typescript).toMatchObject({ status: 'no-files', durationMs: 0 });
     });
 
@@ -251,11 +275,10 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const probe = check.results[0];
 
         expect(check.results).toHaveLength(1);
-        expect(probe.tsResolution.mode).toBe('unmanaged');
-        expect(probe.tsResolution.reason).toBe('not-extending');
-        expect(probe.eslintResolution.mode).toBe('unmanaged');
-        expect(probe.eslintResolution.reason).toBe('factory-not-composed');
-        expect(probe.tsResolution.verified).toBe(true);
+        expect(probe.tsResolution?.composes).toBe(false);
+        expect(probe.tsResolution?.detail).toContain('extends chain does not reach');
+        expect(probe.eslintResolution?.composes).toBe(false);
+        expect(probe.eslintResolution?.detail).toContain('does not compose the Shopware factory');
         expect(probe.typescript.status).toBe('unmanaged');
         expect(probe.eslint.status).toBe('unmanaged');
         expect(check.exitCode).toBe(0);

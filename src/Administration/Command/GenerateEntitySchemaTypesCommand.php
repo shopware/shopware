@@ -15,6 +15,8 @@ use Symfony\Component\Process\Process;
 /**
  * @internal
  *
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
+ *
  * `bin/console` entry for regenerating the Administration entity-schema
  * TypeScript definitions the extension tooling type-checks against — the
  * standard-install counterpart of the `composer admin:generate-entity-schema-types`

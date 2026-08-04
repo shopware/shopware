@@ -1,22 +1,34 @@
 /**
  * @sw-package framework
  *
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
+ *
+ * The whole extension tooling is shipped for feedback and is not covered by
+ * the backwards-compatibility promise until it stabilizes (targeted for
+ * v6.8.0). Nothing here is a stable contract: the command name, its flags, the
+ * module boundaries below, the layout of the generated files and the manifest
+ * schema can all change in any release, so the implementation can be reshaped
+ * once real-world usage shows what does not hold. Consumers are expected to
+ * re-run setup rather than to depend on the generated output, which is why the
+ * manifest is versioned and every generated file is either tool-owned or
+ * marker-owned.
+ *
  * Orchestrator and CLI entrypoint for the Administration extension tooling
  * ("Connected Toolchain"). The generation steps live in sibling modules:
  * discovery (setup-discovery), the config generators (setup-configs), the
- * shim/bridge cluster (setup-bridge), and the .gitignore block
- * (setup-gitignore); all share the write-accounting context in setup-context.
- * The previously public discovery API is re-exported here so `./setup` stays
- * the single import for consumers.
+ * bridge cluster (setup-bridge), and the .gitignore block (setup-gitignore);
+ * all share the write-accounting context in setup-context. The previously
+ * public discovery API is re-exported here so `./setup` stays the single
+ * import for consumers.
  *
- * Pipeline: discover extensions (var/plugins.json) → per-extension leaf
- * tsconfigs in var/admin-extension-tooling/ → root tsconfig/eslint
- * projections → IDE bootstraps → optional per-plugin shims → manifest.
+ * Pipeline: discover extensions (var/plugins.json) → automatic per-extension
+ * bridges + scaffolded configs → re-discover → root tsconfig/eslint
+ * projections covering whatever no extension config governs → IDE bootstraps →
+ * manifest.
  *
- * Marker-owned files (root configs, IDE bootstraps, shims) a human wrote are
+ * Marker-owned files (root configs, IDE bootstraps, bridges) a human wrote are
  * never overwritten; collisions are reported with integration instructions
- * instead. The var/ state files (leaf configs, manifest.json) are tool-owned
- * and rewritten on every run.
+ * instead. The manifest under var/ is tool-owned and rewritten on every run.
  */
 
 import fs from 'fs';
@@ -36,14 +48,8 @@ import type { ExtensionToolingManifest, WriteResult } from './shared';
 import { record, toManifestState } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
-import {
-    createIdeBootstraps,
-    createLeafConfigs,
-    createRootEslintConfig,
-    createRootTsconfig,
-    ensureEntitySchema,
-} from './setup-configs';
-import { createShims } from './setup-bridge';
+import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
+import { createBridges } from './setup-bridge';
 import { ensureGitignoreBlock } from './setup-gitignore';
 
 // Barrel: discovery moved to setup-discovery but stays importable from ./setup.
@@ -52,16 +58,12 @@ export { discoverProjects };
 export interface SetupExtensionToolingOptions {
     projectRoot: string;
     administrationRoot: string;
-    pluginsConfigPath?: string;
-    /** Technical name, extension name, or "all-custom": generate committed-config shims. */
-    shim?: string;
     /**
-     * Root-config bridge mode for a multi-root extension: the directory
-     * (relative to the extension root) whose package-level config governs every
-     * Administration root. One bridge is generated beside it instead of one per
-     * root. Ignored unless `shim` names a single extension.
+     * Bridge one extension beside the package-level config in this directory
+     * (relative to the extension root) instead of beside each of its owned
+     * configs — for a multi-root package whose layout the grouping cannot infer.
      */
-    rootConfig?: string;
+    rootConfig?: { extension: string; dir: string };
     /** Validate-only mode: report what would change, write nothing. */
     checkOnly?: boolean;
     /** Never touch the project .gitignore (persisted in the manifest). */
@@ -72,7 +74,7 @@ export interface SetupExtensionToolingResult {
     manifest: ExtensionToolingManifest;
     manifestPath: string;
     writes: WriteResult[];
-    /** Stale leaf configs of removed extensions that were (or would be) deleted. */
+    /** Files of removed extensions that were (or would be) deleted. */
     staleFiles: string[];
     warnings: string[];
     /** Human instructions for user-owned files and IDEs we never write to. */
@@ -105,7 +107,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
-    const pluginsConfigPath = path.resolve(projectRoot, options.pluginsConfigPath ?? path.join('var', 'plugins.json'));
+    const pluginsConfigPath = path.join(projectRoot, 'var', 'plugins.json');
     const context: GeneratorContext = {
         projectRoot,
         administrationRoot,
@@ -120,22 +122,40 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
 
     const hostModules = loadHostModules(context);
     const entitySchemaAvailable = ensureEntitySchema(context);
+    const previousManifest = readPreviousManifest(projectRoot);
 
     let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    const rootConfigDirs: Record<string, string> = {};
 
-    if (options.shim) {
-        // Write the shim before leaf/root configs, then re-discover so the bridged
-        // plugin is already recognized as shim-managed within this same run.
-        createShims(context, discovered, options.shim, options.rootConfig);
-        discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    if (options.rootConfig) {
+        const known = discovered.some((project) => project.name === options.rootConfig?.extension);
+
+        if (known) {
+            rootConfigDirs[options.rootConfig.extension] = options.rootConfig.dir;
+        } else {
+            context.warnings.push(
+                `--root-config names the unknown extension ${options.rootConfig.extension}. ` +
+                    `Discovered extensions: ${
+                        discovered
+                            .map((project) => project.name)
+                            .sort()
+                            .join(', ') || '(none)'
+                    }.`,
+            );
+        }
     }
 
-    const projects = createLeafConfigs(context, discovered);
-    const rootTsconfigState = createRootTsconfig(context, projects);
-    const rootEslintState = createRootEslintConfig(context, projects);
+    // Bridge before the root projection, then re-discover so every freshly
+    // bridged extension is already recognized as bridged within this same run.
+    // (A --check dry-run cannot see unwritten bridges, so it reports the
+    // projection a real run would not need — the exit code is 1 either way.)
+    createBridges(context, discovered, rootConfigDirs);
+    discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+
+    const rootTsconfigState = createRootTsconfig(context, discovered);
+    const rootEslintState = createRootEslintConfig(context, discovered);
     const adminRelative = relativePosix(projectRoot, administrationRoot);
     const ideBootstraps = createIdeBootstraps(context, adminRelative, readEslintMajorVersion(administrationRoot));
-    const previousManifest = readPreviousManifest(projectRoot);
     const gitignore = ensureGitignoreBlock(
         context,
         previousManifest?.gitignore?.optedOut === true,
@@ -171,7 +191,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
             ),
         ),
         gitignore,
-        projects,
+        projects: discovered,
     };
 
     const manifestPath = path.join(projectRoot, STATE_DIR, 'manifest.json');
@@ -195,25 +215,28 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
 
 const SETUP_COMMAND: CommandSpec = {
     command: 'admin:setup-extension-tooling',
-    description: 'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.',
+    // The help text is the flag reference, so the BC caveat belongs on the flags
+    // themselves, not only on the report a run prints.
+    description:
+        'Generate TypeScript/ESLint configs and IDE bootstraps for installed Administration extensions.\n' +
+        'EXPERIMENTAL: not covered by the backwards-compatibility promise — the command name, the flags\n' +
+        'below, the generated-file layout and the manifest format can change in any release.',
     flags: [
         { name: '--check', description: 'Report what would change, write nothing. Exit 1 on drift.' },
         { name: '--no-gitignore', description: 'Never manage the ignore block in the project .gitignore.' },
         {
-            name: '--shim',
-            value: 'required',
-            valueName: '<TechnicalName>|all-custom',
+            name: '--if-enabled',
             description:
-                'Bridge one extension (or "all-custom") with committed configs that extend a generated ' +
-                '.shopware-admin/ bridge.',
+                'Run only when the ADMIN_EXTENSION_TOOLING feature flag is enabled (e.g. in .env); otherwise ' +
+                'exit 0 without touching anything. Used by the `composer setup` chain.',
         },
         {
             name: '--root-config',
             value: 'required',
-            valueName: '<dir>',
+            valueName: '<Extension>:<dir>',
             description:
-                'With --shim=<name>: bridge a multi-root extension once beside the package-level config in <dir> ' +
-                '(relative to the extension root) instead of once per root.',
+                'Bridge the named extension once beside the package-level config in <dir> (relative to the ' +
+                'extension root) instead of beside each config it owns.',
         },
         {
             name: '--project-root',
@@ -229,14 +252,18 @@ const SETUP_COMMAND: CommandSpec = {
             valueName: '<path>',
             description: 'Administration app root (defaults to the installed one running this script).',
         },
-        {
-            name: '--plugins-config',
-            value: 'required',
-            valueName: '<path>',
-            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
-        },
     ],
 };
+
+/**
+ * Mirrors PHP Feature::isTrue ("$value && $value !== 'false'"): enabled when
+ * non-empty and neither "0" (falsy as a PHP string) nor the literal "false".
+ * Read from the raw env because this runs before any PHP bootstrap — the
+ * composer scripts load .env via bin/exec-with-env.
+ */
+function isFeatureFlagEnabled(value: string | undefined): boolean {
+    return value !== undefined && value !== '' && value !== '0' && value !== 'false';
+}
 
 /** Runs the setup command; returns the process exit code (0 ok, 1 drift/error, 2 usage error). */
 export function runSetupCli(argv: string[]): number {
@@ -260,6 +287,17 @@ export function runSetupCli(argv: string[]): number {
         return 0;
     }
 
+    // Before any root resolution, so a disabled flag can never fail on a
+    // missing PROJECT_ROOT — the skip must be a guaranteed no-op.
+    if (parsed.flags.has('--if-enabled') && !isFeatureFlagEnabled(process.env.ADMIN_EXTENSION_TOOLING)) {
+        console.log(
+            'Administration extension tooling: skipped — set ADMIN_EXTENSION_TOOLING=1 (e.g. in .env) to run ' +
+                'this experimental step during composer setup.',
+        );
+
+        return 0;
+    }
+
     const administrationRoot = path.resolve(parsed.values['--administration-root'] ?? path.resolve(__dirname, '../..'));
     const projectRoot = parsed.values['--project-root'] ?? process.env.PROJECT_ROOT;
 
@@ -270,21 +308,30 @@ export function runSetupCli(argv: string[]): number {
     }
 
     const checkFlag = parsed.flags.has('--check');
-    const shim = parsed.values['--shim'];
-    const rootConfig = parsed.values['--root-config'];
+    const rootConfigValue = parsed.values['--root-config'];
+    let rootConfig: { extension: string; dir: string } | undefined;
 
-    if (rootConfig !== undefined && shim === undefined) {
-        console.error(`--root-config only applies together with --shim=<name>.\n\n${renderHelp(SETUP_COMMAND)}`);
+    if (rootConfigValue !== undefined) {
+        const separatorIndex = rootConfigValue.indexOf(':');
 
-        return 2;
+        if (separatorIndex <= 0 || separatorIndex === rootConfigValue.length - 1) {
+            console.error(
+                `--root-config expects <Extension>:<dir>, got "${rootConfigValue}".\n\n${renderHelp(SETUP_COMMAND)}`,
+            );
+
+            return 2;
+        }
+
+        rootConfig = {
+            extension: rootConfigValue.slice(0, separatorIndex),
+            dir: rootConfigValue.slice(separatorIndex + 1),
+        };
     }
 
     try {
         const result = setupExtensionTooling({
             projectRoot,
             administrationRoot,
-            pluginsConfigPath: parsed.values['--plugins-config'],
-            shim,
             rootConfig,
             checkOnly: checkFlag,
             noGitignore: parsed.flags.has('--no-gitignore'),
@@ -293,10 +340,9 @@ export function runSetupCli(argv: string[]): number {
         console.log(
             renderSetupReport(result, {
                 checkOnly: checkFlag,
-                shim,
                 // The plain run is where flags are discovered — and where a flag
                 // swallowed by composer (missing "--") would have landed.
-                showFlagHint: !checkFlag && !shim,
+                showFlagHint: !checkFlag,
                 commands: resolveToolingCommands(path.resolve(projectRoot), administrationRoot),
             }),
         );

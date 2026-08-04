@@ -14,8 +14,10 @@ import colors from 'picocolors';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from './check-types';
 import { describeNextStep } from './report-guidance';
 import { renderSkippedTargetLines } from './report-summary';
-import { collectSkippedTargets, DEFAULT_TOOLING_COMMANDS, deriveExtensionState } from './shared';
-import type { ModeResolution, SkippedTarget, ToolingCommands } from './shared';
+import { collectSkippedTargets } from './check-types';
+import type { SkippedTarget } from './check-types';
+import { DEFAULT_TOOLING_COMMANDS, deriveExtensionState } from './shared';
+import type { OwnedConfig, ToolingCommands } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
@@ -29,16 +31,19 @@ function seconds(run: ToolRunResult): string {
     return `${(run.durationMs / 1000).toFixed(1)}s`;
 }
 
-function skipReason(tool: string, resolution: ModeResolution): string {
-    const configNoun = tool === 'TypeScript' ? 'tsconfig' : 'config';
-
-    if (resolution.reason === 'config-error') {
-        return `own ${configNoun} fails to resolve`;
-    }
-
+function skipReason(tool: string): string {
     return tool === 'TypeScript'
         ? 'own tsconfig does not reach the Shopware type surface'
         : 'own config does not compose the Shopware factory';
+}
+
+/** Display token for a tool's config: covered by the root projection, bridged, or skipped. */
+function modeLabel(resolution: OwnedConfig | null): string {
+    if (resolution === null) {
+        return 'managed';
+    }
+
+    return resolution.composes ? 'bridged' : 'unmanaged';
 }
 
 /**
@@ -71,9 +76,9 @@ function baselineNotes(run: ToolRunResult): string[] {
     return notes;
 }
 
-function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution): string {
+function statusLine(tool: string, run: ToolRunResult, resolution: OwnedConfig | null): string {
     const label = tool.padEnd(11, ' ');
-    const meta = colors.dim(`${resolution.mode} · ${seconds(run)}`);
+    const meta = colors.dim(`${modeLabel(resolution)} · ${seconds(run)}`);
     const baselined = run.baselinedFindings ?? 0;
 
     switch (run.status) {
@@ -92,7 +97,7 @@ function statusLine(tool: string, run: ToolRunResult, resolution: ModeResolution
             return `${label}${colors.red(text)}  ${meta}`;
         }
         case 'unmanaged':
-            return `${label}${colors.yellow('⊘ skipped')} — ${colors.dim(skipReason(tool, resolution))}`;
+            return `${label}${colors.yellow('⊘ skipped')} — ${colors.dim(skipReason(tool))}`;
         case 'blocked':
             return `${label}${colors.yellow('⊘ blocked')}     ${colors.dim('(entity schema missing)')}`;
         case 'no-files':
@@ -117,7 +122,7 @@ interface ToolRow {
     label: string;
     tool: 'TypeScript' | 'ESLint';
     run: ToolRunResult;
-    resolution: ModeResolution;
+    resolution: OwnedConfig | null;
 }
 
 /** The per-extension status rows, in print order: TypeScript then ESLint. */
@@ -156,7 +161,7 @@ function renderToolRow(
     const { label, tool, run, resolution } = row;
     const toolSkips = skipped.filter((entry) => entry.tool === tool);
     const unmanaged = run.status === 'unmanaged' || toolSkips.length > 0;
-    const lines = [`    ${statusLine(label, run, resolution)}`];
+    const lines = [`    ${statusLine(tool, run, resolution)}`];
 
     // A vacuous TypeScript pass is not a dead end: point at the one action
     // that turns it into real coverage instead of leaving green-with-asterisk.
@@ -169,10 +174,6 @@ function renderToolRow(
     lines.push(...renderSkippedTargetLines(result.project, tool, toolSkips, verbose));
 
     if (run.status === 'unmanaged') {
-        if (verbose && resolution.probeOutput && resolution.probeOutput.trim() !== '') {
-            lines.push(indent(resolution.probeOutput.trim(), '      '));
-        }
-
         return { lines, unmanaged };
     }
 
@@ -191,7 +192,7 @@ function renderToolRow(
 function renderUnmanagedNote(result: ExtensionCheckResult, commands: ToolingCommands): string[] {
     const state = deriveExtensionState(result.project);
 
-    if (state === 'needs-bridge' || state === 'vendor') {
+    if (result.project.vendor || state === 'needs-bridge') {
         return describeNextStep(result.project, commands).map((step) => colors.dim(`      ${step}`));
     }
 

@@ -3,9 +3,9 @@
 This folder ships the TypeScript and ESLint contract for Administration
 extensions. It travels with the Administration package, so a platform checkout,
 a Composer install, and a production shop all carry the identical toolchain —
-matching the installed Shopware version. Only the way you invoke the two
-commands differs between a platform checkout and a Composer/Flex install (both
-are covered below).
+matching the installed Shopware version. Only the way you invoke the commands
+differs between a platform checkout and a Composer/Flex install (both are covered
+below).
 
 ## What lives here
 
@@ -28,23 +28,23 @@ You normally do not reference this folder manually.
 # of the Composer package). Re-run only after a Shopware update.
 ( cd vendor/shopware/administration/Resources/app/administration && npm ci )
 
-bin/console administration:setup-extension-tooling            # generate configs for all installed extensions
+bin/console administration:setup-extension-tooling              # generate configs for all installed extensions
 bin/console administration:check-extensions -- --only=MyPlugin  # type-check + lint your plugin
 bin/console administration:check-extensions -- --all            # check every extension
-bin/console administration:generate-entity-schema-types       # (re)generate the entity-schema types
+bin/console administration:generate-entity-schema-types         # (re)generate the entity-schema types
 ```
 
 The console commands resolve the shop root automatically and forward everything
 after `--` to the toolchain, so every option below works the same way. The
-tooling also prints these `bin/console` forms in its own guidance when it runs
-in a vendor layout, so any next step it suggests is copy-pasteable as-is.
+tooling also prints these `bin/console` forms in its own guidance when it runs in
+a vendor layout, so any next step it suggests is copy-pasteable as-is.
 
 **In a platform (monorepo) checkout**, the equivalent Composer scripts are wired up. From the project root:
 
 ```bash
-composer admin:setup-extension-tooling   # generate configs for all installed extensions
-composer admin:setup-extension-tooling:check   # guaranteed-safe dry-run (writes nothing; exit 1 on drift)
-composer admin:check-extensions          # pick extensions to type-check + lint (interactive picker)
+composer admin:setup-extension-tooling          # generate configs for all installed extensions
+composer admin:setup-extension-tooling:check    # guaranteed-safe dry-run (writes nothing; exit 1 on drift)
+composer admin:check-extensions                 # pick extensions to type-check + lint (interactive picker)
 composer admin:check-extensions -- --only=SwagPayPal,MyPlugin   # check specific ones, no prompt
 composer admin:check-extensions -- --all                        # check every extension, no prompt
 composer admin:check-extensions -- --only=MyPlugin --fix        # apply ESLint autofixes
@@ -68,56 +68,61 @@ fail the run — they are not yours to fix. A partially unknown `--only` selecti
 renamed extension) fails the whole run and names the unknown entries rather than silently
 checking only the ones that still match.
 
-Setup discovers every installed extension with Administration sources (from
-`var/plugins.json` — refresh it with `bin/console bundle:dump` after installing or
-activating a plugin), generates one tsconfig per extension under
-`var/admin-extension-tooling/`, plus root `tsconfig.json` / `eslint.config.mjs`
-projections so IDEs see exactly what the check command checks. The generated root files
-are covered by a marker-fenced block that setup manages in the project `.gitignore`
-(skipped when the entries are already covered; opt out permanently with `--no-gitignore`).
+Setup discovers every installed extension with Administration sources from
+`var/plugins.json` (refresh it with `bin/console bundle:dump` after installing or
+activating a plugin) and generates root `tsconfig.json` / `eslint.config.mjs`
+projections, so IDEs and a shop-wide `eslint .` see exactly what the check command
+checks. A marker-fenced block in the project `.gitignore` covers them (skipped when
+the entries already exist; opt out with `--no-gitignore`).
 
-- **Zero-config**: a plugin with no config files at all is fully covered.
-- **Committed configs**: bridge the plugin with one command:
+Every discovered extension is **bridged automatically** in the same run — custom
+and vendor-installed alike, no separate command. There is no bridge-less mode:
+linting and type-checking against the Administration only work through the
+generated configs.
 
-  ```bash
-  composer admin:setup-extension-tooling -- --shim=<TechnicalName>
-  ```
-
-  This writes a git-ignored `.shopware-admin/` bridge (which holds the machine-specific paths and
-  composes the preset) and — if the plugin has no config yet — two small **committable** files at
-  the plugin's administration folder that just extend it:
+- A git-ignored, self-explaining `.shopware/` bridge lands beside each extension's
+  Administration folder, holding the machine-specific paths and composing the
+  preset.
+- An extension without configs gets two small ones scaffolded beside the bridge:
 
   ```jsonc
   // tsconfig.json
-  { "extends": "./.shopware-admin/tsconfig.json", "include": ["src/**/*.ts", "src/**/*.vue"] }
+  { "extends": "./.shopware/tsconfig.json", "include": ["src/**/*.ts", "src/**/*.vue"] }
   ```
   ```js
   // eslint.config.mjs
-  import shopware from './.shopware-admin/eslint.mjs';
+  import shopware from './.shopware/eslint.mjs';
   export default [ ...shopware, /* your own rules */ ];
   ```
 
-  Commit those two files and edit them freely — add your own options/rules — as long as the
-  `extends`/import stays. The tool never overwrites them; if you already have configs, the check
-  prints a `why:` naming what is missing and a `fix:` with the exact edit. The check uses your
-  committed configs, so what runs is what you see.
+  Under `custom/plugins/` commit them and edit them freely — add your own options
+  and rules — as long as the `extends`/import stays. The check uses your committed
+  configs, so what runs is what you see.
+- Existing configs are never overwritten: setup leaves them alone, and the check
+  prints a `why:` naming what is missing plus a `fix:` with the exact edit to add.
+- One bridge per directory that owns a config: a multi-bundle package with one
+  shared config gets a single shared bridge, independent per-root configs get one
+  each. `-- --root-config=<Extension>:<dir>` forces a shared bridge for a layout
+  the grouping cannot infer, and the config scaffolded there makes that choice
+  self-perpetuating.
+- A bridge that cannot be written (a read-only vendor directory, say) degrades to
+  a warning — those sources stay covered by the root `tsconfig.json`.
 
 ## Own path aliases (`tsconfig.aliases.json`)
 
-TypeScript replaces `paths` **wholesale** across `extends`: declaring
-`"paths": { "MyPlugin/*": ["src/*"] }` in your own tsconfig would erase the preset's
-`vue` / `src/*` mappings. Declare aliases in a committed `tsconfig.aliases.json` next to
-your config instead:
+TypeScript replaces `paths` **wholesale** across `extends`, so declaring
+`"paths": { "MyPlugin/*": ["src/*"] }` in your own tsconfig would erase the
+preset's `vue` / `src/*` mappings. Declare them in a committed
+`tsconfig.aliases.json` next to your config instead:
 
 ```jsonc
 { "MyPlugin/*": ["src/*"] }
 ```
 
-Re-run `composer admin:setup-extension-tooling -- --shim=<TechnicalName>` afterwards: the
-generated `.shopware-admin/` bridge becomes the single `paths` declarer and merges your
-aliases with the preset's host paths (targets resolve relative to the plugin's
-administration folder). The same mechanism covers type-only imports of host packages,
-e.g. `{ "axios": ["../../../../../../../src/Administration/Resources/app/administration/node_modules/axios"] }`.
+Re-run setup afterwards: the bridge becomes the single `paths` declarer and merges
+your aliases with the preset's host paths, resolving targets relative to the alias
+file's own directory. The same mechanism covers type-only imports of host packages
+— map them to a path under the Administration's `node_modules`.
 
 ## From JavaScript to TypeScript
 
@@ -127,7 +132,7 @@ A `.js` plugin is linted immediately, but TypeScript checks nothing — `checkJs
 one file at a time, no big-bang rewrite:
 
 1. **Rename** a `.js` source to `.ts` (or `.vue` for a component). Nothing else needs to
-   change first — the generated/bridge config already includes `.ts`.
+   change first — the generated bridge config already includes `.ts`.
 2. **Re-run** `composer admin:check-extensions -- --only=<name>`. Expect a burst of
    `TS7006 … implicitly has an 'any' type` on un-annotated parameters (the preset is
    `strict`, so `noImplicitAny` is on) — this is normal for a fresh conversion.
@@ -168,37 +173,40 @@ Vendor-installed extensions carry no baseline — their findings never fail the 
 > **Composer-managed plugins are `vendor`.** A plugin installed through Composer — including one
 > developed under `custom/static-plugins/` and pulled in via a path repository — resolves through
 > `vendor/`, so the toolchain classifies it as a read-only `vendor` extension: findings are
-> reported but non-fatal, and neither the baseline nor `--shim` is available for it. For full
-> first-party tooling (fatal findings, baseline, `--shim`), develop the plugin under
-> `custom/plugins/`.
+> reported but non-fatal, and the baseline is not available for it. For full first-party tooling
+> (fatal findings, baseline), develop the plugin under `custom/plugins/`.
 
 ## Generated files — what to commit, what to ignore
 
-Setup and `--shim` produce three kinds of file. Only the **committable** ones belong in the
-plugin repository:
+Only the **committable** files belong in the plugin repository. Nothing written
+under `vendor/` is ever committed: a composer update removes those files and
+re-running setup restores them.
 
 | File | Kind | Commit? | Notes |
 | --- | --- | --- | --- |
-| `var/admin-extension-tooling/**` (leaf tsconfigs, manifest) | disposable host state | no | Regenerated every run; git-ignored in a shop. |
-| Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | IDE/CLI view of the whole shop; marker-owned, git-ignored (the platform monorepo commits its own, so setup stands down there). |
-| `<plugin>/…/.shopware-admin/` (bridge `tsconfig.json`, `eslint.mjs`, `.gitignore`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`). One per shimmed root, or one beside the package config in root-config mode. |
-| `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | committable plugin config | **yes** | Small files that just extend/compose the bridge. Edit freely; keep the `extends`/import. |
-| `<plugin>/tsconfig.aliases.json` | committable plugin config | **yes** | Your path aliases; merged into the bridge. |
+| `var/admin-extension-tooling/manifest.json` | disposable host state | no | Rewritten every run; git-ignored in a shop. |
+| Project-root `tsconfig.json` / `eslint.config.mjs` / `.vscode/` / `.zed/` | disposable host projections | no | The shop-wide IDE/CLI view; the tsconfig covers whatever no extension config governs. Marker-owned and git-ignored (the platform monorepo commits its own, so setup stands down there). |
+| `<plugin>/…/.shopware/` (`tsconfig.json`, `eslint.mjs`, `.gitignore`, `README.md`) | git-ignored bridge | **no** | Machine-specific paths into the installed Administration; self-ignoring (`*`) and self-explaining. One per directory that owns a config. |
+| `<plugin>/…/tsconfig.json` + `eslint.config.mjs` (scaffolded when absent) | plugin config | **yes** under `custom/plugins/` | Small files that extend/compose the bridge. Edit freely; keep the `extends`/import. |
+| `<plugin>/tsconfig.aliases.json` | plugin config | **yes** | Your path aliases; merged into the bridge. |
 | `<plugin>/.shopware-admin-baseline.json` | committable plugin data | **yes** | Findings baseline; travels with the plugin. |
 
-For a **single-root** plugin that's one bridge + one committable `tsconfig.json`/`eslint.config.mjs`
-pair. For a **multi-root** package in root-config mode it's one bridge + one committable config
-pair beside the package config (not one per bundle). `setup … --check` (or the
-`admin:setup-extension-tooling:check` alias) labels each planned file as `[git-ignored bridge]`
-or `[commit this]` so you can see the split before writing.
+Every run labels the files it lists by that lifecycle — `[commit this]`,
+`[local — restored by re-running setup]`, `[project-root projection — git-ignored]`,
+`[disposable — regenerated by setup]`, and one summary line counting the
+`git-ignored .shopware/ bridge file(s)`. Above the list, a `project-root projection`
+line names the generated root `tsconfig.json` / `eslint.config.mjs` and the source
+roots each one covers, so they are stated even on a re-run that changes nothing.
+With `--check` (or the `:check` alias) you see that whole split before anything is
+written.
 
 ## Troubleshooting
 
 | Symptom | Cause → fix |
 | --- | --- |
 | A plugin is missing from the extension list | Discovery reads `var/plugins.json`, which neither `plugin:install` nor `cache:clear` refresh. Run `bin/console bundle:dump`. A freshly created plugin must be installed and active before `bundle:dump` lists it: `bin/console plugin:refresh && bin/console plugin:install --activate <Name>`. |
-| `⊘ skipped — own tsconfig does not reach the Shopware type surface` | The printed `why:` names the exact cause: an own `"files"` array replaces the bridge's type-surface injection (remove it), the `extends` chain never reaches the preset (add `"extends": "./.shopware-admin/tsconfig.json"`), or there is no bridge yet (`-- --shim=<name>`). |
-| `⊘ skipped — own config does not compose the Shopware factory` | Compose the bridge: `import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware ];` |
+| `⊘ skipped — own tsconfig does not reach the Shopware type surface` | The printed `why:` names the exact cause: an own `"files"` array replaces the bridge's type-surface injection (remove it), or the `extends` chain never reaches the preset (add `"extends": "./.shopware/tsconfig.json"`). Re-run setup if the `.shopware/` bridge is missing. |
+| `⊘ skipped — own config does not compose the Shopware factory` | Compose the bridge: `import shopware from './.shopware/eslint.mjs'; export default [ ...shopware ];` |
 | `⊘ blocked (entity schema missing)` | Run `composer admin:generate-entity-schema-types`; TypeScript checks refuse to run against the empty-schema stub. |
 | `Duplicate identifier` errors after bridging | Your plugin's own `global.types.ts` re-declares parts of the preset surface — prune the duplicates. |
 | `Cannot find module 'axios'` (or another host package) | The preset drops the old `"*" → node_modules` fallback. Map the package in `tsconfig.aliases.json` (see above). |

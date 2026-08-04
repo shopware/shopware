@@ -67,12 +67,12 @@ describe('scripts/extensionTooling e2e', () => {
         ]);
         writeFile(path.join(shimAdminFolder, 'tsconfig.json'), [
             '{',
-            '    "extends": "./.shopware-admin/tsconfig.json",',
+            '    "extends": "./.shopware/tsconfig.json",',
             '    "include": ["src/**/*.ts", "src/**/*.vue"]',
             '}',
         ]);
         writeFile(path.join(shimAdminFolder, 'eslint.config.mjs'), [
-            "import shopware from './.shopware-admin/eslint.mjs';",
+            "import shopware from './.shopware/eslint.mjs';",
             '',
             'export default [',
             '    ...shopware,',
@@ -153,7 +153,7 @@ describe('scripts/extensionTooling e2e', () => {
             },
         ]);
 
-        setupResult = setupExtensionTooling({ projectRoot, administrationRoot, shim: 'ShimConfig' });
+        setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     }, CHECK_TIMEOUT);
 
     afterAll(() => {
@@ -176,36 +176,28 @@ describe('scripts/extensionTooling e2e', () => {
             'vendor-admin',
         ]);
         expect(byName.ZeroConfig.vendor).toBe(false);
-        expect(byName.ZeroConfig.targets[0].ts).toMatchObject({ mode: 'managed' });
-        expect(byName.ZeroConfig.targets[0].eslint).toMatchObject({ mode: 'managed' });
-        expect(byName.ShimConfig.targets[0]).toMatchObject({
-            ts: { mode: 'bridged' },
-            eslint: { mode: 'bridged' },
-        });
+        // A zero-config plugin is auto-bridged: setup scaffolds a composing
+        // tsconfig/eslint that compose the generated .shopware/ bridge.
+        expect(byName.ZeroConfig.targets[0].tsconfig?.composes).toBe(true);
+        expect(byName.ZeroConfig.targets[0].eslintConfig?.composes).toBe(true);
+        expect(byName.ShimConfig.targets[0].tsconfig?.composes).toBe(true);
+        expect(byName.ShimConfig.targets[0].eslintConfig?.composes).toBe(true);
         expect(byName.Suite.targets).toHaveLength(2);
         expect(byName['vendor-admin'].vendor).toBe(true);
 
         expect(
             fs.existsSync(
-                path.join(
-                    projectRoot,
-                    'custom/plugins/ShimConfig/src/Resources/app/administration/.shopware-admin/tsconfig.json',
-                ),
+                path.join(projectRoot, 'custom/plugins/ShimConfig/src/Resources/app/administration/.shopware/tsconfig.json'),
             ),
         ).toBe(true);
 
-        // Root references route every managed project to its runtime and spec leaves.
-        const rootTsconfig = fs.readFileSync(path.join(projectRoot, 'tsconfig.json'), 'utf8');
-        const references = [...rootTsconfig.matchAll(/"path": "\.\/(.+)"/g)].map((match) => match[1]);
-        const managedLeafs = setupResult.manifest.projects.flatMap((project) =>
-            project.targets.filter((target) => target.ts.mode === 'managed').map((target) => target.checkTsconfig),
+        // Every discovered source root is auto-bridged, so none falls back to
+        // the host-owned root projection.
+        const uncoveredTargets = setupResult.manifest.projects.flatMap((project) =>
+            project.targets.filter((target) => target.tsconfig === null),
         );
 
-        expect(references.sort()).toEqual([...managedLeafs].sort());
-
-        for (const leaf of managedLeafs) {
-            expect(fs.existsSync(path.join(projectRoot, leaf))).toBe(true);
-        }
+        expect(uncoveredTargets).toEqual([]);
     });
 
     it(
@@ -224,8 +216,9 @@ describe('scripts/extensionTooling e2e', () => {
             expect(byName.JsOnly.typescript.status).toBe('no-files');
             expect(byName.JsOnly.eslint.status).toBe('passed');
             expect(byName.ShimConfig.typescript.status).toBe('passed');
-            expect(byName.ShimConfig.tsResolution.mode).toBe('bridged');
-            expect(byName.ShimConfig.eslintResolution.mode).toBe('bridged');
+            // A fully composed project has no drift, so both resolutions are null.
+            expect(byName.ShimConfig.tsResolution).toBeNull();
+            expect(byName.ShimConfig.eslintResolution).toBeNull();
             expect(byName.Suite.typescript.status).toBe('passed');
 
             expect(byName['vendor-admin'].typescript.status).toBe('failed');

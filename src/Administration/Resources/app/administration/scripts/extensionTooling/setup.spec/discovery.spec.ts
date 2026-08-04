@@ -53,32 +53,28 @@ describe('scripts/extensionTooling/setup discovery', () => {
             ],
             vendor: false,
         });
+        // Auto-bridging scaffolded composing configs, so the manifest records
+        // the post-bridge state of the same run.
         expect(suite?.targets).toHaveLength(2);
         expect(suite?.targets).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ technicalNames: ['SuiteA'], ts: { mode: 'managed', verified: true } }),
-                expect.objectContaining({ technicalNames: ['SuiteB'], ts: { mode: 'managed', verified: true } }),
+                expect.objectContaining({ technicalNames: ['SuiteA'] }),
+                expect.objectContaining({ technicalNames: ['SuiteB'] }),
             ]),
         );
         expect(zeroConfig?.vendor).toBe(false);
-        expect(zeroConfig?.targets[0].ts).toMatchObject({ mode: 'managed' });
-        expect(zeroConfig?.targets[0].eslint).toMatchObject({ mode: 'managed' });
-        // The vendor fixture's own configs do not compose the preset — static
-        // analysis already classifies them, unverified until a check run.
+        expect(zeroConfig?.targets[0].bridgePresent).toBe(true);
+        expect(zeroConfig?.targets[0].tsconfig).toMatchObject({ composes: true });
+        expect(zeroConfig?.targets[0].eslintConfig).toMatchObject({ composes: true });
+        // The vendor fixture ships its own non-composing configs: they are never
+        // overwritten, so the bridge exists but stays unwired.
         expect(vendorExtension?.vendor).toBe(true);
-        expect(vendorExtension?.targets[0].ts).toMatchObject({
-            mode: 'unmanaged',
-            reason: 'not-extending',
-            verified: false,
+        expect(vendorExtension?.targets[0].bridgePresent).toBe(true);
+        expect(vendorExtension?.targets[0].tsconfig).toMatchObject({
+            path: 'vendor/acme/custom-admin/src/Resources/app/administration/tsconfig.json',
+            composes: false,
         });
-        expect(vendorExtension?.targets[0].eslint).toMatchObject({
-            mode: 'unmanaged',
-            reason: 'factory-not-composed',
-            verified: false,
-        });
-        expect(vendorExtension?.targets[0].tsconfig).toBe(
-            'vendor/acme/custom-admin/src/Resources/app/administration/tsconfig.json',
-        );
+        expect(vendorExtension?.targets[0].eslintConfig).toMatchObject({ composes: false });
         expect(result.manifest.entitySchemaAvailable).toBe(true);
     });
 

@@ -15,6 +15,17 @@ use Symfony\Component\Process\Process;
 /**
  * @internal
  *
+ * @experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING
+ *
+ * The Administration extension tooling is shipped for feedback and is not
+ * covered by the backwards-compatibility promise until it stabilizes (targeted
+ * for v6.8.0). The command names, their options, the generated-file layout and
+ * the manifest format can change in any release, so the tooling can be
+ * reshaped once real-world usage shows what does not hold. This class is
+ * `@internal` on top of that: the bridge mechanism itself (how the ts-node
+ * entry point is resolved and spawned) is an implementation detail and must
+ * not be extended from outside the platform.
+ *
  * Bridges the Administration extension-tooling CLI — a ts-node script shipped
  * inside the Administration package — to `bin/console`, so it is usable from a
  * Composer/Flex install where the Administration lives under vendor/ and the

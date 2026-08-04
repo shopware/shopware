@@ -69,7 +69,7 @@ test(
 
             const starRatingPoints = await StorefrontProductDetail.reviewRatingPoints.count();
             for (let i = 0; i < starRatingPoints; i++) {
-                //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
+                //cannot use Actor.selectsRadioButton() until issue #13219 is resolved
                 await StorefrontProductDetail.reviewRatingPoints.nth(i).click();
                 await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass(
                     'product-detail-review-form-star is-active',
@@ -94,7 +94,7 @@ test(
         });
 
         await test.step('Create a review and validate the submitted review.', async () => {
-            //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
+            //cannot use Actor.selectsRadioButton() until issue #13219 is resolved
             await StorefrontProductDetail.reviewRatingPoints.nth(3).click();
             const reviewContent = {
                 title: `${product.name} is a great choice`,
@@ -137,7 +137,6 @@ test(
     },
 );
 
-// eslint-disable-next-line playwright/no-skipped-test
 test(
     'As a shop customer, I want to filter reviews, so that I can find the content of a specific rating',
     {

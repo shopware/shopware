@@ -101,6 +101,10 @@ describe('mailApiService', () => {
         };
 
         // NOTE FOR REVIEWERS: Omitted template data falls back to persisted type data before v6.8 but must remain null in v6.8.
+        // The previous single test early-returned unless v6.8 was active, so it never ran in the default
+        // suite, and its `toEqual({})` was wrong: mail.api.service.js defaults templateData to null and
+        // skips the fallback under the flag, so the payload carries null. Hence the changed expectation.
+        // The deprecated variant below is new coverage: the 6.7 fallback had none.
         // @deprecated tag:v6.8.0.0 - The test will be removed with the persisted template-data fallback.
         it.deprecated('v6.8.0.0')('falls back to persisted mail template type data', async () => {
             await expect(sendWithoutTemplateData()).resolves.toEqual({

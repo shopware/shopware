@@ -7,13 +7,25 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type TransformedCustomerArray array{customerId: string, email: string, firstName: string, lastName: string, salutationId: string|null, title: string|null, vatIds: array<string>|null, customerNumber: string, remoteAddress: string|null, customFields: array<string, mixed>|null}
+ * @phpstan-type TransformedCustomerArray array{
+ *     customerId: string,
+ *     email: string,
+ *     firstName: string,
+ *     lastName: string,
+ *     salutationId: string|null,
+ *     title: string|null,
+ *     vatIds: array<string>|null,
+ *     company: string|null,
+ *     customerNumber: string,
+ *     remoteAddress: string|null,
+ *     customFields: array<string, mixed>|null
+ * }
  */
 #[Package('checkout')]
 class CustomerTransformer
 {
     /**
-     * @return list<TransformedCustomerArray>|array<string, TransformedCustomerArray>
+     * @return ($useIdAsKey is false ? list<TransformedCustomerArray>: array<string, TransformedCustomerArray>)
      */
     public static function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array
     {

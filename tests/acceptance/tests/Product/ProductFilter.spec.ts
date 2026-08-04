@@ -79,7 +79,7 @@ test(
 
         await test.step('Verify setup filters display & enabled', async () => {
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
@@ -138,7 +138,7 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
@@ -228,7 +228,7 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
@@ -324,7 +324,7 @@ test(
 
         await test.step('Verify setup filters display', async () => {
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);

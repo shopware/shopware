@@ -150,7 +150,7 @@ class ProductSerializer extends EntitySerializer
             yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover'], $context);
         }
 
-        if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
+        if (($deserialized['parentId'] ?? '') !== '' && ($deserialized['options'] ?? []) !== []) {
             yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options'], $context);
         }
     }
@@ -294,7 +294,7 @@ class ProductSerializer extends EntitySerializer
         $configuratorSettings = [];
 
         foreach ($options as $option) {
-            if (empty($option['id'])) {
+            if (($option['id'] ?? '') === '') {
                 continue;
             }
 
@@ -328,7 +328,7 @@ class ProductSerializer extends EntitySerializer
         array $deserialized,
         Context $context
     ): array {
-        if (empty($entity['media'])) {
+        if (($entity['media'] ?? '') === '') {
             return [];
         }
 
@@ -405,7 +405,7 @@ class ProductSerializer extends EntitySerializer
         $urls = [];
         $coverUrl = null;
 
-        if ($productMedias !== [] && !empty($entity['cover'])) {
+        if ($productMedias !== [] && ($entity['cover'] ?? null) !== null) {
             $coverMedia = $entity['cover'] instanceof ProductMediaEntity
                 ? $entity['cover']->jsonSerialize()
                 : $entity['cover'];
@@ -419,7 +419,7 @@ class ProductSerializer extends EntitySerializer
                 ? $productMedia->jsonSerialize()
                 : $productMedia;
 
-            if (empty($productMedia['media'])) {
+            if (($productMedia['media'] ?? null) === null) {
                 continue;
             }
 

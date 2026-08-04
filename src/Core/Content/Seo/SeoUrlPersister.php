@@ -103,7 +103,7 @@ class SeoUrlPersister
 
             $updatedFks[] = $fk;
 
-            if (!empty($seoUrl['error'])) {
+            if (($seoUrl['error'] ?? null) !== null) {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;

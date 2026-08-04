@@ -52,10 +52,10 @@ class MediaVisibilityRestrictionSubscriberProductDocumentTest extends TestCase
         $this->createMedia($mediaId, $folderId, true);
 
         $mediaResult = $this->mediaRepository->search(new Criteria([$mediaId]), $this->salesChannelContext);
-        static::assertTrue($mediaResult->has($mediaId));
+        static::assertTrue($mediaResult->getEntities()->has($mediaId));
 
         $folderResult = $this->mediaFolderRepository->search(new Criteria([$folderId]), $this->salesChannelContext);
-        static::assertFalse($folderResult->has($folderId));
+        static::assertFalse($folderResult->getEntities()->has($folderId));
     }
 
     public function testPrivateMediaInRegularPrivateFolderIsStillRestricted(): void
@@ -74,10 +74,10 @@ class MediaVisibilityRestrictionSubscriberProductDocumentTest extends TestCase
         $this->createMedia($mediaId, $folderId, true);
 
         $mediaResult = $this->mediaRepository->search(new Criteria([$mediaId]), $this->salesChannelContext);
-        static::assertFalse($mediaResult->has($mediaId));
+        static::assertFalse($mediaResult->getEntities()->has($mediaId));
 
         $folderResult = $this->mediaFolderRepository->search(new Criteria([$folderId]), $this->salesChannelContext);
-        static::assertFalse($folderResult->has($folderId));
+        static::assertFalse($folderResult->getEntities()->has($folderId));
     }
 
     private function getProductDocumentFolderId(): string

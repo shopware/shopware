@@ -276,6 +276,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $source;
     }
 
+    /**
+     * @param array<string> $permissions
+     *
+     * @return array<string>
+     */
+    private function withDefaultUserPrivileges(array $permissions): array
+    {
+        return array_values(array_unique([
+            ...$permissions,
+            ...AdminApiSource::DEFAULT_USER_PRIVILEGES,
+        ]));
+    }
+
     private function isAdmin(string $userId): bool
     {
         return (bool) $this->connection->fetchOne(
@@ -313,19 +326,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return array_unique(array_filter($list));
-    }
-
-    /**
-     * @param array<string> $permissions
-     *
-     * @return array<string>
-     */
-    private function withDefaultUserPrivileges(array $permissions): array
-    {
-        return array_values(array_unique([
-            ...$permissions,
-            ...AdminApiSource::DEFAULT_USER_PRIVILEGES,
-        ]));
     }
 
     private function getCashRounding(string $currencyId): CashRoundingConfig

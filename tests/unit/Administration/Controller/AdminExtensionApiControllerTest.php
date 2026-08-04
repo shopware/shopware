@@ -9,6 +9,8 @@ use Psr\Http\Message\UriInterface;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -163,6 +165,38 @@ class AdminExtensionApiControllerTest extends TestCase
         );
     }
 
+    public function testRunActionAllowsUserWithAppSpecificPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
+    public function testRunActionAllowsUserWithAppAllPrivilege(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.all']);
+
+        $this->assertRunActionExecutesWith($source);
+    }
+
+    public function testRunActionThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
+    {
+        $this->expectExceptionObject(ApiException::missingPrivileges(['app.test-app']));
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['product:read']);
+        $context = Context::createDefaultContext($source);
+
+        $this->executor->expects($this->never())->method('execute');
+
+        $this->controller->runAction(
+            new RequestDataBag(['appName' => 'test-app']),
+            $context
+        );
+    }
+
     public function testSignUriThrowsAppByNameNotFoundExceptionWhenAppIsNotFound(): void
     {
         if (!Feature::isActive('v6.7.0.0')) {
@@ -224,5 +258,24 @@ class AdminExtensionApiControllerTest extends TestCase
         $entity->setAllowedHosts($allowedHosts);
 
         return $entity;
+    }
+
+    private function assertRunActionExecutesWith(AdminApiSource $source): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
+        $this->assertEntityRepositoryWithEntity($entity);
+
+        $this->executor->expects($this->once())->method('execute');
+
+        $this->controller->runAction(
+            new RequestDataBag([
+                'appName' => $entity->getName(),
+                'url' => 'https://foo.bar',
+                'ids' => [Uuid::randomHex()],
+                'entity' => 'app',
+                'action' => 'do-nothing',
+            ]),
+            Context::createDefaultContext($source),
+        );
     }
 }

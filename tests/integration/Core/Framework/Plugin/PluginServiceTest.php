@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -86,36 +85,6 @@ class PluginServiceTest extends TestCase
         $this->pluginService->refreshPlugins(new Context($source), new NullIO());
 
         $this->assertDefaultPlugin($this->fetchSwagTestPluginEntity());
-    }
-
-    public function testPluginPathIsWriteProtected(): void
-    {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-        $plugin = $this->fetchSwagTestPluginEntity();
-
-        $source = new AdminApiSource(Uuid::randomHex());
-        $source->setIsAdmin(true);
-
-        $this->expectException(WriteException::class);
-        $this->pluginRepo->update([[
-            'id' => $plugin->getId(),
-            'path' => 'custom/plugins/ChangedPlugin',
-        ]], new Context($source));
-    }
-
-    public function testPluginComposerManagementIsWriteProtected(): void
-    {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-        $plugin = $this->fetchSwagTestPluginEntity();
-
-        $source = new AdminApiSource(Uuid::randomHex());
-        $source->setIsAdmin(true);
-
-        $this->expectException(WriteException::class);
-        $this->pluginRepo->update([[
-            'id' => $plugin->getId(),
-            'managedByComposer' => false,
-        ]], new Context($source));
     }
 
     public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void

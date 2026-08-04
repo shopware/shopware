@@ -43,31 +43,20 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     /**
-     * Maximum number of ANDed conditions evaluated in a single `searchIds`
-     * call. Each condition can add multiple outer joins to the generated SQL
-     * (association traversal, translation tables, inheritance parent), and
-     * MariaDB/MySQL caps a single query at 61 tables (see issue #10770).
-     *
-     * The number of joins per condition is not bounded — a deeply nested
-     * accessor contributes far more than the ~3 joins this value assumes, and
-     * the base query needs a few tables of its own. This value is therefore
-     * only a starting point: {@see searchMatchingProductIds} halves it and
-     * retries whenever the database still reports the 61-table limit.
+     * Conditions per `searchIds` call. MariaDB/MySQL joins at most 61 tables per
+     * query (see issue #10770) and the joins per condition are not bounded, so
+     * {@see searchMatchingProductIds} halves this and retries on error 1116.
      */
     private const CONDITION_CHUNK_SIZE = 20;
 
     /**
-     * Number of candidate product ids handed to a single query as
-     * `EqualsAnyFilter`. Intermediate result sets have to stay bounded:
-     * a full-catalog `IN` list exceeds the maximum number of prepared
-     * statement placeholders (65535) and Elasticsearch silently truncates
-     * unbounded searches at `ElasticsearchEntitySearcher::MAX_LIMIT`, which
-     * would make the intersection of the batches lose matches.
+     * Candidate ids per query. Keeps intermediate results below the Elasticsearch
+     * result window and the maximum number of SQL placeholders.
      */
     private const ID_CHUNK_SIZE = 500;
 
     /**
-     * MariaDB/MySQL error code for "Too many tables; ... can only use 61 tables in a join".
+     * MariaDB/MySQL "Too many tables" error.
      */
     private const TOO_MANY_TABLES_ERROR_CODE = 1116;
 

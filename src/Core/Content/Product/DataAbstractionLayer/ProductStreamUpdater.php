@@ -186,27 +186,27 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
-        if ($streams === []) {
-            return;
-        }
-
         $insert = new MultiInsertQueryQueue($this->connection);
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $languageContexts = $this->getLanguageContexts($context);
-
+        // Every existing mapping of these products, across all streams: mappings of streams that are
+        // not evaluated below (invalid, deleted, unparsable filter) have to be removed as well.
         /** @var list<array<string, string>> $result */
         $result = $this->connection->fetchAllAssociative(
-            'SELECT product_stream_id, LOWER(HEX(product_id)) as product_id FROM product_stream_mapping WHERE product_stream_id IN (:ids) AND product_id IN (:productIds)',
-            ['ids' => array_column($streams, 'id'), 'productIds' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::BINARY, 'productIds' => ArrayParameterType::BINARY]
+            'SELECT product_stream_id, LOWER(HEX(product_id)) as product_id FROM product_stream_mapping WHERE product_id IN (:productIds)',
+            ['productIds' => Uuid::fromHexToBytesList($ids)],
+            ['productIds' => ArrayParameterType::BINARY]
         );
 
         $oldMatches = FetchModeHelper::group(
             $result,
             static fn (array $row): string => (string) $row['product_id']
         );
+
+        $languageContexts = $streams === [] ? [] : $this->getLanguageContexts($context);
+
+        $evaluatedStreamIds = [];
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
@@ -228,6 +228,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 // skip if filter field is not found
                 continue;
             }
+
+            $evaluatedStreamIds[] = $stream['id'];
 
             $toBeDeleted = array_values(array_diff($oldMatchesOfStream, $matchedIds));
             $toBeAdded = array_values(array_diff($matchedIds, $oldMatchesOfStream));
@@ -252,6 +254,21 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                         'streamId' => $stream['id'],
                     ],
                     ['ids' => ArrayParameterType::BINARY],
+                );
+            });
+        }
+
+        $obsoleteStreamIds = array_values(array_diff(array_keys($oldMatches), $evaluatedStreamIds));
+
+        if ($obsoleteStreamIds !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($ids, $obsoleteStreamIds): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id IN (:streamIds)',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($ids),
+                        'streamIds' => $obsoleteStreamIds,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY, 'streamIds' => ArrayParameterType::BINARY],
                 );
             });
         }

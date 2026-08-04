@@ -175,10 +175,11 @@ class ProductStreamUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
 
         $connection = $this->createMock(Connection::class);
+        // first call fetches the streams, second one the existing mappings of the given products
         $connection
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
-            ->willReturn($filters);
+            ->willReturnOnConsecutiveCalls($filters, []);
 
         $criteria->addFilter(new EqualsAnyFilter('id', $ids));
 
@@ -406,13 +407,19 @@ class ProductStreamUpdaterTest extends TestCase
             'value' => '1',
         ]]);
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => Uuid::randomBytes(), 'api_filter' => $apiFilter]]);
+        $streamId = Uuid::randomBytes();
 
-        // the invalid filter is skipped, so the transaction still runs but inserts nothing
+        $connection = $this->createMock(Connection::class);
+        // first call fetches the streams, second one the existing mappings of the given products
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                [['id' => $streamId, 'api_filter' => $apiFilter]],
+                [['product_stream_id' => $streamId, 'product_id' => Uuid::randomHex()]],
+            );
+
+        // the stream could not be evaluated, so its stale mappings are removed in a transaction
         $connection
             ->expects($this->once())
             ->method('transactional');

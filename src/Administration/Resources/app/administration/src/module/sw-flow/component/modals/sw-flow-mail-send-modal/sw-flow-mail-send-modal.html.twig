@@ -191,7 +191,7 @@
     </div>
     {% endblock %}
 
-    {% block sw_flow_mail_send_modal_document_types_multi %}
+    {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
         v-if="!isDocumentGenerationReworkActive"
         v-model:value="documentTypeIds"
@@ -203,7 +203,7 @@
     />
     {% endblock %}
 
-    {% block sw_flow_mail_send_modal_document_type_single %}
+    {% block sw_flow_mail_send_modal_document_type %}
     <mt-select
         v-if="isDocumentGenerationReworkActive"
         :model-value="documentTypeSelected"

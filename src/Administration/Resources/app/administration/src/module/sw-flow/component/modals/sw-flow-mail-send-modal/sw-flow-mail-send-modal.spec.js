@@ -163,7 +163,9 @@ async function createWrapper(sequence = {}) {
                         return {
                             create: () => Promise.resolve(),
                             search: () =>
-                                Promise.resolve(entity === 'document_type' ? mockDocumentTypeData() : mockMailTemplateData()),
+                                Promise.resolve(
+                                    entity === 'document_type' ? mockDocumentTypeData() : mockMailTemplateData(),
+                                ),
                             get: () => Promise.resolve(),
                         };
                     },

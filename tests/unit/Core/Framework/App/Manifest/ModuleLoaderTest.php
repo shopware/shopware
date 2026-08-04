@@ -56,11 +56,17 @@ class ModuleLoaderTest extends TestCase
                 'label' => ['en-GB' => 'module with source'],
                 'source' => 'https://module.app.com',
                 'name' => 'module-with-source',
-                'parent' => null,
+                'parent' => 'sw-catalogue',
                 'position' => 20,
             ],
         ]);
-        $app->setMainModule(['source' => 'https://main.app.com']);
+        $app->setMainModule([
+            'source' => 'https://main.app.com',
+            'name' => 'main-module',
+            'label' => ['en-GB' => 'main module'],
+            'parent' => 'sw-catalogue',
+            'position' => 0,
+        ]);
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
@@ -95,7 +101,7 @@ class ModuleLoaderTest extends TestCase
                         'label' => ['en-GB' => 'module with source'],
                         'source' => 'https://module.app.com?signed=true',
                         'name' => 'module-with-source',
-                        'parent' => null,
+                        'parent' => 'sw-catalogue',
                         'position' => 20,
                     ],
                 ],

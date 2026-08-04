@@ -71,6 +71,10 @@ class ModuleLoader
         $appModules = [];
 
         foreach ($apps as $app) {
+            if (!$context->isAllowed('app.all') && !$context->isAllowed('app.' . $app->getName())) {
+                continue;
+            }
+
             $modules = $this->formatModules($app, $context);
             $mainModule = $this->formatMainModule($app, $context);
 

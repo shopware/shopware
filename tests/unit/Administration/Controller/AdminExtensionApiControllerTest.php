@@ -78,6 +78,13 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->controller->runAction(new RequestDataBag(['appName' => 'test-app']), $this->context);
     }
 
+    public function testRunActionThrowsMissingRequestParameterWhenAppNameIsMissing(): void
+    {
+        $this->expectExceptionObject(AppException::missingRequestParameter('appName'));
+
+        $this->controller->runAction(new RequestDataBag(), $this->context);
+    }
+
     public function testRunActionThrowsAppByNameNotFoundExceptionWhenAppSecretIsNull(): void
     {
         if (!Feature::isActive('v6.7.0.0')) {
@@ -94,14 +101,9 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->controller->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
     }
 
-    public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsEmpty(): void
+    public function testRunActionThrowsMissingRequestParameterWhenUrlIsMissing(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new UnallowedHostException('', [], 'test-app'));
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::hostNotAllowed('', 'test-app')->getMessage());
-        }
+        $this->expectExceptionObject(AppException::missingRequestParameter('url'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', []);
         $this->assertEntityRepositoryWithEntity($entity);
@@ -109,20 +111,28 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->controller->runAction(new RequestDataBag(['appName' => $entity->getName()]), $this->context);
     }
 
-    public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
+    public function testRunActionThrowsInvalidArgumentExceptionWhenUrlIsNotValid(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectExceptionObject(new UnallowedHostException('test-host', ['shopware'], 'test-app'));
-        } else {
-            $this->expectException(AppException::class);
-            $this->expectExceptionMessage(AppException::hostNotAllowed('test-host', 'test-app')->getMessage());
-        }
+        $this->expectExceptionObject(AppException::invalidArgument('test-host is not a valid url'));
 
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
         $this->assertEntityRepositoryWithEntity($entity);
 
         $this->controller->runAction(
             new RequestDataBag(['appName' => $entity->getName(), 'url' => 'test-host']),
+            $this->context
+        );
+    }
+
+    public function testRunActionThrowsUnallowedHostExceptionWhenTargetHostIsNotAllowed(): void
+    {
+        $this->expectExceptionObject(AppException::hostNotAllowed('https://not-allowed.example', 'test-app'));
+
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['shopware']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+
+        $this->buildController(entityRepository: $entityRepository)->runAction(
+            new RequestDataBag(['appName' => $entity->getName(), 'url' => 'https://not-allowed.example']),
             $this->context
         );
     }
@@ -205,21 +215,110 @@ class AdminExtensionApiControllerTest extends TestCase
             $this->expectException(AppNotFoundException::class);
         }
 
-        $this->controller->signUri(new RequestDataBag(['appName' => 'test-app']), $this->context);
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->controller->signUri(
+            new RequestDataBag(['appName' => 'test-app']),
+            Context::createDefaultContext($source)
+        );
+    }
+
+    public function testSignUriThrowsMissingPrivilegeWhenUserLacksAppPrivilege(): void
+    {
+        $this->expectExceptionObject(ApiException::missingPrivileges(['app.test-app']));
+
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->never())->method('signUri');
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['product:read']);
+
+        $this->buildController(querySigner: $querySigner)->signUri(
+            new RequestDataBag(['appName' => 'test-app']),
+            Context::createDefaultContext($source)
+        );
+    }
+
+    public function testSignUriThrowsMissingRequestParameterWhenAppNameIsMissing(): void
+    {
+        $this->expectExceptionObject(AppException::missingRequestParameter('appName'));
+
+        $this->controller->signUri(new RequestDataBag(), $this->context);
+    }
+
+    public function testSignUriThrowsMissingRequestParameterWhenUriIsMissing(): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->never())->method('signUri');
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->expectExceptionObject(AppException::missingRequestParameter('uri'));
+
+        $this->buildController(querySigner: $querySigner, entityRepository: $entityRepository)->signUri(
+            new RequestDataBag(['appName' => 'test-app']),
+            Context::createDefaultContext($source)
+        );
+    }
+
+    public function testSignUriThrowsInvalidArgumentWhenUriIsNotValid(): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->never())->method('signUri');
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->expectExceptionObject(AppException::invalidArgument('not-a-url is not a valid url'));
+
+        $this->buildController(querySigner: $querySigner, entityRepository: $entityRepository)->signUri(
+            new RequestDataBag([
+                'appName' => 'test-app',
+                'uri' => 'not-a-url',
+            ]),
+            Context::createDefaultContext($source)
+        );
+    }
+
+    public function testSignUriThrowsHostNotAllowedWhenUriHostIsNotAllowed(): void
+    {
+        $entity = $this->buildAppEntity('test-app', 'test-secrets', ['allowed.example']);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->never())->method('signUri');
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.test-app']);
+
+        $this->expectExceptionObject(AppException::hostNotAllowed('https://evil.example/action', 'test-app'));
+
+        $this->buildController(querySigner: $querySigner, entityRepository: $entityRepository)->signUri(
+            new RequestDataBag([
+                'appName' => 'test-app',
+                'uri' => 'https://evil.example/action',
+            ]),
+            Context::createDefaultContext($source)
+        );
     }
 
     public function testSignUriReturnsJsonResponseWithUri(): void
     {
         $entity = $this->buildAppEntity('test-app', 'test-secrets', ['foo.bar']);
-        $this->assertEntityRepositoryWithEntity($entity);
+        $entityRepository = $this->assertEntityRepositoryWithEntity($entity);
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.all']);
+        $context = Context::createDefaultContext($source);
 
-        $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'test-uri']);
+        $requestBag = new RequestDataBag(['appName' => $entity->getName(), 'uri' => 'https://foo.bar/test-uri']);
 
-        $this->querySigner->expects($this->once())->method('signUri')
-            ->with($requestBag->get('uri'), $entity, $this->context)
-            ->willReturn($this->createMock(UriInterface::class));
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->once())->method('signUri')
+            ->with($requestBag->get('uri'), $entity, $context)
+            ->willReturn(static::createStub(UriInterface::class));
 
-        $response = $this->controller->signUri($requestBag, $this->context);
+        $response = $this->buildController(querySigner: $querySigner, entityRepository: $entityRepository)->signUri($requestBag, $context);
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"uri":""}', $response->getContent());

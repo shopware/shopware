@@ -80,6 +80,12 @@ const baseRules = {
         { ignoreRegExpLiterals: true },
     ],
     'import/no-useless-path-segments': 0,
+    // `never` for js/ts/tsx because TypeScript resolves those extensionless itself. `.vue` is the
+    // exception, and not for consistency's sake: nothing resolves `./sw-thing` to `./sw-thing.vue`.
+    // TypeScript matches SFCs through the `declare module '*.vue'` shim, which keys off the literal
+    // specifier, and Vite's default `resolve.extensions` deliberately omits `.vue`. So the extension is
+    // mandatory for the type checker, Volar and the bundler alike - which is also what the TypeScript
+    // override further down already enforces by leaving `vue` unlisted.
     'import/extensions': [
         'error',
         'ignorePackages',
@@ -87,7 +93,7 @@ const baseRules = {
             js: 'never',
             ts: 'never',
             tsx: 'never',
-            vue: 'never',
+            vue: 'always',
         },
     ],
     'no-console': [

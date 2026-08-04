@@ -11,15 +11,20 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteR
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -37,21 +42,33 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     /**
-     * Maximum number of top-level ANDed conditions evaluated in a single
-     * `searchIds` call. Each filter can add multiple outer joins to the
-     * generated SQL (association traversal, translation tables, inheritance
-     * parent) — often two or three joins per condition, and more for nested
-     * paths — so the per-filter join budget is not 1:1. MariaDB/MySQL caps a
-     * single query at 61 tables (see issue #10770).
+     * Maximum number of ANDed conditions evaluated in a single `searchIds`
+     * call. Each condition can add multiple outer joins to the generated SQL
+     * (association traversal, translation tables, inheritance parent), and
+     * MariaDB/MySQL caps a single query at 61 tables (see issue #10770).
      *
-     * 20 is chosen to keep headroom at ~3 joins/filter (≈60 joins/query)
-     * while still reducing round-trips enough that large streams with 60–200
-     * conditions stay responsive. Conditions beyond this ceiling are
-     * evaluated in subsequent queries that are narrowed to the matching ids
-     * of the previous batch, which is mathematically equivalent to an `AND`
-     * across all conditions.
+     * The number of joins per condition is not bounded — a deeply nested
+     * accessor contributes far more than the ~3 joins this value assumes, and
+     * the base query needs a few tables of its own. This value is therefore
+     * only a starting point: {@see searchMatchingProductIds} halves it and
+     * retries whenever the database still reports the 61-table limit.
      */
     private const CONDITION_CHUNK_SIZE = 20;
+
+    /**
+     * Number of candidate product ids handed to a single query as
+     * `EqualsAnyFilter`. Intermediate result sets have to stay bounded:
+     * a full-catalog `IN` list exceeds the maximum number of prepared
+     * statement placeholders (65535) and Elasticsearch silently truncates
+     * unbounded searches at `ElasticsearchEntitySearcher::MAX_LIMIT`, which
+     * would make the intersection of the batches lose matches.
+     */
+    private const ID_CHUNK_SIZE = 500;
+
+    /**
+     * MariaDB/MySQL error code for "Too many tables; ... can only use 61 tables in a join".
+     */
+    private const TOO_MANY_TABLES_ERROR_CODE = 1116;
 
     /**
      * @internal
@@ -119,7 +136,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $parsedFilters, null);
+            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $parsedFilters, null, true);
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
             $newMatches = [];
@@ -220,7 +237,11 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $parsedFilters, $ids);
+                // `updateProducts` runs inside the product indexer, directly after the
+                // products have been written. The Elasticsearch documents of those
+                // products are only written afterwards, so this path has to stay on the
+                // SQL implementation to see the current data.
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $parsedFilters, $ids, false);
             } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
@@ -294,14 +315,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      *
      * @return list<string>
      */
-    private function collectMatchingIdsInLanguageContexts(array $languageContexts, array $parsedFilters, ?array $restrictToIds): array
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, array $parsedFilters, ?array $restrictToIds, bool $elasticsearchAware): array
     {
         /** @var array<string, true> $matches */
         $matches = [];
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->searchMatchingProductIds($parsedFilters, $restrictToIds, $context)
+                fn (Context $context): array => $this->searchMatchingProductIds($parsedFilters, $restrictToIds, $context, $elasticsearchAware)
             );
 
             foreach ($languageMatches as $id) {
@@ -314,9 +335,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     /**
      * Parses the raw api_filter payload of a product stream into the Filter
-     * DAL representation and flattens top-level AND groupings. The returned
-     * list represents the conjunction of all contained filters, which is the
-     * exact semantic of the original filters as evaluated by `Criteria::addFilter`.
+     * DAL representation. The returned list is the conjunction of all contained
+     * filters, exactly as it would be passed to `Criteria::addFilter`.
      *
      * @param array<int, array<string, mixed>> $filters
      *
@@ -337,91 +357,344 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if ($parsed === []) {
-            return null;
-        }
-
-        return $this->flattenAndFilters($parsed);
+        return $parsed;
     }
 
     /**
-     * Splits the conjunction represented by `$parsedFilters` into batches of
-     * at most `self::CONDITION_CHUNK_SIZE` filters and executes a searchIds
-     * per batch. The ids matched by the first batch are used to constrain the
-     * next batch, which mathematically equals `filter_1 AND filter_2 AND ... AND filter_n`.
+     * Executes the conjunction of `$parsedFilters`, splitting it over multiple
+     * `searchIds` calls when it would otherwise generate a single query that
+     * joins more than 61 tables (MariaDB/MySQL hard limit, see issue #10770).
      *
-     * This avoids generating a single SQL query that joins more than 61 tables
-     * (MariaDB/MySQL hard limit) when a stream contains dozens of conditions.
+     * The number of joins a condition needs cannot be determined upfront, so
+     * the batch size is reduced and the search is repeated whenever the
+     * database still reports the limit.
      *
      * @param list<Filter> $parsedFilters
      * @param list<string>|null $restrictToIds
      *
      * @return list<string>
      */
-    private function searchMatchingProductIds(array $parsedFilters, ?array $restrictToIds, Context $context): array
+    private function searchMatchingProductIds(array $parsedFilters, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
     {
-        if ($parsedFilters === []) {
-            return [];
-        }
+        $chunkSize = self::CONDITION_CHUNK_SIZE;
 
-        $chunks = array_chunk($parsedFilters, self::CONDITION_CHUNK_SIZE);
+        while (true) {
+            try {
+                return $this->searchChunked($this->chunkFilters($parsedFilters, $chunkSize), $restrictToIds, $context, $elasticsearchAware);
+            } catch (\Throwable $e) {
+                if ($chunkSize <= 1 || !$this->isTooManyTablesError($e)) {
+                    throw $e;
+                }
 
-        $currentIds = $restrictToIds;
-
-        foreach ($chunks as $chunk) {
-            // Once a previous chunk (or the initial restriction) narrowed the
-            // candidates to an empty set, no product can satisfy the remaining
-            // AND conditions, so stop early and skip the pointless query.
-            if ($currentIds === []) {
-                return [];
+                $chunkSize = intdiv($chunkSize, 2);
             }
-
-            $criteria = new Criteria();
-            $criteria->addFilter(...$chunk);
-            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-            // null means "no restriction yet" (first chunk); a non-empty list
-            // constrains this chunk to the intersection found so far, so the final
-            // result equals filter_1 AND filter_2 AND ... AND filter_n.
-            if ($currentIds !== null) {
-                $criteria->addFilter(new EqualsAnyFilter('id', $currentIds));
-            }
-
-            /** @var list<string> $matched */
-            $matched = $this->repository->searchIds($criteria, $context)->getIds();
-            $currentIds = $matched;
         }
-
-        return $currentIds ?? [];
     }
 
     /**
-     * Recursively unwraps top-level `AND`/`multi-AND` filters so we can split
-     * large conjunctions into smaller batches. Any filter that is not a pure
-     * `AND` grouping is kept as-is (including `OR`/`NOT` multi filters and
-     * single field filters), because splitting it would change the semantics.
+     * @param list<list<Filter>> $chunks
+     * @param list<string>|null $restrictToIds
      *
+     * @return list<string>
+     */
+    private function searchChunked(array $chunks, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    {
+        if (\count($chunks) <= 1) {
+            // The whole conjunction fits into one query. No intermediate result
+            // set is created, so this behaves exactly like an unsplit criteria.
+            return $this->searchIds($chunks[0] ?? [], $restrictToIds, $context, $elasticsearchAware);
+        }
+
+        // More than one query is needed. Every one of them is restricted to a
+        // bounded page of candidate ids, otherwise an intermediate result could
+        // exceed the Elasticsearch result window (silently dropping matches) or
+        // the maximum number of SQL placeholders.
+        $matches = [];
+        foreach ($this->iterateCandidateIds($restrictToIds) as $candidateIds) {
+            foreach ($chunks as $chunk) {
+                $candidateIds = $this->searchIds($chunk, $candidateIds, $context, $elasticsearchAware);
+
+                if ($candidateIds === []) {
+                    break;
+                }
+            }
+
+            $matches = [...$matches, ...$candidateIds];
+        }
+
+        return $matches;
+    }
+
+    /**
      * @param list<Filter> $filters
+     * @param list<string>|null $restrictToIds
+     *
+     * @return list<string>
+     */
+    private function searchIds(array $filters, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(...$filters);
+
+        if ($elasticsearchAware) {
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        }
+
+        if ($restrictToIds !== null) {
+            $criteria->addFilter(new EqualsAnyFilter('id', $restrictToIds));
+        }
+
+        /** @var list<string> $ids */
+        $ids = $this->repository->searchIds($criteria, $context)->getIds();
+
+        return $ids;
+    }
+
+    /**
+     * Yields the candidate ids a chunked search has to be run against, in pages
+     * of at most `self::ID_CHUNK_SIZE`. Without a restriction the whole product
+     * table is iterated, because the first chunk of conditions on its own can
+     * match an arbitrary number of products.
+     *
+     * @param list<string>|null $restrictToIds
+     *
+     * @return \Generator<int, list<string>>
+     */
+    private function iterateCandidateIds(?array $restrictToIds): \Generator
+    {
+        if ($restrictToIds !== null) {
+            foreach (array_chunk($restrictToIds, self::ID_CHUNK_SIZE) as $chunk) {
+                yield $chunk;
+            }
+
+            return;
+        }
+
+        $lastId = '';
+        while (true) {
+            /** @var list<string> $binaryIds */
+            $binaryIds = $this->connection->fetchFirstColumn(
+                'SELECT id FROM product WHERE version_id = :version AND id > :lastId ORDER BY id LIMIT ' . self::ID_CHUNK_SIZE,
+                ['version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION), 'lastId' => $lastId],
+            );
+
+            if ($binaryIds === []) {
+                return;
+            }
+
+            $lastId = end($binaryIds);
+
+            yield array_map(static fn (string $id): string => bin2hex($id), $binaryIds);
+        }
+    }
+
+    /**
+     * Splits the conjunction into batches of at most `$chunkSize` conditions.
+     *
+     * Filters are only ever regrouped in a way that keeps the generated SQL
+     * equivalent: a multi filter wrapping a single query is unwrapped (the
+     * Administration always wraps a stream into such an `OR` container), and a
+     * top-level `AND` filter is split into groups of conditions that address the
+     * same to-many association, so {@see JoinGroupBuilder} keeps building the
+     * join groups it built for the unsplit criteria.
+     *
+     * A disjunction cannot be split, so a stream that combines several `OR`
+     * groups still ends up in a single query and can exceed the join limit.
+     *
+     * @param list<Filter> $parsedFilters
+     *
+     * @return list<list<Filter>>
+     */
+    private function chunkFilters(array $parsedFilters, int $chunkSize): array
+    {
+        $splitted = [];
+        foreach ($parsedFilters as $filter) {
+            $splitted = [...$splitted, ...$this->splitFilter($filter)];
+        }
+
+        $chunks = [];
+        $chunk = [];
+        $size = 0;
+
+        foreach ($splitted as $filter) {
+            $conditions = max(1, \count($filter->getFields()));
+
+            if ($chunk !== [] && $size + $conditions > $chunkSize) {
+                $chunks[] = $chunk;
+                $chunk = [];
+                $size = 0;
+            }
+
+            $chunk[] = $filter;
+            $size += $conditions;
+        }
+
+        if ($chunk !== []) {
+            $chunks[] = $chunk;
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * Splits a single filter into an equivalent list of filters that may be
+     * distributed over multiple queries. Returns the filter unchanged whenever
+     * splitting it would change the result set.
      *
      * @return list<Filter>
      */
-    private function flattenAndFilters(array $filters): array
+    private function splitFilter(Filter $filter): array
     {
-        $flattened = [];
-        foreach ($filters as $filter) {
-            if ($filter instanceof MultiFilter
-                && $filter->getOperator() === MultiFilter::CONNECTION_AND
-                && !$filter instanceof NotFilter
-            ) {
-                $flattened = [...$flattened, ...$this->flattenAndFilters(array_values($filter->getQueries()))];
+        if (!$filter instanceof MultiFilter || $filter instanceof NotFilter) {
+            return [$filter];
+        }
+
+        $queries = array_values($filter->getQueries());
+
+        // A container holding a single query is equivalent to that query, no
+        // matter which operator it uses.
+        if (\count($queries) === 1) {
+            return $this->splitFilter($queries[0]);
+        }
+
+        if ($filter->getOperator() !== MultiFilter::CONNECTION_AND) {
+            return [$filter];
+        }
+
+        $groups = $this->groupByToManyAssociation($queries);
+        if (\count($groups) <= 1) {
+            return [$filter];
+        }
+
+        $splitted = [];
+        foreach ($groups as $group) {
+            if (\count($group) === 1) {
+                $splitted = [...$splitted, ...$this->splitFilter($group[0])];
 
                 continue;
             }
 
-            $flattened[] = $filter;
+            // Conditions sharing a to-many association have to stay inside a
+            // single filter, otherwise the DAL joins that association once per
+            // condition instead of once per group.
+            $splitted[] = new AndFilter($group);
         }
 
-        return $flattened;
+        return $splitted;
+    }
+
+    /**
+     * Groups filters so that all filters referencing the same to-many
+     * association end up in the same group. Filters that reference no to-many
+     * association can be evaluated in separate queries without changing the
+     * result and therefore form a group of their own.
+     *
+     * @param list<Filter> $filters
+     *
+     * @return list<list<Filter>>
+     */
+    private function groupByToManyAssociation(array $filters): array
+    {
+        /** @var array<string, int> $groupByPath */
+        $groupByPath = [];
+        /** @var array<int, list<Filter>> $groups */
+        $groups = [];
+        // never reuse an index: merging removes keys, so `count($groups)` would collide
+        $nextGroup = 0;
+
+        foreach ($filters as $filter) {
+            $paths = $this->getToManyPaths($filter);
+
+            $targets = [];
+            foreach ($paths as $path) {
+                if (isset($groupByPath[$path])) {
+                    $targets[$groupByPath[$path]] = true;
+                }
+            }
+            $targets = array_keys($targets);
+
+            $group = $targets[0] ?? $nextGroup++;
+            $groups[$group] = [...$groups[$group] ?? [], $filter];
+
+            // The filter bridges groups that were separate until now, merge them.
+            foreach (\array_slice($targets, 1) as $merged) {
+                $groups[$group] = [...$groups[$group], ...$groups[$merged]];
+                unset($groups[$merged]);
+            }
+
+            foreach ($groupByPath as $path => $index) {
+                if (\in_array($index, $targets, true)) {
+                    $groupByPath[$path] = $group;
+                }
+            }
+            foreach ($paths as $path) {
+                $groupByPath[$path] = $group;
+            }
+        }
+
+        return array_values($groups);
+    }
+
+    /**
+     * @return list<string> the paths to the first to-many association of every field of the filter
+     */
+    private function getToManyPaths(Filter $filter): array
+    {
+        $paths = [];
+        foreach ($filter->getFields() as $field) {
+            $path = $this->getToManyPath($field);
+
+            if ($path !== null) {
+                $paths[$path] = true;
+            }
+        }
+
+        return array_keys($paths);
+    }
+
+    /**
+     * Mirrors `JoinGroupBuilder::findToManyPath`: only to-many associations are
+     * joined more than once and can therefore multiply rows.
+     */
+    private function getToManyPath(string $accessor): ?string
+    {
+        $definition = $this->productDefinition;
+
+        $parts = explode('.', str_replace('extensions.', '', $accessor));
+        if (($parts[0] ?? null) === $definition->getEntityName()) {
+            array_shift($parts);
+        }
+
+        $path = [$definition->getEntityName()];
+
+        foreach ($parts as $part) {
+            $field = $definition->getFields()->get($part);
+
+            if (!$field instanceof AssociationField) {
+                return null;
+            }
+
+            $path[] = $field->getPropertyName();
+
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                return implode('.', $path);
+            }
+
+            $definition = $field->getReferenceDefinition();
+        }
+
+        return null;
+    }
+
+    private function isTooManyTablesError(\Throwable $e): bool
+    {
+        for ($current = $e; $current !== null; $current = $current->getPrevious()) {
+            if ((int) $current->getCode() === self::TOO_MANY_TABLES_ERROR_CODE) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

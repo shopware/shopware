@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -369,7 +368,22 @@ class ProductStreamUpdaterTest extends TestCase
             [
                 'id' => $streamId,
                 'name' => 'large-stream',
-                'filters' => $conditions,
+                // Shape the Administration always produces: a root OR container
+                // holding AND groups, see the `getOrContainerData()` /
+                // `getAndContainerData()` helpers of `product-stream-condition.service.js`.
+                'filters' => [
+                    [
+                        'type' => 'multi',
+                        'operator' => 'OR',
+                        'queries' => [
+                            [
+                                'type' => 'multi',
+                                'operator' => 'AND',
+                                'queries' => $conditions,
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ], Context::createDefaultContext());
 
@@ -387,16 +401,14 @@ class ProductStreamUpdaterTest extends TestCase
         $message = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
         $this->productStreamUpdater->handle($message);
 
+        // Every condition holds for the created product, so the whole conjunction
+        // has to match. This also covers that the batches are intersected instead
+        // of losing conditions on the way.
+        $this->assertProductIsInStream($productId, $streamId);
+
         $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
 
-        // Reaching this point means every chunked query stayed within the join
-        // limit. The mapping table must be readable for the stream (0 rows is fine
-        // — the product does not match the synthetic association conditions).
-        $mappingCount = (int) static::getContainer()->get(Connection::class)->fetchOne(
-            'SELECT COUNT(*) FROM product_stream_mapping WHERE product_stream_id = :id',
-            ['id' => Uuid::fromHexToBytes($streamId)]
-        );
-        static::assertGreaterThanOrEqual(0, $mappingCount);
+        $this->assertProductIsInStream($productId, $streamId);
     }
 
     /**
@@ -407,7 +419,11 @@ class ProductStreamUpdaterTest extends TestCase
      * limit. (Repeating the SAME path would be collapsed into one join / an
      * EXISTS subquery and would NOT reproduce the issue.)
      *
-     * @return list<array<string, string>>
+     * Every condition asserts `IS NULL` and every path is rooted in an
+     * association the created product does not have, so all of them match and
+     * the result of the conjunction is verifiable.
+     *
+     * @return list<array<string, string|null>>
      */
     private function buildManyDistinctAssociationConditions(): array
     {
@@ -438,7 +454,9 @@ class ProductStreamUpdaterTest extends TestCase
 
         // Re-root every leaf through self-referencing to-one associations to
         // multiply the number of distinct paths far beyond the 61-table limit.
-        $prefixes = ['', 'parent.', 'canonicalProduct.', 'parent.parent.'];
+        // The created product has neither a parent nor a canonical product, so
+        // every one of these paths resolves to NULL for it.
+        $prefixes = ['parent.', 'canonicalProduct.', 'parent.parent.', 'canonicalProduct.parent.'];
 
         $conditions = [];
         foreach ($prefixes as $prefix) {
@@ -446,7 +464,7 @@ class ProductStreamUpdaterTest extends TestCase
                 $conditions[] = [
                     'type' => 'equals',
                     'field' => $prefix . $leaf,
-                    'value' => Uuid::randomHex(),
+                    'value' => null,
                 ];
             }
         }

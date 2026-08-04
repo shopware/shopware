@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -27,8 +28,10 @@ class IntegrationController extends AbstractController
      *
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
-    public function __construct(private readonly EntityRepository $integrationRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $integrationRepository,
+        private readonly Connection $connection,
+    ) {
     }
 
     #[Route(
@@ -46,11 +49,14 @@ class IntegrationController extends AbstractController
         $source = $context->getSource();
 
         $data = $request->request->all();
+        $admin = $data['admin'] ?? null;
+        $changesAdmin = isset($data['admin']);
+        unset($data['admin']);
 
         // only an admin is allowed to set the admin field
         if ((!$source instanceof AdminApiSource)
             || (!$source->isAdmin()
-            && isset($data['admin']))
+            && $changesAdmin)
         ) {
             throw new PermissionDeniedException();
         }
@@ -60,7 +66,20 @@ class IntegrationController extends AbstractController
         }
         $data['id'] = $integrationId ?: $data['id'];
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): EntityWrittenContainerEvent => $this->integrationRepository->upsert([$data], $context));
+        $events = $this->connection->transactional(function () use ($data, $context, $changesAdmin, $admin): EntityWrittenContainerEvent {
+            $events = $this->integrationRepository->upsert([$data], $context);
+            $eventIds = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME)?->getIds() ?? [];
+            $entityId = array_last($eventIds);
+            \assert(\is_string($entityId), 'There should be an integration ID, as it just was written');
+
+            if ($changesAdmin) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($entityId, $admin): void {
+                    $this->integrationRepository->update([['id' => $entityId, 'admin' => $admin]], $context);
+                });
+            }
+
+            return $events;
+        });
 
         $eventIds = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);

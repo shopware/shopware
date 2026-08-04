@@ -318,6 +318,35 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
+    public function testPreventUpdateUserRolesAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('user'),
+            ['aclRoles' => [['id' => $ids->get('role'), 'name' => 'role']]]
+        );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
+    }
+
     public function testCreateUserWithAdminFlagAsAdmin(): void
     {
         static::getContainer()->get(Connection::class)

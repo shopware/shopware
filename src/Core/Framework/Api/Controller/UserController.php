@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -46,6 +48,7 @@ class UserController extends AbstractController
         private readonly EntityRepository $keyRepository,
         private readonly UserDefinition $userDefinition,
         private readonly SsoService $ssoService,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -212,6 +215,10 @@ class UserController extends AbstractController
         $this->validateScope($request);
 
         $data = $request->request->all();
+        $admin = $data['admin'] ?? null;
+        $changesAdmin = isset($data['admin']);
+        unset($data['admin']);
+
         if (!isset($data['id'])) {
             $data['id'] = null;
         }
@@ -229,13 +236,24 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isTryingToChangeAdmin = isset($data['admin']);
-
-        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
+        if (!$source->isAdmin() && $changesAdmin) {
             throw new PermissionDeniedException();
         }
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
+        $events = $this->connection->transactional(function () use ($data, $context, $changesAdmin, $admin): EntityWrittenContainerEvent {
+            $events = $this->userRepository->upsert([$data], $context);
+            $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
+            $entityId = array_last($eventIds);
+            \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
+
+            if ($changesAdmin) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($entityId, $admin): void {
+                    $this->userRepository->update([['id' => $entityId, 'admin' => $admin]], $context);
+                });
+            }
+
+            return $events;
+        });
         $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
         \assert(\is_string($entityId), 'There should be a user ID, as it just was written');

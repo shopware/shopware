@@ -377,4 +377,18 @@ class AdminExtensionApiControllerTest extends TestCase
             Context::createDefaultContext($source),
         );
     }
+
+    private function buildController(
+        ?Executor $executor = null,
+        ?AppPayloadServiceHelper $appPayloadServiceHelper = null,
+        ?EntityRepository $entityRepository = null,
+        ?QuerySigner $querySigner = null,
+    ): AdminExtensionApiController {
+        return new AdminExtensionApiController(
+            $executor ?? $this->executor,
+            $appPayloadServiceHelper ?? $this->appPayloadServiceHelper,
+            $entityRepository ?? $this->entityRepository,
+            $querySigner ?? $this->querySigner,
+        );
+    }
 }

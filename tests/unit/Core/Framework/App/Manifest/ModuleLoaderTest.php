@@ -7,16 +7,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
-use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -29,7 +29,7 @@ class ModuleLoaderTest extends TestCase
     {
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('getShopId')->willThrowException(
-            new ShopIdChangeSuggestedException(ShopId::v2('shop-id'), new FingerprintComparisonResult([], [], 75))
+            new AppUrlChangeDetectedException('old-url', 'new-url', ShopId::v2('shop-id'))
         );
 
         $moduleLoader = new ModuleLoader(
@@ -43,7 +43,7 @@ class ModuleLoaderTest extends TestCase
 
     public function testLoadModulesFormatsAuthorizedModulesAndMainModule(): void
     {
-        $app = AppFixture::createAppEntity('AllowedApp');
+        $app = $this->createAppEntity('AllowedApp');
         $app->setModules([
             [
                 'label' => ['en-GB' => 'module without source'],
@@ -69,7 +69,7 @@ class ModuleLoaderTest extends TestCase
         ]);
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
         $querySigner = $this->createMock(QuerySigner::class);
         $querySigner->expects($this->exactly(2))->method('signUri')->willReturnCallback(
@@ -112,10 +112,10 @@ class ModuleLoaderTest extends TestCase
 
     public function testLoadModulesSkipsAppsWithoutModulesOrMainModule(): void
     {
-        $app = AppFixture::createAppEntity('EmptyApp');
+        $app = $this->createAppEntity('EmptyApp');
         $app->setModules([]);
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
         $moduleLoader = new ModuleLoader(
             new StaticEntityRepository([new AppCollection([$app])]),
@@ -128,7 +128,7 @@ class ModuleLoaderTest extends TestCase
 
     public function testLoadModulesSkipsAppsWithoutPermissionBeforeSigningModules(): void
     {
-        $app = AppFixture::createAppEntity('ForbiddenApp');
+        $app = $this->createAppEntity('ForbiddenApp');
         $app->setModules([
             [
                 'label' => ['en-GB' => 'forbidden module'],
@@ -143,7 +143,7 @@ class ModuleLoaderTest extends TestCase
         $querySigner->expects($this->never())->method('signUri');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
         $source = new AdminApiSource(null);
         $source->setPermissions(['app.AllowedApp']);
@@ -155,5 +155,16 @@ class ModuleLoaderTest extends TestCase
         );
 
         static::assertSame([], $moduleLoader->loadModules(Context::createDefaultContext($source)));
+    }
+
+    private function createAppEntity(string $name): AppEntity
+    {
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setUniqueIdentifier(Uuid::randomHex());
+        $app->setName($name);
+        $app->setVersion('1.0.0');
+
+        return $app;
     }
 }

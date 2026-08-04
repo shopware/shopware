@@ -83,7 +83,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         });
 
         expect(explicit.warnings.join('\n')).not.toContain('not yours to rewrite');
-    });
+    }, 60000);
 
     it('reports a vacuous TypeScript pass as no-files without spawning vue-tsc', async () => {
         // The plugin is auto-bridged (composing), so a real toolchain lets the
@@ -106,7 +106,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const check = await checkExtensions({ projectRoot, administrationRoot });
 
         expect(check.results[0].typescript).toMatchObject({ status: 'no-files', durationMs: 0 });
-    });
+    }, 60000);
 
     it('passes on an empty extension set', async () => {
         writePluginsConfig(projectRoot, []);

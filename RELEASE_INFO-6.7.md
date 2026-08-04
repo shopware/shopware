@@ -275,6 +275,10 @@ cacheService.invalidateCaches({
 
 Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
 
+### Product detail view no longer renders before the product is loaded
+
+Opening a product could fail with `TypeError: Cannot read properties of undefined (reading 'find')` and leave the detail page unrendered. The content views were mounted before the product request had started, so they briefly rendered against the empty initial store value. How often this happened depended on request timing, which made it far more noticeable on remote instances than on local setups. The product is now flagged as loading before the first request, so the content views stay hidden until it is available. Extensions that render `sw-product-media-form` or extend `sw-product-detail-base` no longer have to guard against a product without a loaded `media` association themselves.
+
 ## Storefront
 
 ### `theme:create` gains `--full` and granular scaffold flags

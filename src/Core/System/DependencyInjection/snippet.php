@@ -108,7 +108,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set('shopware.translation.client', Client::class);
+    $services->set('shopware.translation.client', Client::class)
+        ->args([
+            [
+                'timeout' => 5,
+                'connect_timeout' => 1,
+            ],
+        ]);
 
     $services->set(TranslationConfigLoader::class)
         ->args([
@@ -139,6 +145,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service('shopware.translation.client'),
             service('shopware.filesystem.private'),
+            service('cache.object'),
         ]);
 
     $services->set(TranslationUpdater::class)

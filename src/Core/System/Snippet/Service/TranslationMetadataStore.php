@@ -14,6 +14,8 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -25,10 +27,15 @@ class TranslationMetadataStore
 {
     private const CROWDIN_METADATA_LOCK = 'crowdin-metadata.lock';
 
+    private const REMOTE_METADATA_CACHE_KEY = 'shopware.translation.remote_metadata';
+
+    private const REMOTE_METADATA_CACHE_TTL = 300;
+
     public function __construct(
         private readonly TranslationConfig $config,
         private readonly ClientInterface $client,
         private readonly Filesystem $filesystem,
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -151,7 +158,24 @@ class TranslationMetadataStore
     private function getRemoteMetadataOrEmpty(): MetadataCollection
     {
         try {
-            return $this->getRemoteMetadata();
+            /*
+             * Cache the remote metadata briefly for this read-only path: the admin requests the translation list on
+             * every language list/detail load, while the remote source only changes roughly once a day. The
+             * install/update path deliberately bypasses this cache and always fetches fresh metadata, so it can still
+             * detect newer remote versions. Failures propagate out of the callback and are not cached.
+             */
+            $elements = $this->cache->get(self::REMOTE_METADATA_CACHE_KEY, function (ItemInterface $item): array {
+                $item->expiresAfter(self::REMOTE_METADATA_CACHE_TTL);
+
+                return $this->fetchRemoteMetadataArray();
+            });
+
+            $collection = [];
+            foreach ($elements as $metadata) {
+                $collection[] = MetadataEntry::create($metadata);
+            }
+
+            return new MetadataCollection($collection);
         } catch (\Throwable) {
             return new MetadataCollection();
         }

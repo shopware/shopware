@@ -21,6 +21,7 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
@@ -328,9 +329,25 @@ class TranslationMetadataStoreTest extends TestCase
         static::assertFalse($byLocale['fr-FR']['isPseudoLanguage']);
     }
 
+    public function testTranslationListCachesRemoteMetadataAcrossCalls(): void
+    {
+        $response = new Response(body: (string) json_encode([
+            ['locale' => 'es-ES', 'updatedAt' => '2025-08-07T11:26:28.974+00:00', 'progress' => 100],
+        ], \JSON_THROW_ON_ERROR));
+
+        $client = $this->createMock(ClientInterface::class);
+        // The list path fetches the remote metadata once and serves the second call from the cache.
+        $client->expects($this->once())->method('request')->willReturn($response);
+
+        $store = new TranslationMetadataStore($this->config, $client, $this->filesystem, new ArrayAdapter());
+
+        $store->getTranslationList();
+        $store->getTranslationList();
+    }
+
     private function getTranslationMetadataStore(): TranslationMetadataStore
     {
-        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem);
+        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem, new ArrayAdapter());
     }
 
     /**

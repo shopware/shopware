@@ -12,6 +12,7 @@ use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -86,9 +87,16 @@ class TranslationController extends AbstractController
         }
 
         $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
+        $unavailable = $this->unavailableLocales($locales, $metadata);
+
+        // Nothing could be installed for any requested locale, so fail instead of reporting a misleading success.
+        if ($unavailable !== [] && \count($unavailable) === \count($locales)) {
+            throw SnippetException::translationsUnavailable($unavailable);
+        }
+
         $result = $this->translationUpdater->update($metadata, $context, $parameters->activate);
 
-        return $this->translationResponse($result, $this->unavailableLocales($locales, $metadata));
+        return $this->translationResponse($result, $unavailable);
     }
 
     #[Route(

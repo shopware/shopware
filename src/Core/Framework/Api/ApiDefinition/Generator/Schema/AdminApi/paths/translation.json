@@ -8,11 +8,11 @@
                     "Translation Management"
                 ],
                 "summary": "List configured translation locales",
-                "description": "Lists every locale configured for translation download together with its locally installed metadata.",
+                "description": "Lists every locale configured for translation download, merging its local install state with the remotely available metadata.",
                 "operationId": "translationList",
                 "responses": {
                     "200": {
-                        "description": "The configured locales and their installed metadata.",
+                        "description": "The configured locales with their merged local install state and remote metadata.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -41,7 +41,7 @@
                                                         "format": "date-time"
                                                     },
                                                     "progress": {
-                                                        "description": "Translation completeness in percent, or null if not installed.",
+                                                        "description": "Translation completeness in percent, taken from the remote metadata. Null when the remote source is unreachable or does not offer the locale.",
                                                         "type": "integer"
                                                     },
                                                     "updateAvailable": {

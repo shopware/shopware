@@ -107,24 +107,41 @@ class TranslationControllerTest extends TestCase
         static::assertSame([], $content['unavailable']);
     }
 
-    public function testInstallReportsRequestedLocalesWithoutTranslation(): void
+    public function testInstallThrowsWhenNoRequestedLocaleCanBeInstalled(): void
     {
-        // The remote metadata has no entry for the requested locale, so nothing is installed for it.
+        // The remote metadata has no entry for the requested locale, so nothing could be installed for it.
         $metadataStore = static::createStub(TranslationMetadataStore::class);
         $metadataStore->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->never())->method('load');
 
-        $response = $this->createController($metadataStore, $translationLoader)->install(
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['fr-FR']));
+
+        $this->createController($metadataStore, $translationLoader)->install(
             new InstallTranslationRequest(locales: ['fr-FR']),
+            $this->context()
+        );
+    }
+
+    public function testInstallStillReportsPartiallyUnavailableLocales(): void
+    {
+        // fr-FR can be installed, es-ES is configured but not offered remotely: install the former, report the latter.
+        $metadataStore = static::createStub(TranslationMetadataStore::class);
+        $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => true]));
+
+        $translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $translationLoader->expects($this->once())->method('load')->with('fr-FR', static::isInstanceOf(Context::class), true);
+
+        $response = $this->createController($metadataStore, $translationLoader)->install(
+            new InstallTranslationRequest(locales: ['fr-FR', 'es-ES']),
             $this->context()
         );
 
         $content = $this->decode($response);
-        static::assertSame([], $content['updated']);
+        static::assertSame(['fr-FR'], $content['updated']);
         static::assertSame([], $content['skipped']);
-        static::assertSame(['fr-FR'], $content['unavailable']);
+        static::assertSame(['es-ES'], $content['unavailable']);
     }
 
     public function testInstallAllUsesConfiguredLocales(): void

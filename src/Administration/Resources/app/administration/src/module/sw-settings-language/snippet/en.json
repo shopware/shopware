@@ -25,7 +25,7 @@
     "list": {
       "textHeadline": "Languages",
       "deleteModalTitle": "Delete languages?",
-      "deleteModalIntro": "Are you sure you want to delete the following languages? This action can not be undone:",
+      "deleteModalIntro": "Are you sure you want to delete the following languages? This action cannot be undone:",
       "deleteFilesNoteLabel": "Note:",
       "deleteFilesNote": "This action deletes the language entities and snippets in the administration and not the snippet files in the file system. Do you want to delete those too?",
       "deleteTranslationFiles": "Also delete the snippets from file system",
@@ -77,7 +77,7 @@
       "placeholderName": "Enter name...",
       "placeholderPleaseSelect": "Please select...",
       "tooltipLanguageNotChoosable": "You cannot use a language which is already inheriting from another language.",
-      "tooltipInheritanceNotPossible": "The system default language can not inherit from another language.",
+      "tooltipInheritanceNotPossible": "The system default language cannot inherit from another language.",
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
       "textIsoCodeIsInUse": "This ISO code is already in use.",
       "textLanguageHasParent": "This language is already inheriting from another language.",

@@ -44,7 +44,7 @@ class AggregationListingProcessorTest extends TestCase
         $processor = $this->createProcessor($priceFilter, $manufacturerFilter);
 
         $criteria = new Criteria();
-        $processor->prepare(new Request(), $criteria, $this->createMock(SalesChannelContext::class));
+        $processor->prepare(new Request(), $criteria, static::createStub(SalesChannelContext::class));
 
         $aggregations = $criteria->getAggregations();
 
@@ -59,7 +59,7 @@ class AggregationListingProcessorTest extends TestCase
         $processor = $this->createProcessor();
 
         $criteria = new Criteria();
-        $processor->prepare(new Request(), $criteria, $this->createMock(SalesChannelContext::class));
+        $processor->prepare(new Request(), $criteria, static::createStub(SalesChannelContext::class));
 
         static::assertSame([], $criteria->getAggregations());
     }
@@ -90,7 +90,7 @@ class AggregationListingProcessorTest extends TestCase
         $processor->prepare(
             new Request(['reduce-aggregations' => '1']),
             $criteria,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $aggregations = $criteria->getAggregations();

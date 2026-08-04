@@ -304,7 +304,7 @@ class ProductPriceCalculatorTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         // ruleA takes precedence because it is listed first in the context rule ids
@@ -349,7 +349,7 @@ class ProductPriceCalculatorTest extends TestCase
         $ruleWithoutPrices = Uuid::randomHex();
         $ruleWithPrices = Uuid::randomHex();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         // the first context rule has no price, the calculator must fall through to the next

@@ -370,7 +370,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
+            if (\is_array($filter['queries'] ?? null) && $filter['queries'] !== []) {
                 $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
             }
 

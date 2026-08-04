@@ -30,7 +30,7 @@ class ProductDocumentDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.7.13.0';
+        return '6.7.14.0';
     }
 
     public function getCollectionClass(): string

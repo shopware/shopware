@@ -17,7 +17,7 @@ const logEntryMock = {
     },
 };
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-logging-list', { sync: true }), {
         global: {
             stubs: {
@@ -58,9 +58,6 @@ async function createWrapper({ featureActive = false } = {}) {
                         return term && term.trim().length >= 1;
                     },
                 },
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
             },
         },
     });
@@ -100,7 +97,7 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should load dynamic modal component', async () => {
-        const wrapper = await createWrapper({ featureActive: true });
+        const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setData({

@@ -141,9 +141,6 @@ async function createWrapper(order = orderMock) {
                         return { data: {} };
                     },
                 },
-                feature: {
-                    isActive: () => true,
-                },
                 repositoryFactory: {
                     create(entityName) {
                         if (entityName !== 'order') {

@@ -48,6 +48,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRegistrationSettingsRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute;
@@ -466,6 +467,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('customer_group.repository'),
+        ]);
+
+    $services->set(LoginRegistrationSettingsRoute::class)
+        ->public()
+        ->args([
+            service(SystemConfigService::class),
         ]);
 
     $services->set(SalesChannelCustomerAddressDefinition::class)

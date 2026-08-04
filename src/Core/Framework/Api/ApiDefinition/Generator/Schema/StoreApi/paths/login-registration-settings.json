@@ -1,0 +1,124 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/login-registration-settings": {
+            "get": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Fetch login and registration settings",
+                "description": "Returns the sales-channel-resolved login/registration settings configured in the administration under Settings > Log-in & sign-up. Only UI- and validation-relevant settings are exposed.",
+                "operationId": "readLoginRegistrationSettings",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the login and registration settings of the current sales channel.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["login_registration_settings"]
+                                        },
+                                        "passwordMinLength": {
+                                            "type": "integer",
+                                            "description": "Minimum password length"
+                                        },
+                                        "createCustomerAccountDefault": {
+                                            "type": "boolean",
+                                            "description": "Whether the account creation option is pre-selected in the checkout registration form"
+                                        },
+                                        "showSalutation": {
+                                            "type": "boolean",
+                                            "description": "Whether the salutation field is shown"
+                                        },
+                                        "showTitleField": {
+                                            "type": "boolean",
+                                            "description": "Whether the title field is shown"
+                                        },
+                                        "requireEmailConfirmation": {
+                                            "type": "boolean",
+                                            "description": "Whether the email address must be entered twice"
+                                        },
+                                        "requirePasswordConfirmation": {
+                                            "type": "boolean",
+                                            "description": "Whether the password must be entered twice"
+                                        },
+                                        "doubleOptInRegistration": {
+                                            "type": "boolean",
+                                            "description": "Whether double opt-in is enabled for registrations"
+                                        },
+                                        "doubleOptInGuestOrder": {
+                                            "type": "boolean",
+                                            "description": "Whether double opt-in is enabled for guest orders"
+                                        },
+                                        "showPhoneNumberField": {
+                                            "type": "boolean",
+                                            "description": "Whether the phone number field is shown"
+                                        },
+                                        "phoneNumberFieldRequired": {
+                                            "type": "boolean",
+                                            "description": "Whether the phone number field is required"
+                                        },
+                                        "showBirthdayField": {
+                                            "type": "boolean",
+                                            "description": "Whether the birthday field is shown"
+                                        },
+                                        "birthdayFieldRequired": {
+                                            "type": "boolean",
+                                            "description": "Whether the birthday field is required"
+                                        },
+                                        "showAccountTypeSelection": {
+                                            "type": "boolean",
+                                            "description": "Whether the account type (private/commercial) selection is shown"
+                                        },
+                                        "showAdditionalAddressField1": {
+                                            "type": "boolean",
+                                            "description": "Whether the additional address field 1 is shown"
+                                        },
+                                        "additionalAddressField1Required": {
+                                            "type": "boolean",
+                                            "description": "Whether the additional address field 1 is required"
+                                        },
+                                        "showAdditionalAddressField2": {
+                                            "type": "boolean",
+                                            "description": "Whether the additional address field 2 is shown"
+                                        },
+                                        "additionalAddressField2Required": {
+                                            "type": "boolean",
+                                            "description": "Whether the additional address field 2 is required"
+                                        },
+                                        "addressInputFieldArrangement": {
+                                            "type": "string",
+                                            "description": "Arrangement of the address fields City, ZIP and State"
+                                        },
+                                        "allowCustomerDeletion": {
+                                            "type": "boolean",
+                                            "description": "Whether customers may delete their own account"
+                                        },
+                                        "requireDataProtectionCheckbox": {
+                                            "type": "boolean",
+                                            "description": "Whether the data protection checkbox must be accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

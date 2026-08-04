@@ -4,7 +4,6 @@ import { mount } from '@vue/test-utils';
  * @sw-package framework
  */
 async function createWrapper({
-    featureActive = false,
     routeName = 'sw.settings.usage.data.index.general',
     routerPush = jest.fn(),
 } = {}) {
@@ -20,11 +19,6 @@ async function createWrapper({
                     },
                     $router: {
                         push: routerPush,
-                    },
-                },
-                provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
                 },
                 stubs: {
@@ -85,10 +79,8 @@ describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => 
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should show meteor tabs', async () => {
-        wrapper = await createWrapper({
-            featureActive: true,
-        });
+    it.activeFeatureFlags(['v6.8.0.0'])('should show meteor tabs', async () => {
+        wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -111,10 +103,9 @@ describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => 
         ).toBe(false);
     });
 
-    it('should navigate when a meteor tab item is clicked', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor tab item is clicked', async () => {
         const routerPush = jest.fn();
         wrapper = await createWrapper({
-            featureActive: true,
             routerPush,
         });
         await flushPromises();

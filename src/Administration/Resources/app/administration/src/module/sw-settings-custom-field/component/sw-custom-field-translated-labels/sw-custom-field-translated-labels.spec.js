@@ -34,7 +34,7 @@ const defaultProps = {
     disabled: false,
 };
 
-async function createWrapper(props = defaultProps, { featureActive = false } = {}) {
+async function createWrapper(props = defaultProps) {
     return mount(
         await wrapTestComponent('sw-custom-field-translated-labels', {
             sync: true,
@@ -47,9 +47,6 @@ async function createWrapper(props = defaultProps, { featureActive = false } = {
                 },
                 provide: {
                     acl: {},
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                 },
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
@@ -150,8 +147,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         },
     );
 
-    it('should render multiple locales with meteor tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render multiple locales with meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -176,8 +173,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.en-GB)');
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        const wrapper = await createWrapper(defaultProps, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -208,7 +205,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should update multiple locales with tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, { featureActive: true });
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const textField = wrapper.find('.sw-custom-field-translated-labels__translated-content-field input');

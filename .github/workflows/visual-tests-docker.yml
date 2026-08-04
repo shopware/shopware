@@ -20,7 +20,6 @@ on:
         description: "Filter passed to Playwright's --grep input (matches test titles)."
         type: string
         default: ""
-        
   workflow_call:
     inputs:
       update-snapshots:

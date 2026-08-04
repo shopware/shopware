@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -194,9 +195,19 @@ class SearchKeywordUpdater implements ResetInterface
             }
         }
 
-        $this->deleteKeywords($productIdsToRewrite, $languageId, $versionId);
-        $this->insertKeywords($keywords);
-        $this->insertDictionary($dictionary);
+        if ($productIdsToRewrite === []) {
+            return $existingProducts;
+        }
+
+        // One transaction for all three writes: the dictionary rows of a keyword are only written
+        // together with the keyword itself, so committing them separately could leave a product
+        // indexed without its dictionary entries, which no later run would repair because the
+        // product's keywords then compare equal.
+        RetryableTransaction::retryable($this->connection, function () use ($productIdsToRewrite, $languageId, $versionId, $keywords, $dictionary): void {
+            $this->deleteKeywords($productIdsToRewrite, $languageId, $versionId);
+            $this->insertKeywords($keywords);
+            $this->insertDictionary($dictionary);
+        });
 
         return $existingProducts;
     }

@@ -418,8 +418,8 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
     });
 
-    // NOTE FOR REVIEWERS: this test and the next one now fail under the v6.8 flag, and the failure is
-    // a genuine finding rather than a test problem. They never exercised the v6.8 branch before,
+    // KNOWN v6.8 DEFECT: this test and the next one fail under the v6.8 flag, and the failure is a
+    // genuine finding rather than a test problem. They never exercised the v6.8 branch before,
     // because the removed local feature mock forced every test in this file down the legacy path.
     //
     // The two template branches bind differently — legacy uses the stored `sliderItem.mediaUrl`,

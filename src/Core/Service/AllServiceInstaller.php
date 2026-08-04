@@ -72,7 +72,7 @@ class AllServiceInstaller
                     $installedServices[] = $entry->name;
                 }
             } catch (\Throwable $e) {
-                $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
+                $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
             }
         }
 

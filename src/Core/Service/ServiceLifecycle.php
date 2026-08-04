@@ -191,7 +191,7 @@ class ServiceLifecycle
         try {
             $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
         } catch (AppXmlParsingException $e) {
-            $this->logger->debug(\sprintf('Cannot install service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
 
             return false;
         }
@@ -239,7 +239,7 @@ class ServiceLifecycle
         try {
             $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
         } catch (AppXmlParsingException $e) {
-            $this->logger->debug(\sprintf('Cannot update service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+            $this->logger->warning(\sprintf('Cannot update service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
 
             return false;
         }

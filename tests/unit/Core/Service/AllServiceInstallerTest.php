@@ -117,7 +117,7 @@ class AllServiceInstallerTest extends TestCase
         );
 
         $this->logger->expects($this->once())
-            ->method('debug')
+            ->method('warning')
             ->with(\sprintf('Cannot install service "BrokenService" because of error: "%s"', $exception->getMessage()));
 
         // the throw from BrokenService must not prevent ValidService from being installed

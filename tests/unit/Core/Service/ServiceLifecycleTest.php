@@ -198,7 +198,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects($this->once())
-            ->method('debug')
+            ->method('warning')
             ->with(\sprintf('Cannot install service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
@@ -449,7 +449,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects($this->once())
-            ->method('debug')
+            ->method('warning')
             ->with(\sprintf('Cannot update service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');

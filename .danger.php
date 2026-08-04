@@ -18,6 +18,7 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RedisGroupUsage;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ReflectionOnPrivateMethodsInTests;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ReleaseInfoSectionPlacement;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RemovedTwigBlocks;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RouteSnapshotExtension;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ShopwareYamlConfigSchemaHint;
@@ -36,6 +37,7 @@ return (new Config())
     ->useRule(new InlineRuleInDangerConfig())
     ->useRule(new DeprecatedChangelogFormat())
     ->useRule(new MissingReleaseInfo())
+    ->useRule(new ReleaseInfoSectionPlacement())
     ->useRule(new IgnoredPhpstanErrorsInTouchedFiles())
     ->useRule(new PhpstanBaselineGrowth())
     ->useRule(new EntityRepositoryInFrontendLayer())

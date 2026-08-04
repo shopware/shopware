@@ -331,22 +331,23 @@ XML package configuration below `Resources/config/packages/` can be migrated to 
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
 
-## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer expose a collection API
 
-`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. The three classes remained supported result wrappers and `Struct` instances, so extensions, states, and JSON serialization kept working.
+
+Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
 
 Changes affecting all three classes:
 
-- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`.
+- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`; the `entities` property remained available in PHP and Twig as the single collection of result entities.
 - The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
 - Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
 - Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
 
 `EntitySearchResult`:
 
-- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
-- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
-- The constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
 - The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:

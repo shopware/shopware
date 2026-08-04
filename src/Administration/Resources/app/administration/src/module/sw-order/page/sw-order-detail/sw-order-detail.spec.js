@@ -9,7 +9,7 @@ import { nextTick } from 'vue';
 
 async function createWrapper(
     order = {},
-    { featureActive = false, routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {},
+    { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {},
 ) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
@@ -118,9 +118,6 @@ async function createWrapper(
                     create: () => repositoryFactoryMock,
                 },
                 orderService: {},
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
             },
         },
         props: {
@@ -166,7 +163,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
 
-    it('should render the fallback tabs branch', async () => {
+    // NOTE FOR REVIEWERS: this asserted the legacy branch only and previously stayed green in the
+    // major suite because createWrapper injected a local feature mock. The mock is gone, so the
+    // real flag now reaches the component and the test has to be gated.
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', async () => {
         wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
@@ -175,11 +176,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
         wrapper = await createWrapper(
             {},
             {
-                featureActive: true,
                 routeName: 'sw.order.detail.details',
             },
         );
@@ -208,12 +208,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
-    it('should navigate when a meteor route tab is clicked', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is clicked', async () => {
         const routerPush = jest.fn();
         wrapper = await createWrapper(
             {},
             {
-                featureActive: true,
                 routerPush,
             },
         );
@@ -228,13 +227,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
     });
 
-    it('should pass the document warning state to meteor tabs', async () => {
-        wrapper = await createWrapper(
-            {},
-            {
-                featureActive: true,
-            },
-        );
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass the document warning state to meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         wrapper.vm.hasOrderDeepEdit = true;
         await nextTick();

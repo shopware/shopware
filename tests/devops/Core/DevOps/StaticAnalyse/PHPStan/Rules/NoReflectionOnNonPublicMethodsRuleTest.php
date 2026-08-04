@@ -37,7 +37,7 @@ class NoReflectionOnNonPublicMethodsRuleTest extends RuleTestCase
     #[TestDox('Does not apply outside test classes')]
     public function testNonTestClassPasses(): void
     {
-        $this->analyse([self::FIXTURE_DIR . 'NotATest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . 'NonTestClass.php'], []);
     }
 
     protected function getRule(): Rule

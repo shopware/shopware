@@ -7,7 +7,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\Fixture\ReflectionTar
 /**
  * @internal
  */
-class NotATest
+class NonTestClass
 {
     public function run(): void
     {

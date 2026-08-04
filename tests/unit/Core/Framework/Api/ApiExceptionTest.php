@@ -318,4 +318,25 @@ class ApiExceptionTest extends TestCase
         static::assertSame('/0/taxId', $exception->getParameter('pointer-0'));
         static::assertSame('product_manufacturer', $exception->getParameter('field-1'));
     }
+
+    public function testApiDefinitionGeneratorNotFound(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame(ApiException::API_DEFINITION_GENERATOR_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('Definition generator for format "foo" not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testApiDefinitionGeneratorNotFoundDeprecated(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame('FRAMEWORK__API_DEFINITION_GENERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('A definition generator for format "foo" was not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
+    }
 }

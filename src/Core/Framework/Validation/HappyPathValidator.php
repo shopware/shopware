@@ -120,7 +120,6 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        /** @var callable(mixed): mixed $normalizer */
         return $normalizer($value);
     }
 
@@ -223,7 +222,6 @@ class HappyPathValidator implements ValidatorInterface
 
                     if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
                         if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
-                            /** @var array<mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }

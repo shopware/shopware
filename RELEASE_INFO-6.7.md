@@ -203,6 +203,12 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Product indexing only writes rows that changed
+
+The product indexer no longer clears and rebuilds the denormalized data it maintains. Category assignments (`product_category_tree`), dynamic product group mappings (`product_stream_mapping`), search keywords (`product_search_keyword`), `product.cheapest_price` and the variant `product.display_group` are compared against the stored state, and only the differences are written. Indexing products that did not change now issues no writes at all, which reduces write and replication load on large catalogs.
+
+The indexed result is unchanged. If you observe these tables for row churn — a database trigger, a binlog based replication or CDC pipeline, or an `updated_at` watcher — expect far fewer events, because unchanged rows are no longer deleted and re-inserted on every run.
+
 ## Administration
 
 ### Administration caches shared user configuration and lookup data

@@ -205,6 +205,17 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 ## Administration
 
+### Conditional visibility for app-registered tabs
+
+`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.
+
+Re-calling `addTabItem()` for the same `componentSectionId` now updates the existing entry (label and visibility) instead of adding a duplicate, so an app can toggle a tab's visibility for the current context by re-registering it.
+
+```javascript
+sw.ui.tabs('sw-order-detail').addTabItem({
+    label: 'my-plugin.tabTitle',
+    componentSectionId: 'my-plugin-tab',
+    visible: order.stateMachineState.technicalName === 'open',
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -358,6 +369,10 @@ Fallback sizes apply only in remote-thumbnail mode to media in known folders who
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
+
+### Admin Elasticsearch listings fall back to the database on deep pagination
+
+Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
 
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 

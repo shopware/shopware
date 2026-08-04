@@ -204,6 +204,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          env: prod
           install: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
@@ -245,6 +246,9 @@ jobs:
         with:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware/store-api"
+
+      - name: Check Store API schema migration report
+        run: bin/console framework:store-api:schema-migration-report --scope=core --fail-on-mismatch --pretty -
 
       - name: Generate StoreAPI schema
         run: |

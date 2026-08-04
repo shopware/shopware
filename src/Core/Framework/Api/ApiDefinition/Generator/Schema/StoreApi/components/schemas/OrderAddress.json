@@ -1,0 +1,116 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderAddress": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "countryId",
+                    "firstName",
+                    "lastName",
+                    "street",
+                    "city"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryId": {
+                        "description": "Unique identity of country.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryStateId": {
+                        "description": "Unique identity of state.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "description": "First name of the customer.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Last name of the customer.",
+                        "type": "string"
+                    },
+                    "street": {
+                        "description": "Street address",
+                        "type": "string"
+                    },
+                    "zipcode": {
+                        "description": "Zip code of the country.",
+                        "type": "string"
+                    },
+                    "city": {
+                        "description": "Name of the city.",
+                        "type": "string"
+                    },
+                    "company": {
+                        "description": "Name of the company.",
+                        "type": "string"
+                    },
+                    "department": {
+                        "description": "Name of the department.",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "Title name given to customer like DR. , Prof., etc.",
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "description": "Phone number of the customer.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine1": {
+                        "description": "Additional address input if necessary.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine2": {
+                        "description": "Additional address input if necessary.",
+                        "type": "string"
+                    },
+                    "hash": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "vatId": {
+                        "description": "Unique identity of VAT.",
+                        "type": "string",
+                        "deprecated": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "$ref": "#/components/schemas/CountryState"
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

@@ -23,13 +23,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          persist-credentials: false
 
+      # No step in this job runs code from the pull request head, only the base
+      # checkout, so the checkout credentials may stay in the workspace.
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git fetch --no-tags "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}" "pull/${PR_NUMBER}/head"
+        run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
 
       # GITHUB_TOKEN has no organization scope, so requesting a review from a team
       # fails with "Could not resolve to a node with the global id of 'T_…'". No

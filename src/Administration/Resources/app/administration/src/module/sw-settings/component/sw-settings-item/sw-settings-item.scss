@@ -1,8 +1,3 @@
-@import "~scss/variables";
-
-$sw-settings-item-text-color: $color-darkgray-200;
-$sw-settings-item-hover-text-color: $color-shopware-brand-500;
-
 .sw-settings__card--hero {
     .sw-settings-item {
         color: var(--color-text-primary-default, #2d2e32);
@@ -41,7 +36,7 @@ $sw-settings-item-hover-text-color: $color-shopware-brand-500;
         }
 
         .sw-settings-item__label {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             word-break: break-all;
             padding: 8px 0;
         }
@@ -53,7 +48,7 @@ $sw-settings-item-hover-text-color: $color-shopware-brand-500;
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color-border-brand-selected, #0870ff);
+            outline: 2px solid var(--color-border-brand-default, #0870ff);
             outline-offset: 0;
         }
     }

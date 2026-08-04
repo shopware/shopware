@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
@@ -21,13 +21,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(OrderSalutationSubscriber::class)]
 class OrderSalutationSubscriberTest extends TestCase
 {
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
     private OrderSalutationSubscriber $salutationSubscriber;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
 
         $this->salutationSubscriber = new OrderSalutationSubscriber($this->connection);
     }
@@ -58,9 +58,11 @@ class OrderSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects($this->never())->method('executeStatement');
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
 
-        $this->salutationSubscriber->setDefaultSalutation($event);
+        $salutationSubscriber = new OrderSalutationSubscriber($connection);
+        $salutationSubscriber->setDefaultSalutation($event);
     }
 
     public function testDefaultSalutation(): void
@@ -76,7 +78,8 @@ class OrderSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->willReturnCallback(static function ($sql, $params) use ($orderAddressId): int {
                 static::assertSame($params, [
@@ -98,6 +101,7 @@ class OrderSalutationSubscriberTest extends TestCase
                 return 1;
             });
 
-        $this->salutationSubscriber->setDefaultSalutation($event);
+        $salutationSubscriber = new OrderSalutationSubscriber($connection);
+        $salutationSubscriber->setDefaultSalutation($event);
     }
 }

@@ -31,7 +31,7 @@ class IsActiveRule extends Rule
             return false;
         }
 
-        $customer = $scope->getSalesChannelContext()->getCustomer();
+        $customer = $scope->getCustomer();
         if (!$customer) {
             return false;
         }

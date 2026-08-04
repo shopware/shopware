@@ -45,11 +45,9 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
             ->method('createQueryBuilder');
-        $connection->expects($this->any())
-            ->method('createExpressionBuilder')
+        $connection->method('createExpressionBuilder')
             ->willReturn(new ExpressionBuilder($connection));
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
 
         $entityDefinitions = [
@@ -60,8 +58,8 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
         new StaticDefinitionInstanceRegistry(
             $entityDefinitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->iteratorFactory = new IterateEntitiesQueryBuilder(
@@ -99,15 +97,14 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
     public function testCreateAddsLastRunConditionIfGiven(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->any())
-            ->method('createQueryBuilder')
+        $connection = static::createStub(Connection::class);
+        $connection->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
         $expressionBuilder = new ExpressionBuilder($connection);
         $connection->method('createExpressionBuilder')->willReturn($expressionBuilder);
 
-        $queryBuilderMock = $this->createMock(QueryBuilder::class);
+        $queryBuilderMock = static::createStub(QueryBuilder::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilderMock);
 
         $lastRun = new \DateTimeImmutable('2023-08-11');

@@ -37,7 +37,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
+        $validator->validate($cart, $errors, static::createStub(SalesChannelContext::class));
 
         static::assertCount(0, $errors);
     }
@@ -168,7 +168,7 @@ class ShippingMethodValidatorTest extends TestCase
     public function testValidateWithMultiDeliveries(): void
     {
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
 

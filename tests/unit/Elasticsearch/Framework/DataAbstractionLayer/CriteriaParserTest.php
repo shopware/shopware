@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
@@ -49,6 +50,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CriteriaParser::class)]
 class CriteriaParserTest extends TestCase
 {
@@ -63,7 +65,7 @@ class CriteriaParserTest extends TestCase
         /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
@@ -108,7 +110,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         );
 
@@ -135,7 +137,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         );
 
@@ -155,7 +157,7 @@ class CriteriaParserTest extends TestCase
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([
                 ElasticsearchOptimizeSwitch::FLAG => true,
             ]),
@@ -176,7 +178,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), static::createStub(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
         $this->expectExceptionObject(ElasticsearchException::unsupportedFilter(CustomFilter::class));
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
@@ -187,7 +189,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), static::createStub(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -772,7 +774,7 @@ EOT,
     {
         $definition = $this->getDefinition(ProductManufacturerDefinition::ENTITY_NAME);
 
-        $customFieldService = $this->createMock(CustomFieldService::class);
+        $customFieldService = static::createStub(CustomFieldService::class);
 
         if ($customField instanceof Field) {
             $customFieldService->method('getCustomField')->willReturn($customField);
@@ -1108,7 +1110,7 @@ EOT,
 
         $sortedFilter = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseFilter($filter, $definition, '', $context);
 
@@ -1326,8 +1328,8 @@ EOT,
                 ProductTranslationDefinition::class,
                 UnitTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $instanceRegistry->getByEntityName($entityName);
@@ -1346,7 +1348,7 @@ EOT,
 
         $sorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
@@ -1540,7 +1542,7 @@ return Double.MIN_VALUE;
 
         $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
+            static::createStub(CustomFieldService::class),
             new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 

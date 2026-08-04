@@ -16,11 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConfigJsonFieldSerializer::class)]
 class ConfigJsonFieldSerializerTest extends TestCase
 {
@@ -30,7 +32,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $validator = Validation::createValidator();
         $jsonSerializer = new JsonFieldSerializer($validator, $this->definitionRegistry);
         $this->serializer = new ConfigJsonFieldSerializer($validator, $this->definitionRegistry);

@@ -32,4 +32,12 @@ final readonly class Configuration
     {
         return $this->parameters['allowedStorefrontRouteNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getAllowedUnitTestClassNamespaces(): array
+    {
+        return $this->parameters['allowedUnitTestClassNamespaces'] ?? [];
+    }
 }

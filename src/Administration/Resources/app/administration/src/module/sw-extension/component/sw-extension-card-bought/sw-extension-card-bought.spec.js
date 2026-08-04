@@ -20,6 +20,57 @@ const httpClient = {
     delete: jest.fn(),
 };
 
+const translateSnippet = jest.fn((snippet, values = {}) => {
+    if (values?.date) {
+        return `${snippet} ${values.date}`;
+    }
+
+    return snippet;
+});
+
+const defaultExtension = {
+    id: 555,
+    name: 'Test extension',
+    label: 'Test extension label',
+    languages: [],
+    rating: null,
+    numberOfRatings: 0,
+    installedAt: null,
+    storeLicense: {
+        variant: 'rent',
+        paymentText: 'Current subscription billing text',
+        discountInformation: null,
+    },
+    storeExtension: null,
+    permissions: {},
+    images: [],
+    icon: null,
+    iconRaw: null,
+    active: false,
+    source: 'store',
+    type: 'app',
+};
+
+function createExtension(overrides = {}) {
+    let storeLicense = { ...defaultExtension.storeLicense };
+
+    if (overrides.storeLicense !== undefined) {
+        storeLicense =
+            overrides.storeLicense === null
+                ? null
+                : {
+                      ...defaultExtension.storeLicense,
+                      ...overrides.storeLicense,
+                  };
+    }
+
+    return {
+        ...defaultExtension,
+        ...overrides,
+        storeLicense,
+    };
+}
+
 Shopware.Application.getContainer('init').httpClient = httpClient;
 
 const extensionStoreActionService = new ExtensionStoreActionService(
@@ -54,14 +105,7 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $t: (v1, v2, v3) =>
-                    v1 || v2
-                        ? v1
-                        : JSON.stringify([
-                              v1,
-                              v2,
-                              v3,
-                          ]),
+                $t: translateSnippet,
             },
             mixins: [
                 Shopware.Mixin.getByName('sw-extension-error'),
@@ -155,6 +199,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     beforeEach(() => {
         setActivePinia(createPinia());
+        Shopware.Context.app.systemCurrencyISOCode = null;
+        translateSnippet.mockClear();
 
         if (Shopware.Store.get('context')) {
             Shopware.Store.unregister('context');
@@ -178,6 +224,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 },
             }),
         });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should display the extension information', async () => {
@@ -519,6 +569,82 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         );
     });
 
+    it('should display trial month price information with a formatted full charging date', async () => {
+        jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '11/20/2025');
+
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Trial month active until 2025-11-20, then €23.75/month',
+                    discountInformation: {
+                        discountedPrice: 0,
+                        firstDateOfFullCharging: '2025-11-20T00:00:00+00:00',
+                    },
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
+            'Trial month active until 11/20/2025, then €23.75/month',
+        );
+        expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2025-11-20T00:00:00+00:00', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
+    });
+
+    it('should display discounted price information with a formatted full charging date', async () => {
+        jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '02/13/2021');
+
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: '€30/month until 2021-02-13, then €35/month',
+                    discountInformation: {
+                        discountedPrice: 30,
+                        firstDateOfFullCharging: '2021-02-13T00:00:00+00:00',
+                    },
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe(
+            '€30/month until 02/13/2021, then €35/month',
+        );
+        expect(Shopware.Utils.format.date).toHaveBeenCalledWith('2021-02-13T00:00:00+00:00', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
+    });
+
+    it('should keep the store payment text when no full charging date is available', async () => {
+        const wrapper = await createWrapper(
+            createExtension({
+                storeLicense: {
+                    variant: 'rent',
+                    paymentText: 'Current subscription billing text',
+                    discountInformation: null,
+                },
+            }),
+        );
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe('Current subscription billing text');
+    });
+
     describe('test display of rent and trail phase information', () => {
         it.each([
             {
@@ -560,27 +686,22 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
                 expectedIcon: 'solid-exclamation-circle',
             },
         ])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
-            const wrapper = await createWrapper({
-                id: 555,
-                name: 'Test extension',
-                label: 'Test extension label',
-                languages: [],
-                rating: null,
-                numberOfRatings: 0,
-                installedAt: null,
-                storeLicense: storeLicense,
-                storeExtension: null,
-                permissions: {},
-                images: [],
-                icon: null,
-                iconRaw: null,
-                active: false,
-                source: 'store',
-                type: 'app',
-            });
+            jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => '06/08/2021');
+
+            const wrapper = await createWrapper(createExtension({ storeLicense }));
 
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
-            expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
+            expect(infoSubscriptionExpiry.text()).toBe(`${expectedTextSnippet} 06/08/2021`);
+            expect(translateSnippet).toHaveBeenCalledWith(expectedTextSnippet, {
+                date: '06/08/2021',
+            });
+            expect(Shopware.Utils.format.date).toHaveBeenCalledWith(storeLicense.expirationDate, {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+            });
 
             const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 

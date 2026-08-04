@@ -6,6 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
+use Shopware\Core\Content\Seo\ResolvedSeoUrl;
+use Shopware\Core\Content\Seo\SeoUrlRequestContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,11 +17,14 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
+use Shopware\Storefront\Framework\Routing\Struct\DomainStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequestTransformer::class)]
 class RequestTransformerTest extends TestCase
 {
@@ -28,14 +34,14 @@ class RequestTransformerTest extends TestCase
     #[DataProvider('notRequiredSalesChannelProvider')]
     public function testSalesChannelIsNotRequired(array $registeredApiPrefixes, string $requestUri): void
     {
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver = static::createStub(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
-        $domainLoader->expects($this->never())->method('load');
+        $domainLoader->expects($this->never())->method('loadDomains');
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, $registeredApiPrefixes, $domainLoader);
 
@@ -47,12 +53,12 @@ class RequestTransformerTest extends TestCase
 
     public function testSalesChannelIsRequired(): void
     {
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver = static::createStub(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->expects($this->once())->method('load')->willReturn([]);
+        $domainLoader->expects($this->once())->method('loadDomains')->willReturn(new DomainCollection());
 
         // no registered api prefixes ==> sales channel is always required
         $registeredApiPrefixes = [];
@@ -62,6 +68,165 @@ class RequestTransformerTest extends TestCase
 
         static::expectException(SalesChannelMappingException::class);
         $requestTransformer->transform($originalRequest);
+    }
+
+    public function testResolverReceivesQueryStringForExactMatching(): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+
+        $languageId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+
+        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver
+            ->expects($this->once())
+            ->method('resolveUrl')
+            ->with(static::callback(static function (SeoUrlRequestContext $context) use ($languageId, $salesChannelId): bool {
+                return $context->languageId === $languageId
+                    && $context->salesChannelId === $salesChannelId
+                    && $context->pathInfo === 'Main-product/SWDEMO10001'
+                    && $context->queryString === 'test=123';
+            }))
+            ->willReturn(new ResolvedSeoUrl(pathInfo: '/detail/123', isCanonical: true));
+
+        $domains = new DomainCollection();
+        $domains->set('http://shopware.com/', DomainStruct::fromArray([
+            'url' => 'http://shopware.com',
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
+            'typeId' => Uuid::randomHex(),
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => $languageId,
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader
+            ->expects($this->once())
+            ->method('loadDomains')
+            ->willReturn($domains);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $originalRequest = Request::create('http://shopware.com/Main-product/SWDEMO10001?test=123');
+        $transformedRequest = $requestTransformer->transform($originalRequest);
+
+        static::assertSame('/detail/123', $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
+    }
+
+    public function testResolverReceivesRawFlagQueryString(): void
+    {
+        // Symfony's Request::getQueryString() normalizes value-less keys: `?test123` becomes
+        // `test123=`. The SEO URL resolver compares the request query against stored
+        // seo_path_info verbatim, so it needs the raw form to match a stored `path?test123`.
+        // The RequestTransformer reads QUERY_STRING from server vars rather than
+        // getQueryString() to preserve that raw shape.
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+
+        $languageId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+
+        $capturedContext = null;
+        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver
+            ->expects($this->once())
+            ->method('resolveUrl')
+            ->willReturnCallback(static function (SeoUrlRequestContext $context) use (&$capturedContext): ResolvedSeoUrl {
+                $capturedContext = $context;
+
+                return new ResolvedSeoUrl(pathInfo: '/detail/123', isCanonical: true);
+            });
+
+        $domains = new DomainCollection();
+        $domains->set('http://shopware.com/', DomainStruct::fromArray([
+            'url' => 'http://shopware.com',
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
+            'typeId' => Uuid::randomHex(),
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => $languageId,
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader
+            ->expects($this->once())
+            ->method('loadDomains')
+            ->willReturn($domains);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $originalRequest = Request::create('http://shopware.com/Latest-Product/SW10005?test12345');
+        $requestTransformer->transform($originalRequest);
+
+        static::assertNotNull($capturedContext);
+        static::assertSame('test12345', $capturedContext->queryString, 'raw QUERY_STRING preserved (not normalized to "test12345=")');
+        static::assertSame('Latest-Product/SW10005', $capturedContext->pathInfo);
+    }
+
+    public function testResolverReceivesNullForEmptyQueryString(): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+
+        $languageId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+
+        $capturedContext = null;
+        $resolver = $this->createMock(AbstractSeoResolver::class);
+        $resolver
+            ->expects($this->once())
+            ->method('resolveUrl')
+            ->willReturnCallback(static function (SeoUrlRequestContext $context) use (&$capturedContext): ResolvedSeoUrl {
+                $capturedContext = $context;
+
+                return new ResolvedSeoUrl(pathInfo: '/foo', isCanonical: false);
+            });
+
+        $domains = new DomainCollection();
+        $domains->set('http://shopware.com/', DomainStruct::fromArray([
+            'url' => 'http://shopware.com',
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
+            'typeId' => Uuid::randomHex(),
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => $languageId,
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader
+            ->expects($this->once())
+            ->method('loadDomains')
+            ->willReturn($domains);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $originalRequest = Request::create('http://shopware.com/foo');
+        $requestTransformer->transform($originalRequest);
+
+        static::assertNotNull($capturedContext);
+        static::assertNull($capturedContext->queryString);
     }
 
     /**
@@ -86,33 +251,34 @@ class RequestTransformerTest extends TestCase
 
         $domainKey = rtrim($domainUrl, '/') . '/';
 
-        $decorated = $this->createMock(RequestTransformerInterface::class);
+        $decorated = static::createStub(RequestTransformerInterface::class);
         $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
-        $resolver = $this->createMock(AbstractSeoResolver::class);
-        $resolver->method('resolve')->willReturnCallback(static fn ($langId, $scId, $seoPathInfo) => [
-            'pathInfo' => '/' . ltrim($seoPathInfo, '/'),
-            'isCanonical' => false,
-        ]);
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturnCallback(static fn (SeoUrlRequestContext $context) => new ResolvedSeoUrl(
+            pathInfo: '/' . ltrim($context->pathInfo, '/'),
+            isCanonical: false,
+        ));
 
-        $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->method('load')->willReturn([
-            $domainKey => [
-                'url' => $domainKey,
-                'id' => $domainId,
-                'salesChannelId' => $salesChannelId,
-                'typeId' => 'storefront',
-                'snippetSetId' => $snippetSetId,
-                'currencyId' => $currencyId,
-                'languageId' => $languageId,
-                'themeId' => $themeId,
-                'maintenance' => '0',
-                'maintenanceIpWhitelist' => '',
-                'locale' => 'en-GB',
-                'themeName' => 'Storefront',
-                'parentThemeName' => '',
-            ],
-        ]);
+        $domains = new DomainCollection();
+        $domains->set($domainKey, DomainStruct::fromArray([
+            'url' => $domainKey,
+            'id' => $domainId,
+            'salesChannelId' => $salesChannelId,
+            'typeId' => 'storefront',
+            'snippetSetId' => $snippetSetId,
+            'currencyId' => $currencyId,
+            'languageId' => $languageId,
+            'themeId' => $themeId,
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = static::createStub(AbstractDomainLoader::class);
+        $domainLoader->method('loadDomains')->willReturn($domains);
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, [ApiRouteScope::ID], $domainLoader);
 

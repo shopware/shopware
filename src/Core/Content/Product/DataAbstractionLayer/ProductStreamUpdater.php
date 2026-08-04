@@ -10,13 +10,14 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -137,7 +138,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         try {
             $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $parsedFilters, null, true);
-        } catch (UnmappedFieldException) {
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
             // invalid filter, remove all mappings
             $newMatches = [];
         }
@@ -242,7 +244,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 // products are only written afterwards, so this path has to stay on the
                 // SQL implementation to see the current data.
                 $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $parsedFilters, $ids, false);
-            } catch (UnmappedFieldException) {
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }

@@ -16,8 +16,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class SitemapRoute extends AbstractSitemapRoute
 {
     /**
@@ -52,7 +52,7 @@ class SitemapRoute extends AbstractSitemapRoute
         }
 
         // Close session to prevent session locking from waiting in case there is another request coming in
-        if ($request->hasSession() && session_status() === \PHP_SESSION_ACTIVE) {
+        if ($request->hasSession(true) && session_status() === \PHP_SESSION_ACTIVE) {
             $request->getSession()->save();
         }
 

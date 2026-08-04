@@ -11,7 +11,10 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         'placeholder',
@@ -53,6 +56,43 @@ export default {
 
         isCustomEntity() {
             return this.type === 'custom_entity';
+        },
+
+        categoryViewTabs() {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                    ...additionalProperties,
+                };
+            };
+
+            const tabs = [
+                createRouteTab('sw-category.view.general', 'sw.category.detail.base', {
+                    hasError: this.swCategoryViewError,
+                }),
+            ];
+
+            if (this.isPage && !this.isCustomEntity) {
+                tabs.push(createRouteTab('sw-category.view.products', 'sw.category.detail.products'));
+            }
+
+            if (this.isCustomEntity) {
+                tabs.push(createRouteTab('sw-category.view.customEntity', 'sw.category.detail.customEntity'));
+            }
+
+            if (this.cmsPage || this.isPage) {
+                tabs.push(createRouteTab('sw-category.view.cms', 'sw.category.detail.cms'));
+            }
+
+            if (this.isPage) {
+                tabs.push(createRouteTab('sw-category.view.seo', 'sw.category.detail.seo'));
+            }
+
+            return tabs;
         },
 
         ...mapPageErrors(errorConfig),

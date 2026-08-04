@@ -7,6 +7,7 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\Clock;
 
 #[Package('discovery')]
 class HomeUrlProvider extends AbstractUrlProvider
@@ -31,7 +32,7 @@ class HomeUrlProvider extends AbstractUrlProvider
     {
         $homepageUrl = new Url();
         $homepageUrl->setLoc('');
-        $homepageUrl->setLastmod(new \DateTime());
+        $homepageUrl->setLastmod(Clock::get()->now());
         $homepageUrl->setChangefreq(self::CHANGE_FREQ);
         $homepageUrl->setPriority(self::PRIORITY);
         $homepageUrl->setResource($this->getName());

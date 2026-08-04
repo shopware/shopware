@@ -238,6 +238,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
     it('only product item should have redirect link', async () => {
         const wrapper = await createWrapper({});
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: null,
+            identifier: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             cart: {
@@ -266,6 +272,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         expect(creditLabel.findComponent('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: '1',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {

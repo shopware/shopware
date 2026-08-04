@@ -19,6 +19,11 @@
         .mt-block-field__block {
             border: none;
             box-shadow: none;
+
+            // The input is rounded to a pill below, but the focus border is
+            // drawn on this block element - align the radius so the focus
+            // outline follows the pill shape instead of a rectangle.
+            border-radius: 24px;
         }
 
         input {

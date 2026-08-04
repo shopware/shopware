@@ -8,14 +8,15 @@
         v-if="headline"
         class="sw-address__headline"
     >
-        {{ headline }}
-        <router-link
+        <span>{{ headline }}</span>
+
+        <mt-link
             v-if="showEditButton && editLink"
             class="sw-address-headline-link"
             :to="editLink"
         >
             {{ $t('global.default.edit') }}
-        </router-link>
+        </mt-link>
     </div>
     {% endblock %}
 

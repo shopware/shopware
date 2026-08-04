@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`scripts/codemods/sfc-migration/transform-template block-component: twig block syntax is fully replaced across the whole template matches the complete transformed template snapshot 1`] = `
+"<template>
+<sw-block name="sw_block_card" :data="$dataScope">
+<div class="sw-block-card">
+    <sw-block name="sw_block_card_header" :data="$dataScope">
+    <div class="sw-block-card__header">
+        <h3>{{ title }}</h3>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_content" :data="$dataScope">
+    <div class="sw-block-card__content">
+        <p>{{ description }}</p>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_footer" :data="$dataScope">
+    <div class="sw-block-card__footer">
+        <sw-block-parent/>
+        <button @click="onAction">Action</button>
+    </div>
+    </sw-block>
+</div>
+</sw-block>
+
+</template>"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-template simple-component: plain HTML without twig blocks is wrapped without modification matches the complete wrapped template snapshot 1`] = `
+"<template>
+<div class="sw-simple-card">
+    <div class="sw-simple-card__title">{{ title }}</div>
+    <div class="sw-simple-card__description">{{ description }}</div>
+    <button class="sw-simple-card__action" @click="onSave">Save</button>
+</div>
+
+</template>"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-template twig-comments: converts {# ... #} Twig comments to HTML comments matches the complete transformed template snapshot 1`] = `
+"<template>
+<!-- @deprecated tag:v6.8.0 - Use mt-button instead -->
+<sw-block name="sw_demo" :data="$dataScope">
+<div class="sw-demo">
+    <!-- This is an inline comment -->
+    <span>Hello</span>
+    <!-- Multi-word comment with special chars: & < > -->
+    <button @click="onClick">Click</button>
+</div>
+</sw-block>
+
+</template>"
+`;

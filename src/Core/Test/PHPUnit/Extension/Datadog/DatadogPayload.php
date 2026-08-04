@@ -42,12 +42,13 @@ class DatadogPayload
      */
     private function getTestBuild(): string
     {
-        if (empty(EnvironmentHelper::getVariable('CI_PROJECT_URL'))) {
+        $url = (string) EnvironmentHelper::getVariable('CI_PROJECT_URL', '');
+        if ($url === '') {
             return 'unavailable';
         }
 
-        $buildNumber = !empty(EnvironmentHelper::getVariable('CI_JOB_ID')) ? EnvironmentHelper::getVariable('CI_JOB_ID') : EnvironmentHelper::getVariable('CI_BUILD_ID');
+        $buildNumber = EnvironmentHelper::getVariable('CI_JOB_ID') ?: EnvironmentHelper::getVariable('CI_BUILD_ID');
 
-        return EnvironmentHelper::getVariable('CI_PROJECT_URL') . '/builds/' . $buildNumber;
+        return $url . '/builds/' . $buildNumber;
     }
 }

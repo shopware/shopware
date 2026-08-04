@@ -26,7 +26,7 @@
         flex-grow: 1;
         align-content: start;
         justify-content: center;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: 4px;
         position: relative;
         background: var(--color-elevation-surface-raised);
@@ -44,7 +44,7 @@
     .sw-cms-el-product-box__badge-new {
         padding: 4px 4px 4px 10px;
         margin-bottom: 10px;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         font-weight: bold;
         background: var(--color-interaction-primary-default);
         color: var(--color-static-white);
@@ -98,8 +98,8 @@
         display: block;
         height: 40px;
         margin-bottom: 10px;
-        font-size: $font-size-m;
-        line-height: $line-height-sm;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-s);
         overflow: hidden;
         text-decoration: none;
         color: var(--color-text-primary-default);
@@ -112,8 +112,8 @@
     .sw-cms-el-product-box__description {
         height: 72px;
         margin-top: 10px;
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         overflow: hidden;
     }
 
@@ -123,24 +123,24 @@
 
     .sw-cms-el-product-box__price-unit {
         height: 36px;
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         overflow: hidden;
     }
 
     .sw-cms-el-product-box__price-unit-reference {
         height: 18px;
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         overflow: hidden;
     }
 
     .sw-cms-el-product-box__price {
         height: 20px;
         margin-top: 10px;
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         font-weight: bold;
-        line-height: $line-height-sm;
+        line-height: var(--font-line-height-s);
         overflow: hidden;
         color: var(--color-text-primary-default);
     }
@@ -152,7 +152,7 @@
     .sw-cms-el-product-box__buy-action {
         display: block;
         line-height: 40px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         font-weight: bold;
         text-align: center;
         text-decoration: none;

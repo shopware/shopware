@@ -5,6 +5,7 @@
  */
 
 const { Application } = Shopware;
+const shortcutsDisabledStorageKey = 'sw-admin-keyboard-shortcuts-disabled';
 
 /**
  * @private
@@ -17,6 +18,8 @@ const { Application } = Shopware;
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createShortcutService(shortcutFactory, keystrokeDelay = 1000) {
+    let shortcutsDisabled = getShortcutStorage()?.getItem(shortcutsDisabledStorageKey) === 'true';
+
     let state = {
         buffer: [],
         lastKeyTime: Date.now(),
@@ -25,9 +28,15 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
     return {
         startEventListener,
         stopEventListener,
+        isShortcutsDisabled,
+        setShortcutsDisabled,
     };
 
     function startEventListener() {
+        if (shortcutsDisabled) {
+            return;
+        }
+
         document.addEventListener('keyup', handleKeyUp);
     }
 
@@ -35,8 +44,33 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         document.removeEventListener('keyup', handleKeyUp);
     }
 
+    function isShortcutsDisabled() {
+        return shortcutsDisabled;
+    }
+
+    function setShortcutsDisabled(disabled) {
+        shortcutsDisabled = disabled;
+        getShortcutStorage()?.setItem(shortcutsDisabledStorageKey, String(shortcutsDisabled));
+
+        if (shortcutsDisabled) {
+            state = {
+                buffer: [],
+                lastKeyTime: Date.now(),
+            };
+            stopEventListener();
+        }
+    }
+
+    function getShortcutStorage() {
+        if (typeof localStorage === 'undefined') {
+            return null;
+        }
+
+        return localStorage;
+    }
+
     function handleKeyUp(event) {
-        if (isRestrictedSource(event)) {
+        if (shortcutsDisabled || isRestrictedSource(event)) {
             return false;
         }
 

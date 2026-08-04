@@ -19,8 +19,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CustomerAddressSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerAddressSubscriber::class)]
 class CustomerAddressSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

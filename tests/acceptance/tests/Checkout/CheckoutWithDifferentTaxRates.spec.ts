@@ -2,7 +2,12 @@ import { test, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -49,12 +54,17 @@ test(
             await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(3.19));
         });
-    }
+    },
 );
 
 test(
     'As a customer, I want to perform a checkout process with 7% tax rate with 2 different products.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -104,12 +114,17 @@ test(
             await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(1.3));
         });
-    }
+    },
 );
 
 test(
     'As a customer, I want to perform a checkout process with 7% and 19% tax rate per product.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -163,12 +178,17 @@ test(
             await ShopCustomer.expects(orderLocators.taxPrice.nth(0)).toContainText(formatPrice(3.19));
             await ShopCustomer.expects(orderLocators.taxPrice.nth(1)).toContainText(formatPrice(1.31));
         });
-    }
+    },
 );
 
 test(
     'As a customer, I want to perform a checkout process with 0% tax rate.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -215,5 +235,5 @@ test(
             await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(0.0));
         });
-    }
+    },
 );

@@ -38,38 +38,32 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(UserRecoveryService::class)]
 class UserRecoveryServiceTest extends TestCase
 {
-    private RouterInterface&MockObject $router;
-
     private EventDispatcherInterface&MockObject $dispatcher;
-
-    private SalesChannelContextService&MockObject $salesChannelContextService;
 
     protected function setUp(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->salesChannelContextService = $this->createMock(SalesChannelContextService::class);
     }
 
     public function testGenerateUserRecoveryUserNotFound(): void
     {
+        $router = static::createStub(RouterInterface::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
+
         $userEmail = 'nonexistent@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $recoveryEntity = new UserRecoveryEntity();
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
@@ -81,9 +75,9 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
+            $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
         );
@@ -95,6 +89,9 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithNoSalesChannel(): void
     {
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = static::createStub(SalesChannelContextService::class);
+
         $this->expectExceptionObject(UserException::salesChannelNotFound());
 
         $userEmail = 'existing@example.com';
@@ -108,23 +105,20 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setId(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
@@ -136,9 +130,9 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
+            $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
         );
@@ -150,6 +144,9 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithExistingRecovery(): void
     {
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = $this->createMock(SalesChannelContextService::class);
+
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $user = new UserEntity();
@@ -165,31 +162,28 @@ class UserRecoveryServiceTest extends TestCase
         $salesChannelEntity->setLanguageId(Uuid::randomHex());
         $salesChannelEntity->setCurrencyId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannelEntity]),
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
-        $this->salesChannelContextService
+        $salesChannelContextService
             ->expects($this->once())
             ->method('get')
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn(static::createStub(SalesChannelContext::class));
 
         $this->dispatcher
             ->expects($this->once())
@@ -202,9 +196,9 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
+            $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
         );
@@ -216,6 +210,9 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithoutExistingRecovery(): void
     {
+        $router = $this->createMock(RouterInterface::class);
+        $salesChannelContextService = $this->createMock(SalesChannelContextService::class);
+
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $user = new UserEntity();
@@ -230,18 +227,15 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($salesChannelEntity) {
                 static::assertCount(1, $criteria->getFilters());
@@ -253,15 +247,15 @@ class UserRecoveryServiceTest extends TestCase
             },
         ], new SalesChannelDefinition());
 
-        $this->router
+        $router
             ->expects($this->once())
             ->method('generate')
             ->willReturn('http://example.com');
 
-        $this->salesChannelContextService
+        $salesChannelContextService
             ->expects($this->once())
             ->method('get')
-            ->willReturn($this->createMock(SalesChannelContext::class));
+            ->willReturn(static::createStub(SalesChannelContext::class));
 
         $this->dispatcher
             ->expects($this->once())
@@ -274,9 +268,9 @@ class UserRecoveryServiceTest extends TestCase
         $service = new UserRecoveryService(
             $recoveryRepository,
             $userRepository,
-            $this->router,
+            $router,
             $this->dispatcher,
-            $this->salesChannelContextService,
+            $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
         );

@@ -297,11 +297,11 @@ class ZugferdCreditNoteRendererTest extends TestCase
             'documentNumber' => '1000',
         ];
 
-        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository = static::createStub(EntityRepository::class);
         $orderRepository->method('search')->willReturn($orderSearchResult);
         $orderRepository->method('createVersion')->willReturn(Uuid::randomHex());
 
-        $referenceInvoiceLoaderConnection = $this->createMock(Connection::class);
+        $referenceInvoiceLoaderConnection = static::createStub(Connection::class);
         $referenceInvoiceLoaderConnection
             ->method('createQueryBuilder')
             ->willReturn(new FakeQueryBuilder(
@@ -309,38 +309,34 @@ class ZugferdCreditNoteRendererTest extends TestCase
                 $hasInvoice ? [$invoiceData] : []
             ));
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID],
         ]);
 
         $connection->method('fetchFirstColumn')
             ->willReturnCallback(static function (string $sql, array $params) use ($invoicedCreditIds, $creditNoteCreditIds): array {
-                if (\count($params) === 2) {
-                    return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $invoicedCreditIds);
-                }
-
-                if (\count($params) === 3) {
+                if (\array_key_exists('creditTechnicalName', $params)) {
                     return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $creditNoteCreditIds);
                 }
 
-                return [];
+                return array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $invoicedCreditIds);
             });
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         return new ZugferdCreditNoteRenderer(
             $orderRepository,
             new DocumentConfigLoader(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
+                static::createStub(EntityRepository::class),
+                static::createStub(EntityRepository::class),
             ),
             $eventDispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             new ReferenceInvoiceLoader($referenceInvoiceLoaderConnection),
             $connection,
-            $builder ?? $this->createMock(ZugferdBuilder::class),
+            $builder ?? static::createStub(ZugferdBuilder::class),
             new NativeClock()
         );
     }

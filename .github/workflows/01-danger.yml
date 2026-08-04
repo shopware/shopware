@@ -2,19 +2,33 @@ name: Danger
 on:
   pull_request_target:
 
+concurrency:
+  group: danger-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   pr:
     runs-on: ubuntu-24.04
     steps:
       - name: Clone
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-            ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        with:
+          php-version: 8.2
+          extensions: ctype, intl, mbstring
+          coverage: none
+
+      - name: Install Danger
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
+        with:
+          working-directory: vendor-bin/danger-php
 
       - name: Danger
-        uses: docker://ghcr.io/shyim/danger-php:latest
-        with:
-          args: ci
+        run: vendor-bin/danger-php/vendor/bin/danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}

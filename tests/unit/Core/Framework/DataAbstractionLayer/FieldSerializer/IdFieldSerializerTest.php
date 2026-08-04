@@ -166,11 +166,11 @@ class IdFieldSerializerTest extends TestCase
 
     private function getIdFieldSerializer(): IdFieldSerializer
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
 
         return new IdFieldSerializer(
             $validator,
-            new StaticDefinitionInstanceRegistry([], $validator, $this->createMock(EntityWriteGatewayInterface::class))
+            new StaticDefinitionInstanceRegistry([], $validator, static::createStub(EntityWriteGatewayInterface::class))
         );
     }
 

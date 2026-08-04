@@ -276,6 +276,13 @@
         .page-count {
             width: 100%;
             float: left;
+            display: none;
+        }
+
+        @media dompdf {
+            .page-count {
+                display: block;
+            }
         }
 
         .pagenum:after {
@@ -314,7 +321,6 @@
             padding: 0;
         }
     </style>
-            
                             <style type="text/css">
             body {
             max-width: 1200px;
@@ -461,9 +467,7 @@
                 
                                     <th class="numbers">Quantity</th>
                 
-                                                                                                                                                            
-                        
-                                                    <th class="numbers">VAT</th>
+                                                                                                                <th class="numbers">VAT</th>
                                                                             <th class="numbers incl-vat">
                                 Unit price
                                                                                                             <span>Incl. VAT</span>
@@ -493,11 +497,11 @@
                 
                                                                                         <td class="align-right">19 % </td>
                                                                             <td class="align-right">
-                                                                                                                                                €100.00
+                                                                                                            €100.00
                                     
                                                             </td>
                                                                             <td class="align-right">
-                                                                                                                                                €100.00
+                                                                                                            €100.00
                                                                                                 </td>
                                                                                 </tr>
     

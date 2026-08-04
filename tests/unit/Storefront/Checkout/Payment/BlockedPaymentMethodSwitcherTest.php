@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(BlockedPaymentMethodSwitcher::class)]
 class BlockedPaymentMethodSwitcherTest extends TestCase
 {
@@ -337,7 +339,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             $salesChannel->setPaymentMethodId('default-payment-method-id');
         }
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getPaymentMethod')->willReturn($this->paymentMethodCollection->get('original-payment-method-id'));
@@ -347,17 +349,15 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
     private function getPaymentMethodRoute(bool $dontReturnAnyOtherPaymentMethod = false): PaymentMethodRoute
     {
-        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(PaymentMethodRoute::class);
 
         if ($dontReturnAnyOtherPaymentMethod) {
             $paymentMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadPaymentMethodsForAllBlocked(...));
         } else {
             $paymentMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadPaymentMethods(...));
         }
 

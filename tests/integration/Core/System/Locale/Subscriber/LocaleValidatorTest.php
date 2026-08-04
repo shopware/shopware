@@ -67,7 +67,7 @@ class LocaleValidatorTest extends TestCase
 
     public function testItValidatesAllDefaultLocalesWithoutErrors(): void
     {
-        $locales = $this->localeRepository->search(new Criteria(), Context::createDefaultContext())->getElements();
+        $locales = $this->localeRepository->search(new Criteria(), Context::createDefaultContext())->getEntities()->getElements();
         $definition = $this->definitionInstanceRegistry->get(LocaleDefinition::class);
         $entityExistinceMock = $this->createMock(EntityExistence::class);
 

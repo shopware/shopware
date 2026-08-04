@@ -46,6 +46,7 @@ export default {
             conditions: null,
             conditionTree: null,
             deletedIds: [],
+            activeTab: 'detail',
         };
     },
 
@@ -76,6 +77,19 @@ export default {
             return this.ruleConditionDataProviderService.getModuleTypes((moduleType) => moduleType);
         },
 
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-flow.modals.rule.tabDetail'),
+                    name: 'detail',
+                },
+                {
+                    label: this.$t('sw-flow.modals.rule.tabRule'),
+                    name: 'rule',
+                },
+            ];
+        },
+
         moduleTypes: {
             get() {
                 if (!this.rule || !this.rule.moduleTypes) {
@@ -102,11 +116,12 @@ export default {
             return awarenessConfig?.scopes ?? undefined;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
-         */
-        showProductStateConditionWarning() {
-            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
+        deprecatedConditionsInUse() {
+            if (!this.conditions) {
+                return [];
+            }
+
+            return this.ruleConditionDataProviderService.getDeprecationsInTree(this.conditions);
         },
 
         ...mapState(() => Store.get('swFlow'), ['flow']),
@@ -221,23 +236,6 @@ export default {
                 ...this.deletedIds,
                 ...deletedIds,
             ];
-        },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
-         */
-        hasConditionType(conditions, conditionType) {
-            return conditions.some((condition) => {
-                if (condition.type === conditionType) {
-                    return true;
-                }
-
-                return (
-                    condition.children &&
-                    Array.isArray(condition.children) &&
-                    this.hasConditionType(condition.children, conditionType)
-                );
-            });
         },
 
         getRuleDetail() {

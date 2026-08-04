@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 #[Package('inventory')]
-interface SeoUrlRouteInterface
+interface SeoUrlRouteInterface extends EntitySeoUrlRouteInterface
 {
-    public function getConfig(): SeoUrlRouteConfig;
-
     public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void;
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping;

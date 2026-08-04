@@ -9,6 +9,7 @@ const mockItems = [
     {
         id: '1',
         type: 'product',
+        productId: 'product-id',
         label: 'Product item',
         quantity: 1,
         payload: {
@@ -349,11 +350,21 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('only product item should have redirect link', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: '5',
+            type: 'custom',
+            productId: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems],
+                lineItems: [
+                    ...mockItems,
+                    deletedProductItem,
+                ],
             },
         });
 
@@ -377,6 +388,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         expect(creditLabel.find('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        const deletedProduct = wrapper.find('.sw-data-grid__row--4');
+        const deletedProductLabel = deletedProduct.find('.sw-data-grid__cell--label');
+        const showProductButton4 = deletedProduct.find('.sw-context-menu-item');
+
+        expect(deletedProductLabel.find('.router-link').exists()).toBeFalsy();
+        expect(showProductButton4.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: 'product-id',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {

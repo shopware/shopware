@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -232,6 +233,49 @@ class WebhookDispatchEndToEndTest extends TestCase
             ['webhookId' => Uuid::fromHexToBytes($webhookId)]
         );
         static::assertSame(0, $deliveryCount, 'Delivery row should be cleaned up after successful delivery');
+    }
+
+    /**
+     * Steps:
+     * 1. Register an app-backed webhook whose app secret is "old-secret".
+     * 2. Dispatch the event so the message is queued (capturing "old-secret").
+     * 3. Rotate the app secret to "new-secret" before the worker delivers.
+     * 4. Run the worker.
+     *
+     * Expected:
+     * - The outgoing request is signed with "new-secret" (the current secret), not "old-secret"
+     *   (the value captured when the message was queued) — so an app that has rotated its secret
+     *   still accepts the delivery instead of rejecting the signature.
+     */
+    public function testWebhookIsSignedWithTheCurrentSecretAfterARotation(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = $this->createAppBackedWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook', 'old-secret');
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event, $appId): void {
+            $manager->dispatch($event);
+            $this->connection->update('app', ['app_secret' => 'new-secret'], ['id' => Uuid::fromHexToBytes($appId)]);
+            $this->runWorker();
+        });
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request, 'Expected an HTTP request to be made');
+
+        $body = (string) $request->getBody();
+        static::assertSame(
+            hash_hmac('sha256', $body, 'new-secret'),
+            $request->getHeaderLine('shopware-shop-signature'),
+            'Webhook must be signed with the current app secret, not the one captured when it was queued'
+        );
+        static::assertNotSame(
+            hash_hmac('sha256', $body, 'old-secret'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
     }
 
     /**
@@ -875,6 +919,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $deliveryService = new WebhookDeliveryService(
             $webhookClient,
             static::getContainer()->get(AppPayloadServiceHelper::class),
+            static::getContainer()->get(WebhookSigningSecretResolver::class),
             static::getContainer()->get(WebhookOutboxStore::class),
             static::getContainer()->get(RetryDelayCalculator::class),
             static::getContainer()->get('messenger.default_bus'),
@@ -949,6 +994,57 @@ class WebhookDispatchEndToEndTest extends TestCase
             'app_id' => $appId,
             'created_at' => $now,
         ]);
+    }
+
+    /**
+     * Like {@see self::createWebhook()} but with a caller-controlled app secret, returning the app
+     * id (hex) so a test can rotate the secret mid-flight.
+     */
+    private function createAppBackedWebhook(string $webhookId, string $name, string $eventName, string $url, string $appSecret): string
+    {
+        $unique = Uuid::randomHex();
+        $aclRoleId = Uuid::randomBytes();
+        $integrationId = Uuid::randomBytes();
+        $appId = Uuid::randomBytes();
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('acl_role', [
+            'id' => $aclRoleId,
+            'name' => 'role-' . $unique,
+            'privileges' => json_encode([], \JSON_THROW_ON_ERROR),
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('integration', [
+            'id' => $integrationId,
+            'access_key' => 'key-' . $unique,
+            'secret_access_key' => 'secret-' . $unique,
+            'label' => 'integration-' . $unique,
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('app', [
+            'id' => $appId,
+            'name' => 'app-' . $unique,
+            'path' => '/dev/null',
+            'version' => '1.0.0',
+            'active' => 1,
+            'app_secret' => $appSecret,
+            'integration_id' => $integrationId,
+            'acl_role_id' => $aclRoleId,
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('webhook', [
+            'id' => Uuid::fromHexToBytes($webhookId),
+            'name' => $name,
+            'event_name' => $eventName,
+            'url' => $url,
+            'app_id' => $appId,
+            'created_at' => $now,
+        ]);
+
+        return Uuid::fromBytesToHex($appId);
     }
 
     /**

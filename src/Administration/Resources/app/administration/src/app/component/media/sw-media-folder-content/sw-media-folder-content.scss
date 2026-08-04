@@ -1,18 +1,14 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-folder-content-border-color-listing: $color-gray-300;
 $sw-media-folder-content-border-radius-listing: $border-radius-default;
 $sw-media-folder-content-border-radius-list-item: $border-radius-default;
-$sw-media-folder-content-color-buttons: $color-darkgray-200;
-$sw-media-folder-content-parent-color: $color-gray-300;
-$sw-media-folder-content-background-color: $color-white;
 
 .sw-media-folder-content {
     .sw-media-folder-content__folder-listing {
-        border: 1px solid $sw-media-folder-content-border-color-listing;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $sw-media-folder-content-border-radius-listing;
-        background-color: $sw-media-folder-content-background-color;
+        background-color: var(--color-background-primary-default);
         padding: 8px;
         list-style: none;
     }
@@ -27,15 +23,15 @@ $sw-media-folder-content-background-color: $color-white;
         cursor: pointer;
 
         &:hover {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
 
             .sw-media-folder-content__folder-button {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
 
         &.is--selected {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
         }
     }
 
@@ -50,7 +46,7 @@ $sw-media-folder-content-background-color: $color-white;
         border: none;
         outline: none;
         padding: 8px;
-        color: $sw-media-folder-content-color-buttons;
+        color: var(--color-icon-primary-default);
     }
 
     .sw-media-folder-content__folder-button,

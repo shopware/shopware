@@ -17,6 +17,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -50,7 +50,7 @@ use Twig\Environment;
 #[CoversClass(ProductExportGenerator::class)]
 class ProductExportGeneratorTest extends TestCase
 {
-    private MockObject&ProductStreamBuilderInterface $productStreamBuilder;
+    private MockObject&ProductStreamBuilder $productStreamBuilder;
 
     /**
      * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
@@ -85,14 +85,15 @@ class ProductExportGeneratorTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $productDefinition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $productDefinition);
 
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->productRepository->method('getDefinition')->willReturn($productDefinition);
         $this->productExportRender = $this->createMock(ProductExportRendererInterface::class);
         $this->eventDispatcher = new EventDispatcher();
         $this->productExportValidator = $this->createMock(ProductExportValidatorInterface::class);
@@ -114,6 +115,17 @@ class ProductExportGeneratorTest extends TestCase
         $this->contextPersister->expects($this->once())->method('save');
         $this->salesChannelContextService->expects($this->once())->method('get');
         $this->parserFactory->expects($this->once())->method('getParser');
+
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'product',
+                0,
+                new SalesChannelProductCollection(),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
 
         $generator = new ProductExportGenerator(
             $this->productStreamBuilder,
@@ -146,7 +158,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->salesChannelContextService->expects($this->once())->method('get');
 
         $errorMessage = 'error message';
-        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser = static::createStub(TwigVariableParser::class);
         $twigVariableParser->method('parse')
             ->willThrowException(new \Exception($errorMessage));
         $this->parserFactory->expects($this->once())
@@ -176,6 +188,47 @@ class ProductExportGeneratorTest extends TestCase
         $generator->generate($productExport, new ExportBehavior());
     }
 
+    public function testGenerateFallsBackToBuildFiltersForInterfaceOnlyBuilder(): void
+    {
+        $productExport = $this->getProductExportEntity();
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get');
+        $this->parserFactory->expects($this->once())->method('getParser');
+
+        // A builder that only implements the deprecated interface (e.g. a decorator that has not yet adopted
+        // AbstractProductStreamBuilder). The generator must fall back to buildFilters() without a TypeError.
+        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $productStreamBuilder->expects($this->once())
+            ->method('buildFilters')
+            ->with('productStreamId', static::anything())
+            ->willReturn([new EqualsFilter('product.product_stream', 'productStreamId')]);
+
+        $generator = new ProductExportGenerator(
+            $productStreamBuilder,
+            $this->productRepository,
+            $this->productExportRender,
+            $this->eventDispatcher,
+            $this->productExportValidator,
+            $this->salesChannelContextService,
+            $this->translator,
+            $this->contextPersister,
+            $this->connection,
+            1,
+            $this->seoUrlPlaceholderHandler,
+            $this->twig,
+            $this->productDefinition,
+            $this->languageLocaleProvider,
+            $this->parserFactory
+        );
+
+        // Reaching the "not found" result (no products resolve) proves the interface-only builder was routed
+        // through buildFilters() without a TypeError.
+        $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
+
+        $generator->generate($productExport, new ExportBehavior());
+    }
+
     public function testGenerateNormalizesJsonlRows(): void
     {
         $productExport = $this->getProductExportEntity();
@@ -192,30 +245,32 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}{{ product.categories.count }}')->willReturn(['product.categories.count']);
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
 
+        $results = [
+            $this->createProductSearchResult($product, $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
         $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
-                static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context, &$results): EntitySearchResult {
+                static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
                 static::assertSame($context, $salesChannelContext);
                 static::assertTrue($criteria->hasAssociation('categories'));
                 static::assertCount(1, $criteria->getAssociation('categories')->getFilters());
                 static::assertEquals(new EqualsFilter('active', true), $criteria->getAssociation('categories')->getFilters()[0]);
 
-                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
-            });
+                $next = array_shift($results);
+                \assert($next instanceof EntitySearchResult);
 
-        $this->productRepository->expects($this->exactly(2))
-            ->method('search')
-            ->willReturnOnConsecutiveCalls(
-                $this->createProductSearchResult($product, $context),
-                $this->createEmptyProductSearchResult($context)
-            );
+                return $next;
+            });
 
         $this->productExportRender->expects($this->once())
             ->method('renderBody')
@@ -246,7 +301,6 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame("{\"url\":\"https://example.com/product/1\",\"title\":\"Product\"}\n", $result->getContent());
-        static::assertSame(1, $result->getTotal());
         static::assertSame([], $result->getErrors());
     }
 
@@ -266,19 +320,13 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
-
-        $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
-                static::assertSame($context, $salesChannelContext);
-
-                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
-            });
 
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
@@ -317,7 +365,6 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame($expectedNormalized, $result->getContent());
-        static::assertSame(1, $result->getTotal());
         static::assertSame([], $result->getErrors());
     }
 
@@ -337,19 +384,13 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->never())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
-
-        $this->productRepository->expects($this->once())
-            ->method('searchIds')
-            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
-                static::assertSame($context, $salesChannelContext);
-
-                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
-            });
 
         $this->productRepository->expects($this->once())
             ->method('search')
@@ -379,7 +420,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->parserFactory->expects($this->once())
             ->method('getParser')
-            ->willReturn($this->createMock(TwigVariableParser::class));
+            ->willReturn(static::createStub(TwigVariableParser::class));
 
         $generator = $this->createGenerator();
 
@@ -400,9 +441,6 @@ class ProductExportGeneratorTest extends TestCase
         $product = $this->createProduct('product-id');
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
-        $this->productRepository->expects($this->once())
-            ->method('searchIds')
-            ->willReturn(IdSearchResult::fromIds(['product-id'], new Criteria(), $context->getContext()));
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
@@ -437,22 +475,21 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
 
-        $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
-                $filters = $criteria->getFilters();
-                $parentIdFilters = array_filter($filters, static fn ($f) => $f instanceof EqualsFilter && $f->getField() === 'parentId' && $f->getValue() === null);
-                static::assertNotEmpty($parentIdFilters, 'Criteria must contain a parentId = null filter when variants are excluded');
-
-                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
-            });
-
+        $results = [
+            $this->createProductSearchResult($product, $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
-            ->willReturnOnConsecutiveCalls(
-                $this->createProductSearchResult($product, $context),
-                $this->createEmptyProductSearchResult($context)
-            );
+            ->willReturnCallback(function (Criteria $criteria) use (&$results): EntitySearchResult {
+                $parentIdFilters = array_filter($criteria->getFilters(), static fn ($f) => $f instanceof EqualsFilter && $f->getField() === 'parentId' && $f->getValue() === null);
+                static::assertNotEmpty($parentIdFilters, 'Criteria must contain a parentId = null filter when variants are excluded');
+
+                $next = array_shift($results);
+                \assert($next instanceof EntitySearchResult);
+
+                return $next;
+            });
 
         $this->productExportRender->method('renderBody')->willReturn('product');
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
@@ -477,22 +514,21 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
 
-        $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
-                $filters = $criteria->getFilters();
-                $orFilters = array_filter($filters, static fn ($f) => $f instanceof OrFilter);
-                static::assertNotEmpty($orFilters, 'Criteria must contain an OrFilter to exclude parent products when variants are included');
-
-                return IdSearchResult::fromIds(['variant-id'], $criteria, $context->getContext());
-            });
-
+        $results = [
+            $this->createProductSearchResult($variant, $context),
+            $this->createEmptyProductSearchResult($context),
+        ];
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
-            ->willReturnOnConsecutiveCalls(
-                $this->createProductSearchResult($variant, $context),
-                $this->createEmptyProductSearchResult($context)
-            );
+            ->willReturnCallback(function (Criteria $criteria) use (&$results): EntitySearchResult {
+                $orFilters = array_filter($criteria->getFilters(), static fn ($f) => $f instanceof OrFilter);
+                static::assertNotEmpty($orFilters, 'Criteria must contain an OrFilter to exclude parent products when variants are included');
+
+                $next = array_shift($results);
+                \assert($next instanceof EntitySearchResult);
+
+                return $next;
+            });
 
         $this->productExportRender->method('renderBody')->willReturn('variant');
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
@@ -513,17 +549,11 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setIncludeVariants(true);
 
         $context = $this->createSalesChannelContext();
-        $parent = $this->createProduct('parent-id', null, 1);
-        $variantA = $this->createProduct('variant-a', 'parent-id');
-        $variantB = $this->createProduct('variant-b', 'parent-id');
+        $parent = $this->createProduct('parent-id', null, 1, 1);
+        $variantA = $this->createProduct('variant-a', 'parent-id', 0, 2);
+        $variantB = $this->createProduct('variant-b', 'parent-id', 0, 3);
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
-        $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnOnConsecutiveCalls(
-                IdSearchResult::fromIds(['parent-id', 'variant-a', 'variant-b'], new Criteria(), $context->getContext()),
-                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
-            );
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
@@ -561,16 +591,10 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setIncludeVariants(false);
 
         $context = $this->createSalesChannelContext();
-        $variant = $this->createProduct('variant-id', 'parent-id');
-        $simple = $this->createProduct('simple-id');
+        $variant = $this->createProduct('variant-id', 'parent-id', 0, 1);
+        $simple = $this->createProduct('simple-id', null, 0, 2);
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
-        $this->productRepository->expects($this->exactly(2))
-            ->method('searchIds')
-            ->willReturnOnConsecutiveCalls(
-                IdSearchResult::fromIds(['variant-id', 'simple-id'], new Criteria(), $context->getContext()),
-                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
-            );
         $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturn($this->createProductSearchResultCollection([$variant, $simple], $context));
@@ -586,6 +610,69 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame('', $result->getContent());
+    }
+
+    public function testGenerateBatchModeSignalsNextBatchWithKeysetCursor(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id', null, 0, 42);
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
+        // A full buffer (1 product, readBufferSize = 1) => another batch must follow,
+        // and the cursor is the highest autoIncrement seen. Only one search happens
+        // because batch mode hands off to the next message instead of looping.
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createProductSearchResult($product, $context));
+
+        $this->productExportRender->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, true, false, false));
+
+        static::assertNotNull($result);
+        static::assertTrue($result->hasNextBatch());
+        static::assertSame(42, $result->getOffset());
+    }
+
+    public function testGenerateBatchModeStopsWhenBufferIsNotFilled(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
+        // Resuming past cursor 41; the batch comes back empty (buffer not filled),
+        // so this is the final batch and no further message is requested. An empty
+        // page beyond the first cursor must not raise productExportNotFound.
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createEmptyProductSearchResult($context));
+
+        $this->productExportRender->expects($this->never())->method('renderBody');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, true, false, false, 41));
+
+        static::assertNotNull($result);
+        static::assertFalse($result->hasNextBatch());
+        static::assertSame(41, $result->getOffset());
     }
 
     private function createGenerator(): ProductExportGenerator
@@ -616,7 +703,9 @@ class ProductExportGeneratorTest extends TestCase
         $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
         $this->translator->expects($this->once())->method('injectSettings');
         $this->translator->expects($this->once())->method('resetInjection');
-        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with($bodyTemplate)->willReturn([]);
@@ -652,12 +741,13 @@ class ProductExportGeneratorTest extends TestCase
         );
     }
 
-    private function createProduct(string $id, ?string $parentId = null, int $childCount = 0): SalesChannelProductEntity
+    private function createProduct(string $id, ?string $parentId = null, int $childCount = 0, int $autoIncrement = 1): SalesChannelProductEntity
     {
         $product = new SalesChannelProductEntity();
         $product->setId($id);
         $product->setParentId($parentId);
         $product->setChildCount($childCount);
+        $product->setAutoIncrement($autoIncrement);
 
         return $product;
     }

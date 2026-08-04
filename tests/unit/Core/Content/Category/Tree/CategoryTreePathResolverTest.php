@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CategoryTreePathResolver::class)]
 #[Package('framework')]
+#[CoversClass(CategoryTreePathResolver::class)]
 class CategoryTreePathResolverTest extends TestCase
 {
     /**

@@ -1,16 +1,9 @@
-@import "~scss/variables";
 @import "~scss/mixins";
-
-$sw-media-modal-move-breadcrumbs-hover-background-color: $color-shopware-brand-50;
-$sw-media-modal-move-breadcrumbs-right-arrow-color: $color-darkgray-200;
-$sw-media-modal-move-breadcrumbs-default-color: $color-darkgray-200;
-$sw-media-modal-move-breadcrumbs-target-color: $color-shopware-brand-500;
-$sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
 
 .sw-media-modal-move {
     .sw-media-modal-move-folder-breadcrumbs {
         display: flex;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 22px;
         margin-bottom: 20px;
         align-items: center;
@@ -21,26 +14,26 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
         border: none;
         outline: none;
         padding: 8px 6px 8px 0;
-        color: $sw-media-modal-move-breadcrumbs-default-color;
+        color: var(--color-text-primary-default);
         max-width: 400px;
 
         @include truncate;
 
         &:hover {
-            background-color: $sw-media-modal-move-breadcrumbs-hover-background-color;
+            background-color: var(--color-background-brand-default);
         }
 
         &.--target {
-            color: $sw-media-modal-move-breadcrumbs-target-color;
+            color: var(--color-text-brand-default);
 
             .mt-icon {
-                color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+                color: var(--color-icon-primary-default);
             }
         }
 
         &.--parent {
             .mt-icon {
-                color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+                color: var(--color-icon-primary-default);
             }
         }
     }

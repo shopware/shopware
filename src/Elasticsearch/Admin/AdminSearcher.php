@@ -70,7 +70,13 @@ class AdminSearcher
             return [];
         }
 
-        $responses = $this->client->msearch(['body' => $indexes]);
+        try {
+            $responses = $this->client->msearch(['body' => $indexes]);
+        } catch (\Throwable $e) {
+            $this->adminEsHelper->logAndThrowException($e);
+
+            return [];
+        }
 
         $result = $this->parseResponse($responses);
 
@@ -237,7 +243,15 @@ class AdminSearcher
     /**
      * @param array<mixed> $rawResponse
      *
-     * @return array<string, array{total: int, hits: array<int, array{id: string, score: float, parameters: array<string, mixed>, entityName: string }>}>
+     * @return array<string, array{
+     *     total: int,
+     *     hits: list<array{
+     *         id: string,
+     *         score: float,
+     *         parameters: array<string, mixed>,
+     *         entityName: string
+     *     }>
+     * }>
      */
     private function parseResponse(array $rawResponse): array
     {
@@ -256,21 +270,23 @@ class AdminSearcher
                 continue;
             }
 
-            $index = $response['hits']['hits'][0]['_index'];
-
-            $result[$index] = [
-                'total' => $response['hits']['total']['value'],
-                'hits' => [],
-            ];
+            $index = (string) $response['hits']['hits'][0]['_index'];
+            $total = (int) $response['hits']['total']['value'];
+            $hits = [];
 
             foreach ($response['hits']['hits'] as $hit) {
-                $result[$index]['hits'][] = [
-                    'id' => $hit['_id'],
-                    'score' => $hit['_score'],
+                $hits[] = [
+                    'id' => (string) $hit['_id'],
+                    'score' => (float) $hit['_score'],
                     'parameters' => $hit['_source']['parameters'],
-                    'entityName' => $hit['_source']['entityName'],
+                    'entityName' => (string) $hit['_source']['entityName'],
                 ];
             }
+
+            $result[$index] = [
+                'total' => $total,
+                'hits' => $hits,
+            ];
         }
 
         return $result;

@@ -99,7 +99,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array{type: 'customer'|'admin'|'custom'} $recipients
+     * @param array{type: 'customer'|'admin'|'custom', data?: array<string, string>} $recipients
      * @param list<string>|array{}|array{data: array<string, string>} $documentTypeIds
      */
     #[DataProvider('sendMailProvider')]
@@ -128,7 +128,7 @@ class SendMailActionTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $orderRepository->search($criteria, $context->getContext())->first();
+        $order = $orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -181,7 +181,7 @@ class SendMailActionTest extends TestCase
         static::assertIsString($documentIdNewer);
         static::assertIsString($documentIdOlder);
         $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-        $documents = $documentRepository->search($criteria, $context->getContext());
+        $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
@@ -241,7 +241,7 @@ class SendMailActionTest extends TestCase
 
         if ($documentTypeIds !== []) {
             $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
-            $documents = $documentRepository->search($criteria, $context->getContext());
+            $documents = $documentRepository->search($criteria, $context->getContext())->getEntities();
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
@@ -260,7 +260,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom'}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
+     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom', data?: array<string, string>}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
      */
     public static function sendMailProvider(): \Generator
     {
@@ -453,7 +453,7 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer');
 
-        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->get($orderId);
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context->getContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
         $event = new CheckoutOrderPlacedEvent($context, $order);
 
@@ -610,7 +610,7 @@ class SendMailActionTest extends TestCase
 
         $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
-            ->search(new Criteria(), $salesChannelContext->getContext())
+            ->search(new Criteria(), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
@@ -619,7 +619,7 @@ class SendMailActionTest extends TestCase
         $customerId = $this->createCustomer($salesChannelContext->getContext());
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())
+            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
@@ -667,7 +667,7 @@ class SendMailActionTest extends TestCase
 
         $templateType = static::getContainer()
             ->get('mail_template_type.repository')
-            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())
+            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertInstanceOf(MailTemplateTypeEntity::class, $templateType);
@@ -755,6 +755,7 @@ class SendMailActionTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
+        /** @var list<array{id: string, technical_name: string}> $documentTypes */
         $documentTypes = $this->connection->fetchAllAssociative(
             'SELECT HEX(`id`) AS `id`, `technical_name` FROM document_type WHERE `technical_name` IN (:type1, :type2);',
             [
@@ -832,9 +833,11 @@ class SendMailActionTest extends TestCase
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
                 static::assertNotEmpty($documentInfos);
 
+                static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
                 static::assertTrue($found, 'Attachment not found for document type: ' . $documentInfos['technical_name']);
 
+                static::assertArrayHasKey('documentId', $documentInfos);
                 $markedAsSent = $this->isDocumentMarkedAsSent($documentInfos['documentId'], $context);
                 static::assertTrue($markedAsSent, 'Successfully sent document with id ' . $documentInfos['documentId'] . ' was not marked as sent.');
             }
@@ -1201,9 +1204,9 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $documentTypes
+     * @param list<array{id: string, technical_name: string, documentId?: string, filename?: string}> $documentTypes
      *
-     * @return array{id: string, technical_name: string, documentId: string, filename: string}|array{}
+     * @return array{id: string, technical_name: string, documentId?: string, filename?: string}|array{}
      */
     private function getMatchingDocument(string $sequenzDocumentTypeId, array $documentTypes): array
     {

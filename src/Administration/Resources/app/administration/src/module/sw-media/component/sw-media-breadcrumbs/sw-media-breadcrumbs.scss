@@ -1,4 +1,3 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-media-breadcrumbs {
@@ -13,7 +12,7 @@
     }
 
     .sw-media-breadcrumbs__entry {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         display: flex;
         align-items: center;
         margin-top: 5px;
@@ -39,6 +38,6 @@
     }
 
     &.is--small .sw-media-breadcrumbs__entry {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 }

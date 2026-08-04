@@ -35,8 +35,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ImportExportActionController extends AbstractController
 {
     /**
@@ -73,12 +73,11 @@ class ImportExportActionController extends AbstractController
         $profileId = (string) $request->request->get('profileId');
         $expireDate = (string) $request->request->get('expireDate');
 
-        /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         $profile = $this->findProfile($context, $profileId);
         $expireDate = new \DateTimeImmutable($expireDate);
 
-        if ($file !== null) {
+        if ($file instanceof UploadedFile) {
             $log = $this->importExportService->prepareImport(
                 $context,
                 $profile->getId(),

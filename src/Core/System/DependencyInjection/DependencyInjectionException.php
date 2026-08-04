@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class DependencyInjectionException extends HttpException
 {

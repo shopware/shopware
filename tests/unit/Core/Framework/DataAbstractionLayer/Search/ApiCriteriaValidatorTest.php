@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ApiCriteriaValidator::class)]
 class ApiCriteriaValidatorTest extends TestCase
 {
@@ -46,8 +48,8 @@ class ApiCriteriaValidatorTest extends TestCase
                     SalesChannelProductDefinition::class,
                     OrderLineItemDefinition::class,
                 ],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             )
         );
 

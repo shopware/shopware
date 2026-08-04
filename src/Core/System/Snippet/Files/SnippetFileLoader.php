@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
 use League\Flysystem\StorageAttributes;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -18,6 +20,8 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @description Loads storefront snippet files from the core, plugins, and apps into a SnippetFileCollection.
+ *
+ * @phpstan-import-type App from ActiveAppsLoader
  */
 #[Package('discovery')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
@@ -39,6 +43,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly TranslationConfig $config,
         private readonly AbstractTranslationLoader $translationLoader,
         private readonly Filesystem $translationReader,
+        private readonly SourceResolver $sourceResolver,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -176,12 +182,37 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function loadAppSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
-            $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
-            foreach ($snippetFiles as $snippetFile) {
+            foreach ($this->loadSnippetFilesForApp($app) as $snippetFile) {
                 $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }
         }
+    }
+
+    /**
+     * @param App $app
+     *
+     * @return GenericSnippetFile[]
+     */
+    private function loadSnippetFilesForApp(array $app): array
+    {
+        if (!$app['selfManaged']) {
+            return $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
+        }
+
+        // self-managed apps (e.g. services) have no files at `path`, they are resolved through their app source
+        try {
+            $filesystem = $this->sourceResolver->filesystemForAppName($app['name']);
+        } catch (\Throwable $e) {
+            $this->logger->error(
+                \sprintf('Could not load snippet files of app "%s": %s', $app['name'], $e->getMessage()),
+                ['exception' => $e]
+            );
+
+            return [];
+        }
+
+        return $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $filesystem->location, true);
     }
 
     /**

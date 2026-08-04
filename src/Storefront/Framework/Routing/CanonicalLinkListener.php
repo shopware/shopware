@@ -9,7 +9,7 @@ use Shopware\Core\SalesChannelRequest;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CanonicalLinkListener
 {
     public function __invoke(BeforeSendResponseEvent $event): void

@@ -167,10 +167,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         productCriteria() {
             const productCriteria = new Criteria(1, 5);
-            productCriteria
-                .addAssociation('options.group')
-                .addAssociation('manufacturer')
-                .addFilter(Criteria.equals('parentId', null));
+            productCriteria.addAssociation('options.group').addAssociation('manufacturer');
             return productCriteria;
         },
 
@@ -184,6 +181,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         categoryRepository() {
             return this.repositoryFactory.create('category');
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
         },
     },
 
@@ -202,7 +203,35 @@ export default Shopware.Component.wrapComponentConfig({
             this.previousProducts = [...this.page.products!];
             this.previousProductIds = this.page.products!.getIds();
 
+            void this.loadProductsWithInheritance();
+
             void this.loadSystemConfig();
+        },
+
+        async loadProductsWithInheritance() {
+            const products = this.page.products;
+
+            if (!products?.getIds().length) {
+                return;
+            }
+
+            const hasMissingVariantNames = [...products].some((product) => product.parentId && !product.translated?.name);
+
+            if (!hasMissingVariantNames) {
+                return;
+            }
+
+            const criteria = new Criteria(1, products.getIds().length);
+            criteria.setIds(products.getIds());
+            criteria.addAssociation('options.group');
+            criteria.addAssociation('manufacturer');
+
+            const context = {
+                ...Shopware.Context.api,
+                inheritance: true,
+            };
+
+            this.page.products = await this.productRepository.search(criteria, context);
         },
 
         onModalClose(saveAfterClose = false) {

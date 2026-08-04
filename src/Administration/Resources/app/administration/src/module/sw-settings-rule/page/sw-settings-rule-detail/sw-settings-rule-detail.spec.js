@@ -208,7 +208,7 @@ const routeLeaveOrUpdateTestCases = [
     },
 ];
 
-async function createWrapper(props = defaultProps, provide = {}, { featureActive = false } = {}) {
+async function createWrapper(props = defaultProps, provide = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -326,9 +326,6 @@ async function createWrapper(props = defaultProps, provide = {}, { featureActive
                 'sw-extension-teaser-popover': true,
             },
             provide: {
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
                 ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                 ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
                 repositoryFactory: {
@@ -555,8 +552,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor route tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -581,8 +578,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(false);
     });
 
-    it('should pass validation errors to meteor tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         Shopware.Store.get('error').addApiError({
@@ -613,8 +610,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         ]);
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const routerSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
@@ -870,15 +867,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
-        const assignmentsTab = tabs
-            .props('items')
-            .find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+        const assignmentsTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
 
         await assignmentsTab.onClick();
         await flushPromises();

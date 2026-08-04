@@ -95,12 +95,7 @@ responses.addResponse({
     },
 });
 
-async function createWrapper(
-    layoutType = 'product_list',
-    systemConfigApiServiceOverrides = {},
-    { featureActive = false } = {},
-    products = mockProducts,
-) {
+async function createWrapper(layoutType = 'product_list', systemConfigApiServiceOverrides = {}, products = mockProducts) {
     const origin = {
         categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
     };
@@ -211,9 +206,6 @@ async function createWrapper(
                     'sw-inherit-wrapper': true,
                 },
                 provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     systemConfigApiService: {
                         getValues: jest.fn((domain, salesChannelId) => {
                             if (salesChannelId === null) {
@@ -293,7 +285,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             },
         });
 
-        const wrapper = await createWrapper('product_detail', {}, {}, [
+        const wrapper = await createWrapper('product_detail', {}, [
             {
                 id: 'variant-id',
                 parentId: 'parent-id',
@@ -348,8 +340,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs', async () => {
-        const wrapper = await createWrapper('page', {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        const wrapper = await createWrapper('page');
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -370,8 +362,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
     });
 
-    it('should provide landing page meteor tabs', async () => {
-        const wrapper = await createWrapper('landingpage', {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should provide landing page meteor tabs', async () => {
+        const wrapper = await createWrapper('landingpage');
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         expect(tabs.props('items')).toEqual([
@@ -387,13 +379,13 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    it.each([
+    it.activeFeatureFlags(['v6.8.0.0']).each([
         'page',
         'landingpage',
     ])(
         'should render a tab permission warning banner for %s meteor tabs without system config permission',
         async (layoutType) => {
-            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+            const wrapper = await createWrapper(layoutType);
             const banner = wrapper.get('.sw-cms-layout-assignment-modal__tab-permission-warning');
 
             expect(banner.text()).toBe('sw-privileges.tooltip.warning');
@@ -409,16 +401,16 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         async (layoutType) => {
             global.activeAclRoles = ['system.system_config'];
 
-            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+            const wrapper = await createWrapper(layoutType);
 
             expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').exists()).toBe(false);
         },
     );
 
-    it('should switch meteor tab content when the active tab changes', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
         global.activeAclRoles = ['system.system_config'];
 
-        const wrapper = await createWrapper('page', {}, { featureActive: true });
+        const wrapper = await createWrapper('page');
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'shop_pages');
@@ -836,7 +828,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it.activeFeatureFlags(['v6.8.0.0'])('should load system config with different sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
-        const wrapper = await createWrapper('page', {}, { featureActive: true });
+        const wrapper = await createWrapper('page');
 
         // Select shop page tab
         await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
@@ -856,32 +848,35 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
-    it.deprecated('v6.8.0.0')('should load system config with different sales channel without matching shop pages', async () => {
-        global.activeAclRoles = ['system.system_config'];
+    it.deprecated('v6.8.0.0')(
+        'should load system config with different sales channel without matching shop pages',
+        async () => {
+            global.activeAclRoles = ['system.system_config'];
 
-        const wrapper = await createWrapper('page');
+            const wrapper = await createWrapper('page');
 
-        // Select shop page tab
-        await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
+            // Select shop page tab
+            await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
 
-        // Set new sales channel id
-        await wrapper.setData({
-            shopPageSalesChannelId: 'headless_id',
-        });
+            // Set new sales channel id
+            await wrapper.setData({
+                shopPageSalesChannelId: 'headless_id',
+            });
 
-        // Trigger sales channel select change
-        await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
+            // Trigger sales channel select change
+            await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
 
-        // Value should be null for inheritance switch
-        expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
-    });
+            // Value should be null for inheritance switch
+            expect(wrapper.vm.selectedShopPages.headless_id).toBeNull();
+        },
+    );
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should load system config with different sales channel without matching shop pages',
         async () => {
             global.activeAclRoles = ['system.system_config'];
 
-            const wrapper = await createWrapper('page', {}, { featureActive: true });
+            const wrapper = await createWrapper('page');
 
             // Select shop page tab
             await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'shop_pages');
@@ -919,7 +914,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it.activeFeatureFlags(['v6.8.0.0'])('should load system config when changing sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
-        const wrapper = await createWrapper('page', {}, { featureActive: true });
+        const wrapper = await createWrapper('page');
         const onInputSalesChannelSelectSpy = jest.spyOn(wrapper.vm, 'onInputSalesChannelSelect');
 
         // Select shop page tab

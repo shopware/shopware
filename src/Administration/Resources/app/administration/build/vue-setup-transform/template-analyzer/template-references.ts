@@ -36,12 +36,6 @@ type TemplateReferences = {
     writeTargets: Map<string, number>;
 };
 
-type TemplateEdit = {
-    start: number;
-    end: number;
-    replacement: string;
-};
-
 type DirectiveNode = CoreDirectiveNode & {
     arg?: { content: string; isStatic?: boolean };
     exp?: { content: string; loc: { start: { offset: number }; end: { offset: number } } };
@@ -60,14 +54,6 @@ type ElementNode = CoreElementNode & {
     props: Array<CoreElementNode['props'][number] | DirectiveNode>;
     children: TemplateChildNode[];
 };
-
-/**
- * One entry of a generated `#default` slot scope: the exact destructuring text to emit.
- *
- * Authoring `#default` on `<sw-block>` is rejected outright, so there is never a user-declared slot
- * prop to merge with or deduplicate against - the transform owns the whole pattern.
- */
-type SlotMapping = string;
 
 /**
  * Returns the pattern texts a directive contributes, in evaluation order.
@@ -353,8 +339,6 @@ function getStaticSwBlockExtends(node: ElementNode): string | null {
 export {
     type DirectiveNode,
     type ElementNode,
-    type SlotMapping,
-    type TemplateEdit,
     type TemplateReferences,
     collectTemplateReferences,
     getDefaultSlotDirective,

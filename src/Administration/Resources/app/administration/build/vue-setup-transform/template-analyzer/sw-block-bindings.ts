@@ -11,17 +11,9 @@
  */
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
-import type { ShopwareSetupMode, ShopwareSetupTemplate } from '../utils/shopware-setup-block';
+import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
-import {
-    type DirectiveNode,
-    type ElementNode,
-    type SlotMapping,
-    type TemplateEdit,
-    getDefaultSlotDirective,
-    isSwBlockExtends,
-} from './template-references';
+import { type DirectiveNode, type ElementNode, getDefaultSlotDirective, isSwBlockExtends } from './template-references';
 
 /**
  * Enforces the strict `<sw-block>` attribute contract.
@@ -206,38 +198,12 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
 }
 
 /**
- * Formats the private slot-scope destructuring entry for one override file.
- *
- * The namespace binding is emitted as a **computed** key (`[__swSetupNamespace]`) so the pattern
- * destructures by the module's Symbol rather than by a literal name. Vue's template compiler passes
- * computed keys through into the generated slot parameter unchanged.
- *
- */
-function createPrivateSlotMapping(localNames: string[]): SlotMapping {
-    return `__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${localNames.join(', ')} } }`;
-}
-
-/**
- * Builds the generated `#default` slot scope for one extended sw-block.
- */
-function createGeneratedSlotEdit(template: ShopwareSetupTemplate, node: ElementNode, mappings: SlotMapping[]): TemplateEdit {
-    const insertionPoint = findOpeningTagAttributeEnd(template.content, node.loc.start.offset);
-
-    return {
-        start: template.contentStart + insertionPoint,
-        end: template.contentStart + insertionPoint,
-        replacement: ` #default="{ ${mappings.join(', ')} }"`,
-    };
-}
-
-/**
  * @private
  */
 export {
     assertNoWritesToForwardedBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
-    createGeneratedSlotEdit,
-    createPrivateSlotMapping,
+    findOpeningTagAttributeEnd,
     findOpeningTagNameEnd,
 };

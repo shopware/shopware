@@ -17,6 +17,7 @@ import { generated } from '../source-edits/chunks';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import { transformRanges } from '../source-edits/transform-ranges';
 import type { BaseSetupScriptAnalysis } from '../script-analyzer';
+import type { TemplateAnalysis } from '../template-analyzer';
 import { SHOPWARE_SETUP_INTERNAL_PREFIX } from '../script-analyzer/macros';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted, formatObjectProperties } from './shared';
@@ -61,11 +62,30 @@ function formatStateMap(names: string[], spaces: number): string {
 }
 
 /**
+ * The generated attribute through which a base `<sw-block>` reads the data scope its overrides write.
+ *
+ * `$dataScope` resolves against the scope `attachOverrides()` registers for the instance; authoring the
+ * attribute is rejected, so the transform owns the whole binding.
+ */
+function toDataScopeEdit(at: number): SourceEdit {
+    return {
+        start: at,
+        end: at,
+        replacement: ' :data="$dataScope"',
+    };
+}
+
+/**
  * Lowers base mode into a native body plus the generated override-functionality footer.
  *
- * One edit, over the script content only: the author's `<script setup>` tags are left alone.
+ * Edits the script content only - the author's `<script setup>` tags are left alone - plus one data-scope
+ * attribute per `<sw-block>` the template analysis located.
  */
-function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAnalysis): SourceEdit[] {
+function buildBaseScript(
+    block: ShopwareSetupBlock,
+    analysis: BaseSetupScriptAnalysis,
+    templateAnalysis: TemplateAnalysis,
+): SourceEdit[] {
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
@@ -96,6 +116,7 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAna
     ].join('\n');
 
     return [
+        ...templateAnalysis.dataScopeInsertions.map(toDataScopeEdit),
         {
             start: block.contentStart,
             end: block.contentEnd,

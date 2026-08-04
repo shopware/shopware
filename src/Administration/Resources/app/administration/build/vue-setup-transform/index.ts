@@ -5,9 +5,10 @@
 /**
  * Converts Shopware's native setup SFC dialect into plain Vue SFC source before Vue compilation.
  *
- * This module owns the per-file transform boundary: parse the SFC, analyze script/template semantics,
- * lower the Shopware setup block, and apply all source edits while leaving cross-file component-name
- * checks to the build integration.
+ * This module owns the per-file transform boundary: parse the SFC, analyze script and template
+ * semantics, lower the Shopware setup block into source edits, and apply them - while leaving
+ * cross-file component-name checks to the build integration. Every edit comes from lowering; nothing
+ * generated is decided here.
  */
 
 import { lowerShopwareSetupBlock } from './lower';
@@ -59,7 +60,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
     }
 
     let analysis: ShopwareSetupScriptAnalysis;
-    let scriptEdits: ReturnType<typeof lowerShopwareSetupBlock>;
+    let edits: ReturnType<typeof lowerShopwareSetupBlock>;
     let templateAnalysis: TemplateAnalysis = emptyTemplateAnalysis();
 
     try {
@@ -70,17 +71,12 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
         });
         templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
 
-        // Which override locals must be forwarded is only known after the template pass, so it is passed
-        // straight into lowering (empty in base mode) rather than written back onto `analysis`.
-        scriptEdits = lowerShopwareSetupBlock(block, analysis, templateAnalysis.privateBindings);
+        edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
     } catch (error) {
         throw withBlockOffset(error, block);
     }
 
-    const transformed = applySourceEdits(source, [
-        ...templateAnalysis.edits,
-        ...scriptEdits,
-    ]);
+    const transformed = applySourceEdits(source, edits);
 
     return {
         code: transformed.code,

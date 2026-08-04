@@ -5,9 +5,10 @@
 /**
  * Analyzes Shopware setup templates for data-scope and override-private state wiring.
  *
- * Base templates receive missing `sw-block` data scopes, while override templates expose only the
- * setup bindings their override slots actually read. The resulting edits are applied with the script
- * transform so the Vue compiler sees a normal SFC.
+ * Base templates need a data scope on each `<sw-block>`, and override templates must forward the setup
+ * bindings their block content actually reads. This module reports *where* those additions go and
+ * *which* bindings they carry; the lowerers turn that into attribute text, so no generated syntax is
+ * decided here.
  */
 
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
@@ -15,8 +16,6 @@ import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
-    type SlotMapping,
-    type TemplateEdit,
     collectTemplateReferences,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
@@ -27,19 +26,33 @@ import {
     assertNoWritesToForwardedBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
-    createGeneratedSlotEdit,
-    createPrivateSlotMapping,
+    findOpeningTagAttributeEnd,
     findOpeningTagNameEnd,
 } from './sw-block-bindings';
 
 /**
- * Carries template source edits plus the private setup bindings that must be returned by an override.
+ * One `<sw-block extends>` whose content reads override-local bindings, and which therefore needs a
+ * generated slot scope.
  *
- * Non-empty `privateBindings` is what tells the lowerer to emit the namespace symbol and file those
- * bindings under it; the binding name itself is a fixed constant, so it is not carried here.
+ * `publicNames` are declared override bindings, which keep their own name in the scope; `privateNames`
+ * are everything else the content reads, which the lowerer files under the override namespace.
+ */
+type OverrideSlotScope = {
+    at: number;
+    publicNames: string[];
+    privateNames: string[];
+};
+
+/**
+ * Where a template needs generated additions, plus the private setup bindings an override must return.
+ *
+ * Positions and binding names only - the lowerers own the attribute syntax. Non-empty `privateBindings`
+ * is what tells the override lowerer to emit the namespace symbol and file those bindings under it.
  */
 type TemplateAnalysis = {
-    edits: TemplateEdit[];
+    // Absolute offsets on base `<sw-block>` opening tags where the generated data scope is inserted.
+    dataScopeInsertions: number[];
+    slotScopes: OverrideSlotScope[];
     privateBindings: Set<string>;
     // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
     // branch can build a block-ownership registry (block name <-> owning component) and reject, at
@@ -58,7 +71,8 @@ type TemplateAnalysis = {
  */
 function emptyTemplateAnalysis(): TemplateAnalysis {
     return {
-        edits: [],
+        dataScopeInsertions: [],
+        slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames: [],
         extendedBlockNames: [],
@@ -84,8 +98,7 @@ function forEachTemplateElement(nodes: TemplateChildNode[], visit: (element: Ele
 }
 
 /**
- * Creates the template edits and private return bindings required by override SFCs.
- *
+ * Locates the slot scopes an override template needs, and the private bindings they forward.
  */
 function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSetupScriptAnalysis): TemplateAnalysis {
     if (!block.template) {
@@ -99,7 +112,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
     // An override template may only carry <sw-block extends> blocks at its top level.
     assertOverrideTemplateTopLevel(ast.children, templateOffset);
 
-    const edits: TemplateEdit[] = [];
+    const slotScopes: OverrideSlotScope[] = [];
     const privateBindings = new Set<string>();
     const extendedBlockNames: string[] = [];
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
@@ -128,8 +141,8 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 templateOffset,
             );
 
-            const publicMappings: SlotMapping[] = [];
-            const privateLocalNames: string[] = [];
+            const publicNames: string[] = [];
+            const privateNames: string[] = [];
 
             analysis.runtimeBindings.forEach((binding) => {
                 if (!references.has(binding.name)) {
@@ -139,12 +152,12 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 // Public override bindings keep their own name in the slot scope; only private
                 // ones need the deterministic override namespace.
                 if (overrideLocalNames.has(binding.name)) {
-                    publicMappings.push(binding.name);
+                    publicNames.push(binding.name);
                     return;
                 }
 
                 privateBindings.add(binding.name);
-                privateLocalNames.push(binding.name);
+                privateNames.push(binding.name);
             });
 
             // Runtime input aliases (useSwPreviousState/useSwProps/useSwContext) are never public
@@ -156,22 +169,22 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 }
 
                 privateBindings.add(name);
-                privateLocalNames.push(name);
+                privateNames.push(name);
             });
 
-            const mappings = [
-                ...(privateLocalNames.length > 0 ? [createPrivateSlotMapping(privateLocalNames)] : []),
-                ...publicMappings,
-            ];
-
-            if (mappings.length > 0) {
-                edits.push(createGeneratedSlotEdit(template, element, mappings));
+            if (publicNames.length > 0 || privateNames.length > 0) {
+                slotScopes.push({
+                    at: template.contentStart + findOpeningTagAttributeEnd(template.content, element.loc.start.offset),
+                    publicNames,
+                    privateNames,
+                });
             }
         }
     });
 
     return {
-        edits,
+        dataScopeInsertions: [],
+        slotScopes,
         privateBindings,
         ownedBlockNames: [],
         extendedBlockNames,
@@ -189,7 +202,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     const template = block.template;
     const ast = parseTemplate(template.content);
-    const edits: TemplateEdit[] = [];
+    const dataScopeInsertions: number[] = [];
     const ownedBlockNames: string[] = [];
 
     forEachTemplateElement(ast.children, (element) => {
@@ -204,18 +217,15 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
                 ownedBlockNames.push(blockName);
             }
 
-            const insertionPoint = findOpeningTagNameEnd(template.content, element.loc.start.offset);
-
-            edits.push({
-                start: template.contentStart + insertionPoint,
-                end: template.contentStart + insertionPoint,
-                replacement: ' :data="$dataScope"',
-            });
+            dataScopeInsertions.push(
+                template.contentStart + findOpeningTagNameEnd(template.content, element.loc.start.offset),
+            );
         }
     });
 
     return {
-        edits,
+        dataScopeInsertions,
+        slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames,
         extendedBlockNames: [],
@@ -225,4 +235,10 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 /**
  * @private
  */
-export { type TemplateAnalysis, analyzeBaseTemplate, analyzeOverrideTemplate, emptyTemplateAnalysis };
+export {
+    type OverrideSlotScope,
+    type TemplateAnalysis,
+    analyzeBaseTemplate,
+    analyzeOverrideTemplate,
+    emptyTemplateAnalysis,
+};

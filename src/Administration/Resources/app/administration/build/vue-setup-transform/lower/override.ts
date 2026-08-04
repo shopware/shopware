@@ -17,6 +17,7 @@
 import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
+import type { OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
 import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
@@ -53,17 +54,41 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
 }
 
 /**
+ * The generated `#default` slot scope that carries override-local bindings into `<sw-block extends>`
+ * content.
+ *
+ * Declared override bindings destructure under their own name; everything else the content reads goes
+ * through the module's namespace symbol, emitted as a **computed** key so the pattern destructures by
+ * that Symbol rather than by a literal name. Authoring `#default` on `<sw-block>` is rejected, so there
+ * is never a user pattern to merge with.
+ */
+function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
+    const mappings = [
+        ...(scope.privateNames.length > 0
+            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${scope.privateNames.join(', ')} } }`]
+            : []),
+        ...scope.publicNames,
+    ];
+
+    return {
+        start: scope.at,
+        end: scope.at,
+        replacement: ` #default="{ ${mappings.join(', ')} }"`,
+    };
+}
+
+/**
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  *
- * Emits up to two edits: the script content, plus a generated `<template>` for an override that has
- * none. That second one is this mode's business - the hidden component only registers its callback once
- * it mounts, and Vue warns about a component with neither template nor render function.
+ * Emits the script content, one slot scope per `<sw-block extends>` that forwards bindings, and a
+ * generated `<template>` when the override has none - the hidden component only registers its callback
+ * once it mounts, and Vue warns about a component with neither template nor render function.
  */
 function buildOverrideScript(
     block: ShopwareSetupBlock,
     analysis: OverrideSetupScriptAnalysis,
-    overridePrivateBindings: Set<string>,
+    templateAnalysis: TemplateAnalysis,
 ): SourceEdit[] {
     // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
     // deterministic and never collide.
@@ -94,7 +119,7 @@ function buildOverrideScript(
         generated(`const useSwProps = () => ${propsName};\n`),
         generated(`const useSwContext = () => ${contextName};\n\n`),
         ...callbackBody,
-        generated(`\n\n${buildOverrideReturn(analysis, overridePrivateBindings)}`),
+        generated(`\n\n${buildOverrideReturn(analysis, templateAnalysis.privateBindings)}`),
     ];
 
     // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
@@ -104,7 +129,7 @@ function buildOverrideScript(
     // instance, so a symbol created there would be a different value every time and the state lookup
     // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
     // stays template-visible, so the generated computed key resolves.
-    if (overridePrivateBindings.size > 0) {
+    if (templateAnalysis.privateBindings.size > 0) {
         chunks.push(
             generated(
                 `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,
@@ -142,6 +167,7 @@ function buildOverrideScript(
 
     return [
         ...registrationTemplate,
+        ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,
             end: block.contentEnd,

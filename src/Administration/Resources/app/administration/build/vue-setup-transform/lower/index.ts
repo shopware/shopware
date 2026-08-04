@@ -18,6 +18,7 @@ import { buildBaseScript } from './base';
 import { buildOverrideScript } from './override';
 import type { ShopwareSetupScriptAnalysis } from '../script-analyzer';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
+import type { TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 
 /**
@@ -29,13 +30,13 @@ import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 function lowerShopwareSetupBlock(
     block: ShopwareSetupBlock,
     analysis: ShopwareSetupScriptAnalysis,
-    // Which override-local bindings the template forwards - known only after template analysis, so it
-    // arrives here rather than on `analysis`. Always empty in base mode.
-    overridePrivateBindings: Set<string>,
+    // The template pass runs after script analysis, so its result arrives as its own argument rather
+    // than folded onto `analysis`. Each mode reads only the parts its own template shape produces.
+    templateAnalysis: TemplateAnalysis,
 ): SourceEdit[] {
     return analysis.mode === 'base'
-        ? buildBaseScript(block, analysis)
-        : buildOverrideScript(block, analysis, overridePrivateBindings);
+        ? buildBaseScript(block, analysis, templateAnalysis)
+        : buildOverrideScript(block, analysis, templateAnalysis);
 }
 
 /**

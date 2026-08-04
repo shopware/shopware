@@ -19,7 +19,7 @@ developers working on the transform itself.
 | `sfc-parser.ts`           | Finds the `<script setup>` block via `@vue/compiler-sfc` and normalizes its content boundaries                  |
 | `script-analyzer.ts`      | Statement classification pass: produces the semantic model for lowering                                         |
 | `script-analyzer/`        | Analyzer internals: macro registry, runtime bindings, setup inputs, validation, Babel utils                     |
-| `template-analyzer/`      | Template pass: expression/template reference detection, slot-scope merging, data-scope injection                |
+| `template-analyzer/`      | Template pass: expression/template reference detection, and where a data scope or slot scope is needed          |
 | `flow-analysis/`          | Identifier flow: which names an expression reads/writes, and every occurrence the base rename pass must rewrite |
 | `lower/`                  | Code generation: mode dispatch (`index.ts`) plus the base and override lowerers and shared helpers              |
 | `source-edits/`           | Chunk IR (`generated`/`original`), range transforms, rendering                                                  |
@@ -48,6 +48,10 @@ developers working on the transform itself.
 - **Public entries / override entries** — the shorthand binding names extracted from the markers.
 - **Hoistable type declaration** — `interface`, `type`, or ambient `declare` statement; moved to the
   generated script root so hoisted macros can still resolve the names.
+- **Source edit** — a range of the SFC plus the chunks that replace it. **Lowering produces every one of
+  them**, including the ones outside the script block (an override's generated `<template>`, a base
+  `<sw-block>`'s `:data="$dataScope"`, an override block's `#default` slot scope). Both analyses report
+  positions and names; no generated syntax is decided outside `lower/`.
 - **Marker statements / rename targets** — locations the analyzer reports, never edits. Override lowering
   strips imports, type declarations and markers from the body it moves into the callback; base lowering
   strips only the markers and rewrites every rename target to its author alias, because its body never

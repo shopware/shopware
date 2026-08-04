@@ -7,10 +7,7 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(
-    order = {},
-    { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {},
-) {
+async function createWrapper(order = {}, { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {}) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,

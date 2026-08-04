@@ -263,7 +263,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('order.orderCustomer.customer');
         $criteria->addAssociation('order.orderCustomer.salutation');
-        $criteria->addAssociation('order.language');
+        $criteria->addAssociation('order.language.translationCode');
         $criteria->addAssociation('order.currency');
         $criteria->addAssociation('order.deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('order.billingAddress.country');

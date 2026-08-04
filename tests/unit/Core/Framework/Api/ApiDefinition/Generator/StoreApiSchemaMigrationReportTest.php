@@ -17,7 +17,7 @@ class StoreApiSchemaMigrationReportTest extends TestCase
     public function testDetectsMismatches(): void
     {
         $report = $this->createReport(
-            jsonOverridesPhpGeneratedWithoutAllowlist: ['JsonOverrideEntity'],
+            jsonOverridesPhpGenerated: ['JsonOverrideEntity'],
         );
 
         static::assertTrue($report->hasMismatches());
@@ -37,13 +37,10 @@ class StoreApiSchemaMigrationReportTest extends TestCase
 
         static::assertSame([
             'jsonOverridesPhpGenerated' => ['JsonOverrideEntity'],
-            'jsonOverridesPhpGeneratedAllowed' => [],
-            'jsonOverridesPhpGeneratedWithoutAllowlist' => [],
             'phpGeneratedOnly' => ['Product'],
             'phpGeneratedOnlyAllowed' => [],
             'phpGeneratedOnlyWithoutAllowlist' => [],
             'jsonWithoutPhpGenerated' => [],
-            'allowlistWithoutJsonOverridesPhpGeneratedSchema' => [],
             'allowlistWithoutPhpGeneratedOnlySchema' => [],
             'allowlistWithoutPhpGeneratedSchema' => [],
         ], $report->jsonSerialize());
@@ -51,37 +48,28 @@ class StoreApiSchemaMigrationReportTest extends TestCase
 
     /**
      * @param list<string> $jsonOverridesPhpGenerated
-     * @param list<string> $jsonOverridesPhpGeneratedAllowed
-     * @param list<string> $jsonOverridesPhpGeneratedWithoutAllowlist
      * @param list<string> $phpGeneratedOnly
      * @param list<string> $phpGeneratedOnlyAllowed
      * @param list<string> $phpGeneratedOnlyWithoutAllowlist
      * @param list<string> $jsonWithoutPhpGenerated
-     * @param list<string> $allowlistWithoutJsonOverridesPhpGeneratedSchema
      * @param list<string> $allowlistWithoutPhpGeneratedOnlySchema
      * @param list<string> $allowlistWithoutPhpGeneratedSchema
      */
     private function createReport(
         array $jsonOverridesPhpGenerated = [],
-        array $jsonOverridesPhpGeneratedAllowed = [],
-        array $jsonOverridesPhpGeneratedWithoutAllowlist = [],
         array $phpGeneratedOnly = [],
         array $phpGeneratedOnlyAllowed = [],
         array $phpGeneratedOnlyWithoutAllowlist = [],
         array $jsonWithoutPhpGenerated = [],
-        array $allowlistWithoutJsonOverridesPhpGeneratedSchema = [],
         array $allowlistWithoutPhpGeneratedOnlySchema = [],
         array $allowlistWithoutPhpGeneratedSchema = [],
     ): StoreApiSchemaMigrationReport {
         return new StoreApiSchemaMigrationReport(
             jsonOverridesPhpGenerated: $jsonOverridesPhpGenerated,
-            jsonOverridesPhpGeneratedAllowed: $jsonOverridesPhpGeneratedAllowed,
-            jsonOverridesPhpGeneratedWithoutAllowlist: $jsonOverridesPhpGeneratedWithoutAllowlist,
             phpGeneratedOnly: $phpGeneratedOnly,
             phpGeneratedOnlyAllowed: $phpGeneratedOnlyAllowed,
             phpGeneratedOnlyWithoutAllowlist: $phpGeneratedOnlyWithoutAllowlist,
             jsonWithoutPhpGenerated: $jsonWithoutPhpGenerated,
-            allowlistWithoutJsonOverridesPhpGeneratedSchema: $allowlistWithoutJsonOverridesPhpGeneratedSchema,
             allowlistWithoutPhpGeneratedOnlySchema: $allowlistWithoutPhpGeneratedOnlySchema,
             allowlistWithoutPhpGeneratedSchema: $allowlistWithoutPhpGeneratedSchema,
         );

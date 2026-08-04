@@ -61,7 +61,9 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ### Rate limiters with a single limits entry allow the configured number of attempts
 
-A `time_backoff` rate limiter whose limits resolve to a single entry throttled one attempt early: a limit of 3 allowed two attempts. This affected the `cart_add_line_item` limiter driven by `core.cart.lineItemAddLimit` and any custom limiter configured with a single `limits` entry; a configured limit of N now allows N attempts before throttling, matching multi-entry configurations (shopware/shopware#18757).
+A `time_backoff` rate limiter whose limits resolve to a single entry throttled one attempt early: a limit of 3 allowed two attempts.
+This affected the `cart_add_line_item` limiter driven by `core.cart.lineItemAddLimit` and any custom limiter configured with a single `limits` entry.
+A configured limit of N now allows N attempts before throttling, matching multi-entry configurations.
 
 ### Deprecated XML configuration
 

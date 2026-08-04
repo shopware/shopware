@@ -47,15 +47,15 @@ export { getScriptSetupDataScope } from './data-scope-helper';
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 declare global {
     /**
-     * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+     * @private
      *
-     * Stays public while the surrounding module is `@private`: extension authors declare into this
-     * interface to type their overrides, which is the one author-facing surface of the extension system.
-     * Automatic type generation is planned as a follow-up; hand-declaring it works today.
+     * Maps an extendable component name to the shape of its public setup state, so the extension
+     * system's own signatures can name it.
      *
-     * This interface defines the public API mapping for each component that can be extended.
-     * It will be used to get the correct types for the overrides and to ensure that the
-     * overrides are compatible with the original component's public API.
+     * Not an author-facing surface: the index-signature fallback below resolves every real component to
+     * `{ [key: string]: any }`, so hand-declaring an entry is the only way to get any checking - and
+     * generated code never passes the type argument that would use it. Per-SFC types will be generated
+     * from the native setup transform instead, at which point this goes away.
      */
     interface ComponentPublicApiMapping {
         _internal_test_component: {
@@ -519,7 +519,6 @@ export function overrideComponentSetup<TOriginalComponent>() {
  * The props object handed to override callbacks is read from the current instance, so the generated
  * footer never has to thread a props binding through (and destructured `defineProps()` works too).
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
     name: TComponentName;
     public?: Record<string, unknown>;

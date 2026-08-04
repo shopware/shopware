@@ -103,7 +103,7 @@ final class ScheduledTaskExecutor
 
         if (!Feature::isActive('v6.8.0.0')) {
             // BC: a subclass may still override the deprecated rescheduleTask() hook, which persists itself
-            $handler->rescheduleNext($task, $taskEntity);
+            Feature::silent('v6.8.0.0', fn () => $handler->rescheduleNext($task, $taskEntity));
 
             return;
         }

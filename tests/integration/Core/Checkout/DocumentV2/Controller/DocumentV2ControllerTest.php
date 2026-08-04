@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -160,6 +161,67 @@ class DocumentV2ControllerTest extends TestCase
         $file = $files->first();
         static::assertInstanceOf(DocumentFileEntity::class, $file);
         static::assertSame(DocumentFormat::HTML->value, $file->getDocumentFormat());
+    }
+
+    public function testCreateMapsTheDeliveryDateForADeliveryNote(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::DELIVERY_NOTE->value);
+
+        $orderId = $this->createDraftOrder();
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/create',
+            [
+                'orderId' => $orderId,
+                'documentType' => DocumentType::DELIVERY_NOTE->value,
+                'formats' => [
+                    DocumentFormat::HTML->value,
+                ],
+                'documentNumber' => '3001-' . Uuid::randomHex(),
+                'documentDate' => self::DOCUMENT_DATE,
+                'deliveryDate' => '2026-07-30T00:00:00+00:00',
+            ],
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    public function testCreateMapsTheReferencedDocumentIdForACancellationInvoice(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+        $this->seedDemoBaseConfig(DocumentType::CANCELLATION_INVOICE->value);
+
+        $orderId = $this->createDraftOrder();
+        $invoiceId = $this->seedReferenceInvoice($orderId);
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/create',
+            [
+                'orderId' => $orderId,
+                'documentType' => DocumentType::CANCELLATION_INVOICE->value,
+                'formats' => [
+                    DocumentFormat::HTML->value,
+                ],
+                'documentNumber' => '2001-' . Uuid::randomHex(),
+                'documentDate' => self::DOCUMENT_DATE,
+                'referencedDocumentId' => $invoiceId,
+            ],
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($payload['documentId'] ?? null);
+
+        $document = static::getContainer()->get('document.repository')
+            ->search(new Criteria([$payload['documentId']]), $this->context)->getEntities()->first();
+
+        static::assertInstanceOf(DocumentEntity::class, $document);
+        static::assertSame($invoiceId, $document->getReferencedDocumentId());
     }
 
     public function testUploadStoresDocumentFileAndDownloadReturnsIt(): void

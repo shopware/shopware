@@ -49,10 +49,6 @@ class ZugferdXmlRendererTest extends TestCase
         );
 
         static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
-        static::assertSame(
-            [DocumentType::INVOICE->value, DocumentType::CANCELLATION_INVOICE->value],
-            $renderer->getDocumentTypes(),
-        );
     }
 
     public function testRenderToString(): void

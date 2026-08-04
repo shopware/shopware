@@ -43,13 +43,11 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
     protected ?int $limit = null;
 
     /**
-     * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
-     *
      * @param TEntityCollection $entities
      */
     final public function __construct(
         /**
-         * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
+         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
          */
         protected string $entity,
         /**
@@ -72,6 +70,9 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
          */
         protected Context $context,
     ) {
+        $firstEntity = $entities->first();
+        \assert($firstEntity === null || $entity === $firstEntity->getApiAlias(), 'The entity name must match the entity collection.');
+
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
@@ -199,18 +200,13 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
         $this->limit = $limit;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
-     */
     public function getEntity(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
-
         return $this->entity;
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly.
      */
     public function setEntity(string $entity): void
     {

@@ -31,7 +31,7 @@ const conditionRepositoryMock = {
     search: jest.fn(),
 };
 
-async function createWrapper({ featureActive = false } = {}, ruleId = null) {
+async function createWrapper(ruleId = null) {
     return mount(
         await wrapTestComponent('sw-flow-rule-modal', {
             sync: true,
@@ -57,16 +57,6 @@ async function createWrapper({ featureActive = false } = {}, ruleId = null) {
                     ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                     ruleConditionsConfigApiService: {
                         load: () => Promise.resolve(),
-                    },
-
-                    feature: {
-                        isActive: (feature) => {
-                            if (feature === 'v6.8.0.0') {
-                                return featureActive;
-                            }
-
-                            return false;
-                        },
                     },
                 },
 
@@ -161,7 +151,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
                 ),
             );
 
-        const wrapper = await createWrapper({}, '1');
+        const wrapper = await createWrapper('1');
         await flushPromises();
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
@@ -213,8 +203,8 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         });
     });
 
-    it('should render meteor tabs', async () => {
-        const wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -235,8 +225,8 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         expect(wrapper.find('.sw-flow-rule-modal__name').exists()).toBe(true);
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        const wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });

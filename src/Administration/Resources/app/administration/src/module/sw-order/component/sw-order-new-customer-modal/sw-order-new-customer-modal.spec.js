@@ -13,7 +13,6 @@ async function createWrapper({
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
-    featureActive = false,
 } = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -129,9 +128,6 @@ async function createWrapper({
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
                 },
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
             },
         },
     });
@@ -151,8 +147,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -180,8 +176,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(false);
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        wrapper = await createWrapper();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'billingAddress');
         await wrapper.vm.$nextTick();
@@ -191,8 +187,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(true);
     });
 
-    it('should pass validation errors to meteor tabs', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         Shopware.Store.get('error').addApiError({
             expression: 'customer.1.email',

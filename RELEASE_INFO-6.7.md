@@ -59,12 +59,6 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
-### Rate limiters with a single limits entry allow the configured number of attempts
-
-A `time_backoff` rate limiter whose limits resolve to a single entry throttled one attempt early: a limit of 3 allowed two attempts.
-This affected the `cart_add_line_item` limiter driven by `core.cart.lineItemAddLimit` and any custom limiter configured with a single `limits` entry.
-A configured limit of N now allows N attempts before throttling, matching multi-entry configurations.
-
 ### Deprecated XML configuration
 
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.

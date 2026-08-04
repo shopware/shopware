@@ -308,32 +308,13 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ### `No-Vary-Search` header on cacheable storefront responses
 
-Cacheable storefront responses now send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), which declares that the order of query parameters does not change the response. That is the same normalization `HttpCacheKeyGenerator` has always applied to the server side cache key, so no new assumption is introduced. The header requires the `CACHE_REWORK` feature flag.
+With `CACHE_REWORK` active, cacheable storefront responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. `HttpCacheKeyGenerator` already normalizes this server side, so the header only tells clients what was always true.
 
-Scope worth knowing before you rely on it: browsers currently evaluate `No-Vary-Search` only for the prefetch and prerender cache of the Speculation Rules API, not for the regular HTTP cache, and only in Chromium. Firefox and Safari ignore it. Reverse proxies ignore it as well, see below. Today the header is therefore mostly a correct declaration for browsers to act on as support widens, not a measurable speedup.
+Expect no speedup yet: browsers evaluate `No-Vary-Search` only for the prefetch and prerender cache of the Speculation Rules API, not the regular HTTP cache, and only in Chromium. Reverse proxies ignore it too, use `std.querysort()` in Varnish or `querystring.sort()` in Fastly for the same effect there.
 
-Policies accept the verbatim header value under `headers.no_vary_search`:
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. Omit it to send no header, as `store_api.cacheable` does, since store-api responses are fetched by script and never enter a speculation cache.
 
-```yaml
-# config/packages/shopware.yaml
-shopware:
-    http_cache:
-        policies:
-            storefront.cacheable:
-                headers:
-                    cache_control:
-                        public: true
-                        s_maxage: 7200
-                    no_vary_search: 'key-order'
-```
-
-The value is passed through unchanged, so any valid value works, for example `key-order, params=("utm_source" "gclid")`. It is validated only for being a single line of printable ASCII, so a configured value cannot smuggle a second header. Omitting the key sends no header at all, which is why the shipped `store_api.cacheable` policy does not set one: Store-API responses are fetched by script and never enter a navigation speculation cache.
-
-Never mark parameters that change the rendered content as irrelevant, such as `p`, `order`, `search` or filter names. Under prerendering a widened match means a fully rendered page is shown for a different URL, so declaring `p` irrelevant would display page 1 at a `?p=2` URL. Marking tracking parameters is safe, because reusing a stored response does not rewrite the document URL and client side analytics still reads the real values from `window.location.search`.
-
-A `No-Vary-Search` header set by a controller or plugin is only replaced when the resolved policy declares one itself. To vary the value per request or sales channel, which configuration cannot express, use a response listener below priority `-1500`, where `CacheResponseSubscriber::setResponseCache` runs.
-
-Operators who want the same normalization in front of the application have to do it in their VCL, since an external reverse proxy also bypasses Shopware's own cache key normalization. In Varnish `vcl_recv` with `vmod_std`, the equivalent of `key-order` is `set req.url = std.querysort(req.url);`. In Fastly with `vmod_querystring` it is `set req.url = querystring.sort(req.url);`.
+Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. Under prerendering a widened match shows a fully rendered page at a different URL, so declaring `p` irrelevant would display page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

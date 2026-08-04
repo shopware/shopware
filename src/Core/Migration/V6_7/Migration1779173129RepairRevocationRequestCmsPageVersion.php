@@ -452,7 +452,7 @@ SQL,
     private function getCmsPageId(Connection $connection, string $versionByteId): ?string
     {
         $sql = <<<'SQL'
-SELECT `id` 
+SELECT `id`
 FROM `cms_page` AS `page`
 INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_translation`.`cms_page_id`
     AND `page`.`version_id` = `page_translation`.`cms_page_version_id`

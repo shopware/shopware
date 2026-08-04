@@ -12,8 +12,7 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
+  id-token: write
 
 jobs:
   codeowners:
@@ -31,10 +30,20 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
 
+      # GITHUB_TOKEN has no organization scope, so requesting a review from a team
+      # fails with "Could not resolve to a node with the global id of 'T_…'". No
+      # fallback on purpose: falling back would silently reintroduce that failure.
+      - name: 'Mint token'
+        id: sts
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CodeownersPlus
+
       - name: 'Codeowners Plus'
         uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          github-token: '${{ steps.sts.outputs.token }}'
           pr: '${{ github.event.pull_request.number }}'
           verbose: true
           quiet: ${{ github.event.pull_request.draft }}

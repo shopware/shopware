@@ -12,11 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -36,11 +34,9 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -90,11 +86,9 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormFirstNameRequiredException(): void
     {
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -122,7 +116,7 @@ class ContactFormServiceTest extends TestCase
             'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
         ]);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -130,11 +124,9 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormLastNameRequiredException(): void
     {
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -162,7 +154,7 @@ class ContactFormServiceTest extends TestCase
             'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
         ]);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -170,11 +162,9 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormPhoneNumberRequiredException(): void
     {
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -202,7 +192,7 @@ class ContactFormServiceTest extends TestCase
             'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
         ]);
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
         $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
@@ -210,11 +200,9 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormOptionalFieldsSendMail(): void
     {
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;

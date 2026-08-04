@@ -36,7 +36,7 @@ test('Category Lighthouse Report', async ({
     await ShopCustomer.goesTo(StorefrontCategory.url(category.name));
 
     await ShopCustomer.expects(async () => {
-        if (InstanceMeta.isSaaS) {
+        if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
             await TestDataService.clearCaches();
         }
         await ShopCustomer.goesTo(`${StorefrontCategory.url(category.name)}?a=${Date.now()}`);

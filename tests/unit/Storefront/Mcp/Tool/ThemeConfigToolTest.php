@@ -568,7 +568,7 @@ class ThemeConfigToolTest extends TestCase
         $connection->method('fetchOne')->willReturn($themeId);
 
         $connection->method('fetchFirstColumn')->willReturnCallback(
-            static function (string $sql, array $params) use ($resolvedIds, $availableNames, &$lookupParams): array {
+            static function (string $sql, array $params = []) use ($resolvedIds, $availableNames, &$lookupParams): array {
                 if ($params === []) {
                     return $availableNames;
                 }

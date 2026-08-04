@@ -145,22 +145,7 @@ class ThemeConfigTool extends McpToolResponse
     private function resolveSalesChannelId(string $input): array
     {
         $input = trim($input);
-        // Uuid::isValid() only matches lowercase hex, but agents copy uppercase IDs.
-        $uuid = strtolower($input);
-
-        // sales_channel_translation.name uses utf8mb4_unicode_ci, so the match is case-insensitive.
-        // DISTINCT collapses the one row per language a single channel has.
-        $ids = $this->fetchStrings(
-            'SELECT DISTINCT LOWER(HEX(`sc`.`id`))
-             FROM `sales_channel` `sc`
-             LEFT JOIN `sales_channel_translation` `sct` ON `sct`.`sales_channel_id` = `sc`.`id`
-             WHERE `sc`.`id` = :id OR `sct`.`name` = :name',
-            [
-                // A non-UUID input binds NULL, which no ID can equal.
-                'id' => Uuid::isValid($uuid) ? Uuid::fromHexToBytes($uuid) : null,
-                'name' => $input,
-            ],
-        );
+        $ids = $this->fetchSalesChannelIds($input);
 
         if (\count($ids) === 1) {
             return ['id' => $ids[0]];
@@ -184,9 +169,7 @@ class ThemeConfigTool extends McpToolResponse
 
     private function listSalesChannelNames(): string
     {
-        $names = $this->fetchStrings(
-            'SELECT DISTINCT `name` FROM `sales_channel_translation` WHERE `name` IS NOT NULL ORDER BY `name`',
-        );
+        $names = $this->fetchSalesChannelNames();
 
         if ($names === []) {
             return 'none';
@@ -203,15 +186,46 @@ class ThemeConfigTool extends McpToolResponse
     }
 
     /**
-     * @param array<string, mixed> $params
+     * Matches the input against the ID and the name in one query so neither form shadows the
+     * other. sales_channel_translation.name uses utf8mb4_unicode_ci, so the name match is
+     * case-insensitive through the column collation. DISTINCT collapses the one row per language
+     * a single channel has.
      *
      * @return list<string>
      */
-    private function fetchStrings(string $sql, array $params = []): array
+    private function fetchSalesChannelIds(string $input): array
+    {
+        // Uuid::isValid() only matches lowercase hex, but agents copy uppercase IDs.
+        $uuid = strtolower($input);
+
+        return array_map(
+            static fn (mixed $id): string => (string) $id,
+            $this->connection->fetchFirstColumn(
+                <<<'SQL'
+                    SELECT DISTINCT LOWER(HEX(`sc`.`id`))
+                    FROM `sales_channel` `sc`
+                    LEFT JOIN `sales_channel_translation` `sct` ON `sct`.`sales_channel_id` = `sc`.`id`
+                    WHERE `sc`.`id` = :id OR `sct`.`name` = :name
+                    SQL,
+                [
+                    // A non-UUID input binds NULL, which no ID can equal.
+                    'id' => Uuid::isValid($uuid) ? Uuid::fromHexToBytes($uuid) : null,
+                    'name' => $input,
+                ],
+            ),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fetchSalesChannelNames(): array
     {
         return array_map(
-            static fn (mixed $value): string => (string) $value,
-            $this->connection->fetchFirstColumn($sql, $params),
+            static fn (mixed $name): string => (string) $name,
+            $this->connection->fetchFirstColumn(
+                'SELECT DISTINCT `name` FROM `sales_channel_translation` WHERE `name` IS NOT NULL ORDER BY `name`',
+            ),
         );
     }
 

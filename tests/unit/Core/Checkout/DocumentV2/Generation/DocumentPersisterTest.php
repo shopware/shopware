@@ -109,7 +109,6 @@ class DocumentPersisterTest extends TestCase
             $this->context,
         );
 
-        static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($documentRepository->creates[0][0]['id'], $document->getId());
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);

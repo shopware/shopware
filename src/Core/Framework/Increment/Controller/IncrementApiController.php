@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,7 @@ class IncrementApiController
     {
     }
 
-    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', methods: ['POST'])]
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.increment', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function increment(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
@@ -40,7 +41,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', methods: ['POST'])]
+    #[Route(path: '/api/_action/decrement/{pool}', name: 'api.increment.decrement', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function decrement(Request $request, string $pool): Response
     {
         $key = $request->request->get('key');
@@ -61,7 +62,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', methods: ['GET'])]
+    #[Route(path: '/api/_action/increment/{pool}', name: 'api.increment.list', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['GET'])]
     public function getIncrement(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);
@@ -76,7 +77,7 @@ class IncrementApiController
         return new JsonResponse($result);
     }
 
-    #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', methods: ['POST'])]
+    #[Route(path: '/api/_action/reset-increment/{pool}', name: 'api.increment.reset', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['increment:manage']], methods: ['POST'])]
     public function reset(string $pool, Request $request): Response
     {
         $cluster = $this->getCluster($request);

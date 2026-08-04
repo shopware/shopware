@@ -87,7 +87,7 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
+    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function queue(): JsonResponse
     {
         try {

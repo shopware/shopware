@@ -65,7 +65,7 @@ class MailAttachmentsBuilder
             );
         }
 
-        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $orderId) {
+        if (isset($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $eventConfig['documentTypeIds'] !== [] && $orderId) {
             $attachments = $this->buildLegacyAttachments(
                 $eventConfig['documentTypeIds'],
                 $extensions,

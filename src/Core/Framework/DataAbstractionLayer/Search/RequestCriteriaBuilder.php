@@ -329,8 +329,12 @@ class RequestCriteriaBuilder
     /**
      * @param array<string, mixed> $filters
      */
-    private function parseSimpleFilter(EntityDefinition $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
-    {
+    private function parseSimpleFilter(
+        EntityDefinition $definition,
+        array $filters,
+        SearchRequestException $searchRequestException,
+        string $path,
+    ): MultiFilter {
         $queries = [];
 
         $index = -1;
@@ -338,18 +342,22 @@ class RequestCriteriaBuilder
             ++$index;
 
             if ($field === '') {
+                $pointer = '/' . $path . '/' . $index;
+
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The key for filter at position "%d" must not be blank.', $index), '/filter/' . $index),
-                    '/filter/' . $index
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The key for %s at position "%d" must not be blank.', $path, $index), $pointer),
+                    $pointer
                 );
 
                 continue;
             }
 
+            $pointer = '/' . $path . '/' . $field;
+
             if ($value === '') {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field),
-                    '/filter/' . $field
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for %s "%s" must not be blank.', $path, $field), $pointer),
+                    $pointer
                 );
 
                 continue;
@@ -357,8 +365,8 @@ class RequestCriteriaBuilder
 
             if (!\is_scalar($value)) {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field),
-                    '/filter/' . $field
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for %s "%s" must be scalar.', $path, $field), $pointer),
+                    $pointer
                 );
 
                 continue;
@@ -463,7 +471,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addFilter($this->parseSimpleFilter($definition, $filter, $searchException));
+        $criteria->addFilter($this->parseSimpleFilter($definition, $filter, $searchException, 'filter'));
     }
 
     /**
@@ -472,13 +480,19 @@ class RequestCriteriaBuilder
     private function addPostFilter(EntityDefinition $definition, mixed $postFilter, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($postFilter)) {
-            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.'), '/post-filter');
+            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be a list of filters.', '/post-filter'), '/post-filter');
 
             return;
         }
 
         if (array_is_list($postFilter)) {
             foreach ($postFilter as $index => $query) {
+                if (!\is_array($query)) {
+                    $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be an array.', '/post-filter/' . $index), '/post-filter/' . $index);
+
+                    continue;
+                }
+
                 try {
                     $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/post-filter/' . $index);
                     $criteria->addPostFilter($filter);
@@ -490,13 +504,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addPostFilter(
-            $this->parseSimpleFilter(
-                $definition,
-                $postFilter,
-                $searchException
-            )
-        );
+        $criteria->addPostFilter($this->parseSimpleFilter($definition, $postFilter, $searchException, 'post-filter'));
     }
 
     /**

@@ -734,6 +734,60 @@ class RequestCriteriaBuilderTest extends TestCase
         ];
     }
 
+    public function testSimpleFilterAddsExceptionWithBlankKey(): void
+    {
+        $payload = [
+            'filter' => [
+                'name' => 'test',
+                '' => 'test',
+            ],
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/filter/1' => [DataAbstractionLayerException::invalidFilterQuery('The key for filter at position "1" must not be blank.', '/filter/1')],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The key for filter at position "1" must not be blank.', $error['detail']);
+            static::assertSame('400', $error['status']);
+            static::assertSame('/filter/1', $error['source']['pointer']);
+
+            throw $e;
+        }
+    }
+
+    public function testSimpleFilterAddsExceptionWithBlankValue(): void
+    {
+        $field = 'name';
+        $payload = [
+            'filter' => [
+                $field => '',
+            ],
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/filter/' . $field => [DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field)],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The value for filter "name" must not be blank.', $error['detail']);
+            static::assertSame('400', $error['status']);
+            static::assertSame('/filter/name', $error['source']['pointer']);
+
+            throw $e;
+        }
+    }
+
     public function testSimpleFilterAddsExceptionWithArrayInValue(): void
     {
         $field = 'name';
@@ -755,6 +809,7 @@ class RequestCriteriaBuilderTest extends TestCase
             static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
             static::assertSame('The value for filter "name" must be scalar.', $error['detail']);
             static::assertSame('400', $error['status']);
+            static::assertSame('/filter/name', $error['source']['pointer']);
 
             throw $e;
         }
@@ -780,6 +835,7 @@ class RequestCriteriaBuilderTest extends TestCase
             static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
             static::assertSame('The filter parameter has to be an array.', $error['detail']);
             static::assertSame('400', $error['status']);
+            static::assertSame('/filter/0', $error['source']['pointer']);
 
             throw $e;
         }
@@ -803,6 +859,84 @@ class RequestCriteriaBuilderTest extends TestCase
             static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
             static::assertSame('The filter parameter has to be a list of filters.', $error['detail']);
             static::assertSame('400', $error['status']);
+            static::assertSame('/filter', $error['source']['pointer']);
+
+            throw $e;
+        }
+    }
+
+    public function testSimplePostFilterAddsExceptionWithArrayInValue(): void
+    {
+        $field = 'name';
+        $payload = [
+            'post-filter' => [
+                $field => ['test'],
+            ],
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/post-filter/' => [DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for post-filter "%s" must be scalar.', $field), '/post-filter/' . $field)],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The value for post-filter "name" must be scalar.', $error['detail']);
+            static::assertSame('400', $error['status']);
+            static::assertSame('/post-filter/name', $error['source']['pointer']);
+
+            throw $e;
+        }
+    }
+
+    public function testPostFilterElementIsInvalid(): void
+    {
+        $payload = [
+            'post-filter' => [
+                0 => 'test',
+            ],
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/post-filter/' => [DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be an array.', '/post-filter/0')],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The post-filter parameter has to be an array.', $error['detail']);
+            static::assertSame('400', $error['status']);
+            static::assertSame('/post-filter/0', $error['source']['pointer']);
+
+            throw $e;
+        }
+    }
+
+    public function testPostFilterElementIsNotArray(): void
+    {
+        $payload = [
+            'post-filter' => 123,
+        ];
+
+        $this->expectExceptionObject(new SearchRequestException([
+            '/post-filter/' => [DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be a list of filters.', '/post-filter')],
+        ]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The post-filter parameter has to be a list of filters.', $error['detail']);
+            static::assertSame('400', $error['status']);
+            static::assertSame('/post-filter', $error['source']['pointer']);
 
             throw $e;
         }

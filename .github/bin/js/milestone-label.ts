@@ -36,6 +36,11 @@ export type MilestoneLabelInput = {
     versionBranches: string[];
     /** A missing label is tolerated on drafts: authors drop it deliberately, and the labeler restores it on `ready_for_review`. */
     isDraft?: boolean;
+    /**
+     * Set on `opened`/`reopened`, where the labeler runs in parallel and wins by a
+     * fraction of a second, so a missing label is a race rather than a defect.
+     */
+    labelerPending?: boolean;
 };
 
 function releaseLineOf(branch: string): string | undefined {
@@ -81,7 +86,7 @@ function compareSegments(left: number[], right: number[]): number {
     return 0;
 }
 
-export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, versionBranches, isDraft = false }: MilestoneLabelInput): MilestoneVerdict {
+export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, versionBranches, isDraft = false, labelerPending = false }: MilestoneLabelInput): MilestoneVerdict {
     if (labels.includes(SKIP_CHECK_LABEL)) {
         return { status: 'skipped', message: `\`${SKIP_CHECK_LABEL}\` is set` };
     }
@@ -104,6 +109,10 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
     if (label === undefined) {
         if (isDraft) {
             return { status: 'skipped', message: `is a draft without a \`${MILESTONE_LABEL_PREFIX}*\` label; it gets one when it is marked ready for review` };
+        }
+
+        if (labelerPending) {
+            return { status: 'skipped', message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label yet; the labeler is still running` };
         }
 
         return {
@@ -225,6 +234,7 @@ type PullRequestContext = {
     eventName?: string;
     repo: Repo;
     payload: {
+        action?: string;
         pull_request?: PullRequestPayload;
         merge_group?: MergeGroupPayload;
         repository?: { default_branch?: string };
@@ -253,7 +263,7 @@ function defaultBranchOf(context: PullRequestContext): string {
 /** `refs/heads/gh-readonly-queue/trunk/pr-18791-<base sha>` -> 18791 */
 const MERGE_GROUP_REF_PATTERN = /\/pr-(\d+)-[0-9a-f]+$/;
 
-type CheckedPullRequest = { number: number; baseRefName: string; labels: string[]; isDraft: boolean };
+type CheckedPullRequest = { number: number; baseRefName: string; labels: string[]; isDraft: boolean; labelerPending: boolean };
 
 /**
  * The queue may batch several PRs into one group while the ref names only the last,
@@ -302,6 +312,7 @@ async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<
             baseRefName: pullRequest.base.ref,
             labels: (pullRequest.labels ?? []).map((label) => label.name),
             isDraft: pullRequest.draft ?? false,
+            labelerPending: context.payload.action === 'opened' || context.payload.action === 'reopened',
         }];
     }
 
@@ -315,6 +326,7 @@ async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<
             baseRefName: data.base.ref,
             labels: data.labels.map((label) => label.name),
             isDraft: data.draft ?? false,
+            labelerPending: false,
         };
     }));
 }
@@ -342,6 +354,7 @@ export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
             labels: pullRequest.labels,
             versionBranches,
             isDraft: pullRequest.isDraft,
+            labelerPending: pullRequest.labelerPending,
         });
 
         const icon = { ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status];

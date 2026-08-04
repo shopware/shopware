@@ -135,13 +135,6 @@ class ValidQueryUsage
     }
 
     /**
-     * @param list<array<string, mixed>> $snippetSets
-     */
-    private function handle(string $id, array $snippetSets): void
-    {
-    }
-
-    /**
      * A query memoised by a null check runs on the first iteration only.
      *
      * @param list<string> $ids
@@ -193,5 +186,12 @@ class ValidQueryUsage
                 ['ids' => ArrayParameterType::BINARY]
             );
         }
+    }
+
+    /**
+     * @param list<array<string, mixed>> $snippetSets
+     */
+    private function handle(string $id, array $snippetSets): void
+    {
     }
 }

@@ -230,7 +230,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntityMock->setInstalledAt(new \DateTime());
         $context = Context::createDefaultContext();
 
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($this->pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $this->pluginMock]]);
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
@@ -898,7 +898,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntityMock->setVersion('1.0.0');
 
         $pluginMock = static::createStub(Plugin::class);
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $pluginMock]]);
         $context = Context::createDefaultContext();
 
         $pluginMock->method('getPath')->willReturn('/');
@@ -1098,7 +1098,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntity->setVersion('1.0.0');
         $pluginEntity->setManagedByComposer(false);
 
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($this->pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $this->pluginMock]]);
 
         return $pluginEntity;
     }

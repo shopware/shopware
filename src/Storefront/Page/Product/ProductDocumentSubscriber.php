@@ -26,6 +26,10 @@ class ProductDocumentSubscriber implements EventSubscriberInterface
     {
         $criteria = $event->getCriteria()->getAssociation('productDocuments');
         $criteria->addAssociation('media');
-        $criteria->addSorting(new FieldSorting('position'));
+        $criteria->addSorting(
+            new FieldSorting('position'),
+            new FieldSorting('createdAt'),
+            new FieldSorting('id'),
+        );
     }
 }

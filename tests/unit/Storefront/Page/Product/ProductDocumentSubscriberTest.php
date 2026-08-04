@@ -42,8 +42,13 @@ class ProductDocumentSubscriberTest extends TestCase
         static::assertTrue($productDocumentsCriteria->hasAssociation('media'));
 
         $sorting = $productDocumentsCriteria->getSorting();
-        static::assertCount(1, $sorting);
-        static::assertSame('position', $sorting[0]->getField());
-        static::assertSame(FieldSorting::ASCENDING, $sorting[0]->getDirection());
+        static::assertSame(
+            ['position', 'createdAt', 'id'],
+            array_map(static fn (FieldSorting $fieldSorting) => $fieldSorting->getField(), $sorting)
+        );
+
+        foreach ($sorting as $fieldSorting) {
+            static::assertSame(FieldSorting::ASCENDING, $fieldSorting->getDirection());
+        }
     }
 }

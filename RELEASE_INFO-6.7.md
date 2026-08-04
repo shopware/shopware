@@ -4,6 +4,10 @@
 
 ## API
 
+### New Store API config endpoint 
+
+Added new Store API route `GET /store-api/login-registration-settings`, which exposes the UI- and validation-relevant subset of the `core.loginRegistration.*` system config (e.g. `passwordMinLength`, `showSalutation`, `requireEmailConfirmation`) resolved for the current sales channel, so headless frontends can render registration forms consistently with the settings configured under Settings > Log-in & sign-up.
+
 ### Message queue admin endpoints now require ACL privileges
 
 Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:

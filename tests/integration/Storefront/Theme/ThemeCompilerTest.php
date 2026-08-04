@@ -147,7 +147,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testDBException(): void
     {
-        $configService = $this->getConfigurationServiceDbException(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionServiceDbException(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -161,7 +161,7 @@ class ThemeCompilerTest extends TestCase
 
         $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
         $exception = null;
         try {
             $subscriber->enrichExtensionVars($event);
@@ -271,7 +271,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $configService = $this->getConfigurationService(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -283,7 +283,7 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
@@ -435,7 +435,7 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationService(array $plugins): SystemConfigDefinitionService
+    private function getSystemConfigDefinitionService(array $plugins): SystemConfigDefinitionService
     {
         return new SystemConfigDefinitionService(
             $plugins,
@@ -450,9 +450,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationServiceDbException(array $plugins): SystemConfigDefinitionService
+    private function getSystemConfigDefinitionServiceDbException(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationServiceException(
+        return new SystemConfigDefinitionServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -483,7 +483,7 @@ PHP_EOL;
 /**
  * @internal
  */
-class ConfigurationServiceException extends SystemConfigDefinitionService
+class SystemConfigDefinitionServiceException extends SystemConfigDefinitionService
 {
     /**
      * @throws Exception

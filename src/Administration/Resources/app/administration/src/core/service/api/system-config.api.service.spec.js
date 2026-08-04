@@ -134,29 +134,6 @@ describe('Test getConfig at file src/core/service/api/system-config.api.service.
     });
 });
 
-describe('Test check at file src/core/service/api/system-config.api.service.js', () => {
-    let systemConfigService = null;
-    let axiosMock = null;
-
-    beforeEach(async () => {
-        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
-
-        systemConfigService = apiService;
-        axiosMock = mockAdapter;
-    });
-
-    it('should successfully', async () => {
-        axiosMock.onGet('_action/system-config/check-config').reply(200, {});
-
-        const res = await systemConfigService.check('dummy.domain');
-
-        expect(res).toEqual({});
-    });
-});
-
-/**
- * @deprecated tag:v6.8.0 - Will be removed
- */
 describe('Test checkConfig at file src/core/service/api/system-config.api.service.js', () => {
     let systemConfigService = null;
     let axiosMock = null;

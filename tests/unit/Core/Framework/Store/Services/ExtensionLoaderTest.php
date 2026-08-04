@@ -35,8 +35,8 @@ class ExtensionLoaderTest extends TestCase
 {
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
-        $configurationService = static::createStub(SystemConfigDefinitionService::class);
-        $configurationService
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService
             ->method('checkConfiguration')
             ->willReturnCallback(static function (string $domain): bool {
                 // Throw exception for the broken plugin
@@ -59,7 +59,7 @@ class ExtensionLoaderTest extends TestCase
                 })
             );
 
-        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+        $loader = $this->createLoader(new EventDispatcher(), $systemConfigDefinitionService, $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('WorkingPlugin'),
@@ -80,13 +80,13 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
-        $configurationService = static::createStub(SystemConfigDefinitionService::class);
-        $configurationService->method('checkConfiguration')->willReturn(true);
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+        $loader = $this->createLoader(new EventDispatcher(), $systemConfigDefinitionService, $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('Plugin1'),
@@ -226,13 +226,13 @@ class ExtensionLoaderTest extends TestCase
 
     private function createLoader(
         EventDispatcherInterface $eventDispatcher,
-        ?SystemConfigDefinitionService $configurationService = null,
+        ?SystemConfigDefinitionService $systemConfigDefinitionService = null,
         ?LoggerInterface $logger = null,
     ): ExtensionLoader {
         return new ExtensionLoader(
             static::createStub(AppLoader::class),
             static::createStub(SourceResolver::class),
-            $configurationService ?? static::createStub(SystemConfigDefinitionService::class),
+            $systemConfigDefinitionService ?? static::createStub(SystemConfigDefinitionService::class),
             static::createStub(LocaleProvider::class),
             static::createStub(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),

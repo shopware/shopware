@@ -17,6 +17,7 @@ use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -33,11 +34,11 @@ class ConfigurationServiceTest extends TestCase
 {
     use EnvTestBehaviour;
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidDomain(): void
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
         $configService = new ConfigurationService(
             [],
@@ -53,9 +54,9 @@ class ConfigurationServiceTest extends TestCase
         $configService->getConfiguration('invalid!', Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMissingConfig(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [],
@@ -70,6 +71,7 @@ class ConfigurationServiceTest extends TestCase
         $configService->getConfiguration('missing', Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigurationFeatureFlag(): void
     {
         $this->setEnvVars([
@@ -80,7 +82,7 @@ class ConfigurationServiceTest extends TestCase
         static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
 
-        $actualConfig = Feature::silent('v6.8.0.0', fn () => $this->getConfiguration($this->getAppConfig()));
+        $actualConfig = $this->getConfiguration($this->getAppConfig());
 
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
@@ -89,6 +91,7 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
     {
         $this->setEnvVars([
@@ -101,11 +104,11 @@ class ConfigurationServiceTest extends TestCase
 
         $config = $this->getAppConfig();
 
-        unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
-        $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+        unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
+        $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
 
         // create new card at position 0 and make it rely on feature flag (will be removed)
-        array_unshift($config, [
+        array_unshift($config[0]['cards'], [
             'title' => [
                 'en-GB' => 'Advanced configuration',
                 'de-DE' => 'Grundeinstellungen',
@@ -115,7 +118,7 @@ class ConfigurationServiceTest extends TestCase
             'flag' => 'FEATURE_NEXT_101',
         ]);
 
-        $actualConfig = Feature::silent('v6.8.0.0', fn () => $this->getConfiguration($config));
+        $actualConfig = $this->getConfiguration($config);
 
         static::assertIsList($actualConfig);
         static::assertCount(1, $actualConfig);
@@ -123,6 +126,7 @@ class ConfigurationServiceTest extends TestCase
         static::assertCount(1, $actualConfig[0]['elements']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigurationNoFeatureFlag(): void
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
@@ -130,6 +134,7 @@ class ConfigurationServiceTest extends TestCase
         static::assertEmpty($actualConfig);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testEmptyConfigThrowsError(): void
     {
         $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTestDeprecated'));
@@ -137,29 +142,36 @@ class ConfigurationServiceTest extends TestCase
         $this->getConfiguration([]);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testElementWithFlag(): void
     {
         $config = [
-            0 => [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
+            [
+                'title' => null,
                 'name' => null,
-                'elements' => [
+                'cards' => [
                     [
-                        'name' => 'SwagExampleTestDeprecated.email',
-                        'type' => 'text',
-                        'flag' => 'FEATURE_NEXT_101',
-                        'config' => [
-                            'copyable' => true,
-                            'label' => [
-                                'en-GB' => 'eMail',
-                                'de-DE' => 'E-Mail',
-                            ],
-                            'placeholder' => [
-                                'en-GB' => 'Enter your eMail address',
-                                'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'SwagExampleTestDeprecated.email',
+                                'type' => 'text',
+                                'flag' => 'FEATURE_NEXT_101',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -172,19 +184,26 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame([], $actualConfig[0]['elements']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCacheRelevantMetadataIsExposedInElementConfig(): void
     {
         $config = [
             [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                ],
+                'title' => null,
                 'name' => null,
-                'elements' => [
+                'cards' => [
                     [
-                        'name' => 'storefrontVisibility',
-                        'type' => 'bool',
-                        'cacheRelevant' => true,
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'storefrontVisibility',
+                                'type' => 'bool',
+                                'cacheRelevant' => true,
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -195,28 +214,35 @@ class ConfigurationServiceTest extends TestCase
         static::assertTrue($actualConfig[0]['elements'][0]['config']['cacheRelevant']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testConfigFromPlugin(): void
     {
         $config = [
             [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
+                'title' => null,
                 'name' => null,
-                'elements' => [
+                'cards' => [
                     [
-                        'name' => 'email',
-                        'type' => 'text',
-                        'config' => [
-                            'copyable' => true,
-                            'label' => [
-                                'en-GB' => 'eMail',
-                                'de-DE' => 'E-Mail',
-                            ],
-                            'placeholder' => [
-                                'en-GB' => 'Enter your eMail address',
-                                'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'email',
+                                'type' => 'text',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -246,27 +272,34 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame('SwagExampleTestDeprecated.email', $actualConfig[0]['elements'][0]['name']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testEnrichConfig(): void
     {
         $config = [
             [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
-                'elements' => [
+                'title' => null,
+                'name' => null,
+                'cards' => [
                     [
-                        'name' => 'email',
-                        'type' => 'text',
-                        'config' => [
-                            'copyable' => true,
-                            'label' => [
-                                'en-GB' => 'eMail',
-                                'de-DE' => 'E-Mail',
-                            ],
-                            'placeholder' => [
-                                'en-GB' => 'Enter your eMail address',
-                                'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'elements' => [
+                            [
+                                'name' => 'email',
+                                'type' => 'text',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -277,7 +310,6 @@ class ConfigurationServiceTest extends TestCase
         $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
-        /** @var StaticEntityRepository<AppCollection> */
         $repository = new StaticEntityRepository([new AppCollection()]);
 
         $service = new ConfigurationService(
@@ -299,6 +331,7 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
     {
         $configReader = static::createStub(ConfigReader::class);
@@ -306,7 +339,6 @@ class ConfigurationServiceTest extends TestCase
             UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
         );
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [new SwagExampleTestDeprecated(true, '')],
@@ -333,7 +365,6 @@ class ConfigurationServiceTest extends TestCase
         $appConfigReader = static::createStub(AppConfigReader::class);
         $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$app]),
             new AppCollection([$app]),
@@ -360,14 +391,14 @@ class ConfigurationServiceTest extends TestCase
     private function getConfigWithoutValues(): array
     {
         return [
-            0 => [
+            [
                 'title' => [
                     'en-GB' => 'Basic configuration',
                     'de-DE' => 'Grundeinstellungen',
                 ],
                 'name' => null,
                 'elements' => [
-                    0 => [
+                    [
                         'name' => 'SwagExampleTestDeprecated.email',
                         'type' => 'text',
                         'config' => [
@@ -392,13 +423,13 @@ class ConfigurationServiceTest extends TestCase
                         'type' => 'single-select',
                         'config' => [
                             'options' => [
-                                0 => [
+                                [
                                     'id' => 'smtp',
                                     'name' => [
                                         'en-GB' => 'SMTP',
                                     ],
                                 ],
-                                1 => [
+                                [
                                     'id' => 'pop3',
                                     'name' => [
                                         'en-GB' => 'POP3',
@@ -429,58 +460,64 @@ class ConfigurationServiceTest extends TestCase
     {
         return [
             [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
+                'title' => null,
                 'name' => null,
-                'elements' => [
+                'cards' => [
                     [
-                        'type' => 'text',
-                        'name' => 'email',
-                        'copyable' => true,
-                        'label' => [
-                            'en-GB' => 'eMail',
-                            'de-DE' => 'E-Mail',
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
                         ],
-                        'placeholder' => [
-                            'en-GB' => 'Enter your eMail address',
-                            'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
-                        ],
-                    ],
-                    [
-                        'type' => 'int',
-                        'name' => 'withoutAnyConfig',
-                    ],
-                    [
-                        'type' => 'single-select',
-                        'name' => 'mailMethod',
-                        'options' => [
+                        'name' => null,
+                        'elements' => [
                             [
-                                'id' => 'smtp',
-                                'name' => [
-                                    'en-GB' => 'SMTP',
+                                'type' => 'text',
+                                'name' => 'email',
+                                'copyable' => true,
+                                'label' => [
+                                    'en-GB' => 'eMail',
+                                    'de-DE' => 'E-Mail',
+                                ],
+                                'placeholder' => [
+                                    'en-GB' => 'Enter your eMail address',
+                                    'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                                 ],
                             ],
                             [
-                                'id' => 'pop3',
-                                'name' => [
-                                    'en-GB' => 'POP3',
+                                'type' => 'int',
+                                'name' => 'withoutAnyConfig',
+                            ],
+                            [
+                                'type' => 'single-select',
+                                'name' => 'mailMethod',
+                                'options' => [
+                                    [
+                                        'id' => 'smtp',
+                                        'name' => [
+                                            'en-GB' => 'SMTP',
+                                        ],
+                                    ],
+                                    [
+                                        'id' => 'pop3',
+                                        'name' => [
+                                            'en-GB' => 'POP3',
+                                        ],
+                                    ],
                                 ],
+                                'label' => [
+                                    'en-GB' => 'Mailing protocol',
+                                    'de-DE' => 'E-Mail Versand Protokoll',
+                                ],
+                                'placeholder' => [
+                                    'en-GB' => 'Choose your preferred transfer method',
+                                    'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                                ],
+                                'flag' => 'FEATURE_NEXT_102',
                             ],
                         ],
-                        'label' => [
-                            'en-GB' => 'Mailing protocol',
-                            'de-DE' => 'E-Mail Versand Protokoll',
-                        ],
-                        'placeholder' => [
-                            'en-GB' => 'Choose your preferred transfer method',
-                            'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
-                        ],
-                        'flag' => 'FEATURE_NEXT_102',
+                        'flag' => 'FEATURE_NEXT_101',
                     ],
                 ],
-                'flag' => 'FEATURE_NEXT_101',
             ],
         ];
     }

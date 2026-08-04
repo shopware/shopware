@@ -24,18 +24,17 @@ class SystemConfigController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.8.0 - $configurationService will be removed
      */
     public function __construct(
-        private readonly ConfigurationService $legacyConfigurationService,
-        private readonly SystemConfigDefinitionService $configurationService,
+        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly SystemConfigService $systemConfig,
         private readonly SystemConfigValidator $systemConfigValidator
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use {@see checkSystemConfiguration} instead.
-     */
     #[Route(
         path: '/api/_action/system-config/check',
         name: 'api.action.core.system-config.check',
@@ -44,39 +43,17 @@ class SystemConfigController extends AbstractController
     )]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'Route "api.action.core.system-config.check" is deprecated and will be removed in v6.8.0.0. Use "api.action.core.system-config.check-config" instead.',
-        );
-
         $domain = $request->query->getString('domain');
 
         if ($domain === '') {
-            return new JsonResponse(false);
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->legacyConfigurationService->checkConfiguration($domain, $context));
-    }
-
-    #[Route(
-        path: '/api/_action/system-config/check-config',
-        name: 'api.action.core.system-config.check-config',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
-        methods: [Request::METHOD_GET]
-    )]
-    public function checkSystemConfiguration(Request $request, Context $context): JsonResponse
-    {
-        $domain = $request->query->getString('domain');
-
-        if ($domain === '') {
-            return new JsonResponse(false);
-        }
-
-        return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
+        return new JsonResponse($this->systemConfigDefinitionService->checkConfiguration($domain, $context));
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use {@see getSystemConfiguration} instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see getSchema} instead.
      */
     #[Route(
         path: '/api/_action/system-config/schema',
@@ -87,7 +64,7 @@ class SystemConfigController extends AbstractController
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            'Route "api.action.core.system-config" is deprecated and will be removed in v6.8.0.0. Use "api.action.core.system-config.get-schema" instead.',
+            'Route "/api/_action/system-config/schema" is deprecated and will be removed in v6.8.0.0. Use "/api/_action/system-config/get-schema" instead.',
         );
 
         $domain = $request->query->getString('domain');
@@ -96,7 +73,7 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->legacyConfigurationService->getConfiguration($domain, $context));
+        return Feature::silent('v6.8.0.0', fn () => new JsonResponse($this->configurationService->getConfiguration($domain, $context)));
     }
 
     #[Route(
@@ -104,7 +81,7 @@ class SystemConfigController extends AbstractController
         name: 'api.action.core.system-config.get-schema',
         methods: [Request::METHOD_GET]
     )]
-    public function getSystemConfiguration(Request $request, Context $context): JsonResponse
+    public function getSchema(Request $request, Context $context): JsonResponse
     {
         $domain = $request->query->getString('domain');
 
@@ -112,7 +89,7 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
+        return new JsonResponse($this->systemConfigDefinitionService->getConfiguration($domain, $context));
     }
 
     #[Route(

@@ -42,7 +42,7 @@ class ExtensionLoader
     public function __construct(
         private readonly AppLoader $appLoader,
         private readonly SourceResolver $sourceResolver,
-        private readonly SystemConfigDefinitionService $configurationService,
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly InAppPurchase $inAppPurchase,
@@ -186,7 +186,7 @@ class ExtensionLoader
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
             'isTheme' => false,
-            'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
+            'configurable' => $this->systemConfigDefinitionService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
             'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),

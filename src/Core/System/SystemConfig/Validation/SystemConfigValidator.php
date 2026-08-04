@@ -23,7 +23,7 @@ class SystemConfigValidator
      * @internal
      */
     public function __construct(
-        private readonly SystemConfigDefinitionService $configurationService,
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly DataValidator $validator
     ) {
     }
@@ -133,7 +133,7 @@ class SystemConfigValidator
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            return $this->configurationService->getConfiguration($domain, $context);
+            return $this->systemConfigDefinitionService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

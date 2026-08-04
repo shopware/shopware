@@ -97,7 +97,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                                             ],
                                         },
                                     ],
-                                }
+                                },
                             ]);
                         },
                         getValues: () => {

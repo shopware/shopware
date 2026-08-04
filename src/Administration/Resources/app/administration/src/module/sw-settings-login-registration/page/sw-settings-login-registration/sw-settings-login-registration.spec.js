@@ -25,22 +25,28 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () => {
+                        getSchema: () => {
                             return Promise.resolve([
                                 {
-                                    title: {
-                                        'en-GB': 'Login & Registration',
-                                    },
+                                    title: null,
                                     name: null,
-                                    elements: [
+                                    cards: [
                                         {
-                                            name: 'isCustomerBoundToSalesChannel',
-                                            type: 'bool',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'Bind customer to sales channel',
-                                                },
+                                            title: {
+                                                'en-GB': 'Login & Registration',
                                             },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'isCustomerBoundToSalesChannel',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Bind customer to sales channel',
+                                                        },
+                                                    },
+                                                },
+                                            ],
                                         },
                                     ],
                                 },

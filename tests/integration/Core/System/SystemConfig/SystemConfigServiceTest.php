@@ -408,13 +408,19 @@ class SystemConfigServiceTest extends TestCase
         static::assertFalse($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
 
         // Assert that the events were dispatched correctly for the global scope
+        static::assertArrayHasKey('global', $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['global']);
+        static::assertArrayHasKey('global', $dispatchedEvents[SystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global']);
+        static::assertArrayHasKey('global', $dispatchedEvents[SystemConfigChangedHook::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['global']);
 
         // Assert that the events were dispatched correctly for the sales channel scope
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[SystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[SystemConfigChangedHook::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['sales_channel']);
 
         // Assert content of bulk events

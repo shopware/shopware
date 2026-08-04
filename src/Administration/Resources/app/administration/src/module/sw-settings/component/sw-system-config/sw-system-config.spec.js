@@ -943,7 +943,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
                         elements: [],
                     },
                 ],
-            }
+            },
         ]);
 
         await flushPromises();

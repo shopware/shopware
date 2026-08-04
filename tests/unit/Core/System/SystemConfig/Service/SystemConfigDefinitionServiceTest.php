@@ -126,7 +126,7 @@ class SystemConfigDefinitionServiceTest extends TestCase
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
-        static::assertEmpty($actualConfig[0]->cards);
+        static::assertSame([], $actualConfig[0]->cards);
     }
 
     public function testEmptyConfigThrowsError(): void

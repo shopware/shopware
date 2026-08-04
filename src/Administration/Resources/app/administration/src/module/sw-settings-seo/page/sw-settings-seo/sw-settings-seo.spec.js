@@ -55,22 +55,28 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () => {
+                        getSchema: () => {
                             return Promise.resolve([
                                 {
-                                    title: {
-                                        'en-GB': 'SEO',
-                                    },
+                                    title: null,
                                     name: null,
-                                    elements: [
+                                    cards: [
                                         {
-                                            name: 'redirectToCanonicalUrl',
-                                            type: 'bool',
-                                            config: {
-                                                label: {
-                                                    'en-GB': 'Redirect to canonical URL',
-                                                },
+                                            title: {
+                                                'en-GB': 'SEO',
                                             },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'redirectToCanonicalUrl',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Redirect to canonical URL',
+                                                        },
+                                                    },
+                                                },
+                                            ],
                                         },
                                     ],
                                 },

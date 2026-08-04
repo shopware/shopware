@@ -25,10 +25,12 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 #[Package('framework')]
 class SystemConfigDefinitionService
 {
+    private const DOMAIN_REGEX = '/^([\w-]+)\.?([\w-]*)$/';
+
     /**
      * @internal
      *
-     * @param BundleInterface[] $bundles
+     * @param iterable<BundleInterface> $bundles
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
@@ -51,7 +53,7 @@ class SystemConfigDefinitionService
      */
     public function getConfiguration(string $domain, Context $context): array
     {
-        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
+        $validDomain = preg_match(self::DOMAIN_REGEX, $domain, $match);
 
         if (!$validDomain) {
             throw SystemConfigException::invalidDomain();
@@ -61,7 +63,8 @@ class SystemConfigDefinitionService
         $configName = $match[2] !== '' ? $match[2] : null;
 
         $config = $this->fetchConfiguration($scope === 'core' ? 'System' : $scope, $configName, $context);
-        if (!$config) {
+
+        if ($config === null || $config === []) {
             throw SystemConfigException::configurationNotFound($scope);
         }
 
@@ -142,7 +145,7 @@ class SystemConfigDefinitionService
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<array<string, mixed>>|null
      */
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
@@ -210,9 +213,6 @@ class SystemConfigDefinitionService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var AppEntity|null $result */
-        $result = $this->appRepository->search($criteria, $context)->getEntities()->first();
-
-        return $result;
+        return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 }

@@ -38,69 +38,21 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $result = $controller->checkSystemConfiguration($request, $context);
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
 
-        static::assertSame('false', $result->getContent());
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed. testCheckConfigurationEmptyDomain will cover the new behavior
-     */
-    public function testCheckConfigurationEmptyDomainDeprecated(): void
-    {
-        $controller = new SystemConfigController(
-            static::createStub(ConfigurationService::class),
-            static::createStub(SystemConfigDefinitionService::class),
-            static::createStub(SystemConfigService::class),
-            static::createStub(SystemConfigValidator::class)
-        );
-
-        $request = new Request();
-
-        $context = Context::createDefaultContext();
-
-        $result = $controller->checkConfiguration($request, $context);
-
-        static::assertSame('false', $result->getContent());
+        $controller->checkConfiguration($request, $context);
     }
 
     public function testCheckConfiguration(): void
     {
-        $configurationService = static::createStub(SystemConfigDefinitionService::class);
-        $configurationService
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService
             ->method('checkConfiguration')
             ->willReturn(true);
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
-            $configurationService,
-            static::createStub(SystemConfigService::class),
-            static::createStub(SystemConfigValidator::class)
-        );
-
-        $request = new Request();
-        $request->query->set('domain', 'foo');
-
-        $context = Context::createDefaultContext();
-
-        $result = $controller->checkSystemConfiguration($request, $context);
-
-        static::assertSame('true', $result->getContent());
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - will be removed. testCheckConfiguration will cover the new behavior
-     */
-    public function testCheckConfigurationDeprecated(): void
-    {
-        $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService
-            ->method('checkConfiguration')
-            ->willReturn(true);
-
-        $controller = new SystemConfigController(
-            $configurationService,
-            static::createStub(SystemConfigDefinitionService::class),
+            $systemConfigDefinitionService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -115,16 +67,16 @@ class SystemConfigControllerTest extends TestCase
         static::assertSame('true', $result->getContent());
     }
 
-    public function testGetConfiguration(): void
+    public function testGetSchema(): void
     {
-        $configurationService = static::createStub(SystemConfigDefinitionService::class);
-        $configurationService
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService
             ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
-            $configurationService,
+            $systemConfigDefinitionService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -134,15 +86,16 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $result = $controller->getSystemConfiguration($request, $context);
+        $result = $controller->getSchema($request, $context);
 
         static::assertSame('{"foo":"bar"}', $result->getContent());
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed. testGetConfiguration will cover the new behavior
+     * @deprecated tag:v6.8.0 - will be removed. testGetSchema will cover the new behavior
      */
-    public function testGetConfigurationDeprecated(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
@@ -166,16 +119,16 @@ class SystemConfigControllerTest extends TestCase
         static::assertSame('{"foo":"bar"}', $result->getContent());
     }
 
-    public function testGetConfigurationWithName(): void
+    public function testGetSchemaWithName(): void
     {
-        $configurationService = static::createStub(SystemConfigDefinitionService::class);
-        $configurationService
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService
             ->method('getConfiguration')
             ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
             static::createStub(ConfigurationService::class),
-            $configurationService,
+            $systemConfigDefinitionService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
         );
@@ -186,13 +139,14 @@ class SystemConfigControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
-        $controller->getSystemConfiguration($request, $context);
+        $controller->getSchema($request, $context);
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed. testGetConfigurationWithName will cover the new behavior
+     * @deprecated tag:v6.8.0 - will be removed. testGetSchemaWithName will cover the new behavior
      */
-    public function testGetConfigurationWithNameDeprecated(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetConfigurationWithName(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
         $configurationService

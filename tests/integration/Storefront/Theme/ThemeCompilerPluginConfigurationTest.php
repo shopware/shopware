@@ -124,7 +124,7 @@ SCSS;
 
     public function testHandlesDatabaseException(): void
     {
-        $configService = $this->getConfigurationServiceDbException([
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionServiceDbException([
             new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
         ]);
 
@@ -138,7 +138,7 @@ SCSS;
             Context::createDefaultContext()
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
 
         $subscriber->enrichExtensionVars($event);
 
@@ -152,9 +152,9 @@ SCSS;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationServiceDbException(array $plugins): SystemConfigDefinitionService
+    private function getSystemConfigDefinitionServiceDbException(array $plugins): SystemConfigDefinitionService
     {
-        return new ThemeCompilerPluginConfigurationServiceException(
+        return new ThemeCompilerPluginSystemConfigDefinitionServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -185,7 +185,7 @@ SCSS;
 /**
  * @internal
  */
-class ThemeCompilerPluginConfigurationServiceException extends SystemConfigDefinitionService
+class ThemeCompilerPluginSystemConfigDefinitionServiceException extends SystemConfigDefinitionService
 {
     /**
      * @throws Exception

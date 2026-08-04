@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\System;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
@@ -20,56 +22,54 @@ use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\ValidC
 
 /**
  * @internal
- *
- * @deprecated tag:v6.8.0 - will be removed
  */
 #[Package('framework')]
-class ConfigurationServiceTest extends TestCase
+class SystemConfigDefinitionServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testCheckConfigurationReturnsFalseForBrokenConfigXml(): void
     {
-        $configurationService = $this->createConfigurationService([
+        $systemConfigDefinitionService = $this->createSystemConfigDefinitionService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
 
         // Should return false instead of throwing UtilXmlParsingException
         static::assertFalse(
-            $configurationService->checkConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext())
+            $systemConfigDefinitionService->checkConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext())
         );
     }
 
     public function testCheckConfigurationReturnsTrueForValidConfigXml(): void
     {
-        $configurationService = $this->createConfigurationService([
+        $systemConfigDefinitionService = $this->createSystemConfigDefinitionService([
             new ValidConfigPlugin(true, __DIR__ . '/_fixtures/ValidConfigPlugin'),
         ]);
 
         static::assertTrue(
-            $configurationService->checkConfiguration('ValidConfigPlugin.config', Context::createDefaultContext())
+            $systemConfigDefinitionService->checkConfiguration('ValidConfigPlugin.config', Context::createDefaultContext())
         );
     }
 
     public function testGetConfigurationThrowsExceptionForBrokenConfigXml(): void
     {
-        $configurationService = $this->createConfigurationService([
+        $systemConfigDefinitionService = $this->createSystemConfigDefinitionService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
 
         // getConfiguration should still throw the exception (only checkConfiguration catches it)
         $this->expectException(UtilException::class);
-        $configurationService->getConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext());
+        $systemConfigDefinitionService->getConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext());
     }
 
     public function testGetResolvedConfigurationReturnsEmptyArrayForBrokenConfigXml(): void
     {
-        $configurationService = $this->createConfigurationService([
+        $systemConfigDefinitionService = $this->createSystemConfigDefinitionService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
 
         // getResolvedConfiguration uses checkConfiguration, so it should return empty array
-        $result = $configurationService->getResolvedConfiguration(
+        $result = $systemConfigDefinitionService->getResolvedConfiguration(
             'BrokenConfigPlugin.config',
             Context::createDefaultContext()
         );
@@ -81,14 +81,15 @@ class ConfigurationServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
 
-        $configuration = $this->createConfigurationService([])->getConfiguration(
+        $configuration = $this->createSystemConfigDefinitionService([])->getConfiguration(
             'core.basicInformation',
             Context::createDefaultContext()
         );
 
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
         static::assertCount(1, array_filter(
-            $configuration,
-            static fn (array $card): bool => ($card['name'] ?? null) === 'companyInformation'
+            $configuration[0]->cards,
+            static fn (SystemConfigCard $card): bool => $card->name === 'companyInformation'
         ));
     }
 
@@ -96,23 +97,24 @@ class ConfigurationServiceTest extends TestCase
     {
         Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
 
-        $configuration = $this->createConfigurationService([])->getConfiguration(
+        $configuration = $this->createSystemConfigDefinitionService([])->getConfiguration(
             'core.basicInformation',
             Context::createDefaultContext()
         );
 
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
         static::assertCount(0, array_filter(
-            $configuration,
-            static fn (array $card): bool => ($card['name'] ?? null) === 'companyInformation'
+            $configuration[0]->cards,
+            static fn (SystemConfigCard $card): bool => $card->name === 'companyInformation'
         ));
     }
 
     /**
      * @param list<Plugin> $plugins
      */
-    private function createConfigurationService(array $plugins): ConfigurationService
+    private function createSystemConfigDefinitionService(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationService(
+        return new SystemConfigDefinitionService(
             [
                 new System(),
                 ...$plugins,

@@ -77,6 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SystemConfigController::class)
         ->public()
         ->args([
+            // @deprecated tag:v6.8.0 - ConfigurationService will be removed
             service(ConfigurationService::class),
             service(SystemConfigDefinitionService::class),
             service(SystemConfigService::class),

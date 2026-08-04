@@ -7,7 +7,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
-use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -23,7 +22,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly SystemConfigDefinitionService $configurationService,
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly StorefrontPluginRegistry $storefrontPluginRegistry
     ) {
     }
@@ -53,7 +52,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
                 $allConfigs = array_merge(
                     $allConfigs,
-                    $this->configurationService->getResolvedConfiguration(
+                    $this->systemConfigDefinitionService->getResolvedConfiguration(
                         $configuration->getTechnicalName() . '.config',
                         $event->getContext(),
                         $event->getSalesChannelId()
@@ -67,8 +66,6 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
         }
 
         foreach ($allConfigs as $tab) {
-            \assert($tab instanceof SystemConfigTab);
-
             foreach ($tab->cards as $card) {
                 foreach ($card->elements as $element) {
                     if (!$this->hasCssValue($element)) {

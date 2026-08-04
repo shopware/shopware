@@ -73,7 +73,7 @@ class ProductDocumentRepositoryTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('productDocuments.media');
 
-git         $product = $this->productRepository->search($criteria, $this->context)->getEntities()->get($productId);
+        $product = $this->productRepository->search($criteria, $this->context)->getEntities()->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $productDocuments = $product->getProductDocuments();

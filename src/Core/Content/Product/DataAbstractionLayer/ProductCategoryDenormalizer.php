@@ -46,6 +46,7 @@ class ProductCategoryDenormalizer
 
         $inserts = [];
         $updates = [];
+        $deletes = [];
 
         $oldTreesByProductId = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(product_id)), LOWER(HEX(category_id)) as category_id FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version',
@@ -86,21 +87,12 @@ class ProductCategoryDenormalizer
                 ];
             }
 
-            if ($toBeDeleted === []) {
-                continue;
+            foreach ($toBeDeleted as $id) {
+                $deletes[] = ['product_id' => $productId, 'category_id' => Uuid::fromHexToBytes($id)];
             }
-
-            // `category_version_id` is intentionally not constrained: the inserts below always write
-            // the live category version, so matching it against `$versionId` would never delete
-            // anything in a non live version context
-            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $productId, $versionId): void {
-                $this->connection->executeStatement(
-                    'DELETE FROM product_category_tree WHERE `category_id` IN (:categoryIds) AND `product_id` = :productId AND `product_version_id` = :version',
-                    ['categoryIds' => Uuid::fromHexToBytesList($toBeDeleted), 'productId' => $productId, 'version' => $versionId],
-                    ['categoryIds' => ArrayParameterType::BINARY]
-                );
-            });
         }
+
+        $this->deleteTree($deletes, $versionId);
 
         RetryableTransaction::retryable($this->connection, function () use ($updates): void {
             $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
@@ -111,6 +103,40 @@ class ProductCategoryDenormalizer
         });
 
         $this->insertTree($inserts);
+    }
+
+    /**
+     * `category_version_id` is intentionally not constrained: the inserts always write the live
+     * category version, so matching it against `$versionId` would never delete anything in a non
+     * live version context.
+     *
+     * @param list<array{product_id: string, category_id: string}> $deletes
+     */
+    private function deleteTree(array $deletes, string $versionId): void
+    {
+        if ($deletes === []) {
+            return;
+        }
+
+        foreach (array_chunk($deletes, 250) as $chunk) {
+            // one placeholder pair per row to delete, so the whole chunk is a single statement
+            $tuples = implode(', ', array_fill(0, \count($chunk), '(?, ?)'));
+
+            $parameters = [$versionId];
+            foreach ($chunk as $delete) {
+                $parameters[] = $delete['product_id'];
+                $parameters[] = $delete['category_id'];
+            }
+
+            RetryableTransaction::retryable($this->connection, function () use ($tuples, $parameters): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_category_tree
+                        WHERE `product_version_id` = ?
+                            AND (`product_id`, `category_id`) IN (' . $tuples . ')',
+                    $parameters
+                );
+            });
+        }
     }
 
     /**

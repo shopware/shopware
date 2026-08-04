@@ -54,6 +54,15 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Snippet and product export writes are batched into one event
+
+Several places that used to write one record per loop iteration now write all records of a run at once, to remove queries that scaled with the number of processed records. Two of them are observable for extensions:
+
+* `SystemLanguageChangedSubscriber` reassigned app administration snippets with one `update()` per app. It now writes the snippets of every app in a single `update()`, so a listener on `snippet.written` receives one event carrying every changed snippet instead of one event per app.
+* `ProductExportEventListener` reset `generatedAt`, `nextGenerationAt` and `isRunning` with one `update()` per written export. It now resets all written exports in a single `update()`, so a listener on `product_export.written` receives one event carrying every reset export instead of one event per export.
+
+The written values, their order and the resulting database state are unchanged; only the number of write calls and therefore of dispatched write events differs. If your subscriber assumed one result per event, iterate `$event->getResults()` (or `$event->getIds()`) instead of reading the first entry.
+
 ### Deprecated XML configuration
 
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.

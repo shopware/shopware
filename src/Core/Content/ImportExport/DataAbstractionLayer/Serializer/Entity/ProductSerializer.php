@@ -350,6 +350,8 @@ class ProductSerializer extends EntitySerializer
         $mediaDefinition = $mediaField->getReferenceDefinition();
         $mediaSerializer = $this->serializerRegistry->getEntity($mediaDefinition->getEntityName());
 
+        // First pass: deserialize every url, so the media ids of the whole record are known
+        $mediaIds = [];
         foreach ($urls as $url) {
             $deserializedMedia = $mediaSerializer->deserialize($config, $mediaDefinition, [
                 'url' => $url,
@@ -360,27 +362,35 @@ class ProductSerializer extends EntitySerializer
                 throw $deserializedMedia['_error'];
             }
 
-            $productMedia = [
+            $productMedias[] = [
                 'media' => $deserializedMedia,
             ];
 
-            if (!isset($deserialized['id'])) {
-                $productMedias[] = $productMedia;
-
-                continue;
+            if (isset($deserializedMedia['id'])) {
+                $mediaIds[] = $deserializedMedia['id'];
             }
+        }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
-            $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
+        if (!isset($deserialized['id']) || $mediaIds === []) {
+            return $productMedias;
+        }
 
-            $productMediaId = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
+        // Second pass: read the existing product media of all of them in one query and carry over their ids
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
+        $criteria->addFilter(new EqualsAnyFilter('media.id', $mediaIds));
+
+        $existing = [];
+        foreach ($this->productMediaRepository->search($criteria, $context)->getEntities() as $productMediaEntity) {
+            $existing[$productMediaEntity->getMediaId()] = $productMediaEntity->getId();
+        }
+
+        foreach ($productMedias as $i => $productMedia) {
+            $productMediaId = $existing[$productMedia['media']['id'] ?? ''] ?? null;
 
             if ($productMediaId) {
-                $productMedia['id'] = $productMediaId;
+                $productMedias[$i]['id'] = $productMediaId;
             }
-
-            $productMedias[] = $productMedia;
         }
 
         return $productMedias;

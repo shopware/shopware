@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
@@ -416,6 +417,10 @@ class ThemeLifecycleService
         }
 
         if (\array_key_exists('fields', $baseConfig)) {
+            // Resolve which media file names already exist in one query instead of one per configuration field.
+            // The set covers every media field of the configuration, so it is a superset of the names looked up below.
+            $existingFileNames = $this->findExistingMediaFileNames($baseConfig['fields'], $context);
+
             foreach ($baseConfig['fields'] as $key => $field) {
                 if ($this->hasNewMedia($field) === false) {
                     continue;
@@ -440,9 +445,7 @@ class ThemeLifecycleService
                         continue;
                     }
 
-                    $criteriaMedia = new Criteria();
-                    $criteriaMedia->addFilter(new EqualsFilter('fileName', basename($path)));
-                    if ($this->mediaRepository->searchIds($criteriaMedia, $context)->getTotal() > 0) {
+                    if (isset($existingFileNames[basename($path)])) {
                         continue;
                     }
 
@@ -640,6 +643,39 @@ class ThemeLifecycleService
         return $currentThemeConfig->getTechnicalName() !== $parentConfig->getTechnicalName()
             && \in_array('@' . $parentConfig->getTechnicalName(), $currentThemeConfig->getStyleFiles()->getFilepaths(), true)
         ;
+    }
+
+    /**
+     * The file names of the given media configuration fields that already exist as media.
+     *
+     * @param array<int|string, mixed> $fields
+     *
+     * @return array<string, true>
+     */
+    private function findExistingMediaFileNames(array $fields, Context $context): array
+    {
+        $fileNames = [];
+        foreach ($fields as $field) {
+            if (!\is_array($field) || $this->hasNewMedia($field) === false) {
+                continue;
+            }
+
+            $fileNames[basename((string) $field['value'])] = true;
+        }
+
+        if ($fileNames === []) {
+            return [];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('fileName', array_keys($fileNames)));
+
+        $existing = [];
+        foreach ($this->mediaRepository->search($criteria, $context)->getEntities() as $media) {
+            $existing[(string) $media->getFileName()] = true;
+        }
+
+        return $existing;
     }
 
     /**

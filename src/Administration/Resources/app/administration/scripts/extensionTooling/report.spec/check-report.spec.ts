@@ -2,14 +2,12 @@
  * @sw-package framework
  */
 
-import { checkReport, extension, project, report, resolution, run } from './helpers';
+import { checkReport, extension, owned, project, report, run } from './helpers';
 
 describe('scripts/extensionTooling/report renderCheckReport', () => {
     it('summarizes many technical names to a count instead of dumping every bundle', () => {
         const commercial = project('SwagCommercial', {
             vendor: true,
-            ts: resolution('unmanaged'),
-            eslint: resolution('unmanaged'),
             technicalNames: Array.from({ length: 36 }, (_, index) => `module-${index}`),
         });
         const output = report([
@@ -25,10 +23,14 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
     it('paints success-with-writable-skips yellow and points at --fail-on-skipped', () => {
         const skipped = extension(
             project('Custom', {
-                tsconfig: 'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
-                eslintConfig: 'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
-                ts: resolution('unmanaged', { reason: 'not-extending' }),
-                eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
+                tsconfig: owned(
+                    'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
+                    'the extends chain does not reach the preset.',
+                ),
+                eslintConfig: owned(
+                    'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
+                    'the config does not compose the factory.',
+                ),
             }),
             { typescript: run('unmanaged'), eslint: run('unmanaged') },
         );
@@ -47,10 +49,10 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
     });
 
     it('does not warn about skips for vendor-only skipped extensions', () => {
-        const vendorSkip = extension(
-            project('VendorPlugin', { vendor: true, ts: resolution('unmanaged'), eslint: resolution('unmanaged') }),
-            { typescript: run('unmanaged'), eslint: run('unmanaged') },
-        );
+        const vendorSkip = extension(project('VendorPlugin', { vendor: true }), {
+            typescript: run('unmanaged'),
+            eslint: run('unmanaged'),
+        });
 
         const output = checkReport({
             results: [vendorSkip],
@@ -68,16 +70,14 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         const output = report([
             extension(
                 project('Custom', {
-                    tsconfig: 'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
-                    eslintConfig: 'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
-                    ts: resolution('unmanaged', {
-                        reason: 'not-extending',
-                        detail: 'the extends chain does not reach the preset.',
-                    }),
-                    eslint: resolution('unmanaged', {
-                        reason: 'factory-not-composed',
-                        detail: 'the config does not compose the factory.',
-                    }),
+                    tsconfig: owned(
+                        'custom/plugins/Custom/src/Resources/app/administration/tsconfig.json',
+                        'the extends chain does not reach the preset.',
+                    ),
+                    eslintConfig: owned(
+                        'custom/plugins/Custom/src/Resources/app/administration/eslint.config.mjs',
+                        'the config does not compose the factory.',
+                    ),
                 }),
                 {
                     typescript: run('unmanaged'),
@@ -89,7 +89,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         expect(output).toContain('⊘ skipped');
         expect(output).toContain('why: the extends chain does not reach the preset.');
         expect(output).toContain("isn't checked with the Shopware preset yet");
-        expect(output).toContain('--shim=Custom');
+        expect(output).toContain('composer admin:setup-extension-tooling');
         expect(output).not.toContain('extension-tooling/README.md');
     });
 
@@ -98,18 +98,17 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             extension(
                 project('Unwired', {
                     bridgePresent: true,
-                    tsconfig: 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
-                    ts: resolution('unmanaged', {
-                        reason: 'files-override',
-                        detail: 'your tsconfig declares its own "files" array.',
-                    }),
+                    tsconfig: owned(
+                        'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+                        'your tsconfig declares its own "files" array.',
+                    ),
                 }),
                 { typescript: run('unmanaged') },
             ),
         ]);
 
         expect(output).toContain('why: your tsconfig declares its own "files" array.');
-        expect(output).toContain('fix: remove "files" from the plugin tsconfig');
+        expect(output).toContain('fix: add');
         expect(output).not.toContain('--shim');
     });
 
@@ -118,8 +117,10 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             extension(
                 project('Storefront', {
                     basePath: 'src/Storefront',
-                    eslintConfig: 'src/Storefront/Resources/app/administration/eslint.config.mjs',
-                    eslint: resolution('unmanaged', { reason: 'factory-not-composed' }),
+                    eslintConfig: owned(
+                        'src/Storefront/Resources/app/administration/eslint.config.mjs',
+                        'the config does not compose the factory.',
+                    ),
                 }),
                 { eslint: run('unmanaged') },
             ),
@@ -164,7 +165,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
         const output = report(
             [
                 extension(project('Broken'), { typescript: run('failed', { findings: 1, output: 'x' }) }),
-                extension(project('Skipped', { ts: resolution('unmanaged'), eslint: resolution('unmanaged') }), {
+                extension(project('Skipped'), {
                     typescript: run('unmanaged'),
                     eslint: run('unmanaged'),
                 }),

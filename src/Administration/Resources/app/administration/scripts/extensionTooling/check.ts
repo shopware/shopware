@@ -102,11 +102,8 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
     const commands = resolveToolingCommands(projectRoot, administrationRoot);
-    const setupResult = setupExtensionTooling({
-        projectRoot,
-        administrationRoot,
-        pluginsConfigPath: options.pluginsConfigPath,
-    });
+    // setup computes the bundle dump path (var/plugins.json) itself.
+    const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const fatalDiagnostics = collectSetupDiagnostics(setupResult, commands);
     const warnings: string[] = [...setupResult.warnings];
     const selection = filterSelectedProjects(setupResult.manifest.projects, normalizeSelection(options.only));

@@ -1,13 +1,15 @@
 /**
  * @sw-package framework
  *
- * The generated spec leaf tsconfig: a companion type-check program that adds
- * jest types and includes only the spec files the runtime program excludes.
+ * The generated spec tsconfig inside the `.shopware/` bridge: a companion
+ * type-check program that composes the runtime bridge, swaps in jest types, and
+ * includes only the spec files the runtime program excludes.
  */
 
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
+import { specTsconfigPath } from '../check-run';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -17,7 +19,7 @@ import {
     writePluginsConfig,
 } from '../test-helpers';
 
-describe('scripts/extensionTooling/setup spec leaf tsconfig', () => {
+describe('scripts/extensionTooling/setup spec tsconfig', () => {
     let projectRoot: string;
     let administrationRoot: string;
 
@@ -42,30 +44,34 @@ describe('scripts/extensionTooling/setup spec leaf tsconfig', () => {
         cleanupTempProject(projectRoot);
     });
 
-    function readSpecLeaf(): { extends: string; files: string[]; include: string[]; exclude?: string[] } {
+    function readSpecTsconfig(): {
+        extends: string;
+        compilerOptions?: { typeRoots?: string[] };
+        files: string[];
+        include: string[];
+        exclude?: string[];
+    } {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
         const target = result.manifest.projects[0].targets[0];
-        const raw = fs.readFileSync(path.join(projectRoot, target.specTsconfig), 'utf8');
+        const raw = fs.readFileSync(path.join(projectRoot, specTsconfigPath(target)), 'utf8');
 
-        return JSON.parse(raw.split('\n').slice(1).join('\n')) as {
-            extends: string;
-            files: string[];
-            include: string[];
-            exclude?: string[];
-        };
+        return JSON.parse(raw.split('\n').slice(1).join('\n')) as ReturnType<typeof readSpecTsconfig>;
     }
 
-    it('injects the admin type surface plus jest types and includes only specs', () => {
-        const specLeaf = readSpecLeaf();
+    it('composes the runtime bridge, injects jest types, and includes only specs', () => {
+        const specTsconfig = readSpecTsconfig();
 
-        expect(specLeaf.extends).toMatch(/tsconfig\.base\.json$/);
-        expect(specLeaf.files.some((file) => file.endsWith('admin-types.d.ts'))).toBe(true);
-        expect(specLeaf.files.some((file) => file.endsWith('spec-types.d.ts'))).toBe(true);
-        expect(specLeaf.include).toEqual(
-            expect.arrayContaining([expect.stringMatching(/custom\/plugins\/Specced\/.*\*\*\/\*\.spec\.ts$/)]),
-        );
+        // It extends the runtime bridge tsconfig beside it — inheriting the host
+        // paths and plugin aliases — rather than the base preset directly.
+        expect(specTsconfig.extends).toBe('./tsconfig.json');
+        // typeRoots points at the Administration's own @types so the jest
+        // triple-slash reference in spec-types.d.ts resolves.
+        expect(specTsconfig.compilerOptions?.typeRoots?.some((root) => root.endsWith('node_modules/@types'))).toBe(true);
+        expect(specTsconfig.files.some((file) => file.endsWith('admin-types.d.ts'))).toBe(true);
+        expect(specTsconfig.files.some((file) => file.endsWith('spec-types.d.ts'))).toBe(true);
         // Only specs are pulled in — no runtime globs and no spec exclusion.
-        expect(specLeaf.include.every((glob) => /\*\.spec\.(ts|tsx|js)$/.test(glob))).toBe(true);
-        expect(specLeaf.exclude).toBeUndefined();
+        expect(specTsconfig.include.length).toBeGreaterThan(0);
+        expect(specTsconfig.include.every((glob) => /\*\.spec\.(ts|tsx|js)$/.test(glob))).toBe(true);
+        expect(specTsconfig.exclude).toBeUndefined();
     });
 });

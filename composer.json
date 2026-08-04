@@ -47,7 +47,7 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "cweagans/composer-patches": true,
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
@@ -100,6 +100,7 @@
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
+        "php-http/discovery": "^1.20",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
         "phpseclib/phpseclib": "^3.0",
@@ -255,8 +256,8 @@
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
-        "admin:setup-extension-tooling": "Generates TypeScript/ESLint configs and IDE bootstraps for all installed Administration extensions (options need --, e.g. composer admin:setup-extension-tooling -- --help)",
-        "admin:setup-extension-tooling:check": "Dry-run of admin:setup-extension-tooling: reports what would change and writes nothing (exit 1 on drift). Guaranteed read-only — safe for CI regardless of the -- separator.",
+        "admin:setup-extension-tooling": "[EXPERIMENTAL] Generates TypeScript/ESLint configs for installed Administration extensions",
+        "admin:setup-extension-tooling:check": "[EXPERIMENTAL] Read-only dry-run of admin:setup-extension-tooling (exit 1 on drift)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -528,7 +529,8 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront"
+            "@php bin/console theme:change --sync --all Storefront",
+            "@admin:setup-extension-tooling --if-enabled"
         ],
         "static-analyze": [
             "@phpstan src/"

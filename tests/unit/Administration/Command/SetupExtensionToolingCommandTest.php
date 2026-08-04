@@ -32,6 +32,13 @@ class SetupExtensionToolingCommandTest extends TestCase
         $this->removeAdministrationRoot($administrationRoot);
     }
 
+    public function testCommandDescriptionMarksTheToolingExperimental(): void
+    {
+        $command = new SetupExtensionToolingCommand($this->kernel(), null);
+
+        static::assertStringContainsString('[EXPERIMENTAL]', $command->getDescription());
+    }
+
     private function kernel(): KernelInterface
     {
         $kernel = static::createStub(KernelInterface::class);

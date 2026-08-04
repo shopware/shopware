@@ -137,7 +137,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $client = static::createStub(ServiceClient::class);
         $client->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
-        $factory = $this->createMock(ServiceClientFactory::class);
+        $factory = static::createStub(ServiceClientFactory::class);
         $factory->method('newFor')->willReturn($client);
 
         $this->requirementsValidator->expects($this->never())->method('isSatisfied');

@@ -10,8 +10,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { aggregateModeResolution, canonicalizePath, collectSkippedTargets, relativePosix, toPosix } from './shared';
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, ToolingCommands } from './shared';
+import { canonicalizePath, firstDrift, relativePosix, SHIM_DIR_NAME, toPosix } from './shared';
+import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig, ToolingCommands } from './shared';
 import { DEFAULT_TOOLING_COMMANDS } from './shared';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { probeEslintMode, probeTsMode } from './probe-live';
@@ -30,7 +30,34 @@ import {
 } from './check-parsing';
 import { applyBaseline, formatCommand, groupTargetsByConfig, runPool } from './check-pipeline';
 import { runTypeScriptPrograms } from './check-typescript-program';
+import { collectSkippedTargets, isUnmanagedConfig } from './check-types';
 import type { CheckExtensionsOptions, ExtensionCheckResult, Limiter, ToolRunResult } from './check-types';
+
+/**
+ * The tsconfig the check runner feeds to vue-tsc for a source root: the
+ * extension's own config when it composes, otherwise the generated bridge
+ * tsconfig that sits in `<source-root-parent>/.shopware/` (see setup-bridge.ts).
+ */
+export function checkTsconfigPath(target: AdministrationTarget): string {
+    if (target.tsconfig?.composes) {
+        return target.tsconfig.path;
+    }
+
+    return path.posix.join(target.adminFolder, SHIM_DIR_NAME, 'tsconfig.json');
+}
+
+/**
+ * The dedicated spec tsconfig for a source root: the generated companion beside
+ * the runtime bridge that adds jest types and includes only the spec files the
+ * runtime program excludes. It always lives in the generated `.shopware/`
+ * bridge (never the extension's own config, which type-checks no specs), so it
+ * sits next to the config that composes it or beside the source root otherwise.
+ */
+export function specTsconfigPath(target: AdministrationTarget): string {
+    const bridgeParent = target.tsconfig?.composes ? path.posix.dirname(target.tsconfig.path) : target.adminFolder;
+
+    return path.posix.join(bridgeParent, SHIM_DIR_NAME, 'tsconfig.specs.json');
+}
 
 /**
  * ESLint prints absolute paths (vue-tsc already prints project-relative ones
@@ -84,14 +111,14 @@ export function appendFixHint(
 interface ProbedTarget {
     projectName: string;
     target: AdministrationTarget;
-    tsResolution: ModeResolution;
-    eslintResolution: ModeResolution;
+    tsResolution: OwnedConfig | null;
+    eslintResolution: OwnedConfig | null;
 }
 
 interface ResolvedProjectModes {
     project: ExtensionToolingProject;
-    tsResolution: ModeResolution;
-    eslintResolution: ModeResolution;
+    tsResolution: OwnedConfig | null;
+    eslintResolution: OwnedConfig | null;
 }
 
 /**
@@ -137,14 +164,16 @@ export async function probeExtensionModes(context: {
             targets: project.targets.map((target) => {
                 const resolution = targetResolutions.get(target.sourcePath);
 
-                return resolution ? { ...target, ts: resolution.tsResolution, eslint: resolution.eslintResolution } : target;
+                return resolution
+                    ? { ...target, tsconfig: resolution.tsResolution, eslintConfig: resolution.eslintResolution }
+                    : target;
             }),
         };
 
         return {
             project: resolvedProject,
-            tsResolution: aggregateModeResolution(resolvedProject, 'ts'),
-            eslintResolution: aggregateModeResolution(resolvedProject, 'eslint'),
+            tsResolution: firstDrift(resolvedProject, 'tsconfig'),
+            eslintResolution: firstDrift(resolvedProject, 'eslintConfig'),
         };
     });
 
@@ -249,9 +278,10 @@ async function runEslintStream(context: {
         limit,
         toolingCommands,
     } = context;
-    const unmanagedTargets = project.targets.filter((target) => target.eslint.mode === 'unmanaged');
+    const unmanagedTargets = project.targets.filter((target) => isUnmanagedConfig(target.eslintConfig));
     const eslintTargets = project.targets.filter(
-        (target) => target.eslint.mode !== 'unmanaged' && findFirstSourceFile(projectRoot, [target.sourcePath]) !== null,
+        (target) =>
+            !isUnmanagedConfig(target.eslintConfig) && findFirstSourceFile(projectRoot, [target.sourcePath]) !== null,
     );
 
     if (eslintTargets.length === 0 && unmanagedTargets.length > 0) {
@@ -259,7 +289,7 @@ async function runEslintStream(context: {
             result: {
                 status: 'unmanaged',
                 output: unmanagedTargets
-                    .map((target) => relativizeToolOutput(target.eslint.probeOutput ?? '', projectRoot))
+                    .map((target) => target.eslintConfig?.detail ?? '')
                     .filter(Boolean)
                     .join('\n\n'),
                 durationMs: 0,
@@ -289,7 +319,7 @@ async function runEslintStream(context: {
     const eslintGroups = groupTargetsByConfig(
         projectRoot,
         eslintTargets,
-        (target) => target.eslintConfig ?? path.join(projectRoot, 'eslint.config.mjs'),
+        (target) => target.eslintConfig?.path ?? path.join(projectRoot, 'eslint.config.mjs'),
     );
     const startedAt = Date.now();
     const runs = await Promise.all(
@@ -359,8 +389,8 @@ async function runEslintStream(context: {
 /** Runs the runtime vue-tsc, the dedicated spec vue-tsc, and ESLint for one extension and assembles its result. */
 export async function checkProject(context: {
     project: ExtensionToolingProject;
-    tsResolution: ModeResolution;
-    eslintResolution: ModeResolution;
+    tsResolution: OwnedConfig | null;
+    eslintResolution: OwnedConfig | null;
     projectRoot: string;
     vueTscPath: string;
     eslintPath: string;
@@ -386,15 +416,13 @@ export async function checkProject(context: {
     const commands: ExtensionCheckResult['commands'] = {};
     // Read once — the runtime and (later) spec runs share one baseline file.
     const baseline = readBaseline(projectRoot, project);
-    const unmanagedTsTargets = project.targets.filter((target) => target.ts.mode === 'unmanaged');
+    const unmanagedTsTargets = project.targets.filter((target) => isUnmanagedConfig(target.tsconfig));
     const skippedTargets = collectSkippedTargets(project);
     const runtimeTargets = project.targets.filter(
-        (target) =>
-            target.ts.mode !== 'unmanaged' &&
-            (target.ts.mode === 'bridged' || countTypeCheckableFiles(projectRoot, [target.sourcePath]) > 0),
+        (target) => !isUnmanagedConfig(target.tsconfig) && countTypeCheckableFiles(projectRoot, [target.sourcePath]) > 0,
     );
     const specTargets = project.targets.filter(
-        (target) => target.ts.mode !== 'unmanaged' && countSpecFiles(projectRoot, [target.sourcePath]) > 0,
+        (target) => !isUnmanagedConfig(target.tsconfig) && countSpecFiles(projectRoot, [target.sourcePath]) > 0,
     );
 
     const runtime = await runTypeScriptStream({
@@ -402,13 +430,13 @@ export async function checkProject(context: {
         streamTargets: runtimeTargets,
         unmanagedTargets: unmanagedTsTargets,
         unmanagedOutput: unmanagedTsTargets
-            .map((target) => relativizeToolOutput(target.ts.probeOutput ?? '', projectRoot))
+            .map((target) => target.tsconfig?.detail ?? '')
             .filter(Boolean)
             .join('\n\n'),
         vueTscPath,
         projectRoot,
         basePath: project.basePath,
-        configOf: (target) => target.checkTsconfig,
+        configOf: (target) => checkTsconfigPath(target),
         baselineEntries: baseline?.typescript ?? [],
         expectedFiles: (target) => listTypeCheckableFiles(projectRoot, [target.sourcePath]),
         limit,
@@ -431,7 +459,7 @@ export async function checkProject(context: {
         vueTscPath,
         projectRoot,
         basePath: project.basePath,
-        configOf: (target) => target.specTsconfig,
+        configOf: (target) => specTsconfigPath(target),
         baselineEntries: baseline?.typescriptSpecs ?? [],
         expectedFiles: (target) => listSpecFiles(projectRoot, [target.sourcePath]),
         limit,
@@ -470,9 +498,9 @@ export async function checkProject(context: {
             commands,
             coverage: project.targets.map((target) => ({
                 target,
-                runtimeConfig: target.checkTsconfig,
-                specConfig: target.specTsconfig,
-                eslintConfig: target.eslintConfig ?? 'eslint.config.mjs',
+                runtimeConfig: checkTsconfigPath(target),
+                specConfig: specTsconfigPath(target),
+                eslintConfig: target.eslintConfig?.path ?? 'eslint.config.mjs',
             })),
             skippedTargets,
         },
@@ -497,12 +525,12 @@ export function recordProjectBaseline(
 
     const incompleteStreamNames = new Set<string>();
 
-    if (result.project.targets.some((target) => target.ts.mode === 'unmanaged')) {
+    if (result.project.targets.some((target) => isUnmanagedConfig(target.tsconfig))) {
         incompleteStreamNames.add('TypeScript');
         incompleteStreamNames.add('TS (specs)');
     }
 
-    if (result.project.targets.some((target) => target.eslint.mode === 'unmanaged')) {
+    if (result.project.targets.some((target) => isUnmanagedConfig(target.eslintConfig))) {
         incompleteStreamNames.add('ESLint');
     }
 

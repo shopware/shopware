@@ -7,8 +7,60 @@
  * importing the orchestrator (and its CLI entrypoint) back.
  */
 
-import type { AdministrationTarget, ExtensionToolingProject, ModeResolution, SkippedTarget } from './shared';
+import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig } from './shared';
 import type { EslintFinding, TypeScriptFinding } from './baseline';
+
+/**
+ * A tool is "unmanaged" (skipped) only when the extension owns a config that
+ * does not compose the Shopware preset. A `null` config means the host-owned
+ * root projection covers the root, and a composing config is bridged — both
+ * are checked.
+ */
+export function isUnmanagedConfig(config: OwnedConfig | null): boolean {
+    return config !== null && !config.composes;
+}
+
+/** A target whose own non-composing config kept a tool from covering it. */
+export interface SkippedTarget {
+    /** Administration source root relative to the project root (posix). */
+    sourcePath: string;
+    /** The extension-owned config that caused the skip (project-root-relative posix). */
+    configPath: string;
+    tool: 'TypeScript' | 'ESLint';
+    /** Human sentence explaining why the config does not compose. */
+    detail?: string;
+}
+
+/**
+ * Every skipped target of the project, independent of whether the managed
+ * remainder passed or failed. Runtime and spec TypeScript programs share one
+ * entry — both key on the same target config.
+ */
+export function collectSkippedTargets(project: ExtensionToolingProject): SkippedTarget[] {
+    const skipped: SkippedTarget[] = [];
+
+    for (const target of project.targets) {
+        if (target.tsconfig !== null && !target.tsconfig.composes) {
+            skipped.push({
+                sourcePath: target.sourcePath,
+                configPath: target.tsconfig.path,
+                tool: 'TypeScript',
+                detail: target.tsconfig.detail,
+            });
+        }
+
+        if (target.eslintConfig !== null && !target.eslintConfig.composes) {
+            skipped.push({
+                sourcePath: target.sourcePath,
+                configPath: target.eslintConfig.path,
+                tool: 'ESLint',
+                detail: target.eslintConfig.detail,
+            });
+        }
+    }
+
+    return skipped;
+}
 
 export type ToolStatus = 'passed' | 'failed' | 'unmanaged' | 'no-files' | 'blocked' | 'tooling-error';
 
@@ -52,8 +104,10 @@ export interface AdministrationTargetCoverage {
 
 export interface ExtensionCheckResult {
     project: ExtensionToolingProject;
-    tsResolution: ModeResolution;
-    eslintResolution: ModeResolution;
+    /** The first TypeScript config that does not compose, or null when every root is covered. */
+    tsResolution: OwnedConfig | null;
+    /** The first ESLint config that does not compose, or null when every root is covered. */
+    eslintResolution: OwnedConfig | null;
     typescript: ToolRunResult;
     /** The dedicated spec type-check program (jest types, spec files only). */
     typescriptSpecs: ToolRunResult;

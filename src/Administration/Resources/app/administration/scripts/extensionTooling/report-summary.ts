@@ -8,7 +8,8 @@
 
 import colors from 'picocolors';
 import { describeToolGuidance } from './report-guidance';
-import type { ExtensionToolingProject, SkippedTarget } from './shared';
+import type { SkippedTarget } from './check-types';
+import type { ExtensionToolingProject } from './shared';
 
 const MAX_SKIPPED_CONFIGS = 5;
 
@@ -46,7 +47,11 @@ export function renderSkippedTargetLines(
 
         lines.push(`      ${colors.yellow(`skipped: ${configPath}`)}${targetNote}`);
 
-        const guidance = describeToolGuidance(project, tool, group[0].resolution);
+        const guidance = describeToolGuidance(project, tool, {
+            path: group[0].configPath,
+            composes: false,
+            detail: group[0].detail,
+        });
 
         if (guidance) {
             lines.push(colors.dim(`        why: ${guidance.why}`));

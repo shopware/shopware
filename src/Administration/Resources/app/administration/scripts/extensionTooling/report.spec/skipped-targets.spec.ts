@@ -6,16 +6,15 @@
  * matter whether the managed remainder passed or failed.
  */
 
-import { extension, project, report, resolution, run, target } from './helpers';
+import { extension, owned, project, report, run, target } from './helpers';
 
 const unmanagedTarget = (feature: string, overrides: Parameters<typeof target>[1] = {}) =>
     target(`Suite${feature}`, {
         sourcePath: `custom/plugins/Suite/src/${feature}/Resources/app/administration/src`,
-        tsconfig: `custom/plugins/Suite/src/${feature}/Resources/app/administration/tsconfig.json`,
-        ts: resolution('unmanaged', {
-            reason: 'not-extending',
-            detail: `the ${feature} extends chain does not reach the preset.`,
-        }),
+        tsconfig: owned(
+            `custom/plugins/Suite/src/${feature}/Resources/app/administration/tsconfig.json`,
+            `the ${feature} extends chain does not reach the preset.`,
+        ),
         ...overrides,
     });
 
@@ -86,7 +85,7 @@ describe('scripts/extensionTooling/report skipped targets', () => {
             { exitCode: 1 },
         );
 
-        expect(output).toContain('--shim=Suite');
+        expect(output).toContain('composer admin:setup-extension-tooling');
     });
 
     it('groups targets sharing one config and caps the list', () => {
@@ -97,7 +96,7 @@ describe('scripts/extensionTooling/report skipped targets', () => {
                 unmanagedTarget('Alpha', {
                     technicalNames: ['SuiteAlpha2'],
                     sourcePath: 'custom/plugins/Suite/src/Alpha2/Resources/app/administration/src',
-                    tsconfig: sharedConfig,
+                    tsconfig: owned(sharedConfig, 'the Alpha extends chain does not reach the preset.'),
                 }),
                 ...[
                     'B',
@@ -147,8 +146,10 @@ describe('scripts/extensionTooling/report skipped targets', () => {
                 target('VendorCore', { sourcePath: 'vendor/acme/suite/src/Core/Resources/app/administration/src' }),
                 target('VendorFeature', {
                     sourcePath: 'vendor/acme/suite/src/Feature/Resources/app/administration/src',
-                    tsconfig: 'vendor/acme/suite/src/Feature/Resources/app/administration/tsconfig.json',
-                    ts: resolution('unmanaged', { reason: 'not-extending' }),
+                    tsconfig: owned(
+                        'vendor/acme/suite/src/Feature/Resources/app/administration/tsconfig.json',
+                        'the extends chain does not reach the preset.',
+                    ),
                 }),
             ],
         });

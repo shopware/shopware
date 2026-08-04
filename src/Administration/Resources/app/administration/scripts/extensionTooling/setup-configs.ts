@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  *
- * Config generators. Tool-owned var/ leaf tsconfigs (one runtime + one spec
- * program per Administration root), the marker-owned root tsconfig/eslint
- * projections, IDE bootstraps, the entity-schema stub gate, and the committed
- * per-extension configs that a `--shim` scaffolds beside its bridge.
+ * Config generators: the marker-owned root tsconfig/eslint projections, IDE
+ * bootstraps, the entity-schema stub gate, and the per-extension configs
+ * (runtime plus a dedicated spec tsconfig) scaffolded beside every generated
+ * bridge.
  */
 
 import fs from 'fs';
@@ -12,15 +12,15 @@ import path from 'path';
 import { record } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import {
+    BRIDGE_ESLINT_SPECIFIER,
+    BRIDGE_TSCONFIG_EXTENDS,
     GENERATED_MARKER,
-    STATE_DIR,
+    SHIM_DIR_NAME,
     asRelativeSpecifier,
     isGeneratedContent,
-    relativePosix,
     toPosix,
     writeManagedFile,
     writeScaffoldFile,
-    writeStateFile,
 } from './shared';
 import type { ExtensionToolingProject, ManagedFileState } from './shared';
 
@@ -33,17 +33,35 @@ const SOURCE_EXTENSIONS = [
 /**
  * Test files are split off from the runtime program (whose preset sets
  * `types: []`, so its runner globals are absent) into a dedicated spec program
- * that adds jest types. The runtime leaf excludes these suffixes; the spec leaf
- * includes exactly them.
+ * that adds jest types. The committed runtime config excludes these suffixes;
+ * the generated spec tsconfig (setup-bridge) includes exactly them.
  */
-const SPEC_FILE_SUFFIXES = [
+export const SPEC_FILE_SUFFIXES = [
     'spec.ts',
     'spec.tsx',
     'spec.js',
 ];
 
-function safeFileName(name: string): string {
-    return name.replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase();
+/** Expands dotted setting keys into the nested objects Zed expects. */
+function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
+    const nested: Record<string, unknown> = {};
+
+    for (const [
+        dottedKey,
+        value,
+    ] of Object.entries(settings)) {
+        const segments = dottedKey.split('.');
+        let cursor = nested;
+
+        for (const segment of segments.slice(0, -1)) {
+            cursor[segment] = cursor[segment] ?? {};
+            cursor = cursor[segment] as Record<string, unknown>;
+        }
+
+        cursor[segments[segments.length - 1]] = value;
+    }
+
+    return nested;
 }
 
 export function ensureEntitySchema(context: GeneratorContext): boolean {
@@ -75,128 +93,37 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     return false;
 }
 
-export function createLeafConfigs(
-    context: GeneratorContext,
-    projects: ExtensionToolingProject[],
-): ExtensionToolingProject[] {
-    const projectsDir = path.join(context.projectRoot, STATE_DIR, 'projects');
-    const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
-    const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
-    const specTypes = path.join(context.administrationRoot, 'extension-tooling', 'spec-types.d.ts');
-    const usedFileNames = new Set<string>();
-
-    const sourceGlobs = (configPath: string, sourcePath: string, extensions: string[]): string[] =>
-        extensions.map(
-            (extension) =>
-                `${asRelativeSpecifier(configPath, path.resolve(context.projectRoot, sourcePath))}/**/*.${extension}`,
-        );
-
-    const configured = projects.map((project) => ({
-        ...project,
-        targets: project.targets.map((target) => {
-            const targetName =
-                project.targets.length === 1
-                    ? project.name
-                    : `${project.name}-${target.technicalNames[0] ?? path.basename(target.adminFolder)}`;
-            let fileName = `${safeFileName(targetName)}.json`;
-            let suffix = 2;
-
-            while (usedFileNames.has(fileName)) {
-                fileName = `${safeFileName(targetName)}-${suffix}.json`;
-                suffix += 1;
-            }
-
-            const specFileName = fileName.replace(/\.json$/, '-specs.json');
-
-            usedFileNames.add(fileName);
-            usedFileNames.add(specFileName);
-
-            const configPath = path.join(projectsDir, fileName);
-            const content = `// ${GENERATED_MARKER}\n${JSON.stringify(
-                {
-                    extends: asRelativeSpecifier(configPath, basePreset),
-                    files: [asRelativeSpecifier(configPath, adminTypes)],
-                    include: sourceGlobs(configPath, target.sourcePath, SOURCE_EXTENSIONS),
-                    // Exclude patterns resolve relative to this config, so they
-                    // carry the same source prefix as the includes.
-                    exclude: sourceGlobs(configPath, target.sourcePath, SPEC_FILE_SUFFIXES),
-                },
-                null,
-                4,
-            )}\n`;
-
-            record(context, writeStateFile(configPath, content, context.dryRun));
-
-            // Companion program for spec files: the same type surface plus jest
-            // types (spec-types.d.ts), including only this target's specs.
-            const specConfigPath = path.join(projectsDir, specFileName);
-            const specContent = `// ${GENERATED_MARKER}\n${JSON.stringify(
-                {
-                    extends: asRelativeSpecifier(specConfigPath, basePreset),
-                    // Point typeRoots at the Administration's own @types so the jest
-                    // reference in spec-types.d.ts resolves — a triple-slash
-                    // reference is looked up relative to this config, not the .d.ts.
-                    compilerOptions: {
-                        typeRoots: [
-                            asRelativeSpecifier(
-                                specConfigPath,
-                                path.join(context.administrationRoot, 'node_modules', '@types'),
-                            ),
-                        ],
-                    },
-                    files: [
-                        asRelativeSpecifier(specConfigPath, adminTypes),
-                        asRelativeSpecifier(specConfigPath, specTypes),
-                    ],
-                    include: sourceGlobs(specConfigPath, target.sourcePath, SPEC_FILE_SUFFIXES),
-                },
-                null,
-                4,
-            )}\n`;
-
-            record(context, writeStateFile(specConfigPath, specContent, context.dryRun));
-
-            return {
-                ...target,
-                checkTsconfig: target.tsconfig ?? relativePosix(context.projectRoot, configPath),
-                specTsconfig: relativePosix(context.projectRoot, specConfigPath),
-            };
-        }),
-    }));
-
-    if (fs.existsSync(projectsDir)) {
-        for (const existingFile of fs.readdirSync(projectsDir)) {
-            if (existingFile.endsWith('.json') && !usedFileNames.has(existingFile)) {
-                context.staleFiles.push(relativePosix(context.projectRoot, path.join(projectsDir, existingFile)));
-
-                if (!context.dryRun) {
-                    fs.rmSync(path.join(projectsDir, existingFile));
-                }
-            }
-        }
-    }
-
-    return configured;
-}
-
+/**
+ * The root tsconfig covers every Administration source root that no
+ * extension-owned config governs — normally none, because bridging scaffolds a
+ * config beside each root. It is the fallback for a root whose bridge could not
+ * be written (a read-only vendor directory) and for the dry run, where no
+ * bridge exists yet. The sources are included directly instead of through
+ * per-target project references, so nothing depends on `composite` builds.
+ */
 export function createRootTsconfig(context: GeneratorContext, projects: ExtensionToolingProject[]): ManagedFileState {
     const rootTsconfigPath = path.join(context.projectRoot, 'tsconfig.json');
-    // Reference both the runtime and spec leaves so the IDE — and ESLint's
-    // project service — can associate every managed source and spec file with a
-    // program (this is what enables type-aware linting of managed specs).
-    const references = projects.flatMap((project) =>
-        project.targets
-            .filter((target) => target.ts.mode === 'managed')
-            .flatMap((target) => [
-                { path: `./${target.checkTsconfig}` },
-                { path: `./${target.specTsconfig}` },
-            ]),
-    );
-    const content = `// ${GENERATED_MARKER} — solution-style index routing each extension file to its leaf project.\n${JSON.stringify(
-        {
-            files: [],
-            references,
-        },
+    const uncovered = projects.flatMap((project) => project.targets.filter((target) => target.tsconfig === null));
+    // The config sits at the project root, so the project-root-relative source
+    // paths are already the right prefix for both globs.
+    const globs = (extensions: string[]): string[] =>
+        uncovered.flatMap((target) => extensions.map((extension) => `${target.sourcePath}/**/*.${extension}`));
+    const projection = {
+        extends: asRelativeSpecifier(
+            rootTsconfigPath,
+            path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json'),
+        ),
+        files: [
+            asRelativeSpecifier(
+                rootTsconfigPath,
+                path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts'),
+            ),
+        ],
+        include: globs(SOURCE_EXTENSIONS),
+        exclude: globs(SPEC_FILE_SUFFIXES),
+    };
+    const content = `// ${GENERATED_MARKER} — covers extension sources no own config governs.\n${JSON.stringify(
+        projection,
         null,
         4,
     )}\n`;
@@ -205,8 +132,8 @@ export function createRootTsconfig(context: GeneratorContext, projects: Extensio
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these references:`,
-                ...references.map((reference) => `    { "path": "${reference.path}" }`),
+                `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these includes:`,
+                ...projection.include.map((glob) => `    "${glob}"`),
                 `or remove the file and re-run \`${context.commands.setup}\`.`,
             ].join('\n'),
         );
@@ -235,8 +162,6 @@ export function createRootEslintConfig(context: GeneratorContext, projects: Exte
         '',
         'export default shopwareAdminExtension({',
         '    tsconfigRootDir: import.meta.dirname,',
-        '    // Spec files are type-aware-linted here — their leaves are referenced from the root tsconfig.',
-        '    typedSpecs: true,',
         '    extensionRoots: [',
         ...extensionRoots.map((extensionRoot) => `        ${JSON.stringify(extensionRoot)},`),
         '    ],',
@@ -267,77 +192,64 @@ export function createIdeBootstraps(
     eslintMajorVersion: number,
 ): Record<string, ManagedFileState> {
     const states: Record<string, ManagedFileState> = {};
-    const eslintFlags = eslintMajorVersion < 10 ? ['v10_config_lookup_from_file'] : [];
-    const bootstraps: Array<{ key: string; file: string; content: string; settings: string[] }> = [
+    const tsdk = `${adminRelative}/node_modules/typescript/lib`;
+    const nodePath = `${adminRelative}/node_modules`;
+    const flags = eslintMajorVersion < 10 ? ['v10_config_lookup_from_file'] : [];
+    // One settings map per IDE is the single source for both the generated file
+    // and the instructions printed when the file is user-owned — they cannot
+    // drift apart. VS Code takes the dotted keys literally, Zed nests them.
+    const bootstraps: Array<{ key: string; nested: boolean; settings: Record<string, unknown> }> = [
         {
             key: '.vscode/settings.json',
-            file: path.join(context.projectRoot, '.vscode', 'settings.json'),
-            content: `// ${GENERATED_MARKER}\n${JSON.stringify(
-                {
-                    'typescript.tsdk': `${adminRelative}/node_modules/typescript/lib`,
-                    'eslint.nodePath': `${adminRelative}/node_modules`,
-                    ...(eslintFlags.length > 0 ? { 'eslint.options': { flags: eslintFlags } } : {}),
-                    'eslint.validate': [
-                        'javascript',
-                        'typescript',
-                        'vue',
-                        'twig',
-                    ],
-                    'files.associations': { '*.html.twig': 'twig' },
-                },
-                null,
-                4,
-            )}\n`,
-            settings: [
-                `"typescript.tsdk": "${adminRelative}/node_modules/typescript/lib"`,
-                `"eslint.nodePath": "${adminRelative}/node_modules"`,
-                ...(eslintFlags.length > 0 ? [`"eslint.options": { "flags": ["${eslintFlags[0]}"] }`] : []),
-            ],
+            nested: false,
+            settings: {
+                'typescript.tsdk': tsdk,
+                'eslint.nodePath': nodePath,
+                ...(flags.length > 0 ? { 'eslint.options': { flags } } : {}),
+                'eslint.validate': [
+                    'javascript',
+                    'typescript',
+                    'vue',
+                    'twig',
+                ],
+                'files.associations': { '*.html.twig': 'twig' },
+            },
         },
         {
             key: '.zed/settings.json',
-            file: path.join(context.projectRoot, '.zed', 'settings.json'),
-            content: `// ${GENERATED_MARKER}\n${JSON.stringify(
-                {
-                    lsp: {
-                        vtsls: {
-                            initialization_options: {
-                                typescript: { tsdk: `${adminRelative}/node_modules/typescript/lib` },
-                            },
-                        },
-                        eslint: {
-                            settings: {
-                                nodePath: `${adminRelative}/node_modules`,
-                                ...(eslintFlags.length > 0 ? { options: { flags: eslintFlags } } : {}),
-                            },
-                        },
-                    },
-                },
-                null,
-                4,
-            )}\n`,
-            settings: [
-                `"lsp.vtsls.initialization_options.typescript.tsdk": "${adminRelative}/node_modules/typescript/lib"`,
-                `"lsp.eslint.settings.nodePath": "${adminRelative}/node_modules"`,
-            ],
+            nested: true,
+            settings: {
+                'lsp.vtsls.initialization_options.typescript.tsdk': tsdk,
+                'lsp.eslint.settings.nodePath': nodePath,
+                ...(flags.length > 0 ? { 'lsp.eslint.settings.options.flags': flags } : {}),
+            },
         },
     ];
 
-    for (const bootstrap of bootstraps) {
-        if (fs.existsSync(bootstrap.file) && !isGeneratedContent(fs.readFileSync(bootstrap.file, 'utf8'))) {
-            states[bootstrap.key] = 'skipped';
-            record(context, { file: bootstrap.file, state: 'skipped' });
+    for (const { key, nested, settings } of bootstraps) {
+        const file = path.join(context.projectRoot, ...key.split('/'));
+
+        if (fs.existsSync(file) && !isGeneratedContent(fs.readFileSync(file, 'utf8'))) {
+            states[key] = 'skipped';
+            record(context, { file, state: 'skipped' });
             context.instructions.push(
                 [
-                    `${bootstrap.file} is user-owned and was not touched. For IDE support add:`,
-                    ...bootstrap.settings.map((setting) => `    ${setting}`),
+                    `${file} is user-owned and was not touched. For IDE support add:`,
+                    ...Object.entries(settings).map(
+                        ([
+                            name,
+                            value,
+                        ]) => `    "${name}": ${JSON.stringify(value)}`,
+                    ),
                 ].join('\n'),
             );
 
             continue;
         }
 
-        states[bootstrap.key] = record(context, writeManagedFile(bootstrap.file, bootstrap.content, context.dryRun));
+        const content = `// ${GENERATED_MARKER}\n${JSON.stringify(nested ? nestKeys(settings) : settings, null, 4)}\n`;
+
+        states[key] = record(context, writeManagedFile(file, content, context.dryRun));
     }
 
     // PhpStorm stores these settings in .idea internals we never write to.
@@ -357,17 +269,18 @@ export function createIdeBootstraps(
 
 /**
  * Scaffolds the plugin's own small, committable tsconfig/eslint that extend the
- * generated `.shopware-admin/` bridge in `configDir` — created only when absent
- * so the developer can see and customize them. In root-config mode one pair
- * includes every source root; per root, one pair covers a single root. An
- * existing config is never overwritten; instead we print the one line to add so
- * it too composes the preset.
+ * generated bridge in `configDir` — created only when absent so the developer
+ * can see and customize them. In root-config mode one pair includes every
+ * source root; per root, one pair covers a single root. An existing config is
+ * never overwritten; instead we print the one line to add so it too composes
+ * the preset.
  */
 export function scaffoldExtensionConfigs(
     context: GeneratorContext,
     name: string,
     configDir: string,
     sourcePaths: string[],
+    vendor = false,
 ): void {
     const include = sourcePaths.flatMap((sourcePath) => {
         const sourceRelative = toPosix(path.relative(configDir, path.resolve(context.projectRoot, sourcePath)));
@@ -376,13 +289,22 @@ export function scaffoldExtensionConfigs(
     });
     const tsconfigPath = path.join(configDir, 'tsconfig.json');
     const eslintPath = path.join(configDir, 'eslint.config.mjs');
+    // A vendor extension's files are composer-managed: "commit" makes no sense
+    // there, re-running setup after an update is the restore path instead.
+    const configKind = vendor ? 'Local config' : 'Committed config';
+    const tsconfigLifecycleNote = vendor
+        ? 'A composer update removes this file; re-running setup restores it.'
+        : 'Safe to edit and commit — keep the "extends".';
+    const eslintLifecycleNote = vendor
+        ? 'A composer update removes this file; re-running setup restores it.'
+        : 'Safe to edit and commit — keep the import and the ...spread.';
     const tsconfigContent =
-        `// Committed config for ${name}. Extends the generated Shopware bridge in .shopware-admin/\n` +
-        '// (git-ignored, holds the machine-specific paths). Safe to edit and commit — keep the "extends".\n' +
+        `// ${configKind} for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
+        `// (git-ignored, holds the machine-specific paths). ${tsconfigLifecycleNote}\n` +
         '// Spec files stay excluded here — the check type-checks them separately with jest types.\n' +
         `${JSON.stringify(
             {
-                extends: './.shopware-admin/tsconfig.json',
+                extends: BRIDGE_TSCONFIG_EXTENDS,
                 include,
                 exclude: SPEC_FILE_SUFFIXES.map((suffix) => `**/*.${suffix}`),
             },
@@ -390,9 +312,9 @@ export function scaffoldExtensionConfigs(
             4,
         )}\n`;
     const eslintContent = [
-        `// Committed config for ${name}. Composes the generated Shopware bridge in .shopware-admin/`,
-        '// (git-ignored). Safe to edit and commit — keep the import and the ...spread.',
-        "import shopware from './.shopware-admin/eslint.mjs';",
+        `// ${configKind} for ${name}. Composes the generated Shopware bridge in ${SHIM_DIR_NAME}/`,
+        `// (git-ignored). ${eslintLifecycleNote}`,
+        `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
         '',
         'export default [',
         '    ...shopware,',
@@ -406,7 +328,7 @@ export function scaffoldExtensionConfigs(
 
     if (tsconfigResult === 'skipped') {
         context.warnings.push(
-            `${tsconfigPath} already exists and was not touched — add \`"extends": "./.shopware-admin/tsconfig.json"\` ` +
+            `${tsconfigPath} already exists and was not touched — add \`"extends": "${BRIDGE_TSCONFIG_EXTENDS}"\` ` +
                 `so ${name} composes the Shopware preset. Own "files" array? Remove it — the bridge provides the ` +
                 'type surface. Own paths? Declare them in tsconfig.aliases.json.',
         );
@@ -415,7 +337,7 @@ export function scaffoldExtensionConfigs(
     if (eslintResult === 'skipped') {
         context.warnings.push(
             `${eslintPath} already exists and was not touched — compose the bridge in it: ` +
-                "import shopware from './.shopware-admin/eslint.mjs'; export default [ ...shopware /* , your rules */ ];",
+                `import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; export default [ ...shopware /* , your rules */ ];`,
         );
     }
 }

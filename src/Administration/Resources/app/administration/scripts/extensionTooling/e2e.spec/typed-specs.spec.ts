@@ -24,14 +24,12 @@ describe('extension tooling typed spec files (e2e)', () => {
         writeFile(path.join(projectRoot, 'custom/plugins/SpecPlugin/src/Resources/app/administration/src/main.ts'), [
             'export const value: number = 1;',
         ]);
-        // A spec that uses jest globals (must resolve), contains a genuine type
-        // error (caught by the spec program), and a floating promise (only a
-        // type-aware ESLint rule catches it — proving type-aware spec linting).
+        // A spec that uses jest globals (which must resolve) and contains a
+        // genuine type error (caught by the dedicated spec program).
         writeFile(path.join(projectRoot, 'custom/plugins/SpecPlugin/src/Resources/app/administration/src/main.spec.ts'), [
             "describe('SpecPlugin', () => {",
             "    it('has a type error', () => {",
             "        const typed: number = 'not a number';",
-            '        Promise.resolve();',
             '        expect(typed).toBe(typed);',
             '    });',
             '});',
@@ -68,15 +66,17 @@ describe('extension tooling typed spec files (e2e)', () => {
     );
 
     it(
-        'type-aware-lints managed spec files without a not-in-project error',
+        'lints spec files with jest globals and never rejects them as outside a project',
         async () => {
             const check = await checkExtensions({ projectRoot, administrationRoot, only: 'SpecPlugin' });
-            const { output } = check.results[0].eslint;
+            const eslint = check.results[0].eslint;
 
-            // A type-aware-only rule fired on the spec, so the spec program was
-            // discovered — and it was not rejected as outside every project.
-            expect(output).toContain('no-floating-promises');
-            expect(output).not.toContain('not found in any of the provided project');
+            // Specs are parsed standalone with the jest globals available (the
+            // untyped spec block), so ESLint neither flags `describe` as an
+            // undefined global nor rejects the spec as outside every project.
+            expect(eslint.status).toBe('passed');
+            expect(eslint.output).not.toContain('not found in any of the provided project');
+            expect(eslint.output).not.toContain("'describe' is not defined");
         },
         CHECK_TIMEOUT,
     );

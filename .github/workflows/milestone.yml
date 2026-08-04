@@ -20,6 +20,11 @@ jobs:
     name: Set milestone label
     if: ${{ github.event_name == 'pull_request_target' && github.event.action != 'closed' && !contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Get versions
         id: versions
@@ -76,12 +81,23 @@ jobs:
             core.warning("This PR doesn't target 'trunk' or a version branch");
             return "skip";
 
+      # An app token is required for the added label to trigger the `labeled` run of
+      # milestone-check.yml; a label added with GITHUB_TOKEN starts no workflow. If
+      # minting fails the label still lands, the check just re-runs on the next push.
+      - id: sts-label
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
+
       - name: Set milestone label
         if: ${{ steps.next-milestone.outputs.result != 'skip' }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
         env:
           MILESTONE: ${{ steps.next-milestone.outputs.result }}
         with:
+          github-token: ${{ steps.sts-label.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             const milestone = process.env.MILESTONE;
             const issueNumber = context.payload.pull_request.number;

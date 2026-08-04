@@ -6,6 +6,7 @@ use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\McpToolSchemaNormalizer;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Util\Json;
 
@@ -54,6 +55,11 @@ abstract class AbstractToolSearchTool extends McpToolResponse
             $toolData = json_decode(Json::encode($result->tool), true, 512, \JSON_THROW_ON_ERROR);
             \assert(\is_array($toolData));
 
+            // Encoding the Tool and decoding as an associative array collapses an empty
+            // `properties` object to `[]`; re-establish the JSON Schema object invariant so the
+            // embedded definition stays valid for strict clients (same fix as the transport).
+            $toolData = McpToolSchemaNormalizer::normalizeTool($toolData);
+
             $results[] = [
                 'tool' => $toolData,
                 'score' => $result->score,
@@ -61,9 +67,26 @@ abstract class AbstractToolSearchTool extends McpToolResponse
             ];
         }
 
-        return $this->success($results, [
+        $meta = [
             'query' => $query,
             'totalCandidates' => \count($tools),
-        ]);
+        ];
+
+        $usage = $this->usageHint();
+        if ($usage !== null) {
+            $meta['usage'] = $usage;
+        }
+
+        return $this->success($results, $meta);
+    }
+
+    /**
+     * Optional guidance appended to the search result telling the model how to make a matched
+     * tool callable when the client cannot invoke it directly from the inline result. Null when
+     * the scope has no progressive disclosure (e.g. Store API advertises all tools).
+     */
+    protected function usageHint(): ?string
+    {
+        return null;
     }
 }

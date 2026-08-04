@@ -126,6 +126,10 @@ export default {
         },
 
         collapse(event) {
+            if (!this.expanded) {
+                return;
+            }
+
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
 

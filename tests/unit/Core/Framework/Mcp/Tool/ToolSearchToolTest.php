@@ -32,6 +32,30 @@ class ToolSearchToolTest extends TestCase
         static::assertSame(2, $data['_meta']['totalCandidates']);
     }
 
+    public function testEmbeddedToolDefinitionKeepsEmptyPropertiesAsAnObject(): void
+    {
+        // The tool definition is embedded as JSON in the tool-call result; a parameterless tool's
+        // empty properties must serialize as {} there too, or strict clients (OpenAI) reject the
+        // whole payload with `[] is not of type 'object'`. The transport normalizer never sees this
+        // location (it lives inside result.content[].text), so it is fixed at the source instead.
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch());
+
+        $json = $tool('read entity');
+
+        static::assertStringContainsString('"properties":{}', $json);
+        static::assertStringNotContainsString('"properties":[]', $json);
+    }
+
+    public function testResultCarriesToolsetEnableUsageHint(): void
+    {
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch());
+
+        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('usage', $data['_meta']);
+        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+    }
+
     public function testSearchIsScopedToAllowlist(): void
     {
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);

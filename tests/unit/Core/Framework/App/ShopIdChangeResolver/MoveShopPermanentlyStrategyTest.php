@@ -30,7 +30,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -54,7 +53,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->never())->method('refreshRegistration');
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -90,7 +88,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new MoveShopPermanentlyStrategy(
@@ -127,7 +124,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $logger = new TestHandler();
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new MoveShopPermanentlyStrategy(

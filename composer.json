@@ -47,7 +47,7 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "cweagans/composer-patches": true,
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
@@ -102,6 +102,7 @@
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
+        "php-http/discovery": "^1.20",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
@@ -255,6 +256,7 @@
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
@@ -335,7 +337,8 @@
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
         "watch:admin": "Enables hot module reloading for the Admin",
-        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead."
+        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead.",
+        "zugferd:compliance": "Validates the generated ZUGFeRD snapshot documents against the EN16931 business rules using the KoSIT validator (requires Java)"
     },
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
@@ -355,6 +358,13 @@
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit"
+        ],
+        "admin:unit:major": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv FEATURE_ALL=major",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"
@@ -582,7 +592,8 @@
             "@php bin/console feature:dump",
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"
-        ]
+        ],
+        "zugferd:compliance": "node ./.github/bin/js/zugferd-compliance.ts"
     },
     "autoload": {
         "files": [

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Session;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -25,7 +26,9 @@ final class McpSessionCleanupSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly ToolResultCacheStorage $storage,
+        private readonly McpToolsetSessionStorage $toolsetSessionStorage,
         private readonly McpSessionRegistry $sessionRegistry,
+        private readonly ?McpSessionRegistry $storeApiSessionRegistry = null,
     ) {
     }
 
@@ -53,6 +56,15 @@ final class McpSessionCleanupSubscriber implements EventSubscriberInterface
         }
 
         $this->storage->deleteForSession($sessionId);
-        $this->sessionRegistry->remove($sessionId);
+        $this->toolsetSessionStorage->deleteForSession($sessionId);
+
+        // The Admin and Store API endpoints keep isolated session registries, so remove the id from
+        // the one that owns this endpoint's sessions; otherwise a store-api DELETE would clear the
+        // Admin registry and leave the store-api session id behind.
+        $registry = str_contains($request->getPathInfo(), '/store-api/')
+            ? ($this->storeApiSessionRegistry ?? $this->sessionRegistry)
+            : $this->sessionRegistry;
+
+        $registry->remove($sessionId);
     }
 }

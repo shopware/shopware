@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -201,11 +202,11 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         static::assertSame([], $container->getParameter('shopware.mcp.advertised_tools'));
     }
 
-    public function testNonDeferredToolsAreAddedToAdvertisedToolsParameter(): void
+    public function testDiscoveryGroupToolsAreAddedToAdvertisedToolsParameter(): void
     {
         $container = $this->createContainer();
 
-        $visible = new Definition(McpDiscoveryTestNonDeferredTool::class);
+        $visible = new Definition(McpDiscoveryTestDiscoveryGroupTool::class);
         $visible->addTag('mcp.tool');
         $container->setDefinition('tool.visible', $visible);
 
@@ -213,7 +214,7 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         $deferred->addTag('mcp.tool');
         $container->setDefinition('tool.deferred', $deferred);
 
-        $methodLevel = new Definition(McpDiscoveryTestMethodLevelNonDeferredTool::class);
+        $methodLevel = new Definition(McpDiscoveryTestMethodLevelDiscoveryGroupTool::class);
         $methodLevel->addTag('mcp.tool');
         $container->setDefinition('tool.method-level', $methodLevel);
 
@@ -262,8 +263,9 @@ class McpDiscoveryTestNamespacedTool extends McpToolResponse
 /**
  * @internal
  */
-#[McpTool(name: 'shopware-discovery-visible-tool', description: 'test visible tool', meta: ['deferred' => false])]
-class McpDiscoveryTestNonDeferredTool extends McpToolResponse
+#[McpTool(name: 'shopware-discovery-visible-tool', description: 'test visible tool')]
+#[McpToolGroup('discovery')]
+class McpDiscoveryTestDiscoveryGroupTool extends McpToolResponse
 {
     public function __invoke(): string
     {
@@ -274,9 +276,10 @@ class McpDiscoveryTestNonDeferredTool extends McpToolResponse
 /**
  * @internal
  */
-class McpDiscoveryTestMethodLevelNonDeferredTool extends McpToolResponse
+class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
 {
-    #[McpTool(name: 'shopware-discovery-method-visible-tool', description: 'test method visible tool', meta: ['deferred' => false])]
+    #[McpTool(name: 'shopware-discovery-method-visible-tool', description: 'test method visible tool')]
+    #[McpToolGroup('discovery')]
     public function __invoke(): string
     {
         return '';

@@ -55,18 +55,15 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity = new UserRecoveryEntity();
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
@@ -108,18 +105,15 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setId(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
@@ -168,18 +162,15 @@ class UserRecoveryServiceTest extends TestCase
         $salesChannelEntity->setLanguageId(Uuid::randomHex());
         $salesChannelEntity->setCurrencyId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([$recoveryEntity]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             new SalesChannelCollection([$salesChannelEntity]),
         ], new SalesChannelDefinition());
@@ -236,18 +227,15 @@ class UserRecoveryServiceTest extends TestCase
         $recoveryEntity->setUniqueIdentifier(Uuid::randomHex());
         $recoveryEntity->setHash(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<UserCollection> $userRepository */
         $userRepository = new StaticEntityRepository([
             new UserCollection([$user]),
         ], new UserDefinition());
 
-        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
         $recoveryRepository = new StaticEntityRepository([
             new UserRecoveryCollection([]),
             new UserRecoveryCollection([$recoveryEntity]),
         ], new UserRecoveryDefinition());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
             static function (Criteria $criteria, Context $context) use ($salesChannelEntity) {
                 static::assertCount(1, $criteria->getFilters());

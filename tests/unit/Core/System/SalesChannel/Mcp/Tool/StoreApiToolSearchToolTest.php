@@ -32,6 +32,20 @@ class StoreApiToolSearchToolTest extends TestCase
         static::assertSame('shopware-store-api-product-search', $data['data'][0]['tool']['name']);
     }
 
+    public function testResultCarriesToolsetEnableUsageHint(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(self::tool('shopware-store-api-product-search', 'Search products'), 'Acme\\ProductSearchTool');
+
+        $tool = new StoreApiToolSearchTool($registry, new ToolSearch());
+
+        $data = json_decode($tool('product'), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Store API now uses progressive disclosure, so tool-search nudges toward the enable path.
+        static::assertArrayHasKey('usage', $data['_meta']);
+        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+    }
+
     public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
     {
         // The MCP SDK discoverer binds a tool handler to __invoke's declaring class. If __invoke

@@ -32,7 +32,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $media = $this->createMediaEntity();
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([
             [$media->getId()],
             new MediaCollection([$media]),
@@ -64,7 +63,6 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $media = $this->createMediaEntity();
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([
             new MediaCollection([$media]),
             new MediaCollection(),
@@ -157,7 +155,6 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private function createMediaRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<MediaCollection> $repository */
         $repository = new StaticEntityRepository([new MediaCollection()], new TestEntityDefinition());
 
         return $repository;
@@ -168,7 +165,6 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private function createFolderRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<MediaFolderCollection> $repository */
         $repository = new StaticEntityRepository([new MediaFolderCollection()], new TestEntityDefinition());
 
         return $repository;

@@ -55,10 +55,8 @@ class CustomerGroupSubscriberTest extends TestCase
         $customerGroup->setRegistrationSalesChannels(new SalesChannelCollection([$salesChannel]));
         $customerGroup->setTranslations(new CustomerGroupTranslationCollection([$translation]));
 
-        /** @var StaticEntityRepository<CustomerGroupCollection> $customerGroupRepository */
         $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection([$customerGroup])]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         $persister = $this->createMock(SeoUrlPersister::class);

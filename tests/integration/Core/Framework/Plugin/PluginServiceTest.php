@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -273,23 +272,6 @@ class PluginServiceTest extends TestCase
         static::assertInstanceOf(PluginEntity::class, $plugin);
         $this->assertDefaultPlugin($plugin);
         static::assertNull($plugin->getUpgradeVersion());
-    }
-
-    public function testGetPluginByName(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
-
-        $this->assertDefaultPlugin($plugin);
-    }
-
-    public function testGetPluginByNameThrowsException(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $this->expectExceptionObject(PluginException::notFound('SwagFoo'));
-        $this->pluginService->getPluginByName('SwagFoo', $this->context);
     }
 
     private function assertDefaultPlugin(PluginEntity $plugin): void

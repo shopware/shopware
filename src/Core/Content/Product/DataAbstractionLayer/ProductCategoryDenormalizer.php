@@ -13,6 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizerTest
+ */
 #[Package('framework')]
 class ProductCategoryDenormalizer
 {

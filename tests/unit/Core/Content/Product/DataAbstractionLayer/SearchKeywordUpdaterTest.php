@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeywordCollection;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Defaults;
@@ -39,6 +40,16 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(SearchKeywordUpdater::class)]
 class SearchKeywordUpdaterTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    private array $deletedKeywords = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $insertedKeywords = [];
+
     public function testDisabledIndexingSkipsUpdate(): void
     {
         $languageRepository = $this->createMock(EntityRepository::class);
@@ -110,6 +121,77 @@ class SearchKeywordUpdaterTest extends TestCase
         // products without a parent are left untouched
         static::assertArrayHasKey($standaloneId, $analyzedProducts);
         static::assertNull($analyzedProducts[$standaloneId]->getParent());
+    }
+
+    public function testUpdateOnlyWritesKeywordsThatChanged(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $analyzer = static::createStub(ProductSearchKeywordAnalyzerInterface::class);
+        $analyzer->method('analyze')->willReturn(new AnalyzedKeywordCollection([
+            new AnalyzedKeyword('unchanged', 500.0),
+            new AnalyzedKeyword('reranked', 750.0),
+            new AnalyzedKeyword('added', 500.0),
+        ]));
+
+        $connection = $this->createConnection([$this->createConfigField('name')]);
+        // keywords already stored for that product: `removed` is gone, `reranked` has a new ranking
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['product_id' => $productId, 'keyword' => 'unchanged', 'ranking' => '500'],
+            ['product_id' => $productId, 'keyword' => 'reranked', 'ranking' => '250'],
+            ['product_id' => $productId, 'keyword' => 'removed', 'ranking' => '500'],
+        ]);
+
+        $this->captureWrittenKeywords($connection, ['unchanged', 'reranked', 'added', 'removed']);
+
+        $updater = $this->createUpdater(
+            new StaticEntityRepository([
+                new ProductCollection([$this->createProduct($productId, null)]),
+                new ProductCollection(),
+            ], $this->createProductDefinition()),
+            $connection,
+            $analyzer
+        );
+
+        $updater->update([$productId], Context::createDefaultContext());
+
+        // an unchanged keyword is neither deleted nor written again
+        sort($this->deletedKeywords);
+        static::assertSame(['removed', 'reranked'], $this->deletedKeywords);
+
+        sort($this->insertedKeywords);
+        static::assertSame(['added', 'reranked'], $this->insertedKeywords);
+    }
+
+    public function testUpdateWritesNothingWhenAllKeywordsAreUnchanged(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $analyzer = static::createStub(ProductSearchKeywordAnalyzerInterface::class);
+        $analyzer->method('analyze')->willReturn(new AnalyzedKeywordCollection([
+            new AnalyzedKeyword('unchanged', 500.0),
+        ]));
+
+        $connection = $this->createConnection([$this->createConfigField('name')]);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['product_id' => $productId, 'keyword' => 'unchanged', 'ranking' => '500'],
+        ]);
+
+        $this->captureWrittenKeywords($connection, ['unchanged']);
+
+        $updater = $this->createUpdater(
+            new StaticEntityRepository([
+                new ProductCollection([$this->createProduct($productId, null)]),
+                new ProductCollection(),
+            ], $this->createProductDefinition()),
+            $connection,
+            $analyzer
+        );
+
+        $updater->update([$productId], Context::createDefaultContext());
+
+        static::assertSame([], $this->deletedKeywords);
+        static::assertSame([], $this->insertedKeywords);
     }
 
     public function testUpdateDoesNotLoadParentProductsWhenFieldIsNotConfigured(): void
@@ -202,6 +284,43 @@ class SearchKeywordUpdaterTest extends TestCase
             $productRepository,
             $analyzer,
             new MockClock()
+        );
+    }
+
+    /**
+     * The decision which keywords to write is only observable through the executed statements, so
+     * the writes are captured into `$deletedKeywords` / `$insertedKeywords` and asserted in terms
+     * of the affected keywords.
+     *
+     * @param list<string> $candidates the keywords the calling test cares about
+     */
+    private function captureWrittenKeywords(Connection&Stub $connection, array $candidates): void
+    {
+        // the insert queue writes inside a transaction, without invoking the closure nothing runs
+        $connection->method('transactional')->willReturnCallback(
+            static fn (\Closure $closure): mixed => $closure($connection)
+        );
+
+        $connection->method('executeStatement')->willReturnCallback(
+            function (string $query, array $params = [], array $types = []) use ($candidates): int {
+                // the targeted delete passes the keywords as a named parameter
+                if (isset($params['keywords']) && \is_array($params['keywords'])) {
+                    foreach (array_values($params['keywords']) as $keyword) {
+                        $this->deletedKeywords[] = (string) $keyword;
+                    }
+
+                    return \count($params['keywords']);
+                }
+
+                // the insert queue passes all row values as a positional list
+                foreach (array_intersect($params, $candidates) as $keyword) {
+                    if (!\in_array((string) $keyword, $this->insertedKeywords, true)) {
+                        $this->insertedKeywords[] = (string) $keyword;
+                    }
+                }
+
+                return \count($params);
+            }
         );
     }
 

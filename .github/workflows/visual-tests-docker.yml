@@ -20,6 +20,21 @@ on:
         description: "Filter passed to Playwright's --grep input (matches test titles)."
         type: string
         default: ""
+        
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      use-currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input (matches test titles)."
+        type: string
+        default: ""
 
 jobs:
   visual-tests:

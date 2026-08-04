@@ -399,8 +399,8 @@ class ProductStreamUpdaterTest extends TestCase
             $connection,
             new ProductDefinition(),
             $repository,
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $this->createDefaultLanguageRepo(),
             true
         );
@@ -481,15 +481,17 @@ class ProductStreamUpdaterTest extends TestCase
             };
         }
 
+        // the repository compiles the definition, which is required to resolve the association paths
+        $definition = new ProductDefinition();
         /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository($searches);
+        $repository = new StaticEntityRepository($searches, $definition);
 
         $updater = new ProductStreamUpdater(
             $connection,
-            new ProductDefinition(),
+            $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $this->createDefaultLanguageRepo(),
             true
         );
@@ -549,15 +551,17 @@ class ProductStreamUpdaterTest extends TestCase
             };
         }
 
+        // the repository compiles the definition, which is required to resolve the association paths
+        $definition = new ProductDefinition();
         /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository($searches);
+        $repository = new StaticEntityRepository($searches, $definition);
 
         $updater = new ProductStreamUpdater(
             $connection,
-            new ProductDefinition(),
+            $definition,
             $repository,
-            $this->createMock(MessageBusInterface::class),
-            $this->createMock(ManyToManyIdFieldUpdater::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
             $this->createDefaultLanguageRepo(),
             true
         );

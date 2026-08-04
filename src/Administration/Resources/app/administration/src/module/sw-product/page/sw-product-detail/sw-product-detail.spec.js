@@ -259,6 +259,28 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
+    it('should flag the product as loading before awaiting the measurement units', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        let resolveSearch;
+        Shopware.Service('userConfigService').search.mockReturnValue(
+            new Promise((resolve) => {
+                resolveSearch = resolve;
+            }),
+        );
+
+        Shopware.Store.get('swProductDetail').$reset();
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+
+        wrapper = await createWrapper();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(true);
+
+        resolveSearch({ data: {} });
+        await flushPromises();
+    });
+
     it('should redirect to product listing when product no longer exists', async () => {
         await wrapper.unmount();
 

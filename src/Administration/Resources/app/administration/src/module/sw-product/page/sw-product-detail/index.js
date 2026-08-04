@@ -545,6 +545,11 @@ export default {
                 }
             }
 
+            Shopware.Store.get('swProductDetail').setLoading([
+                'product',
+                true,
+            ]);
+
             await this.initProductMeasurementUnits();
 
             // initialize default state

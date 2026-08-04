@@ -287,12 +287,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php',
 ];
 $ignoreErrors[] = [

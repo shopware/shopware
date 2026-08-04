@@ -226,7 +226,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 
@@ -705,7 +705,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
+            if (\is_array($filter['queries'] ?? null) && $filter['queries'] !== []) {
                 $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
             }
 

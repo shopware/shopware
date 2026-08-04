@@ -312,6 +312,61 @@ class SeoUrlPersisterTest extends TestCase
         );
     }
 
+    public function testInuseSeoPathsWithoutCandidatesAreNotMarkedCanonical(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
+        $seoUrls = [
+            [
+                'languageId' => Uuid::randomHex(),
+                'foreignKey' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomHex(),
+                'routeName' => 'test-route',
+                'pathInfo' => 'path1',
+                'seoPathInfo' => 'path1',
+            ],
+        ];
+
+        $inUse = [
+            [
+                'id' => 'id1',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+        ];
+
+        // the only candidate belongs to another group, so no seo url becomes canonical
+        $candidates = [
+            [
+                'id' => Uuid::randomBytes(),
+                'foreign_key' => Uuid::randomBytes(),
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+        ];
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls($inUse, $candidates);
+
+        $connection->expects($this->never())
+            ->method('executeStatement');
+
+        $seoChannel = new SalesChannelEntity();
+        $seoChannel->setId(Uuid::randomHex());
+
+        $seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'test-route',
+            ['foreignKey' => Uuid::randomHex()],
+            $seoUrls,
+            $seoChannel
+        );
+    }
+
     /**
      * Runs an update for one entity that already has a canonical SEO URL and returns every value that was
      * written to the database, so a test can check whether a row carrying a given `seo_path_info` was

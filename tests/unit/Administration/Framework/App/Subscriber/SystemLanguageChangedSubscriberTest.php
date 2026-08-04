@@ -198,6 +198,32 @@ class SystemLanguageChangedSubscriberTest extends TestCase
         yield ['fr-FR'];
     }
 
+    public function testWithoutSnippetsForEitherLocaleNothingIsWritten(): void
+    {
+        $localeRepository = new StaticEntityRepository([
+            new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
+            new LocaleCollection([$newLocale = $this->createLocale('de-AT')]),
+        ]);
+
+        // the app has snippets, but none for the previous or the new locale
+        $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
+            $this->createSnippet('app-one-id', 'other-locale-id'),
+        ])]);
+
+        $subscriber = new SystemLanguageChangedSubscriber(
+            $localeRepository,
+            $snippetRepository
+        );
+
+        $subscriber->onSystemLanguageChanged(new SystemLanguageChangeEvent(
+            'previous-language-id',
+            $previousLocale->getCode(),
+            $newLocale->getCode(),
+        ));
+
+        static::assertSame([], $snippetRepository->updates);
+    }
+
     private function createLocale(string $code): LocaleEntity
     {
         return (new LocaleEntity())->assign([

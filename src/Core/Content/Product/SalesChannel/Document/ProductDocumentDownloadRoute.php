@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -16,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
 {
     /**
@@ -37,8 +36,7 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
     #[Route(
         path: '/store-api/product/{productId}/document/{documentId}/download',
         name: 'store-api.product.document.download',
-        methods: [Request::METHOD_GET],
-        priority: 1
+        methods: [Request::METHOD_GET]
     )]
     public function load(string $productId, string $documentId, Request $request, SalesChannelContext $context): Response
     {
@@ -60,9 +58,7 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
     {
         $criteria = new Criteria();
 
-        $documentsCriteria = $criteria->getAssociation('productDocuments');
-        $documentsCriteria->addAssociation('media');
-        $documentsCriteria->addSorting(new FieldSorting('position'));
+        $criteria->getAssociation('productDocuments')->addAssociation('media');
 
         return $criteria;
     }
@@ -70,10 +66,10 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
     private function createProductDetailRequest(Request $request, string $productId): Request
     {
         return $request->duplicate(
-            array_replace($request->query->all(), [
+            [
                 'skipCmsPage' => '1',
                 'skipConfigurator' => '1',
-            ]),
+            ],
             null,
             array_replace($request->attributes->all(), [
                 'productId' => $productId,

@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse
 use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,7 +43,7 @@ class ProductDocumentDownloadRouteTest extends TestCase
     {
         $productId = 'product-id';
         $documentId = 'document-id';
-        $request = new Request(['existing' => 'query-value'], [], ['existingAttribute' => 'attribute-value']);
+        $request = new Request(['search' => 'query-value'], [], ['existingAttribute' => 'attribute-value']);
         $context = static::createStub(SalesChannelContext::class);
         $media = new MediaEntity();
         $media->setId('media-id');
@@ -61,9 +60,12 @@ class ProductDocumentDownloadRouteTest extends TestCase
             ->with(
                 $productId,
                 static::callback(function (Request $productRequest) use ($productId): bool {
-                    static::assertSame('query-value', $productRequest->query->get('existing'));
-                    static::assertSame('1', $productRequest->query->get('skipCmsPage'));
-                    static::assertSame('1', $productRequest->query->get('skipConfigurator'));
+                    // incoming query parameters like `search` must not leak into the detail request,
+                    // they would influence the variant resolution and therefore the served documents
+                    static::assertSame(
+                        ['skipCmsPage' => '1', 'skipConfigurator' => '1'],
+                        $productRequest->query->all()
+                    );
                     static::assertSame('attribute-value', $productRequest->attributes->get('existingAttribute'));
                     static::assertSame($productId, $productRequest->attributes->get('productId'));
 
@@ -76,10 +78,8 @@ class ProductDocumentDownloadRouteTest extends TestCase
                     $productDocumentsCriteria = $criteria->getAssociation('productDocuments');
                     static::assertTrue($productDocumentsCriteria->hasAssociation('media'));
 
-                    $sorting = $productDocumentsCriteria->getSorting();
-                    static::assertCount(1, $sorting);
-                    static::assertSame('position', $sorting[0]->getField());
-                    static::assertSame(FieldSorting::ASCENDING, $sorting[0]->getDirection());
+                    // the route looks the document up by id, no sorting needed
+                    static::assertSame([], $productDocumentsCriteria->getSorting());
 
                     return true;
                 }),

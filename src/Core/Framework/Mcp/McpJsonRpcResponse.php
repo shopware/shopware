@@ -148,7 +148,10 @@ class McpJsonRpcResponse implements \JsonSerializable
         return true;
     }
 
-    public function jsonSerialize(): mixed
+    /**
+     * @return array{jsonrpc: string, id: string|int, result: ResultInterface}
+     */
+    public function jsonSerialize(): array
     {
         return [
             'jsonrpc' => $this->jsonrpc,

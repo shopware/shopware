@@ -337,10 +337,10 @@ swDefinePublic({ count });
         // A bad `administrationRoot` is a config error, not a per-file one: the loader caches its promise,
         // so both files reject with the *same* error object. Error identity is what proves the module was
         // imported once.
-        const first = await plugin.transform(source, '/example/sw-first.vue').catch((error) => error);
-        const second = await plugin.transform(source, '/example/sw-second.vue').catch((error) => error);
+        const first: unknown = await plugin.transform(source, '/example/sw-first.vue').catch((error: unknown) => error);
+        const second: unknown = await plugin.transform(source, '/example/sw-second.vue').catch((error: unknown) => error);
 
-        expect(first.message).toContain('build/vue-setup-transform/index.js');
+        expect((first as Error).message).toContain('build/vue-setup-transform/index.js');
         expect(second).toBe(first);
     });
 });

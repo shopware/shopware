@@ -13,7 +13,7 @@ This fixture keeps that integration visible:
 
 The value is catching bugs where our transform-level map looks correct, but composition through Vue shifts, drops, or misattributes source positions.
 
-## What this fixture does *not* cover
+## What this fixture does _not_ cover
 
 It cannot catch a leak in the **emitted map asset**. `generateBundle` remaps `chunk.map`, and in a small isolated build like this one that object is also what Rollup writes to the `.js.map` file — so the assertion passes whether or not the fix that writes the remapped map back to `bundle['<chunk>.js.map']` is present. Verified by removing that write: this fixture stays green.
 

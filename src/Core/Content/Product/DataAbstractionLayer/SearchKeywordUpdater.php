@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -224,18 +225,20 @@ class SearchKeywordUpdater implements ResetInterface
                 continue;
             }
 
-            $this->connection->executeStatement(
-                'DELETE FROM product_search_keyword WHERE product_id = :productId AND language_id = :languageId AND product_version_id = :versionId AND keyword IN (:keywords)',
-                [
-                    'productId' => $productId,
-                    'languageId' => $languageId,
-                    'versionId' => $versionId,
-                    'keywords' => $toBeDeleted,
-                ],
-                [
-                    'keywords' => ArrayParameterType::STRING,
-                ]
-            );
+            RetryableQuery::retryable($this->connection, function () use ($productId, $languageId, $versionId, $toBeDeleted): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_search_keyword WHERE product_id = :productId AND language_id = :languageId AND product_version_id = :versionId AND keyword IN (:keywords)',
+                    [
+                        'productId' => $productId,
+                        'languageId' => $languageId,
+                        'versionId' => $versionId,
+                        'keywords' => $toBeDeleted,
+                    ],
+                    [
+                        'keywords' => ArrayParameterType::STRING,
+                    ]
+                );
+            });
         }
 
         $this->insertKeywords($keywords);

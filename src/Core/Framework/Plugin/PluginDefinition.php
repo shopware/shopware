@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -58,8 +59,8 @@ class PluginDefinition extends EntityDefinition
             (new StringField('composer_name', 'composerName'))->setDescription('Name of the composer package name.'),
             (new JsonField('autoload', 'autoload'))->addFlags(new Required())->setDescription('This ensures to automatically load all class files of a project before using them.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the plugin is available.'),
-            (new BoolField('managed_by_composer', 'managedByComposer'))->setDescription('A property to check whether it is installed via composer or not.'),
-            (new StringField('path', 'path'))->setDescription('A relative URL to the plugin.'),
+            (new BoolField('managed_by_composer', 'managedByComposer'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('A property to check whether it is installed via composer or not.'),
+            (new StringField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('A relative URL to the plugin.'),
             (new StringField('author', 'author'))->setDescription('Creator of the plugin.'),
             (new StringField('copyright', 'copyright'))->setDescription('Legal rights on the created plugin.'),
             (new StringField('license', 'license'))->setDescription('Software license\'s like MIT, etc.'),

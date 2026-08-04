@@ -734,12 +734,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/Plugin/Command/Lifecycle/AbstractPluginLifecycleCommand.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Framework/Plugin/PluginService.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -750,24 +744,6 @@ $ignoreErrors[] = [
     'identifier' => 'empty.notAllowed',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Framework/Plugin/Util/PluginFinder.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Parameter #1 $interval of static method Symfony\\Component\\RateLimiter\\Util\\TimeUtil::dateIntervalToSeconds() expects DateInterval, DateInterval|false given.',
-    'identifier' => 'argument.type',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Policy/TimeBackoff.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Parameter #1 ...$arg1 of function min expects non-empty-array, list<int> given.',
-    'identifier' => 'argument.type',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Policy/TimeBackoff.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Policy/TimeBackoff.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

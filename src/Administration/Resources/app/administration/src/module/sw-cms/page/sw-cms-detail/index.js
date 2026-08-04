@@ -39,7 +39,12 @@ export default {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            method: 'onSave',
+            active() {
+                return this.canSave;
+            },
+        },
     },
 
     data() {
@@ -172,6 +177,10 @@ export default {
                 entity: null,
                 mode: 'static',
             };
+        },
+
+        canSave() {
+            return !this.isLoading && !this.page.locked && this.acl.can('cms.editor');
         },
 
         blockConfigDefaults() {
@@ -673,6 +682,10 @@ export default {
         onSave() {
             this.isSaveSuccessful = false;
 
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             if (!this.pageIsValid()) {
                 this.createNotificationError({
                     message: this.$t('sw-cms.detail.notification.pageInvalid'),
@@ -685,6 +698,10 @@ export default {
         },
 
         onSaveEntity() {
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
 

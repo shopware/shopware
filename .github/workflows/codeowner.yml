@@ -25,10 +25,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # The checkout keeps no credentials, so the fetch has to carry its own token:
+      # this file is synced to the private mirror, where an anonymous fetch fails
+      # with "could not read Username for 'https://github.com'".
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git fetch --no-tags "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}" "pull/${PR_NUMBER}/head"
 
       # GITHUB_TOKEN has no organization scope, so requesting a review from a team
       # fails with "Could not resolve to a node with the global id of 'T_…'". No

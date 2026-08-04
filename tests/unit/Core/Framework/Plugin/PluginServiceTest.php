@@ -110,6 +110,7 @@ class PluginServiceTest extends TestCase
     public function testGetPluginByName(): void
     {
         $plugin = (new PluginEntity())->assign(['id' => 'foo', 'name' => 'foo']);
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection([$plugin])]);
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
@@ -137,6 +138,7 @@ class PluginServiceTest extends TestCase
         ]);
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginFinder->method('findPlugins')->willReturn([]);
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection([$plugin])]);
 
         $this->getPluginService($pluginRepo, $pluginFinder)->refreshPlugins(
@@ -162,6 +164,7 @@ class PluginServiceTest extends TestCase
 
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginFinder->method('findPlugins')->willReturn([$plugin]);
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
 
         $errors = $this->getPluginService($pluginRepo, $pluginFinder)->refreshPlugins(
@@ -176,9 +179,7 @@ class PluginServiceTest extends TestCase
 
     public function testRefreshPluginsKeepsCurrentVersionAndSetsUpgradeVersionForAnInstalledPlugin(): void
     {
-        $package = $this->getComposerPackage();
-        $package->setVersion('2.0.0');
-        $package->setPrettyVersion('2.0.0');
+        $package = $this->getComposerPackage('2.0.0');
 
         $plugin = new PluginFromFileSystemStruct();
         $plugin->assign([
@@ -196,6 +197,7 @@ class PluginServiceTest extends TestCase
             'version' => '1.0.0',
             'installedAt' => new \DateTimeImmutable(),
         ]);
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepo */
         $pluginRepo = new StaticEntityRepository([new PluginCollection([$installedPlugin])]);
 
         $this->getPluginService($pluginRepo, $pluginFinder)->refreshPlugins(
@@ -207,9 +209,9 @@ class PluginServiceTest extends TestCase
         static::assertSame('2.0.0', $pluginRepo->upserts[0][0]['upgradeVersion']);
     }
 
-    private function getComposerPackage(): CompletePackage
+    private function getComposerPackage(string $version = '1.0.0'): CompletePackage
     {
-        $completePackage = new CompletePackage('foo', '1.0.0', '1.0.0');
+        $completePackage = new CompletePackage('foo', $version, $version);
         $completePackage->setAutoload([
             'psr-4' => [
                 'Foo\\' => 'bar',

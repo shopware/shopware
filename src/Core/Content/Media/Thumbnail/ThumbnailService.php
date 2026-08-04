@@ -222,7 +222,7 @@ class ThumbnailService
     }
 
     /**
-     * @return list<array{id:string, mediaId:string, width:int, height:int}>
+     * @return list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}>
      */
     private function generateAndSave(MediaEntity $media, MediaFolderConfigurationEntity $config, Context $context, ?MediaThumbnailSizeCollection $sizes): array
     {
@@ -374,11 +374,12 @@ class ThumbnailService
                 $exif = @exif_read_data($stream);
 
                 if ($exif !== false) {
-                    if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
+                    $exifOrientation = $exif['Orientation'] ?? null;
+                    if ($exifOrientation === 8) {
                         $image = $this->thumbnailProcessor->rotate($image, 90);
-                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
+                    } elseif ($exifOrientation === 3) {
                         $image = $this->thumbnailProcessor->rotate($image, 180);
-                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
+                    } elseif ($exifOrientation === 6) {
                         $image = $this->thumbnailProcessor->rotate($image, -90);
                     }
                 }

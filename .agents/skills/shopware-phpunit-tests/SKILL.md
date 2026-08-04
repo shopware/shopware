@@ -19,11 +19,13 @@ Tests should read like executable examples.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
+- Do not invoke private or protected methods of Shopware classes via reflection (`->invoke()`, `->invokeArgs()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. Fix legacy usages when touching such a test. Reflecting into a third-party class stays acceptable when a vendor API leaves no other option, and reading metadata from a reflection object is always fine, for example asserting a declaring class, a signature, or an attribute. The PHPStan rule `shopware.reflectionOnNonPublicMethod` enforces this.
 
 ## Assertions And Fixtures
 
 - Prefer `expectExceptionObject()` over a broader `expectException`, build the expected exception through the same domain factory when one exists so class, code, and message stay aligned with production behavior.
 - Do not behavior-mock Doctrine DBAL `Connection` in unit tests by asserting SQL calls or parameters. Stub DBAL-consuming collaborators when needed; isolate SQL/DBAL adapters and cover those adapters with integration tests.
+- Exception, when the behaviour under test is a decision whose only observable effect is the write itself and the class offers no other seam: drive the public method, stub the read side for data only, capture the executed statements in one helper, and assert on the written values in domain terms, never on SQL text. Make the `Connection` double's `transactional()` actually invoke its closure, otherwise nothing executes and the tests pass vacuously. See "Asserting writes when there is no other seam" in `coding-guidelines/core/unit-tests.md`.
 
 ## Stubbing DAL Repositories
 
@@ -42,6 +44,7 @@ Tests should read like executable examples.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
+- Declare exactly one `#[CoversClass]` per test file: the covered class decides which domain owns the test. When a second class needs tests, create a second test file. A Danger rule fails new test files covering more than one class.
 
 ## Package Attribute
 

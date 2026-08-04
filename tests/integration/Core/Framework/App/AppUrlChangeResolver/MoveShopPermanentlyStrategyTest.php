@@ -125,7 +125,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
                 }
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$testApp, $withConfigApp]),
         ]);

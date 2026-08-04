@@ -138,7 +138,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $client = static::createStub(ServiceClient::class);
         $client->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
-        $factory = $this->createMock(ServiceClientFactory::class);
+        $factory = static::createStub(ServiceClientFactory::class);
         $factory->method('newFor')->willReturn($client);
 
         $this->requirementsValidator->expects($this->never())->method('isSatisfied');
@@ -216,8 +216,7 @@ class ServiceLifecycleTest extends TestCase
         $this->stateChangePermitted(false);
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
@@ -466,8 +465,7 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // findAll() walks the installed services, then uninstall() looks the service up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->reevaluateInstalled($context);
     }
@@ -640,8 +638,7 @@ class ServiceLifecycleTest extends TestCase
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
+        $appRepository = StaticEntityRepository::of(AppCollection::class, [
             new AppCollection($apps),
         ]);
 

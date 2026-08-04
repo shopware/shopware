@@ -87,16 +87,15 @@ class CheapestPriceUpdater
             $container = new CheapestPriceContainer($prices);
             $serializedContainer = serialize($container);
 
-            // nothing has changed for the cheapest price of this product and its variants
-            if (($existingContainers[Uuid::fromHexToBytes($productId)] ?? null) === $serializedContainer) {
-                continue;
+            // The accessors below are still checked one by one, so a variant whose accessor got out
+            // of sync is repaired even when the container itself did not change.
+            if (($existingContainers[Uuid::fromHexToBytes($productId)] ?? null) !== $serializedContainer) {
+                $cheapestPrice->execute([
+                    'price' => $serializedContainer,
+                    'id' => Uuid::fromHexToBytes($productId),
+                    'version' => $versionId,
+                ]);
             }
-
-            $cheapestPrice->execute([
-                'price' => $serializedContainer,
-                'id' => Uuid::fromHexToBytes($productId),
-                'version' => $versionId,
-            ]);
 
             $variantIds = $container->getVariantIds();
 

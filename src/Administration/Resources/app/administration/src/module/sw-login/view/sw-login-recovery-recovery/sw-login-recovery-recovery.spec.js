@@ -52,6 +52,40 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         wrapper.vm.userRecoveryService.updateUserPassword.mockRestore();
     });
 
+    it('should redirect to the recovery request with the linkExpired state when the hash is invalid', async () => {
+        const replaceSpy = jest.fn();
+
+        wrapper = mount(await wrapTestComponent('sw-login-recovery-recovery', { sync: true }), {
+            global: {
+                mocks: {
+                    $router: { replace: replaceSpy, push: jest.fn() },
+                },
+                stubs: {
+                    'router-link': true,
+                    'sw-loader': true,
+                },
+                provide: {
+                    userRecoveryService: {
+                        checkHash: () => Promise.reject(),
+                        updateUserPassword: () => Promise.resolve(),
+                    },
+                },
+            },
+            props: {
+                hash: 'expired-hash',
+            },
+        });
+
+        await flushPromises();
+
+        expect(replaceSpy).toHaveBeenCalledWith({
+            name: 'sw.login.index.recovery',
+            state: {
+                linkExpired: true,
+            },
+        });
+    });
+
     it('should call updateUserPassword when submit button is clicked', async () => {
         const testHash = 'test-hash-123';
         const testPassword = 'testPassword123';
@@ -74,5 +108,10 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
 
         expect(updateUserPasswordSpy).toHaveBeenCalledTimes(1);
         expect(updateUserPasswordSpy).toHaveBeenCalledWith(testHash, testPassword, testPassword);
+        expect(wrapper.emitted('is-loading')).toBeTruthy();
+
+        await flushPromises();
+
+        expect(wrapper.emitted('is-not-loading')).toBeTruthy();
     });
 });

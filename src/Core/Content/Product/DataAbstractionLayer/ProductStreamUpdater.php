@@ -207,6 +207,9 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $languageContexts = $streams === [] ? [] : $this->getLanguageContexts($context);
 
         $evaluatedStreamIds = [];
+        $hasInserts = false;
+        /** @var array<string, list<string>> $deletesByStream */
+        $deletesByStream = [];
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
@@ -235,6 +238,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $toBeAdded = array_values(array_diff($matchedIds, $oldMatchesOfStream));
 
             foreach ($toBeAdded as $id) {
+                $hasInserts = true;
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -242,38 +246,36 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 ]);
             }
 
-            if ($toBeDeleted === []) {
-                continue;
+            if ($toBeDeleted !== []) {
+                $deletesByStream[$stream['id']] = Uuid::fromHexToBytesList($toBeDeleted);
             }
+        }
 
-            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $stream): void {
+        // mappings of streams that were not evaluated above no longer apply to any of the products
+        foreach (array_diff(array_keys($oldMatches), $evaluatedStreamIds) as $obsoleteStreamId) {
+            $deletesByStream[$obsoleteStreamId] = Uuid::fromHexToBytesList($ids);
+        }
+
+        if ($deletesByStream === [] && !$hasInserts) {
+            return;
+        }
+
+        // deleting and inserting in one transaction keeps readers from seeing a product that is
+        // temporarily missing from a stream it still belongs to
+        RetryableTransaction::retryable($this->connection, function () use ($deletesByStream, $insert): void {
+            foreach ($deletesByStream as $streamId => $productIds) {
                 $this->connection->executeStatement(
                     'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
                     [
-                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
-                        'streamId' => $stream['id'],
+                        'ids' => $productIds,
+                        'streamId' => $streamId,
                     ],
                     ['ids' => ArrayParameterType::BINARY],
                 );
-            });
-        }
+            }
 
-        $obsoleteStreamIds = array_values(array_diff(array_keys($oldMatches), $evaluatedStreamIds));
-
-        if ($obsoleteStreamIds !== []) {
-            RetryableTransaction::retryable($this->connection, function () use ($ids, $obsoleteStreamIds): void {
-                $this->connection->executeStatement(
-                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id IN (:streamIds)',
-                    [
-                        'ids' => Uuid::fromHexToBytesList($ids),
-                        'streamIds' => $obsoleteStreamIds,
-                    ],
-                    ['ids' => ArrayParameterType::BINARY, 'streamIds' => ArrayParameterType::BINARY],
-                );
-            });
-        }
-
-        $insert->execute();
+            $insert->execute();
+        });
     }
 
     public function getTotal(): int

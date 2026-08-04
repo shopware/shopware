@@ -4,10 +4,6 @@
 
 ## API
 
-### Plugin filesystem metadata is read-only through the Admin API
-
-The `plugin.path` and `plugin.managedByComposer` fields can no longer be created or changed through generic Admin API writes. Plugin discovery and extension management continue to maintain these values automatically. Integrations must not write plugin filesystem metadata directly.
-
 ## Core
 
 ### Backward compatible invalid locales

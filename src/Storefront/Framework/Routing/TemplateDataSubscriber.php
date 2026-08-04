@@ -4,11 +4,9 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
-use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -29,8 +27,6 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         private readonly ShopIdProvider $shopIdProvider,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly ThemeRuntimeConfigService $runtimeConfigService,
-        private readonly CachePolicyProvider $cachePolicyProvider,
-        private readonly bool $httpCacheEnabled,
     ) {
     }
 
@@ -41,7 +37,6 @@ class TemplateDataSubscriber implements EventSubscriberInterface
                 ['addHreflang'],
                 ['addShopIdParameter'],
                 ['addIconSetConfig'],
-                ['addNoVarySearch'],
             ],
         ];
     }
@@ -110,28 +105,5 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         }
 
         $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
-    }
-
-    /**
-     * Exposes the `No-Vary-Search` value that cacheable storefront pages will be answered with, so the
-     * speculation rules can declare the same relaxation via `expects_no_vary_search`. Without it the
-     * browser starts a second speculation for URLs that differ only in ignored ways, because it cannot
-     * know the match will be allowed before the response arrives.
-     */
-    public function addNoVarySearch(StorefrontRenderEvent $event): void
-    {
-        // Mirrors the conditions under which CacheResponseSubscriber actually emits the header.
-        // Announcing a relaxation the responses do not carry would only waste speculations.
-        if (!$this->httpCacheEnabled) {
-            return;
-        }
-
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
-            return;
-        }
-
-        $policy = $this->cachePolicyProvider->getPolicy('', 'storefront', true);
-
-        $event->setParameter('noVarySearch', $policy->noVarySearch);
     }
 }

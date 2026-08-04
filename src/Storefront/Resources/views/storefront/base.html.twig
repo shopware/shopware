@@ -135,7 +135,6 @@
         {% if config('core.storefrontSettings.speculationRules') %}
             {% set options = {
                 selectorNavigationLinks: '.nav-item.nav-link',
-                expectsNoVarySearch: noVarySearch|default(null),
             } %}
             <template data-speculation-rules="true" data-speculation-rules-options="{{ options|json_encode }}"></template>
         {% endif %}

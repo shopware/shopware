@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
-use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
@@ -19,7 +18,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
@@ -64,7 +62,7 @@ class TemplateDataSubscriberTest extends TestCase
 
         static::assertArrayHasKey(StorefrontRenderEvent::class, $events);
         static::assertIsArray($events[StorefrontRenderEvent::class]);
-        static::assertCount(4, $events[StorefrontRenderEvent::class]);
+        static::assertCount(3, $events[StorefrontRenderEvent::class]);
 
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][0]);
@@ -392,81 +390,17 @@ class TemplateDataSubscriberTest extends TestCase
         static::assertSame($themeConfig->iconSets, $event->getParameters()['themeIconConfig']);
     }
 
-    public function testAddNoVarySearch(): void
-    {
-        $event = $this->buildRenderEvent();
-
-        $this->buildSubscriber(noVarySearch: 'key-order')->addNoVarySearch($event);
-
-        static::assertArrayHasKey('noVarySearch', $event->getParameters());
-        static::assertSame('key-order', $event->getParameters()['noVarySearch']);
-    }
-
-    public function testAddNoVarySearchWithoutDirectivesInPolicy(): void
-    {
-        $event = $this->buildRenderEvent();
-
-        $this->buildSubscriber(noVarySearch: null)->addNoVarySearch($event);
-
-        static::assertArrayHasKey('noVarySearch', $event->getParameters());
-        static::assertNull($event->getParameters()['noVarySearch']);
-    }
-
-    public function testAddNoVarySearchWithDisabledHttpCache(): void
-    {
-        // without the http cache the responses do not carry the header, so announcing it in the
-        // speculation rules would only cause wasted speculations
-        $event = $this->buildRenderEvent();
-
-        $this->buildSubscriber(noVarySearch: 'key-order', httpCacheEnabled: false)->addNoVarySearch($event);
-
-        static::assertArrayNotHasKey('noVarySearch', $event->getParameters());
-    }
-
-    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
-    public function testAddNoVarySearchWithoutCacheRework(): void
-    {
-        $event = $this->buildRenderEvent();
-
-        $this->buildSubscriber(noVarySearch: 'key-order')->addNoVarySearch($event);
-
-        static::assertArrayNotHasKey('noVarySearch', $event->getParameters());
-    }
-
-    private function buildRenderEvent(): StorefrontRenderEvent
-    {
-        return new StorefrontRenderEvent(
-            '@Storefront/storefront/base.html.twig',
-            [],
-            new Request(),
-            Generator::generateSalesChannelContext()
-        );
-    }
-
     private function buildSubscriber(
         ?HreflangLoaderInterface $hreflangLoader = null,
         ?ShopIdProvider $shopIdProvider = null,
         ?ActiveAppsLoader $activeAppsLoader = null,
         ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
-        ?string $noVarySearch = null,
-        bool $httpCacheEnabled = true,
     ): TemplateDataSubscriber {
-        $headers = ['cache_control' => ['public' => true]];
-        if ($noVarySearch !== null) {
-            $headers['no_vary_search'] = $noVarySearch;
-        }
-
         return new TemplateDataSubscriber(
             $hreflangLoader ?? $this->hreflangLoader,
             $shopIdProvider ?? $this->shopIdProvider,
             $activeAppsLoader ?? $this->activeAppsLoader,
             $themeRuntimeConfigService ?? $this->themeRuntimeConfigService,
-            CachePolicyProviderFactory::create(
-                ['cacheable' => ['headers' => $headers]],
-                [],
-                ['storefront' => ['cacheable' => 'cacheable', 'uncacheable' => null]],
-            ),
-            $httpCacheEnabled,
         );
     }
 }

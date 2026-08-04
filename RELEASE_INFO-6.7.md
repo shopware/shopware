@@ -306,13 +306,13 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## Hosting & Configuration
 
-### `No-Vary-Search` header on cacheable responses
+### `No-Vary-Search` header on cacheable storefront responses
 
-Cacheable Storefront and Store-API responses now send [`No-Vary-Search`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search). The header tells clients which query string differences may be ignored when matching a request against an already stored response, both in the browser HTTP cache and in the prefetch/prerender cache of the Speculation Rules API. It only applies when the `CACHE_REWORK` feature flag is active.
+Cacheable storefront responses now send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), which declares that the order of query parameters does not change the response. That is the same normalization `HttpCacheKeyGenerator` has always applied to the server side cache key, so no new assumption is introduced. The header requires the `CACHE_REWORK` feature flag.
 
-The shipped policies declare `key-order` only, which marks the order of query parameters as irrelevant. That is the same normalization the server side cache key has always used, so no new assumption is introduced. When speculation rules are enabled for a sales channel, the storefront additionally declares the value as `expects_no_vary_search` in the emitted rules, so the browser does not start a second speculation for a URL that differs only in parameter order.
+Scope worth knowing before you rely on it: browsers currently evaluate `No-Vary-Search` only for the prefetch and prerender cache of the Speculation Rules API, not for the regular HTTP cache, and only in Chromium. Firefox and Safari ignore it. Reverse proxies ignore it as well, see below. Today the header is therefore mostly a correct declaration for browsers to act on as support widens, not a measurable speedup.
 
-Policies accept the header under `headers.no_vary_search` as the verbatim header value:
+Policies accept the verbatim header value under `headers.no_vary_search`:
 
 ```yaml
 # config/packages/shopware.yaml
@@ -327,82 +327,13 @@ shopware:
                     no_vary_search: 'key-order'
 ```
 
-The value is passed through unchanged, so any [`No-Vary-Search`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search) value can be used, for example `key-order, params=("utm_source" "gclid")` or `params, except=("q")`. It is validated only for being a single line of printable ASCII, so it cannot smuggle a second header. Omitting the key sends no header at all.
+The value is passed through unchanged, so any valid value works, for example `key-order, params=("utm_source" "gclid")`. It is validated only for being a single line of printable ASCII, so a configured value cannot smuggle a second header. Omitting the key sends no header at all, which is why the shipped `store_api.cacheable` policy does not set one: Store-API responses are fetched by script and never enter a navigation speculation cache.
 
-Never mark parameters that change the rendered content as irrelevant, such as `p`, `order`, `search` or filter names. With prerendering a widened match means a fully rendered page is displayed for a different URL, so declaring `p` as irrelevant would show page 1 at a `?p=2` URL. Marking tracking parameters is safe: reusing a stored response does not rewrite the document URL, so client side analytics still reads the real values from `window.location.search`.
+Never mark parameters that change the rendered content as irrelevant, such as `p`, `order`, `search` or filter names. Under prerendering a widened match means a fully rendered page is shown for a different URL, so declaring `p` irrelevant would display page 1 at a `?p=2` URL. Marking tracking parameters is safe, because reusing a stored response does not rewrite the document URL and client side analytics still reads the real values from `window.location.search`.
 
-Adding the `shopware.http_cache.ignored_url_parameters` entries to a `params=(...)` list tells clients what the server side cache key already does, since those parameters are stripped from it anyway. Keep the size in mind: the 117 entries of the default list serialize to about 1.3 kB of header on every response, compared to 27 bytes for `key-order` alone.
+A `No-Vary-Search` header set by a controller or plugin is only replaced when the resolved policy declares one itself. To vary the value per request or sales channel, which configuration cannot express, use a response listener below priority `-1500`, where `CacheResponseSubscriber::setResponseCache` runs.
 
-#### Changing the value from an extension
-
-A `No-Vary-Search` header set by a controller or plugin is only replaced when the resolved policy declares one itself. There are three ways to influence it:
-
-1. **A dedicated policy for your own routes.** `route_policies` is resolved before the area default, so a plugin can point its routes at a policy carrying a different value:
-
-```yaml
-shopware:
-    http_cache:
-        policies:
-            my_plugin.listing:
-                headers:
-                    cache_control: { public: true, s_maxage: 3600 }
-                    no_vary_search: 'key-order, params=("ref")'
-        route_policies:
-            'frontend.my_plugin.listing': 'my_plugin.listing'
-```
-
-2. **A compiler pass** modifying the `shopware.http_cache.policies` container parameter, when a plugin needs to change the shipped default globally.
-
-3. **A response listener** below priority `-1500`, which is where `CacheResponseSubscriber::setResponseCache` runs. This is the only option for a value that depends on the request, the sales channel or the customer group, since configuration cannot express that:
-
-```php
-#[AsEventListener(event: KernelEvents::RESPONSE, priority: -1600)]
-```
-
-When you change the header from a listener, also set the `noVarySearch` parameter in a `StorefrontRenderEvent` listener. Otherwise the speculation rules keep announcing the policy value through `expects_no_vary_search` and the two drift apart.
-
-### Speculation rules now prefetch listing links
-
-The speculation rules plugin, enabled per sales channel via `core.storefrontSettings.speculationRules`, emits a second rule set. Product and navigation links keep using `prerender`. Listing links, currently the pagination links matched by `.pagination .page-link`, use `prefetch` instead.
-
-The split is deliberate. Prerendering executes the full page including its JavaScript, and a pagination bar can hold nine links, so prerendering each hovered one would mean a full render per hover on the server. Prefetch only downloads the document.
-
-Listing links are also the place where `No-Vary-Search` pays off, because they are the URLs that carry query parameters. The same page is reachable under several parameter orders: the server renders `?p=2&search=x`, while `listing-pagination.plugin.js` derives `?search=x&p=2` from the current URL. Without the header those are separate entries in the prefetch cache.
-
-Two new extension points on `SpeculationRulesPlugin`:
-
-* `customizePrefetchRules(rules)` is the counterpart of the existing `customizeRules(rules)`, which continues to apply to the `prerender` rules only.
-* The `selectorListingLinks` option controls which links are prefetched. Set it to `false` to switch the prefetch rules off entirely. An empty array does not work, because the plugin option merge concatenates arrays rather than replacing them.
-
-Both rule sets receive `expects_no_vary_search` matching the configured header. This only affects the window while a speculation is still in flight: it tells the browser the match will be allowed before the response arrives, so it does not start a second speculation for a URL that differs only in parameter order. Once the response has arrived, matching is driven by the `No-Vary-Search` header alone.
-
-Measured in Chrome 150 against a paginated category listing, prefetching `?order=name-asc&p=2` and then navigating to `?p=2&order=name-asc`:
-
-* with the header, the navigation is served from the prefetch cache (`PerformanceNavigationTiming.deliveryType` is `navigational-prefetch`), first byte after about 4 ms
-* without the header, the same navigation is a full network fetch, first byte after about 22 ms and roughly 33 kB transferred at navigation time
-
-The header does not reduce the total number of bytes. It moves the document fetch off the critical path of the navigation. Browsers without speculation rules or `No-Vary-Search` support ignore both and behave exactly as before.
-
-### Query parameter normalization for external reverse proxies
-
-`No-Vary-Search` is evaluated by browsers only. Varnish and Fastly ignore it, and when an external reverse proxy is enabled Shopware's own cache key normalization does not run either, because the request is passed straight to the application. Operators who want the same behaviour in front of the application have to normalize in their VCL.
-
-Varnish, in `vcl_recv` (requires `vmod_std`):
-
-```vcl
-# server side equivalent of `key-order`
-set req.url = std.querysort(req.url);
-```
-
-Fastly, in `vcl_recv` (requires `vmod_querystring`):
-
-```vcl
-set req.url = querystring.sort(req.url);
-# only when `include_ignored_url_parameters` is enabled as well
-set req.url = querystring.regfilter(req.url, "^(utm_|gclid|_ga)");
-```
-
-The filter pattern has to match the parameters declared in `no_vary_search`, otherwise the proxy and the browser disagree about which URLs are equivalent. Enabling the header without the VCL is still correct, it is only less effective.
+Operators who want the same normalization in front of the application have to do it in their VCL, since an external reverse proxy also bypasses Shopware's own cache key normalization. In Varnish `vcl_recv` with `vmod_std`, the equivalent of `key-order` is `set req.url = std.querysort(req.url);`. In Fastly with `vmod_querystring` it is `set req.url = querystring.sort(req.url);`.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

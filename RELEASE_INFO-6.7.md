@@ -280,6 +280,8 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 Loops that already process a whole set of records per iteration are not reported: chunked sources (`foreach (array_chunk($ids, 250) as $chunk)`), any `foreach` that binds a list per iteration (`foreach ($chunks as $chunk)`, `foreach ($idsByLanguage as $languageId => $ids)`), pagination loops driven by an `IterableQuery`, `RepositoryIterator` or `SalesChannelRepositoryIterator` (`while ($ids = $iterator->fetch())`), `while`/`do-while` loops that drain a worklist (`while ($pendingIds !== [])`) or a paginated query (`LIMIT :limit`, `setLimit()`, `setOffset()`), and loops with a statically fixed iteration count. Test classes are skipped.
 
+Queries a loop reaches at most once are not reported either: a query memoised by a null check (`if ($sets === null) { $sets = … }`), and a query in a block that ends in `throw` or `return`, such as the cleanup query of an error handler that rethrows.
+
 If your plugin picks up the new errors, either load the data for all iterations before the loop, or — when the loop legitimately runs one query per group rather than per record — suppress the report with a reason: `// @phpstan-ignore shopware.queryInLoop (one query per entity definition)`.
 
 ## Administration

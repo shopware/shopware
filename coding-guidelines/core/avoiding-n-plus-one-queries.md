@@ -61,6 +61,13 @@ report:
 * loops with a statically fixed iteration count, e.g. `foreach (['de-DE', 'en-GB'] as $locale)` or
   `for ($i = 0; $i < 3; ++$i)`.
 
+It also does not report queries that a loop reaches at most once, however many records it processes:
+
+* a query memoised by a null check, e.g. `if ($snippetSets === null) { $snippetSets = $this->connection->fetchAllAssociative(…); }`,
+* a query in a block that ends in `throw` or `return`, because that block leaves the loop — for example the cleanup
+  query of an error handler that rethrows. Note that `continue` does not end a block in this sense: it starts the
+  next iteration, so a query before it still runs per record.
+
 ## Suppressing a report
 
 Some loops process a fixed set of groups rather than records and cannot be collapsed into a single query. Most of

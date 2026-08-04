@@ -11,18 +11,28 @@ use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotEqual;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\Case_;
+use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\Do_;
+use PhpParser\Node\Stmt\Else_;
+use PhpParser\Node\Stmt\ElseIf_;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\For_;
 use PhpParser\Node\Stmt\Foreach_;
+use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\While_;
 use PhpParser\NodeFinder;
 use PhpParser\NodeVisitorAbstract;
@@ -97,8 +107,14 @@ class LoopContextVisitor extends NodeVisitorAbstract
             'batchVariables' => $this->findBatchVariables($node),
         ];
 
+        $runOnce = $this->findCallsRunningAtMostOnce($node->stmts);
+
         // outer loops are visited before inner ones, so appending builds an outermost-first chain
         foreach ((new NodeFinder())->findInstanceOf($node->stmts, MethodCall::class) as $call) {
+            if (isset($runOnce[spl_object_id($call)])) {
+                continue;
+            }
+
             /** @var list<LoopContext> $loops */
             $loops = $call->getAttribute(self::ATTRIBUTE, []);
             $loops[] = $context;
@@ -113,6 +129,121 @@ class LoopContextVisitor extends NodeVisitorAbstract
     {
         if ($node instanceof FunctionLike) {
             array_pop($this->functionStack);
+        }
+
+        return null;
+    }
+
+    /**
+     * Calls that a single iteration reaches at most once for the whole loop, so they do not scale with the number of
+     * records even though they sit in the loop body:
+     *
+     * - everything in a block that ends in `throw` or `return`, because that block leaves the loop, e.g. the cleanup
+     *   query of an error handler that rethrows,
+     * - a query memoised by a null check, e.g. `if ($sets === null) { $sets = $this->connection->fetchAll…(); }`.
+     *
+     * @param array<Node\Stmt> $stmts
+     *
+     * @return array<int, true> keyed by the calls' object ids
+     */
+    private function findCallsRunningAtMostOnce(array $stmts): array
+    {
+        $calls = [];
+
+        $blocks = [$stmts];
+        foreach ((new NodeFinder())->find($stmts, static fn (Node $node): bool => $node instanceof If_ || $node instanceof ElseIf_ || $node instanceof Else_ || $node instanceof Catch_ || $node instanceof Case_) as $block) {
+            /** @var If_|ElseIf_|Else_|Catch_|Case_ $block */
+            $blocks[] = $block->stmts;
+
+            if ($block instanceof If_ && $this->isNullCheck($block->cond) !== null) {
+                foreach ($this->findMemoisingAssignments($block) as $assignment) {
+                    foreach ((new NodeFinder())->findInstanceOf([$assignment->expr], MethodCall::class) as $call) {
+                        $calls[spl_object_id($call)] = true;
+                    }
+                }
+            }
+        }
+
+        foreach ($blocks as $block) {
+            if (!$this->leavesTheLoop($block)) {
+                continue;
+            }
+
+            foreach ((new NodeFinder())->findInstanceOf($block, MethodCall::class) as $call) {
+                $calls[spl_object_id($call)] = true;
+            }
+        }
+
+        return $calls;
+    }
+
+    /**
+     * @param array<Node\Stmt> $stmts
+     */
+    private function leavesTheLoop(array $stmts): bool
+    {
+        $last = $stmts === [] ? null : $stmts[array_key_last($stmts)];
+
+        if ($last instanceof Return_) {
+            return true;
+        }
+
+        return $last instanceof Expression && $last->expr instanceof Throw_;
+    }
+
+    /**
+     * The assignments of an `if` that guards against an already resolved value, e.g. the `$sets = …` of
+     * `if ($sets === null) { $sets = … }`.
+     *
+     * @return list<Assign>
+     */
+    private function findMemoisingAssignments(If_ $if): array
+    {
+        $guarded = $this->isNullCheck($if->cond);
+
+        if ($guarded === null) {
+            return [];
+        }
+
+        $assignments = [];
+        foreach ((new NodeFinder())->findInstanceOf($if->stmts, Assign::class) as $assign) {
+            if ($this->describeTarget($assign->var) === $guarded) {
+                $assignments[] = $assign;
+            }
+        }
+
+        return $assignments;
+    }
+
+    /**
+     * The target of a `=== null` / `!== null` comparison, described so that it can be compared to an assignment
+     * target. Returns null when the condition is not a null check.
+     */
+    private function isNullCheck(Expr $condition): ?string
+    {
+        if (!$condition instanceof Identical && !$condition instanceof NotIdentical && !$condition instanceof Equal && !$condition instanceof NotEqual) {
+            return null;
+        }
+
+        foreach ([[$condition->left, $condition->right], [$condition->right, $condition->left]] as [$target, $value]) {
+            if ($value instanceof ConstFetch && strtolower($value->name->toString()) === 'null') {
+                return $this->describeTarget($target);
+            }
+        }
+
+        return null;
+    }
+
+    private function describeTarget(Expr $target): ?string
+    {
+        if ($target instanceof Variable && \is_string($target->name)) {
+            return '$' . $target->name;
+        }
+
+        if ($target instanceof PropertyFetch && $target->name instanceof Node\Identifier) {
+            $object = $this->describeTarget($target->var);
+
+            return $object === null ? null : $object . '->' . $target->name->toString();
         }
 
         return null;

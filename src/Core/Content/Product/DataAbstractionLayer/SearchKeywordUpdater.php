@@ -144,65 +144,37 @@ class SearchKeywordUpdater implements ResetInterface
 
         $oldKeywordsByProductId = FetchModeHelper::group($oldKeywordsByProductId);
 
+        $productIdsToRewrite = [];
+
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
-            $plainKeywords = [];
-            $toBeAdded = [];
-            $toBeDeleted = [];
-
-            $existingKeywordRows = $oldKeywordsByProductId[$product->getId()] ?? [];
-            $existingKeywordMap = [];
-
-            foreach ($existingKeywordRows as $row) {
-                if (!isset($row['keyword']) || !isset($row['ranking'])) {
+            $storedKeywords = [];
+            foreach ($oldKeywordsByProductId[$product->getId()] ?? [] as $row) {
+                if (!isset($row['keyword'], $row['ranking'])) {
                     continue;
                 }
 
-                $existingKeywordMap[$row['keyword']] = (float) $row['ranking'];
+                $storedKeywords[$row['keyword']] = (float) $row['ranking'];
             }
 
+            $analyzedKeywords = [];
             foreach ($analyzed as $keyword) {
-                $keywordValue = $keyword->getKeyword();
-                $plainKeywords[] = $keywordValue;
-
-                $previousRanking = $existingKeywordMap[$keywordValue] ?? null;
-
-                // new keyword
-                if ($previousRanking === null) {
-                    $toBeAdded[] = $keywordValue;
-
-                    continue;
-                }
-
-                // ranking has changed
-                if ($previousRanking !== $keyword->getRanking()) {
-                    $toBeAdded[] = $keywordValue;
-                    $toBeDeleted[] = $keywordValue;
-                }
+                $analyzedKeywords[$keyword->getKeyword()] = $keyword->getRanking();
             }
 
-            $removedKeywords = array_diff(array_keys($existingKeywordMap), $plainKeywords);
+            ksort($storedKeywords);
+            ksort($analyzedKeywords);
 
-            if ($removedKeywords !== []) {
-                $toBeDeleted = [...$toBeDeleted, ...$removedKeywords];
-            }
-
-            $toBeAdded = array_values(array_unique($toBeAdded));
-            $toBeDeleted = array_values(array_unique($toBeDeleted));
-
-            if ($toBeAdded === [] && $toBeDeleted === []) {
+            // neither the keywords nor their rankings changed, leave the stored rows untouched
+            if ($storedKeywords === $analyzedKeywords) {
                 continue;
             }
 
             $productId = Uuid::fromHexToBytes($product->getId());
-            $toBeAddedLookup = array_flip($toBeAdded);
+            $productIdsToRewrite[] = $productId;
 
             foreach ($analyzed as $keyword) {
-                if (!isset($toBeAddedLookup[$keyword->getKeyword()])) {
-                    continue;
-                }
-
                 $keywords[] = [
                     'id' => Uuid::randomBytes(),
                     'version_id' => $versionId,
@@ -220,27 +192,9 @@ class SearchKeywordUpdater implements ResetInterface
                     'keyword' => $keyword->getKeyword(),
                 ];
             }
-
-            if ($toBeDeleted === []) {
-                continue;
-            }
-
-            RetryableQuery::retryable($this->connection, function () use ($productId, $languageId, $versionId, $toBeDeleted): void {
-                $this->connection->executeStatement(
-                    'DELETE FROM product_search_keyword WHERE product_id = :productId AND language_id = :languageId AND product_version_id = :versionId AND keyword IN (:keywords)',
-                    [
-                        'productId' => $productId,
-                        'languageId' => $languageId,
-                        'versionId' => $versionId,
-                        'keywords' => $toBeDeleted,
-                    ],
-                    [
-                        'keywords' => ArrayParameterType::STRING,
-                    ]
-                );
-            });
         }
 
+        $this->deleteKeywords($productIdsToRewrite, $languageId, $versionId);
         $this->insertKeywords($keywords);
         $this->insertDictionary($dictionary);
 
@@ -263,6 +217,33 @@ class SearchKeywordUpdater implements ResetInterface
         $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
 
         return new RepositoryIterator($this->productRepository, $context, $criteria);
+    }
+
+    /**
+     * Products whose keywords changed are rewritten as a whole, so their stored rows are removed in
+     * a single statement instead of one per product.
+     *
+     * @param list<string> $productIds
+     */
+    private function deleteKeywords(array $productIds, string $languageId, string $versionId): void
+    {
+        if ($productIds === []) {
+            return;
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($productIds, $languageId, $versionId): void {
+            $this->connection->executeStatement(
+                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :languageId AND product_version_id = :versionId',
+                [
+                    'ids' => $productIds,
+                    'languageId' => $languageId,
+                    'versionId' => $versionId,
+                ],
+                [
+                    'ids' => ArrayParameterType::BINARY,
+                ]
+            );
+        });
     }
 
     /**

@@ -43,7 +43,7 @@ class SearchKeywordUpdaterTest extends TestCase
     /**
      * @var list<string>
      */
-    private array $deletedKeywords = [];
+    private array $rewrittenProductIds = [];
 
     /**
      * @var list<string>
@@ -123,7 +123,7 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertNull($analyzedProducts[$standaloneId]->getParent());
     }
 
-    public function testUpdateOnlyWritesKeywordsThatChanged(): void
+    public function testUpdateRewritesOnlyProductsWithChangedKeywords(): void
     {
         $productId = Uuid::randomHex();
 
@@ -155,12 +155,11 @@ class SearchKeywordUpdaterTest extends TestCase
 
         $updater->update([$productId], Context::createDefaultContext());
 
-        // an unchanged keyword is neither deleted nor written again
-        sort($this->deletedKeywords);
-        static::assertSame(['removed', 'reranked'], $this->deletedKeywords);
+        // the product is rewritten as a whole, in a single delete
+        static::assertSame([$productId], $this->rewrittenProductIds);
 
         sort($this->insertedKeywords);
-        static::assertSame(['added', 'reranked'], $this->insertedKeywords);
+        static::assertSame(['added', 'reranked', 'unchanged'], $this->insertedKeywords);
     }
 
     public function testUpdateWritesNothingWhenAllKeywordsAreUnchanged(): void
@@ -190,7 +189,7 @@ class SearchKeywordUpdaterTest extends TestCase
 
         $updater->update([$productId], Context::createDefaultContext());
 
-        static::assertSame([], $this->deletedKeywords);
+        static::assertSame([], $this->rewrittenProductIds);
         static::assertSame([], $this->insertedKeywords);
     }
 
@@ -288,9 +287,9 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * The decision which keywords to write is only observable through the executed statements, so
-     * the writes are captured into `$deletedKeywords` / `$insertedKeywords` and asserted in terms
-     * of the affected keywords.
+     * The decision what to write is only observable through the executed statements, so the writes
+     * are captured into `$rewrittenProductIds` / `$insertedKeywords` and asserted in terms of the
+     * affected products and keywords.
      *
      * @param list<string> $candidates the keywords the calling test cares about
      */
@@ -303,13 +302,13 @@ class SearchKeywordUpdaterTest extends TestCase
 
         $connection->method('executeStatement')->willReturnCallback(
             function (string $query, array $params = [], array $types = []) use ($candidates): int {
-                // the targeted delete passes the keywords as a named parameter
-                if (isset($params['keywords']) && \is_array($params['keywords'])) {
-                    foreach (array_values($params['keywords']) as $keyword) {
-                        $this->deletedKeywords[] = (string) $keyword;
+                // the batched delete passes the products to rewrite as a named parameter
+                if (isset($params['ids']) && \is_array($params['ids'])) {
+                    foreach (array_values($params['ids']) as $productId) {
+                        $this->rewrittenProductIds[] = bin2hex((string) $productId);
                     }
 
-                    return \count($params['keywords']);
+                    return \count($params['ids']);
                 }
 
                 // the insert queue passes all row values as a positional list

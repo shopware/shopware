@@ -24,8 +24,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # No step in this job runs code from the pull request head, only the base
-      # checkout, so the checkout credentials may stay in the workspace.
       - name: 'Fetch PR head'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

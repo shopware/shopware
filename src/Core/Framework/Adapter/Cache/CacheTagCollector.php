@@ -61,14 +61,16 @@ class CacheTagCollector
     {
         $hash = self::uri($this->stack->getCurrentRequest());
 
-        $existingTags = $this->tags[$hash] ?? [];
-
         // Filter against the already collected tags via O(1) key lookups instead of
-        // array_diff(array_keys(...)), which is O(n*m) and grows quadratically as more
-        // tags are collected during a single page render (addTag is called many times).
+        // array_diff(array_keys(...)), which is O(n*m) and grows quadratically as more tags are
+        // collected during a single page render (addTag is called many times).
+        // The lookup reads $this->tags[$hash] directly on purpose: assigning it to a local variable
+        // first would keep a second reference to the growing array alive while the dispatched event
+        // writes back into it, forcing a copy-on-write of the whole array on every call and thereby
+        // re-introducing the quadratic behaviour this change removes.
         $newTags = [];
         foreach ($tags as $tag) {
-            if (!isset($existingTags[$tag])) {
+            if (!isset($this->tags[$hash][$tag])) {
                 $newTags[] = $tag;
             }
         }

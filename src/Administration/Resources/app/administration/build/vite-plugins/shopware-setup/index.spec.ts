@@ -334,13 +334,18 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        // A bad `administrationRoot` is a config error, not a per-file one: the loader caches its promise,
-        // so both files reject with the *same* error object. Error identity is what proves the module was
-        // imported once.
-        const first: unknown = await plugin.transform(source, '/example/sw-first.vue').catch((error: unknown) => error);
-        const second: unknown = await plugin.transform(source, '/example/sw-second.vue').catch((error: unknown) => error);
+        // A bad `administrationRoot` is a config error, not a per-file one, so every file fails on the
+        // same unresolvable module. Asserted through `rejects` rather than a caught value, because a
+        // rejection reason is `unknown` in TypeScript and this needs no cast to read its message.
+        await expect(plugin.transform(source, '/example/sw-first.vue')).rejects.toThrow(
+            'build/vue-setup-transform/index.js',
+        );
 
-        expect((first as Error).message).toContain('build/vue-setup-transform/index.js');
+        // The loader caches its promise, so both files reject with the *same* error object. Identity is
+        // what proves the module was imported once; `toBe` compares unknowns, so this needs no cast either.
+        const first = await plugin.transform(source, '/example/sw-first.vue').catch((error: unknown) => error);
+        const second = await plugin.transform(source, '/example/sw-second.vue').catch((error: unknown) => error);
+
         expect(second).toBe(first);
     });
 });

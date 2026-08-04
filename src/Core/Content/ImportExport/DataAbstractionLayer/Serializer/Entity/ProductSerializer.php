@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
@@ -166,16 +167,38 @@ class ProductSerializer extends EntitySerializer
      */
     private function findVisibilityIds(array $visibilities, Context $context): array
     {
+        $productIds = [];
+        $salesChannelIds = [];
+        foreach ($visibilities as $visibility) {
+            if (!isset($visibility['productId'])) {
+                continue;
+            }
+
+            $productIds[$visibility['productId']] = true;
+            $salesChannelIds[$visibility['salesChannelId']] = true;
+        }
+
+        if ($productIds === []) {
+            return $visibilities;
+        }
+
+        // Read the existing visibilities of the whole record in one query. The filters describe a superset, so only
+        // the exact product and sales channel combinations below are used.
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', array_keys($productIds)));
+        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_keys($salesChannelIds)));
+
+        $existing = [];
+        foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $entity) {
+            $existing[$entity->getProductId()][$entity->getSalesChannelId()] = $entity->getId();
+        }
+
         foreach ($visibilities as $i => $visibility) {
             if (!isset($visibility['productId'])) {
                 continue;
             }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $visibility['productId']));
-            $criteria->addFilter(new EqualsFilter('salesChannelId', $visibility['salesChannelId']));
-
-            $id = $this->visibilityRepository->searchIds($criteria, $context)->firstId();
+            $id = $existing[$visibility['productId']][$visibility['salesChannelId']] ?? null;
 
             if ($id) {
                 $visibility['id'] = $id;
@@ -252,6 +275,22 @@ class ProductSerializer extends EntitySerializer
      */
     private function findConfiguratorSettings(string $parentId, array $options, Context $context): array
     {
+        $optionIds = array_values(array_filter(array_column($options, 'id')));
+
+        if ($optionIds === []) {
+            return [];
+        }
+
+        // Read the existing settings of all options in one query instead of one per option
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $parentId));
+        $criteria->addFilter(new EqualsAnyFilter('optionId', $optionIds));
+
+        $existing = [];
+        foreach ($this->productConfiguratorSettingRepository->search($criteria, $context)->getEntities() as $entity) {
+            $existing[$entity->getOptionId()] = $entity->getId();
+        }
+
         $configuratorSettings = [];
 
         foreach ($options as $option) {
@@ -266,14 +305,8 @@ class ProductSerializer extends EntitySerializer
                 ],
             ];
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $parentId));
-            $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
-
-            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, $context)->firstId();
-
-            if ($id) {
-                $configuratorSetting['id'] = $id;
+            if (isset($existing[$option['id']])) {
+                $configuratorSetting['id'] = $existing[$option['id']];
             }
 
             $configuratorSettings[] = $configuratorSetting;

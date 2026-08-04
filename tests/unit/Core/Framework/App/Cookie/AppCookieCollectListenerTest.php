@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cookie;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
@@ -15,6 +16,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\Log\Package;
@@ -413,7 +415,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $appRepo = new StaticEntityRepository([
             new AppCollection($appEntities),
-        ]);
+        ], new AppDefinition());
 
         $paymentMethods = [];
         foreach ($activePaymentMethodHandlers as $handlerIdentifier) {
@@ -427,7 +429,7 @@ class AppCookieCollectListenerTest extends TestCase
 
         $paymentMethodRepo = new StaticEntityRepository([
             new PaymentMethodCollection($paymentMethods),
-        ]);
+        ], new PaymentMethodDefinition());
 
         return new AppCookieCollectListener($appRepo, $paymentMethodRepo);
     }

@@ -8,7 +8,7 @@ let repositoryFactorySearchMock;
 let repositoryFactorySearchIdsMock;
 let repositoryFactorySaveMock;
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper() {
     repositoryFactoryCreateMock = jest.fn(() => Promise.resolve());
     repositoryFactorySearchMock = jest.fn(() => Promise.resolve([]));
     repositoryFactorySearchIdsMock = jest.fn(() => Promise.resolve([]));
@@ -65,9 +65,6 @@ async function createWrapper({ featureActive = false } = {}) {
                     'sw-tabs-deprecated': true,
                 },
                 provide: {
-                    feature: {
-                        isActive: (flag) => flag === 'v6.8.0.0' && featureActive,
-                    },
                     repositoryFactory: {
                         create: (entity) => {
                             return {
@@ -121,8 +118,8 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs and switch active content', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs and switch active content', async () => {
+        wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.findComponent({ name: 'mt-tabs' });

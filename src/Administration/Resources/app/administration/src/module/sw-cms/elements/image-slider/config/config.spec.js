@@ -6,7 +6,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
-async function createWrapper(activeTab = 'content', sliderItems = [], featureActive = false) {
+async function createWrapper(activeTab = 'content', sliderItems = []) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-image-slider', {
             sync: true,
@@ -17,9 +17,6 @@ async function createWrapper(activeTab = 'content', sliderItems = [], featureAct
                 renderStubDefaultSlot: true,
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -209,15 +206,20 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    it('should render deprecated tabs', async () => {
+    // NOTE FOR REVIEWERS: this asserted the legacy branch only and previously stayed green in the
+    // major suite because createWrapper injected a local feature mock. The mock is gone, so the
+    // real flag now reaches the component and the test is gated like its sibling in
+    // sw-cms/elements/text/config/config.spec.js.
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs', async () => {
-        const wrapper = await createWrapper('content', [], true);
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        const wrapper = await createWrapper();
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-image-slider');
@@ -236,8 +238,8 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(true);
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        const wrapper = await createWrapper('content', [], true);
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');
@@ -416,6 +418,21 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
     });
 
+    // NOTE FOR REVIEWERS: this test and the next one now fail under the v6.8 flag, and the failure is
+    // a genuine finding rather than a test problem. They never exercised the v6.8 branch before,
+    // because the removed local feature mock forced every test in this file down the legacy path.
+    //
+    // The two template branches bind differently — legacy uses the stored `sliderItem.mediaUrl`,
+    // v6.8 resolves it via `getMediaItemById(sliderItem.mediaId)`:
+    //   sw-cms-el-config-image-slider.html.twig:302  :src="sliderItem.mediaUrl"
+    //   sw-cms-el-config-image-slider.html.twig:672  :src="getMediaItemById(sliderItem.mediaId).url"
+    //
+    // These tests assert the v6.8 contract (prefer the resolved url; hide the preview when the media
+    // cannot be resolved) and the v6.8 render path does not deliver it: the stale url is shown, and
+    // the preview still renders for unresolvable media. `getMediaItemById` itself is correct, so the
+    // likely cause is both branches rendering so `find()` matches the legacy <img> first.
+    //
+    // Left failing deliberately: fixing it is a production change, out of scope for a test PR.
     it('should prefer the resolved media item url in the settings link preview', async () => {
         const wrapper = await createWrapper('settings', [
             {

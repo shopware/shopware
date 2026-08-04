@@ -214,7 +214,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $cacheKey = strtolower($documentId) . '-' . ($request->getClientIp() ?? '');
+        $cacheKey = $documentId . '-' . ($request->getClientIp() ?? '');
 
         try {
             $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);

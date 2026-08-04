@@ -244,28 +244,51 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => 'id1',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-                [
-                    'id' => 'id2',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-            ]);
+        $inUse = [
+            [
+                'id' => 'id1',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+            [
+                'id' => 'id2',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+        ];
+
+        // the earliest created candidate of each group wins, so the second row of group one must be ignored
+        $candidates = [
+            [
+                'id' => $id1,
+                'foreign_key' => $inUse[0]['foreignKey'],
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+            [
+                'id' => Uuid::randomBytes(),
+                'foreign_key' => $inUse[0]['foreignKey'],
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+            [
+                'id' => $id2,
+                'foreign_key' => $inUse[1]['foreignKey'],
+                'sales_channel_id' => $inUse[1]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+        ];
 
         $connection->expects($this->exactly(2))
-            ->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($id1, $id2);
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls($inUse, $candidates);
+
+        $connection->expects($this->never())
+            ->method('fetchOne');
 
         $connection->expects($this->once())
             ->method('executeStatement')

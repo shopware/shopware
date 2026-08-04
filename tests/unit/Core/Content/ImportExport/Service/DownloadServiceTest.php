@@ -45,7 +45,7 @@ class DownloadServiceTest extends TestCase
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
-        $downloadService->createFileResponse(Context::createDefaultContext(), $fileEntity->getId(), $accessToken);
+        $downloadService->createFileResponse(Context::createDefaultContext(), $fileEntity->getId(), $accessToken, '127.0.0.1');
     }
 
     #[DataProvider('dataProviderNotFoundFile')]
@@ -58,7 +58,7 @@ class DownloadServiceTest extends TestCase
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
-        $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
+        $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken, '127.0.0.1');
     }
 
     #[DataProvider('dataProviderCreateFileResponse')]
@@ -82,7 +82,7 @@ class DownloadServiceTest extends TestCase
             fileRepository: $fileRepository
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken, '127.0.0.1');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
@@ -130,7 +130,7 @@ class DownloadServiceTest extends TestCase
             localPathPrefix: $localPathPrefix,
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken');
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
 
         AssertResponseHelper::assertResponseEquals($expectedResponse, $response);
     }
@@ -194,7 +194,7 @@ class DownloadServiceTest extends TestCase
             fileRepository: $fileRepository,
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken');
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
 
         AssertResponseHelper::assertResponseEquals(new RedirectResponse('https://example.com/download'), $response);
     }

@@ -1,9 +1,3 @@
-# 6.7.11.0 (upcoming)
-
-## Features
-
-## API
-
 # 6.7.13.0 (upcoming)
 
 ## Critical Fixes

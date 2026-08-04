@@ -49,7 +49,7 @@ class DownloadServiceTest extends TestCase
         $downloadService = $this->createDownloadService($filesystem, $fileRepository);
         $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
 
-        $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
+        $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken, '127.0.0.1');
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
         static::assertStringContainsString($asciiName, $header);
 
@@ -77,7 +77,7 @@ class DownloadServiceTest extends TestCase
         $downloadService = $this->createDownloadService($filesystem, $fileRepository);
         $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
 
-        $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
+        $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken, '127.0.0.1');
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
         static::assertStringNotContainsString($nameWithSlash, $header);
         static::assertStringContainsString('Name with  slashes', $header);
@@ -105,7 +105,7 @@ class DownloadServiceTest extends TestCase
 
         $this->expectException(InvalidFileAccessTokenException::class);
 
-        $downloadService->createFileResponse($context, $fileData['id'], 'token');
+        $downloadService->createFileResponse($context, $fileData['id'], 'token', '127.0.0.1');
     }
 
     public function testDownloadWithExpiredAccessToken(): void
@@ -144,7 +144,7 @@ class DownloadServiceTest extends TestCase
 
         $this->expectException(InvalidFileAccessTokenException::class);
 
-        $downloadService->createFileResponse($context, $fileData['id'], $validToken);
+        $downloadService->createFileResponse($context, $fileData['id'], $validToken, '127.0.0.1');
     }
 
     /**

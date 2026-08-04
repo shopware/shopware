@@ -59,7 +59,7 @@ class DownloadService
         return $token;
     }
 
-    public function createFileResponse(Context $context, string $fileId, string $accessToken, string $clientIp = ''): Response
+    public function createFileResponse(Context $context, string $fileId, string $accessToken, string $clientIp): Response
     {
         $cacheKey = $fileId . '-' . $clientIp;
 

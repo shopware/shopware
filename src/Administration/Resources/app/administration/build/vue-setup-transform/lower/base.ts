@@ -13,11 +13,40 @@
  * itself never moves.
  */
 
-import { generated, trim, type SourceChunk } from '../source-edits/chunks';
+import { generated, type SourceChunk } from '../source-edits/chunks';
 import { transformRanges } from '../source-edits/transform-ranges';
 import type { BaseSetupScriptAnalysis } from '../script-analyzer';
+import { SHOPWARE_SETUP_INTERNAL_PREFIX } from '../script-analyzer/macros';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted, formatObjectProperties } from './shared';
+
+/**
+ * The one place the base alias scheme is spelled out: an author binding `count` becomes
+ * `__swSetupAuthor_count`, which the footer then re-declares under the original name.
+ *
+ * It builds on the reserved `__swSetup` prefix that `validation.ts` rejects for author bindings, which
+ * is what makes an alias collision impossible.
+ */
+function toAuthorAlias(localName: string): string {
+    return `${SHOPWARE_SETUP_INTERNAL_PREFIX}Author_${localName}`;
+}
+
+/**
+ * Renders one rename occurrence, reproducing the syntax the analyzer flagged.
+ *
+ * `count` -> `__swSetupAuthor_count`, `{ count }` -> `{ count: __swSetupAuthor_count }`,
+ * `export type { C }` -> `export type { __swSetupAuthor_C as C }`. The two expanded forms exist because
+ * the name that must survive shares its source range with the occurrence being replaced.
+ */
+function toRenameReplacement(target: BaseSetupScriptAnalysis['renameTargets'][number]): string {
+    const alias = toAuthorAlias(target.localName);
+
+    if (target.expansion === 'shorthand-property') {
+        return `${target.localName}: ${alias}`;
+    }
+
+    return target.expansion === 'shorthand-export' ? `${alias} as ${target.localName}` : alias;
+}
 
 /**
  * Formats the public/private maps passed into the override wrapper, mapping each original name to
@@ -25,7 +54,7 @@ import { escapeSingleQuoted, formatObjectProperties } from './shared';
  */
 function formatStateMap(names: string[], spaces: number): string {
     return formatObjectProperties(
-        names.map((name) => `${name}: __swSetupAuthor_${name}`),
+        names.map((name) => `${name}: ${toAuthorAlias(name)}`),
         spaces,
     );
 }
@@ -43,7 +72,13 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAna
     // `attachOverrides` registers (getScriptSetupDataScope), never through a setup-return binding.
     const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
 
-    const body = transformRanges(block, analysis.markerRemovals, analysis.renameEdits);
+    // Base mode drops the compile-time markers and rewrites every author binding to its alias; the body
+    // itself stays exactly where it was written.
+    const body = transformRanges(
+        block,
+        analysis.markerStatements,
+        analysis.renameTargets.map((target) => ({ ...target, replacement: toRenameReplacement(target) })),
+    );
 
     // attachOverrides() reads props from the current instance, so the footer never threads a props
     // binding through — which also lets destructured defineProps() work (there is no props binding).
@@ -58,9 +93,8 @@ function buildBaseScript(block: ShopwareSetupBlock, analysis: BaseSetupScriptAna
     ].join('\n');
 
     return [
-        generated(`${block.openingTagSource}\n`),
-        trim([body].flat()),
-        generated(`\n\n${footer}\n</script>`),
+        ...body,
+        generated(`\n\n${footer}\n`),
     ];
 }
 

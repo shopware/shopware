@@ -54,11 +54,9 @@ describe('build/vue-setup-transform/utils/shopware-setup-block', () => {
 function createScriptBlock(lang: string | null): ScriptBlock {
     return {
         type: 'scriptSetup',
-        start: 0,
-        end: '<script setup></script>'.length,
         contentStart: '<script setup>'.length,
+        contentEnd: '<script setup>'.length,
         content: '',
-        openingTagSource: '<script setup>',
         lang,
     };
 }

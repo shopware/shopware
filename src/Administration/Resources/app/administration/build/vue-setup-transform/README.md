@@ -12,19 +12,19 @@ developers working on the transform itself.
 
 ## Directory map
 
-| Path | What lives here |
-| --- | --- |
-| `index.ts` | Entry point: parse → analyze script → analyze template → lower → apply edits |
-| `index.js` / `index.d.ts` | CommonJS bridge (jiti) plus its hand-written types for JS consumers |
-| `sfc-parser.ts` | Finds the `<script setup>` block via `@vue/compiler-sfc` and normalizes it |
-| `script-analyzer.ts` | Statement classification pass: produces the semantic model for lowering |
-| `script-analyzer/` | Analyzer internals: macro registry, runtime bindings, setup inputs, validation, Babel utils |
-| `template-analyzer/` | Template pass: expression/template reference detection, slot-scope merging, data-scope injection |
-| `flow-analysis/` | Identifier flow: which names an expression reads/writes, and every occurrence the base rename pass must rewrite |
-| `lower/` | Code generation: mode dispatch (`index.ts`) plus the base and override lowerers and shared helpers |
-| `source-edits/` | Chunk IR (`generated`/`original`/`trim`/`indent`), range transforms, rendering |
-| `utils/` | Cross-cutting helpers: block normalization, script-tag handling, Babel patterns, errors |
-| `index.spec/` | Transform test suite (per-macro, base, override, validation specs) |
+| Path                      | What lives here                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `index.ts`                | Entry point: parse → analyze script → analyze template → lower → replace the script content                     |
+| `index.js` / `index.d.ts` | CommonJS bridge (jiti) plus its hand-written types for JS consumers                                             |
+| `sfc-parser.ts`           | Finds the `<script setup>` block via `@vue/compiler-sfc` and normalizes its content boundaries                  |
+| `script-analyzer.ts`      | Statement classification pass: produces the semantic model for lowering                                         |
+| `script-analyzer/`        | Analyzer internals: macro registry, runtime bindings, setup inputs, validation, Babel utils                     |
+| `template-analyzer/`      | Template pass: expression/template reference detection, slot-scope merging, data-scope injection                |
+| `flow-analysis/`          | Identifier flow: which names an expression reads/writes, and every occurrence the base rename pass must rewrite |
+| `lower/`                  | Code generation: mode dispatch (`index.ts`) plus the base and override lowerers and shared helpers              |
+| `source-edits/`           | Chunk IR (`generated`/`original`), range transforms, rendering                                                  |
+| `utils/`                  | Cross-cutting helpers: block normalization, script-block boundaries, Babel patterns, errors                     |
+| `index.spec/`             | Transform test suite (per-macro, base, override, validation specs)                                              |
 
 ## Glossary
 
@@ -48,12 +48,14 @@ developers working on the transform itself.
 - **Public entries / override entries** — the shorthand binding names extracted from the markers.
 - **Hoistable type declaration** — `interface`, `type`, or ambient `declare` statement; moved to the
   generated script root so hoisted macros can still resolve the names.
-- **Body removals** — analyzer ranges (imports, type declarations, markers) stripped from the author
-  code before it moves into the override setup callback. Base mode uses **marker removals** plus
-  **rename edits** instead, because its body never moves.
+- **Marker statements / rename targets** — locations the analyzer reports, never edits. Override lowering
+  strips imports, type declarations and markers from the body it moves into the callback; base lowering
+  strips only the markers and rewrites every rename target to its author alias, because its body never
+  moves. Which ranges are removed, and what a rename is replaced with, belongs to the lowerer.
 - **Override-private namespace** — the module-root `Symbol()` (bound to `__swSetupNamespace`) used as a
   **computed** key under the reserved `__swOverride` slot-scope channel, through which an override's
   non-public bindings reach its `<sw-block extends>` template content. Emitted only when the override
   actually forwards locals. Uniqueness comes from the symbol, so the binding name can be fixed.
-- **Chunks** — the source IR: `generated` (compiler-owned text), `original` (a slice of the author's
-  SFC, kept addressable for sourcemaps), and the deferred `trim`/`indent` wrappers around them.
+- **Chunks** — the source IR: `generated` (compiler-owned text) and `original` (a slice of the author's
+  SFC, kept addressable for sourcemaps). There is no re-indent or trim wrapper: the transform does not
+  beautify its output, so copied lines keep their original columns.

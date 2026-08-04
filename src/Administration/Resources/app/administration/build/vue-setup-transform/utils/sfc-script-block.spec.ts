@@ -6,7 +6,7 @@ import { parse } from '@vue/compiler-sfc';
 import { toScriptBlock } from './sfc-script-block';
 
 describe('build/vue-setup-transform/utils/sfc-script-block', () => {
-    it('finds the real script tag when an earlier attribute contains a script-like string', () => {
+    it('takes both content boundaries from Vue, so a script-like attribute cannot mislead it', () => {
         const source = [
             '<template>',
             '    <div data-example="<script setup>"></div>',
@@ -23,11 +23,10 @@ describe('build/vue-setup-transform/utils/sfc-script-block', () => {
             throw new Error('Expected a <script setup> block.');
         }
 
-        const block = toScriptBlock(source, descriptor.scriptSetup, 'scriptSetup');
-        const expectedScriptStart = source.lastIndexOf('<script setup');
+        const block = toScriptBlock(descriptor.scriptSetup, 'scriptSetup');
 
-        expect(block.start).toBe(expectedScriptStart);
         expect(block.content).toBe('\nconst count = 1;\n');
-        expect(block.openingTagSource).toBe('<script setup lang="ts" generic="T">');
+        expect(source.slice(block.contentStart, block.contentEnd)).toBe(block.content);
+        expect(block.lang).toBe('ts');
     });
 });

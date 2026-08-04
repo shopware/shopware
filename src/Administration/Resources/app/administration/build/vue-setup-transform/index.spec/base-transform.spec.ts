@@ -2,138 +2,104 @@
  * @sw-package framework
  */
 
-import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    stripIndent,
+    stripWhitespace,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform base transforms', () => {
-    it('transforms base Shopware setup blocks with auto-private state and explicit public state', () => {
-        const source = stripIndent`
-            <template><div>{{ count }}{{ foo2 }}</div></template>
-            <script setup lang="ts">
-            import { ref, computed } from 'vue';
-
-            const props = defineProps<{
-                initialCount?: number;
-            }>();
-            const count = ref(props.initialCount ?? 0);
-            const doubled = computed(() => count.value * 2);
-            const internalThing = ref('secret');
-            const foo2 = ref('bar');
-
-            swDefinePublic({
-                count,
-                doubled,
-                foo2
-            });
-            </script>
-        `;
-
-        // Base lowering: the author body stays native (macros in place, bindings renamed to their
-        // __swSetupAuthor_ alias), and a single generated footer re-declares the original names by
-        // destructuring attachOverrides(). Written as a literal to pin the exact generated formatting.
-        const expected = `<template><div>{{ count }}{{ foo2 }}</div></template>
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-
-const __swSetupAuthor_props = defineProps<{
-    initialCount?: number;
-}>();
-const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);
-const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
-const __swSetupAuthor_internalThing = ref('secret');
-const __swSetupAuthor_foo2 = ref('bar');
-
-const {
-    props,
-    count,
-    doubled,
-    internalThing,
-    foo2,
-} = Shopware.Component.attachOverrides({
-    name: 'sw-my-component',
-    public: {
-        count: __swSetupAuthor_count,
-        doubled: __swSetupAuthor_doubled,
-        foo2: __swSetupAuthor_foo2,
-    },
-    private: {
-        props: __swSetupAuthor_props,
-        internalThing: __swSetupAuthor_internalThing,
-    },
-});
-</script>`;
-
-        expect(transformOrFail(source, 'sw-my-component.vue').code).toBe(expected);
-    });
-
-    it('pins the exact generated output for a base component with an <sw-block name> declaration', () => {
+    it('pins the whole generated output for a base component with props, private state and an <sw-block>', () => {
         const source = stripIndent`
             <template>
                 <sw-block name="sw_example_headline">
                     <h1>{{ title }}</h1>
+                    <p>{{ doubled }}</p>
                 </sw-block>
             </template>
             <script setup lang="ts">
-            import { ref } from 'vue';
+            import { ref, computed } from 'vue';
 
+            declare global {
+                interface ComponentNamingApi {
+                    example: string;
+                }
+            }
+
+            const props = defineProps<{
+                initialCount?: number;
+            }>();
             const title = ref('Hello');
+            const count = ref(props.initialCount ?? 0);
+            const doubled = computed(() => count.value * 2);
             const internalNote = ref('secret');
 
             swDefinePublic({
                 title,
-            });
-            </script>
-        `;
-
-        // Companion to the script-only exact-string test above, for the <sw-block> path: pins the full
-        // output including the generated `:data="$dataScope"` injected before the author's `name`, the
-        // rest of the template preserved verbatim, and the usual rename + attachOverrides footer.
-        const expected = `<template>
-    <sw-block :data="$dataScope" name="sw_example_headline">
-        <h1>{{ title }}</h1>
-    </sw-block>
-</template>
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const __swSetupAuthor_title = ref('Hello');
-const __swSetupAuthor_internalNote = ref('secret');
-
-const {
-    title,
-    internalNote,
-} = Shopware.Component.attachOverrides({
-    name: 'sw-example',
-    public: {
-        title: __swSetupAuthor_title,
-    },
-    private: {
-        internalNote: __swSetupAuthor_internalNote,
-    },
-});
-</script>`;
-
-        expect(transformOrFail(source, 'sw-example.vue').code).toBe(expected);
-    });
-
-    it('preserves multi-line template literal contents instead of re-indenting them', () => {
-        const source = stripIndent`
-            <script setup>
-            const message = \`hello
-            world\`;
-            const count = 1;
-
-            swDefinePublic({
                 count,
+                doubled,
             });
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-template-literal.vue').code;
+        // The one end-to-end assertion for base lowering: the author body stays native (macros in place,
+        // `declare global` untouched, every binding renamed to its __swSetupAuthor_ alias), the template
+        // keeps its content with a generated `:data="$dataScope"` added to the <sw-block>, and a single
+        // footer re-declares the original names by destructuring attachOverrides().
+        //
+        // Whitespace-insensitive on both sides, because the transform does not beautify its output - the
+        // Vue round-trip below is what guarantees the result is still valid code.
+        const expected = stripWhitespace`
+            <template>
+                <sw-block :data="$dataScope" name="sw_example_headline">
+                    <h1>{{ title }}</h1>
+                    <p>{{ doubled }}</p>
+                </sw-block>
+            </template>
+            <script setup lang="ts">
+            import { ref, computed } from 'vue';
 
-        // The author body is never relocated or re-indented, so the interior line of the template
-        // literal keeps its original column; only the binding name is aliased.
-        expect(result).toContain('const __swSetupAuthor_message = `hello\nworld`;');
-        expect(result).not.toContain('hello\n        world');
+            declare global {
+                interface ComponentNamingApi {
+                    example: string;
+                }
+            }
+
+            const __swSetupAuthor_props = defineProps<{
+                initialCount?: number;
+            }>();
+            const __swSetupAuthor_title = ref('Hello');
+            const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);
+            const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
+            const __swSetupAuthor_internalNote = ref('secret');
+
+            const {
+                props,
+                title,
+                count,
+                doubled,
+                internalNote,
+            } = Shopware.Component.attachOverrides({
+                name: 'sw-example',
+                public: {
+                    title: __swSetupAuthor_title,
+                    count: __swSetupAuthor_count,
+                    doubled: __swSetupAuthor_doubled,
+                },
+                private: {
+                    props: __swSetupAuthor_props,
+                    internalNote: __swSetupAuthor_internalNote,
+                },
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-example.vue').code;
+
+        expect(stripWhitespace(result)).toBe(expected);
+        expectVueCompilerScriptToCompile(result, 'sw-example.vue');
     });
 
     it('supports import-only script setup blocks with empty state', () => {
@@ -226,21 +192,34 @@ const {
             </script>
         `;
 
-        const result = transformOrFail(source, 'base-destructured-runtime.vue').code;
+        const collapsed = stripWhitespace(transformOrFail(source, 'base-destructured-runtime.vue').code);
 
         // Every destructured runtime binding is renamed at its declaration and re-exposed from the
         // footer; the public one keeps its name for the template.
-        expect(result).toContain(`const {
-    title: __swSetupAuthor_publicTitle,
-    nested: {
-        label: __swSetupAuthor_localLabel = __swSetupAuthor_fallbackLabel,
-    },
-    ...__swSetupAuthor_rest
-} = __swSetupAuthor_source;`);
-        expect(result).toContain('const [__swSetupAuthor_firstItem] = __swSetupAuthor_items;');
-        expect(result).toContain('publicTitle: __swSetupAuthor_publicTitle');
-        expect(result).toContain(
-            'private: {\n        source: __swSetupAuthor_source,\n        items: __swSetupAuthor_items,\n        fallbackLabel: __swSetupAuthor_fallbackLabel,\n        localLabel: __swSetupAuthor_localLabel,\n        rest: __swSetupAuthor_rest,\n        firstItem: __swSetupAuthor_firstItem,\n    }',
+        expect(collapsed).toContain(
+            stripWhitespace`
+                const {
+                    title: __swSetupAuthor_publicTitle,
+                    nested: {
+                        label: __swSetupAuthor_localLabel = __swSetupAuthor_fallbackLabel,
+                    },
+                    ...__swSetupAuthor_rest
+                } = __swSetupAuthor_source;
+            `,
+        );
+        expect(collapsed).toContain('const [__swSetupAuthor_firstItem] = __swSetupAuthor_items;');
+        expect(collapsed).toContain('publicTitle: __swSetupAuthor_publicTitle');
+        expect(collapsed).toContain(
+            stripWhitespace`
+                private: {
+                    source: __swSetupAuthor_source,
+                    items: __swSetupAuthor_items,
+                    fallbackLabel: __swSetupAuthor_fallbackLabel,
+                    localLabel: __swSetupAuthor_localLabel,
+                    rest: __swSetupAuthor_rest,
+                    firstItem: __swSetupAuthor_firstItem,
+                }
+            `,
         );
     });
 

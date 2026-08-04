@@ -10,7 +10,7 @@
  */
 
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { fromSource, generated, trim, type SourceBlock, type SourceChunk } from './chunks';
+import { fromSource, generated, type SourceBlock, type SourceChunk } from './chunks';
 import type { SourceRange } from '../utils/source-range';
 
 type SourceReplacement = SourceRange & {
@@ -75,7 +75,7 @@ function transformRanges(
         chunks.push(fromSource(block, { start: cursor, end: block.content.length }));
     }
 
-    return [trim(chunks)];
+    return chunks;
 }
 
 /**

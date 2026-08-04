@@ -67,7 +67,7 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
         throw new ShopwareSetupTransformError(missingScriptSetupMessage(inferShopwareSetupFromFilename(filename).mode), 0);
     }
 
-    const scriptSetupBlock = toScriptBlock(source, parsed.descriptor.scriptSetup, 'scriptSetup');
+    const scriptSetupBlock = toScriptBlock(parsed.descriptor.scriptSetup, 'scriptSetup');
     const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock, filename);
 
     if (parsed.descriptor.script) {

@@ -117,10 +117,20 @@ function collectBlockScopedDeclarations(statements: Statement[], into: Set<strin
  * must expand to `{ foo: alias }` - renaming the single shared identifier in place would silently
  * rewrite the property *key* as well, so the collector emits the expanded replacement here.
  */
+/**
+ * How much of the surrounding syntax an occurrence's replacement text has to reproduce.
+ *
+ * A plain occurrence can be swapped for the alias, but two forms share one source range with a name
+ * that must survive, so the replacement has to spell both out. Which form an occurrence is, is an
+ * analysis fact; what the alias looks like is the lowerer's business.
+ */
+type SetupRenameExpansion = 'plain' | 'shorthand-property' | 'shorthand-export';
+
 type SetupRenameTarget = {
     // A JSXIdentifier tag (`<Foo />`) is renamed too; only its source range is used, so both node kinds fit.
     node: Identifier | JSXIdentifier;
-    replacement: string;
+    localName: string;
+    expansion: SetupRenameExpansion;
 };
 
 /**
@@ -131,17 +141,10 @@ type SetupRenameTarget = {
  *
  * The defaulted form (`{ foo = 1 }`) shares that range too, but Babel nests the identifier as an
  * `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent alone. It is handled
- * by the dedicated branch in `collectSetupRenameTargets`, which expands it the same way.
+ * by the dedicated branch in `collectSetupRenameTargets`, which reports the same expansion.
  */
 function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
     return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
-}
-
-/**
- * Expands the alias of a shorthand property into `key: alias`, keeping the property key intact.
- */
-function expandShorthandProperty(name: string, alias: string): string {
-    return `${name}: ${alias}`;
 }
 
 /**
@@ -162,20 +165,18 @@ function isShorthandExportSpecifier(node: Identifier, parent: BabelNode | null):
 
 /**
  * Collects EVERY identifier occurrence of the given top-level names that a rename pass must touch,
- * each paired with the text to replace it with.
+ * each paired with the name it refers to and the syntax its replacement has to reproduce.
  *
  * A rename must cover more than reads: it also has to catch declaration ids, write targets, `typeof name`
  * type queries, and type references to a runtime binding — while still skipping shadowed occurrences,
  * member-access property names, static object keys, and purely type-level names. Occurrences inside
  * scopes that re-declare the name are left untouched (they refer to the local, not the renamed top-level
- * binding). Shorthand object-property values are expanded to
- * `key: alias` so the property key survives the rewrite.
+ * binding).
+ *
+ * No replacement text is produced here: the alias scheme belongs to the lowerer that declares the
+ * aliases, so this reports `expansion` and lets the lowerer render it.
  */
-function collectSetupRenameTargets(
-    root: BabelNode | null | undefined,
-    names: Set<string>,
-    aliasFor: (name: string) => string,
-): SetupRenameTarget[] {
+function collectSetupRenameTargets(root: BabelNode | null | undefined, names: Set<string>): SetupRenameTarget[] {
     const targets: SetupRenameTarget[] = [];
 
     /** Whether this occurrence refers to the top-level binding rather than a local of the same name. */
@@ -184,8 +185,8 @@ function collectSetupRenameTargets(
     }
 
     /**
-     * `shadowedBindings` and `inTypePosition` are the only genuine recursion state; `names`, `aliasFor`
-     * and `targets` are closed over so they are not threaded through every call site.
+     * `shadowedBindings` and `inTypePosition` are the only genuine recursion state; `names` and
+     * `targets` are closed over so they are not threaded through every call site.
      */
     function visit(
         node: BabelNode | null | undefined,
@@ -210,16 +211,17 @@ function collectSetupRenameTargets(
                     parent.type === 'ClassDeclaration');
 
             if (isDeclarationId || isValueReadPosition(node, parent)) {
-                const alias = aliasFor(node.name);
-                let replacement = alias;
+                targets.push({
+                    node,
+                    localName: node.name,
+                    expansion: (() => {
+                        if (isShorthandPropertyValue(node, parent)) {
+                            return 'shorthand-property';
+                        }
 
-                if (isShorthandPropertyValue(node, parent)) {
-                    replacement = expandShorthandProperty(node.name, alias);
-                } else if (isShorthandExportSpecifier(node, parent)) {
-                    replacement = `${alias} as ${node.name}`;
-                }
-
-                targets.push({ node, replacement });
+                        return isShorthandExportSpecifier(node, parent) ? 'shorthand-export' : 'plain';
+                    })(),
+                });
             }
         }
 
@@ -232,7 +234,7 @@ function collectSetupRenameTargets(
             const isMemberRoot = parent?.type === 'JSXMemberExpression' && parent.object === node;
 
             if ((isStandaloneTag && /^[A-Z]/.test(node.name)) || isMemberRoot) {
-                targets.push({ node, replacement: aliasFor(node.name) });
+                targets.push({ node, localName: node.name, expansion: 'plain' });
             }
 
             return;
@@ -243,7 +245,7 @@ function collectSetupRenameTargets(
             const identifier = getLeftmostEntityIdentifier(node.exprName);
 
             if (identifier && renames(identifier.name, shadowedBindings)) {
-                targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+                targets.push({ node: identifier, localName: identifier.name, expansion: 'plain' });
             }
 
             return;
@@ -258,7 +260,7 @@ function collectSetupRenameTargets(
             const identifier = getLeftmostEntityIdentifier(node.typeName);
 
             if (identifier && renames(identifier.name, shadowedBindings)) {
-                targets.push({ node: identifier, replacement: aliasFor(identifier.name) });
+                targets.push({ node: identifier, localName: identifier.name, expansion: 'plain' });
             }
 
             return;
@@ -323,7 +325,8 @@ function collectSetupRenameTargets(
             if (!inTypePosition && declared.type === 'Identifier' && renames(declared.name, shadowedBindings)) {
                 targets.push({
                     node: declared,
-                    replacement: expandShorthandProperty(declared.name, aliasFor(declared.name)),
+                    localName: declared.name,
+                    expansion: 'shorthand-property',
                 });
             }
 
@@ -345,4 +348,4 @@ function collectSetupRenameTargets(
 /**
  * @private
  */
-export { type SetupRenameTarget, collectSetupRenameTargets };
+export { type SetupRenameExpansion, type SetupRenameTarget, collectSetupRenameTargets };

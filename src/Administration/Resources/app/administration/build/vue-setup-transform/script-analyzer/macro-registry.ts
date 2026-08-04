@@ -53,12 +53,18 @@ type MacroRule = {
     wrongModeMessage: string;
     /** Error for the second top-level call of this name. Omit for no multiplicity limit. */
     duplicateMessage?: string;
+    /**
+     * Rejects a declaration initializer of this name (`const x = swDefinePublic({})`), with this error.
+     *
+     * Only the compile-time markers set it. Their statement is removed from the output, so a declaration
+     * form would leave the call behind as a reference to a name that does not exist at runtime - and its
+     * entries would be silently ignored.
+     */
+    statementOnly?: { message: string };
     /** Requires exactly one top-level call of this name in the listed modes, with its error. */
     required?: { modes: ShopwareSetupMode[]; message: string };
     /** Wrong-mode calls of this name are also rejected in nested positions (via the AST walk). */
     rejectAnywhereInWrongMode?: boolean;
-    /** Calls of this name outside the top level are rejected (via the AST walk), with this error. */
-    topLevelOnly?: { message: string };
     /** Declaration initializers of this name read a setup input (props/emits/slots object). */
     setupInput?: boolean;
     /** Identifier declarations of this name are exposed as private setup state. */
@@ -121,6 +127,11 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
             'Override components must use swDefineOverride() to declare replacement bindings instead.',
         ].join(' '),
         duplicateMessage: 'Only one swDefinePublic() call is allowed in a base Shopware setup block.',
+        statementOnly: {
+            message:
+                'swDefinePublic() is a compile-time marker and returns nothing. Call it as a statement at the ' +
+                'top level instead of assigning its result.',
+        },
         // Required even when nothing is public. A transformed base component is an extension point: its
         // filename becomes the public override target and its bindings become overrideable state. Making
         // the marker mandatory keeps that from happening silently - a reader of the file can tell at a
@@ -131,9 +142,6 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
                 'A base Shopware setup component must declare its extension surface. Add swDefinePublic({ ... }) ' +
                 'at the top level - pass an empty object if no binding is public.',
         },
-        topLevelOnly: {
-            message: 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
-        },
     },
     swDefineOverride: {
         modes: ['override'],
@@ -143,12 +151,14 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
             'Base components must use swDefinePublic() to expose overrideable setup bindings instead.',
         ].join(' '),
         duplicateMessage: 'Only one swDefineOverride() call is allowed in an override Shopware setup block.',
+        statementOnly: {
+            message:
+                'swDefineOverride() is a compile-time marker and returns nothing. Call it as a statement at the ' +
+                'top level instead of assigning its result.',
+        },
         required: {
             modes: ['override'],
             message: 'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
-        },
-        topLevelOnly: {
-            message: 'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
         },
     },
     useSwContext: {
@@ -248,10 +258,10 @@ function collectMacroCallEntries(statement: Statement): MacroCallEntry[] {
 /**
  * Applies the declarative registry rules to the collected top-level entries.
  *
- * The three rule kinds run as separate passes over every macro, not interleaved per macro, so the most
- * specific complaint always wins: a macro used in the wrong mode is reported before any duplicate, and
- * both are reported before a missing required marker. Otherwise a base file that mistakenly calls
- * swDefineOverride() would be told to add swDefinePublic() - technically true, but useless.
+ * The rule kinds run as separate passes over every macro, not interleaved per macro, so the most
+ * specific complaint always wins: a macro used in the wrong mode is reported before any duplicate or
+ * misused form, and all of those before a missing required marker. Otherwise a base file that mistakenly
+ * calls swDefineOverride() would be told to add swDefinePublic() - technically true, but useless.
  */
 function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, scriptOffset: number): void {
     const entriesFor = (name: MacroName): MacroCallEntry[] => entries.filter((entry) => entry.name === name);
@@ -279,6 +289,15 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
 
     MACRO_NAMES.forEach((name) => {
         const rule = MACRO_RULES[name];
+        const declaration = entriesFor(name).find((entry) => entry.form === 'declaration');
+
+        if (rule.statementOnly && declaration) {
+            throw new ShopwareSetupTransformError(rule.statementOnly.message, absoluteRange(declaration.call, scriptOffset));
+        }
+    });
+
+    MACRO_NAMES.forEach((name) => {
+        const rule = MACRO_RULES[name];
 
         if (rule.required?.modes.includes(mode) && entriesFor(name).length === 0) {
             throw new ShopwareSetupTransformError(rule.required.message, scriptOffset);
@@ -287,10 +306,14 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
 }
 
 /**
- * Returns the entries for one macro name, optionally restricted to one form.
+ * Returns the first entry for one macro name, optionally restricted to one form.
+ *
+ * Singular because the only callers are the `swDefine*` markers, which are capped at one call by
+ * `assertMacroRules`. That check counts off the full entry list, so it still sees a duplicate even
+ * though nothing downstream carries more than the first.
  */
-function getMacroEntries(entries: MacroCallEntry[], name: MacroName, form?: MacroCallEntry['form']): MacroCallEntry[] {
-    return entries.filter((entry) => entry.name === name && (!form || entry.form === form));
+function getMacroEntry(entries: MacroCallEntry[], name: MacroName, form?: MacroCallEntry['form']): MacroCallEntry | null {
+    return entries.find((entry) => entry.name === name && (!form || entry.form === form)) ?? null;
 }
 
 // The derived views below are pure functions of the frozen-in-practice MACRO_RULES constant, so they
@@ -308,13 +331,6 @@ const RESERVED_HELPER_NAMES = new Set<string>(MACRO_NAMES);
 
 /** Vue compiler macro names: their imports are accepted, like native setup, and never shadow the macro. */
 const VUE_BUILTIN_MACRO_NAMES = new Set<string>(MACRO_NAMES.filter((name) => MACRO_RULES[name].vueBuiltin));
-
-/** Names the AST walk must reject outside the top level, with their messages. */
-const TOP_LEVEL_ONLY_WALK_CHECKS: { name: MacroName; message: string }[] = MACRO_NAMES.flatMap((name) => {
-    const topLevelOnly = MACRO_RULES[name].topLevelOnly;
-
-    return topLevelOnly ? [{ name, message: topLevelOnly.message }] : [];
-});
 
 /** Names whose declarations alias a runtime input in the given mode. */
 function getRuntimeInputAliasNames(mode: ShopwareSetupMode): Set<string> {
@@ -340,11 +356,10 @@ export {
     EXPOSABLE_SETUP_MACRO_NAMES,
     RESERVED_HELPER_NAMES,
     SETUP_INPUT_MACRO_NAMES,
-    TOP_LEVEL_ONLY_WALK_CHECKS,
     VUE_BUILTIN_MACRO_NAMES,
     assertMacroRules,
     collectMacroCallEntries,
-    getMacroEntries,
+    getMacroEntry,
     getRuntimeInputAliasNames,
     getWrongModeWalkChecks,
 };

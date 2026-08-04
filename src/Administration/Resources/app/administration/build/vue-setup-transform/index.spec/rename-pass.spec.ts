@@ -9,7 +9,7 @@
  * type-member keys, `typeof` queries, and lexical shadowing.
  */
 
-import { stripIndent, transformOrFail } from './helpers';
+import { stripIndent, stripWhitespace, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform base rename pass', () => {
     it('expands a shorthand property instead of renaming its key', () => {
@@ -47,7 +47,11 @@ describe('build/vue-setup-transform base rename pass', () => {
         const result = transformOrFail(source, 'sw-type-members.vue').code;
 
         // The interface member key `count` is a type-space name, not a value reference - it must survive.
-        expect(result).toContain('interface Shape {\n    count: number;\n}');
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            interface Shape {
+                count: number;
+            }
+        `);
         // `typeof count` reads the value binding and must be renamed with it.
         expect(result).toContain('type CountType = typeof __swSetupAuthor_count;');
         expect(result).toContain('const __swSetupAuthor_doubled = __swSetupAuthor_count * 2;');
@@ -89,7 +93,12 @@ describe('build/vue-setup-transform base rename pass', () => {
 
         // The inner `const total` shadows the top-level binding inside the function body, so neither
         // the declaration nor its read is renamed; the enclosing function name is.
-        expect(result).toContain('function __swSetupAuthor_compute() {\n    const total = 5;\n    return total;\n}');
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            function __swSetupAuthor_compute() {
+                const total = 5;
+                return total;
+            }
+        `);
         expect(result).toContain('const __swSetupAuthor_out = __swSetupAuthor_compute() + __swSetupAuthor_total;');
     });
 
@@ -160,9 +169,14 @@ describe('build/vue-setup-transform base rename pass', () => {
         // The class binding itself is renamed, but its member names are its own API: renaming `count`
         // would make `thing.count` read undefined, and renaming `total` would make `thing.total()`
         // throw "is not a function".
-        expect(result).toContain(
-            'class __swSetupAuthor_Thing {\n    count = 0;\n    total() {\n        return 3;\n    }\n}',
-        );
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            class __swSetupAuthor_Thing {
+                count = 0;
+                total() {
+                    return 3;
+                }
+            }
+        `);
         expect(result).toContain('const __swSetupAuthor_thing = new __swSetupAuthor_Thing();');
     });
 
@@ -184,7 +198,12 @@ describe('build/vue-setup-transform base rename pass', () => {
         // `Status` is a runtime binding, so the enum name follows its declaration - but the member
         // `active` is a key on that enum, not a reference to the top-level `active` binding. Renaming
         // it would make `Status.active` undefined.
-        expect(result).toContain('enum __swSetupAuthor_Status {\n    active,\n    done,\n}');
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            enum __swSetupAuthor_Status {
+                active,
+                done,
+            }
+        `);
         expect(result).toContain('const __swSetupAuthor_status = __swSetupAuthor_Status.active;');
     });
 

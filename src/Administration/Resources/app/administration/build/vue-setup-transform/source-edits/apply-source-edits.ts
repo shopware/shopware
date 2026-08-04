@@ -10,8 +10,8 @@
  */
 
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { generated, type FlatSourceChunk, type SourceChunk } from './chunks';
-import { render, toFlatChunks } from './render-chunks';
+import { generated, type SourceChunk } from './chunks';
+import { render } from './render-chunks';
 
 /**
  * Describes one replacement in absolute SFC coordinates.
@@ -48,13 +48,9 @@ function normalizeReplacement(replacement: string | SourceChunk[]): SourceChunk[
  * This step does not generate a sourcemap; it behaves like a plain string replacement and returns
  * `map: null`.
  */
-function applySourceEdits(
-    source: string,
-    edits: SourceEdit[],
-    protectedRanges: readonly (readonly [number, number])[] = [],
-): AppliedSourceEdits {
+function applySourceEdits(source: string, edits: SourceEdit[]): AppliedSourceEdits {
     let cursor = 0;
-    const chunks: FlatSourceChunk[] = [];
+    const chunks: SourceChunk[] = [];
 
     [...edits]
         .sort((a, b) => a.start - b.start)
@@ -72,7 +68,7 @@ function applySourceEdits(
                 start: cursor,
                 end: edit.start,
             });
-            chunks.push(...toFlatChunks(normalizeReplacement(edit.replacement), source, 0, protectedRanges));
+            chunks.push(...normalizeReplacement(edit.replacement));
 
             cursor = edit.end;
         });
@@ -84,7 +80,7 @@ function applySourceEdits(
     });
 
     return {
-        code: render(chunks, source, 0, protectedRanges),
+        code: render(chunks, source),
         map: null,
     };
 }

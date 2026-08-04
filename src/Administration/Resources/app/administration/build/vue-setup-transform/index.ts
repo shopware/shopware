@@ -38,14 +38,14 @@ type ShopwareSetupTransformResult = {
 };
 
 /**
- * Moves block-relative analyzer errors to the original SFC block start.
+ * Moves block-relative analyzer errors to the start of the original script body.
  */
 function withBlockOffset(error: unknown, block: ShopwareSetupBlock): unknown {
     if (!(error instanceof ShopwareSetupTransformError) || error.index !== null) {
         return error;
     }
 
-    return new ShopwareSetupTransformError(error.message, block.start);
+    return new ShopwareSetupTransformError(error.message, block.contentStart);
 }
 
 /**
@@ -91,19 +91,17 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
               ]
             : [];
 
-    const transformed = applySourceEdits(
-        source,
-        [
-            ...registrationTemplateEdits,
-            ...templateAnalysis.edits,
-            {
-                start: block.start,
-                end: block.end,
-                replacement,
-            },
-        ],
-        analysis.templateLiteralRanges,
-    );
+    // Only the script *content* is replaced: the author's `<script setup ...>` and `</script>` tags stay
+    // in the source untouched, so nothing has to reproduce their attributes.
+    const transformed = applySourceEdits(source, [
+        ...registrationTemplateEdits,
+        ...templateAnalysis.edits,
+        {
+            start: block.contentStart,
+            end: block.contentEnd,
+            replacement,
+        },
+    ]);
 
     return {
         code: transformed.code,

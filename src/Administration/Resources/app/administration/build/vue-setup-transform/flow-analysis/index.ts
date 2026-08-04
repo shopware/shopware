@@ -33,4 +33,4 @@ export {
 /**
  * @private
  */
-export { collectSetupRenameTargets } from './setup-references';
+export { type SetupRenameExpansion, type SetupRenameTarget, collectSetupRenameTargets } from './setup-references';

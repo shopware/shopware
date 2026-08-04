@@ -5,12 +5,13 @@
 /**
  * Builds the normalized script model consumed by the Shopware setup lowerers.
  *
- * This analysis keeps author source ranges for hoisted declarations, validates compiler-macro
- * placement, and classifies top-level runtime bindings before template analysis adds
- * override-private bindings.
+ * This analysis keeps author source ranges for hoistable declarations, validates compiler-macro mode
+ * and multiplicity, and classifies top-level runtime bindings before template analysis adds
+ * override-private bindings. It reports locations, never edits: which ranges are removed or rewritten
+ * is the lowerer's decision.
  */
 
-import type { CallExpression, File as BabelFile, ImportDeclaration, Statement } from '@babel/types';
+import type { File as BabelFile, ImportDeclaration, Statement } from '@babel/types';
 import type { ShopwareSetupMode } from './utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 import { extractStaticObjectMarker } from './script-analyzer/macros';
@@ -18,9 +19,9 @@ import {
     type MacroCallEntry,
     assertMacroRules,
     collectMacroCallEntries,
-    getMacroEntries,
+    getMacroEntry,
 } from './script-analyzer/macro-registry';
-import { type SourceRange, getNodeRange, parseScript, walk } from './script-analyzer/utils';
+import { type SourceRange, getNodeRange, parseScript } from './script-analyzer/utils';
 import {
     type ImportedBinding,
     type RuntimeBinding,
@@ -33,7 +34,7 @@ import {
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
-import { collectSetupRenameTargets } from './flow-analysis';
+import { type SetupRenameTarget, collectSetupRenameTargets } from './flow-analysis';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
     'js',
@@ -53,9 +54,13 @@ type AnalyzerOptions = {
  */
 type SharedScriptAnalysis = {
     source: string;
-    // Absolute source ranges of template literals, so the renderer can skip re-indenting their interior
-    // lines (indenting would rewrite the runtime string contents).
-    templateLiteralRanges: [number, number][];
+    // Where the compile-time `swDefine*` markers sit. Both modes drop them, but *that* they are dropped
+    // is each lowerer's call, so this reports the locations and stays out of the decision.
+    //
+    // Holds exactly one range in practice - the mode's own marker, which `assertMacroRules` has already
+    // proven present, unique, statement-form and mode-appropriate. It stays a list because that is not
+    // provable to the type system without an unreachable branch, and every consumer splices it anyway.
+    markerStatements: SourceRange[];
     runtimeBindings: RuntimeBinding[];
     runtimeBindingNames: Set<string>;
     importedBindings: Set<string>;
@@ -64,20 +69,18 @@ type SharedScriptAnalysis = {
 /**
  * Base mode keeps the author body in place, so it needs no imports or type declarations lifted out.
  *
- * It removes only the marker statements, and applies the rename edits that move every top-level
- * runtime binding to its `__swSetupAuthor_` alias so the generated footer can re-declare the original
- * names from `attachOverrides(...)`.
+ * It carries the occurrences of every top-level runtime binding that a rename pass must rewrite, so the
+ * lowerer can move them to its alias and re-declare the original names from `attachOverrides(...)`.
  */
 type BaseScriptAnalysis = {
     mode: 'base';
-    markerRemovals: SourceRange[];
-    renameEdits: (SourceRange & { replacement: string })[];
+    renameTargets: (SourceRange & Pick<SetupRenameTarget, 'localName' | 'expansion'>)[];
     publicEntries: string[];
 };
 
 /**
- * Override mode moves the author body into a callback, so imports and type declarations are lifted to
- * the generated script root and removed from the body, and nothing is renamed.
+ * Override mode moves the author body into a callback, so imports and type declarations are available
+ * to be lifted to the generated script root, and nothing is renamed.
  *
  * The set of override-local bindings to forward is not here: it is only known after template analysis,
  * so it is passed straight to the lowerer rather than carried as a would-be-empty field on this shape.
@@ -88,7 +91,6 @@ type OverrideScriptAnalysis = {
     // them addressable for sourcemaps rather than materializing their text.
     imports: SourceRange[];
     typeDeclarations: SourceRange[];
-    bodyRemovals: SourceRange[];
     overrideEntries: string[];
     runtimeInputAliasNames: Set<string>;
 };
@@ -149,11 +151,10 @@ type ClassifiedStatements = {
     importedBindings: ImportedBinding[];
     bindings: RuntimeBindingCollector;
     macroEntries: MacroCallEntry[];
-    // Deliberately collected before assertMacroRules, so even duplicate markers (rejected right after)
-    // are still recognized as top-level calls here.
-    publicMarkerEntries: MacroCallEntry[];
-    overrideMarkerEntries: MacroCallEntry[];
-    templateLiteralRanges: [number, number][];
+    // The first top-level call only. A second one is rejected by `assertMacroRules`, which counts off
+    // `macroEntries` - so nothing downstream ever has to reason about more than one marker.
+    publicMarkerEntry: MacroCallEntry | null;
+    overrideMarkerEntry: MacroCallEntry | null;
 };
 
 /**
@@ -172,26 +173,6 @@ function assertSupportedLang(lang: string, scriptOffset: number): void {
 }
 
 /**
- * Absolute template-literal ranges, so the renderer leaves their interior lines un-indented (indenting
- * would rewrite the runtime string contents).
- */
-function collectTemplateLiteralRanges(ast: BabelFile, scriptOffset: number): [number, number][] {
-    const ranges: [number, number][] = [];
-
-    walk(ast.program, (node) => {
-        if (node.type === 'TemplateLiteral') {
-            const range = getNodeRange(node);
-            ranges.push([
-                scriptOffset + range.start,
-                scriptOffset + range.end,
-            ]);
-        }
-    });
-
-    return ranges;
-}
-
-/**
  * Phase 2 - one walk over the top-level statements: separates imports and hoistable type declarations,
  * collects every macro/marker call, and classifies the rest into runtime bindings.
  */
@@ -203,6 +184,8 @@ function classifyTopLevelStatements(ast: BabelFile, mode: ShopwareSetupMode, scr
     const macroEntries: MacroCallEntry[] = [];
 
     ast.program.body.forEach((statement) => {
+        // Plural, because one statement can hold more than one macro: Vue accepts (and compiles)
+        // `const props = defineProps<P>(), emit = defineEmits<E>()` as a single declaration.
         const statementEntries = collectMacroCallEntries(statement);
         macroEntries.push(...statementEntries);
 
@@ -221,6 +204,9 @@ function classifyTopLevelStatements(ast: BabelFile, mode: ShopwareSetupMode, scr
         // the statements themselves are removed from the generated output, so they never contribute
         // runtime bindings. Vue's own bare macro statements need no branch here - they declare nothing
         // for collectRuntimeBinding to find either way.
+        //
+        // `find` rather than a loop because a marker is a bare `ExpressionStatement`: it can only ever be
+        // the statement's single macro, unlike the multi-declaration case above.
         const statementMacroName = statementEntries.find((entry) => entry.form === 'statement')?.name;
 
         if (statementMacroName === 'swDefinePublic' || statementMacroName === 'swDefineOverride') {
@@ -236,29 +222,14 @@ function classifyTopLevelStatements(ast: BabelFile, mode: ShopwareSetupMode, scr
         importedBindings,
         bindings,
         macroEntries,
-        publicMarkerEntries: getMacroEntries(macroEntries, 'swDefinePublic', 'statement'),
-        overrideMarkerEntries: getMacroEntries(macroEntries, 'swDefineOverride', 'statement'),
-        templateLiteralRanges: collectTemplateLiteralRanges(ast, scriptOffset),
+        publicMarkerEntry: getMacroEntry(macroEntries, 'swDefinePublic', 'statement'),
+        overrideMarkerEntry: getMacroEntry(macroEntries, 'swDefineOverride', 'statement'),
     };
-}
-
-/** Marks each marker's own top-level call so the AST walk can tell it apart from a nested call. */
-function collectTopLevelMarkerCalls(classified: ClassifiedStatements): Map<string, Set<CallExpression>> {
-    return new Map<string, Set<CallExpression>>([
-        [
-            'swDefinePublic',
-            new Set(classified.publicMarkerEntries.map((entry) => entry.call)),
-        ],
-        [
-            'swDefineOverride',
-            new Set(classified.overrideMarkerEntries.map((entry) => entry.call)),
-        ],
-    ]);
 }
 
 /**
  * Phase 3a - the dialect assertions that must fire before marker extraction: unsupported syntax, macro
- * placement/multiplicity, and a setup binding colliding with a declared prop.
+ * mode and multiplicity, and a setup binding colliding with a declared prop.
  *
  * Macro arguments that read a top-level binding are deliberately not checked here - that is Vue's
  * business, and it handles them correctly on its own (it hoists a statically-analysable local to module
@@ -270,7 +241,7 @@ function assertScriptRules(
     mode: ShopwareSetupMode,
     scriptOffset: number,
 ): void {
-    assertNoUnsupportedSyntax(ast, mode, scriptOffset, collectTopLevelMarkerCalls(classified));
+    assertNoUnsupportedSyntax(ast, mode, scriptOffset);
     assertMacroRules(classified.macroEntries, mode, scriptOffset);
 
     // A setup binding sharing a declared prop's name is deliberately not rejected here: the
@@ -286,19 +257,12 @@ function extractMarkerEntries(
     classified: ClassifiedStatements,
     scriptOffset: number,
 ): { publicEntries: string[]; overrideEntries: string[] } {
-    const publicEntries =
-        classified.publicMarkerEntries.length > 0
-            ? extractStaticObjectMarker(classified.publicMarkerEntries[0].call, scriptOffset, 'swDefinePublic', 'public')
-            : [];
-    const overrideEntries =
-        classified.overrideMarkerEntries.length > 0
-            ? extractStaticObjectMarker(
-                  classified.overrideMarkerEntries[0].call,
-                  scriptOffset,
-                  'swDefineOverride',
-                  'override',
-              )
-            : [];
+    const publicEntries = classified.publicMarkerEntry
+        ? extractStaticObjectMarker(classified.publicMarkerEntry.call, scriptOffset, 'swDefinePublic', 'public')
+        : [];
+    const overrideEntries = classified.overrideMarkerEntry
+        ? extractStaticObjectMarker(classified.overrideMarkerEntry.call, scriptOffset, 'swDefineOverride', 'override')
+        : [];
 
     const importedBindingNames = new Set(classified.importedBindings.map((binding) => binding.name));
     assertStaticObjectEntries(
@@ -319,19 +283,26 @@ function extractMarkerEntries(
     return { publicEntries, overrideEntries };
 }
 
-/** Both modes strip the compile-time marker statements; only their surroundings differ. */
-function collectMarkerRemovals(classified: ClassifiedStatements): SourceRange[] {
-    return [
-        ...classified.publicMarkerEntries,
-        ...classified.overrideMarkerEntries,
-    ].map((entry) => getNodeRange(entry.statement));
+/** Where the compile-time marker statements sit. What to do with them is the lowerer's call. */
+function collectMarkerStatements(classified: ClassifiedStatements): SourceRange[] {
+    const ranges: SourceRange[] = [];
+
+    if (classified.publicMarkerEntry) {
+        ranges.push(getNodeRange(classified.publicMarkerEntry.statement));
+    }
+
+    if (classified.overrideMarkerEntry) {
+        ranges.push(getNodeRange(classified.overrideMarkerEntry.statement));
+    }
+
+    return ranges;
 }
 
 /** The fields both lowering modes read. */
 function buildSharedAnalysis(script: string, classified: ClassifiedStatements): SharedScriptAnalysis {
     return {
         source: script,
-        templateLiteralRanges: classified.templateLiteralRanges,
+        markerStatements: collectMarkerStatements(classified),
         runtimeBindings: classified.bindings.bindings,
         runtimeBindingNames: classified.bindings.names,
         importedBindings: new Set(classified.importedBindings.map((binding) => binding.name)),
@@ -339,38 +310,28 @@ function buildSharedAnalysis(script: string, classified: ClassifiedStatements): 
 }
 
 /**
- * Phase 4 (override) - lifts imports and type declarations out of the callback body and records the
- * ranges to remove from it.
+ * Phase 4 (override) - locates the imports and type declarations that can be lifted to the generated
+ * script root.
  */
 function buildOverrideAnalysis(
     shared: SharedScriptAnalysis,
     classified: ClassifiedStatements,
     overrideEntries: string[],
 ): OverrideSetupScriptAnalysis {
-    const importRanges = classified.imports.map(getNodeRange);
-    const typeDeclarationRanges = classified.typeDeclarations.map(getNodeRange);
-
     return {
         ...shared,
         mode: 'override',
         // Script-local ranges; override lowering copies them back out to the generated script root.
-        imports: importRanges,
-        typeDeclarations: typeDeclarationRanges,
-        // The author body moves into a callback, so imports and type declarations leave it too - an
-        // import is illegal there, and an ambient `declare` describes a value from elsewhere.
-        bodyRemovals: [
-            ...importRanges,
-            ...typeDeclarationRanges,
-            ...collectMarkerRemovals(classified),
-        ],
+        imports: classified.imports.map(getNodeRange),
+        typeDeclarations: classified.typeDeclarations.map(getNodeRange),
         overrideEntries,
         runtimeInputAliasNames: classified.bindings.aliasNames,
     };
 }
 
 /**
- * Phase 4 (base) - keeps the author body in place and records the rename edits that move every
- * top-level runtime binding to its `__swSetupAuthor_` alias.
+ * Phase 4 (base) - keeps the author body in place and locates every occurrence a rename pass must
+ * rewrite.
  */
 function buildBaseAnalysis(
     shared: SharedScriptAnalysis,
@@ -381,18 +342,16 @@ function buildBaseAnalysis(
     return {
         ...shared,
         mode: 'base',
-        markerRemovals: collectMarkerRemovals(classified),
         // Only base mode renames: the body stays where the author wrote it, so every top-level runtime
-        // binding moves to its alias and the footer re-declares the original name. Computing this for
+        // binding moves to an alias and the footer re-declares the original name. Computing this for
         // override mode would be a wasted AST walk - nothing there reads it.
-        renameEdits: collectSetupRenameTargets(
-            ast.program,
-            classified.bindings.names,
-            (name) => `__swSetupAuthor_${name}`,
-        ).map(({ node, replacement }) => ({
-            ...getNodeRange(node),
-            replacement,
-        })),
+        renameTargets: collectSetupRenameTargets(ast.program, classified.bindings.names).map(
+            ({ node, localName, expansion }) => ({
+                ...getNodeRange(node),
+                localName,
+                expansion,
+            }),
+        ),
         publicEntries,
     };
 }

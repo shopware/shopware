@@ -9,18 +9,13 @@
  * prevent user bindings from colliding with compiler-owned helpers or override-private state.
  */
 
-import type { CallExpression, File as BabelFile, Node as BabelNode } from '@babel/types';
+import type { File as BabelFile, Node as BabelNode } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { absoluteRange, walk } from './utils';
 import { isFunctionLikeNode } from '../utils/ast-traversal';
 import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
-import {
-    RESERVED_HELPER_NAMES,
-    TOP_LEVEL_ONLY_WALK_CHECKS,
-    VUE_BUILTIN_MACRO_NAMES,
-    getWrongModeWalkChecks,
-} from './macro-registry';
+import { RESERVED_HELPER_NAMES, VUE_BUILTIN_MACRO_NAMES, getWrongModeWalkChecks } from './macro-registry';
 
 /**
  * Carries a declared or imported name with the AST node used for diagnostics.
@@ -42,33 +37,21 @@ const RESERVED_RUNTIME_GLOBAL_NAME = 'Shopware';
  * Rejects syntax that would require native `<script setup>` semantics we do not emulate.
  * Meaning: Unsupported Vue macros, top-level await, and ES module exports.
  */
-function assertNoUnsupportedSyntax(
-    ast: BabelFile,
-    mode: ShopwareSetupMode,
-    scriptOffset: number,
-    topLevelMarkerCalls: Map<string, Set<CallExpression>>,
-): void {
+function assertNoUnsupportedSyntax(ast: BabelFile, mode: ShopwareSetupMode, scriptOffset: number): void {
     const wrongModeChecks = getWrongModeWalkChecks(mode);
-    const topLevelOnlyChecks = TOP_LEVEL_ONLY_WALK_CHECKS;
 
     walk(ast.program, (node, ancestors) => {
+        // A nested `swDefinePublic()` / `swDefineOverride()` is deliberately not rejected, matching how
+        // Vue treats its own macros: it only recognises them at the top level and leaves a nested call
+        // alone. Either way the marker is missing where it counts, and the required-marker rule says so.
         if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
-            const calleeName = node.callee.name;
-
             // Wrong-mode helpers such as useSwProps() in base mode are rejected in any position,
             // because there is no runtime input they could alias.
+            const calleeName = node.callee.name;
             const wrongModeCheck = wrongModeChecks.find((check) => check.name === calleeName);
 
             if (wrongModeCheck) {
                 throw new ShopwareSetupTransformError(wrongModeCheck.message, absoluteRange(node, scriptOffset));
-            }
-
-            // Shopware marker macros are only meaningful as top-level statements; a nested call would
-            // otherwise silently stay in the generated callback body.
-            const topLevelOnlyCheck = topLevelOnlyChecks.find((check) => check.name === calleeName);
-
-            if (topLevelOnlyCheck && !topLevelMarkerCalls.get(calleeName)?.has(node)) {
-                throw new ShopwareSetupTransformError(topLevelOnlyCheck.message, absoluteRange(node, scriptOffset));
             }
         }
 

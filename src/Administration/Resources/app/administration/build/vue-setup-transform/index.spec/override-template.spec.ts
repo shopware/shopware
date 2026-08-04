@@ -8,7 +8,7 @@
  * scopes, nested callback patterns). Rejections live in `override-template-guards.spec.ts`.
  */
 
-import { stripIndent, transformOrFail } from './helpers';
+import { stripIndent, stripWhitespace, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template forwarding', () => {
     it('returns template-used override-local state through a deterministic private namespace', () => {
@@ -38,14 +38,16 @@ describe('build/vue-setup-transform override template forwarding', () => {
         expect(result).toContain(
             `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
         );
-        expect(result).toContain(`return {
-        body,
-        __swOverride: {
-            [__swSetupNamespace]: {
-                info,
-            },
-        },
-    };`);
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            return {
+                body,
+                __swOverride: {
+                    [__swSetupNamespace]: {
+                        info,
+                    },
+                },
+            };
+        `);
         expect(result).not.toContain('unused,');
     });
 

@@ -10,9 +10,11 @@
  * hidden container), which runs the registration and renders the template so `<sw-block extends>`
  * content is picked up. User code is preserved inside the callback and only declared replacements
  * plus template-used private locals are returned, namespaced per file.
+ *
+ * The callback body is not re-indented - the transform does not beautify its output.
  */
 
-import { fromSource, generated, indent, type SourceChunk } from '../source-edits/chunks';
+import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
@@ -63,16 +65,15 @@ function buildOverrideScript(
     const previousStateName = '__swSetupPreviousState';
     const propsName = '__swSetupProps';
     const contextName = '__swSetupContext';
-    // Only the marker statements are removed; the override helpers are emitted as generated headers above.
-    const callbackBody = transformRanges(block, analysis.bodyRemovals, []);
-    const body = [
-        generated(`const useSwPreviousState = () => ${previousStateName};\n`),
-        generated(`const useSwProps = () => ${propsName};\n`),
-        generated(`const useSwContext = () => ${contextName};\n\n`),
-        ...callbackBody,
-        generated(`\n\n${buildOverrideReturn(analysis, overridePrivateBindings)}`),
-    ];
-    const chunks: SourceChunk[] = [generated(`${block.openingTagSource}\n`)];
+    // The author body moves into a callback, so everything that cannot live in a function body leaves it:
+    // imports are illegal there, an ambient `declare` describes a value from elsewhere, and the markers
+    // are compile-time only. Imports and type declarations are re-emitted at the script root below.
+    const callbackBody = transformRanges(block, [
+        ...analysis.imports,
+        ...analysis.typeDeclarations,
+        ...analysis.markerStatements,
+    ]);
+    const chunks: SourceChunk[] = [generated('\n')];
 
     analysis.imports.forEach((importBlock) => {
         chunks.push(fromSource(block, importBlock));
@@ -82,6 +83,14 @@ function buildOverrideScript(
     if (analysis.imports.length > 0) {
         chunks.push(generated('\n'));
     }
+
+    const body = [
+        generated(`const useSwPreviousState = () => ${previousStateName};\n`),
+        generated(`const useSwProps = () => ${propsName};\n`),
+        generated(`const useSwContext = () => ${contextName};\n\n`),
+        ...callbackBody,
+        generated(`\n\n${buildOverrideReturn(analysis, overridePrivateBindings)}`),
+    ];
 
     // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
     // an override that only replaces public bindings has nothing to file under the namespace.
@@ -112,8 +121,8 @@ function buildOverrideScript(
             `Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
         ),
         generated('\n'),
-        indent(body, 4),
-        generated('\n});\n</script>'),
+        ...body,
+        generated('\n});\n'),
     );
 
     return chunks;

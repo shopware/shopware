@@ -44,6 +44,26 @@ function stripIndent(strings: TemplateStringsArray, ...values: string[]): string
     return lines.map((line: string) => line.slice(minIndentation)).join('\n');
 }
 
+/**
+ * Collapses every whitespace run to a single space, so an exact-output assertion can be written with
+ * whatever indentation reads best instead of mirroring the generated layout.
+ *
+ * Applied to BOTH sides of the comparison. The transform does not beautify its output (no re-indenting,
+ * no trimming), so its blank-line and indentation residue is not behaviour worth pinning - but the
+ * token sequence is. Pair it with `expectVueCompilerScriptToCompile` on the RAW output: whitespace
+ * collapse cannot see a swallowed newline before a `//` comment, and Vue's parser can.
+ *
+ * Usable as a template tag (for the expected literal) or as a function (for the actual code).
+ */
+function stripWhitespace(value: string | TemplateStringsArray, ...values: string[]): string {
+    const joined =
+        typeof value === 'string'
+            ? value
+            : value.reduce((result, part, index) => `${result}${part}${values[index] ?? ''}`, '');
+
+    return joined.replace(/\s+/g, ' ').trim();
+}
+
 function expectVueCompilerScriptToCompile(code: string, filename: string): void {
     const descriptor = parse(code, { filename }).descriptor;
 
@@ -70,6 +90,7 @@ export {
     expectVueCompilerScriptToCompile,
     expectVueCompilerScriptToReject,
     stripIndent,
+    stripWhitespace,
     transformOrFail,
     transformShopwareSetupSfc,
 };

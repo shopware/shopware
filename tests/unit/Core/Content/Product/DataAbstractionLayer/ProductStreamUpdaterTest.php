@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -30,9 +31,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityWriterGateway;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -439,6 +443,74 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
+     * Filters on non-translated fields match the same products in every language, so only
+     * one language context has to be searched for them.
+     */
+    #[DataProvider('languageContextProvider')]
+    public function testUpdateProductsSearchesLanguagesDependingOnTranslatedFields(string $field, int $expectedSearches): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::randomBytes(),
+                'api_filter' => json_encode([[
+                    'type' => 'equals',
+                    'field' => $field,
+                    'value' => '1',
+                ]]),
+            ],
+        ]);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class, ProductTranslationDefinition::class],
+            Validation::createValidator(),
+            new StaticEntityWriterGateway()
+        );
+        $definition = $registry->getByEntityName(ProductDefinition::ENTITY_NAME);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $searches = 0;
+        $searchClosure = static function () use (&$searches): array {
+            ++$searches;
+
+            return [];
+        };
+
+        /** @var StaticEntityRepository<ProductCollection> */
+        $repository = new StaticEntityRepository(array_fill(0, $expectedSearches, $searchClosure), $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createTwoLanguagesRepo(),
+            true,
+        );
+
+        $updater->updateProducts([Uuid::randomHex()], Context::createDefaultContext());
+
+        static::assertSame($expectedSearches, $searches);
+    }
+
+    /**
+     * @return iterable<string, array{field: string, expectedSearches: int}>
+     */
+    public static function languageContextProvider(): iterable
+    {
+        yield 'non-translated field is searched in one language' => [
+            'field' => 'active',
+            'expectedSearches' => 1,
+        ];
+
+        yield 'translated field is searched in every language' => [
+            'field' => 'name',
+            'expectedSearches' => 2,
+        ];
+    }
+
+    /**
      * @return iterable<string, array<int, array<int, array<string, bool|string>|string>|Criteria>>
      */
     public static function filterProvider(): iterable
@@ -606,5 +678,22 @@ class ProductStreamUpdaterTest extends TestCase
         $repo = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         return $repo;
+    }
+
+    /**
+     * @return StaticEntityRepository<LanguageCollection>
+     */
+    private function createTwoLanguagesRepo(): StaticEntityRepository
+    {
+        $defaultLanguage = new LanguageEntity();
+        $defaultLanguage->setId(Defaults::LANGUAGE_SYSTEM);
+        $defaultLanguage->setUniqueIdentifier(Defaults::LANGUAGE_SYSTEM);
+
+        $secondLanguageId = Uuid::randomHex();
+        $secondLanguage = new LanguageEntity();
+        $secondLanguage->setId($secondLanguageId);
+        $secondLanguage->setUniqueIdentifier($secondLanguageId);
+
+        return new StaticEntityRepository([new LanguageCollection([$defaultLanguage, $secondLanguage])]);
     }
 }

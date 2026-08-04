@@ -75,12 +75,10 @@ class SearchKeywordUpdaterTest extends TestCase
         $parent->setTranslated(['name' => 'Parent product']);
 
         $productRepository = new StaticEntityRepository([
-            // products to index, the second (empty) search stops the iterator
+            // products to index, searched in a single chunk
             new ProductCollection([$child, $standalone]),
-            new ProductCollection(),
             // parent products, hydrated for the `parent.name` config field
             new ProductCollection([$parent]),
-            new ProductCollection(),
         ], $this->createProductDefinition());
 
         $analyzedProducts = [];
@@ -117,11 +115,10 @@ class SearchKeywordUpdaterTest extends TestCase
         $childId = Uuid::randomHex();
         $child = $this->createProduct($childId, Uuid::randomHex());
 
-        // exactly the two searches of the product iterator: loading parent products
-        // would exhaust the repository and let it throw
+        // exactly the one chunked search for the products to index: loading parent
+        // products would exhaust the repository and let it throw
         $productRepository = new StaticEntityRepository([
             new ProductCollection([$child]),
-            new ProductCollection(),
         ], $this->createProductDefinition());
 
         $updater = $this->createUpdater(

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -85,8 +84,8 @@ class CheapestPriceUpdaterTest extends TestCase
 
     /**
      * The fetched sales channel visibility only surfaces as the container serialized into the
-     * `cheapest_price` UPDATE, so the test captures that written value (see "Asserting writes
-     * when there is no other seam" in coding-guidelines/core/unit-tests.md).
+     * batched `cheapest_price` UPDATE, so the test captures that written value (see "Asserting
+     * writes when there is no other seam" in coding-guidelines/core/unit-tests.md).
      *
      * @param list<string> $salesChannelIds
      */
@@ -109,20 +108,20 @@ class CheapestPriceUpdaterTest extends TestCase
 
         $updater = $this->createMockedUpdater($mockedData, $mockedVisibility);
 
-        $writtenPrices = [];
-        $cheapestPriceStatement = $this->createMock(Statement::class);
-        $cheapestPriceStatement->method('bindValue')->willReturnCallback(
-            static function (string $param, mixed $value) use (&$writtenPrices): void {
-                if ($param === 'price') {
-                    $writtenPrices[] = (string) $value;
-                }
-            }
+        $this->connection->method('transactional')->willReturnCallback(
+            fn (\Closure $closure): mixed => $closure($this->connection)
         );
-        $cheapestPriceStatement->expects($this->once())->method('executeStatement')->willReturn(1);
 
-        $accessorStatement = static::createStub(Statement::class);
-        $this->connection->method('prepare')->willReturnCallback(
-            static fn (string $sql): Statement => str_contains($sql, 'cheapest_price_accessor') ? $accessorStatement : $cheapestPriceStatement
+        $writtenPrices = [];
+        $this->connection->method('executeStatement')->willReturnCallback(
+            static function (string $sql, array $params = []) use (&$writtenPrices): int {
+                // the payload of a single-row batch is the THEN value following the CASE key
+                if (str_contains($sql, '`cheapest_price` = CASE')) {
+                    $writtenPrices[] = (string) $params[1];
+                }
+
+                return 1;
+            }
         );
 
         $updater->update([$parentId], Context::createDefaultContext());

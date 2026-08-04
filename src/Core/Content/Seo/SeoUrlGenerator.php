@@ -10,7 +10,6 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -70,13 +69,19 @@ class SeoUrlGenerator
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
 
-            $criteria->setLimit(50);
+            $templateName = $this->getTemplateName($template);
 
-            /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
-            $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
+            // The requested ids already bound the result set, so search them in fixed chunks
+            // instead of paginating with an iterator, which would need an additional, empty
+            // page query per call to detect the end of the result set.
+            foreach (array_chunk($criteria->getIds(), 50) as $chunkedIds) {
+                $criteria->setIds($chunkedIds);
 
-            while ($searchResult = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
+                $searchResult = $context->enableInheritance(
+                    static fn (Context $context): EntitySearchResult => $repository->search($criteria, $context)
+                );
+
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $templateName);
             }
         }
     }

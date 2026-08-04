@@ -8,8 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -41,7 +41,7 @@ class ProductCategoryDenormalizer
         $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $inserts = [];
-        $updates = [];
+        $updates = new MultiUpdateQueryQueue($this->connection, 'product');
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
             $allIds[] = $productId;
@@ -52,7 +52,7 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
-            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+            $updates->addUpdate($productId, ['category_tree' => $json]);
 
             if ($categoryIds === []) {
                 continue;
@@ -76,13 +76,7 @@ class ProductCategoryDenormalizer
             );
         });
 
-        RetryableTransaction::retryable($this->connection, function () use ($updates): void {
-            $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
-
-            foreach ($updates as $update) {
-                StatementHelper::executeStatement($query, $update);
-            }
-        });
+        $updates->execute(['version_id' => $versionId]);
 
         $this->insertTree($inserts);
     }

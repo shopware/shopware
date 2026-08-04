@@ -188,11 +188,13 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             ]);
         });
 
-        it('should show an error notification and still restore the selection when loading the available types fails', async () => {
+        it('should show an error notification and keep the previously loaded types when reloading the available types fails', async () => {
             jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
 
             const wrapper = await createWrapper();
             await flushPromises();
+
+            expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
 
             wrapper.vm.createNotificationError = jest.fn();
             wrapper.vm.documentV2Service.getAvailableTypes = jest.fn(() => Promise.reject(new Error('Network error')));
@@ -203,7 +205,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 message: 'Network error',
             });
             expect(wrapper.vm.isLoadingSupportedDocumentTypes).toBe(false);
-            expect(wrapper.vm.supportedDocumentTypes).toEqual({});
+            expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
         });
 
         it('should reset the selected file formats when the document type changes', async () => {

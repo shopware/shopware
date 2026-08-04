@@ -72,6 +72,22 @@ shopware:
                         transport:
                             policy: open
 
+                scheduled_task.run.duration:
+                    # per-task-name performance signal, kept separate from overall messenger noise;
+                    # only terminal outcomes are recorded (retried attempts are covered by the messenger metrics)
+                    description: 'Scheduled task execution duration (worker received to handled/failed), per task/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-second cache invalidation up to long sitemap/product-export generation
+                        buckets: [10, 100, 1000, 10000, 60000, 300000, 600000]
+                    labels:
+                        # see TaskNameResolver
+                        task_name:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'

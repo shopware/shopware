@@ -4,7 +4,7 @@
 
 const { TestEnvironment } = require('jest-environment-jsdom');
 
-const activeFeatureFlagsSymbol = Symbol.for('shopware.activeFeatureFlags');
+const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 
 class FeatureFlagTestEnvironment extends TestEnvironment {
@@ -12,7 +12,9 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
 
     handleTestEvent(event, state) {
         if (event.name === 'add_test') {
-            const featureFlags = event.fn[activeFeatureFlagsSymbol];
+            // Read from the slot rather than the callback: it.each() hands its own wrapper to it(),
+            // so a property on the callback would not reach us for table-driven tests.
+            const featureFlags = this.global[pendingFeatureFlagsSymbol];
             const registeredTest = state.currentDescribeBlock.tests.at(-1);
 
             if (featureFlags && registeredTest) {

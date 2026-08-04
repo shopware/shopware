@@ -11,8 +11,7 @@ async function createWrapper(query = {}) {
         }),
         {
             global: {
-                provide: {
-                },
+                provide: {},
                 stubs: {
                     'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
                     'sw-search-bar': true,

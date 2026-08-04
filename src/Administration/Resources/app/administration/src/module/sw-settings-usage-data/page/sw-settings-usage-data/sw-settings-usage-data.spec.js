@@ -3,10 +3,7 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package framework
  */
-async function createWrapper({
-    routeName = 'sw.settings.usage.data.index.general',
-    routerPush = jest.fn(),
-} = {}) {
+async function createWrapper({ routeName = 'sw.settings.usage.data.index.general', routerPush = jest.fn() } = {}) {
     return mount(
         await wrapTestComponent('sw-settings-usage-data', {
             sync: true,

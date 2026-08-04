@@ -206,10 +206,6 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    // NOTE FOR REVIEWERS: this asserted the legacy branch only and previously stayed green in the
-    // major suite because createWrapper injected a local feature mock. The mock is gone, so the
-    // real flag now reaches the component and the test is gated like its sibling in
-    // sw-cms/elements/text/config/config.spec.js.
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper();

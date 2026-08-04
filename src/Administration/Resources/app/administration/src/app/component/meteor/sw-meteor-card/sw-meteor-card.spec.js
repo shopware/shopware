@@ -258,23 +258,20 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
     });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')(
-        'should render deprecated tabs and change content',
-        async () => {
-            const wrapper = await createMeteorCardWithTabs();
-            await flushPromises();
+    it.deprecated('v6.8.0.0')('should render deprecated tabs and change content', async () => {
+        const wrapper = await createMeteorCardWithTabs();
+        await flushPromises();
 
-            const tabTwo = wrapper.findAll('.sw-tabs-item').at(1);
+        const tabTwo = wrapper.findAll('.sw-tabs-item').at(1);
 
-            let content = wrapper.find('.sw-meteor-card__content-wrapper');
-            expect(content.text()).toBe('Tab 1');
+        let content = wrapper.find('.sw-meteor-card__content-wrapper');
+        expect(content.text()).toBe('Tab 1');
 
-            await tabTwo.trigger('click');
+        await tabTwo.trigger('click');
 
-            content = wrapper.find('.sw-meteor-card__content-wrapper');
-            expect(content.text()).toBe('Tab 2');
-        },
-    );
+        content = wrapper.find('.sw-meteor-card__content-wrapper');
+        expect(content.text()).toBe('Tab 2');
+    });
 
     it('should render meteor tabs and change content', async () => {
         const wrapper = await createMeteorCardWithTabs({ featureActive: true });

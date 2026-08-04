@@ -211,78 +211,72 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
     });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')(
-        'should render the deprecated tabs when slot is filled',
-        async () => {
-            const wrapper = await createWrapper({
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs when slot is filled', async () => {
+        const wrapper = await createWrapper({
+            'page-tabs': pageTabsSlot,
+        });
+
+        await flushPromises();
+
+        const tabsContent = wrapper.find('.sw-tabs__content');
+        expect(tabsContent.exists()).toBe(true);
+
+        const routerLinksStubs = wrapper.findAll('.router-link');
+        expect(routerLinksStubs).toHaveLength(3);
+
+        expect(routerLinksStubs.at(0).text()).toBe('Tab 1');
+        expect(routerLinksStubs.at(1).text()).toBe('Tab 2');
+        expect(routerLinksStubs.at(2).text()).toBe('Tab 3');
+
+        expect(wrapper.find('.mt-tabs').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs when slot is filled', async () => {
+        const wrapper = await createWrapper(
+            {
                 'page-tabs': pageTabsSlot,
-            });
+            },
+            {
+                routeName: 'tab.two',
+            },
+        );
 
-            await flushPromises();
+        await flushPromises();
 
-            const tabsContent = wrapper.find('.sw-tabs__content');
-            expect(tabsContent.exists()).toBe(true);
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('sw-meteor-page');
+        expect(tabs.props('defaultItem')).toBe('tab.two');
 
-            const routerLinksStubs = wrapper.findAll('.router-link');
-            expect(routerLinksStubs).toHaveLength(3);
+        const items = tabs.props('items');
+        expect(items).toHaveLength(3);
+        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+            {
+                label: 'Tab 1',
+                name: 'tab.one',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab.two',
+            },
+            {
+                label: 'Tab 3',
+                name: 'tab.three',
+            },
+        ]);
 
-            expect(routerLinksStubs.at(0).text()).toBe('Tab 1');
-            expect(routerLinksStubs.at(1).text()).toBe('Tab 2');
-            expect(routerLinksStubs.at(2).text()).toBe('Tab 3');
+        items[1].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'tab.two' });
 
-            expect(wrapper.find('.mt-tabs').exists()).toBe(false);
-        },
-    );
+        await tabs.vm.$emit('new-item-active', 'tab.three');
+        expect(wrapper.emitted('new-item-active')).toEqual([
+            [
+                'tab.three',
+            ],
+        ]);
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should render meteor tabs when slot is filled',
-        async () => {
-            const wrapper = await createWrapper(
-                {
-                    'page-tabs': pageTabsSlot,
-                },
-                {
-                    routeName: 'tab.two',
-                },
-            );
-
-            await flushPromises();
-
-            const tabs = wrapper.findComponent({ name: 'mt-tabs' });
-            expect(tabs.exists()).toBe(true);
-            expect(tabs.props('positionIdentifier')).toBe('sw-meteor-page');
-            expect(tabs.props('defaultItem')).toBe('tab.two');
-
-            const items = tabs.props('items');
-            expect(items).toHaveLength(3);
-            expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
-                {
-                    label: 'Tab 1',
-                    name: 'tab.one',
-                },
-                {
-                    label: 'Tab 2',
-                    name: 'tab.two',
-                },
-                {
-                    label: 'Tab 3',
-                    name: 'tab.three',
-                },
-            ]);
-
-            items[1].onClick();
-            expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'tab.two' });
-
-            await tabs.vm.$emit('new-item-active', 'tab.three');
-            expect(wrapper.emitted('new-item-active')).toEqual([
-                [
-                    'tab.three',
-                ],
-            ]);
-
-            expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
-        },
-    );
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should prefer the visible tab text over the title attribute for meteor tab labels',

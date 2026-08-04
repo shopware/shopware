@@ -16,7 +16,6 @@ async function createWrapper() {
 }
 
 describe('components/base/sw-button', () => {
-    // NOTE FOR REVIEWERS: sw-button ignores ENABLE_METEOR_COMPONENTS and always renders mt-button.
     it('should render the mt-button', async () => {
         const wrapper = await createWrapper();
 

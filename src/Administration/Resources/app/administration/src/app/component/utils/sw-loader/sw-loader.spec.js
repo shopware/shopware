@@ -26,12 +26,9 @@ describe('src/app/component/base/sw-loader', () => {
         expect(wrapper.html()).not.toContain('mt-loader');
     });
 
-    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])(
-        'should render the mt-loader',
-        async () => {
-            const wrapper = await createWrapper();
+    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])('should render the mt-loader', async () => {
+        const wrapper = await createWrapper();
 
-            expect(wrapper.html()).toContain('mt-loader');
-        },
-    );
+        expect(wrapper.html()).toContain('mt-loader');
+    });
 });

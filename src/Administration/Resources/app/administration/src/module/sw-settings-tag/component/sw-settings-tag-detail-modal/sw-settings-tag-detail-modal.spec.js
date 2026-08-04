@@ -70,9 +70,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
-    // NOTE FOR REVIEWERS: this asserted the legacy branch only and previously stayed green in the
-    // major suite because createWrapper injected a local feature mock. The mock is gone, so the
-    // real flag now reaches the component and the test has to be gated.
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render the deprecated tabs', async () => {
         const wrapper = await createWrapper();

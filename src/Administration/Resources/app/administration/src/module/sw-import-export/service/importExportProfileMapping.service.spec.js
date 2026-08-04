@@ -11,7 +11,6 @@ const requiredProductMappingsWithType = [
     { key: 'type', mappedKey: 'type' },
 ];
 
-// NOTE FOR REVIEWERS: Product type becomes required in v6.8, so active mapping fixtures include it before asserting any other missing field.
 describe('module/sw-import-export/service/importExportProfileMapping.service.spec.js', () => {
     let importExportProfileMappingService;
 

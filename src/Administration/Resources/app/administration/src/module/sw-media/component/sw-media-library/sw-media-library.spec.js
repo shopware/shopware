@@ -374,56 +374,52 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    // NOTE FOR REVIEWERS: v6.8 changes the default media sort from file name ascending to creation date descending.
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should use created at descending for nextMediaCriteria',
-        async () => {
-            const wrapper = await createWrapper();
+    it.activeFeatureFlags(['v6.8.0.0'])('should use created at descending for nextMediaCriteria', async () => {
+        const wrapper = await createWrapper();
 
-            expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
-                page: 1,
-                limit: 5,
-                term: '',
-                filter: [{ type: 'equals', field: 'mediaFolderId', value: null }],
-                sort: [{ field: 'createdAt', order: 'desc', naturalSorting: false }],
-                associations: {
-                    tags: { limit: 25, 'total-count-mode': 1 },
-                    productMedia: {
-                        limit: 25,
-                        associations: expect.any(Object),
-                        'total-count-mode': 1,
-                    },
-                    categories: { limit: 25, 'total-count-mode': 1 },
-                    productManufacturers: {
-                        limit: 25,
-                        associations: expect.any(Object),
-                        'total-count-mode': 1,
-                    },
-                    mailTemplateMedia: {
-                        limit: 25,
-                        associations: expect.any(Object),
-                        'total-count-mode': 1,
-                    },
-                    documentBaseConfigs: { limit: 25, 'total-count-mode': 1 },
-                    avatarUsers: { limit: 25, 'total-count-mode': 1 },
-                    paymentMethods: { limit: 25, 'total-count-mode': 1 },
-                    shippingMethods: { limit: 25, 'total-count-mode': 1 },
-                    cmsBlocks: {
-                        limit: 25,
-                        associations: expect.any(Object),
-                        'total-count-mode': 1,
-                    },
-                    cmsSections: {
-                        limit: 25,
-                        associations: expect.any(Object),
-                        'total-count-mode': 1,
-                    },
-                    cmsPages: { limit: 25, 'total-count-mode': 1 },
+        expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
+            page: 1,
+            limit: 5,
+            term: '',
+            filter: [{ type: 'equals', field: 'mediaFolderId', value: null }],
+            sort: [{ field: 'createdAt', order: 'desc', naturalSorting: false }],
+            associations: {
+                tags: { limit: 25, 'total-count-mode': 1 },
+                productMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
                 },
-                'total-count-mode': 1,
-            });
-        },
-    );
+                categories: { limit: 25, 'total-count-mode': 1 },
+                productManufacturers: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                mailTemplateMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                documentBaseConfigs: { limit: 25, 'total-count-mode': 1 },
+                avatarUsers: { limit: 25, 'total-count-mode': 1 },
+                paymentMethods: { limit: 25, 'total-count-mode': 1 },
+                shippingMethods: { limit: 25, 'total-count-mode': 1 },
+                cmsBlocks: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                cmsSections: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                cmsPages: { limit: 25, 'total-count-mode': 1 },
+            },
+            'total-count-mode': 1,
+        });
+    });
 
     it('should have a computed property for nextFoldersCriteria', async () => {
         const wrapper = await createWrapper();

@@ -165,7 +165,6 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
 
-    // NOTE FOR REVIEWERS: The Meteor editor emits `update:modelValue` instead of the legacy editor's `input` event, so this is a separate v6.8 interaction test.
     it.activeFeatureFlags([
         'v6.8.0.0',
         'METEOR_TEXT_EDITOR',

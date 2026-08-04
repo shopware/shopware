@@ -18,7 +18,6 @@ const entityFactory = new EntityFactory();
 
 const REQUIRED_ERROR_CODE = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
 
-// NOTE FOR REVIEWERS: Product type becomes required in v6.8, so the active variants include it to keep each assertion focused on its intended validation error.
 describe('src/app/service/entity-validation.service.js', () => {
     beforeAll(() => {
         Object.entries(entitySchemaMock).forEach(

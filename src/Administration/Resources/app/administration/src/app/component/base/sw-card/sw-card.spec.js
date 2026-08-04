@@ -18,7 +18,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-card', () => {
-    // NOTE FOR REVIEWERS: sw-card ignores ENABLE_METEOR_COMPONENTS and always renders mt-card.
     it('should render the mt-card', async () => {
         const wrapper = await createWrapper();
 

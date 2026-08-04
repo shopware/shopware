@@ -25,12 +25,9 @@ describe('src/app/component/base/sw-skeleton-bar', () => {
         expect(wrapper.html()).not.toContain('mt-skeleton-bar');
     });
 
-    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])(
-        'should render the mt-skeleton-bar',
-        async () => {
-            const wrapper = await createWrapper();
+    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])('should render the mt-skeleton-bar', async () => {
+        const wrapper = await createWrapper();
 
-            expect(wrapper.html()).toContain('mt-skeleton-bar');
-        },
-    );
+        expect(wrapper.html()).toContain('mt-skeleton-bar');
+    });
 });

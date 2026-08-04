@@ -106,50 +106,44 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')(
-        'should render deprecated tabs in card section',
-        async () => {
-            addSectionWithTabs();
+    it.deprecated('v6.8.0.0')('should render deprecated tabs in card section', async () => {
+        addSectionWithTabs();
 
-            wrapper = await createWrapper();
-            await flushPromises();
+        wrapper = await createWrapper();
+        await flushPromises();
 
-            const tabs = wrapper.findAll('.sw-tabs-item');
-            expect(tabs).toHaveLength(2);
+        const tabs = wrapper.findAll('.sw-tabs-item');
+        expect(tabs).toHaveLength(2);
 
-            const activeTabs = wrapper.findAll('.sw-tabs-item--active');
-            expect(activeTabs).toHaveLength(1);
+        const activeTabs = wrapper.findAll('.sw-tabs-item--active');
+        expect(activeTabs).toHaveLength(1);
 
-            const activeTab = activeTabs.at(0);
-            expect(activeTab.text()).toBe('Tab 1');
-        },
-    );
+        const activeTab = activeTabs.at(0);
+        expect(activeTab.text()).toBe('Tab 1');
+    });
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should render meteor tabs in card section',
-        async () => {
-            addSectionWithTabs();
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs in card section', async () => {
+        addSectionWithTabs();
 
-            wrapper = await createWrapper();
-            await flushPromises();
+        wrapper = await createWrapper();
+        await flushPromises();
 
-            const tabs = wrapper.findComponent({ name: 'mt-tabs' });
-            expect(tabs.exists()).toBe(true);
-            expect(tabs.props('positionIdentifier')).toBe('');
-            expect(tabs.props('defaultItem')).toBe('tab-1');
-            expect(tabs.props('items')).toEqual([
-                {
-                    label: 'Tab 1',
-                    name: 'tab-1',
-                },
-                {
-                    label: 'Tab 2',
-                    name: 'tab-2',
-                },
-            ]);
-            expect(wrapper.find('.sw-tabs').exists()).toBe(false);
-        },
-    );
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('');
+        expect(tabs.props('defaultItem')).toBe('tab-1');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Tab 1',
+                name: 'tab-1',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab-2',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {

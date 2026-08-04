@@ -262,11 +262,6 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
     });
 
-    // NOTE FOR REVIEWERS: the beforeAll -> beforeEach change plus the per-item clone above mean the
-    // product fixture is no longer shared between tests. The previous expectation of index 1 was
-    // encoding leaked state from "should move media to first position when it is marked as cover",
-    // which reordered the shared product. With a fresh fixture media1 is the cover at index 0.
-    // This is a fixed order dependency, not a loosened assertion.
     it('should remove previous mediaItem if it already exists after upload', async () => {
         const wrapper = await createWrapper('content');
         await flushPromises();

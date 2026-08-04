@@ -617,37 +617,34 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(stateTexts).toContain('Paid');
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should not fall back to deliveries and transactions',
-        async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
+    it.activeFeatureFlags(['v6.8.0.0'])('should not fall back to deliveries and transactions', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
 
-            const order = {
-                primaryOrderDelivery: null,
-                primaryOrderTransaction: null,
-                deliveries: [
-                    {
-                        stateMachineState: {
-                            technicalName: 'shipped',
-                            translated: { name: 'Fallback Shipped' },
-                        },
+        const order = {
+            primaryOrderDelivery: null,
+            primaryOrderTransaction: null,
+            deliveries: [
+                {
+                    stateMachineState: {
+                        technicalName: 'shipped',
+                        translated: { name: 'Fallback Shipped' },
                     },
-                ],
-                transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    {
-                        stateMachineState: {
-                            technicalName: 'paid',
-                            translated: { name: 'Fallback Paid' },
-                        },
+                },
+            ],
+            transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                {
+                    stateMachineState: {
+                        technicalName: 'paid',
+                        translated: { name: 'Fallback Paid' },
                     },
-                ]),
-            };
+                },
+            ]),
+        };
 
-            expect(wrapper.vm.getDelivery(order)).toBeNull();
-            expect(wrapper.vm.transaction(order)).toBeNull();
-        },
-    );
+        expect(wrapper.vm.getDelivery(order)).toBeNull();
+        expect(wrapper.vm.transaction(order)).toBeNull();
+    });
 
     /**
      * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped

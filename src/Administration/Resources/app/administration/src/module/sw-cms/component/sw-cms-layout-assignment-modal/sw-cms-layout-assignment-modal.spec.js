@@ -171,7 +171,10 @@ async function createWrapper(
                     },
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
-                    'sw-loader': true,
+                    'sw-loader': {
+                        name: 'sw-loader',
+                        template: '<div class="sw-loader"></div>',
+                    },
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -295,6 +298,25 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.vm.productCriteria.filters).toEqual([]);
+    });
+
+    it.each([
+        [
+            'system configuration',
+            'isLoading',
+        ],
+        [
+            'assigned products',
+            'isLoadingProducts',
+        ],
+    ])('should report loading while loading %s', async (_label, loadingProperty) => {
+        const wrapper = await createWrapper('product_detail', {});
+
+        wrapper.vm[loadingProperty] = true;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isModalLoading).toBe(true);
+        expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
     it('should render tabs when type is shop page', async () => {

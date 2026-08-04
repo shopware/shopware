@@ -7,7 +7,7 @@
 
     {% block sw_cms_layout_assignment_modal_loader %}
     <sw-loader
-        v-if="isLoading"
+        v-if="isModalLoading"
         class="sw-cms-layout-assignment-modal__loader"
     />
     {% endblock %}
@@ -514,7 +514,7 @@
     <template #modal-footer>
         {% block sw_cms_layout_assignment_action_abort %}
         <mt-button
-            :disabled="isLoading"
+            :disabled="isModalLoading"
             class="sw-cms-layout-assignment-modal__action-cancel"
             size="small"
             variant="secondary"
@@ -526,7 +526,7 @@
 
         {% block sw_cms_layout_assignment_action_confirm %}
         <mt-button
-            :disabled="isLoading"
+            :disabled="isModalLoading"
             class="sw-cms-layout-assignment-modal__action-confirm"
             size="small"
             variant="primary"

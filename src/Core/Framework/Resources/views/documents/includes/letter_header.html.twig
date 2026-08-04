@@ -1,3 +1,4 @@
+{# @sw-package after-sales #}
 {#
 
 Notice for plugins and theme developer:     Do not extend this template!
@@ -28,9 +29,19 @@ All blocks of this template are available in the template which renders this tem
                     address: billingAddress
                 } %}<br/>
 
-                {% if (customer.customer.vatIds|first and config.displayCustomerVatId) or (customer.customer.vatIds|first and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries) %}
-                    {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize(null, true) }}<br>
-                {% endif %}
+                {% set customerVatId = customer.customer.vatIds|first -%}
+                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery) -%}
+
+                {%- if not feature('v6.8.0.0') -%}
+                    {%- set customerVatId = customer.customer.vatIds|first -%}
+                    {%- set displayCustomerVatId = customerVatId and config.displayCustomerVatId -%}
+                    {#- @deprecated tag:v6.8.0 - displayCustomerVatIdForDelivery will be removed without replacement -#}
+                    {%- set displayCustomerVatIdForDelivery = customerVatId and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries -%}
+                {%- endif -%}
+
+                {%- if displayCustomerVatId or displayCustomerVatIdForDelivery -%}
+                    {{ 'document.vatId'|trans({'%vatId%': customerVatId})|sw_sanitize(null, true) }}<br>
+                {%- endif -%}
             {% endblock %}
         </div>
 

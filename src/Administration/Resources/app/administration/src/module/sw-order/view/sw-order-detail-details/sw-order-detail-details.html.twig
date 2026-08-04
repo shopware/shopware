@@ -98,6 +98,7 @@
             :step="1"
             :min="0"
             :label="$t('sw-order.detailDeliveries.labelShippingCosts')"
+            @input-change="onShippingChargeEdited"
         >
             <template #suffix>
                 {{ order.currency.symbol }}

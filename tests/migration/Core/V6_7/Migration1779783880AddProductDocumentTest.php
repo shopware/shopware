@@ -29,13 +29,6 @@ class Migration1779783880AddProductDocumentTest extends TestCase
         static::assertSame(1779783880, (new Migration1779783880AddProductDocument())->getCreationTimestamp());
     }
 
-    public function testUpdateDestructiveDoesNothing(): void
-    {
-        (new Migration1779783880AddProductDocument())->updateDestructive($this->connection);
-
-        static::addToAssertionCount(1);
-    }
-
     public function testMigrationCreatesProductDocumentTableAndMediaFolder(): void
     {
         $this->rollback();

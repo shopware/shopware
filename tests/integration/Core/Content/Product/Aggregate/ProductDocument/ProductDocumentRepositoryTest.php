@@ -157,12 +157,9 @@ class ProductDocumentRepositoryTest extends TestCase
             ]],
         ]);
 
-        try {
-            $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
-            static::fail('Expected media delete to be restricted.');
-        } catch (RestrictDeleteViolationException) {
-            static::addToAssertionCount(1);
-        }
+        static::expectException(RestrictDeleteViolationException::class);
+
+        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
     }
 
     /**

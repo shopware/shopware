@@ -65,9 +65,9 @@ class DiscountFixedPriceCalculatorTest extends TestCase
      */
     public static function priceProvider(): iterable
     {
-        yield 'cart below fixed price' => [40.00, 19.99, 0.00];
-        yield 'cart equal to fixed price' => [40.00, 40.00, 0.00];
-        yield 'cart above fixed price' => [40.00, 60.00, -20.00];
+        yield 'configured fixed price is lower than cart total: applies the remaining discount' => [40.00, 60.00, -20.00];
+        yield 'configured fixed price matches cart total: applies no discount' => [40.00, 40.00, 0.00];
+        yield 'configured fixed price exceeds cart total: applies no discount' => [40.00, 19.99, 0.00];
     }
 
     private function createAbsolutePriceCalculator(): AbsolutePriceCalculator

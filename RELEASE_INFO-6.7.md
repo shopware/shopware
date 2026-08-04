@@ -806,7 +806,10 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 
 ### App permissions restrict Extension SDK requests and Administration modules
 
-Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` for the selected app. Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`. The Administration module response omits modules for apps the current user cannot access. Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
+Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
+Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
+The Administration module response omits modules for apps the current user cannot access.
+Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

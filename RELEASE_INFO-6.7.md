@@ -279,6 +279,9 @@ cacheService.invalidateCaches({
 ### Plugins can use the global Meteor snackbar
 
 Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
+### App action buttons in the Media Manager multiselect sidebar
+
+Apps can now surface a custom action button when multiple media are selected in the Media Manager. Registering an action button via the Admin SDK with `entity: 'media'` and `view: 'list'` renders it in the multiselect sidebar's quick-actions list. The button is only shown when **every** selected media item matches the configured `fileTypes` (case-insensitive; omit `fileTypes` to always show it), and the `callback` receives the full list of selected media entities (`{ id, url, fileName, mimeType, fileSize }`). This complements the existing single-item button (`view: 'item'`) and lets apps offer bulk operations — e.g. exporting or converting all selected files — without an extra API round-trip. No changes are required for existing single-item action buttons.
 
 ## Storefront
 
@@ -856,6 +859,13 @@ For Administration clients that need to decide whether to trigger a direct brows
 The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
 
 ## App System
+
+### App permissions restrict Extension SDK requests and Administration modules
+
+Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
+Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
+The Administration module response omits modules for apps the current user cannot access.
+Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

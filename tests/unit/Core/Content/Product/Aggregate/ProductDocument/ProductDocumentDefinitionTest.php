@@ -60,7 +60,7 @@ class ProductDocumentDefinitionTest extends TestCase
 
     public function testSince(): void
     {
-        static::assertSame('6.7.13.0', $this->definition->since());
+        static::assertSame('6.7.14.0', $this->definition->since());
     }
 
     public function testEntityClass(): void

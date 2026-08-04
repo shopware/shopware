@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -36,8 +37,12 @@ use Shopware\Core\Framework\Log\Package;
  * `self::`/`static::` call is skipped unless the callee is a method of the same class whose matching parameter
  * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
  * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
- * Properties touched by a helper are still skipped wholesale. The reverse — converting a real mock — is caught
- * for free by phpstan-phpunit (`Stub::expects()` is undefined).
+ * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
+ * stub (`$this->dep->method(...)`) or forwards it into a constructor keeps it analysable; any other helper
+ * use (an `->expects()`, an unresolvable call) skips the property wholesale (see
+ * {@see self::helperUsageOfProperty()}). Helper-read properties are only ever reported as pure
+ * stubs, never as mixed usage — mixed attribution would need to know which tests invoke which helper. The
+ * reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is undefined).
  *
  * @implements Rule<InClassNode>
  *
@@ -102,7 +107,325 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message);
         }
 
+        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as $createMock) {
+            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB);
+        }
+
         return $errors;
+    }
+
+    /**
+     * A `getFooMock()` helper whose returned double is provably never `->expects()`-ed: neither inside the
+     * helper nor at any call site of it in this class. The plain local/inline analyses skip returned doubles
+     * ("the caller could expects() it"); this pass follows the return to those callers and flags the double
+     * when none of them does.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return list<MethodCall|StaticCall>
+     */
+    private function findHelperReturnedStubMocks(array $methods, array $ownMethods): array
+    {
+        $finder = new NodeFinder();
+        $result = [];
+
+        foreach ($methods as $helper) {
+            if ($this->isTestMethod($helper) || mb_strtolower($helper->name->name) === 'setup' || $helper->stmts === null) {
+                continue;
+            }
+
+            $returned = $this->returnedCreateMocks($finder, $helper, $ownMethods);
+            if ($returned === []) {
+                continue;
+            }
+
+            if (!$this->helperResultIsNeverExpected($finder, $methods, $ownMethods, $helper->name->name)) {
+                continue;
+            }
+
+            foreach ($returned as $createMock) {
+                $result[] = $createMock;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * The `createMock()` calls whose double leaves $helper through a `return` while provably clean inside it:
+     * either `return $this->createMock(X);` directly, or a local that is only stub-configured before a bare
+     * `return $local;`. Doubles the helper itself `->expects()`-es or lets escape any other way answer nothing.
+     *
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return list<MethodCall|StaticCall>
+     */
+    private function returnedCreateMocks(NodeFinder $finder, ClassMethod $helper, array $ownMethods): array
+    {
+        $stmts = (array) $helper->stmts;
+        $result = [];
+
+        // bare `return $x;` statements, keyed by variable name
+        $bareReturns = [];
+        foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+            if ($return->expr !== null && $this->isCreateMockCall($return->expr)) {
+                \assert($return->expr instanceof MethodCall || $return->expr instanceof StaticCall);
+                $result[] = $return->expr;
+
+                continue;
+            }
+
+            if ($return->expr instanceof Variable && \is_string($return->expr->name)) {
+                $bareReturns[$return->expr->name][] = spl_object_id($return->expr);
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+            if (!$assign->var instanceof Variable || !\is_string($assign->var->name) || !$this->isCreateMockCall($assign->expr)) {
+                continue;
+            }
+
+            $name = $assign->var->name;
+            if (!isset($bareReturns[$name])) {
+                continue;
+            }
+
+            // Inside the helper the double must stay clean: only stub configuration, constructor forwarding,
+            // proven own-method forwarding, its defining assignment, and the bare return itself.
+            $extraHarmless = [spl_object_id($assign->var), ...$bareReturns[$name]];
+
+            if ($this->variableIsNeverExpected($stmts, $name, $ownMethods, $extraHarmless)) {
+                \assert($assign->expr instanceof MethodCall || $assign->expr instanceof StaticCall);
+                $result[] = $assign->expr;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * True when every call site of `$this->$helperName()` in the class provably never `->expects()`-es the
+     * returned double: bound to a local that stays clean, chained into stub configuration, used as a bare
+     * statement, forwarded into a constructor, or forwarded into an own method whose parameter is proven.
+     * Any call site this rule cannot classify answers false.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     */
+    private function helperResultIsNeverExpected(NodeFinder $finder, array $methods, array $ownMethods, string $helperName): bool
+    {
+        foreach ($methods as $method) {
+            if ($method->stmts === null || mb_strtolower($method->name->name) === mb_strtolower($helperName)) {
+                continue;
+            }
+
+            $stmts = (array) $method->stmts;
+
+            $sites = [];
+            foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+                if ($call->name instanceof Identifier && mb_strtolower($call->name->name) === mb_strtolower($helperName)) {
+                    $sites[spl_object_id($call)] = $call;
+                }
+            }
+
+            if ($sites === []) {
+                continue;
+            }
+
+            $classified = [];
+
+            // `$x = $this->helper();` — analyse $x like a local double.
+            foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+                if (!isset($sites[spl_object_id($assign->expr)])) {
+                    continue;
+                }
+
+                if (!$assign->var instanceof Variable || !\is_string($assign->var->name)) {
+                    return false;
+                }
+
+                if (!$this->variableIsNeverExpected($stmts, $assign->var->name, $ownMethods, [spl_object_id($assign->var)])) {
+                    return false;
+                }
+
+                $classified[spl_object_id($assign->expr)] = true;
+            }
+
+            // `$this->helper()->method(...)` — chained stub configuration; a chained `expects()` is a mock.
+            foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+                if (!isset($sites[spl_object_id($call->var)])) {
+                    continue;
+                }
+
+                if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
+                    return false;
+                }
+
+                $classified[spl_object_id($call->var)] = true;
+            }
+
+            // `new Sut($this->helper())` — production code, it cannot configure expectations.
+            foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
+                if ($new->isFirstClassCallable()) {
+                    continue;
+                }
+
+                foreach ($new->getArgs() as $arg) {
+                    if (isset($sites[spl_object_id($arg->value)])) {
+                        $classified[spl_object_id($arg->value)] = true;
+                    }
+                }
+            }
+
+            // `$this->other($this->helper())` — allowed only when the receiving parameter is proven; an
+            // inherited assertion (`static::assertSame($this->helper(), ...)`) only reads its arguments.
+            foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+                $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
+                $callee = $this->resolveOwnMethod($call, $ownMethods);
+
+                foreach ($call->getArgs() as $index => $arg) {
+                    if (!isset($sites[spl_object_id($arg->value)])) {
+                        continue;
+                    }
+
+                    if ($assertion) {
+                        $classified[spl_object_id($arg->value)] = true;
+
+                        continue;
+                    }
+
+                    if ($callee === null || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                        return false;
+                    }
+
+                    $classified[spl_object_id($arg->value)] = true;
+                }
+            }
+
+            // `$this->helper();` as a bare statement — the double is dropped.
+            foreach ($finder->findInstanceOf($stmts, Expression::class) as $expression) {
+                if (isset($sites[spl_object_id($expression->expr)])) {
+                    $classified[spl_object_id($expression->expr)] = true;
+                }
+            }
+
+            foreach (array_keys($sites) as $id) {
+                if (!isset($classified[$id])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * True when every use of local `$$name` in $stmts is provably harmless. Uses listed in $extraHarmless
+     * (defining assignments, sanctioned returns) are accepted as-is.
+     *
+     * @param array<Node> $stmts
+     * @param array<string, ClassMethod> $ownMethods
+     * @param list<int> $extraHarmless spl_object_ids of Variable nodes to accept
+     */
+    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = []): bool
+    {
+        return $this->referenceIsNeverExpected(
+            $stmts,
+            static fn (Node $node): bool => $node instanceof Variable && $node->name === $name,
+            $ownMethods,
+            $extraHarmless,
+        );
+    }
+
+    /**
+     * The shared core of all "is this double ever expected?" analyses. True when every occurrence of the
+     * reference matched by $isReference (a local variable or a `$this->prop` fetch) in $stmts is provably
+     * harmless: receiving a non-`expects()` call (stub configuration), being handed to a constructor
+     * (production code cannot configure expectations), being read by an inherited PHPUnit assertion, or
+     * being forwarded to an own method whose parameter is proven. Occurrences listed in $extraHarmless are
+     * accepted as-is; any other occurrence — an `->expects()`, a `return`, a re-assignment, an unresolvable
+     * call — answers false.
+     *
+     * @param array<Node> $stmts
+     * @param callable(Node): bool $isReference
+     * @param array<string, ClassMethod> $ownMethods
+     * @param list<int> $extraHarmless spl_object_ids of reference nodes to accept
+     * @param array<string, true> $visited guards against recursive helpers
+     */
+    private function referenceIsNeverExpected(array $stmts, callable $isReference, array $ownMethods, array $extraHarmless = [], array $visited = []): bool
+    {
+        $finder = new NodeFinder();
+
+        $uses = [];
+        foreach ($finder->find($stmts, static fn (Node $node): bool => $isReference($node)) as $node) {
+            $uses[spl_object_id($node)] = true;
+        }
+
+        if ($uses === []) {
+            return true;
+        }
+
+        $harmless = array_fill_keys($extraHarmless, true);
+
+        // `$ref->method(...)` — stub configuration is fine, `$ref->expects(...)` is not, and a dynamic
+        // method name could be either.
+        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if (!$isReference($call->var)) {
+                continue;
+            }
+
+            if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
+                return false;
+            }
+
+            $harmless[spl_object_id($call->var)] = true;
+        }
+
+        // `new Sut($ref)` — production code, it cannot configure expectations.
+        foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
+            if ($new->isFirstClassCallable()) {
+                continue;
+            }
+
+            foreach ($new->getArgs() as $arg) {
+                foreach ($this->passedThrough($arg->value, $isReference) as $occurrence) {
+                    $harmless[spl_object_id($occurrence)] = true;
+                }
+            }
+        }
+
+        // forwarded to an own method (recurse into it) or read by an inherited assertion
+        foreach ($this->findOwnCalls($finder, $stmts) as $call) {
+            $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
+            $callee = $this->resolveOwnMethod($call, $ownMethods);
+            if ($callee === null && !$assertion) {
+                continue;
+            }
+
+            foreach ($call->getArgs() as $index => $arg) {
+                $occurrences = $this->passedThrough($arg->value, $isReference);
+                if ($occurrences === []) {
+                    continue;
+                }
+
+                if (!$assertion && ($callee === null || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, $visited))) {
+                    continue;
+                }
+
+                foreach ($occurrences as $occurrence) {
+                    $harmless[spl_object_id($occurrence)] = true;
+                }
+            }
+        }
+
+        foreach (array_keys($uses) as $id) {
+            if (!isset($harmless[$id])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -140,7 +463,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 $skip[spl_object_id($arg->value)] = true;
             }
         });
-        // handed back to the caller → it can be ->expects()-ed there
+        // handed back to the caller → covered by findHelperReturnedStubMocks(), which follows it to the call sites
         foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
             foreach ($finder->findInstanceOf([$return], MethodCall::class) as $inner) {
                 $skip[spl_object_id($inner)] = true;
@@ -193,7 +516,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
         $this->disqualifyDoublesPassedToOwnMethods($finder, $stmts, $ownMethods, $disqualified, fn (Node $n): ?string => $this->localName($n));
 
-        // handed back to the caller (a `getFooMock()` fixture helper) → it can be ->expects()-ed there
+        // handed back to the caller → covered by findHelperReturnedStubMocks(), which follows it to the call sites
         foreach ($this->findReturnedVariableNames($finder, $stmts) as $name) {
             $disqualified[$name] = true;
         }
@@ -283,6 +606,13 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
+            // For a property that helpers read (transparently: stub configuration or SUT forwarding), only the
+            // provably-never-expected case is reported. Mixed usage would attribute "bare in test X" without
+            // knowing which tests invoke which helper — too weak a proof to block CI on.
+            if ($hasExpects && $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) !== 'untouched') {
+                continue;
+            }
+
             $message = $hasExpects ? self::ERROR_MIXED : self::ERROR_STUB;
             foreach ($propAssignments as $assign) {
                 $errors[] = [$assign, $message];
@@ -294,7 +624,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     /**
      * A property whose expectations could be configured out of view — passed into a `$this->`/`self::`/
-     * `static::` call, or accessed by a non-test/non-setUp helper — cannot be reasoned about safely.
+     * `static::` call, or used unsafely by a non-test/non-setUp helper — cannot be reasoned about safely.
      *
      * @param array<ClassMethod> $methods
      * @param array<ClassMethod> $helperMethods
@@ -310,15 +640,37 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             return true;
         }
 
+        return $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) === 'unsafe';
+    }
+
+    /**
+     * How the helper methods relate to `$this->$name`: `unsafe` when any helper uses it in a way that could
+     * configure an expectation out of view, `harmless` when helpers only stub-configure or forward it,
+     * `untouched` when no helper references it.
+     *
+     * @param array<ClassMethod> $helperMethods
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return 'unsafe'|'harmless'|'untouched'
+     */
+    private function helperUsageOfProperty(NodeFinder $finder, array $helperMethods, array $ownMethods, string $name): string
+    {
+        $isReference = fn (Node $node): bool => $this->propertyName($node) === $name;
+
+        $touched = false;
         foreach ($helperMethods as $helper) {
-            foreach ($finder->findInstanceOf((array) $helper->stmts, PropertyFetch::class) as $fetch) {
-                if ($this->propertyName($fetch) === $name) {
-                    return true;
-                }
+            $stmts = (array) $helper->stmts;
+            if ($finder->findFirst($stmts, static fn (Node $node): bool => $isReference($node)) === null) {
+                continue;
+            }
+
+            $touched = true;
+            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods)) {
+                return 'unsafe';
             }
         }
 
-        return false;
+        return $touched ? 'harmless' : 'untouched';
     }
 
     private function methodExpectsProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
@@ -370,24 +722,50 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      */
     private function eachOpaqueOwnCallArg(NodeFinder $finder, array $stmts, array $ownMethods, callable $onArg): void
     {
+        $resolvableMethods = $ownMethods;
         if ($this->hasOpaqueExpectsReceiver($finder, $stmts)) {
             // Some double is ->expects()-ed through a reference this rule cannot resolve (typically a fixture
             // struct handed back by the helper: `$fixture->repository->expects(...)`). Which double that is
             // cannot be told, so no callee counts as transparent here.
-            $ownMethods = [];
+            $resolvableMethods = [];
         }
 
         foreach ($this->findOwnCalls($finder, $stmts) as $call) {
-            $callee = $this->resolveOwnMethod($call, $ownMethods);
+            // `static::assertSame($double, ...)` — an inherited PHPUnit assertion only reads its arguments;
+            // it cannot configure expectations. Checked against the full method map on purpose: an
+            // assert-named method declared in this class is analysed like any other helper.
+            if ($this->isInheritedAssertionCall($call, $ownMethods)) {
+                continue;
+            }
+
+            $callee = $this->resolveOwnMethod($call, $resolvableMethods);
 
             foreach ($call->getArgs() as $index => $arg) {
-                if ($callee !== null && $this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, [])) {
+                if ($callee !== null && $this->argumentIsNeverExpected($callee, $arg, $index, $resolvableMethods, [])) {
                     continue;
                 }
 
                 $onArg($arg);
             }
         }
+    }
+
+    /**
+     * A `$this->`/`self::`/`static::` call to an `assert*` method that is not declared in this class — an
+     * inherited PHPUnit assertion. Assertions only read their arguments and can never configure an
+     * expectation on a double.
+     *
+     * @param array<string, ClassMethod> $ownMethods
+     */
+    private function isInheritedAssertionCall(MethodCall|StaticCall $call, array $ownMethods): bool
+    {
+        if (!$call->name instanceof Identifier) {
+            return false;
+        }
+
+        $name = mb_strtolower($call->name->name);
+
+        return \str_starts_with($name, 'assert') && !isset($ownMethods[$name]);
     }
 
     /**
@@ -526,98 +904,38 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      */
     private function parameterIsNeverExpected(ClassMethod $method, string $paramName, array $ownMethods, array $visited): bool
     {
-        $finder = new NodeFinder();
-        $stmts = (array) $method->stmts;
-
-        $uses = [];
-        foreach ($finder->findInstanceOf($stmts, Variable::class) as $variable) {
-            if ($variable->name === $paramName) {
-                $uses[spl_object_id($variable)] = true;
-            }
-        }
-
-        if ($uses === []) {
-            return true;
-        }
-
-        $harmless = [];
-
-        // `$param->method(...)` — stub configuration is fine, `$param->expects(...)` is not, and a dynamic
-        // method name could be either.
-        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            if (!$call->var instanceof Variable || $call->var->name !== $paramName) {
-                continue;
-            }
-
-            if (!$call->name instanceof Identifier || $this->isExpectsCall($call)) {
-                return false;
-            }
-
-            $harmless[spl_object_id($call->var)] = true;
-        }
-
-        // `new Sut($param)` — production code, it cannot configure expectations.
-        foreach ($finder->findInstanceOf($stmts, New_::class) as $new) {
-            if ($new->isFirstClassCallable()) {
-                continue;
-            }
-
-            foreach ($new->getArgs() as $arg) {
-                foreach ($this->passedThroughVariables($arg->value, $paramName) as $variable) {
-                    $harmless[spl_object_id($variable)] = true;
-                }
-            }
-        }
-
-        // forwarded to another own method → recurse into it
-        foreach ($this->findOwnCalls($finder, $stmts) as $call) {
-            $callee = $this->resolveOwnMethod($call, $ownMethods);
-            if ($callee === null) {
-                continue;
-            }
-
-            foreach ($call->getArgs() as $index => $arg) {
-                $variables = $this->passedThroughVariables($arg->value, $paramName);
-                if ($variables === [] || !$this->argumentIsNeverExpected($callee, $arg, $index, $ownMethods, $visited)) {
-                    continue;
-                }
-
-                foreach ($variables as $variable) {
-                    $harmless[spl_object_id($variable)] = true;
-                }
-            }
-        }
-
-        foreach (array_keys($uses) as $id) {
-            if (!isset($harmless[$id])) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->referenceIsNeverExpected(
+            (array) $method->stmts,
+            static fn (Node $node): bool => $node instanceof Variable && $node->name === $paramName,
+            $ownMethods,
+            [],
+            $visited,
+        );
     }
 
     /**
-     * The $paramName occurrences that $expr passes on unchanged — the bare variable, or one behind the
+     * The reference occurrences that $expr passes on unchanged — the bare reference, or one behind the
      * defaulting wrappers fixture helpers use (`$param ?? $this->shared`, `$param ?: $fallback`). Occurrences
      * anywhere else in $expr are not passed on unchanged and are left for the caller to reject.
      *
-     * @return list<Variable>
+     * @param callable(Node): bool $isReference
+     *
+     * @return list<Expr>
      */
-    private function passedThroughVariables(Expr $expr, string $paramName): array
+    private function passedThrough(Expr $expr, callable $isReference): array
     {
-        if ($expr instanceof Variable) {
-            return $expr->name === $paramName ? [$expr] : [];
+        if ($isReference($expr)) {
+            return [$expr];
         }
 
         if ($expr instanceof Coalesce) {
-            return [...$this->passedThroughVariables($expr->left, $paramName), ...$this->passedThroughVariables($expr->right, $paramName)];
+            return [...$this->passedThrough($expr->left, $isReference), ...$this->passedThrough($expr->right, $isReference)];
         }
 
         if ($expr instanceof Ternary) {
             return [
-                ...$this->passedThroughVariables($expr->if ?? $expr->cond, $paramName),
-                ...$this->passedThroughVariables($expr->else, $paramName),
+                ...$this->passedThrough($expr->if ?? $expr->cond, $isReference),
+                ...$this->passedThrough($expr->else, $isReference),
             ];
         }
 

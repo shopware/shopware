@@ -1,8 +1,10 @@
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
+import { translateDocumentFileFormat } from '../../../constant/document-file-format.constant';
 
 const {
     Component,
+    Mixin,
     Utils,
     Classes: { ShopwareError },
     Store,
@@ -21,11 +23,16 @@ export default {
     inject: [
         'repositoryFactory',
         'validationApiService',
+        'documentV2Service',
     ],
 
     emits: [
         'modal-close',
         'process-finish',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -43,6 +50,11 @@ export default {
             mailRecipient: null,
             recipientMailIsValid: true,
             documentTypeIds: [],
+            documentTypeSelected: null,
+            fileFormatsSelected: [],
+            fileFormatsError: null,
+            supportedDocumentTypes: {},
+            isLoadingSupportedDocumentTypes: false,
             recipients: [],
             selectedRecipient: null,
             mailTemplateIdError: null,
@@ -63,6 +75,32 @@ export default {
 
         documentTypeRepository() {
             return this.repositoryFactory.create('document_type');
+        },
+
+        documentTypeCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        isDocumentGenerationReworkActive() {
+            return Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK');
+        },
+
+        documentTypeOptions() {
+            return this.documentTypes.filter((documentType) => documentType.technicalName in this.supportedDocumentTypes);
+        },
+
+        fileFormatOptions() {
+            const formats = this.supportedDocumentTypes[this.documentTypeSelected]?.formats ?? [];
+
+            return formats.map((format) => {
+                return {
+                    value: format,
+                    label: translateDocumentFileFormat(format, this.$t),
+                };
+            });
         },
 
         isNewMail() {
@@ -246,8 +284,17 @@ export default {
                 'mailTemplates',
                 'triggerEvent',
                 'triggerActions',
+                'documentTypes',
             ],
         ),
+    },
+
+    watch: {
+        fileFormatsSelected(value) {
+            if (value.length > 0 && this.fileFormatsError) {
+                this.fileFormatsError = null;
+            }
+        },
     },
 
     created() {
@@ -257,6 +304,16 @@ export default {
     methods: {
         createdComponent() {
             this.mailRecipient = this.recipientOptions[0].value;
+
+            if (this.isDocumentGenerationReworkActive) {
+                if (!this.documentTypes.length) {
+                    this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                        Shopware.Store.get('swFlow').documentTypes = data;
+                    });
+                }
+
+                this.loadSupportedDocumentTypes();
+            }
 
             if (!this.isNewMail) {
                 const { config } = this.sequence;
@@ -288,7 +345,33 @@ export default {
                 }
 
                 this.mailTemplateId = config.mailTemplateId;
-                this.documentTypeIds = config.documentTypeIds;
+
+                if (this.isDocumentGenerationReworkActive) {
+                    this.documentTypeSelected = config.documentType ?? null;
+                    this.fileFormatsSelected = config.fileFormats || [];
+                } else {
+                    this.documentTypeIds = config.documentTypeIds || [];
+                }
+            }
+        },
+
+        onDocumentTypeSelectedChange(value) {
+            this.documentTypeSelected = value;
+            this.fileFormatsSelected = [];
+        },
+
+        async loadSupportedDocumentTypes() {
+            this.isLoadingSupportedDocumentTypes = true;
+
+            try {
+                const response = await this.documentV2Service.getAvailableTypes();
+                this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoadingSupportedDocumentTypes = false;
             }
         },
 
@@ -343,7 +426,19 @@ export default {
         onAddAction() {
             this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
             this.recipientGridError = this.isRecipientGridError();
-            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError || this.isValidating) {
+
+            this.fileFormatsError =
+                this.isDocumentGenerationReworkActive && this.documentTypeSelected && !this.fileFormatsSelected.length
+                    ? new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' })
+                    : null;
+
+            if (
+                this.mailTemplateIdError ||
+                this.replyToError ||
+                this.recipientGridError ||
+                this.isValidating ||
+                this.fileFormatsError
+            ) {
                 return;
             }
 
@@ -353,7 +448,12 @@ export default {
                 ...this.sequence,
                 config: {
                     mailTemplateId: this.mailTemplateId,
-                    documentTypeIds: this.documentTypeIds,
+                    ...(this.isDocumentGenerationReworkActive
+                        ? {
+                              documentType: this.documentTypeSelected,
+                              fileFormats: this.fileFormatsSelected,
+                          }
+                        : { documentTypeIds: this.documentTypeIds }),
                     recipient: {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),

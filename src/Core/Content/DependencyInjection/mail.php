@@ -105,6 +105,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
             service(DocumentGenerator::class),
             service(Connection::class),
+            service('document.repository'),
         ]);
 
     $services->set(MailPayloadFactory::class);

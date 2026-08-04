@@ -116,8 +116,8 @@ class MailerTransportDecoratorTest extends TestCase
                 $mailAttachmentsConfig->getOrderId()
             )
             ->willReturn([
-                ['id' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
-                ['id' => 'bar', 'content' => 'bar', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
+                ['id' => 'foo', 'documentId' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
+                ['id' => 'bar', 'documentId' => 'bar', 'content' => 'bar', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
             ]);
 
         $documentRepository = $this->createMock(EntityRepository::class);

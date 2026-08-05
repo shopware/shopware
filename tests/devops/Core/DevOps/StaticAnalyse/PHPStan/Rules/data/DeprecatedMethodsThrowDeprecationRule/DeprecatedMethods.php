@@ -9,13 +9,6 @@ class DeprecatedMethods
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
-    public function __construct()
-    {
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed without replacement
-     */
     public function deprecatedWithoutTrigger(): void
     {
     }

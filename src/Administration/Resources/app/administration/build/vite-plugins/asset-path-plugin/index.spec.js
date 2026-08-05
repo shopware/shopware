@@ -87,6 +87,34 @@ describe('build/vite-plugins/asset-path-plugin', () => {
         );
     });
 
+    it('should treat regex metacharacters in the bundle name as literals', () => {
+        // A bundle name containing regex-special characters must be escaped before being
+        // embedded into the RegExp, otherwise it would match the wrong (or no) URLs.
+        const plugin = AssetPathPlugin('my.plugin+name');
+
+        const bundle = {
+            'worker.js': {
+                type: 'chunk',
+                code: 'new SharedWorker("/bundles/my.plugin+name/administration/assets/worker-jkl012.js")',
+            },
+            // Same shape but a different bundle segment that a naive (unescaped) pattern
+            // could accidentally match because `.` and `+` would be metacharacters.
+            'other.js': {
+                type: 'chunk',
+                code: 'new SharedWorker("/bundles/myXpluginnname/administration/assets/worker-jkl012.js")',
+            },
+        };
+
+        plugin.generateBundle({}, bundle);
+
+        expect(bundle['worker.js'].code).toBe(
+            'new SharedWorker(window.__sw__.assetPath+"/bundles/my.plugin+name/administration/assets/worker-jkl012.js")',
+        );
+        expect(bundle['other.js'].code).toBe(
+            'new SharedWorker("/bundles/myXpluginnname/administration/assets/worker-jkl012.js")',
+        );
+    });
+
     it('should not modify unrelated code or non-chunk assets', () => {
         const plugin = AssetPathPlugin();
 

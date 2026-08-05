@@ -1,6 +1,15 @@
 import type { Plugin } from 'vite';
 
 /**
+ * Escapes regex metacharacters so a dynamic value can be embedded into a `RegExp` as a literal.
+ * (Equivalent to the still too-recent `RegExp.escape()`, which is not typed under the admin's
+ * current TypeScript `lib` target.)
+ */
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * @sw-package framework
  * @private
  *
@@ -36,7 +45,7 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
             // Prefix them the same way assetsURL() is prefixed above. This runs on the final,
             // minified output because that is the only place the literal reliably matches.
             const workerUrlRegex = new RegExp(
-                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${bundleName}\\/administration\\/[^"]*)"`,
+                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeRegExp(bundleName)}\\/administration\\/[^"]*)"`,
                 'g',
             );
 

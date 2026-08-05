@@ -16,6 +16,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * through the registered definition of the requested feature class.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Feature\AppFeatureStorageTest
  */
 #[Package('framework')]
 class AppFeatureStorage

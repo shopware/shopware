@@ -4,6 +4,10 @@
 
 ## API
 
+### User uniqueness validation endpoints now require user read access
+
+The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
 ### Message queue admin endpoints now require ACL privileges
 
 Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -192,6 +196,21 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 ### Product export scheduling decoupled from the cache timestamp
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
+
+### `debug:mcp` lists Store API capabilities
+
+`bin/console debug:mcp` was wired to the Admin MCP server only, so no capability of the Store API MCP server (`/store-api/_mcp`) appeared in its output, and looking one up by name reported "No capability found". Store API tools registered with `shopware.store_api_mcp.tool` were therefore invisible to the standard debugging command.
+
+The command now inspects both MCP servers and groups the output per server, with every section heading naming the server it belongs to (`Store API: Tools (17)`). A new `--scope` option limits it to one of them:
+
+```bash
+bin/console debug:mcp                          # both servers
+bin/console debug:mcp --scope=store-api        # /store-api/_mcp only
+bin/console debug:mcp --scope=api              # /api/_mcp only
+bin/console debug:mcp shopware-store-api-context
+```
+
+Looking up a capability by name resolves across both servers and the detail view names the owning server. `--integration` still applies to the Admin server only, because integration allowlists are not evaluated for Store API requests; a note points this out when both servers are listed.
 
 ### Whole-phrase product-search matches rank higher
 
@@ -859,6 +878,13 @@ For Administration clients that need to decide whether to trigger a direct brows
 The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
 
 ## App System
+
+### App permissions restrict Extension SDK requests and Administration modules
+
+Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
+Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
+The Administration module response omits modules for apps the current user cannot access.
+Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

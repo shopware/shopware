@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Module;
 
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
@@ -124,13 +125,13 @@ class ModuleLoaderTest extends TestCase
             ->with(ModuleConfig::class)
             ->willReturn([]);
 
-        /** @var EntityRepository<AppCollection> $appRepository */
+        /** @var EntityRepository<AppCollection>&MockObject $appRepository */
         $loader = new ModuleLoader(
             $appRepository,
-            $this->createStub(ShopIdProvider::class),
-            $this->createStub(QuerySigner::class),
+            static::createStub(ShopIdProvider::class),
+            static::createStub(QuerySigner::class),
             $storage,
-            $this->createStub(AppSecretResolver::class),
+            static::createStub(AppSecretResolver::class),
         );
 
         static::assertSame([], $loader->loadModules(Context::createDefaultContext()));

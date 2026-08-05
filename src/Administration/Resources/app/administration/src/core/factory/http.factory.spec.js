@@ -348,6 +348,17 @@ describe('core/factory/http.factory.js', () => {
         client.defaults.headers.common['x-shopware-test'] = 'mirrored';
         const requestInterceptorId = client.interceptors.request.use(requestInterceptor);
         const responseInterceptorId = client.interceptors.response.use(responseInterceptor);
+
+        expect(client.interceptors.request.handlers[requestInterceptorId]).toMatchObject({
+            fulfilled: requestInterceptor,
+            synchronous: false,
+            runWhen: null,
+        });
+        expect(client.interceptors.response.handlers[responseInterceptorId]).toMatchObject({
+            fulfilled: responseInterceptor,
+            synchronous: false,
+            runWhen: null,
+        });
         clientMock.onGet('/test-mirrored').reply((config) => {
             expect(config.headers['x-shopware-test']).toBe('mirrored');
             return [
@@ -365,11 +376,23 @@ describe('core/factory/http.factory.js', () => {
 
         client.interceptors.request.eject(requestInterceptorId);
         client.interceptors.response.eject(responseInterceptorId);
+
+        expect(client.interceptors.request.handlers[requestInterceptorId]).toBeNull();
+        expect(client.interceptors.response.handlers[responseInterceptorId]).toBeNull();
         await client.get('/test-mirrored', { useAxiosV1: false });
         await client.get('/test-mirrored', { useAxiosV1: true });
 
         expect(requestInterceptor).toHaveBeenCalledTimes(2);
         expect(responseInterceptor).toHaveBeenCalledTimes(2);
+    });
+
+    it('should clear public interceptor handlers from both axios versions', () => {
+        const client = createHTTPClient();
+
+        client.interceptors.response.use((response) => response);
+        client.interceptors.response.clear();
+
+        expect(client.interceptors.response.handlers).toHaveLength(0);
     });
 
     it('should not expose the underlying axios instances', () => {

@@ -151,9 +151,11 @@ function createFormConfig(method, url, data, config) {
 
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
     const interceptorIds = new Map();
+    const handlers = [];
     let nextId = 0;
 
     return {
+        handlers,
         use(onFulfilled, onRejected, options) {
             const id = nextId;
             nextId += 1;
@@ -162,6 +164,12 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
                 axiosV0Interceptors.use(onFulfilled, onRejected, options),
                 axiosV1Interceptors.use(onFulfilled, onRejected, options),
             ]);
+            handlers[id] = {
+                fulfilled: onFulfilled,
+                rejected: onRejected,
+                synchronous: options?.synchronous ?? false,
+                runWhen: options?.runWhen ?? null,
+            };
 
             return id;
         },
@@ -174,11 +182,13 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
             axiosV0Interceptors.eject(axiosIds[0]);
             axiosV1Interceptors.eject(axiosIds[1]);
             interceptorIds.delete(id);
+            handlers[id] = null;
         },
         clear() {
             axiosV0Interceptors.clear?.();
             axiosV1Interceptors.clear?.();
             interceptorIds.clear();
+            handlers.length = 0;
         },
     };
 }

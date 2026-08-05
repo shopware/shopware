@@ -232,6 +232,28 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
+### System config component exposes the selected sales channel scope
+
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
+
+The value is available on two surfaces, because they reach different consumers:
+
+* Slot props: the `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop, and `card-element-last`, which had no slot props, now provides it too. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so your component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
+
+```js
+// Options API: the injected value is unwrapped, read it directly
+inject: {
+    swSystemConfigCurrentSalesChannelId: { default: null },
+},
+
+// Composition API: you receive the ref itself, read `.value`
+const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+```
+
+The provided value is a read-only computed ref. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+
+Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors. (shopware/shopware#18731)
 ### Conditional visibility for app-registered tabs
 
 `sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.

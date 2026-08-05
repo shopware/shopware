@@ -17,10 +17,10 @@ class CartBehavior extends Struct
         private bool $hookAware = true,
         private readonly bool $isRecalculation = false
     ) {
-        if ($isRecalculation) {
+        if (\func_num_args() === 3) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
-                'Passing true for $isRecalculation to ' . self::class . '::__construct is deprecated. Use the applicable CheckoutPermissions flag instead.',
+                'Passing $isRecalculation to ' . self::class . '::__construct is deprecated. Use the applicable CheckoutPermissions flag instead.',
             );
         }
     }

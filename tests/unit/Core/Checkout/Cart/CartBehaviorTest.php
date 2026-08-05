@@ -36,17 +36,17 @@ class CartBehaviorTest extends TestCase
         static::assertFalse($cartBehavior->hasPermission(CheckoutPermissions::ALLOW_PRODUCT_LABEL_OVERWRITES));
     }
 
-    public function testDeprecatedIsRecalculationParameterDoesNotTriggerForTheDefaultValue(): void
+    public function testDeprecatedIsRecalculationParameterDoesNotTriggerWhenOmitted(): void
     {
         $this->expectNotToPerformAssertions();
 
-        new CartBehavior([], true, false);
+        new CartBehavior([], true);
     }
 
-    public function testDeprecatedIsRecalculationParameterThrowsWhenEnabled(): void
+    public function testDeprecatedIsRecalculationParameterThrowsWhenExplicitlyPassed(): void
     {
         $this->expectException(FeatureException::class);
 
-        new CartBehavior([], true, true);
+        new CartBehavior([], true, false);
     }
 }

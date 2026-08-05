@@ -45,7 +45,7 @@ class ModuleFeatureDefinitionTest extends TestCase
     public function testFromAppReadsModulesAndMainModule(): void
     {
         $configs = $this->definition->fromApp(
-            Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifest.xml'),
+            Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             new Filesystem(__DIR__),
             'en-GB',
         );
@@ -55,18 +55,18 @@ class ModuleFeatureDefinitionTest extends TestCase
         $config = $configs[0];
         static::assertSame('admin', $config->getName());
         static::assertNotNull($config->mainModule);
-        static::assertSame('https://example.com/main', $config->mainModule->source);
+        static::assertSame('https://main-module', $config->mainModule->source);
 
         static::assertCount(2, $config->modules);
 
         $first = $config->modules[0];
         static::assertSame('first-module', $first->name);
-        static::assertSame('sw-catalogue', $first->parent);
-        static::assertSame('https://example.com/first', $first->source);
-        static::assertSame(50, $first->position);
-        static::assertSame(['en-GB' => 'First', 'de-DE' => 'Erste'], $first->label->all());
+        static::assertSame('sw-test-structure-module', $first->parent);
+        static::assertSame('https://test.com', $first->source);
+        static::assertSame(10, $first->position);
+        static::assertSame(['en-GB' => 'My first own module', 'de-DE' => 'Mein erstes eigenes Modul'], $first->label->all());
 
-        static::assertSame('second-module', $config->modules[1]->name);
+        static::assertSame('structure-module', $config->modules[1]->name);
         static::assertNull($config->modules[1]->source);
     }
 

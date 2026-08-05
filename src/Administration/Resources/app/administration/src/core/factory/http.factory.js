@@ -151,11 +151,16 @@ function createFormConfig(method, url, data, config) {
 
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
     const interceptorIds = new Map();
-    const handlers = [];
+    let handlers = [];
     let nextId = 0;
 
     return {
-        handlers,
+        get handlers() {
+            return handlers;
+        },
+        set handlers(value) {
+            handlers = value;
+        },
         use(onFulfilled, onRejected, options) {
             const id = nextId;
             nextId += 1;

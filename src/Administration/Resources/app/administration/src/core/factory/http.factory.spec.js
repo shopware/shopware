@@ -395,6 +395,15 @@ describe('core/factory/http.factory.js', () => {
         expect(client.interceptors.response.handlers).toHaveLength(0);
     });
 
+    it('should register public interceptors after handlers are replaced', () => {
+        const client = createHTTPClient();
+        client.interceptors.response.handlers = [];
+
+        client.interceptors.response.use((response) => response);
+
+        expect(client.interceptors.response.handlers).toHaveLength(1);
+    });
+
     it('should not expose the underlying axios instances', () => {
         expect(httpClient).not.toHaveProperty('axiosV0');
         expect(httpClient).not.toHaveProperty('axiosV1');

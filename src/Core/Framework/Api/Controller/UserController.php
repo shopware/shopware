@@ -15,11 +15,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Sso\SsoService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\UserCollection;
@@ -222,10 +222,9 @@ class UserController extends AbstractController
         $changesAdmin = isset($data['admin']);
         unset($data['admin']);
 
-        if (!isset($data['id'])) {
-            $data['id'] = null;
-        }
-        $data['id'] = $userId ?: $data['id'];
+        $entityId = $userId ?? $data['id'] ?? Uuid::randomHex();
+        \assert(\is_string($entityId));
+        $data['id'] = $entityId;
 
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
@@ -243,23 +242,15 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $events = $this->connection->transactional(function () use ($data, $context, $changesAdmin, $admin): EntityWrittenContainerEvent {
-            $events = $this->userRepository->upsert([$data], $context);
-            $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
-            $entityId = array_last($eventIds);
-            \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
+        $this->connection->transactional(function () use ($data, $context, $changesAdmin, $admin, $entityId): void {
+            $this->userRepository->upsert([$data], $context);
 
             if ($changesAdmin) {
                 $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($entityId, $admin): void {
                     $this->userRepository->update([['id' => $entityId, 'admin' => $admin]], $context);
                 });
             }
-
-            return $events;
         });
-        $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
-        $entityId = array_last($eventIds);
-        \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }

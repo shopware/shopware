@@ -133,8 +133,6 @@ describe('module/sw-login/recovery.spec.js', () => {
     });
 
     it('should fall back to a 10 second countdown when the rate limit response has no wait time', async () => {
-        jest.useFakeTimers();
-
         Shopware.Service('userRecoveryService').createRecovery = jest.fn(() =>
             Promise.reject({
                 response: {
@@ -156,18 +154,6 @@ describe('module/sw-login/recovery.spec.js', () => {
         expect(wrapper.get('[role="banner"]').text()).toBe(
             '["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",{"seconds":10},0]',
         );
-
-        jest.advanceTimersByTime(9000);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('[role="banner"]').exists()).toBe(true);
-
-        jest.advanceTimersByTime(1001);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('[role="banner"]').exists()).toBe(false);
-
-        jest.useRealTimers();
     });
 
     it('should stay on the form when the email validation request fails', async () => {

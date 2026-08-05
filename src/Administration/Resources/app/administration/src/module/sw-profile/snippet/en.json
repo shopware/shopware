@@ -25,7 +25,7 @@
       "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessMessage": "Profile information have been saved.",
       "notificationSaveErrorMessage": "Profile information could not be saved.",
-      "labelUploadAvatar": "Upload avatar",
+      "labelUploadAvatar": "Profile picture",
       "labelUseAsAvatar": "Use as avatar"
     },
     "tabGeneral": {

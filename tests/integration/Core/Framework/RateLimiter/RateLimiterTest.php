@@ -384,17 +384,17 @@ class RateLimiterTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], $this->context);
         $productId = $this->ids->get('rate-limited-product');
 
-        // a single-entry time_backoff limit throttles beginning with the Nth attempt inside the
-        // interval, so a value of 3 allows two rapid additions and throttles the third; the
+        // a single-entry time_backoff limit allows the configured number of attempts inside the
+        // interval, so a value of 3 allows three rapid additions and throttles the fourth; the
         // global value is pinned explicitly so ambient state cannot throttle the second channel
         $systemConfig->set('core.cart.lineItemAddLimit', null);
         $systemConfig->set('core.cart.lineItemAddLimit', 3, $scopedChannelId);
 
         try {
-            for ($i = 0; $i < 3; ++$i) {
+            for ($i = 0; $i < 4; ++$i) {
                 $this->addProductToCart($this->browser, $productId);
 
-                if ($i >= 2) {
+                if ($i >= 3) {
                     static::assertSame(429, $this->browser->getResponse()->getStatusCode());
 
                     $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

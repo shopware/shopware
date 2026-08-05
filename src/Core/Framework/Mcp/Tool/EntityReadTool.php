@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,6 +38,7 @@ class EntityReadTool extends McpToolResponse
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly McpContextProvider $contextProvider,
         private readonly JsonEntityEncoder $encoder,
+        private readonly AclCriteriaValidator $criteriaValidator,
     ) {
     }
 
@@ -66,6 +68,13 @@ class EntityReadTool extends McpToolResponse
             $definition,
             $context,
         );
+
+        // Criteria can reference associated entities that require their own read privileges
+        // (same association ACL model as the Admin API).
+        $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
+        if ($missing !== []) {
+            return $this->missingPrivilegesError($missing);
+        }
 
         $this->applyDefaultIncludes($definition, $criteriaObj);
 

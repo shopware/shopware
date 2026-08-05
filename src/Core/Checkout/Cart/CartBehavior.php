@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -9,16 +10,19 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class CartBehavior extends Struct
 {
-    /**
-     * @deprecated tag:v6.8.0 - $isRecalculation will be removed and is replaced by specific {@see CheckoutPermissions::*}
-     *
-     * @param array<string, bool> $permissions
-     */
+    /** @param array<string, bool> $permissions */
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'isRecalculation', description: 'Use the applicable CheckoutPermissions flag instead.')]
     public function __construct(
         private readonly array $permissions = [],
         private bool $hookAware = true,
         private readonly bool $isRecalculation = false
     ) {
+        if ($isRecalculation) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing true for $isRecalculation to ' . self::class . '::__construct is deprecated. Use the applicable CheckoutPermissions flag instead.',
+            );
+        }
     }
 
     public function hasPermission(string $permission): bool

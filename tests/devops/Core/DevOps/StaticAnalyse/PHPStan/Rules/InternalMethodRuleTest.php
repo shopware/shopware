@@ -22,7 +22,7 @@ class InternalMethodRuleTest extends RuleTestCase
 
         $this->analyse([$fixtureDir . '/InternalService.php'], [
             [
-                '@deprecated must not be used on @internal constructors of DI services. Put it on the affected constructor parameter instead.',
+                'A deprecation annotation must not be used on internal constructors of DI services. Put it on the affected constructor parameter instead.',
                 12,
             ],
         ]);

@@ -22,13 +22,42 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(EntityDefinition::class)]
 class EntityDefinitionTest extends TestCase
 {
+    public function testInheritedConstructorDoesNotSignalDeprecationWhenInstantiatedFromAnotherConstructor(): void
+    {
+        $caller = new class {
+            public EntityDefinition $definition;
+
+            public function __construct()
+            {
+                $this->definition = new class extends EntityDefinition {
+                    public const ENTITY_NAME = 'test_definition';
+
+                    public function getEntityName(): string
+                    {
+                        return self::ENTITY_NAME;
+                    }
+
+                    protected function defineFields(): FieldCollection
+                    {
+                        return new FieldCollection();
+                    }
+                };
+            }
+        };
+
+        static::assertSame('test_definition', $caller->definition->getEntityName());
+    }
+
     public function testConstructorSignalsDeprecationWhenCalledByChildConstructor(): void
     {
         $this->expectExceptionObject(FeatureException::error(
             'Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(EntityDefinition::class, '__construct', 'v6.8.0.0')
         ));
 
+        /** @phpstan-ignore-next-line - Intentionally testing the deprecated parent constructor. */
         new class extends EntityDefinition {
+            public const ENTITY_NAME = 'test_definition';
+
             public function __construct()
             {
                 parent::__construct();
@@ -36,7 +65,7 @@ class EntityDefinitionTest extends TestCase
 
             public function getEntityName(): string
             {
-                return 'test-definition';
+                return self::ENTITY_NAME;
             }
 
             protected function defineFields(): FieldCollection

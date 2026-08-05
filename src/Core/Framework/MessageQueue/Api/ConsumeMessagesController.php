@@ -9,6 +9,7 @@ use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -45,7 +46,7 @@ class ConsumeMessagesController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
+    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:queue:process']], methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
         $receiverName = RequestParamHelper::get($request, 'receiver');

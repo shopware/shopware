@@ -8,6 +8,8 @@ use Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
@@ -71,5 +73,13 @@ class ConsumeMessagesControllerTest extends TestCase
         $request = new Request();
         $request->request->set('receiver', 'async');
         $controller->consumeMessages($request);
+    }
+
+    public function testConsumeRouteRequiresQueueProcessPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(ConsumeMessagesController::class)->get('api.action.message-queue.consume');
+
+        static::assertNotNull($route, \sprintf('Route "api.action.message-queue.consume" is not defined on %s', ConsumeMessagesController::class));
+        static::assertSame(['system:queue:process'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 }

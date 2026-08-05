@@ -22,6 +22,8 @@ class AdminApiSource implements ContextSource, \JsonSerializable
         'log_entry:create',
         'currency:read',
         'country:read',
+        'system:queue:process',
+        'scheduled_task:read',
         'increment:manage',
     ];
 

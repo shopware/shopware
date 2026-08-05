@@ -35,24 +35,24 @@ use Symfony\Component\Routing\Route;
 #[CoversClass(OrderConverterController::class)]
 class OrderConverterControllerTest extends TestCase
 {
-    public function testConvertToCartRouteDeclaresOrderReadPrivilege(): void
+    public function testConvertToCartRouteDeclaresOrderUpdatePrivilege(): void
     {
-        static::assertSame(['order:read'], $this->loadConvertToCartRoute()->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+        static::assertSame(['order:update'], $this->loadConvertToCartRoute()->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
-    public function testConvertToCartIsRejectedWithoutOrderRead(): void
+    public function testConvertToCartIsRejectedWithoutOrderUpdate(): void
     {
-        $exception = $this->validate($this->loadConvertToCartRoute(), ['product:read']);
+        $exception = $this->validate($this->loadConvertToCartRoute(), ['order:read']);
 
         static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'The convert-to-cart route is not protected');
-        static::assertSame(['order:read'], json_decode($exception->getMessage(), true)['missingPrivileges']);
+        static::assertSame(['order:update'], json_decode($exception->getMessage(), true)['missingPrivileges']);
     }
 
-    public function testConvertToCartIsAcceptedWithOrderRead(): void
+    public function testConvertToCartIsAcceptedWithOrderUpdate(): void
     {
         static::assertNull(
-            $this->validate($this->loadConvertToCartRoute(), ['order:read']),
-            'The convert-to-cart route rejected a user holding order:read'
+            $this->validate($this->loadConvertToCartRoute(), ['order:update']),
+            'The convert-to-cart route rejected a user holding order:update'
         );
     }
 

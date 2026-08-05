@@ -8,11 +8,10 @@
 
 Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
 
-* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions`, `/applyAutomaticPromotions` and `/convert-to-cart/` require `order:update`.
 * `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
-* `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
 
-Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates order editing in the order detail page, and the order creator role depends on it. The Administration does not use the convert-to-cart endpoint. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
 
 ### Message queue admin endpoints now require ACL privileges
 

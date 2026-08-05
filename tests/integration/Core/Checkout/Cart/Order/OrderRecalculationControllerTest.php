@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -95,8 +94,8 @@ class OrderRecalculationControllerTest extends TestCase
         $content = (string) $browser->getResponse()->getContent();
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
 
-        /** @var EntityRepository<OrderLineItemCollection> $lineItemRepository */
         $lineItemRepository = static::getContainer()->get('order_line_item.repository');
+        static::assertInstanceOf(EntityRepository::class, $lineItemRepository);
 
         $this->context->assign(['versionId' => $versionId]);
         $criteria = (new Criteria())->addFilter(new EqualsFilter('identifier', $marker));

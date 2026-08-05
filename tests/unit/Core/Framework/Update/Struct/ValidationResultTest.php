@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ValidationResult::class)]
 class ValidationResultTest extends TestCase
 {

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
@@ -39,6 +42,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceLifecycle::class)]
 class ServiceLifecycleTest extends TestCase
 {
@@ -58,11 +62,11 @@ class ServiceLifecycleTest extends TestCase
 
     private RequirementsValidator&MockObject $requirementsValidator;
 
-    private Client&MockObject $registryClient;
+    private Client&Stub $registryClient;
 
     private ServiceClient&MockObject $serviceClient;
 
-    private ServiceClientFactory&MockObject $serviceClientFactory;
+    private ServiceClientFactory&Stub $serviceClientFactory;
 
     protected function setUp(): void
     {
@@ -74,9 +78,9 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver = $this->createMock(ServiceSourceResolver::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
-        $this->registryClient = $this->createMock(Client::class);
+        $this->registryClient = static::createStub(Client::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
-        $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $this->serviceClientFactory = static::createStub(ServiceClientFactory::class);
     }
 
     public function testInstallInstallsWhenInstallationRequirementsAreMet(): void
@@ -135,7 +139,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $client = static::createStub(ServiceClient::class);
         $client->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
-        $factory = $this->createMock(ServiceClientFactory::class);
+        $factory = static::createStub(ServiceClientFactory::class);
         $factory->method('newFor')->willReturn($client);
 
         $this->requirementsValidator->expects($this->never())->method('isSatisfied');
@@ -174,6 +178,35 @@ class ServiceLifecycleTest extends TestCase
         static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
 
+    public function testInstallReturnsFalseWhenManifestCannotBeParsed(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('install');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot install service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
+    }
+
     public function testInstallUpgradesAppToService(): void
     {
         $context = Context::createDefaultContext();
@@ -184,8 +217,7 @@ class ServiceLifecycleTest extends TestCase
         $this->stateChangePermitted(false);
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
@@ -394,6 +426,37 @@ class ServiceLifecycleTest extends TestCase
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }
 
+    public function testUpdateLogsErrorWhenManifestCannotBeParsed(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '8.0.0']);
+        $this->registryReturnsEntry();
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('update');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot update service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
+    }
+
     public function testReevaluateInstalledUninstallsServicesWhoseInstallationRequirementsAreNoLongerMet(): void
     {
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
@@ -403,8 +466,7 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // findAll() walks the installed services, then uninstall() looks the service up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->reevaluateInstalled($context);
     }
@@ -577,8 +639,7 @@ class ServiceLifecycleTest extends TestCase
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
+        $appRepository = StaticEntityRepository::of(AppCollection::class, [
             new AppCollection($apps),
         ]);
 

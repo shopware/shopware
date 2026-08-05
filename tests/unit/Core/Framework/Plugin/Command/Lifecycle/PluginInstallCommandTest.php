@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -27,6 +28,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginInstallCommand::class)]
 class PluginInstallCommandTest extends TestCase
 {
@@ -47,7 +49,6 @@ class PluginInstallCommandTest extends TestCase
         $this->cacheClearer = static::createStub(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (Criteria $criteria, Context $context): PluginCollection => $this->plugins,
         ]);

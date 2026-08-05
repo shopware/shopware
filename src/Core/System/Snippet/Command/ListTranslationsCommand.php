@@ -18,11 +18,11 @@ use Symfony\Component\Intl\Locales;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:list',
     description: 'Lists all locales that are configured for translation:install / translation:update.',
 )]
-#[Package('discovery')]
 class ListTranslationsCommand extends Command
 {
     public function __construct(

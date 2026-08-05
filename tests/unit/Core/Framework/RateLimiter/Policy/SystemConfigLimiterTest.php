@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -18,6 +19,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
  *
  * @phpstan-import-type RateLimiterConfig from RateLimiterFactory
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigLimiter::class)]
 class SystemConfigLimiterTest extends TestCase
 {
@@ -63,6 +65,18 @@ class SystemConfigLimiterTest extends TestCase
 
         $limit = $limiter->consume();
         static::assertFalse($limit->isAccepted());
+    }
+
+    public function testConsumeSequentiallyAllowsTheConfiguredLimit(): void
+    {
+        $limiter = $this->createLimiter([
+            'test.limit' => 3,
+        ]);
+
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertFalse($limiter->consume()->isAccepted());
     }
 
     public function testNoLimitWithZero(): void

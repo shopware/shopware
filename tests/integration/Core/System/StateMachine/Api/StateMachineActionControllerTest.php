@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -41,6 +42,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('checkout')]
 class StateMachineActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -140,7 +142,7 @@ class StateMachineActionControllerTest extends TestCase
         $criteria->addAssociation('fromStateMachineState');
         $criteria->addAssociation('toStateMachineState');
 
-        $history = $this->stateMachineHistoryRepository->search($criteria, $context);
+        $history = $this->stateMachineHistoryRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $history->getElements(), 'Expected history to be written');
         /** @var StateMachineHistoryEntity $historyEntry */
@@ -231,7 +233,7 @@ class StateMachineActionControllerTest extends TestCase
         $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
-        $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
+        $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertSame($order->getLanguageId(), $this->getDeDeLanguageId());
     }
@@ -295,7 +297,7 @@ class StateMachineActionControllerTest extends TestCase
         $orderRepository = static::getContainer()->get('order.repository');
 
         /** @var OrderEntity $order */
-        $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
+        $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertSame($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
     }

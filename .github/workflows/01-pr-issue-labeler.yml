@@ -11,10 +11,48 @@ jobs:
   label:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
+      # sparse checkout of the automation scripts only — keeps the per-PR-event cost minimal
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
       - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # auto-apply `major-php` when the diff touches major feature flags, so the integration-major
+      # matrix runs on the PRs where it matters without running it everywhere. Piggybacks on this
+      # job to avoid a runner spin-up of its own; costs one API call per PR event.
+      # all further run conditions (action, fork head, existing labels) live in the
+      # module's `shouldDetect` where they are unit-tested
+      - id: detect-major
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { detectMajorFlagUsage } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.ts')
+            const hit = await detectMajorFlagUsage({ github, core, context })
+            core.setOutput('hit', hit ? 'yes' : 'no')
+      # an app token is required for the added label to trigger integration-major's `labeled` run;
+      # if minting fails we fall back to GITHUB_TOKEN — the label still lands, the matrix starts on the next push
+      - id: sts-major
+        if: steps.detect-major.outputs.hit == 'yes'
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
+      - if: steps.detect-major.outputs.hit == 'yes'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ steps.sts-major.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const { addMajorPhpLabel } = await import('${{ github.workspace }}/.github/bin/js/auto-label-major-php.ts')
+            await addMajorPhpLabel({ github, context })
 
   cleanup-needs-triage:
     runs-on: ubuntu-24.04
@@ -25,7 +63,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -60,14 +98,14 @@ jobs:
       - name: Check if user is in custom list
         id: customUserCheck
         run: |
-          CUSTOM_USERS_ARRAY=(${CUSTOM_USERS//,/ })
+          read -ra CUSTOM_USERS_ARRAY <<< "${CUSTOM_USERS//,/ }"
           for user in "${CUSTOM_USERS_ARRAY[@]}"; do
             if [[ "$user" == "${{ github.actor }}" ]]; then
-              echo "is_custom_user=true" >> $GITHUB_OUTPUT
+              echo "is_custom_user=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
           done
-          echo "is_custom_user=false" >> $GITHUB_OUTPUT
+          echo "is_custom_user=false" >> "$GITHUB_OUTPUT"
       - name: debug
         if: runner.debug
         run: |
@@ -100,7 +138,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -125,7 +163,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -147,7 +185,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -167,7 +205,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -186,8 +224,7 @@ jobs:
   sync-test-plan-sub-issue:
     runs-on: ubuntu-24.04
     if: >
-      github.event_name == 'issues' &&
-      (
+      github.event_name == 'issues' && (
         (github.event.action == 'labeled' && github.event.label.name == 'testing/test-plan') ||
         (github.event.action == 'unlabeled' && github.event.label.name == 'testing/test-plan') ||
         github.event.action == 'reopened'
@@ -197,7 +234,7 @@ jobs:
       issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Command\UninstallAppCommandDecorator;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UninstallAppCommandDecorator::class)]
 class UninstallAppCommandDecoratorTest extends TestCase
 {
@@ -110,7 +112,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
         $this->appStorage->expects($this->once())->method('findByName')->with($name, static::isInstanceOf(Context::class))->willReturn($app);
         $this->appLifecycle->expects($this->once())->method('uninstall')->with(
             $name,
-            ['id' => 'app-id', 'roleId' => 'acl-role-id'],
+            ['id' => 'app-id'],
             static::isInstanceOf(Context::class),
             $keepUserData
         );

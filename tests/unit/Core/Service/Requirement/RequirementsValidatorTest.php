@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\Requirement\ServiceRequirement;
@@ -11,6 +12,7 @@ use Shopware\Core\Service\Requirement\ServiceRequirement;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementsValidator::class)]
 class RequirementsValidatorTest extends TestCase
 {

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -33,22 +32,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 class OrderServiceTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -96,8 +91,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -111,8 +106,8 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        /** @var OrderEntity $updatedOrder */
         $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($updatedOrder);
         $deliveries = $updatedOrder->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -141,8 +136,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         $deliveries = $order->getDeliveries();
         static::assertNotNull($deliveries);
         $delivery = $deliveries->first();
@@ -152,7 +147,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
@@ -196,8 +190,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -205,7 +199,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
@@ -262,8 +255,8 @@ class OrderServiceTest extends TestCase
             'deliveries.shippingOrderAddress',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($delivery = $deliveries->first());
         $orderDeliveryId = $delivery->getId();
@@ -271,7 +264,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
@@ -312,8 +304,8 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('transactions.stateMachineState');
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -325,8 +317,8 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        /** @var OrderEntity $updatedOrder */
         $updatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($updatedOrder);
         static::assertNotNull($transactions = $updatedOrder->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         static::assertNotNull($transaction->getStateMachineState());
@@ -352,8 +344,8 @@ class OrderServiceTest extends TestCase
             'transactions.stateMachineState',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -361,7 +353,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
@@ -404,8 +395,8 @@ class OrderServiceTest extends TestCase
             'transactions.stateMachineState',
         ]);
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
         $orderTransactionId = $transaction->getId();
@@ -413,7 +404,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
@@ -453,7 +443,6 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $newlyCreatedOrder */
         $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
@@ -485,7 +474,6 @@ class OrderServiceTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        /** @var OrderEntity $newlyCreatedOrder */
         $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
@@ -508,7 +496,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -536,8 +523,8 @@ class OrderServiceTest extends TestCase
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $cancelledOrder */
         $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($cancelledOrder);
         $state = $cancelledOrder->getStateMachineState();
 
         static::assertNotNull($state);
@@ -556,15 +543,14 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $criteria = new Criteria([$orderId]);
 
         $criteria->addAssociation('stateMachineState');
 
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
+        static::assertNotNull($order);
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
@@ -597,7 +583,6 @@ class OrderServiceTest extends TestCase
         $firstDomain = 'http://shopware.first-domain';
         $this->setDomainForSalesChannel($firstDomain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
 
         $criteria = new Criteria();
@@ -615,7 +600,6 @@ class OrderServiceTest extends TestCase
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -648,7 +632,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order';
@@ -771,7 +754,6 @@ class OrderServiceTest extends TestCase
 
     private function setDomainForSalesChannel(string $domain, string $languageId): void
     {
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $data = [

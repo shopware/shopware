@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @phpstan-type State array{id?: string, technicalName: string}
+ * @phpstan-type State array{id?: string, technicalName: string, de?: string, en?: string}
  * @phpstan-type Transition array{id?: string, actionName: string, fromStateId?: string, from?: string, toStateId?: string, to?: string}
  */
 #[Package('framework')]

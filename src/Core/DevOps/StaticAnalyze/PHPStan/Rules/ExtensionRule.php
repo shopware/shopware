@@ -5,10 +5,14 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Reflection\MissingConstantFromReflectionException;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeMarkers;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
@@ -36,7 +40,7 @@ class ExtensionRule implements Rule
 
         $extension = $this->isExtension($node);
 
-        $internal = $this->isInternal($node->getDocComment()?->getText() ?? '');
+        $internal = $this->isInternal($node->getDocComment()?->getText() ?? '', $node->getClassReflection());
 
         if (!$extension && !$example) {
             return [];
@@ -94,7 +98,7 @@ class ExtensionRule implements Rule
         }
 
         $constructor = $node->getClassReflection()->getConstructor();
-        $internal = $this->isInternal($constructor->getDocComment() ?? '');
+        $internal = $this->isInternal($constructor->getDocComment() ?? '', $constructor);
         if (!$internal) {
             $errors[] = RuleErrorBuilder::message('Extension classes constructor should be marked as internal')
                 ->identifier('shopware.extensionConstructInternal')
@@ -105,9 +109,10 @@ class ExtensionRule implements Rule
         return $errors;
     }
 
-    private function isInternal(string $doc): bool
+    private function isInternal(string $doc, ClassReflection|ExtendedMethodReflection $subject): bool
     {
-        return \str_contains($doc, '@internal') || \str_contains($doc, 'reason:becomes-internal');
+        return \str_contains($doc, '@internal')
+            || BCChangeMarkers::has(BecomesInternal::class, $subject);
     }
 
     private function isExtension(InClassNode $node): bool

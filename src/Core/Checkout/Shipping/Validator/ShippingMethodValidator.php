@@ -48,12 +48,8 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
+        foreach ($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
-                continue;
-            }
-
-            if ($command->getEntityName() !== ShippingMethodDefinition::ENTITY_NAME) {
                 continue;
             }
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Source;
@@ -13,6 +14,7 @@ use Twig\Source;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigEnvironment::class)]
 class TwigEnvironmentTest extends TestCase
 {

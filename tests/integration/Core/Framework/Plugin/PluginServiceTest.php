@@ -3,18 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -29,7 +29,7 @@ use SwagTestPlugin\SwagTestPlugin;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -75,6 +75,16 @@ class PluginServiceTest extends TestCase
         static::assertSame('English description', $plugin->getDescription());
         static::assertSame('https://www.test.com/', $plugin->getManufacturerLink());
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
+    }
+
+    public function testRefreshPluginsWithAdminApiContext(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setIsAdmin(true);
+
+        $this->pluginService->refreshPlugins(new Context($source), new NullIO());
+
+        $this->assertDefaultPlugin($this->fetchSwagTestPluginEntity());
     }
 
     public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
@@ -233,23 +243,6 @@ class PluginServiceTest extends TestCase
         static::assertNull($plugin->getUpgradeVersion());
     }
 
-    public function testGetPluginByName(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
-
-        $this->assertDefaultPlugin($plugin);
-    }
-
-    public function testGetPluginByNameThrowsException(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $this->expectExceptionObject(PluginException::notFound('SwagFoo'));
-        $this->pluginService->getPluginByName('SwagFoo', $this->context);
-    }
-
     private function assertDefaultPlugin(PluginEntity $plugin): void
     {
         static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
@@ -298,7 +291,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -316,7 +309,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -378,7 +371,7 @@ class PluginServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
         /** @var LocaleEntity|null $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 

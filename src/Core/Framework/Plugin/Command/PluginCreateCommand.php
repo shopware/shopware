@@ -17,11 +17,11 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'plugin:create',
     description: 'Creates a new plugin',
 )]
-#[Package('framework')]
 class PluginCreateCommand extends Command
 {
     /**

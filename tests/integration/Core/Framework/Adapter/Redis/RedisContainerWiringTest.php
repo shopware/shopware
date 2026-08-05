@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Redis;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -19,7 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class RedisContainerWiringTest extends TestCase
 {
     /** @use CustomKernelTestBehavior<RedisTestKernel> */

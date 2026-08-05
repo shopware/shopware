@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -27,6 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PostWriteValidationEvent::class)]
 class PostWriteValidationEventTest extends TestCase
 {

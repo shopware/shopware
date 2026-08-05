@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -24,6 +25,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskRegistry::class)]
 class TaskRegistryTest extends TestCase
 {
@@ -57,7 +59,6 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         $registeredTask->setScheduledTaskClass(CleanupCartTask::class);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([
             new ScheduledTaskCollection([$registeredTask]),
         ]);
@@ -327,7 +328,6 @@ class TaskRegistryTest extends TestCase
         $taskEntity->setId('cleanupTask');
         $taskEntity->setName('foo');
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
 
         $tasks = (new TaskRegistry([], $repository, new ParameterBag([]), new NativeClock()))->getAllTasks(Context::createDefaultContext());

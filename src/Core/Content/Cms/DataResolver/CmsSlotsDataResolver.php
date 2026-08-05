@@ -198,7 +198,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @return array{array<string, array<string>>, array<string, array<string, Criteria>>}
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -222,10 +222,7 @@ class CmsSlotsDataResolver
             }
         }
 
-        foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
-            $directReads[$definition] = array_merge(...$idLists);
-        }
+        $directReads = array_map(static fn (array $directRead) => array_merge(...$directRead), $directReads);
 
         return [
             array_filter($directReads),
@@ -359,9 +356,18 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $searchResult = $entities[$definition];
+                $filtered = $searchResult->getEntities()->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
-                $result->add($key, $filtered);
+                // ElementDataCollection expects the result wrapper, not the inner collection
+                $result->add($key, new EntitySearchResult(
+                    $this->definitionRegistry->get($definition)->getEntityName(),
+                    $filtered->count(),
+                    $filtered,
+                    $searchResult->getAggregations(),
+                    $searchResult->getCriteria(),
+                    $searchResult->getContext(),
+                ));
             }
         }
     }

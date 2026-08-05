@@ -19,8 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class TriggerFlowController extends AbstractController
 {
     /**
@@ -34,7 +34,7 @@ class TriggerFlowController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/trigger-event/{eventName}', name: 'api.action.trigger_event', methods: ['POST'])]
+    #[Route(path: '/api/_action/trigger-event/{eventName}', name: 'api.action.trigger_event', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['flow:dispatch']], methods: ['POST'])]
     public function trigger(string $eventName, Request $request, Context $context): JsonResponse
     {
         $data = $request->request->all();

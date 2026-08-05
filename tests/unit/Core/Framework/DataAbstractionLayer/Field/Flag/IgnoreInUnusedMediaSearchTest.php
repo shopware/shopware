@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(IgnoreInUnusedMediaSearch::class)]
 #[Package('framework')]
+#[CoversClass(IgnoreInUnusedMediaSearch::class)]
 class IgnoreInUnusedMediaSearchTest extends TestCase
 {
     public function testParse(): void

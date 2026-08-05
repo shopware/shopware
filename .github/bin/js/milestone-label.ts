@@ -422,7 +422,7 @@ async function postVerdictStatus(toolkit: Toolkit, state: 'success' | 'failure',
 
 /**
  * `merge_group` is the gate that matters: it is always evaluated against the final
- * base, while the `pull_request` run can be green from before a silent retarget.
+ * base, while the pull-request-level run can be green from before a silent retarget.
  */
 export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
     const { github, core, context } = toolkit;

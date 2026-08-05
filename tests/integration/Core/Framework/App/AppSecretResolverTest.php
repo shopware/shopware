@@ -24,8 +24,10 @@ class AppSecretResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = $this->getContainer()->get(AppSecretResolver::class);
         $this->connection = $this->getContainer()->get(Connection::class);
+        // constructed directly: the service is private and has no consumer yet, so the
+        // compiled container removes it
+        $this->resolver = new AppSecretResolver($this->connection);
 
         $appFixture = $this->getContainer()->get(AppFixture::class);
         static::assertInstanceOf(AppFixture::class, $appFixture);

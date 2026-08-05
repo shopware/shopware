@@ -66,6 +66,16 @@ abstract class EntityDefinition
      */
     public function __construct()
     {
+        $caller = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1] ?? [];
+
+        if (($caller['function'] ?? null) !== '__construct') {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
     }
 
     /**

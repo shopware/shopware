@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppSecretResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AppSecretResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

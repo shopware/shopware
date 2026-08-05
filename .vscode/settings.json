@@ -21,6 +21,8 @@
     "**/bower_components": true,
     "**/*.code-search": true,
     "var/**": true,
+    "public/bundles/**": true,
+    "public/media/**": true,
     "public/theme/**": true,
     "src/Storefront/Resources/app/storefront/dist/**": true,
     "tests/acceptance/test-results/**": true,

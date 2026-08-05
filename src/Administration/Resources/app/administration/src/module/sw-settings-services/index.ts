@@ -55,7 +55,7 @@ Shopware.Module.register('sw-settings-services', {
     },
 });
 
-Shopware.ExtensionAPI.handle('permissionsGrant', grantPermissionsFromSdk);
+Shopware.ExtensionAPI.handle('servicePermissionGrant', grantPermissionsFromSdk);
 
 /**
  * @sw-package framework

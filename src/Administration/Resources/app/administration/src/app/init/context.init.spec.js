@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import initContext from 'src/app/init/context.init';
-import isSwService from '@shopware-ag/meteor-admin-sdk/es/_private/is-sw-service';
 import {
     getCurrency,
     getEnvironment,
@@ -10,6 +9,7 @@ import {
     getShopwareVersion,
     getModuleInformation,
     getAppInformation,
+    isService,
     getUserInformation,
     getUserTimezone,
     getShopId,
@@ -135,7 +135,7 @@ describe('src/app/init/context.init.ts', () => {
             sourceType: 'service',
         });
 
-        await expect(isSwService()).resolves.toBe(true);
+        await expect(isService()).resolves.toBe(true);
     });
 
     it('should return user information', async () => {

@@ -65,7 +65,7 @@ export async function revokePermissions() {
 /**
  * @private
  */
-export const grantPermissionsFromSdk: HandleMethod<'permissionsGrant'> = (_message, { _event_ }) => {
+export const grantPermissionsFromSdk: HandleMethod<'servicePermissionGrant'> = (_message, { _event_ }) => {
     let isService = false;
 
     try {

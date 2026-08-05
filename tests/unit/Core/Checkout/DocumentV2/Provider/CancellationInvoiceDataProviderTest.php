@@ -23,6 +23,8 @@ use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -140,6 +142,7 @@ class CancellationInvoiceDataProviderTest extends TestCase
 
         return new InvoiceDataProvider(
             $configLoader,
+            new DocumentTypeRegistry([new CancellationInvoiceDocumentType()]),
             static::createStub(ValidatorInterface::class),
         );
     }

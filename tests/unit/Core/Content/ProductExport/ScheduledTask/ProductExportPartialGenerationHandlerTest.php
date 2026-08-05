@@ -184,7 +184,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $generator
             ->expects($this->once())
             ->method('generate')
-            ->willReturn(new ProductExportResult('chunk', [], 0, 250, true));
+            ->willReturn(new ProductExportResult('chunk', [], offset: 250, hasNextBatch: true));
 
         $fileHandler = $this->createMock(ProductExportFileHandlerInterface::class);
         $fileHandler

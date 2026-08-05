@@ -150,6 +150,25 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         expect(wrapper.find('.sw-media-modal-folder-settings__thumbnails-container').exists()).toBe(true);
     });
 
+    it('should publish the media folder and configuration data sets for app extensions', async () => {
+        const publishData = jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
+        await wrapper.vm.createdComponent();
+
+        expect(publishData).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'sw-media-modal-folder-settings__mediaFolder',
+                path: 'mediaFolder',
+            }),
+        );
+        expect(publishData).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'sw-media-modal-folder-settings__configuration',
+                path: 'configuration',
+            }),
+        );
+    });
+
     it('should get thumbnail sizes and unused thumbnail sizes with the correct criteria', async () => {
         const searchIds = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'searchIds');
         const search = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'search');

@@ -109,8 +109,6 @@ class MailService extends AbstractMailService
         \assert(\array_key_exists('contentPlain', $data) && \is_string($data['contentPlain']) && $data['contentPlain'] !== '');
         \assert(\array_key_exists('subject', $data) && \is_string($data['subject']) && $data['subject'] !== '');
 
-        $subject = $data['subject'];
-
         $mail = $this->createMail($data, $templateData, $context);
         if ($mail === null) {
             return null;
@@ -160,7 +158,7 @@ class MailService extends AbstractMailService
         }
 
         $this->eventDispatcher->dispatch(new MailSentEvent(
-            $subject,
+            $data['subject'],
             $data['recipients'],
             ['text/html' => $mail->getHtmlBody(), 'text/plain' => $mail->getTextBody()],
             $context,

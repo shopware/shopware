@@ -142,6 +142,69 @@ class MailServiceTest extends TestCase
         static::assertInstanceOf(Email::class, $email);
     }
 
+    public function testSendMailDispatchesMailSentEventWithRenderedSubject(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $context = Context::createDefaultContext();
+
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        );
+
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
+
+        $data = [
+            'recipients' => [],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Your order {{ order.orderNumber }}',
+            'contentPlain' => 'Content plain',
+            'contentHtml' => 'Content html',
+            'salesChannelId' => $salesChannelId,
+        ];
+
+        $email = (new Email())->subject('Your order 10001')
+            ->html($data['contentHtml'])
+            ->text($data['contentPlain'])
+            ->to('me@shopware.com')
+            ->from(new Address($data['senderEmail']));
+
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
+
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))->method('render')->willReturnCallback(
+            static fn (string $template) => $template === 'Your order {{ order.orderNumber }}' ? 'Your order 10001' : $template
+        );
+
+        $mailSentEvent = null;
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(4))
+            ->method('dispatch')
+            ->willReturnCallback(static function (ShopwareEvent $event) use (&$mailSentEvent) {
+                if ($event instanceof MailSentEvent) {
+                    $mailSentEvent = $event;
+                }
+
+                return $event;
+            });
+
+        $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher
+        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001']]);
+
+        static::assertInstanceOf(MailSentEvent::class, $mailSentEvent);
+        static::assertSame('Your order 10001', $mailSentEvent->getSubject());
+    }
+
     public function testSendMailWithRenderingError(): void
     {
         $salesChannelId = Uuid::randomHex();

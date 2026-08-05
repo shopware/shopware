@@ -20,6 +20,7 @@ export default {
         'selection-add',
         'selection-remove',
         'categories-load-more',
+        'update:categoriesCollection',
     ],
 
     props: {
@@ -217,6 +218,7 @@ export default {
 
             if (this.pageId) {
                 this.globalCategoryRepository.searchIds(this.pageCategoryCriteria).then((result) => {
+                    this.selectedCategories = result.data;
                     this.selectedCategoriesTotal = result.total;
                 });
             }
@@ -243,7 +245,11 @@ export default {
                     this.categories = searchResult;
                     this.isFetching = false;
 
-                    if (this.pageId && searchResult[0].cmsPageId === this.pageId) {
+                    if (
+                        this.pageId &&
+                        searchResult[0].cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(searchResult[0].id)
+                    ) {
                         this.selectedCategories.push(searchResult[0].id);
                     }
 
@@ -254,7 +260,11 @@ export default {
                 searchResult.forEach((category) => {
                     this.categories.add(category);
 
-                    if (this.pageId && category.cmsPageId === this.pageId) {
+                    if (
+                        this.pageId &&
+                        category.cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(category.id)
+                    ) {
                         this.selectedCategories.push(category.id);
                     }
                 });
@@ -298,6 +308,8 @@ export default {
                     this.$emit('selection-add', item);
                 }
 
+                this.emitCategoriesCollectionUpdate();
+
                 if (this.singleSelect) {
                     this.isExpanded = false;
                 }
@@ -323,11 +335,14 @@ export default {
                 this.selectedCategoriesTotal -= 1;
             }
 
-            if (item.data) {
-                this.$emit('selection-remove', item.data);
-            } else {
-                this.$emit('selection-remove', item);
-            }
+            const removedItem = item.data ?? item;
+
+            this.emitCategoriesCollectionUpdate();
+            this.$emit('selection-remove', removedItem);
+        },
+
+        emitCategoriesCollectionUpdate() {
+            this.$emit('update:categoriesCollection', this.categoriesCollection);
         },
 
         searchCategories(term) {

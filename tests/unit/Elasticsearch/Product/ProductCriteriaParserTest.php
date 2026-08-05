@@ -104,7 +104,7 @@ class ProductCriteriaParserTest extends TestCase
         );
 
         $filter = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('active', true)]);
-        $expectedBuilder = $this->createMock(BuilderInterface::class);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
 
         $this->decoratedParser
             ->expects($this->once())

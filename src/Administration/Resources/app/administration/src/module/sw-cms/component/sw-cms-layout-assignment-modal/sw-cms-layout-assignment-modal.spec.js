@@ -100,6 +100,10 @@ async function createWrapper(
     systemConfigApiServiceOverrides = {},
     { featureActive = false } = {},
 ) {
+    const origin = {
+        categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
+    };
+
     return mount(
         await wrapTestComponent('sw-cms-layout-assignment-modal', {
             sync: true,
@@ -119,6 +123,7 @@ async function createWrapper(
                     ),
                     type: layoutType,
                     id: 'uuid007',
+                    getOrigin: () => origin,
                 },
             },
             global: {
@@ -371,13 +376,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should store previous categories on component creation', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.previousCategories).toEqual(mockCategories);
-        expect(wrapper.vm.previousCategoryIds).toEqual(
-            expect.arrayContaining([
-                'uuid1',
-                'uuid2',
-            ]),
-        );
+        expect(wrapper.vm.previousCategoryIds).toEqual([
+            'uuid1',
+            'uuid2',
+            'uuid3',
+        ]);
     });
 
     it('should add categories', async () => {
@@ -1267,6 +1270,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
     it('should increment categoryIndex and update page.categories', async () => {
         const wrapper = await createWrapper();
+        const initialCategories = wrapper.vm.page.categories;
 
         expect(wrapper.vm.categoryIndex).toBe(1);
         expect(wrapper.vm.page.categories).toHaveLength(3);
@@ -1276,5 +1280,64 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         expect(wrapper.vm.categoryIndex).toBe(2);
         expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.categories).toBe(initialCategories);
+    });
+
+    it('should preserve paginated category assignments when removing a loaded category', async () => {
+        const wrapper = await createWrapper();
+        const extraCategories = Array.from({ length: 50 }, (_, index) => {
+            return {
+                id: `extra-category-${index}`,
+                cmsPageId: wrapper.vm.page.id,
+            };
+        });
+        const removedCategory = extraCategories.at(-1);
+
+        wrapper.vm.categoryRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce(extraCategories.slice(0, 25))
+            .mockResolvedValueOnce(extraCategories.slice(25));
+
+        await wrapper.vm.onExtraCategories();
+        await wrapper.vm.onExtraCategories();
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(53);
+        expect(wrapper.vm.page.categories).toHaveLength(52);
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+
+        await expect(wrapper.vm.validateCategories()).rejects.toBeUndefined();
+        expect(wrapper.vm.hasDeletedCategories).toBe(true);
+    });
+
+    it('should not re-add a removed category when loading another category page', async () => {
+        const wrapper = await createWrapper();
+        const removedCategory = {
+            id: 'uuid3',
+            cmsPageId: wrapper.vm.page.id,
+        };
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+        wrapper.vm.categoryRepository.search = jest.fn().mockResolvedValue([removedCategory]);
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+    });
+
+    it('should restore the complete category baseline when discarding changes', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
+
+        wrapper.vm.discardCategoryChanges();
+
+        expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
     });
 });

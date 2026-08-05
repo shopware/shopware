@@ -91,7 +91,7 @@ class EntityExists extends Constraint
             }
 
             if (!$options['criteria'] instanceof Criteria) {
-                throw FrameworkException::missingOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
+                throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
             }
 
             if (isset($options['primaryProperty']) && !\is_string($options['primaryProperty'])) {

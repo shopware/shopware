@@ -154,7 +154,7 @@ class EntityExistsTest extends TestCase
 
         yield 'with invalid criteria' => [
             ['entity' => 'product_review', 'context' => Context::createDefaultContext(), 'criteria' => 'invalid'],
-            FrameworkException::missingOptions(\sprintf('Option "criteria" must be an instance of %s for constraint %s', Criteria::class, EntityExists::class)),
+            FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of %s for constraint %s', Criteria::class, EntityExists::class)),
         ];
 
         yield 'with invalid primary property' => [

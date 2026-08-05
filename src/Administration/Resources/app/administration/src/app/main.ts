@@ -48,6 +48,7 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 import FileValidationService from 'src/app/service/file-validation.service';
 import CacheService from 'src/app/service/cache.service';
+import DocumentV2Service from '../core/service/documentV2.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -234,4 +235,7 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('fileValidationService', () => {
         return FileValidationService();
+    })
+    .addServiceProvider('documentV2Service', () => {
+        return new DocumentV2Service();
     });

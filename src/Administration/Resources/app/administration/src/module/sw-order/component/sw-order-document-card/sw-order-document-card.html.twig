@@ -443,8 +443,6 @@
         :order="order"
         :is-loading-document="isLoadingDocument"
         :is-loading-preview="isLoadingPreview"
-        @loading-document="onLoadingDocument"
-        @loading-preview="onLoadingPreview"
         @page-leave="onCloseCreateDocumentModal"
         @document-create="onCreateDocument"
         @preview-show="onPreview"
@@ -456,7 +454,7 @@
         :is-loading-document="isLoadingDocument"
         @loading-document="onLoadingDocument"
         @page-leave="onCloseUploadDocumentModal"
-        @document-create="onCreateDocument"
+        @document-upload="onUploadDocument"
     />
     <sw-order-select-document-type-modal
         v-else-if="showSelectDocumentTypeModal"

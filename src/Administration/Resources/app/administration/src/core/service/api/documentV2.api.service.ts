@@ -2,6 +2,7 @@ import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 import { DocumentEvents } from './document.api.service';
+import { DOCUMENT_TYPES } from '../documentV2.service';
 
 type DocumentTypeFormats = {
     formats: string[];
@@ -36,6 +37,8 @@ type DocumentRequestPayload = {
     documentNumber: string;
     documentDate: string;
     documentComment: string;
+    deliveryDate?: string;
+    referencedDocumentId?: string;
 };
 
 type CreateDocumentPayload = DocumentRequestPayload & {
@@ -46,7 +49,6 @@ type UploadDocumentPayload = DocumentRequestPayload & {
     orderVersionId: string,
     format: string;
     mediaId: string | null;
-    referencedDocumentId: string | null;
 };
 
 type PreviewDocumentPayload = DocumentRequestPayload & {
@@ -68,7 +70,7 @@ export default class DocumentV2ApiService extends ApiService {
 
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'document-v2') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'documentV2Service';
+        this.name = 'documentV2ApiService';
     }
 
     getAvailableTypes(): Promise<AxiosResponse<AvailableDocumentTypesResponse>> {
@@ -84,10 +86,12 @@ export default class DocumentV2ApiService extends ApiService {
         documentNumber: string,
         documentDate: string,
         documentComment = '',
+        deliveryDate: string | null = null,
+        referencedDocumentId: string | null = null,
         additionalHeaders: Record<string, string> = {},
     ): Promise<AxiosResponse<DocumentCreateResponse> | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
-        const payload: CreateDocumentPayload = {
+        const payload: CreateDocumentPayload =  {
             orderId,
             documentType: documentTypeName,
             formats,
@@ -95,6 +99,14 @@ export default class DocumentV2ApiService extends ApiService {
             documentDate,
             documentComment,
         };
+
+        if (documentTypeName === DOCUMENT_TYPES.DELIVERY_NOTE && deliveryDate) {
+            payload.deliveryDate = deliveryDate;
+        }
+
+        if (documentTypeName === DOCUMENT_TYPES.CANCELLATION_INVOICE && referencedDocumentId) {
+            payload.referencedDocumentId = referencedDocumentId;
+        }
 
         return this.httpClient
             .post<DocumentCreateResponse>('/_action/order/document-v2/create', payload, { headers })
@@ -111,9 +123,10 @@ export default class DocumentV2ApiService extends ApiService {
         documentNumber: string,
         documentDate: string,
         documentComment = '',
+        deliveryDate: string | null = null,
+        referencedDocumentId: string | null = null,
         mediaId: string | null = null,
         file: File | null = null,
-        referencedDocumentId: string | null = null,
         additionalHeaders: Record<string, string> = {},
     ): Promise<AxiosResponse<DocumentCreateResponse> | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
@@ -126,8 +139,15 @@ export default class DocumentV2ApiService extends ApiService {
             documentDate,
             documentComment,
             mediaId,
-            referencedDocumentId,
         };
+
+        if (documentTypeName === DOCUMENT_TYPES.DELIVERY_NOTE && deliveryDate) {
+            payload.deliveryDate = deliveryDate;
+        }
+
+        if (documentTypeName === DOCUMENT_TYPES.CANCELLATION_INVOICE && referencedDocumentId) {
+            payload.referencedDocumentId = referencedDocumentId;
+        }
 
         let request: Promise<AxiosResponse<DocumentCreateResponse>>;
 

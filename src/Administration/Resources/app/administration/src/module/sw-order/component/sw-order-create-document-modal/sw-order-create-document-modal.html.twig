@@ -17,7 +17,7 @@
         />
 
         <mt-select
-            v-model="selectedFileFormats"
+            v-model="documentConfig.requestedFileFormats"
             class="sw-order-create-document-modal__file-formats"
             label-property="label"
             value-property="value"
@@ -60,13 +60,13 @@
                 />
 
                 <mt-select
-                    v-if="isCreditNoteDocument || isStornoDocument"
-                    v-model="documentConfig.custom.invoiceNumber"
-                    class="sw-order-create-document-modal__invoice-number"
+                    v-if="isReferencingOtherDocument"
+                    v-model="referencedDocumentNumber"
+                    class="sw-order-create-document-modal__referenced-document-number"
                     :label="$t('sw-order.documentModal.labelInvoiceNumber')"
                     :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
-                    :options="invoiceNumberOptions"
-                    :error="invoiceNumberErrorMessage"
+                    :options="referencedDocumentNumberOptions"
+                    :error="referencedDocumentNumberErrorMessage"
                     required
                 />
 
@@ -82,7 +82,7 @@
 
                 <mt-datepicker
                     v-if="isDeliveryNoteDocument"
-                    v-model="documentConfig.custom.deliveryDate"
+                    v-model="documentConfig.deliveryDate"
                     class="sw-order-create-document-modal__delivery-date"
                     date-type="date"
                     hide-hint

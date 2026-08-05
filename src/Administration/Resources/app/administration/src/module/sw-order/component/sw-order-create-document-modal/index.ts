@@ -1,61 +1,14 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
+import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES } from 'src/core/service/documentV2.service';
+import type { DocumentConfig } from 'src/core/service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
-import { DOCUMENT_TYPES } from '../../order.types';
-import {
-    FILE_FORMAT_PRIORITY,
-    getDocumentFamily,
-    getDocumentNumberRangeType,
-    INVOICE_DOCUMENT_TYPES,
-} from '../document-type-selection.utils';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-interface DocumentConfigCustom {
-    invoiceNumber?: string | null;
-    deliveryDate?: string;
-    deliveryNoteNumber?: string;
-    creditNoteNumber?: string;
-    stornoNumber?: string;
-}
-
-interface DocumentConfig {
-    custom: DocumentConfigCustom;
-    documentComment: string;
-    documentDate: string;
-    documentNumber: string;
-}
-
-interface DocumentEntityConfig {
-    custom?: {
-        invoiceNumber?: string;
-    };
-}
-
-function createEmptyDocumentConfig(technicalName: string | null = null): DocumentConfig {
-    const now = new Date().toISOString();
-    const documentFamily = getDocumentFamily(technicalName);
-
-    const custom: DocumentConfigCustom = {};
-
-    if (documentFamily === DOCUMENT_TYPES.CREDIT_NOTE || documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE) {
-        custom.invoiceNumber = null;
-    }
-
-    if (documentFamily === DOCUMENT_TYPES.DELIVERY_NOTE) {
-        custom.deliveryDate = now;
-    }
-
-    return {
-        custom,
-        documentComment: '',
-        documentDate: now,
-        documentNumber: '',
-    };
-}
 
 /**
  * @private
@@ -65,6 +18,7 @@ export default Component.wrapComponentConfig({
     template,
 
     inject: [
+        'documentV2ApiService',
         'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
@@ -72,8 +26,6 @@ export default Component.wrapComponentConfig({
 
     emits: [
         'document-create',
-        'loading-document',
-        'loading-preview',
         'page-leave',
         'preview-show',
         'update:documentType',
@@ -111,19 +63,19 @@ export default Component.wrapComponentConfig({
         documentTypeCollection: EntityCollection<'document_type'> | null;
         documentTypeId: string | null;
         documentTypes: Entity<'document_type'>[];
+        referencedDocumentNumber: string | null,
         isLoading: boolean;
-        selectedFileFormats: string[];
         supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
         return {
-            documentConfig: createEmptyDocumentConfig(),
+            documentConfig: this.documentV2Service.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeLoading: false,
             documentTypeCollection: null,
             documentTypeId: this.documentType?.id ?? null,
             documentTypes: [],
+            referencedDocumentNumber: null,
             isLoading: false,
-            selectedFileFormats: [],
             supportedDocumentTypes: {},
         };
     },
@@ -159,8 +111,8 @@ export default Component.wrapComponentConfig({
             };
         },
 
-        invoiceNumberErrorMessage(): { detail: string } | null {
-            if ((!this.isCreditNoteDocument && !this.isStornoDocument) || this.documentConfig.custom.invoiceNumber) {
+        referencedDocumentNumberErrorMessage(): { detail: string } | null {
+            if ((!this.isCreditNoteDocument && !this.isStornoDocument) || this.referencedDocumentNumber) {
                 return null;
             }
 
@@ -179,20 +131,7 @@ export default Component.wrapComponentConfig({
         },
 
         documentFamily(): string | null {
-            return getDocumentFamily(this.currentDocumentType?.technicalName);
-        },
-
-        documentPreconditionsFulfilled(): boolean {
-            switch (this.documentFamily) {
-                case DOCUMENT_TYPES.CREDIT_NOTE:
-                    return this.creditItems.length !== 0 && !!this.documentConfig.custom.invoiceNumber;
-                case DOCUMENT_TYPES.CANCELLATION_INVOICE:
-                    return !!this.documentConfig.custom.invoiceNumber;
-                case DOCUMENT_TYPES.DELIVERY_NOTE:
-                    return !!this.documentConfig.custom.deliveryDate;
-                default:
-                    return true;
-            }
+            return this.documentV2Service.getDocumentFamily(this.currentDocumentType?.technicalName ?? null);
         },
 
         fileFormatOptions(): { label: string; value: string }[] {
@@ -202,11 +141,10 @@ export default Component.wrapComponentConfig({
 
             const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
 
-            return [...formats]
-                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
+            return this.documentV2Service.sortFileFormats(formats)
                 .map((format) => {
                     return {
-                        label: this.translateFileFormat(format),
+                        label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
                         value: format,
                     };
                 });
@@ -221,32 +159,22 @@ export default Component.wrapComponentConfig({
                 !this.currentDocumentType ||
                 !this.documentConfig.documentNumber ||
                 !this.documentConfig.documentDate ||
-                this.selectedFileFormats.length === 0 ||
-                !this.documentPreconditionsFulfilled
+                this.documentConfig.requestedFileFormats.length === 0 ||
+                (this.isCreditNoteDocument && this.creditItems.length === 0)
             );
         },
 
-        invoiceDocuments(): Entity<'document'>[] {
+        referencedDocumentNumberOptions(): { label: string; value: string }[] {
             if (!this.order.documents) {
                 return [];
             }
 
-            return this.order.documents.filter((document) => {
-                const technicalName = document.documentType?.technicalName;
+            const referencedDocumentNumbers = this.isCreditNoteDocument || this.isStornoDocument ? this.documentV2Service.getDocumentNumbersByTypes(this.order.documents, INVOICE_DOCUMENT_TYPES) : [];
 
-                return typeof technicalName === 'string' && INVOICE_DOCUMENT_TYPES.includes(technicalName);
-            });
-        },
-
-        invoiceNumberOptions(): { label: string; value: string }[] {
-            const invoiceNumbers = this.invoiceDocuments
-                .map((item) => (item.config as DocumentEntityConfig | undefined)?.custom?.invoiceNumber)
-                .filter((invoiceNumber): invoiceNumber is string => !!invoiceNumber);
-
-            return [...new Set(invoiceNumbers)].sort().map((invoiceNumber) => {
+            return [...new Set(referencedDocumentNumbers)].sort().map((documentNumber) => {
                 return {
-                    label: String(invoiceNumber),
-                    value: invoiceNumber,
+                    label: String(documentNumber),
+                    value: documentNumber,
                 };
             });
         },
@@ -263,8 +191,12 @@ export default Component.wrapComponentConfig({
             return this.documentFamily === DOCUMENT_TYPES.CANCELLATION_INVOICE;
         },
 
+        isReferencingOtherDocument(): boolean {
+            return this.isCreditNoteDocument || this.isStornoDocument;
+        },
+
         previewFileFormatOptions(): { label: string; value: string }[] {
-            return this.selectedFileFormats
+            return this.documentConfig.requestedFileFormats
                 .map((format) => {
                     return this.fileFormatOptions.find((option) => option.value === format) ?? null;
                 })
@@ -302,7 +234,7 @@ export default Component.wrapComponentConfig({
                     supportResponse,
                 ] = await Promise.all([
                     this.documentTypeRepository.search(this.documentTypeCriteria),
-                    this.documentV2Service.getAvailableTypes(),
+                    this.documentV2ApiService.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
@@ -327,10 +259,8 @@ export default Component.wrapComponentConfig({
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
-            this.selectedFileFormats = [];
-
             if (!documentType) {
-                this.documentConfig = createEmptyDocumentConfig();
+                this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
 
                 return;
@@ -339,11 +269,11 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             try {
-                const nextDocumentConfig = createEmptyDocumentConfig(documentType.technicalName);
+                this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
-                nextDocumentConfig.documentNumber = documentNumber;
-                this.documentConfig = nextDocumentConfig;
+                this.documentConfig.documentNumber = documentNumber;
                 this.documentNumberPreview = documentNumber;
             } finally {
                 this.documentTypeLoading = false;
@@ -356,7 +286,7 @@ export default Component.wrapComponentConfig({
             };
 
             const { number } = await numberRangeService.reserve(
-                `document_${getDocumentNumberRangeType(technicalName)}`,
+                `document_${this.documentV2Service.getDocumentNumberRangeType(technicalName)}`,
                 this.order.salesChannelId,
                 isPreview,
             );
@@ -365,8 +295,6 @@ export default Component.wrapComponentConfig({
         },
 
         async onCreateDocument(additionalAction = false): Promise<void> {
-            this.$emit('loading-document');
-
             if (this.invalidInput || !this.currentDocumentType) {
                 return;
             }
@@ -383,14 +311,9 @@ export default Component.wrapComponentConfig({
                 this.documentConfig.documentNumber = documentNumber;
             }
 
-            this.applyTypeSpecificConfiguration();
-
             this.$emit(
                 'document-create',
-                {
-                    ...this.documentConfig,
-                    requestedFormats: [...this.selectedFileFormats],
-                },
+                this.documentConfig,
                 additionalAction,
                 this.getReferencedDocumentId(),
             );
@@ -401,24 +324,10 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            const previewFormat = format || this.getPreferredFileFormat();
-
-            if (!previewFormat) {
-                return;
-            }
-
-            this.$emit('loading-preview');
-
-            this.applyTypeSpecificConfiguration();
-
             this.$emit(
                 'preview-show',
-                {
-                    ...this.documentConfig,
-                    formats: [previewFormat],
-                    requestedFormats: [...this.selectedFileFormats],
-                },
-                previewFormat,
+                this.documentConfig,
+                format || this.documentV2Service.getPreferredFileFormat(this.documentConfig.requestedFileFormats, 'pdf'),
             );
         },
 
@@ -426,65 +335,17 @@ export default Component.wrapComponentConfig({
             this.$emit('page-leave');
         },
 
-        applyTypeSpecificConfiguration(): void {
-            switch (this.documentFamily) {
-                case DOCUMENT_TYPES.INVOICE:
-                    this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
-                    break;
-                case DOCUMENT_TYPES.DELIVERY_NOTE:
-                    this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
-                    break;
-                case DOCUMENT_TYPES.CREDIT_NOTE:
-                    this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                    break;
-                case DOCUMENT_TYPES.CANCELLATION_INVOICE:
-                    this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
-                    break;
-                default:
-            }
-        },
-
         getReferencedDocumentId(): string | null {
-            if (!this.isCreditNoteDocument && !this.isStornoDocument) {
+            if (!this.order.documents || !this.referencedDocumentNumber) {
                 return null;
             }
 
             return (
-                this.invoiceDocuments.find(
-                    (item) =>
-                        (item.config as DocumentEntityConfig | undefined)?.custom?.invoiceNumber ===
-                        this.documentConfig.custom.invoiceNumber,
+                this.order.documents.find(
+                    (document) =>
+                        document.documentNumber === this.referencedDocumentNumber,
                 )?.id ?? null
             );
-        },
-
-        getPreferredFileFormat(formats?: string[]): string | null {
-            const targetFormats = formats ?? this.selectedFileFormats;
-
-            return (
-                [...targetFormats].sort(
-                    (left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right),
-                )[0] ?? null
-            );
-        },
-
-        getFileFormatPriority(fileFormat: string): number {
-            const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
-
-            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-        },
-
-        translateFileFormat(format: string): string {
-            const translationKey = (
-                {
-                    html: 'sw-order.components.createDocumentModal.fileFormats.html',
-                    pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                    zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-                    zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
-                } as Record<string, string>
-            )[format];
-
-            return translationKey ? this.$t(translationKey) : format;
         },
     },
 });

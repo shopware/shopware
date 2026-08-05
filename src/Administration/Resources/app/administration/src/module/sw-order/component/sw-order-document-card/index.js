@@ -7,17 +7,10 @@ import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from 'src/core/service/documentV2.service';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-
-const FILE_TYPE_PRIORITY = [
-    'pdf',
-    'html',
-    'zugferd_embedded_pdf',
-    'zugferd_xml',
-];
 
 /**
  * @private
@@ -37,6 +30,7 @@ export default {
 
     inject: [
         'documentService',
+        'documentV2ApiService',
         'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
@@ -304,7 +298,7 @@ export default {
             });
 
             this.documentService.setListener(this.convertStoreEventToVueEvent);
-            this.documentV2Service.setListener(this.convertStoreEventToVueEvent);
+            this.documentV2ApiService.setListener(this.convertStoreEventToVueEvent);
         },
 
         convertStoreEventToVueEvent({ action, payload }) {
@@ -380,28 +374,15 @@ export default {
 
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                if (file || params.documentMediaFileId) {
-                    return this.documentV2Service.uploadDocument(
-                        orderId,
-                        this.order.versionId,
-                        documentTypeName,
-                        params.requestedFormats?.[0] ?? 'pdf',
-                        params.documentNumber,
-                        params.documentDate,
-                        params.documentComment,
-                        params.documentMediaFileId,
-                        file,
-                        referencedDocumentId,
-                    );
-                }
-
-                return this.documentV2Service.createDocument(
+                return this.documentV2ApiService.createDocument(
                     orderId,
                     documentTypeName,
-                    params.requestedFormats ?? [],
+                    params.requestedFileFormats ?? [],
                     params.documentNumber,
                     params.documentDate,
                     params.documentComment,
+                    params.deliveryDate,
+                    referencedDocumentId,
                 );
             }
 
@@ -416,7 +397,23 @@ export default {
             );
         },
 
-        getDocumentFileTypes(document) {
+        uploadDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
+            return this.documentV2ApiService.uploadDocument(
+                orderId,
+                this.order.versionId,
+                documentTypeName,
+                params.requestedFileFormats?.[0] ?? 'pdf',
+                params.documentNumber,
+                params.documentDate,
+                params.documentComment,
+                params.deliveryDate,
+                referencedDocumentId,
+                params.documentMediaFileId,
+                file,
+            );
+        },
+
+        getDocumentFileFormats(document) {
             const v2Formats = (document.documentFiles ?? []).map((documentFile) => documentFile.documentFormat);
             const legacyFormats = [
                 document.documentMediaFile?.fileExtension,
@@ -431,30 +428,14 @@ export default {
             ];
         },
 
-        getPreferredFileType(fileTypes = []) {
-            return (
-                [...fileTypes].sort((left, right) => {
-                    return this.getFileTypePriority(left) - this.getFileTypePriority(right);
-                })[0] ?? 'pdf'
-            );
-        },
-
         getDocumentActionFormats(document) {
-            const formats = this.getDocumentFileTypes(document);
+            const formats = this.getDocumentFileFormats(document);
 
             if (formats.length === 0) {
                 return ['pdf'];
             }
 
-            return [...formats].sort((left, right) => {
-                return this.getFileTypePriority(left) - this.getFileTypePriority(right);
-            });
-        },
-
-        getFileTypePriority(fileType) {
-            const priority = FILE_TYPE_PRIORITY.indexOf(fileType);
-
-            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
+            return this.documentV2Service.sortFileFormats(formats);
         },
 
         hasMultipleDocumentActionFormats(document) {
@@ -473,11 +454,11 @@ export default {
         },
 
         resolveOpenFileType(document) {
-            return this.getPreferredFileType(this.getDocumentFileTypes(document));
+            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), 'pdf');
         },
 
         resolveDownloadFileType(document) {
-            return this.getPreferredFileType(this.getDocumentFileTypes(document));
+            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), 'pdf');
         },
 
         onCancelCreation() {
@@ -491,7 +472,7 @@ export default {
 
         openDocument(documentId, deepLinkCode, fileType) {
             const openRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.getDocument(documentId, fileType)
+                ? this.documentV2ApiService.getDocument(documentId, fileType)
                 : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
 
             openRequest.then((response) => {
@@ -507,7 +488,7 @@ export default {
 
         downloadDocument(documentId, deepLinkCode, fileType) {
             const downloadRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.getDocument(documentId, fileType)
+                ? this.documentV2ApiService.getDocument(documentId, fileType)
                 : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
 
             return downloadRequest.then((response) => {
@@ -523,7 +504,7 @@ export default {
         },
 
         downloadDocumentArchive(documentId) {
-            return this.documentV2Service.getDocumentArchive(documentId).then((response) => {
+            return this.documentV2ApiService.getDocumentArchive(documentId).then((response) => {
                 if (response.data) {
                     const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
@@ -585,7 +566,7 @@ export default {
 
                 if (additionalAction === 'download') {
                     if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                        const formats = response?.data?.formats ?? params.requestedFormats ?? [];
+                        const formats = response?.data?.formats ?? params.requestedFileFormats ?? [];
 
                         if (formats.length > 1) {
                             await this.downloadDocumentArchive(documentId);
@@ -594,7 +575,7 @@ export default {
                             return;
                         }
 
-                        await this.downloadDocument(documentId, deepLinkCode, this.getPreferredFileType(formats));
+                        await this.downloadDocument(documentId, deepLinkCode, this.getPreferredFileFormat(formats, 'pdf'));
                         await this.finishDocumentCreation();
 
                         return;
@@ -604,13 +585,52 @@ export default {
 
                     this.downloadDocument(documentId, deepLinkCode, format);
                 } else if (additionalAction === 'send') {
-                    const criteria = new Criteria(null, null);
-                    criteria
-                        .addAssociation('documentType')
-                        .addAssociation('documentA11yMediaFile')
-                        .addAssociation('documentFiles.media');
+                    await this.documentRepository.get(documentId, Shopware.Context.api, this.documentCriteria).then((documentData) => {
+                        if (!documentData) {
+                            return;
+                        }
 
-                    await this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
+                        this.sendDocument = documentData;
+                        this.showSendDocumentModal = true;
+                    });
+                }
+
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                    await this.finishDocumentCreation();
+                }
+            } finally {
+                this.isLoadingDocument = false;
+            }
+        },
+
+        async onUploadDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+            this.isLoadingDocument = true;
+
+            await this.$nextTick();
+
+            try {
+                const response = await this.uploadDocument(
+                    this.order.id,
+                    this.currentDocumentType.technicalName,
+                    params,
+                    referencedDocumentId,
+                    file,
+                );
+
+                if (!response) {
+                    return;
+                }
+
+                const documentId = Array.isArray(response) ? response[0].documentId : response?.data?.documentId;
+
+                if (params.documentMediaFileId) {
+                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
+                    documentData.documentMediaFileId = params.documentMediaFileId;
+                    await this.documentRepository.save(documentData);
+                }
+
+                if (additionalAction === 'send') {
+                    await this.documentRepository.get(documentId, Shopware.Context.api, this.documentCriteria).then((documentData) => {
                         if (!documentData) {
                             return;
                         }
@@ -632,7 +652,7 @@ export default {
             this.isLoadingPreview = true;
 
             const previewRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.previewDocument(
+                ? this.documentV2ApiService.previewDocument(
                       this.order.id,
                       this.currentDocumentType.technicalName,
                       format,
@@ -760,9 +780,7 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            return this.getDocumentFileTypes(item)
-                .map((format) => this.getDocumentFormatLabel(format))
-                .join(', ');
+            return this.getDocumentFileFormats(item).map((format) => this.getDocumentFormatLabel(format)).join(', ');
         },
     },
 };

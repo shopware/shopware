@@ -1,37 +1,16 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
+import type { DocumentConfig } from 'src/core/service/documentV2.service';
+import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from 'src/core/service/documentV2.service';
 import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
-import { DOCUMENT_TYPES } from '../../order.types';
-import {
-    FILE_FORMAT_MIME_TYPES,
-    FILE_FORMAT_PRIORITY,
-    getDocumentFamily,
-    getDocumentNumberRangeType,
-} from '../document-type-selection.utils';
 
 const { Component, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
 
 const FILE_SIZE_LIMIT = 52428800; // 50 MB
-
-interface DocumentConfig {
-    documentComment: string;
-    documentDate: string;
-    documentMediaFileId: string | null;
-    documentNumber: string;
-}
-
-function createEmptyDocumentConfig(): DocumentConfig {
-    return {
-        documentComment: '',
-        documentDate: new Date().toISOString(),
-        documentMediaFileId: null,
-        documentNumber: '',
-    };
-}
 
 /**
  * @private
@@ -41,14 +20,14 @@ export default Component.wrapComponentConfig({
     template,
 
     inject: [
+        'documentV2ApiService',
         'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
     ],
 
     emits: [
-        'document-create',
-        'loading-document',
+        'document-upload',
         'page-leave',
         'update:documentType',
     ],
@@ -88,7 +67,7 @@ export default Component.wrapComponentConfig({
         supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
         return {
-            documentConfig: createEmptyDocumentConfig(),
+            documentConfig: this.documentV2Service.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeCollection: null,
             documentTypeId: this.documentType?.id ?? null,
@@ -122,19 +101,6 @@ export default Component.wrapComponentConfig({
             return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
         },
 
-        documentTypeOptions(): { label: string; value: string }[] {
-            return this.documentTypes.map((documentType) => {
-                return {
-                    label: documentType.translated?.name ?? '',
-                    value: documentType.id,
-                };
-            });
-        },
-
-        documentFamily(): string | null {
-            return getDocumentFamily(this.currentDocumentType?.technicalName);
-        },
-
         documentNumberErrorMessage(): { detail: string } | null {
             if (!this.currentDocumentType || this.documentConfig.documentNumber) {
                 return null;
@@ -145,24 +111,37 @@ export default Component.wrapComponentConfig({
             };
         },
 
+        documentTypeOptions(): { label: string; value: string }[] {
+            return this.documentTypes.map((documentType) => {
+                return {
+                    label: documentType.translated?.name ?? '',
+                    value: documentType.id,
+                };
+            });
+        },
+
+        documentFamily(): string | null {
+            return this.documentV2Service.getDocumentFamily(this.currentDocumentType?.technicalName ?? null);
+        },
+
         fileFormatOptions(): { label: string; value: string }[] {
             if (!this.currentDocumentType?.technicalName) {
                 return [];
             }
 
-            return this.getFileFormatOptions(this.currentDocumentType.technicalName);
+            const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
+
+            return this.documentV2Service.sortFileFormats(formats)
+                .map((format) => {
+                    return {
+                        label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                        value: format,
+                    };
+                });
         },
 
-        fileAcceptTypes(): string {
-            if (this.selectedFileFormat) {
-                return FILE_FORMAT_MIME_TYPES[this.selectedFileFormat] ?? '*/*';
-            }
-
-            const mimeTypes = this.fileFormatOptions.flatMap((option) => {
-                return (FILE_FORMAT_MIME_TYPES[option.value] ?? '').split(',');
-            });
-
-            return [...new Set(mimeTypes.filter((mimeType) => mimeType !== ''))].join(',');
+        isModalLoading(): boolean {
+            return this.isLoading || this.documentTypeLoading;
         },
 
         invalidInput(): boolean {
@@ -175,8 +154,16 @@ export default Component.wrapComponentConfig({
             );
         },
 
-        isModalLoading(): boolean {
-            return this.isLoading || this.documentTypeLoading;
+        fileAcceptTypes(): string {
+            if (this.selectedFileFormat) {
+                return FILE_FORMAT_MIME_TYPES[this.selectedFileFormat] ?? '*/*';
+            }
+
+            const mimeTypes = this.fileFormatOptions.flatMap((option) => {
+                return (FILE_FORMAT_MIME_TYPES[option.value] ?? '').split(',');
+            });
+
+            return [...new Set(mimeTypes.filter((mimeType) => mimeType !== ''))].join(',');
         },
 
         isStornoDocument(): boolean {
@@ -222,7 +209,7 @@ export default Component.wrapComponentConfig({
                     supportResponse,
                 ] = await Promise.all([
                     this.documentTypeRepository.search(this.documentTypeCriteria),
-                    this.documentV2Service.getAvailableTypes(),
+                    this.documentV2ApiService.getAvailableTypes(),
                 ]);
 
                 this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
@@ -249,44 +236,12 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        getFileFormatOptions(technicalName: string): { label: string; value: string }[] {
-            const formats = this.supportedDocumentTypes[technicalName]?.formats ?? [];
-
-            return [...formats]
-                .sort((left, right) => this.getFileFormatPriority(left) - this.getFileFormatPriority(right))
-                .map((format) => {
-                    return {
-                        label: this.translateFileFormat(format),
-                        value: format,
-                    };
-                });
-        },
-
-        getFileFormatPriority(fileFormat: string): number {
-            const priority = FILE_FORMAT_PRIORITY.indexOf(fileFormat);
-
-            return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
-        },
-
-        translateFileFormat(format: string): string {
-            const translationKey = (
-                {
-                    html: 'sw-order.components.createDocumentModal.fileFormats.html',
-                    pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                    zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-                    zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
-                } as Record<string, string>
-            )[format];
-
-            return translationKey ? this.$t(translationKey) : format;
-        },
-
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
             this.selectedFileFormat = null;
             this.selectedDocumentFile = null;
 
             if (!documentType) {
-                this.documentConfig = createEmptyDocumentConfig();
+                this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
 
                 return;
@@ -295,7 +250,7 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             try {
-                const nextDocumentConfig = createEmptyDocumentConfig();
+                const nextDocumentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
                 nextDocumentConfig.documentNumber = documentNumber;
@@ -312,7 +267,7 @@ export default Component.wrapComponentConfig({
             };
 
             const { number } = await numberRangeService.reserve(
-                `document_${getDocumentNumberRangeType(technicalName)}`,
+                `document_${this.documentV2Service.getDocumentNumberRangeType(technicalName)}`,
                 this.order.salesChannelId,
                 isPreview,
             );
@@ -321,8 +276,6 @@ export default Component.wrapComponentConfig({
         },
 
         async onUploadDocument(additionalAction = false): Promise<void> {
-            this.$emit('loading-document');
-
             if (this.invalidInput || !this.currentDocumentType) {
                 return;
             }
@@ -340,7 +293,7 @@ export default Component.wrapComponentConfig({
             }
 
             this.$emit(
-                'document-create',
+                'document-upload',
                 {
                     ...this.documentConfig,
                     requestedFormats: [this.selectedFileFormat],

@@ -59,6 +59,8 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
             documentComment: $this->extractOptionalString($payload, 'documentComment'),
             documentDate: $this->extractOptionalString($payload, 'documentDate'),
+            deliveryDate: $this->extractOptionalString($payload, 'deliveryDate'),
+            referencedDocumentId: $this->extractOptionalString($payload, 'referencedDocumentId'),
         );
     }
 
@@ -80,6 +82,14 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             $definition->add('formats', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));
         } else {
             $definition->add('format', new NotBlank(), new Type('string'));
+        }
+
+        if (\array_key_exists('deliveryDate', $payload)) {
+            $definition->add('deliveryDate', new NotBlank(), new Type('string'));
+        }
+
+        if (\array_key_exists('referencedDocumentId', $payload)) {
+            $definition->add('referencedDocumentId', new NotBlank(), new Type('string'));
         }
 
         $this->dataValidator->validate($payload, $definition);

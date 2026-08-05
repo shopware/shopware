@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { checkMilestoneLabel, evaluateMilestoneLabel, expectedMilestone, MILESTONE_LABEL_PREFIX, SKIP_CHECK_LABEL } from './milestone-label.ts';
+import { checkMilestoneLabel, evaluateMilestoneLabel, expectedMilestone, MILESTONE_LABEL_PREFIX, SKIP_CHECK_LABEL, STATUS_CONTEXT } from './milestone-label.ts';
 
 // The state of shopware/shopware after the 6.7.13.x branch-off: 6.7.13.* is closed,
 // 6.7.14.0 is what trunk collects.
@@ -153,10 +153,12 @@ function mergeGroupToolkit(
     commits: { sha: string; pulls: number[] }[],
     headRef = 'refs/heads/gh-readonly-queue/trunk/pr-18791-0123456789abcdef0123456789abcdef01234567',
 ) {
+    const statuses: { state: string; description: string }[] = [];
     const failed: string[] = [];
     const warnings: string[] = [];
 
     return {
+        statuses,
         failed,
         warnings,
         toolkit: {
@@ -177,6 +179,13 @@ function mergeGroupToolkit(
                         },
                     },
                     repos: {
+                        createCommitStatus: async ({ state, description, context: ctx }: { state: string; description: string; context: string }) => {
+                            assert.equal(ctx, STATUS_CONTEXT);
+                            assert.ok(description.length <= 140, `status description too long: ${description.length}`);
+                            statuses.push({ state, description });
+
+                            return {};
+                        },
                         compareCommitsWithBasehead: async () => ({ data: { commits: commits.map(({ sha }) => ({ sha })) } }),
                         listPullRequestsAssociatedWithCommit: async ({ commit_sha }: { commit_sha: string }) => ({
                             data: (commits.find(({ sha }) => sha === commit_sha)?.pulls ?? []).map((number) => ({ number })),
@@ -206,29 +215,34 @@ function mergeGroupToolkit(
 test('the merge group gate fails a queued PR whose label is already branched', () => {
     // This is the case no pull_request event covers: GitHub retargeted the PR to
     // trunk silently, so the PR-level run never re-evaluated it.
-    const { toolkit, failed } = mergeGroupToolkit(
+    const { toolkit, failed, statuses } = mergeGroupToolkit(
         { 18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] } },
         [{ sha: 'c1', pulls: [18791] }],
     );
 
     return checkMilestoneLabel(toolkit as never).then(() => {
-        assert.equal(failed.length, 1);
-        assert.match(failed[0], /#18791/);
-        assert.match(failed[0], /6\.7\.13\.x` already exists/);
+        // The job stays green; the verdict lives in the commit status.
+        assert.deepEqual(failed, []);
+        assert.equal(statuses.length, 1);
+        assert.equal(statuses[0].state, 'failure');
+        assert.match(statuses[0].description, /is closed for new work/);
     });
 });
 
 test('the merge group gate passes a correctly labelled queued PR', () => {
-    const { toolkit, failed } = mergeGroupToolkit(
+    const { toolkit, failed, statuses } = mergeGroupToolkit(
         { 18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] } },
         [{ sha: 'c1', pulls: [18791] }],
     );
 
-    return checkMilestoneLabel(toolkit as never).then(() => assert.deepEqual(failed, []));
+    return checkMilestoneLabel(toolkit as never).then(() => {
+        assert.deepEqual(failed, []);
+        assert.equal(statuses[0].state, 'success');
+    });
 });
 
 test('the merge group gate checks every PR in a batch, not just the one the ref names', () => {
-    const { toolkit, failed } = mergeGroupToolkit(
+    const { toolkit, failed, statuses } = mergeGroupToolkit(
         {
             18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] },
             18780: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] },
@@ -237,13 +251,14 @@ test('the merge group gate checks every PR in a batch, not just the one the ref 
     );
 
     return checkMilestoneLabel(toolkit as never).then(() => {
-        assert.equal(failed.length, 1);
-        assert.match(failed[0], /#18780/);
+        assert.equal(statuses[0].state, 'failure');
+        assert.match(statuses[0].description, /#18780/);
+        assert.doesNotMatch(statuses[0].description, /#18791/);
     });
 });
 
 test('the merge group gate still checks the ref-named PR when the commit lookup fails', () => {
-    const { toolkit, failed, warnings } = mergeGroupToolkit(
+    const { toolkit, failed, warnings, statuses } = mergeGroupToolkit(
         { 18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] } },
         [],
     );
@@ -253,7 +268,26 @@ test('the merge group gate still checks the ref-named PR when the commit lookup 
 
     return checkMilestoneLabel(toolkit as never).then(() => {
         assert.equal(warnings.length, 1);
-        assert.equal(failed.length, 1);
-        assert.match(failed[0], /#18791/);
+        assert.equal(statuses[0].state, 'failure');
     });
+});
+
+test('every short form fits the commit status limit', () => {
+    const cases = [
+        [],
+        ['component/core'],
+        [SKIP_CHECK_LABEL],
+        [`${MILESTONE_LABEL_PREFIX}6.7.14.0`],
+        [`${MILESTONE_LABEL_PREFIX}6.7.13.0`],
+        [`${MILESTONE_LABEL_PREFIX}6.7.13.0`, 'backport-6.7.13.x'],
+        [`${MILESTONE_LABEL_PREFIX}6.7.13.0`, `${MILESTONE_LABEL_PREFIX}6.7.14.0`],
+        [`${MILESTONE_LABEL_PREFIX}6.7.x`],
+    ];
+
+    for (const base of ['trunk', '6.7.13.x', 'feat/some-stacked-branch']) {
+        for (const labels of cases) {
+            const { short } = evaluateMilestoneLabel({ baseRefName: base, defaultBranch: 'trunk', labels, versionBranches: VERSION_BRANCHES });
+            assert.ok(short.length <= 140, `too long (${short.length}) for base ${base}: ${short}`);
+        }
+    }
 });

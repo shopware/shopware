@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -38,7 +39,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    private AbstractMediaPathStrategy&MockObject $mediaPathStrategy;
+    private AbstractMediaPathStrategy&Stub $mediaPathStrategy;
 
     private MediaFileCleanupService&MockObject $mediaFileCleanup;
 
@@ -48,7 +49,7 @@ class PresignedMediaUploadServiceTest extends TestCase
     {
         $this->presignedUrlGenerator = $this->createMock(PresignedUrlGeneratorInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $this->mediaPathStrategy = static::createStub(AbstractMediaPathStrategy::class);
         $this->mediaFileCleanup = $this->createMock(MediaFileCleanupService::class);
         $this->extensionValidator = $this->createMock(MediaFileExtensionValidator::class);
 

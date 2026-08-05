@@ -120,7 +120,8 @@ class Cases extends TestCase
 
     public function testMockPassedToInheritedMethod(): void
     {
-        // NOT flagged: assertNotNull() is not declared in this class, so the rule cannot see into it.
+        // FLAGGED: assertNotNull() is an inherited PHPUnit assertion — it only reads the double
+        // and cannot configure an expectation on it.
         $dependency = $this->createMock(Dependency::class);
         $dependency->method('value')->willReturn('stub');
 
@@ -141,7 +142,8 @@ class Cases extends TestCase
 
     public function testMockFromReturningHelper(): void
     {
-        // NOT flagged: makeDependency() hands its double back, so a caller can still ->expects() it.
+        // FLAGGED: makeDependency() hands its double back, and this only call site forwards it
+        // into the SUT constructor — provably never ->expects()-ed.
         $sut = new SystemUnderTest($this->makeDependency());
 
         static::assertSame('made', $sut->run());

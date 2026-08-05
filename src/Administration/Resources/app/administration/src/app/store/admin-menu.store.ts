@@ -21,6 +21,13 @@ function menuEntryKey(entry: NavigationEntry): string | undefined {
     return entry.id ?? entry.path;
 }
 
+/**
+ * Pre-rework versions auto-wrote 'sw-admin-menu-expanded' as 'false' on every small-viewport load,
+ * so its value does not reflect a user choice — a fresh key keeps only deliberate toggles.
+ */
+const SIDEBAR_EXPANDED_STORAGE_KEY = 'sw-admin-menu-sidebar-expanded';
+localStorage.removeItem('sw-admin-menu-expanded');
+
 const adminMenuStore = Shopware.Store.register({
     id: 'adminMenu',
 
@@ -28,7 +35,7 @@ const adminMenuStore = Shopware.Store.register({
         /**
          * The expanded state of the sidebar menu
          */
-        isExpanded: localStorage.getItem('sw-admin-menu-expanded') !== 'false',
+        isExpanded: localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY) !== 'false',
         /**
          * The entries that are currently expanded in the sidebar menu
          */
@@ -79,14 +86,14 @@ const adminMenuStore = Shopware.Store.register({
          */
         collapseSidebar() {
             this.isExpanded = false;
-            localStorage.setItem('sw-admin-menu-expanded', 'false');
+            localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, 'false');
         },
         /**
          * Expands the sidebar menu
          */
         expandSidebar() {
             this.isExpanded = true;
-            localStorage.setItem('sw-admin-menu-expanded', 'true');
+            localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, 'true');
         },
     },
 

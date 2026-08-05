@@ -599,6 +599,61 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
     });
 
+    // Favourites of deleted channels filter the search down to zero rows although channels exist
+    it('should not show the add channel menu item when only stale favourites return no channels', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const favoritesSpy = jest
+            .spyOn(Shopware.Service('salesChannelFavorites'), 'getFavoriteIds')
+            .mockReturnValue(['deleted-channel-id']);
+
+        const wrapper = await createWrapper([]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
+
+        favoritesSpy.mockRestore();
+    });
+
+    it('should close the headline action menu on route change', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.$options.watch['$route.path'].call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(false);
+    });
+
+    it('should close the headline action menu when the viewport switches to off-canvas mode', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(false);
+    });
+
+    it('should keep the headline action menu open when the viewport switches back to desktop', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.isMobileViewport = false;
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(true);
+    });
+
     it('should open the headline action menu beside the rail while the sidebar is collapsed', async () => {
         Shopware.Store.get('adminMenu').collapseSidebar();
 

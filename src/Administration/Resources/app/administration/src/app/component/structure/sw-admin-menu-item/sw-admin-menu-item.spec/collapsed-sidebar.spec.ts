@@ -234,6 +234,27 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
             jest.useRealTimers();
         });
 
+        // Focus does not bubble to the non-focusable row — the focusin remap must open it.
+        // No fake timers: focus opens without delay, and advancing time would fire the
+        // tooltip's mount-time auto-started hover timers, hiding it again.
+        it('should open the tooltip when the link inside the row receives keyboard focus', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    entry: leafEntry,
+                    sidebarExpanded: false,
+                },
+            });
+
+            const row = wrapper.find('.sw-admin-menu__navigation-item-row');
+            const tooltip = document.getElementById(row.attributes('aria-describedby') as string);
+
+            expect(tooltip!.parentElement!.style.display).toBe('none');
+
+            await wrapper.find('.sw-admin-menu__navigation-link').trigger('focusin');
+
+            expect(tooltip!.parentElement!.style.display).not.toBe('none');
+        });
+
         it('should not bind the tooltip trigger while the sidebar is expanded', async () => {
             const wrapper = await createWrapper({
                 props: {

@@ -857,7 +857,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
 
-            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
             await flushPromises();
 
             expect(wrapper.vm.flyoutEntries).toHaveLength(0);
@@ -905,7 +905,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             // a handler seeing only the bubbled event runs after the flyout already closed
             expect(wrapper.vm.isFlyoutPinned).toBe(true);
 
-            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
             await flushPromises();
 
             expect(wrapper.vm.flyoutEntries.length).toBeGreaterThan(0);
@@ -919,7 +919,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             expect(wrapper.vm.isFlyoutPinned).toBe(false);
 
-            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
             await flushPromises();
 
             expect(wrapper.vm.flyoutEntries).toHaveLength(0);
@@ -932,7 +932,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
             // List pages replace the route again later, so the pin is state, not a time window
             for (let i = 0; i < 3; i += 1) {
-                wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+                wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
                 await flushPromises();
             }
 
@@ -948,7 +948,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             findRow(flyout, false).querySelector('.sw-admin-menu__navigation-link').click();
             expect(wrapper.vm.isFlyoutPinned).toBe(false);
 
-            wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+            wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
             await flushPromises();
 
             expect(wrapper.vm.flyoutEntries).toHaveLength(0);
@@ -995,7 +995,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         wrapper.vm.viewportWidth = 375;
         wrapper.vm.isOffCanvasShown = true;
 
-        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
         await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
@@ -1008,9 +1008,57 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         wrapper.vm.viewportWidth = 1920;
         wrapper.vm.isOffCanvasShown = true;
 
-        wrapper.vm.$options.watch['$route.fullPath'].handler.call(wrapper.vm);
+        wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
         await flushPromises();
 
         expect(wrapper.vm.isOffCanvasShown).toBe(true);
+    });
+
+    // Tapping the entry of the current route aborts as redundant navigation — no route change fires
+    it('should close the off-canvas menu when a navigation link is clicked on mobile', async () => {
+        wrapper.vm.viewportWidth = 375;
+        wrapper.vm.isOffCanvasShown = true;
+        await flushPromises();
+
+        const link = wrapper.find('a.sw-admin-menu__navigation-link');
+        expect(link.exists()).toBe(true);
+
+        await link.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
+    it('should close the user actions menu when the viewport switches to off-canvas mode', async () => {
+        wrapper.vm.viewportWidth = 1920;
+        await flushPromises();
+
+        wrapper.vm.isUserActionsActive = true;
+
+        wrapper.vm.viewportWidth = 375;
+        await flushPromises();
+
+        expect(wrapper.vm.isUserActionsActive).toBe(false);
+    });
+
+    it('should close the user actions menu on route change', async () => {
+        wrapper.vm.isUserActionsActive = true;
+
+        wrapper.vm.$options.watch['$route.path'].handler.call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.isUserActionsActive).toBe(false);
+    });
+
+    it('should provide an accessible name for the user actions toggle', async () => {
+        Shopware.Store.get('session').setCurrentUser({
+            firstName: 'Max',
+            lastName: 'Mustermann',
+            admin: true,
+        });
+        await flushPromises();
+
+        const toggle = wrapper.find('.sw-admin-menu__user-actions-toggle');
+        expect(toggle.attributes('aria-label')).toBe('Max Mustermann, global.sw-admin-menu.administrator');
     });
 });

@@ -165,6 +165,16 @@ The admin menu only supports up to three levels of nesting.`,
             return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
         },
 
+        userActionsAriaLabel() {
+            // The collapsed sidebar hides the visible user name, leaving the avatar button unnamed
+            return [
+                this.userName,
+                this.userTitle,
+            ]
+                .filter(Boolean)
+                .join(', ');
+        },
+
         avatarUrl() {
             if (this.currentUser && this.currentUser.avatarMedia) {
                 return this.currentUser.avatarMedia.url;
@@ -222,20 +232,19 @@ The admin menu only supports up to three levels of nesting.`,
             if (!isMobile && this.isOffCanvasShown) {
                 this.closeOffCanvas();
             }
-        },
-        '$route.fullPath': {
-            handler() {
-                // Ensure an open flyout closes once the page changes
-                if (!this.isExpanded && this.flyoutEntries.length && !this.isFlyoutPinned) {
-                    // Ensure the keyboard focus stays on the new page
-                    this.deactivateFlyoutFocusTrap(false);
-                    this.onFlyoutLeave();
-                }
 
-                // Make sure the mobile off-canvas panel closes so the new page is not left hidden behind it
-                if (this.isMobileViewport && this.isOffCanvasShown) {
-                    this.closeOffCanvas();
-                }
+            // The teleported user menu would float detached over the hidden off-canvas rail otherwise
+            if (isMobile) {
+                this.isUserActionsActive = false;
+            }
+        },
+        // Query-insensitive on purpose: listing pagination/sorting must not re-expand a collapsed branch
+        '$route.path': {
+            handler() {
+                this.closeNavigationOverlays();
+
+                // The teleported user menu would survive the page change otherwise
+                this.isUserActionsActive = false;
 
                 // Ensure the branch owning the new page is open, once the route change has rendered
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
@@ -325,6 +334,25 @@ The admin menu only supports up to three levels of nesting.`,
         closeOffCanvas() {
             this.isOffCanvasShown = false;
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+        },
+
+        closeNavigationOverlays() {
+            // Ensure an open flyout closes once the page changes
+            if (!this.isExpanded && this.flyoutEntries.length && !this.isFlyoutPinned) {
+                // Ensure the keyboard focus stays on the new page
+                this.deactivateFlyoutFocusTrap(false);
+                this.onFlyoutLeave();
+            }
+
+            // Make sure the mobile off-canvas panel closes so the new page is not left hidden behind it
+            if (this.isMobileViewport && this.isOffCanvasShown) {
+                this.closeOffCanvas();
+            }
+        },
+
+        onNavigationLinkClicked() {
+            // Tapping the current route's entry aborts as redundant navigation, so no route watcher fires
+            this.closeNavigationOverlays();
         },
 
         dismissOffCanvas() {
@@ -428,6 +456,7 @@ The admin menu only supports up to three levels of nesting.`,
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
                 Shopware.Store.get('shopwareApps').apps = modules;
+                Shopware.Store.get('shopwareApps').appsLoaded = true;
 
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
             });

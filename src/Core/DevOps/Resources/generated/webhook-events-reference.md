@@ -2,6 +2,7 @@
 
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
+|`after_sales.document.deleted` | Triggers when a document is deleted | - | {"documentId":"string","documentNumber":"string","deletedAt":"string","orderId":"string","orderVersionId":"string"}
 |`after_sales.document.generated` | Triggers when a document is generated or uploaded for an order | - | {"documentId":"string","documentType":"string","documentNumber":"string","orderId":"string","orderVersionId":"string"}
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | - | {"customer":"object"}

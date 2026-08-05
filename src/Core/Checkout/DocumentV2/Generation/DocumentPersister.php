@@ -223,7 +223,7 @@ final readonly class DocumentPersister
         Context $context,
     ): void {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
+            ->addFilter(new EqualsFilter('config.documentNumber', $documentNumber))
             ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
             ->setLimit(1);
 

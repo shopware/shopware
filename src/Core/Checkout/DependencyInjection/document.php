@@ -301,6 +301,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('media.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
 

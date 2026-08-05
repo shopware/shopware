@@ -109,9 +109,14 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
-### New `after_sales.document.generated` business event
+### New after-sales document lifecycle business events
 
-A new event `Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent` (`after_sales.document.generated`) is dispatched when a document is generated or uploaded for an order. The event exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`, and is selectable as a trigger in Flow Builder.
+Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
+
+- `after_sales.document.generated` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
+- `after_sales.document.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
+
+Both events are selectable as triggers in Flow Builder. They are the first of a planned set of after-sales document lifecycle events (shopware/shopware#17571); `after_sales.document.generated` currently fires from the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`), with more originating paths planned. The Document V2 pipeline itself remains experimental and is not part of the backwards compatibility promise.
 
 ## Administration
 

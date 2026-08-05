@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -274,6 +275,62 @@ class DocumentPersisterTest extends TestCase
         [$persister] = $this->createPersister($documentTypeId, existingDocumentIds: [$existingDocumentId]);
 
         $this->expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            $this->context,
+        );
+    }
+
+    public function testPersistUniquenessCheckFiltersByConfigDocumentNumber(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            static function (Criteria $criteria): array {
+                $filters = $criteria->getFilters();
+
+                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                static::assertSame('config.documentNumber', $filters[0]->getField());
+                static::assertSame('12345', $filters[0]->getValue());
+
+                return [];
+            },
+            static function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ): DocumentCollection {
+                $document = new DocumentEntity();
+                $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
+
+                return new DocumentCollection([$document]);
+            },
+        ], new DocumentDefinition());
+
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
+            new DocumentFileCollection([]),
+        ], new DocumentFileDefinition());
+
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
+            [$documentTypeId],
+        ], new DocumentTypeDefinition());
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
+
+        $persister = new DocumentPersister(
+            $documentRepository,
+            $documentFileRepository,
+            $documentTypeRepository,
+            $mediaService,
+            static::createStub(EventDispatcherInterface::class),
+        );
 
         $persister->persist(
             $this->generationRequest,

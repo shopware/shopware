@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -46,6 +47,8 @@ final class BusinessEvents
     public const CHECKOUT_ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
 
     public const AFTER_SALES_DOCUMENT_GENERATED = DocumentGeneratedEvent::EVENT_NAME;
+
+    public const AFTER_SALES_DOCUMENT_DELETED = DocumentDeletedEvent::EVENT_NAME;
 
     public const CUSTOMER_ACCOUNT_RECOVER_REQUEST = CustomerAccountRecoverRequestEvent::EVENT_NAME;
 

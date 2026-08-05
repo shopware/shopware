@@ -686,11 +686,11 @@ This also means that the following exceptions are not thrown anymore and were re
 * `ThemeException::themeMediaStillInUse`
 * `SalesChannelException::salesChannelDomainInUse`
 
-## Removal of `CartBehavior::isRecalculation`
+## Removal of `CartBehavior` recalculation API
 
-`CartBehavior::isRecalculation` was removed.
-Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
-Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+The `$isRecalculation` constructor parameter and `CartBehavior::isRecalculation()` were removed.
+Use the applicable granular permission from `Shopware\Core\Checkout\CheckoutPermissions` when constructing `CartBehavior` instead.
+Create new `CartBehavior` instances with the permissions from the `SalesChannelContext`.
 
 ## Removal of `NavigationRoute::buildName()`
 

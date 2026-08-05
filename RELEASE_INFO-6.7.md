@@ -46,6 +46,10 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### `CartBehavior` recalculation API is deprecated
+
+The `$isRecalculation` constructor parameter and `CartBehavior::isRecalculation()` are deprecated and will be removed in Shopware 6.8. Use the applicable `CheckoutPermissions` flag when constructing `CartBehavior` instead.
+
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.

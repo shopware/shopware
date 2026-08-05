@@ -316,7 +316,16 @@ class QueryStringParser
         }
 
         $now = Clock::get()->now();
-        $dateInterval = new \DateInterval($queryValue);
+
+        try {
+            $dateInterval = new \DateInterval($queryValue);
+        } catch (\Exception) {
+            throw DataAbstractionLayerException::invalidFilterQuery(
+                \sprintf('Parameter "value" for %s filter must be a valid date interval, got "%s".', $type, $queryValue),
+                $path . '/value'
+            );
+        }
+
         if ($type === 'since') {
             $dateInterval->invert = 1;
         }

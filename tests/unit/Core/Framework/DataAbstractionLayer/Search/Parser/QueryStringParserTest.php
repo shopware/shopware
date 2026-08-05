@@ -17,7 +17,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -76,7 +77,7 @@ class QueryStringParserTest extends TestCase
     public function testParser(array $payload, Filter $expected): void
     {
         $result = QueryStringParser::fromArray(
-            $this->getDefinition(),
+            $this->getRegistry()->getByEntityName(ProductDefinition::ENTITY_NAME),
             $payload,
             new SearchRequestException()
         );
@@ -539,29 +540,67 @@ class QueryStringParserTest extends TestCase
         yield 'time since neq' => [['type' => 'since', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'neq']], false, 'lt'];
     }
 
-    #[DataProvider('invalidRelativeTimeOperatorProvider')]
-    public function testRelativeTimeToDateFilterWithInvalidOperator(string $type, string $operator): void
+    public function testRelativeTimeToDateFilterWithInvalidOperator(): void
     {
         $this->expectExceptionObject(DataAbstractionLayerException::invalidFilterQuery(
-            \sprintf('Parameter "parameter.operator" for %s filter must be one of: lte, gte, lt, gt, eq, neq', $type),
-            '/parameter'
+            'Parameter "parameter.operator" for until filter must be one of: lte, gte, lt, gt, eq, neq'
         ));
 
-        QueryStringParser::fromArray(
-            new ProductDefinition(),
-            ['type' => $type, 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => $operator]],
-            new SearchRequestException()
-        );
+        try {
+            QueryStringParser::fromArray(
+                new ProductDefinition(),
+                ['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'foo']],
+                new SearchRequestException()
+            );
+        } catch (InvalidFilterQueryException $e) {
+            static::assertSame('/parameters/operator', $e->getParameters()['path']);
+
+            throw $e;
+        }
     }
 
-    /**
-     * @return \Generator<string, array{string, string}>
-     */
-    public static function invalidRelativeTimeOperatorProvider(): \Generator
+    public function testRelativeTimeToDateFilterWithInvalidInterval(): void
     {
-        yield 'unknown operator for until' => ['until', 'foo'];
-        yield 'unknown operator for since' => ['since', 'foo'];
-        yield 'range operator not supported for relative time' => ['until', 'gtee'];
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidFilterQuery(
+            'Parameter "value" for until filter must be a valid date interval, got "P5X".'
+        ));
+
+        try {
+            QueryStringParser::fromArray(
+                new ProductDefinition(),
+                ['type' => 'until', 'field' => 'foo', 'value' => 'P5X', 'parameters' => ['operator' => 'gt']],
+                new SearchRequestException()
+            );
+        } catch (InvalidFilterQueryException $e) {
+            static::assertSame('/value', $e->getParameters()['path']);
+
+            throw $e;
+        }
+    }
+
+    public function testRelativeTimeToDateFilterWithInvalidIntervalIsAggregatedForNestedFilters(): void
+    {
+        $exception = new SearchRequestException();
+
+        $result = QueryStringParser::fromArray(
+            new ProductDefinition(),
+            [
+                'type' => 'and',
+                'queries' => [
+                    ['type' => 'until', 'field' => 'foo', 'value' => 'foo', 'parameters' => ['operator' => 'gt']],
+                    ['type' => 'equals', 'field' => 'name', 'value' => 'bar'],
+                ],
+            ],
+            $exception
+        );
+
+        // the invalid nested filter is skipped, the valid one is still parsed
+        static::assertEquals(new AndFilter([new EqualsFilter('product.name', 'bar')]), $result);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        $errors = iterator_to_array($exception->getErrors());
+        static::assertCount(1, $errors);
+        static::assertSame('/queries/0/value', $errors[0]['source']['pointer'] ?? null);
     }
 
     private function negateOperator(string $operator): string
@@ -573,13 +612,6 @@ class QueryStringParserTest extends TestCase
             RangeFilter::GTE => RangeFilter::LTE,
             default => $operator,
         };
-    }
-
-    private function getDefinition(): EntityDefinition
-    {
-        $instanceRegistry = $this->getRegistry();
-
-        return $instanceRegistry->getByEntityName(ProductDefinition::ENTITY_NAME);
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

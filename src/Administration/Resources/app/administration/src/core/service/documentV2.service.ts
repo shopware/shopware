@@ -20,11 +20,7 @@ interface DocumentEntityConfig {
  * @sw-package after-sales
  * @private
  */
-export type  {
-    DocumentConfig,
-    DeliveryNoteConfig,
-    DocumentEntityConfig,
-}
+export type { DocumentConfig, DeliveryNoteConfig, DocumentEntityConfig };
 
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
@@ -170,7 +166,9 @@ export default class DocumentV2Service {
     }
 
     getDocumentNumbersByTypes(documents: Entity<'document'>[], documentTypes: string[]): string[] {
-        return this.filterDocumentsByTypes(documents, documentTypes).map((document) => document.documentNumber).filter((documentNumber): documentNumber is string => !!documentNumber);
+        return this.filterDocumentsByTypes(documents, documentTypes)
+            .map((document) => document.documentNumber)
+            .filter((documentNumber): documentNumber is string => !!documentNumber);
     }
 
     getFileFormatSnippet(format: string): string {

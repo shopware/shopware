@@ -9,7 +9,6 @@ import './sw-order-create-document-modal.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-
 /**
  * @private
  * @sw-package after-sales
@@ -63,7 +62,7 @@ export default Component.wrapComponentConfig({
         documentTypeCollection: EntityCollection<'document_type'> | null;
         documentTypeId: string | null;
         documentTypes: Entity<'document_type'>[];
-        referencedDocumentNumber: string | null,
+        referencedDocumentNumber: string | null;
         isLoading: boolean;
         supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
@@ -141,13 +140,12 @@ export default Component.wrapComponentConfig({
 
             const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
 
-            return this.documentV2Service.sortFileFormats(formats)
-                .map((format) => {
-                    return {
-                        label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
-                        value: format,
-                    };
-                });
+            return this.documentV2Service.sortFileFormats(formats).map((format) => {
+                return {
+                    label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                    value: format,
+                };
+            });
         },
 
         isModalLoading(): boolean {
@@ -169,7 +167,10 @@ export default Component.wrapComponentConfig({
                 return [];
             }
 
-            const referencedDocumentNumbers = this.isCreditNoteDocument || this.isStornoDocument ? this.documentV2Service.getDocumentNumbersByTypes(this.order.documents, INVOICE_DOCUMENT_TYPES) : [];
+            const referencedDocumentNumbers =
+                this.isCreditNoteDocument || this.isStornoDocument
+                    ? this.documentV2Service.getDocumentNumbersByTypes(this.order.documents, INVOICE_DOCUMENT_TYPES)
+                    : [];
 
             return [...new Set(referencedDocumentNumbers)].sort().map((documentNumber) => {
                 return {
@@ -311,12 +312,7 @@ export default Component.wrapComponentConfig({
                 this.documentConfig.documentNumber = documentNumber;
             }
 
-            this.$emit(
-                'document-create',
-                this.documentConfig,
-                additionalAction,
-                this.getReferencedDocumentId(),
-            );
+            this.$emit('document-create', this.documentConfig, additionalAction, this.getReferencedDocumentId());
         },
 
         onPreview(format: string | null = null): void {
@@ -341,10 +337,8 @@ export default Component.wrapComponentConfig({
             }
 
             return (
-                this.order.documents.find(
-                    (document) =>
-                        document.documentNumber === this.referencedDocumentNumber,
-                )?.id ?? null
+                this.order.documents.find((document) => document.documentNumber === this.referencedDocumentNumber)?.id ??
+                null
             );
         },
     },

@@ -585,14 +585,16 @@ export default {
 
                     this.downloadDocument(documentId, deepLinkCode, format);
                 } else if (additionalAction === 'send') {
-                    await this.documentRepository.get(documentId, Shopware.Context.api, this.documentCriteria).then((documentData) => {
-                        if (!documentData) {
-                            return;
-                        }
+                    await this.documentRepository
+                        .get(documentId, Shopware.Context.api, this.documentCriteria)
+                        .then((documentData) => {
+                            if (!documentData) {
+                                return;
+                            }
 
-                        this.sendDocument = documentData;
-                        this.showSendDocumentModal = true;
-                    });
+                            this.sendDocument = documentData;
+                            this.showSendDocumentModal = true;
+                        });
                 }
 
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
@@ -630,14 +632,16 @@ export default {
                 }
 
                 if (additionalAction === 'send') {
-                    await this.documentRepository.get(documentId, Shopware.Context.api, this.documentCriteria).then((documentData) => {
-                        if (!documentData) {
-                            return;
-                        }
+                    await this.documentRepository
+                        .get(documentId, Shopware.Context.api, this.documentCriteria)
+                        .then((documentData) => {
+                            if (!documentData) {
+                                return;
+                            }
 
-                        this.sendDocument = documentData;
-                        this.showSendDocumentModal = true;
-                    });
+                            this.sendDocument = documentData;
+                            this.showSendDocumentModal = true;
+                        });
                 }
 
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
@@ -780,7 +784,9 @@ export default {
         },
 
         availableFormatsFilter(item) {
-            return this.getDocumentFileFormats(item).map((format) => this.getDocumentFormatLabel(format)).join(', ');
+            return this.getDocumentFileFormats(item)
+                .map((format) => this.getDocumentFormatLabel(format))
+                .join(', ');
         },
     },
 };

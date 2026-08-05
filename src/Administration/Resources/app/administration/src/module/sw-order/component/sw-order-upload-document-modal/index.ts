@@ -131,13 +131,12 @@ export default Component.wrapComponentConfig({
 
             const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
 
-            return this.documentV2Service.sortFileFormats(formats)
-                .map((format) => {
-                    return {
-                        label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
-                        value: format,
-                    };
-                });
+            return this.documentV2Service.sortFileFormats(formats).map((format) => {
+                return {
+                    label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                    value: format,
+                };
+            });
         },
 
         isModalLoading(): boolean {

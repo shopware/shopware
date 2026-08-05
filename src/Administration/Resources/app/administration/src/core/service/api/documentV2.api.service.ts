@@ -46,7 +46,7 @@ type CreateDocumentPayload = DocumentRequestPayload & {
 };
 
 type UploadDocumentPayload = DocumentRequestPayload & {
-    orderVersionId: string,
+    orderVersionId: string;
     format: string;
     mediaId: string | null;
 };
@@ -91,7 +91,7 @@ export default class DocumentV2ApiService extends ApiService {
         additionalHeaders: Record<string, string> = {},
     ): Promise<AxiosResponse<DocumentCreateResponse> | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
-        const payload: CreateDocumentPayload =  {
+        const payload: CreateDocumentPayload = {
             orderId,
             documentType: documentTypeName,
             formats,

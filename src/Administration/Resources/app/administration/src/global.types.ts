@@ -258,7 +258,7 @@ declare global {
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
         documentV2ApiService: DocumentV2ApiService;
-        documentV2Service: DocumentV2Service,
+        documentV2Service: DocumentV2Service;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;

@@ -78,6 +78,9 @@ Product specific line item rule conditions (manufacturer, category, tags, proper
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
+### `CartBehavior` recalculation API is deprecated
+
+The `$isRecalculation` constructor parameter and `CartBehavior::isRecalculation()` are deprecated and will be removed in Shopware 6.8. Use the applicable `CheckoutPermissions` flag when constructing `CartBehavior` instead.
 
 ### Media path cache busting is configurable
 

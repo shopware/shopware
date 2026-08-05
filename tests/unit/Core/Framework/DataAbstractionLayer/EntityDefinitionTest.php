@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
@@ -20,6 +22,30 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(EntityDefinition::class)]
 class EntityDefinitionTest extends TestCase
 {
+    public function testConstructorSignalsDeprecationWhenCalledByChildConstructor(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: ' . Feature::deprecatedMethodMessage(EntityDefinition::class, '__construct', 'v6.8.0.0')
+        ));
+
+        new class extends EntityDefinition {
+            public function __construct()
+            {
+                parent::__construct();
+            }
+
+            public function getEntityName(): string
+            {
+                return 'test-definition';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection();
+            }
+        };
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFieldsLegacyBehaviour(): void
     {

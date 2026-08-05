@@ -3536,11 +3536,6 @@ parameters:
 			path: src/Core/System/User/Aggregate/UserConfig/UserConfigEntity.php
 
 		-
-			message: "#^Expected domain exception class Shopware\\\\Core\\\\System\\\\User\\\\UserException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
-			count: 4
-			path: src/Core/System/User/Api/UserValidationController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\UserCollection\\:\\:getLocaleIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/User/UserCollection.php

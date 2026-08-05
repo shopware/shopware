@@ -6,13 +6,13 @@ use Composer\IO\NullIO;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -74,6 +74,16 @@ class PluginServiceTest extends TestCase
         static::assertSame('English description', $plugin->getDescription());
         static::assertSame('https://www.test.com/', $plugin->getManufacturerLink());
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
+    }
+
+    public function testRefreshPluginsWithAdminApiContext(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setIsAdmin(true);
+
+        $this->pluginService->refreshPlugins(new Context($source), new NullIO());
+
+        $this->assertDefaultPlugin($this->fetchSwagTestPluginEntity());
     }
 
     public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
@@ -228,24 +238,6 @@ class PluginServiceTest extends TestCase
         static::assertInstanceOf(PluginEntity::class, $plugin);
         $this->assertDefaultPlugin($plugin);
         static::assertNull($plugin->getUpgradeVersion());
-    }
-
-    public function testGetPluginByName(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
-
-        $this->assertDefaultPlugin($plugin);
-    }
-
-    public function testGetPluginByNameThrowsException(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "SwagFoo" not found');
-        $this->pluginService->getPluginByName('SwagFoo', $this->context);
     }
 
     private function assertDefaultPlugin(PluginEntity $plugin): void

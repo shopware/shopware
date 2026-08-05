@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -58,8 +59,8 @@ class PluginDefinition extends EntityDefinition
             new StringField('composer_name', 'composerName'),
             (new JsonField('autoload', 'autoload'))->addFlags(new Required()),
             new BoolField('active', 'active'),
-            new BoolField('managed_by_composer', 'managedByComposer'),
-            new StringField('path', 'path'),
+            (new BoolField('managed_by_composer', 'managedByComposer'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('path', 'path'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new StringField('author', 'author'),
             new StringField('copyright', 'copyright'),
             new StringField('license', 'license'),

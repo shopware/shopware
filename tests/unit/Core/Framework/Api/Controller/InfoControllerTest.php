@@ -19,8 +19,10 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -126,6 +128,14 @@ class InfoControllerTest extends TestCase
         static::assertIsArray($data);
         static::assertArrayHasKey('foo', $data);
         static::assertSame('bar', $data['foo']);
+    }
+
+    public function testQueueRouteRequiresMessageQueueStatsReadPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(InfoController::class)->get('api.info.queue');
+
+        static::assertNotNull($route, \sprintf('Route "api.info.queue" is not defined on %s', InfoController::class));
+        static::assertSame(['message_queue_stats:read'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     private function createController(): InfoController

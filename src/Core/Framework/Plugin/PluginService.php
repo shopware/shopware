@@ -57,7 +57,7 @@ class PluginService
             $info = $pluginFromFileSystem->getComposerPackage();
 
             $autoload = $info->getAutoload();
-            if (empty($autoload) || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {
+            if ($autoload === [] || (($autoload['psr-4'] ?? []) === [] && ($autoload['psr-0'] ?? []) === [])) {
                 $errors->add(new PluginComposerJsonInvalidException(
                     $pluginPath . '/composer.json',
                     ['Neither a PSR-4 nor PSR-0 autoload information is given.']
@@ -118,13 +118,15 @@ class PluginService
         }
 
         if ($plugins !== []) {
-            foreach ($plugins as $plugin) {
-                try {
-                    $this->pluginRepo->upsert([$plugin], $shopwareContext);
-                } catch (ShopwareHttpException $exception) {
-                    $errors->set($plugin['name'], $exception);
+            $shopwareContext->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($plugins, $errors): void {
+                foreach ($plugins as $plugin) {
+                    try {
+                        $this->pluginRepo->upsert([$plugin], $context);
+                    } catch (ShopwareHttpException $exception) {
+                        $errors->set($plugin['name'], $exception);
+                    }
                 }
-            }
+            });
         }
 
         // delete plugins, which are in storage but not in filesystem anymore
@@ -134,7 +136,9 @@ class PluginService
             foreach ($deletePluginIds as $deletePluginId) {
                 $deletePlugins[] = ['id' => $deletePluginId];
             }
-            $this->pluginRepo->delete($deletePlugins, $shopwareContext);
+            $shopwareContext->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePlugins): void {
+                $this->pluginRepo->delete($deletePlugins, $context);
+            });
         }
 
         return $errors;

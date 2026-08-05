@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(ModuleFeatureDefinition::class)]
 #[Package('framework')]
+#[CoversClass(ModuleFeatureDefinition::class)]
 class ModuleFeatureDefinitionTest extends TestCase
 {
     private ModuleFeatureDefinition $definition;

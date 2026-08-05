@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
@@ -214,6 +215,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Connection::class)
         ->public()
         ->factory([Kernel::class, 'getConnection']);
+
+    $services->set(ReplicaConnectionResetter::class)
+        ->args([service(Connection::class)])
+        ->tag('kernel.event_subscriber');
 
     $services->set(QueryDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);

@@ -63,6 +63,10 @@ The new privileges are part of the existing "Plugin maintain" (`system:app:chang
 
 ## Core
 
+### Primary/replica connections switch back to the replica between requests
+
+When database replicas are configured (`DATABASE_REPLICA_*_URL`), the connection now keeps the replica connection open next to the primary one and switches back to the replica before each request and messenger message is handled. Previously a request that wrote to the primary pinned the connection to the primary — in long running runtimes (for example FrankenPHP worker mode) for the whole lifetime of the worker, which silently disabled replica reads. A worker that has written to the primary may now hold two open database connections instead of one; add `?keepReplica=0` to the `DATABASE_URL` to restore the previous behaviour.
+
 ### Deprecated XML configuration
 
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.

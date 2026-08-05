@@ -50,6 +50,7 @@
             />
             {% endblock %}
 
+            {% block sw_profile_index_general_image %}
             <template v-if="acl.can('media.creator')">
                 {% block sw_profile_index_general_image_content %}
                 <sw-upload-listener
@@ -72,9 +73,15 @@
                 />
                 {% endblock %}
             </template>
+            {% endblock %}
         </div>
     </mt-card>
     {% endblock %}
+
+    <!-- Keeps the injection points of the removed profile image card available for apps -->
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image__before" />
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image" />
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image__after" />
 
     {% block sw_profile_index_general_user_interface %}
     <mt-card

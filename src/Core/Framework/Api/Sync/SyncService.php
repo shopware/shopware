@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -32,6 +33,7 @@ class SyncService implements SyncServiceInterface
         private readonly DefinitionInstanceRegistry $registry,
         private readonly EntitySearcherInterface $searcher,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly AclCriteriaValidator $criteriaValidator,
         private readonly SyncFkResolver $syncFkResolver
     ) {
     }
@@ -151,6 +153,11 @@ class SyncService implements SyncServiceInterface
 
         if (empty($criteria->getFilters())) {
             throw ApiException::invalidSyncCriteriaException($operation->getKey());
+        }
+
+        $missingPrivileges = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
+        if ($missingPrivileges !== []) {
+            throw ApiException::missingPrivileges($missingPrivileges);
         }
 
         $ids = $this->searcher->search($definition, $criteria, $context);

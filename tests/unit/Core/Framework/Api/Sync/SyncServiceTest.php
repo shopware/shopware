@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
@@ -70,6 +71,7 @@ class SyncServiceTest extends TestCase
             ),
             $this->createMock(EntitySearcherInterface::class),
             $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
@@ -140,6 +142,7 @@ class SyncServiceTest extends TestCase
                 new CriteriaArrayConverter(new AggregationParser()),
                 100
             ),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
@@ -194,6 +197,7 @@ class SyncServiceTest extends TestCase
             ),
             $this->createMock(EntitySearcherInterface::class),
             $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
@@ -274,6 +278,7 @@ class SyncServiceTest extends TestCase
             ),
             $searcher,
             $criteriaBuilder,
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 

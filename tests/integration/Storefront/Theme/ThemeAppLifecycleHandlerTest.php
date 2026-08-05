@@ -63,7 +63,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         $this->appLifecycle->uninstall(
             $app->getName(),
-            ['id' => $app->getId(), 'roleId' => $app->getAclRoleId()],
+            ['id' => $app->getId()],
             $this->context,
             $keepUserData
         );

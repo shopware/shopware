@@ -1,0 +1,53 @@
+name: Check milestone label
+# Rule and reasoning: .github/bin/js/milestone-label.ts
+#
+# merge_group is the gate that matters — GitHub retargets a stacked PR to trunk
+# without emitting a pull_request event, so the PR-level run can be green from
+# before the retarget. Both report the same job name, so one required check covers
+# the PR and the queue.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+      - labeled
+      - unlabeled
+  merge_group:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    name: Milestone label
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that judges it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          sparse-checkout: .github/bin/js
+
+      # Absent wherever the rule has not landed yet, e.g. a release branch it was
+      # never backported to.
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No milestone label rule on ${GITHUB_BASE_REF:-the base branch} yet, nothing to check."
+          fi
+
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { checkMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await checkMilestoneLabel({ github, core, context })

@@ -109,6 +109,7 @@ const config: Config = {
     ],
 
     setupFilesAfterEnv: [
+        resolve(join(__dirname, '/test/_setup/setup-feature-flags.js')),
         resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),

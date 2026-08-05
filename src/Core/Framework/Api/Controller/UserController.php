@@ -104,7 +104,10 @@ class UserController extends AbstractController
             throw ApiException::missingPrivileges(['user:update']);
         }
 
-        return $this->upsertUser($userId, $request, $context, $responseFactory);
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): Response => $this->upsertUser($userId, $request, $context, $responseFactory),
+        );
     }
 
     #[Route(

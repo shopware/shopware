@@ -185,6 +185,10 @@ export default Shopware.Component.wrapComponentConfig({
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
+
+        allowedCategoryTypes() {
+            return ['page'];
+        },
     },
 
     created() {

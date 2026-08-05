@@ -27,9 +27,9 @@ use Symfony\Component\Routing\Route;
 #[CoversClass(OrderConverterController::class)]
 class OrderConverterControllerTest extends TestCase
 {
-    public function testConvertToCartRouteDeclaresOrderUpdatePrivilege(): void
+    public function testConvertToCartRouteDeclaresOrderReadPrivilege(): void
     {
-        static::assertSame(['order:update'], $this->loadConvertToCartRoute()->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+        static::assertSame(['order:read'], $this->loadConvertToCartRoute()->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     public function testOrderNotFoundException(): void

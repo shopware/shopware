@@ -20,9 +20,9 @@ class OrderConverterControllerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    public function testConvertToCartIsAllowedForOrderEditor(): void
+    public function testConvertToCartIsAllowedForOrderViewer(): void
     {
-        $browser = $this->getBrowser(true, [], ['order:read', 'order:update']);
+        $browser = $this->getBrowser(true, [], ['order:read']);
         $browser->jsonRequest('POST', \sprintf('/api/_action/order/%s/convert-to-cart/', Uuid::randomHex()));
 
         // the order does not exist, but the request must pass the privilege check to get there

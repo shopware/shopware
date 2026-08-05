@@ -24,7 +24,7 @@
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "messageGeneralError": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.",
-      "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie {seconds} Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
+      "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warte {seconds} Sekunden, bevor Du erneut versuchst, Dich anzumelden.",
       "forgottenPasswordLink": "Passwort vergessen?",
       "orContinueWith": "oder weiter mit"
     },

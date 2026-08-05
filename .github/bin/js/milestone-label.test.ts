@@ -212,6 +212,66 @@ function mergeGroupToolkit(
     };
 }
 
+/** Toolkit stub for the single pull-request path (pull_request_target / merge_group's sibling). */
+function pullRequestToolkit(eventName: string, pull: { base: string; labels: string[]; draft?: boolean; sha?: string }) {
+    const statuses: { state: string; description: string }[] = [];
+
+    return {
+        statuses,
+        toolkit: {
+            github: {
+                graphql: async () => ({
+                    repository: { refs: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: VERSION_BRANCHES.map((name) => ({ name })) } },
+                }),
+                rest: {
+                    repos: {
+                        createCommitStatus: async ({ state, description, context: ctx }: { state: string; description: string; context: string }) => {
+                            assert.equal(ctx, STATUS_CONTEXT);
+                            statuses.push({ state, description });
+
+                            return {};
+                        },
+                    },
+                },
+            },
+            core: {
+                info: () => {},
+                warning: () => {},
+                error: () => {},
+                setFailed: () => { throw new Error('the job must stay green; the verdict belongs in the commit status'); },
+                summary: { addRaw: () => ({ write: async () => {} }) },
+            },
+            context: {
+                eventName,
+                repo: { owner: 'shopware', repo: 'shopware' },
+                payload: {
+                    repository: { default_branch: 'trunk' },
+                    pull_request: { number: 1, base: { ref: pull.base }, head: { sha: pull.sha ?? 'cccc' }, draft: pull.draft ?? false, labels: pull.labels.map((name) => ({ name })) },
+                },
+            },
+        },
+    };
+}
+
+// Locks in "anything but merge_group" rather than a literal event-name check.
+for (const eventName of ['pull_request_target', 'pull_request']) {
+    test(`the single-PR path posts the commit status on a "${eventName}" event`, async () => {
+        const { toolkit, statuses } = pullRequestToolkit(eventName, { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] });
+
+        await checkMilestoneLabel(toolkit as never);
+
+        assert.equal(statuses.length, 1);
+        assert.equal(statuses[0].state, 'failure');
+    });
+}
+
+test('the single-PR path never fails the job, even when the label is wrong', async () => {
+    const { toolkit } = pullRequestToolkit('pull_request_target', { base: 'trunk', labels: [] });
+
+    // pullRequestToolkit's setFailed throws — reaching it would fail this test.
+    await checkMilestoneLabel(toolkit as never);
+});
+
 test('the merge group gate fails a queued PR whose label is already branched', () => {
     // This is the case no pull_request event covers: GitHub retargeted the PR to
     // trunk silently, so the PR-level run never re-evaluated it.

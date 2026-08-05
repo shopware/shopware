@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
@@ -72,7 +73,7 @@ class FlowExecutorTest extends TestCase
 
     private MockObject&AbstractRuleLoader $ruleLoaderMock;
 
-    private MockObject&FlowRuleScopeBuilder $scopeBuilderMock;
+    private Stub&FlowRuleScopeBuilder $scopeBuilderMock;
 
     private MockObject&Connection $connectionMock;
 
@@ -83,7 +84,7 @@ class FlowExecutorTest extends TestCase
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->appFlowActionProviderMock = $this->createMock(AppFlowActionProvider::class);
         $this->ruleLoaderMock = $this->createMock(AbstractRuleLoader::class);
-        $this->scopeBuilderMock = $this->createMock(FlowRuleScopeBuilder::class);
+        $this->scopeBuilderMock = static::createStub(FlowRuleScopeBuilder::class);
         $this->connectionMock = $this->createMock(Connection::class);
         $this->connectionMock->method('transactional')
             ->willReturnCallback(static fn (\Closure $func) => $func());

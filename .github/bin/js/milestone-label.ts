@@ -23,10 +23,11 @@ const VERSION_BRANCH_PATTERN = /^(\d+\.\d+(?:\.\d+)*)\.x$/;
 /** Matches a full four-segment version as used in milestone labels, e.g. `6.7.13.0`. */
 const MILESTONE_VERSION_PATTERN = /^\d+\.\d+\.\d+\.\d+$/;
 
+/** `message` is the long form for the job summary, `short` the one for the commit status. */
 export type MilestoneVerdict =
-    | { status: 'ok'; message: string }
-    | { status: 'skipped'; message: string }
-    | { status: 'invalid'; message: string; expected?: string };
+    | { status: 'ok'; message: string; short: string }
+    | { status: 'skipped'; message: string; short: string }
+    | { status: 'invalid'; message: string; short: string; expected?: string };
 
 export type MilestoneLabelInput = {
     baseRefName: string;
@@ -88,19 +89,27 @@ function compareSegments(left: number[], right: number[]): number {
 
 export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, versionBranches, isDraft = false, labelerPending = false }: MilestoneLabelInput): MilestoneVerdict {
     if (labels.includes(SKIP_CHECK_LABEL)) {
-        return { status: 'skipped', message: `\`${SKIP_CHECK_LABEL}\` is set` };
+        return { status: 'skipped', message: `\`${SKIP_CHECK_LABEL}\` is set`, short: `${SKIP_CHECK_LABEL} is set` };
     }
 
     const milestoneLabels = labels.filter((label) => label.startsWith(MILESTONE_LABEL_PREFIX));
     if (milestoneLabels.length > 1) {
-        return { status: 'invalid', message: `carries ${milestoneLabels.length} milestone labels (${milestoneLabels.join(', ')}), expected exactly one` };
+        return {
+            status: 'invalid',
+            message: `carries ${milestoneLabels.length} milestone labels (${milestoneLabels.join(', ')}), expected exactly one`,
+            short: `${milestoneLabels.length} milestone labels, expected exactly one`,
+        };
     }
 
     const baseLine = releaseLineOf(baseRefName);
 
     // A stacked PR lands wherever its parent merges, so there is nothing to judge yet.
     if (baseRefName !== defaultBranch && baseLine === undefined) {
-        return { status: 'skipped', message: `base branch \`${baseRefName}\` is neither \`${defaultBranch}\` nor a version branch` };
+        return {
+            status: 'skipped',
+            message: `base branch \`${baseRefName}\` is neither \`${defaultBranch}\` nor a version branch`,
+            short: `base ${baseRefName} is neither ${defaultBranch} nor a version branch`,
+        };
     }
 
     const expected = expectedMilestone(versionBranches);
@@ -108,16 +117,25 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
 
     if (label === undefined) {
         if (isDraft) {
-            return { status: 'skipped', message: `is a draft without a \`${MILESTONE_LABEL_PREFIX}*\` label; it gets one when it is marked ready for review` };
+            return {
+                status: 'skipped',
+                message: `is a draft without a \`${MILESTONE_LABEL_PREFIX}*\` label; it gets one when it is marked ready for review`,
+                short: `draft without a ${MILESTONE_LABEL_PREFIX}* label`,
+            };
         }
 
         if (labelerPending) {
-            return { status: 'skipped', message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label yet; the labeler is still running` };
+            return {
+                status: 'skipped',
+                message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label yet; the labeler is still running`,
+                short: `no ${MILESTONE_LABEL_PREFIX}* label yet, the labeler is still running`,
+            };
         }
 
         return {
             status: 'invalid',
             message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label, so it would be released without being announced anywhere`,
+            short: expected ? `no ${MILESTONE_LABEL_PREFIX}* label, set ${MILESTONE_LABEL_PREFIX}${expected}` : `no ${MILESTONE_LABEL_PREFIX}* label`,
             // On a version branch the right patch depends on release state this module cannot see.
             expected: baseLine === undefined ? expected : undefined,
         };
@@ -125,29 +143,42 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
 
     const version = milestoneVersionOf(label);
     if (version === undefined) {
-        return { status: 'invalid', message: `\`${label}\` is not a \`${MILESTONE_LABEL_PREFIX}X.Y.Z.P\` version` };
+        return {
+            status: 'invalid',
+            message: `\`${label}\` is not a \`${MILESTONE_LABEL_PREFIX}X.Y.Z.P\` version`,
+            short: `${label} is not a ${MILESTONE_LABEL_PREFIX}X.Y.Z.P version`,
+        };
     }
 
     if (baseLine !== undefined) {
         return version.startsWith(`${baseLine}.`)
-            ? { status: 'ok', message: `\`${label}\` matches base branch \`${baseRefName}\`` }
-            : { status: 'invalid', message: `\`${label}\` does not belong to base branch \`${baseRefName}\`` };
+            ? { status: 'ok', message: `\`${label}\` matches base branch \`${baseRefName}\``, short: `${label} matches ${baseRefName}` }
+            : { status: 'invalid', message: `\`${label}\` does not belong to base branch \`${baseRefName}\``, short: `${label} does not belong to ${baseRefName}` };
     }
 
     const line = version.split('.').slice(0, 3).join('.');
     if (!versionBranches.includes(`${line}.x`)) {
-        return { status: 'ok', message: `\`${label}\` is still open — branch \`${line}.x\` does not exist yet` };
+        return {
+            status: 'ok',
+            message: `\`${label}\` is still open — branch \`${line}.x\` does not exist yet`,
+            short: `${label} is still open, branch ${line}.x does not exist yet`,
+        };
     }
 
     const backportLabel = `backport-${line}.x`;
     if (labels.includes(backportLabel)) {
-        return { status: 'ok', message: `\`${label}\` is closed for new work, but \`${backportLabel}\` routes this PR into it on purpose` };
+        return {
+            status: 'ok',
+            message: `\`${label}\` is closed for new work, but \`${backportLabel}\` routes this PR into it on purpose`,
+            short: `${label} is closed, but ${backportLabel} routes this PR there`,
+        };
     }
 
     return {
         status: 'invalid',
         message: `\`${label}\` claims the ${line}.* release, but branch \`${line}.x\` already exists — anything merged into \`${defaultBranch}\` now ships later. `
             + `Set \`${MILESTONE_LABEL_PREFIX}${expected ?? '<next version>'}\`, or add \`${backportLabel}\` if this really is meant to be backported into ${line}.x.`,
+        short: `${label} is closed for new work, set ${MILESTONE_LABEL_PREFIX}${expected ?? '<next version>'} or add ${backportLabel}`,
         expected,
     };
 }
@@ -175,6 +206,17 @@ type MergeGroupClient = {
         repos: {
             compareCommitsWithBasehead(options: { owner: string; repo: string; basehead: string }): Promise<{ data: { commits: { sha: string }[] } }>;
             listPullRequestsAssociatedWithCommit(options: { owner: string; repo: string; commit_sha: string }): Promise<{ data: { number: number }[] }>;
+        };
+    };
+};
+
+type StatusClient = {
+    rest: {
+        repos: {
+            createCommitStatus(options: {
+                owner: string; repo: string; sha: string;
+                state: 'success' | 'failure'; context: string; description: string; target_url?: string;
+            }): Promise<unknown>;
         };
     };
 };
@@ -220,6 +262,7 @@ export async function fetchVersionBranches(github: GraphqlClient, { owner, repo 
 type PullRequestPayload = {
     number: number;
     base: { ref: string };
+    head: { sha: string };
     labels?: { name: string }[];
     draft?: boolean;
 };
@@ -242,7 +285,7 @@ type PullRequestContext = {
 };
 
 type Toolkit = {
-    github: GraphqlClient & IssuesClient & MergeGroupClient;
+    github: GraphqlClient & IssuesClient & MergeGroupClient & StatusClient;
     core: Logger;
     context: PullRequestContext;
 };
@@ -331,12 +374,55 @@ async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<
     }));
 }
 
+export const STATUS_CONTEXT = 'milestone/label';
+
+/** GitHub rejects a longer status description with a 422 rather than truncating it. */
+const STATUS_DESCRIPTION_LIMIT = 140;
+
+function truncate(text: string): string {
+    return text.length <= STATUS_DESCRIPTION_LIMIT ? text : `${text.slice(0, STATUS_DESCRIPTION_LIMIT - 1)}…`;
+}
+
+/** The commit the status belongs to: the merge group for the queue, the head otherwise. */
+function statusShaOf(context: PullRequestContext): string {
+    const mergeGroup = context.payload.merge_group;
+
+    return context.eventName === 'merge_group' && mergeGroup ? mergeGroup.head_sha : pullRequestOf(context).head.sha;
+}
+
+/** The only link a commit status carries, so point it at the run holding the long form. */
+function runUrl({ owner, repo }: Repo): string | undefined {
+    const server = process.env.GITHUB_SERVER_URL;
+    const runId = process.env.GITHUB_RUN_ID;
+
+    return server && runId ? `${server}/${owner}/${repo}/actions/runs/${runId}` : undefined;
+}
+
 /**
- * Fails the run when a milestone label contradicts its base branch.
+ * Reports the verdict as a commit status instead of failing the job.
  *
+ * A failed check run is bound to its check suite and every run creates a new one, so
+ * a red result survives on the commit even after the label is fixed. A commit status
+ * is keyed by context: the next run overwrites it and the pull request turns green
+ * without a new commit.
+ */
+async function postVerdictStatus(toolkit: Toolkit, state: 'success' | 'failure', description: string): Promise<void> {
+    const { github, context } = toolkit;
+    const target = runUrl(context.repo);
+
+    await github.rest.repos.createCommitStatus({
+        ...context.repo,
+        sha: statusShaOf(context),
+        state,
+        context: STATUS_CONTEXT,
+        description: truncate(description),
+        ...(target ? { target_url: target } : {}),
+    });
+}
+
+/**
  * `merge_group` is the gate that matters: it is always evaluated against the final
- * base, while the `pull_request` run can be green from before a silent retarget.
- * Reports only, so a check never changes what it is checking.
+ * base, while the pull-request-level run can be green from before a silent retarget.
  */
 export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
     const { github, core, context } = toolkit;
@@ -344,34 +430,37 @@ export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
     const versionBranches = await fetchVersionBranches(github, context.repo);
     const pullRequests = await pullRequestsToCheck(toolkit);
 
-    const summary: string[] = [];
-    const failures: string[] = [];
-
-    for (const pullRequest of pullRequests) {
-        const verdict = evaluateMilestoneLabel({
+    const judged = pullRequests.map((pullRequest) => ({
+        pullRequest,
+        verdict: evaluateMilestoneLabel({
             baseRefName: pullRequest.baseRefName,
             defaultBranch,
             labels: pullRequest.labels,
             versionBranches,
             isDraft: pullRequest.isDraft,
             labelerPending: pullRequest.labelerPending,
-        });
+        }),
+    }));
 
-        const icon = { ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status];
-        summary.push(`${icon} #${pullRequest.number} ${verdict.message}`);
-
-        if (verdict.status === 'invalid') {
-            failures.push(`PR #${pullRequest.number} ${verdict.message}`);
-        } else {
-            core.info(`PR #${pullRequest.number} ${verdict.message}`);
-        }
+    for (const { pullRequest, verdict } of judged) {
+        core.info(`PR #${pullRequest.number} ${verdict.message}`);
     }
 
-    await core.summary.addRaw(`## Milestone label\n\n${summary.map((line) => `- ${line}`).join('\n')}\n`).write();
+    const summary = judged.map(({ pullRequest, verdict }) =>
+        `- ${{ ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status]} #${pullRequest.number} ${verdict.message}`);
+    await core.summary.addRaw(`## Milestone label\n\n${summary.join('\n')}\n`).write();
 
-    if (failures.length > 0) {
-        core.setFailed(failures.join('\n'));
-    }
+    const invalid = judged.filter(({ verdict }) => verdict.status === 'invalid');
+
+    // A single pull request speaks for itself; a batched merge group has to name the
+    // offenders, because the status is the only thing the queue shows.
+    const description = judged.length === 1
+        ? judged[0].verdict.short
+        : invalid.length === 0
+            ? `all ${judged.length} queued pull requests carry a valid milestone label`
+            : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
+
+    await postVerdictStatus(toolkit, invalid.length === 0 ? 'success' : 'failure', description);
 }
 
 /**

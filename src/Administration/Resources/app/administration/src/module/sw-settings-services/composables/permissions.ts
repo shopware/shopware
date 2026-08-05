@@ -26,9 +26,7 @@ export function __setReloadFn(fn: () => void) {
 /**
  * @private
  */
-export async function grantPermissions({
-    reload = true,
-}: { reload?: boolean } = {}) {
+export async function grantPermissions() {
     const shopwareServiceStore = useShopwareServicesStore();
     let currentRevision = shopwareServiceStore.currentRevision?.revision;
 
@@ -48,9 +46,7 @@ export async function grantPermissions({
 
     await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
 
-    if (reload) {
-        _reloadPage();
-    }
+    _reloadPage();
 }
 
 /**
@@ -83,5 +79,5 @@ export const grantPermissionsFromSdk: HandleMethod<'servicePermissionGrant'> = (
         throw new Error('Only Shopware Services can grant permissions.');
     }
 
-    return grantPermissions({ reload: false });
+    return grantPermissions();
 };

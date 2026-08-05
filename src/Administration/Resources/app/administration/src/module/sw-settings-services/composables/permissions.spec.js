@@ -56,7 +56,7 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
         expect(reloadMock).toHaveBeenCalled();
     });
 
-    it('grants permissions without reloading the Administration for a Service SDK request', async () => {
+    it('grants permissions and reloads the Administration for a Service SDK request', async () => {
         const shopwareServicesStore = useShopwareServicesStore();
         shopwareServicesStore.revisions = {
             'latest-revision': '2025-06-25',
@@ -84,7 +84,7 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
         );
 
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(reloadMock).not.toHaveBeenCalled();
+        expect(reloadMock).toHaveBeenCalled();
     });
 
     it('rejects SDK permission grants from non-Service origins', () => {

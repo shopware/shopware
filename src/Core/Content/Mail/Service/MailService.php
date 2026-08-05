@@ -374,7 +374,7 @@ class MailService extends AbstractMailService
         if ($mediaIds === []) {
             return [];
         }
-        $criteria = new Criteria($data['mediaIds']);
+        $criteria = new Criteria($mediaIds);
         $criteria->setTitle('mail-service::resolve-media-ids');
         $media = new MediaCollection();
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria, &$media): void {

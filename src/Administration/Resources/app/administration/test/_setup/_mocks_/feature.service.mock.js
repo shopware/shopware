@@ -9,7 +9,7 @@ import Feature from 'src/app/service/feature.service';
  * global.activeFeatureFlags = ['FEATURE_NEXT_12345'];
  */
 
-global.activeFeatureFlags = [];
+global.activeFeatureFlags = global.activeFeatureFlags ?? [];
 
 const featureMock = {
     isActive: (flagName) => {

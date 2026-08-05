@@ -18,7 +18,7 @@ class SeoUrlRouteConfigTest extends TestCase
 {
     public function testConfig(): void
     {
-        $entityDefinition = $this->createMock(EntityDefinition::class);
+        $entityDefinition = static::createStub(EntityDefinition::class);
         $config = new SeoUrlRouteConfig(
             $entityDefinition,
             'foo_bar',

@@ -112,7 +112,7 @@ class AwsS3v3FactoryTest extends TestCase
 
     public function testCreateWithCustomHttpClient(): void
     {
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient = static::createStub(HttpClientInterface::class);
 
         $config = [
             'bucket' => 'private',

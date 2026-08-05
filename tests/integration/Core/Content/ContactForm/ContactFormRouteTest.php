@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -44,7 +43,6 @@ class ContactFormRouteTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -84,7 +82,6 @@ class ContactFormRouteTest extends TestCase
     {
         [$navigationId, $slotId] = $this->createLandingPageData();
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;

@@ -305,19 +305,20 @@ class CategoryBreadcrumbBuilder
             );
 
             if ($categorySeoUrls === []) {
-                $categoryBreadcrumb->path = 'navigation/' . $categoryId;
-                continue;
-            }
-
-            foreach ($categorySeoUrls as $categorySeoUrl) {
-                if ($categoryBreadcrumb->path === '') {
-                    $categoryBreadcrumb->path = (isset($categorySeoUrl['seoPathInfo']) && $categorySeoUrl['seoPathInfo'] !== '')
-                        ? $categorySeoUrl['seoPathInfo'] : $categorySeoUrl['pathInfo'];
+                if ($category->getType() !== CategoryDefinition::TYPE_FOLDER) {
+                    $categoryBreadcrumb->path = 'navigation/' . $categoryId;
                 }
-                if ($categoryId === $categorySeoUrl['categoryId']) {
-                    unset($categorySeoUrl['categoryId']); // remove redundant data
+            } else {
+                foreach ($categorySeoUrls as $categorySeoUrl) {
+                    if ($categoryBreadcrumb->path === '') {
+                        $categoryBreadcrumb->path = (isset($categorySeoUrl['seoPathInfo']) && $categorySeoUrl['seoPathInfo'] !== '')
+                            ? $categorySeoUrl['seoPathInfo'] : $categorySeoUrl['pathInfo'];
+                    }
+                    if ($categoryId === $categorySeoUrl['categoryId']) {
+                        unset($categorySeoUrl['categoryId']); // remove redundant data
+                    }
+                    $categoryBreadcrumb->seoUrls[] = $categorySeoUrl;
                 }
-                $categoryBreadcrumb->seoUrls[] = $categorySeoUrl;
             }
 
             $seoBreadcrumbCollection[$categoryId] = $categoryBreadcrumb;

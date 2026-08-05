@@ -79,7 +79,9 @@ test(
 
         await test.step('Verify setup filters display & enabled', async () => {
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -136,7 +138,9 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({
                     timeout: TIMEOUT,
@@ -224,7 +228,9 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -318,7 +324,9 @@ test(
 
         await test.step('Verify setup filters display', async () => {
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
@@ -353,7 +361,6 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
                 await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
                 await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled({ timeout: TIMEOUT });

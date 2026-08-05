@@ -18,11 +18,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -37,16 +37,16 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $abstractMailService = $this->createMock(AbstractMailService::class);
         $abstractMailService->expects($this->once())
             ->method('send')
-            ->with(static::callback(function (array $data) {
+            ->with(static::callback(static function (array $data) {
                 self::assertNull($data['senderEmail']);
                 self::assertSame('ShopName', $data['senderName']);
 
                 return true;
             }));
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())->method('get')
-            ->willReturn('ShopName');
+        $systemConfigService = new StaticSystemConfigService([
+            'core.basicInformation.shopName' => 'ShopName',
+        ]);
 
         $mailTemplateEntity = new MailTemplateEntity();
         $mailTemplateEntity->setUniqueIdentifier(Uuid::randomHex());

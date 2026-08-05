@@ -73,12 +73,11 @@ class ImportExportActionController extends AbstractController
         $profileId = (string) $request->request->get('profileId');
         $expireDate = (string) $request->request->get('expireDate');
 
-        /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         $profile = $this->findProfile($context, $profileId);
         $expireDate = new \DateTimeImmutable($expireDate);
 
-        if ($file !== null) {
+        if ($file instanceof UploadedFile) {
             $log = $this->importExportService->prepareImport(
                 $context,
                 $profile->getId(),

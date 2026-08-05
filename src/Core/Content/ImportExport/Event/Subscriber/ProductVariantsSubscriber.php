@@ -27,7 +27,18 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  *
- * @phpstan-type CombinationPayload list<array{id: string, parentId: string, productNumber: string, stock: int, options: list<array{id: string, name: string, group: array{id: string, name: string}}>}>
+ * @phpstan-type CombinationPayload list<array{
+ *     id: string,
+ *     parentId: string,
+ *     productNumber: string,
+ *     stock: int,
+ *     type?: string, // @deprecated tag:v6.8.0 - Make type required
+ *     options: list<array{
+ *         id: string,
+ *         name: string,
+ *         group: array{id: string, name: string}
+ *     }>
+ * }>
  */
 #[Package('fundamentals@after-sales')]
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
@@ -68,37 +79,43 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     public function onAfterImportRecord(ImportExportAfterImportRecordEvent $event): void
     {
-        $row = $event->getRow();
         $entityName = $event->getConfig()->get('sourceEntity');
-        $entityWrittenEvents = $event->getResult()->getEvents();
-
-        if ($entityName !== ProductDefinition::ENTITY_NAME || empty($row['variants']) || !$entityWrittenEvents) {
+        if ($entityName !== ProductDefinition::ENTITY_NAME) {
             return;
         }
 
-        $variants = $this->parseVariantString($row['variants']);
+        $variantString = $event->getRow()['variants'] ?? '';
+        if (!\is_string($variantString)) {
+            return;
+        }
+        if ($variantString === '') {
+            return;
+        }
+
+        $entityWrittenEvents = $event->getResult()->getEvents();
+        if ($entityWrittenEvents === null) {
+            return;
+        }
+
+        $variants = $this->parseVariantString($variantString);
 
         $entityWrittenEvent = $entityWrittenEvents->filter(static fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
-
         if (!$entityWrittenEvent instanceof EntityWrittenEvent) {
             return;
         }
 
         $writeResults = $entityWrittenEvent->getWriteResults();
-
         if ($writeResults === []) {
             return;
         }
 
         $parentId = $writeResults[0]->getPrimaryKey();
-        $parentPayload = $writeResults[0]->getPayload();
-
         if (!\is_string($parentId)) {
             return;
         }
 
         $context = $event->getContext();
-        $payload = $this->getCombinationsPayload($variants, $parentId, $parentPayload['productNumber'], $context);
+        $payload = $this->getCombinationsPayload($variants, $parentId, $writeResults[0]->getPayload()['productNumber'], $context);
 
         $variantIds = array_column($payload, 'id');
         $this->connection->executeStatement(

@@ -116,3 +116,82 @@ class HelperConfiguredPropertyCases extends TestCase
         $this->dependency->expects($this->once())->method('value')->willReturn('a');
     }
 }
+
+/**
+ * @internal
+ *
+ * The helpers only configure the property as a stub and forward it into the SUT constructor —
+ * provably no expectation. FLAGGED as stub.
+ */
+class HelperForwardedPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testOne(): void
+    {
+        static::assertSame('a', $this->createSut()->run());
+    }
+
+    private function createSut(): PropertySut
+    {
+        $this->dependency->method('value')->willReturn('a');
+
+        return new PropertySut($this->dependency);
+    }
+}
+
+/**
+ * @internal
+ *
+ * A helper hands the property to a call the rule cannot resolve. NOT flagged (conservative bail).
+ */
+class HelperEscapedPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testOne(): void
+    {
+        $this->configureElsewhere();
+        static::assertSame('a', $this->dependency->value());
+    }
+
+    private function configureElsewhere(): void
+    {
+        PropertyConfigurator::configure($this->dependency);
+    }
+}
+
+/**
+ * @internal
+ */
+class PropertySut
+{
+    public function __construct(private readonly PropertyDependency $dependency)
+    {
+    }
+
+    public function run(): string
+    {
+        return $this->dependency->value();
+    }
+}
+
+/**
+ * @internal
+ */
+class PropertyConfigurator
+{
+    public static function configure(PropertyDependency $dependency): void
+    {
+    }
+}

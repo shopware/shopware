@@ -100,9 +100,9 @@
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
-        "php-http/discovery": "^1.20",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
+        "php-http/discovery": "^1.20",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
@@ -256,6 +256,7 @@
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
@@ -357,6 +358,13 @@
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit"
+        ],
+        "admin:unit:major": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv FEATURE_ALL=major",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"

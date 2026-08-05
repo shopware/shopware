@@ -132,6 +132,8 @@ class ModuleLoaderTest extends TestCase
                     'label' => ['en-GB' => 'allowed module'],
                     'source' => 'https://allowed.app.com',
                     'name' => 'allowed-module',
+                    'parent' => 'sw-catalogue',
+                    'position' => 50,
                 ],
             ],
         ]);
@@ -141,6 +143,8 @@ class ModuleLoaderTest extends TestCase
                     'label' => ['en-GB' => 'forbidden module'],
                     'source' => 'https://forbidden.app.com',
                     'name' => 'forbidden-module',
+                    'parent' => 'sw-catalogue',
+                    'position' => 50,
                 ],
             ],
         ]);

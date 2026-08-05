@@ -1,6 +1,37 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.22
+*  [#17048 - Administration users receive default runtime privileges](./changelog/release-6-6-10-22/2026-08-03-default-admin-user-privileges.md)
+*  [#17579 - fix: consider footer navigation tree children as page urls (backport: 6.6.x)](https://github.com/shopware/shopware/issues/17579) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18620 - fix(checkout): restore delivery discount price definition for value "0" (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18620) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18664 - fix: #18366 TypeError on 'set' promotion in cart (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18664)
+*  [#18668 - fix: integration admin save (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18668)
+*  [#18672 - fix(core): allow dompdf patch updates (6.6.x)](https://github.com/shopware/shopware/issues/18672)
+*  [#18692 - fix(administration): apply variant bulk edit sales channel visibility removal (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18692) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18704 - fix(category-link): Implemented switch to be able to external links without a protocol (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18704) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18711 - fix(seo): allow editing and clearing of write-protected SEO URLs (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18711) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18743 - Template rendering endpoints require update privileges](./changelog/release-6-6-10-22/2026-07-31-enforce-acl-for-product-export-template-preview.md)
+*  [#18756 - Admin action endpoints now require ACL privileges](./changelog/release-6-6-10-22/2026-07-31-enforce-acl-on-admin-action-endpoints.md)
+*  [#18770 - Media action routes now enforce ACL privileges](./changelog/release-6-6-10-22/2026-07-31-enforce-acls-on-media-action-routes.md)
+*  [#18771 - Increment and queue-stats admin endpoints now require ACL privileges](./changelog/release-6-6-10-22/2026-07-31-enforce-acl-on-increment-and-queue-stats-endpoints.md)
+*  [#18802 - fix(administration): keep focus inside tree item naming field (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18802) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18811 - Message queue admin endpoints now require ACL privileges](./changelog/release-6-6-10-22/2026-08-04-enforce-acl-on-message-queue-admin-endpoints.md)
+*  [#18813 - SEO admin action endpoints now require ACL privileges](./changelog/release-6-6-10-22/2026-07-31-enforce-acl-on-seo-admin-action-endpoints.md)
+*  [#18880 - fix(inventory): enforce ACL on SEO admin action endpoints (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18880) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18883 - fix(product-export): enforce ACL for template preview (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18883)
+*  [#18885 - fix: enforce ACL on increment and queue-stats admin endpoints (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18885) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18887 - fix(core): enforce ACLs on media action routes backport 6.6.x](https://github.com/shopware/shopware/issues/18887)
+*  [#18888 - fix: enforce ACL on admin action endpoints missing privilege checks backport 6.6.x](https://github.com/shopware/shopware/issues/18888)
+*  [#18892 - fix: make EnvTestBehaviour genuinely unset environment variables (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18892) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18911 - feat: AppPaymentHandler translationCode association (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18911) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18923 - fix(checkout): preserve promotion composition values (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18923) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))
+*  [#18924 - feat: default admin user privileges backport 6.6.x](https://github.com/shopware/shopware/issues/18924)
+*  [#18945 - fix: enforce ACL on message queue admin endpoints (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18945)
+*  [#18955 - fix: protect plugin filesystem metadata](https://github.com/shopware/shopware/issues/18955)
+*  [#18964 - fix(framework): enforce app permissions for extension SDK (backport: 6.6.x)](https://github.com/shopware/shopware/issues/18964) ([@app/shopware-octo-sts-app](https://github.com/app/shopware-octo-sts-app))
+*  [#18964 - Enforce app permissions for Extension SDK requests and Administration modules](./changelog/release-6-6-10-22/2026-08-04-enforce-app-permissions-for-extension-sdk.md)
+
 ## 6.6.10.21
 *  [#17495 - Enforce afterOrderEnabled when changing an order's payment after checkout](./changelog/release-6-6-10-21/2026-07-09-enforce-after-order-enabled-payment-change.md)
 *  [#17984 - fix: sw-filter-panel race condition (backport: 6.6.x)](https://github.com/shopware/shopware/issues/17984) 

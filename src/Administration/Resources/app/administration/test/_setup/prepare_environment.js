@@ -109,7 +109,34 @@ config.global.config.compilerOptions = {
     whitespace: 'preserve',
 };
 
+/**
+ * Fails a test that sets feature flags via `it.activeFeatureFlags()` while mounting a component with
+ * its own `provide.feature`.
+ *
+ * A local mock shadows the globally provided feature service, so the flag the helper activated never
+ * reaches the component and the test passes for the wrong reason. Only the presence of the override
+ * matters — the component does not have to call `isActive` for the test to be misleading.
+ */
+function assertFeatureServiceNotShadowed(wrapper) {
+    if (!global.activeFeatureFlagsForCurrentTest) {
+        return;
+    }
+
+    const providedFeature = wrapper.vm?.$?.appContext?.provides?.feature;
+
+    if (providedFeature && providedFeature !== Shopware.Service('feature')) {
+        throw new Error(
+            'This test activates feature flags with it.activeFeatureFlags(), but the component was ' +
+                'mounted with its own `provide.feature`. The local mock shadows the global feature ' +
+                'service, so the flag never reaches the component. Remove the local mock and let the ' +
+                'helper drive the flag.',
+        );
+    }
+}
+
 config.plugins.VueWrapper.install((wrapper) => {
+    assertFeatureServiceNotShadowed(wrapper);
+
     // add `findByText` to the global config
     wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
     // add `findByAriaLabel` to the global config

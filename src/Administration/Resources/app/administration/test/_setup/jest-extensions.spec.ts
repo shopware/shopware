@@ -204,5 +204,23 @@ describe('Jest feature flag extensions', () => {
         ])('stays active for table row %s', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(true);
         });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('throws when a local feature mock shadows the global one', () => {
+            expect(() =>
+                mount(
+                    {
+                        inject: ['feature'],
+                        template: '<div />',
+                    },
+                    {
+                        global: {
+                            provide: {
+                                feature: { isActive: () => false },
+                            },
+                        },
+                    },
+                ),
+            ).toThrow(/shadows the global feature service/);
+        });
     });
 });

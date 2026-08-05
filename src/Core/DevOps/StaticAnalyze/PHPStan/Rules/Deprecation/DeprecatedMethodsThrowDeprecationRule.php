@@ -65,10 +65,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             return [];
         }
 
-        if ($node->name->name === '__construct' && str_contains($node->getDocComment()?->getText() ?? '', '@internal')) {
-            return [];
-        }
-
         if (!$scope->isInClass()) {
             return [];
         }

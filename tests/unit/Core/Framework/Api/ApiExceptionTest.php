@@ -133,6 +133,18 @@ class ApiExceptionTest extends TestCase
         static::assertSame('API Expectations failed', $exception->getMessage());
     }
 
+    public function testExpectationNotSupported(): void
+    {
+        $exception = ApiException::expectationNotSupported();
+
+        static::assertSame(Response::HTTP_EXPECTATION_FAILED, $exception->getStatusCode());
+        static::assertSame(ApiException::API_EXPECTATION_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame(
+            'The "sw-expect-packages" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+            $exception->getMessage()
+        );
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidSyncOperation(): void
     {

@@ -49,6 +49,18 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             );
         }
 
+        // must be applied on every nesting level, otherwise reviews that are still pending moderation
+        // leak through nested associations that re-enter the product entity (e.g. `children`)
+        if ($criteria->hasAssociation('productReviews')) {
+            $association = $criteria->getAssociation('productReviews');
+            $activeReviewsFilter = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
+            if ($customer = $context->getCustomer()) {
+                $activeReviewsFilter->addQuery(new EqualsFilter('customerId', $customer->getId()));
+            }
+
+            $association->addFilter($activeReviewsFilter);
+        }
+
         if ($criteria->getNestingLevel() !== Criteria::ROOT_NESTING_LEVEL) {
             return;
         }
@@ -61,16 +73,6 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
                 ->addAssociation('cover.media')
                 ->addAssociation('tax')
             ;
-        }
-
-        if ($criteria->hasAssociation('productReviews')) {
-            $association = $criteria->getAssociation('productReviews');
-            $activeReviewsFilter = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
-            if ($customer = $context->getCustomer()) {
-                $activeReviewsFilter->addQuery(new EqualsFilter('customerId', $customer->getId()));
-            }
-
-            $association->addFilter($activeReviewsFilter);
         }
     }
 

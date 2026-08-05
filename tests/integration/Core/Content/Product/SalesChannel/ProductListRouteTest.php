@@ -182,6 +182,93 @@ class ProductListRouteTest extends TestCase
         static::assertSame('test public review', $reviews[0]['title']);
     }
 
+    public function testListingProductsIncludesOnlyPublicReviewsWhenNestedBelowChildren(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'p1'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->variant(
+                (new ProductBuilder($this->ids, 'p1.1'))
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->price(10)
+                    ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
+                    ->review('test hidden review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false)
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->upsert([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('p1')],
+                'associations' => [
+                    'children' => [
+                        'associations' => [
+                            'productReviews' => [],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(1, $response['elements'][0]['children']);
+
+        $reviews = $response['elements'][0]['children'][0]['productReviews'];
+        static::assertCount(1, $reviews);
+        static::assertSame('test public review', $reviews[0]['title']);
+    }
+
+    public function testListingProductsIncludesOnlyPublicReviewsWhenNestedBelowAnyProductAssociation(): void
+    {
+        $canonical = (new ProductBuilder($this->ids, 'p2'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
+            ->review('test hidden review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false)
+            ->build();
+
+        $product = (new ProductBuilder($this->ids, 'p1'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->add('canonicalProductId', $this->ids->get('p2'))
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->upsert([$canonical, $product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('p1')],
+                'associations' => [
+                    'canonicalProduct' => [
+                        'associations' => [
+                            'productReviews' => [],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('canonicalProduct', $response['elements'][0]);
+
+        $reviews = $response['elements'][0]['canonicalProduct']['productReviews'];
+        static::assertCount(1, $reviews);
+        static::assertSame('test public review', $reviews[0]['title']);
+    }
+
     public function testListingProductsIncludesOwnInactiveReviews(): void
     {
         $customerId = $this->login($this->browser);

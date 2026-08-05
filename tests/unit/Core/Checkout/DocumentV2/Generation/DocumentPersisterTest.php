@@ -108,6 +108,65 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testPersistUploaded(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            static function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ): DocumentCollection {
+                $document = new DocumentEntity();
+                $document->setId($repository->creates[0][0]['id']);
+
+                return new DocumentCollection([$document]);
+            },
+        ], new DocumentDefinition());
+
+        $documentFileRepository = StaticEntityRepository::of(DocumentFileCollection::class, [
+            new DocumentFileCollection([]),
+        ], new DocumentFileDefinition());
+
+        $documentTypeRepository = StaticEntityRepository::of(DocumentTypeCollection::class, [
+            [$documentTypeId],
+        ], new DocumentTypeDefinition());
+
+        $persister = new DocumentPersister(
+            $documentRepository,
+            $documentFileRepository,
+            $documentTypeRepository,
+            static::createStub(MediaService::class),
+        );
+
+        $document = $persister->persistUploaded(
+            self::DOCUMENT_TYPE,
+            $orderId,
+            $orderVersionId,
+            '12345',
+            self::FORMAT,
+            $mediaId,
+            null,
+            $this->context,
+        );
+
+        static::assertCount(1, $documentRepository->creates);
+        static::assertSame($documentRepository->creates[0][0]['id'], $document->getId());
+        static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
+        static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
+        static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
+        static::assertSame($mediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertTrue($documentRepository->creates[0][0]['static']);
+
+        static::assertCount(1, $documentFileRepository->creates);
+        static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
+        static::assertSame($mediaId, $documentFileRepository->creates[0][0]['mediaId']);
+    }
+
     #[DataProvider('persistExceptionProvider')]
     public function testPersistThrowsException(
         ?callable $documentSearch,

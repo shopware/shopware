@@ -19,7 +19,8 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Persists a generated document and one document_file per requested format.
+ * Persists a document and one document_file per requested format, either freshly generated
+ * ({@see self::persist()}) or uploaded by a user ({@see self::persistUploaded()}).
  *
  * One document row represents the shared document number and order snapshot, while each
  * requested output format is stored as a separate document_file linked to the same document.
@@ -69,20 +70,6 @@ final readonly class DocumentPersister
             $context,
         );
 
-        $this->documentRepository->create([
-            [
-                'id' => $documentId,
-                'orderId' => $generationRequest->orderId,
-                'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
-                'referencedDocumentId' => $generationRequest->referencedDocumentId,
-                'deepLinkCode' => Random::getAlphanumericString(32),
-                'config' => [
-                    'documentNumber' => $input->documentNumber,
-                ],
-            ],
-        ], $context);
-
         $documentFiles = [];
 
         foreach ($persistedFiles as $format => $mediaId) {
@@ -94,15 +81,87 @@ final readonly class DocumentPersister
             ];
         }
 
-        $this->documentFileRepository->create($documentFiles, $context);
+        return $this->writeDocument(
+            [
+                'id' => $documentId,
+                'orderId' => $generationRequest->orderId,
+                'orderVersionId' => $input->order->getVersionId(),
+                'documentTypeId' => $this->getDocumentTypeId($generationRequest->documentType, $context),
+                'referencedDocumentId' => $generationRequest->referencedDocumentId,
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                'config' => [
+                    'documentNumber' => $input->documentNumber,
+                ],
+            ],
+            $documentFiles,
+            $input->documentNumber,
+            $context,
+        );
+    }
+
+    /**
+     * Persists a user-uploaded document, bypassing rendering. The uploaded file is used as-is for the single
+     * requested format.
+     *
+     * @throws DocumentV2Exception
+     */
+    public function persistUploaded(
+        string $documentType,
+        string $orderId,
+        string $orderVersionId,
+        string $documentNumber,
+        string $format,
+        string $mediaId,
+        ?string $referencedDocumentId,
+        Context $context,
+    ): DocumentEntity {
+        $documentId = Uuid::randomHex();
+
+        return $this->writeDocument(
+            [
+                'id' => $documentId,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
+                'documentMediaFileId' => $mediaId,
+                'referencedDocumentId' => $referencedDocumentId,
+                'static' => true,
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                'config' => [
+                    'documentNumber' => $documentNumber,
+                ],
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'documentId' => $documentId,
+                    'documentFormat' => $format,
+                    'mediaId' => $mediaId,
+                ],
+            ],
+            $documentNumber,
+            $context,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $documentData
+     * @param list<array<string, mixed>> $documentFileRows
+     *
+     * @throws DocumentV2Exception
+     */
+    private function writeDocument(array $documentData, array $documentFileRows, string $documentNumber, Context $context): DocumentEntity
+    {
+        $this->documentRepository->create([$documentData], $context);
+        $this->documentFileRepository->create($documentFileRows, $context);
 
         $document = $this->documentRepository->search(
-            (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
+            (new Criteria([$documentData['id']]))->addAssociation('documentFiles.media'),
             $context,
         )->getEntities()->first();
 
         if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotPersisted($input->documentNumber);
+            throw DocumentV2Exception::documentNotPersisted($documentNumber);
         }
 
         return $document;
@@ -159,11 +218,9 @@ final readonly class DocumentPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function getDocumentTypeId(string $documentType, Context $context): string
     {
         // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
-        $documentType = $generationRequest->documentType;
-
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))
             ->setLimit(1);

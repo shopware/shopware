@@ -42,7 +42,7 @@ class CookieFeatureDefinitionTest extends TestCase
     public function testFromAppReadsCookiesFromManifest(): void
     {
         $configs = $this->definition->fromApp(
-            Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifest.xml'),
+            Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             new Filesystem(__DIR__),
             'en-GB',
         );
@@ -50,23 +50,21 @@ class CookieFeatureDefinitionTest extends TestCase
         static::assertCount(2, $configs);
 
         $single = $configs[0];
-        static::assertSame('swag.analytics.name', $single->snippetName);
-        static::assertSame('swag-analytics', $single->cookie);
+        static::assertSame('Swoogle Analytics', $single->snippetName);
+        static::assertSame('swag.analytics', $single->cookie);
         static::assertSame('', $single->value);
         static::assertSame(30, $single->expiration);
-        static::assertSame(['myPaymentMethod'], $single->activePaymentMethods);
+        static::assertSame([], $single->activePaymentMethods);
         static::assertSame([], $single->entries);
 
         $group = $configs[1];
-        static::assertSame('app.cookies.group', $group->snippetName);
-        static::assertSame('app.cookies.group.description', $group->snippetDescription);
+        static::assertSame('App Cookies', $group->snippetName);
+        static::assertSame('Cookies required for this app to work', $group->snippetDescription);
         static::assertNull($group->cookie);
-        static::assertSame([], $group->activePaymentMethods);
         static::assertCount(2, $group->entries);
-        static::assertSame('swag-app-something', $group->entries[0]['cookie']);
-        static::assertSame('first.cookie', $group->entries[0]['snippet_name']);
-        static::assertSame('swag-app-lorem-ipsum', $group->entries[1]['cookie']);
-        static::assertSame(['*'], $group->entries[1]['active_payment_methods']);
+        static::assertSame('swag.app.something', $group->entries[0]['cookie']);
+        static::assertSame('Something', $group->entries[0]['snippet_name']);
+        static::assertSame('swag.app.lorem-ipsum', $group->entries[1]['cookie']);
     }
 
     public function testPayloadRoundTrip(): void

@@ -97,6 +97,7 @@
                             key="language-listing"
                             ref="languageGrid"
                             class="sw-settings-language-list-grid"
+                            identifier="sw-settings-language-list"
                             detail-route="sw.settings.language.detail"
                             :is-loading="isLoading"
                             :repository="languageRepository"
@@ -349,10 +350,7 @@
 
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
-        <sw-sidebar
-            :propagate-width="true"
-            @item-register="registerFilterSidebarItem"
-        >
+        <sw-sidebar>
             {% block sw_settings_language_list_grid_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
@@ -361,67 +359,32 @@
             />
             {% endblock %}
 
-            {% block sw_settings_language_list_grid_sidebar_filter %}
-            <sw-sidebar-item
-                icon="regular-filter"
-                :title="$t('sw-settings-language.list.titleSidebarFilter')"
-                :tooltip-shortcut="['O', 'F']"
-            >
-                <sw-collapse expand-on-loading>
-                    {% block sw_settings_language_list_grid_sidebar_filter_header %}
-                    <template #header="{ expanded }">
-                        <div class="sw-settings-language-list__collapse-header">
-                            {% block sw_settings_language_list_grid_sidebar_filter_header_title %}
-                            <h4 class="sw-settings-language-list__collapse-title">
-                                {{ $t('sw-settings-language.list.titleSidebarQuickFilter') }}
-                            </h4>
-                            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter %}{% endblock %}
 
-                            {% block sw_settings_language_list_grid_sidebar_filter_header_icon %}
-                            {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}
-                            <mt-icon
-                                v-if="expanded"
-                                class="sw-media-collapse__button"
-                                name="regular-chevron-down-xs"
-                                size="10px"
-                            />
-                            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_header %}{% endblock %}
 
-                            {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}
-                            <mt-icon
-                                v-else
-                                class="sw-media-collapse__button"
-                                name="regular-chevron-right-xs"
-                                size="10px"
-                            />
-                            {% endblock %}
-                            {% endblock %}
-                        </div>
-                    </template>
-                    {% endblock %}
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_header_title %}{% endblock %}
 
-                    {% block sw_settings_language_list_grid_sidebar_filter_content %}
-                    <template #content>
-                        {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <mt-switch
-                            v-model="filterRootLanguages"
-                            class="sw-settings-language-list__filterField"
-                            :label="$t('sw-settings-language.list.textFilterRootLanguages')"
-                        />
-                        {% endblock %}
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_header_icon %}{% endblock %}
 
-                        {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <mt-switch
-                            v-model="filterInheritedLanguages"
-                            class="sw-settings-language-list__filterField"
-                            :label="$t('sw-settings-language.list.textFilterInheritedLanguages')"
-                        />
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-                </sw-collapse>
-            </sw-sidebar-item>
-            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}{% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}{% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_content %}{% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}{% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Will be removed without replacement. #}
+            {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}{% endblock %}
         </sw-sidebar>
     </template>
     {% endblock %}

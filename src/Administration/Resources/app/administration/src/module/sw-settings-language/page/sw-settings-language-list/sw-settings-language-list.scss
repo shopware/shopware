@@ -9,31 +9,6 @@
         }
     }
 
-    &__collapse-title {
-        font-size: var(--font-size-s);
-        font-weight: var(--font-weight-regular);
-        color: var(--color-text-primary-default);
-        margin: 0;
-    }
-
-    &__collapse-header {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        cursor: pointer;
-        border-top: 1px solid var(--color-border-secondary-default);
-        padding: var(--scale-size-16) var(--scale-size-24);
-
-        .sw-media-collapse__button {
-            margin-right: var(--scale-size-12);
-        }
-    }
-
-    &__filterField {
-        padding: 0 var(--scale-size-24);
-        margin-top: var(--scale-size-10);
-    }
-
     .sw-data-grid__cell--active:not(.sw-data-grid__cell--header) {
         .sw-data-grid__cell-content {
             .is--inactive {

@@ -123,6 +123,7 @@ async function createWrapper(privileges = [], customStubs = {}) {
                             'allowEdit',
                             'allowView',
                             'detailRoute',
+                            'identifier',
                         ],
                         template: `
                     <div>
@@ -154,22 +155,13 @@ async function createWrapper(privileges = [], customStubs = {}) {
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
-    it('should register the open filters shortcut', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
-    });
-
-    it('should open the filter sidebar via the open-filters shortcut', async () => {
+    it('should no longer render the filter UI but keep the deprecated methods', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-sidebar').classes()).not.toContain('is--opened');
-
-        wrapper.vm.openFilterSidebar();
-        await flushPromises();
-
-        expect(wrapper.find('.sw-sidebar').classes()).toContain('is--opened');
+        expect(wrapper.find('.sw-settings-language-list__filterField').exists()).toBe(false);
+        expect(typeof wrapper.vm.openFilterSidebar).toBe('function');
+        expect(typeof wrapper.vm.registerFilterSidebarItem).toBe('function');
     });
 
     it('should be able to create a new language', async () => {
@@ -312,6 +304,35 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
         expect(columns).toContain('salesChannels');
         expect(columns).toContain('snippetStatus');
+    });
+
+    it('should persist grid settings via a stable identifier', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const grid = wrapper.findComponent('.sw-settings-language-list-grid');
+
+        expect(grid.props('identifier')).toBe('sw-settings-language-list');
+    });
+
+    it('should provide a parent column that is hidden by default', async () => {
+        const wrapper = await createWrapper();
+
+        const parentColumn = wrapper.vm.getColumns.find((column) => column.property === 'parent');
+
+        expect(parentColumn).toBeDefined();
+        expect(parentColumn.visible).toBe(false);
+    });
+
+    it('should only display a parent name for inherited languages', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.parentLanguages = {
+            get: () => ({ name: 'English' }),
+        };
+
+        expect(wrapper.vm.getParentName({ parentId: null })).toBe('');
+        expect(wrapper.vm.getParentName({ parentId: 'parent-id' })).toBe('English');
     });
 
     it('should render the update all snippets button when a language is updatable', async () => {

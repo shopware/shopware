@@ -24,21 +24,16 @@ export default {
         Mixin.getByName('notification'),
     ],
 
-    shortcuts: {
-        OF: 'openFilterSidebar',
-    },
-
     data() {
         return {
             languages: null,
             parentLanguages: null,
             translationMetadata: {},
             total: 0,
-            filterRootLanguages: false,
-            filterInheritedLanguages: false,
             isLoading: true,
             sortBy: 'active',
             sortDirection: 'DESC',
+            // @deprecated tag:v6.8.0 - Will be removed without replacement.
             filterSidebarItem: null,
             showAddLanguageModal: false,
             updatingLocales: [],
@@ -114,14 +109,6 @@ export default {
                 criteria.addSorting(Criteria.sort('name', 'ASC'));
             }
 
-            if (this.filterRootLanguages) {
-                criteria.addFilter(Criteria.equals('parentId', null));
-            }
-
-            if (this.filterInheritedLanguages) {
-                criteria.addFilter(Criteria.not('AND', [Criteria.equals('parentId', null)]));
-            }
-
             return criteria;
         },
 
@@ -136,6 +123,12 @@ export default {
                     label: 'sw-settings-language.list.columnName',
                     dataIndex: 'name',
                     inlineEdit: true,
+                },
+                {
+                    property: 'parent',
+                    label: 'sw-settings-language.list.columnInherit',
+                    sortable: false,
+                    visible: false,
                 },
                 {
                     property: 'locale',
@@ -211,10 +204,16 @@ export default {
             this.loadTranslationMetadata();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         registerFilterSidebarItem(sidebarItem) {
             this.filterSidebarItem = sidebarItem;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         openFilterSidebar() {
             if (!this.filterSidebarItem?.openContent) {
                 return;
@@ -415,11 +414,11 @@ export default {
         },
 
         getParentName(item) {
-            if (item.parentId === null) {
-                return '-';
+            if (!item.parentId) {
+                return '';
             }
 
-            return this.parentLanguages.get(item.parentId).name;
+            return this.parentLanguages?.get(item.parentId)?.name ?? '';
         },
 
         isDefault(languageId) {

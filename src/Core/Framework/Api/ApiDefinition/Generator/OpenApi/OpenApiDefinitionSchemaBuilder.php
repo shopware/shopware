@@ -78,6 +78,7 @@ class OpenApiDefinitionSchemaBuilder
     ): array {
         $schema = [];
         $attributes = [];
+        $requiredProperties = [];
         $requiredAttributes = [];
         $relationships = [];
         $relationshipAttributes = [];
@@ -102,15 +103,17 @@ class OpenApiDefinitionSchemaBuilder
                 continue;
             }
 
-            if (
+            $isRequired = (
                 $field->is(Required::class)
                 && !$field instanceof VersionField
                 && !$field instanceof ReferenceVersionField
                 && !$field instanceof CreatedAtField
                 && !$field instanceof UpdatedAtField
                 && !\array_key_exists($field->getPropertyName(), $defaults)
-            ) {
-                $requiredAttributes[] = $field->getPropertyName();
+            );
+
+            if ($isRequired) {
+                $requiredProperties[] = $field->getPropertyName();
             }
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
@@ -133,6 +136,10 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field === null) {
                 continue;
+            }
+
+            if ($isRequired) {
+                $requiredAttributes[] = $field->getPropertyName();
             }
 
             if ($field instanceof JsonField) {
@@ -213,6 +220,7 @@ class OpenApiDefinitionSchemaBuilder
                     && !$field instanceof CreatedAtField
                     && !$field instanceof UpdatedAtField
                     && !$field instanceof FkField) {
+                    $requiredProperties[] = $propertyName;
                     $requiredAttributes[] = $propertyName;
                 }
             }
@@ -220,6 +228,7 @@ class OpenApiDefinitionSchemaBuilder
 
         $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
         $requiredAttributes = array_values(array_unique($requiredAttributes));
+        $requiredProperties = array_values(array_unique($requiredProperties));
 
         $since = $definition->since();
         if (!$onlyFlat && $apiType === 'jsonapi') {
@@ -237,6 +246,8 @@ class OpenApiDefinitionSchemaBuilder
             if ($since !== null && $since !== '') {
                 $schema[$schemaName . 'JsonApi']->description = 'Added since version: ' . $since;
             }
+
+            $requiredAttributes = $this->filterRequiredProperties($requiredAttributes, $attributes);
 
             if ($requiredAttributes !== []) {
                 $schema[$schemaName . 'JsonApi']->allOf[1]->required = $requiredAttributes;
@@ -269,6 +280,8 @@ class OpenApiDefinitionSchemaBuilder
             $attributes[] = $extensionRelationshipsProperty;
         }
 
+        $requiredProperties = $this->filterRequiredProperties($requiredProperties, $attributes);
+
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again
         if (\count($attributes) === 1 && $attributes[0]->property === 'id') {
             return [];
@@ -284,8 +297,8 @@ class OpenApiDefinitionSchemaBuilder
             $schema[$schemaName]->description = 'Added since version: ' . $since;
         }
 
-        if ($requiredAttributes !== []) {
-            $schema[$schemaName]->required = $requiredAttributes;
+        if ($requiredProperties !== []) {
+            $schema[$schemaName]->required = $requiredProperties;
         }
 
         return $schema;
@@ -341,6 +354,30 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ]),
         ];
+    }
+
+    /**
+     * @param list<string> $requiredProperties
+     * @param list<Property> $properties
+     *
+     * @return list<string>
+     */
+    private function filterRequiredProperties(array $requiredProperties, array $properties): array
+    {
+        $propertyNames = [];
+
+        foreach ($properties as $property) {
+            if (!\is_string($property->property)) {
+                continue;
+            }
+
+            $propertyNames[$property->property] = true;
+        }
+
+        return array_values(array_filter(
+            $requiredProperties,
+            static fn (string $requiredProperty): bool => isset($propertyNames[$requiredProperty])
+        ));
     }
 
     private function snakeCaseToCamelCase(string $input): string

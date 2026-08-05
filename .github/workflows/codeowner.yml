@@ -13,11 +13,14 @@ on:
 permissions:
   contents: read
   id-token: write
+  statuses: write
 
 jobs:
   codeowners:
     name: 'Run Codeowners Plus'
     runs-on: ubuntu-latest
+    # Fork PR reviews cannot mint a token here — see codeowner-fork-review-relay.yml.
+    if: github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: 'Checkout Code Repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -25,25 +28,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: 'Fetch PR head'
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
-
-      # GITHUB_TOKEN has no organization scope, so requesting a review from a team
-      # fails with "Could not resolve to a node with the global id of 'T_…'". No
-      # fallback on purpose: falling back would silently reintroduce that failure.
-      - name: 'Mint token'
-        id: sts
-        uses: shopware/octo-sts-action@main
+      - uses: ./.github/actions/codeowners-plus-status
         with:
-          scope: shopware
-          identity: CodeownersPlus
-
-      - name: 'Codeowners Plus'
-        uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
-        with:
-          github-token: '${{ steps.sts.outputs.token }}'
-          pr: '${{ github.event.pull_request.number }}'
-          verbose: true
-          quiet: ${{ github.event.pull_request.draft }}
+          pr-number: ${{ github.event.pull_request.number }}
+          draft: ${{ github.event.pull_request.draft }}
+          head-sha: ${{ github.event.pull_request.head.sha }}

@@ -1058,12 +1058,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/System/SystemConfig/SystemConfigService.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Expected domain exception class Shopware\\Core\\System\\User\\UserException, got Shopware\\Core\\Framework\\Routing\\RoutingException',
-    'identifier' => 'shopware.domainException',
-    'count' => 4,
-    'path' => __DIR__ . '/src/Core/System/User/Api/UserValidationController.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,

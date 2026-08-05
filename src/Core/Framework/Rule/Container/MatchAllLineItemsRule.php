@@ -51,7 +51,10 @@ class MatchAllLineItemsRule extends Container
         $filteredCount = \is_array($lineItems) ? \count($lineItems) : $lineItems->count();
 
         if ($filteredCount === 0) {
-            return false;
+            // "All promotions …" is vacuously true when no promotions are in the cart.
+            // Other type filters (e.g. product tags) must not match when no items remain.
+            return $this->type === LineItem::PROMOTION_LINE_ITEM_TYPE
+                && $this->minimumShouldMatch === null;
         }
 
         $context = $scope->getSalesChannelContext();

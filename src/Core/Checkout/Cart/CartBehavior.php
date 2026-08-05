@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class CartBehavior extends Struct
 {
-    /** @param array<string, bool> $permissions */
+    /**
+     * @param array<string, bool> $permissions
+     */
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'isRecalculation', description: 'Use the applicable CheckoutPermissions flag instead.')]
     public function __construct(
         private readonly array $permissions = [],

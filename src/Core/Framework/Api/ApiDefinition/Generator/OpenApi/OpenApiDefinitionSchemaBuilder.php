@@ -43,14 +43,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class OpenApiDefinitionSchemaBuilder
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
@@ -66,6 +65,8 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
+     * Builds only the dynamic entity-extension contribution for a JSON-owned component.
+     *
      * @return array<string, Schema>
      */
     public function getSchemaByDefinition(
@@ -290,6 +291,58 @@ class OpenApiDefinitionSchemaBuilder
         return $schema;
     }
 
+    public function getSchemaName(EntityDefinition $definition): string
+    {
+        return $this->snakeCaseToCamelCase($definition->getEntityName());
+    }
+
+    /**
+     * @return array<string, Schema>
+     */
+    public function getExtensionSchemaByDefinition(EntityDefinition $definition, string $path, bool $forSalesChannel): array
+    {
+        $schemaName = $this->getSchemaName($definition);
+        $exampleDetailPath = $path . '/' . Uuid::fromStringToHex($schemaName);
+        $extensions = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel) || !$field->is(Extension::class)) {
+                continue;
+            }
+
+            $extensions[] = $field;
+        }
+
+        $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
+        $properties = [];
+
+        foreach ($extensions as $extension) {
+            if (!isset($extensionAttributes[$extension->getPropertyName()])) {
+                continue;
+            }
+
+            $properties[] = $extensionAttributes[$extension->getPropertyName()];
+        }
+
+        if ($properties === []) {
+            return [];
+        }
+
+        return [
+            $schemaName => new Schema([
+                'type' => 'object',
+                'schema' => $schemaName,
+                'properties' => [
+                    new Property([
+                        'property' => 'extensions',
+                        'type' => 'object',
+                        'properties' => $properties,
+                    ]),
+                ],
+            ]),
+        ];
+    }
+
     private function snakeCaseToCamelCase(string $input): string
     {
         return $this->converter->denormalize($input);
@@ -430,6 +483,10 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field instanceof JsonField) {
                 $schema = $this->resolveJsonField($field);
+            }
+
+            if ($schema === null && !$field instanceof AssociationField) {
+                $schema = $this->getPropertyByField($field);
             }
 
             if ($schema === null) {

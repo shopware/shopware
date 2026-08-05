@@ -11,37 +11,36 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGene
 #[Package('framework')]
 class ScaffoldingCollector
 {
-    private string $servicesXmlIntro = <<<'EOL'
-    <?xml version="1.0" ?>
+    private string $servicesPhpIntro = <<<'EOL'
+<?php declare(strict_types=1);
 
-    <container xmlns="http://symfony.com/schema/dic/services"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
-        <services>
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
-    EOL;
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
 
-    private string $servicesXmlOutro = <<<'EOL'
+EOL;
 
-        </services>
-    </container>
-    EOL;
+    private string $servicesPhpOutro = <<<'EOL'
+};
 
-    private string $routesXmlIntro = <<<'EOL'
-    <?xml version="1.0" encoding="UTF-8" ?>
+EOL;
 
-    <routes xmlns="http://symfony.com/schema/routing"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://symfony.com/schema/routing
-            https://symfony.com/schema/routing/routing-1.0.xsd">
+    private string $routesPhpIntro = <<<'EOL'
+<?php declare(strict_types=1);
 
-    EOL;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-    private string $routesXmlOutro = <<<'EOL'
+return static function (RoutingConfigurator $routes): void {
 
-    </routes>
-    EOL;
+EOL;
+
+    private string $routesPhpOutro = <<<'EOL'
+};
+
+EOL;
 
     /**
      * @param iterable<ScaffoldingGenerator> $generators
@@ -55,14 +54,14 @@ class ScaffoldingCollector
         $stubCollection = new StubCollection();
 
         $stubCollection->add(Stub::raw(
-            'src/Resources/config/services.xml',
-            $this->servicesXmlIntro
+            'src/Resources/config/services.php',
+            $this->servicesPhpIntro
         ));
 
         if ($configuration->hasOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME)) {
             $stubCollection->add(Stub::raw(
-                'src/Resources/config/routes.xml',
-                $this->routesXmlIntro
+                'src/Resources/config/routes.php',
+                $this->routesPhpIntro
             ));
         }
 
@@ -71,14 +70,14 @@ class ScaffoldingCollector
         }
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
-            $this->servicesXmlOutro
+            'src/Resources/config/services.php',
+            $this->servicesPhpOutro
         );
 
         if ($configuration->hasOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME)) {
             $stubCollection->append(
-                'src/Resources/config/routes.xml',
-                $this->routesXmlOutro
+                'src/Resources/config/routes.php',
+                $this->routesPhpOutro
             );
         }
 

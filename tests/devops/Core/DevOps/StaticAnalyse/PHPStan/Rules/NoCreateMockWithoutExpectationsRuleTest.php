@@ -20,13 +20,30 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/Cases.php'], [
             [
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
-                35, // local stub
+                44, // local stub
             ],
             [
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
-                68, // inline stub passed into the SUT
+                77, // inline stub passed into the SUT
             ],
-            // NOT flagged: 46 (->expects), 57 (passed to $this-> helper), 76 (inline ->expects)
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                95, // stub forwarded into the SUT by a fixture helper
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                106, // stub forwarded into the SUT through two fixture helpers
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                125, // fed only to an inherited assertion, which cannot configure expectations
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'Dependency::class', 'Dependency::class'),
+                154, // handed back to the caller, whose only use is SUT constructor forwarding
+            ],
+            // NOT flagged: 55 (->expects), 66 (helper ->expects it), 85 (inline ->expects),
+            // 116 (helper parks it on a property), 135 (->expects()-ed through a fixture alias)
         ]);
     }
 
@@ -47,7 +64,33 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class'),
                 51, // mixed property (->expects() in one test, bare in another)
             ],
-            // NOT flagged: 78 (expected in every test), 105 (configured via a helper)
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'PropertyDependency::class', 'PropertyDependency::class'),
+                132, // helper only stub-configures the property and forwards it into the SUT constructor
+            ],
+            // NOT flagged: 78 (expected in every test), 105 (->expects()-ed via a helper),
+            // 159 (a helper hands the property to a call the rule cannot resolve)
+        ]);
+    }
+
+    public function testHelperReturnedMocks(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/HelperReturnCases.php'], [
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'ReturnDependency::class', 'ReturnDependency::class'),
+                27, // helper returns the double directly, no call site expects it
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'ReturnDependency::class', 'ReturnDependency::class'),
+                47, // helper stub-configures and bare-returns, callers stay clean
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'ReturnDependency::class', 'ReturnDependency::class'),
+                129, // the double only feeds an inherited assertion, which cannot configure expectations
+            ],
+            // NOT flagged: 74 (chained ->expects() on the helper result), 95 (bound result
+            // ->expects()-ed later), 115 (result handed to an unresolvable call), 146 (an
+            // assert-named method of this class configures an expectation)
         ]);
     }
 

@@ -24,7 +24,7 @@ class SalesChannelContextRequestRestorerTest extends TestCase
 {
     public function testItReturnsExistingContextWithoutLoadingItAgain(): void
     {
-        $existingContext = $this->createMock(SalesChannelContext::class);
+        $existingContext = static::createStub(SalesChannelContext::class);
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $existingContext);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);

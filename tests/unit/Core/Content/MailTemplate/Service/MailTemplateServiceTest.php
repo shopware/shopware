@@ -60,7 +60,6 @@ class MailTemplateServiceTest extends TestCase
     public function testLoadTemplate(): void
     {
         $mailTemplate = $this->createMailTemplate();
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
 
         $mailTemplateService = $this->createService(
@@ -74,7 +73,6 @@ class MailTemplateServiceTest extends TestCase
 
     public function testLoadUnknownTemplate(): void
     {
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
 
         $mailTemplateService = $this->createService(

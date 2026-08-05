@@ -38,28 +38,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
-        // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
-        'reason:becomes-internal',
-        // New function parameter will be added
-        'reason:new-optional-parameter',
-        // Parameter name is changing, which could break usage of named parameters, but should not trigger a deprecation
-        'reason:parameter-name-change',
-        // Classes that will be final, can only be changed with the next major
-        'reason:becomes-final',
-        // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:return-type-change',
-        // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:parameter-type-change',
-        // If a parameter becomes more flexible, this does not need action and trigger a deprecation warning.
-        'reason:parameter-type-extension',
-        // If there will be in the class hierarchy of a class we mark the whole class as deprecated, but the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:class-hierarchy-change',
-        // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
-        'reason:visibility-change',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // If a thrown exception in the method changes, we don't want to trigger deprecation warnings or throw an exception
-        'reason:exception-change',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
         'reason:remove-getter-setter',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement

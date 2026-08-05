@@ -1,17 +1,19 @@
 name: 'Code Owners'
 
 concurrency:
-  group: codeowners-${{ github.ref }}
+  group: codeowners-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, ready_for_review, synchronize]
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
+  id-token: write
+  statuses: write
 
 jobs:
   codeowners:
@@ -19,14 +21,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Code Repository'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
+      - name: 'Fetch PR head'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "pull/${PR_NUMBER}/head"
+
+      # GITHUB_TOKEN has no organization scope, so requesting a review from a team
+      # fails with "Could not resolve to a node with the global id of 'T_…'". No
+      # fallback on purpose: falling back would silently reintroduce that failure.
+      - name: 'Mint token'
+        id: sts
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CodeownersPlus
+
+      # Approvals arrive without a new commit, and a failed check run can never be
+      # superseded on the same commit. The verdict therefore goes into the
+      # `codeowners/approvals` status — require that context, not this job name.
       - name: 'Codeowners Plus'
+        id: codeowners
+        continue-on-error: true
         uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          github-token: '${{ steps.sts.outputs.token }}'
           pr: '${{ github.event.pull_request.number }}'
           verbose: true
           quiet: ${{ github.event.pull_request.draft }}
+
+      - name: 'Report approvals as a commit status'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          APPROVED: ${{ steps.codeowners.outcome == 'success' }}
+        with:
+          script: |
+            const approved = process.env.APPROVED === 'true'
+            await github.rest.repos.createCommitStatus({
+              ...context.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: approved ? 'success' : 'failure',
+              context: 'codeowners/approvals',
+              description: approved
+                ? 'All required code owners approved'
+                : 'Approvals from required code owners are still missing',
+              target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+            })

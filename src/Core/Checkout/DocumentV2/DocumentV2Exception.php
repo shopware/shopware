@@ -22,8 +22,6 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_FORMATS = 'DOCUMENT_V2__MISSING_FORMATS';
 
-    public const LIVE_VERSION_NOT_ALLOWED = 'DOCUMENT_V2__LIVE_VERSION_NOT_ALLOWED';
-
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
@@ -41,8 +39,6 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS';
 
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
-
-    public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
 
     public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
 
@@ -84,6 +80,10 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
 
+    public const REFERENCED_ORDER_VERSION_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_ORDER_VERSION_NOT_FOUND';
+
+    public const REFERENCED_DOCUMENT_NOT_SUPPORTED = 'DOCUMENT_V2__REFERENCED_DOCUMENT_NOT_SUPPORTED';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -123,15 +123,6 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function liveVersionNotAllowed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::LIVE_VERSION_NOT_ALLOWED,
-            'Live version of document is not allowed for document generation.',
-        );
-    }
-
     public static function orderNotFound(string $orderId): self
     {
         return new self(
@@ -152,12 +143,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function rendererNotFound(string $format, string $documentType): self
+    public static function rendererNotFound(string $format, ?string $documentType = null): self
     {
+        $message = $documentType === null
+            ? 'Renderer for format "{{ format }}" not found.'
+            : 'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.';
+
         return new self(
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
-            'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            $message,
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -285,16 +280,6 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function duplicateRenderer(string $format, string $documentType): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DUPLICATE_RENDERER,
-            'Duplicate renderer for format "{{ format }}" and document type "{{ documentType }}".',
-            ['format' => $format, 'documentType' => $documentType],
-        );
-    }
-
     public static function duplicateProviderKey(string $key, string $documentType): self
     {
         return new self(
@@ -383,6 +368,26 @@ class DocumentV2Exception extends HttpException
             self::REFERENCED_INVOICE_NUMBER_MISSING,
             'Cannot generate cancellation invoice because the referenced invoice for order "{{ orderId }}" has no document number.',
             ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedOrderVersionNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_ORDER_VERSION_NOT_FOUND,
+            'Cannot resolve the order snapshot captured by the referenced document for order "{{ orderId }}".',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedDocumentNotSupported(string $documentType, string $referencedDocumentId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_DOCUMENT_NOT_SUPPORTED,
+            'Document type "{{ documentType }}" does not support a referenced document, but referenced document id "{{ referencedDocumentId }}" was supplied.',
+            ['documentType' => $documentType, 'referencedDocumentId' => $referencedDocumentId],
         );
     }
 

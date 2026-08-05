@@ -37,7 +37,6 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             shopPageSalesChannelId: null as string | null,
-            previousCategories: [] as Entity<'category'>[],
             previousCategoryIds: [] as string[],
             previousLandingPages: [] as Entity<'landing_page'>[],
             previousLandingPageIds: [] as string[],
@@ -59,6 +58,7 @@ export default Shopware.Component.wrapComponentConfig({
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: [] as Entity<'product'>[],
             previousProductIds: [] as string[],
+            removedCategoryIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,
             activeTab: 'categories',
@@ -199,8 +199,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            this.previousCategories = [...this.page.categories!];
-            this.previousCategoryIds = this.page.categories!.getIds();
+            this.previousCategoryIds = [...this.page.getOrigin().categories!.getIds()];
 
             this.previousLandingPages = [...this.page.landingPages!];
             this.previousLandingPageIds = this.page.landingPages!.getIds();
@@ -488,8 +487,9 @@ export default Shopware.Component.wrapComponentConfig({
                 this.page.categories!.entity,
                 Shopware.Context.api,
                 null,
-                this.previousCategories ?? [],
+                [...this.page.getOrigin().categories!],
             );
+            this.removedCategoryIds = [];
         },
 
         discardLandingPageChanges() {
@@ -551,6 +551,32 @@ export default Shopware.Component.wrapComponentConfig({
             void this.loadSystemConfig();
         },
 
+        onCategoryAdd(category: Entity<'category'>) {
+            this.removedCategoryIds = this.removedCategoryIds.filter((id) => id !== category.id);
+        },
+
+        onCategoryRemove(category: Entity<'category'>) {
+            if (!this.removedCategoryIds.includes(category.id)) {
+                this.removedCategoryIds.push(category.id);
+            }
+
+            const originCategories = this.page.getOrigin().categories!;
+
+            if (category.cmsPageId === this.page.id && !originCategories.has(category.id)) {
+                originCategories.add(category);
+            }
+
+            const categories = this.page.categories!;
+            const removedCategoryIds = new Set(this.removedCategoryIds);
+
+            originCategories.forEach((item) => {
+                if (!removedCategoryIds.has(item.id) && !categories.has(item.id)) {
+                    categories.add(item);
+                }
+            });
+            this.previousCategoryIds = [...originCategories.getIds()];
+        },
+
         async onExtraCategories() {
             this.isCategoriesLoading = true;
             this.categoryIndex += 1;
@@ -562,7 +588,20 @@ export default Shopware.Component.wrapComponentConfig({
             const result = await this.categoryRepository.search(criteria);
 
             if (result?.length > 0) {
-                this.page.categories!.push(...result);
+                const categories = this.page.categories!;
+                const originCategories = this.page.getOrigin().categories!;
+
+                result.forEach((category) => {
+                    if (!this.removedCategoryIds.includes(category.id) && !categories.has(category.id)) {
+                        categories.add(category);
+                    }
+
+                    if (!originCategories.has(category.id)) {
+                        originCategories.add(category);
+                    }
+                });
+
+                this.previousCategoryIds = [...originCategories.getIds()];
             }
 
             this.isCategoriesLoading = false;

@@ -84,13 +84,15 @@
             {% block sw_cms_layout_assignment_modal_mt_category_select_field %}
             <sw-category-tree-field
                 key="categorySelect"
-                :categories-collection="page.categories"
+                v-model:categories-collection="page.categories"
                 :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
                 :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
                 :page-id="page.id"
                 :is-categories-loading="isCategoriesLoading"
                 class="sw-cms-layout-assignment-modal__category-select"
                 @categories-load-more="onExtraCategories"
+                @selection-add="onCategoryAdd"
+                @selection-remove="onCategoryRemove"
             />
             {% endblock %}
         </template>
@@ -277,13 +279,15 @@
                     {% block sw_cms_layout_assignment_modal_category_select_field %}
                     <sw-category-tree-field
                         key="categorySelect"
-                        :categories-collection="page.categories"
+                        v-model:categories-collection="page.categories"
                         :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
                         :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
                         :page-id="page.id"
                         :is-categories-loading="isCategoriesLoading"
                         class="sw-cms-layout-assignment-modal__category-select"
                         @categories-load-more="onExtraCategories"
+                        @selection-add="onCategoryAdd"
+                        @selection-remove="onCategoryRemove"
                     />
                     {% endblock %}
                 </template>

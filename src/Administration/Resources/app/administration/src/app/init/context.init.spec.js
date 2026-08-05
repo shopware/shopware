@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import initContext from 'src/app/init/context.init';
+import isSwService from '@shopware-ag/meteor-admin-sdk/es/_private/is-sw-service';
 import {
     getCurrency,
     getEnvironment,
@@ -122,6 +123,19 @@ describe('src/app/init/context.init.ts', () => {
                 }),
             );
         });
+    });
+
+    it('should identify a Shopware Service through the private SDK API', async () => {
+        Shopware.Store.get('extensions').addExtension({
+            name: 'jestservice',
+            baseUrl: window.location.origin,
+            permissions: {},
+            version: '1.0.0',
+            type: 'app',
+            sourceType: 'service',
+        });
+
+        await expect(isSwService()).resolves.toBe(true);
     });
 
     it('should return user information', async () => {

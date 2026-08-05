@@ -1,6 +1,8 @@
 /**
  * @sw-package framework
  */
+import type { HandleMethod } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
 
 let reloadFn: () => void = () => window.location.reload();
@@ -24,9 +26,21 @@ export function __setReloadFn(fn: () => void) {
 /**
  * @private
  */
-export async function grantPermissions() {
+export async function grantPermissions({
+    reload = true,
+}: { reload?: boolean } = {}) {
     const shopwareServiceStore = useShopwareServicesStore();
-    const currentRevision = shopwareServiceStore.currentRevision?.revision;
+    let currentRevision = shopwareServiceStore.currentRevision?.revision;
+
+    if (!currentRevision) {
+        const sessionStore = useSession();
+        const revisionData = await Shopware.Service('serviceRegistryClient').getCurrentRevision(
+            sessionStore.currentLocale.value ?? 'en-GB',
+        );
+
+        shopwareServiceStore.revisions = revisionData;
+        currentRevision = shopwareServiceStore.currentRevision?.revision;
+    }
 
     if (!currentRevision) {
         throw new Error('No revision available');
@@ -34,7 +48,9 @@ export async function grantPermissions() {
 
     await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
 
-    _reloadPage();
+    if (reload) {
+        _reloadPage();
+    }
 }
 
 /**
@@ -45,3 +61,27 @@ export async function revokePermissions() {
 
     _reloadPage();
 }
+
+/**
+ * @private
+ */
+export const grantPermissionsFromSdk: HandleMethod<'permissionsGrant'> = (_message, { _event_ }) => {
+    let isService = false;
+
+    try {
+        const appOrigin = _event_.origin;
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) => {
+            return ext.baseUrl.startsWith(appOrigin);
+        });
+
+        isService = extension?.sourceType === 'service';
+    } catch {
+        isService = false;
+    }
+
+    if (!isService) {
+        throw new Error('Only Shopware Services can grant permissions.');
+    }
+
+    return grantPermissions({ reload: false });
+};

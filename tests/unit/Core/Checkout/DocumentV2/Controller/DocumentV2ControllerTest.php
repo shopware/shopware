@@ -47,6 +47,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -738,6 +739,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->documentFileRepository,
             $this->documentTypeRepository,
             $mediaService ?? static::createStub(MediaService::class),
+            static::createStub(EventDispatcherInterface::class),
         );
     }
 
@@ -753,6 +755,8 @@ class DocumentV2ControllerTest extends TestCase
         ): DocumentCollection {
             $document = new DocumentEntity();
             $document->setId($repository->creates[0][0]['id']);
+            $document->setOrderId($repository->creates[0][0]['orderId']);
+            $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
             $document->setDeepLinkCode($repository->creates[0][0]['deepLinkCode']);
 
             return new DocumentCollection([$document]);
@@ -809,6 +813,8 @@ class DocumentV2ControllerTest extends TestCase
 
         $document ??= new DocumentEntity();
         $document->setId(Uuid::randomHex());
+        $document->setOrderId($orderId);
+        $document->setOrderVersionId($orderVersionId);
         $document->setDeepLinkCode(Uuid::randomHex());
 
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
@@ -838,6 +844,7 @@ class DocumentV2ControllerTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             $orderRepository,

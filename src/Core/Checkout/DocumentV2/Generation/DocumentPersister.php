@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Content\Media\MediaService;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Persists a document and one document_file per requested format, either freshly generated
@@ -44,6 +46,7 @@ final readonly class DocumentPersister
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -94,6 +97,7 @@ final readonly class DocumentPersister
                 ],
             ],
             $documentFiles,
+            $generationRequest->documentType,
             $input->documentNumber,
             $context,
         );
@@ -139,6 +143,7 @@ final readonly class DocumentPersister
                     'mediaId' => $mediaId,
                 ],
             ],
+            $documentType,
             $documentNumber,
             $context,
         );
@@ -146,14 +151,19 @@ final readonly class DocumentPersister
 
     /**
      * @param array<string, mixed> $documentData
-     * @param list<array<string, mixed>> $documentFileRows
+     * @param list<array<string, mixed>> $documentFiles
      *
      * @throws DocumentV2Exception
      */
-    private function writeDocument(array $documentData, array $documentFileRows, string $documentNumber, Context $context): DocumentEntity
-    {
+    private function writeDocument(
+        array $documentData,
+        array $documentFiles,
+        string $documentType,
+        string $documentNumber,
+        Context $context
+    ): DocumentEntity {
         $this->documentRepository->create([$documentData], $context);
-        $this->documentFileRepository->create($documentFileRows, $context);
+        $this->documentFileRepository->create($documentFiles, $context);
 
         $document = $this->documentRepository->search(
             (new Criteria([$documentData['id']]))->addAssociation('documentFiles.media'),
@@ -163,6 +173,15 @@ final readonly class DocumentPersister
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotPersisted($documentNumber);
         }
+
+        $this->eventDispatcher->dispatch(new DocumentGeneratedEvent(
+            $document->getId(),
+            $document->getOrderId(),
+            $document->getOrderVersionId(),
+            $documentType,
+            $documentNumber,
+            $context,
+        ));
 
         return $document;
     }

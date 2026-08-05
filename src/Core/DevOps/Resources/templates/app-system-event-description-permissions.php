@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 
 return [
+    'after_sales.document.generated' => <<<'EOD'
+Triggers when a document is generated or uploaded for an order
+EOD,
     'checkout.customer.before.login' => <<<'EOD'
 Triggers as soon as a customer logs in
 EOD,

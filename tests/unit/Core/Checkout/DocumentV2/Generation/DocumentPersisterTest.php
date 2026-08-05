@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinit
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -108,6 +110,35 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testPersistDispatchesDocumentGeneratedEvent(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
+            ->willReturnCallback(function (DocumentGeneratedEvent $event) {
+                static::assertNotSame('', $event->documentId);
+                static::assertSame($this->generationRequest->orderId, $event->orderId);
+                static::assertSame($this->renderInput->order->getVersionId(), $event->orderVersionId);
+                static::assertSame(self::DOCUMENT_TYPE, $event->documentType);
+                static::assertSame($this->renderInput->documentNumber, $event->documentNumber);
+
+                return $event;
+            });
+
+        [$persister] = $this->createPersister($documentTypeId, eventDispatcher: $eventDispatcher);
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            $this->context,
+        );
+    }
+
     public function testPersistUploaded(): void
     {
         $documentTypeId = Uuid::randomHex();
@@ -123,6 +154,9 @@ class DocumentPersisterTest extends TestCase
             ): DocumentCollection {
                 $document = new DocumentEntity();
                 $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
+                $document->setStatic(true);
 
                 return new DocumentCollection([$document]);
             },
@@ -136,11 +170,26 @@ class DocumentPersisterTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
+            ->willReturnCallback(static function (DocumentGeneratedEvent $event) use ($orderId, $orderVersionId, $documentRepository) {
+                static::assertSame($orderId, $event->orderId);
+                static::assertSame($orderVersionId, $event->orderVersionId);
+                static::assertSame($documentRepository->creates[0][0]['id'], $event->documentId);
+                static::assertSame(self::DOCUMENT_TYPE, $event->documentType);
+                static::assertSame('12345', $event->documentNumber);
+
+                return $event;
+            });
+
         $persister = new DocumentPersister(
             $documentRepository,
             $documentFileRepository,
             $documentTypeRepository,
             static::createStub(MediaService::class),
+            $eventDispatcher,
         );
 
         $document = $persister->persistUploaded(
@@ -249,6 +298,7 @@ class DocumentPersisterTest extends TestCase
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): array {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             $existingDocumentIds,
@@ -262,6 +312,9 @@ class DocumentPersisterTest extends TestCase
 
                 $document = new DocumentEntity();
                 $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
+                $document->setStatic(false);
 
                 return new DocumentCollection([$document]);
             },
@@ -292,6 +345,7 @@ class DocumentPersisterTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             ),
             $documentRepository,
             $documentFileRepository,

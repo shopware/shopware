@@ -109,6 +109,10 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### New `after_sales.document.generated` business event
+
+A new event `Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent` (`after_sales.document.generated`) is dispatched when a document is generated or uploaded for an order. The event exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`, and is selectable as a trigger in Flow Builder.
+
 ## Administration
 
 ## Storefront

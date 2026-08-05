@@ -214,6 +214,10 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'contains', 'field' => 'foo', 'value' => false], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 1], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 0], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => 1.5], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => null], true];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => ['bar']], true];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => new \stdClass()], true];
     }
 
     /**

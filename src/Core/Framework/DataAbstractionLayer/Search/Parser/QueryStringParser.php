@@ -118,7 +118,7 @@ class QueryStringParser
                 }
 
                 $queryValue = $query['value'] ?? '';
-                if ($queryValue === '') {
+                if (!\is_scalar($queryValue) || $queryValue === '') {
                     throw DataAbstractionLayerException::invalidFilterQuery('Parameter "value" for contains filter is missing.', $path . '/value');
                 }
 
@@ -304,12 +304,15 @@ class QueryStringParser
 
         $operator = $query['parameters']['operator'] ?? '';
         if (!\is_string($operator) || $operator === '') {
-            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $type), $path . '/parameter');
+            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $type), $path . '/parameters/operator');
         }
         $operator = mb_strtolower($operator);
         $validOperators = [RangeFilter::LTE, RangeFilter::GTE, RangeFilter::LT, RangeFilter::GT, 'eq', 'neq'];
         if (!\in_array($operator, $validOperators, true)) {
-            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter must be one of: %s', $type, implode(', ', $validOperators)), $path . '/parameter');
+            throw DataAbstractionLayerException::invalidFilterQuery(
+                \sprintf('Parameter "parameter.operator" for %s filter must be one of: %s', $type, implode(', ', $validOperators)),
+                $path . '/parameters/operator'
+            );
         }
 
         $now = Clock::get()->now();

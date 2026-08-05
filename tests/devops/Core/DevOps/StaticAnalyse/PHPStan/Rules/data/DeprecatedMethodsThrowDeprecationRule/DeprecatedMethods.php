@@ -7,6 +7,15 @@ use Shopware\Core\Framework\Feature;
 class DeprecatedMethods
 {
     /**
+     * @internal
+     *
+     * @deprecated tag:v6.8.0 - The dependency will be removed
+     */
+    public function __construct()
+    {
+    }
+
+    /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     public function __invoke(): void

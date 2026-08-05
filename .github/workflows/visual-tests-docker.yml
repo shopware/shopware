@@ -58,7 +58,7 @@ jobs:
         working-directory: tests/acceptance
         continue-on-error: true
         env:
-          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=all' || '--update-snapshots=none' }}
           FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
           CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}

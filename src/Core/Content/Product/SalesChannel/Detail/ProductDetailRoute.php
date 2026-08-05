@@ -124,6 +124,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
+            if (!$product instanceof SalesChannelProductEntity && $mainVariantId !== null && $this->isParentProductRequest($requestedProductId, $parentProductId)) {
+                $productId = $this->findBestVariant($requestedProductId, $context);
+                $criteria->setIds([$productId]);
+                $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+            }
+
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }

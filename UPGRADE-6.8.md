@@ -4,6 +4,14 @@
 
 <details>
 
+## App manifest features moved out of DAL entities
+
+App-declared modules, cookies, and MCP capabilities are now persisted through the generic app feature storage.
+
+The methods `AppEntity::getModules()`, `getMainModule()`, and `getCookies()` and their setters are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes these fields. Extensions must not use these accessors to discover an app's runtime features.
+
+The experimental app MCP DAL aggregates and the corresponding `AppEntity` and `LanguageEntity` accessors have been removed without replacement.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:

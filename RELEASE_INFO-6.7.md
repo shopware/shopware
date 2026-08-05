@@ -380,6 +380,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
+### App manifest features use generic storage
+
+App-declared modules, cookies, and MCP capabilities are now persisted through the generic app feature storage instead of dedicated DAL fields and aggregate entities. Installed apps do not need to change their manifests.
+
+Extensions that inspect app declarations through `AppEntity::getModules()`, `getMainModule()`, or `getCookies()` should stop relying on those entity accessors. They remain available for backwards compatibility but are deprecated and are no longer used by the app system at runtime. The dedicated app MCP DAL aggregates and their `AppEntity` / `LanguageEntity` accessors were experimental and have been removed.
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout

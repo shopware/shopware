@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -110,6 +111,29 @@ class ModuleLoaderTest extends TestCase
                 'mainModule' => ['source' => 'https://main.app.com?signed=true'],
             ],
         ], $moduleLoader->loadModules(Context::createDefaultContext($source)));
+    }
+
+    public function testLoadModulesSkipsTheAppQueryWhenThereAreNoActiveModuleFeatures(): void
+    {
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository->expects($this->never())->method('search');
+
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->once())
+            ->method('forActiveApps')
+            ->with(ModuleConfig::class)
+            ->willReturn([]);
+
+        /** @var EntityRepository<AppCollection> $appRepository */
+        $loader = new ModuleLoader(
+            $appRepository,
+            $this->createStub(ShopIdProvider::class),
+            $this->createStub(QuerySigner::class),
+            $storage,
+            $this->createStub(AppSecretResolver::class),
+        );
+
+        static::assertSame([], $loader->loadModules(Context::createDefaultContext()));
     }
 
     public function testLoadModulesSkipsAppsWithoutModulesOrMainModule(): void

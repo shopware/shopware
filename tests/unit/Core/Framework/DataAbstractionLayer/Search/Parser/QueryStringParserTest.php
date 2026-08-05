@@ -461,7 +461,7 @@ class QueryStringParserTest extends TestCase
         static::assertInstanceOf(MultiFilter::class, $result);
 
         static::assertArrayHasKey('parameters', $filter);
-        $primaryOperator = $filter['parameters']['operator'];
+        $primaryOperator = mb_strtolower($filter['parameters']['operator']);
         $primaryQuery = $result->getQueries()[0];
         if ($primaryOperator === 'neq') {
             static::assertInstanceOf(NotFilter::class, $primaryQuery);
@@ -476,7 +476,9 @@ class QueryStringParserTest extends TestCase
         static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
         static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
 
-        static::assertContains($secondaryRangeOperator, array_keys($result->getQueries()[1]->getParameters()));
+        if ($secondaryRangeOperator !== null) {
+            static::assertContains(mb_strtolower($secondaryRangeOperator), array_keys($result->getQueries()[1]->getParameters()));
+        }
 
         $now = (new \DateTimeImmutable())->setTime(0, 0, 0);
 
@@ -518,6 +520,7 @@ class QueryStringParserTest extends TestCase
         yield 'missing parameters exception' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D'], true];
         // test days until
         yield 'time until gt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], false, 'gt'];
+        yield 'time until GT uppercase' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'GT']], false, 'GT'];
         yield 'time until gte' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gte']], false, 'gt'];
         yield 'time until lt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'lt']], false, 'gt'];
         yield 'time until lte' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'lte']], false, 'gt'];
@@ -530,6 +533,31 @@ class QueryStringParserTest extends TestCase
         yield 'time since gte' => [['type' => 'since', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gte']], false, 'lt', false];
         yield 'time since eq' => [['type' => 'since', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'eq']], false, 'lt'];
         yield 'time since neq' => [['type' => 'since', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'neq']], false, 'lt'];
+    }
+
+    #[DataProvider('invalidRelativeTimeOperatorProvider')]
+    public function testRelativeTimeToDateFilterWithInvalidOperator(string $type, string $operator): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidFilterQuery(
+            \sprintf('Parameter "parameter.operator" for %s filter must be one of: lte, gte, lt, gt, eq, neq', $type),
+            '/parameter'
+        ));
+
+        QueryStringParser::fromArray(
+            new ProductDefinition(),
+            ['type' => $type, 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => $operator]],
+            new SearchRequestException()
+        );
+    }
+
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function invalidRelativeTimeOperatorProvider(): \Generator
+    {
+        yield 'unknown operator for until' => ['until', 'foo'];
+        yield 'unknown operator for since' => ['since', 'foo'];
+        yield 'range operator not supported for relative time' => ['until', 'gtee'];
     }
 
     private function negateOperator(string $operator): string

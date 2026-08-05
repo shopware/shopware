@@ -306,6 +306,7 @@ class QueryStringParser
         if (!\is_string($operator) || $operator === '') {
             throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $type), $path . '/parameter');
         }
+        $operator = mb_strtolower($operator);
         $validOperators = [RangeFilter::LTE, RangeFilter::GTE, RangeFilter::LT, RangeFilter::GT, 'eq', 'neq'];
         if (!\in_array($operator, $validOperators, true)) {
             throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter must be one of: %s', $type, implode(', ', $validOperators)), $path . '/parameter');

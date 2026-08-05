@@ -38,6 +38,7 @@ export default {
         'flyout-focus-request',
         'flyout-close-request',
         'flyout-navigate',
+        'navigation-link-click',
     ],
 
     props: {
@@ -296,7 +297,8 @@ export default {
     },
 
     watch: {
-        '$route.fullPath'() {
+        // Query-insensitive on purpose: listing pagination/sorting must not undo a manual collapse
+        '$route.path'() {
             this.suppressRouteKeepsFolderOpen = false;
         },
     },
@@ -304,7 +306,10 @@ export default {
     methods: {
         collapsedTooltipTriggerProps(tooltipProps) {
             if (this.showsCollapsedTooltip) {
-                return tooltipProps;
+                // Focus does not bubble to the non-focusable row, focusin/focusout do
+                const { onFocus, onBlur, ...bubblingProps } = tooltipProps;
+
+                return { ...bubblingProps, onFocusin: onFocus, onFocusout: onBlur };
             }
 
             return Object.fromEntries(
@@ -370,6 +375,12 @@ export default {
 
             // No-op unless this row has a collapsible subtree.
             this.toggleSubmenu();
+
+            this.$emit('navigation-link-click');
+        },
+
+        forwardNavigationLinkClick() {
+            this.$emit('navigation-link-click');
         },
 
         forwardFlyoutNavigate(payload) {

@@ -18,7 +18,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_menu_headline_context_button %}
-        <mt-dropdown-menu-root>
+        <mt-dropdown-menu-root
+            :open="contextMenuOpen"
+            @update:open="contextMenuOpen = $event"
+        >
             <mt-dropdown-menu-trigger as-child>
                 <mt-button
                     class="sw-admin-menu__headline-action"

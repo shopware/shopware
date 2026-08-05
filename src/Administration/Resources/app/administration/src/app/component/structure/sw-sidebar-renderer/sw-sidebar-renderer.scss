@@ -195,7 +195,7 @@
     }
 }
 
-// Only the motion is dropped; the store close delay is time-based, so timing is unchanged
+// The store also skips its close delay under reduced motion, so closing takes effect immediately
 @media (prefers-reduced-motion: reduce) {
     .sw-sidebar-renderer,
     .sw-sidebar-renderer.is-active,

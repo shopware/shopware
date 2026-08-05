@@ -31,14 +31,34 @@ describe('admin-menu.store', () => {
     });
 
     afterEach(() => {
+        localStorage.removeItem('sw-admin-menu-sidebar-expanded');
         localStorage.removeItem('sw-admin-menu-expanded');
     });
 
     it('has initial state', () => {
         expect(store.isExpanded).toBe(true);
-        expect(localStorage.getItem('sw-admin-menu-expanded')).toBeNull();
+        expect(localStorage.getItem('sw-admin-menu-sidebar-expanded')).toBeNull();
         expect(store.expandedEntries).toStrictEqual([]);
         expect(store.adminModuleNavigation).toStrictEqual([]);
+    });
+
+    it('ignores the legacy sw-admin-menu-expanded value', () => {
+        // Pre-rework versions auto-wrote 'false' on small viewports — not a user choice
+        localStorage.setItem('sw-admin-menu-expanded', 'false');
+
+        setActivePinia(createPinia());
+        store = Shopware.Store.get('adminMenu');
+
+        expect(store.isExpanded).toBe(true);
+    });
+
+    it('restores a persisted collapsed preference', () => {
+        localStorage.setItem('sw-admin-menu-sidebar-expanded', 'false');
+
+        setActivePinia(createPinia());
+        store = Shopware.Store.get('adminMenu');
+
+        expect(store.isExpanded).toBe(false);
     });
 
     it('expands a menu entry with `expandMenuEntry`', () => {
@@ -88,21 +108,21 @@ describe('admin-menu.store', () => {
 
     it('collapses the sidebar with `collapseSidebar`', () => {
         expect(store.isExpanded).toBe(true);
-        expect(localStorage.getItem('sw-admin-menu-expanded')).toBeNull();
+        expect(localStorage.getItem('sw-admin-menu-sidebar-expanded')).toBeNull();
 
         store.collapseSidebar();
         expect(store.isExpanded).toBe(false);
-        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('false');
+        expect(localStorage.getItem('sw-admin-menu-sidebar-expanded')).toBe('false');
     });
 
     it('expands the sidebar with `expandSidebar`', () => {
         store.collapseSidebar();
         expect(store.isExpanded).toBe(false);
-        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('false');
+        expect(localStorage.getItem('sw-admin-menu-sidebar-expanded')).toBe('false');
 
         store.expandSidebar();
         expect(store.isExpanded).toBe(true);
-        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('true');
+        expect(localStorage.getItem('sw-admin-menu-sidebar-expanded')).toBe('true');
     });
 
     it('returns the app module navigation with `appModuleNavigation`', () => {

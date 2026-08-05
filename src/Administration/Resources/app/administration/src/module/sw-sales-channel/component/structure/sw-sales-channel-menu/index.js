@@ -27,6 +27,7 @@ export default {
             showModal: false,
             isLoading: true,
             isMobileViewport: false,
+            contextMenuOpen: false,
         };
     },
 
@@ -48,9 +49,15 @@ export default {
             return this.acl.can('sales_channel.creator');
         },
 
-        // Gated on the finished request, so the row never flashes while loading
+        // Gated on the finished request, so the row never flashes while loading.
+        // Stale favourites of deleted channels return zero rows although channels exist.
         showAddChannelMenuItem() {
-            return this.salesChannelsLoaded && this.salesChannels.length === 0 && this.canCreateSalesChannels;
+            return (
+                this.salesChannelsLoaded &&
+                this.salesChannels.length === 0 &&
+                this.salesChannelFavorites.length === 0 &&
+                this.canCreateSalesChannels
+            );
         },
 
         salesChannelCriteria() {
@@ -138,6 +145,18 @@ export default {
             }
 
             this.loadEntityData();
+        },
+
+        // The teleported action menu would keep floating over the next page otherwise
+        '$route.path'() {
+            this.contextMenuOpen = false;
+        },
+
+        // The teleported action menu would float detached over the hidden off-canvas rail otherwise
+        isMobileViewport(isMobile) {
+            if (isMobile) {
+                this.contextMenuOpen = false;
+            }
         },
     },
 

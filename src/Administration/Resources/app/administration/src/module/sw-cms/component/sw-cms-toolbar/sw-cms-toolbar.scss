@@ -36,7 +36,8 @@
         margin-inline-start: var(--scale-size-8);
     }
 
-    @media screen and (max-width: 1280px) {
+    // Container-based: the expanded admin menu shrinks the page without a viewport change
+    @container sw-page (max-width: 1280px) {
         grid-template-columns: minmax(0, 1fr) auto auto auto auto;
 
         .sw-cms-toolbar__title {

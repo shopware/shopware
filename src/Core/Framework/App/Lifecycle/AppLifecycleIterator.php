@@ -136,7 +136,7 @@ class AppLifecycleIterator
                 continue;
             }
 
-            $appLifecycle->uninstall($appName, $app, $context);
+            $appLifecycle->uninstall($appName, ['id' => $app['id']], $context);
         }
     }
 }

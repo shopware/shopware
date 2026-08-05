@@ -4,6 +4,10 @@
 
 ## API
 
+### User uniqueness validation endpoints now require user read access
+
+The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
 ### Message queue admin endpoints now require ACL privileges
 
 Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:

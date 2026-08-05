@@ -116,7 +116,7 @@ Two new events give extensions a hook into the document lifecycle without pollin
 - `after_sales.document.generated` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
 - `after_sales.document.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
 
-Both events are selectable as triggers in Flow Builder. They are the first of a planned set of after-sales document lifecycle events (shopware/shopware#17571); `after_sales.document.generated` currently fires from the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`), with more originating paths planned. The Document V2 pipeline itself remains experimental and is not part of the backwards compatibility promise.
+Both events are selectable as triggers in Flow Builder. `after_sales.document.generated` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `after_sales.document.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
 
 ## Administration
 

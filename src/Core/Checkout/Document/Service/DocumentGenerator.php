@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
@@ -48,6 +50,7 @@ class DocumentGenerator
         private readonly EntityRepository $documentRepository,
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -133,6 +136,7 @@ class DocumentGenerator
         }
 
         $records = [];
+        $generatedDocuments = [];
 
         $success = $rendered->getSuccess();
 
@@ -166,6 +170,13 @@ class DocumentGenerator
                     'documentA11yMediaFileId' => $mediaIdForHtmlA11y,
                 ];
 
+                $generatedDocuments[] = [
+                    'id' => $id,
+                    'orderId' => $operation->getOrderId(),
+                    'orderVersionId' => $operation->getOrderVersionId(),
+                    'documentNumber' => $document->getNumber(),
+                ];
+
                 $result->addSuccess(new DocumentIdStruct($id, $deepLinkCode, $mediaId, $mediaIdForHtmlA11y));
             } catch (\Throwable $exception) {
                 $result->addError($orderId, $exception);
@@ -174,13 +185,24 @@ class DocumentGenerator
 
         $this->writeRecords($records, $context);
 
+        foreach ($generatedDocuments as $generatedDocument) {
+            $this->eventDispatcher->dispatch(new DocumentGeneratedEvent(
+                $generatedDocument['id'],
+                $generatedDocument['orderId'],
+                $generatedDocument['orderVersionId'],
+                $documentType,
+                $generatedDocument['documentNumber'],
+                $context,
+            ));
+        }
+
         return $result;
     }
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociation('documentMediaFile');
+            ->addAssociations(['documentMediaFile', 'documentType']);
 
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
         if (!$document) {
@@ -214,6 +236,15 @@ class DocumentGenerator
                 'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         ], $context);
+
+        $this->eventDispatcher->dispatch(new DocumentGeneratedEvent(
+            $documentId,
+            $document->getOrderId(),
+            $document->getOrderVersionId(),
+            $document->getDocumentType()?->getTechnicalName() ?? '',
+            $document->getDocumentNumber() ?? '',
+            $context,
+        ));
 
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }

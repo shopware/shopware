@@ -183,6 +183,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service(Connection::class),
             service(ClockInterface::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(DocumentMerger::class)

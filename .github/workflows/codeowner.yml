@@ -18,6 +18,10 @@ permissions:
 jobs:
   codeowners:
     name: 'Run Codeowners Plus'
+    # pull_request_review carries no OIDC token for fork PRs, so the sts mint below
+    # cannot work there; fork PRs are re-evaluated on their next synchronize through
+    # the pull_request_target events instead
+    if: github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Code Repository'

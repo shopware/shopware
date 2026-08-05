@@ -6,9 +6,13 @@ name: Check milestone label
 #
 # merge_group is the gate that matters: GitHub retargets a stacked PR to trunk without
 # emitting a pull_request event, so the PR-level run can be green from before it.
+#
+# pull_request_target instead of pull_request: fork PRs get a read-only token on
+# pull_request, so the status write would fail. Safe here because the job only ever
+# checks out the base ref and runs the rule module from it.
 
 on:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened

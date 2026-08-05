@@ -294,6 +294,7 @@ class MailService extends AbstractMailService
             if (\is_string($eventName) && $eventName !== '') {
                 $headers->addTextHeader('X-Shopware-Event-Name', $eventName);
             }
+
             if ($salesChannel instanceof SalesChannelEntity) {
                 $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannel->getId());
             }

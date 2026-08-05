@@ -134,7 +134,10 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher
+        )->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -200,9 +203,13 @@ class MailServiceTest extends TestCase
             });
 
         $templateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
+        $templateRenderer->expects($this->once())->method('render')->willThrowException(new \Exception('cannot render'));
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -267,7 +274,10 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
 
-        $email = $this->createMailService(eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            eventDispatcher: $eventDispatcher,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -336,7 +346,11 @@ class MailServiceTest extends TestCase
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailSender->expects($this->once())->method('send')->willThrowException(new \Exception('Mail sending failed'));
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, mailSender: $mailSender, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            mailSender: $mailSender,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -378,6 +392,10 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
+        $templateData = [
+            'eventName' => 'checkout.order.placed',
+        ];
+
         $email = (new Email())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
@@ -397,14 +415,19 @@ class MailServiceTest extends TestCase
         $languageLocaleCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $languageLocaleCodeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn('en-GB');
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, languageLocaleCodeProvider: $languageLocaleCodeProvider)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher,
+            languageLocaleCodeProvider: $languageLocaleCodeProvider
+        )->send($data, Context::createDefaultContext(), $templateData);
 
         static::assertInstanceOf(Email::class, $email);
         $headers = $email->getHeaders();
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
         static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
+        static::assertSame('checkout.order.placed', $headers->get('X-Shopware-Event-Name')?->getBody());
 
-        // check that no header is empty (e.g. Amazon SES doesn't like that)
+        // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
             static::assertInstanceOf(HeaderInterface::class, $header);
             static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');

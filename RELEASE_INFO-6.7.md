@@ -61,16 +61,6 @@ Four admin action endpoints that previously only required authentication now enf
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
-### Store API schema documents error responses and corrects security requirements
-
-The Store API OpenAPI schema now declares the `4xx` responses each endpoint can actually return — `400`, `401`, `403`, `404`, `409`, `410` and `429` — each with a description of what triggers it on that endpoint. Clients generated from the schema gain typed error models for these cases. No endpoint behaviour changed.
-
-Three endpoints declared security requirements that did not match the implementation and are now corrected:
-
-* `GET|POST /store-api/handle-payment` also requires the `sw-context-token` header, because the route requires a logged in customer.
-* `GET /store-api/product-export/{accessKey}/{fileName}` requires no `sw-access-key` header; the export is authorised by the `accessKey` path parameter.
-* `OPTIONS /store-api/_mcp` requires no authentication, because CORS preflight requests are answered before authentication.
-
 ## Core
 
 ### Deprecated XML configuration

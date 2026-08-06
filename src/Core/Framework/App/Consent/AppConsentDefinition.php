@@ -22,9 +22,7 @@ readonly class AppConsentDefinition implements ConsentDefinition
     }
 
     /**
-     * The app name and the declared name, so two apps declaring the same name stay separate and
-     * neither can take over a core consent. Answers are stored under this string and therefore
-     * keep their meaning after the app is uninstalled.
+     * Answers are stored under this string, so it keeps its meaning after the app is uninstalled.
      */
     public function getName(): string
     {
@@ -36,18 +34,14 @@ readonly class AppConsentDefinition implements ConsentDefinition
         return $this->config->scope;
     }
 
-    /**
-     * The date the app declared the consent in this shop.
-     */
     public function getSince(): \DateTimeImmutable
     {
         return $this->since;
     }
 
     /**
-     * The same permissions the bundled consents require for the scope: answering for one admin user
-     * is a profile change, answering for the whole shop is a system configuration change. The manifest
-     * allows no scopes besides those two.
+     * The app does not declare who may answer, so each scope uses the same permission its bundled
+     * consents use.
      */
     public function getRequiredPermissions(): array
     {

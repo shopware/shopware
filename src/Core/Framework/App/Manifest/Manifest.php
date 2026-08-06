@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
-use Shopware\Core\Framework\App\Manifest\Xml\Consent\Consents;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
@@ -43,6 +42,7 @@ class Manifest
     private array $sourceConfig = [];
 
     private function __construct(
+        private readonly \DOMDocument $document,
         private string $path,
         private readonly bool $validatesPermissions,
         /**
@@ -57,7 +57,6 @@ class Manifest
         private readonly ?CustomFields $customFields,
         private readonly ?Webhooks $webhooks,
         private readonly ?Cookies $cookies,
-        private readonly ?Consents $consents,
         private readonly ?Payments $payments,
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
@@ -98,6 +97,15 @@ class Manifest
         }
 
         return self::create($doc, $xmlFile);
+    }
+
+    /**
+     * The parsed manifest, for app feature definitions that read their own section instead of a
+     * typed accessor. Validated against the schema when the manifest was loaded.
+     */
+    public function getDocument(): \DOMDocument
+    {
+        return $this->document;
     }
 
     public function getPath(): string
@@ -178,11 +186,6 @@ class Manifest
     public function getCookies(): ?Cookies
     {
         return $this->cookies;
-    }
-
-    public function getConsents(): ?Consents
-    {
-        return $this->consents;
     }
 
     public function getPayments(): ?Payments
@@ -312,8 +315,6 @@ class Manifest
             $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
             $cookies = $doc->getElementsByTagName('cookies')->item(0);
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
-            $consents = $doc->getElementsByTagName('consents')->item(0);
-            $consents = $consents === null ? null : Consents::fromXml($consents);
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
             $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
@@ -331,6 +332,7 @@ class Manifest
         }
 
         return new self(
+            $doc,
             \dirname($xmlFile),
             $validatesPermissions,
             $requirements,
@@ -342,7 +344,6 @@ class Manifest
             $customFields,
             $webhooks,
             $cookies,
-            $consents,
             $payments,
             $ruleConditions,
             $storefront,

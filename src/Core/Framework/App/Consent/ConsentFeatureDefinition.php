@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Consent;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Consent\Consent;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
@@ -33,14 +33,19 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
 
     public function fromApp(Manifest $manifest, Filesystem $appFilesystem, string $defaultLocale): array
     {
-        return array_map(
-            static fn (Consent $consent): ConsentConfig => new ConsentConfig(
-                $consent->getName(),
-                $consent->getScope(),
-                $consent->getRevision(),
-            ),
-            $manifest->getConsents()?->getConsents() ?? [],
-        );
+        $configs = [];
+
+        foreach ($manifest->getDocument()->getElementsByTagName('consent') as $consent) {
+            $values = XmlParserUtils::parseChildren($consent);
+
+            $configs[] = new ConsentConfig(
+                (string) $values['name'],
+                (string) $values['scope'],
+                isset($values['revision']) ? (string) $values['revision'] : null,
+            );
+        }
+
+        return $configs;
     }
 
     /**

@@ -75,9 +75,10 @@ test(
             await CheckVisibilityInHome(basicProduct.name)();
         });
 
+        await TestDataService.clearCaches();
+
         await test.step('Verify setup filters display & enabled', async () => {
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -134,7 +135,6 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({
                     timeout: TIMEOUT,
@@ -222,7 +222,6 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -313,9 +312,10 @@ test(
         await CheckVisibilityInHome(productWithShippingAndManufacturer.name)();
         await CheckVisibilityInHome(parentProductColor.name)();
 
+        await TestDataService.clearCaches();
+
         await test.step('Verify setup filters display', async () => {
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });

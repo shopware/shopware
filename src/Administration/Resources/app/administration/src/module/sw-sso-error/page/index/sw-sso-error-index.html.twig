@@ -7,6 +7,10 @@
             :alt="$t('global.sw-sso-error.error-card.logoAltText')"
         >
 
+        <!-- Keeps the injection points of the former mt-card available -->
+        <sw-extension-component-section position-identifier="sw-sso-error-card__before" />
+        <sw-extension-component-section position-identifier="sw-sso-error-card" />
+
         <div class="sw-sso-error__card">
             <div class="sw-sso-error__status">
                 <span class="sw-sso-error__status-icon">
@@ -36,8 +40,8 @@
                     </div>
 
                     <mt-button
-                        v-else
                         is="a"
+                        v-else
                         variant="primary"
                         size="default"
                         :href="url"
@@ -56,6 +60,8 @@
                 </p>
             </div>
         </div>
+
+        <sw-extension-component-section position-identifier="sw-sso-error-card__after" />
     </div>
 </div>
 {% endblock %}

@@ -81,6 +81,15 @@
             <label>Automatically log out guest customers after order completion</label>
             <label lang="de-DE">Gastkunden nach dem Bestellabschluss automatisch ausloggen</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>showLegalGuaranteeNotice</name>
+            <defaultValue>true</defaultValue>
+            <label>Show legal guarantee notice on checkout page</label>
+            <label lang="de-DE">Gewährleistungshinweis auf Bestellabschlussseite anzeigen</label>
+            <helpText>Displays the EU-harmonised legal guarantee notice in the customer's storefront language.</helpText>
+            <helpText lang="de-DE">Zeigt den EU-weit harmonisierten Gewährleistungshinweis in der Storefront-Sprache des Kunden an.</helpText>
+        </input-field>
     </card>
 
     <card>

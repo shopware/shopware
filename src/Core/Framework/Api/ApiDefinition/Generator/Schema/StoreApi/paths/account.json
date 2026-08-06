@@ -305,9 +305,10 @@
                                     "languageId"
                                 ],
                                 "properties": {
-                                    "language": {
+                                    "languageId": {
                                         "description": "New languageId",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     }
                                 },
                                 "type": "object"

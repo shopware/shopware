@@ -13,6 +13,7 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
+import SelectItemEvent from 'src/plugin/google-analytics/events/select-item.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
 import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
@@ -105,6 +106,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.registerEvent(PurchaseEvent);
         this.registerEvent(RemoveFromCartEvent);
         this.registerEvent(SearchAjaxEvent);
+        this.registerEvent(SelectItemEvent);
         this.registerEvent(SignUpEvent);
         this.registerEvent(ViewItemEvent);
         this.registerEvent(ViewItemListEvent);

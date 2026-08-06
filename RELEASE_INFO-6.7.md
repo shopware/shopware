@@ -376,6 +376,23 @@ Variant products report their selected options as `item_variant`, for example `R
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. It reads the product number from `.product-detail-ordernumber` and the manufacturer from the `product:brand` meta tag instead, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
+
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Clicking a product in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Adding a product to the cart or to the wishlist from the same card is not a selection and is not reported.
+
+`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it, so the detail page view is attributed to the list the customer came from. The attribution is stored for the session and consumed once, so opening a product directly is not attributed.
+
+The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+
+- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
+- Search results report `search` and `Search results`.
+- The wishlist reports `wishlist` and `Wishlist`.
+- A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes.
+
+`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 ### `theme:create` gains `--full` and granular scaffold flags
 
 `bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.

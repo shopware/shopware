@@ -52,8 +52,8 @@ class MailTemplateSendService
 
         $extension = new MailSendSubscriberConfig(
             false,
-            $mailPayload->documentIds ?? [],
-            $mailPayload->mediaIds ?? [],
+            $mailPayload->documentIds,
+            $mailPayload->mediaIds,
         );
 
         $orderId = null;

@@ -44,6 +44,7 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
         this.pushEvent('add_payment_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'payment_type': paymentType,
             'items': lineItems,
         });

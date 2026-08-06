@@ -12,9 +12,10 @@
                     {% set categories = lineItem.payload.categoryNames is defined ? lineItem.payload.categoryNames|slice(0, 5) : [] %}
                     {% set categoryAttributes = '' %}
                     {% for name in categories %}
-                        {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name ~ '"' %}
+                        {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name|e('html_attr') ~ '"' %}
                     {% endfor %}
                     {% set productId = lineItem.productId ?? lineItem.referencedId ?? lineItem.id %}
+                    {% set variant = lineItem.payload.options is defined ? lineItem.payload.options|map(option => option.option)|join(', ') : '' %}
                     <span class="hidden-line-item"
                           data-id="{{ productId }}"
                           data-sku="{{ lineItem.payload.productNumber ?? productId }}"
@@ -22,9 +23,15 @@
                           data-quantity="{{ lineItem.quantity }}"
                           data-price="{{ gaPrice }}"
                           data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                          data-variant="{{ variant }}"
                           {{ categoryAttributes|raw }}
                     >
                     </span>
+                {% endblock %}
+            {% elseif lineItem.type == 'promotion' and lineItem.payload.code|default('') is not empty %}
+                {# Automatic promotions have no code, and a promotion with several discounts adds one line item per discount. #}
+                {% block component_hidden_line_item_coupon %}
+                    <span class="hidden-line-item-coupon" data-code="{{ lineItem.payload.code }}"></span>
                 {% endblock %}
             {% endif %}
         {% endfor %}

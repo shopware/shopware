@@ -21,15 +21,13 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
     test('fires view_item event with product data', () => {
         document.body.innerHTML = `
-            <div itemtype="https://schema.org/Product">
-                <span itemprop="sku">
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L">
+                <span class="product-detail-ordernumber">
                     product-123
                 </span>
-                <span itemprop="name">Test Product</span>
-                <div itemprop="brand">
-                    <meta itemprop="name" content="Test Brand">
-                </div>
             </div>
+            <meta property="product:brand" content="Test Brand">
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
             <nav aria-label="breadcrumb">
@@ -45,6 +43,7 @@ describe('plugin/google-analytics/events/view-item.event', () => {
                 'item_id': 'product-123',
                 'item_name': 'Test Product',
                 'item_brand': 'Test Brand',
+                'item_variant': 'Red, L',
                 'price': 99.99,
                 'item_category': 'Category 1',
                 'item_category2': 'Category 2',
@@ -54,8 +53,40 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         });
     });
 
-    test('does not fire event when product itemtype is missing', () => {
-        document.body.innerHTML = `<div>No product here</div>`;
+    /**
+     * @deprecated tag:v6.8.0 - The microdata is replaced by JSON-LD, this test will be removed.
+     */
+    test('fires view_item event from the deprecated microdata', () => {
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <h1 class="product-detail-name" itemprop="name">Test Product</h1>
+                <span itemprop="sku">
+                    product-123
+                </span>
+                <div itemprop="brand">
+                    <meta itemprop="name" content="Test Brand">
+                </div>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
+            'items': [{
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'price': 99.99,
+            }],
+            'currency': 'EUR',
+            'value': 99.99,
+        });
+    });
+
+    test('does not fire event when no product markup is present', () => {
+        document.body.innerHTML = '<div>No product here</div>';
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
         new ViewItemEvent().execute();
@@ -65,11 +96,9 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         consoleSpy.mockRestore();
     });
 
-    test('does not fire event when product ID is missing', () => {
+    test('does not fire event when the product number is missing', () => {
         document.body.innerHTML = `
-            <div itemtype="https://schema.org/Product">
-                <span itemprop="name">Test Product</span>
-            </div>
+            <h1 class="product-detail-name">Test Product</h1>
         `;
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();

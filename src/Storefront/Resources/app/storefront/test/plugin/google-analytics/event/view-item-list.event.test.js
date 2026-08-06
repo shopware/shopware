@@ -16,12 +16,12 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
     });
 
     test('event is supported when listing wrapper is in the HTML', () => {
-        document.body.innerHTML = `<div class="cms-element-product-listing-wrapper"></div>`;
+        document.body.innerHTML = '<div class="cms-element-product-listing-wrapper"></div>';
         expect(new ViewItemListEvent().supports()).toBe(true);
     });
 
     test('event is not supported when listing wrapper is missing', () => {
-        document.body.innerHTML = `<div class="other-content"></div>`;
+        document.body.innerHTML = '<div class="other-content"></div>';
         expect(new ViewItemListEvent().supports()).toBe(false);
     });
 
@@ -45,6 +45,26 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             'items': [
                 { item_id: 'product-1', item_name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
                 { item_id: 'product-2', item_name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
+            ],
+        });
+    });
+
+    test('reports the variant options of variant products', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000.1", "variant": "Red, L" }'></div>
+                <div class="product-box" data-product-information='{ "id": "2", "name": "Mug", "price": 5, "sku": "SW10001", "variant": "" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
+            'currency': 'EUR',
+            'value': 25,
+            'items': [
+                { item_id: 'SW10000.1', item_name: 'Shirt', price: 20, item_variant: 'Red, L' },
+                { item_id: 'SW10001', item_name: 'Mug', price: 5 },
             ],
         });
     });
@@ -87,7 +107,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(mockEmitter.subscribe).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
 
         // Simulate a listing change (pagination/filter)

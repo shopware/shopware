@@ -52,6 +52,7 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
         this.pushEvent('add_shipping_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'shipping_tier': shippingTier,
             'items': lineItems,
         });

@@ -60,6 +60,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 'quantity': quantity,
                 'price': price,
                 'item_brand': formData.get('brand-name') || productData.brand,
+                'item_variant': productData.variant,
                 ...ProductPageHelper.getCategories(),
             }],
         });

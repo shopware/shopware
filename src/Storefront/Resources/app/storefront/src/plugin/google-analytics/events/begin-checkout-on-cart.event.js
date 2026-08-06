@@ -37,6 +37,7 @@ export default class BeginCheckoutOnCartEvent extends AnalyticsEvent
         this.pushEvent('begin_checkout', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'items': LineItemHelper.getLineItems(),
         });
     }

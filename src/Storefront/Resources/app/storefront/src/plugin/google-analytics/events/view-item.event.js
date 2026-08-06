@@ -18,34 +18,21 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        const productItemElement = document.querySelector('[itemtype="https://schema.org/Product"]');
-        if (!productItemElement) {
-            console.warn('[Google Analytics Plugin] Product itemtype ([itemtype="https://schema.org/Product"]) could not be found in document.');
-            return;
-        }
-
-        const productIdElement = productItemElement.querySelector('[itemprop="sku"]');
-        const productNameElement = productItemElement.querySelector('[itemprop="name"]');
-        if (!productIdElement || !productNameElement) {
-            console.warn('[Google Analytics Plugin] Product ID ([itemprop="sku"]) or product name ([itemprop="name"]) could not be found within product scope.');
-            return;
-        }
-
-        const productId = productIdElement.textContent.trim();
-        const productName = productNameElement.textContent.trim();
-        if (!productId || !productName) {
-            console.warn('[Google Analytics Plugin] Product ID or product name is empty, do not track page view.');
+        const productData = ProductPageHelper.getProductDetailData();
+        if (!productData.id || !productData.name) {
+            console.warn('[Google Analytics Plugin] Product number (.product-detail-ordernumber) or product name (.product-detail-name) could not be found, do not track page view.');
             return;
         }
 
         this.pushEvent('view_item', {
-            'currency': ProductPageHelper.getCurrency(),
-            'value': ProductPageHelper.getValue(),
+            'currency': productData.currency,
+            'value': productData.value,
             'items': [{
-                'item_id': productId,
-                'item_name': productName,
-                'item_brand': ProductPageHelper.getBrand(),
-                'price': ProductPageHelper.getValue(),
+                'item_id': productData.id,
+                'item_name': productData.name,
+                'item_brand': productData.brand,
+                'item_variant': productData.variant,
+                'price': productData.value,
                 ...ProductPageHelper.getCategories(),
             }],
         });

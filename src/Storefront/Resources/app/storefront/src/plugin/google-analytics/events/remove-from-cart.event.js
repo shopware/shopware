@@ -62,6 +62,7 @@ export default class RemoveFromCart extends AnalyticsEvent
                 'quantity': quantity,
                 'price': price,
                 'item_brand': hiddenLineItem.getAttribute('data-brand'),
+                'item_variant': hiddenLineItem.getAttribute('data-variant'),
                 ...categories,
             }],
         });

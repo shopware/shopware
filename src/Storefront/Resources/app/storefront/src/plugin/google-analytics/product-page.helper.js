@@ -7,7 +7,7 @@ export default class ProductPageHelper {
      * Gets product data from available sources (detail page or product card)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card (e.g., form)
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductData(productId, fallbackElement = null) {
         const detailData = ProductPageHelper.getProductDetailData();
@@ -21,6 +21,7 @@ export default class ProductPageHelper {
             id: cardData.id,
             name: cardData.name,
             brand: cardData.brand,
+            variant: cardData.variant,
             currency: detailData.currency,
             value: cardData.value,
         };
@@ -28,13 +29,14 @@ export default class ProductPageHelper {
 
     /**
      * Gets product data from product detail page
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductDetailData() {
         return {
             id: ProductPageHelper.getSku(),
             name: document.querySelector('.product-detail-name')?.textContent.trim(),
             brand: ProductPageHelper.getBrand(),
+            variant: ProductPageHelper.getVariant(),
             currency: ProductPageHelper.getCurrency(),
             value: ProductPageHelper.getValue(),
         };
@@ -44,7 +46,7 @@ export default class ProductPageHelper {
      * Gets product data from product card (listing page)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
-     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, value: string|undefined}}
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, value: string|undefined}}
      */
     static getProductCardData(productId, fallbackElement = null) {
         let productCard = document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box');
@@ -64,6 +66,7 @@ export default class ProductPageHelper {
                 id: info.sku ?? productId,
                 name: info.name,
                 brand: info.brand,
+                variant: info.variant,
                 value: info.price,
             };
         } catch {
@@ -76,7 +79,9 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getSku() {
-        return document.querySelector('[itemprop="sku"]')?.textContent.trim();
+        // @deprecated tag:v6.8.0 - The `[itemprop="sku"]` fallback will be removed, the microdata is replaced by JSON-LD.
+        return document.querySelector('.product-detail-ordernumber')?.textContent.trim()
+            || document.querySelector('[itemprop="sku"]')?.textContent.trim();
     }
 
     /**
@@ -84,7 +89,17 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getBrand() {
-        return document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
+        // @deprecated tag:v6.8.0 - The `[itemprop="brand"]` fallback will be removed, the microdata is replaced by JSON-LD.
+        return document.querySelector('meta[property="product:brand"]')?.content
+            || document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
+    }
+
+    /**
+     * Gets the selected variant options from the product detail page, e.g. `Red, L`
+     * @returns {string|undefined}
+     */
+    static getVariant() {
+        return document.querySelector('[data-product-variant]')?.getAttribute('data-product-variant');
     }
 
     /**

@@ -70,12 +70,13 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         productBoxes.forEach(item => {
             if (item.dataset.productInformation) {
                 const productData = JSON.parse(item.dataset.productInformation);
-                const { sku, id, name, brand, ...properties } = productData;
+                const { sku, id, name, brand, variant, ...properties } = productData;
                 lineItems.push({
                     ...properties,
                     item_id: sku ?? id,
                     item_name: name,
                     item_brand: brand,
+                    item_variant: variant,
                     ...categories,
                 });
             }

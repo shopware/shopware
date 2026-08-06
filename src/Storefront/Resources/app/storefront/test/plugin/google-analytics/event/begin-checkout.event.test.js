@@ -79,6 +79,52 @@ describe('plugin/google-analytics/events/begin-checkout.event', () => {
         });
     });
 
+    test('reports the applied promotion codes as coupon', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                <span class="hidden-line-item-coupon" data-code="FREESHIP"></span>
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="99.99">
+                </span>
+            </div>
+            <button class="begin-checkout-btn"></button>
+        `;
+
+        subscribe();
+        openOffCanvas();
+        document.querySelector('.begin-checkout-btn').click();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', expect.objectContaining({
+            'coupon': 'SAVE20, FREESHIP',
+        }));
+    });
+
+    test('omits coupon when no promotion is applied', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="99.99">
+                </span>
+            </div>
+            <button class="begin-checkout-btn"></button>
+        `;
+
+        subscribe();
+        openOffCanvas();
+        document.querySelector('.begin-checkout-btn').click();
+
+        expect(window.gtag.mock.calls[0][2]).not.toHaveProperty('coupon');
+    });
+
     test('clears the reported checkout steps so the new checkout reports them again', () => {
         CheckoutStepHelper.markReported('add_shipping_info');
         CheckoutStepHelper.markReported('add_payment_info');

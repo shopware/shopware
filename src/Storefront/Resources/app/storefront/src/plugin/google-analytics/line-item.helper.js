@@ -43,6 +43,7 @@ export default class LineItemHelper
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
                 item_brand: itemEl.getAttribute('data-brand'),
+                item_variant: itemEl.getAttribute('data-variant'),
             };
 
             lineItems.push({
@@ -71,7 +72,19 @@ export default class LineItemHelper
             shipping: lineItemsContainer.getAttribute('data-shipping'),
             value,
             tax: lineItemsContainer.getAttribute('data-tax'),
+            coupon: LineItemHelper.getCoupon(),
         };
+    }
+
+    /**
+     * GA4 reports a single order level coupon, so all applied promotion codes are joined.
+     * @returns { string }
+     */
+    static getCoupon() {
+        const couponElements = document.querySelectorAll('.hidden-line-items-information .hidden-line-item-coupon');
+        const codes = new Set([...couponElements].map(element => element.getAttribute('data-code')));
+
+        return [...codes].join(', ');
     }
 
     /**
@@ -104,6 +117,7 @@ export default class LineItemHelper
             id: lineItem.item_id,
             name: lineItem.item_name,
             brand: lineItem.item_brand,
+            variant: lineItem.item_variant,
             value: lineItem.price,
             currency: additionalProperties.currency,
             categories,

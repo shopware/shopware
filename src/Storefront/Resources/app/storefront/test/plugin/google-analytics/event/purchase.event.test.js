@@ -76,6 +76,43 @@ describe('plugin/google-analytics/events/purchase.event', () => {
         });
     });
 
+    test('fires purchase event with the applied coupon and the item variant', () => {
+        document.body.innerHTML = `
+            <div class="finish-ordernumber" data-order-number="10001"></div>
+            <div class="hidden-line-items-information" data-currency="EUR" data-tax="15.96" data-shipping="0">
+                <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="SW10000.1"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="99.99"
+                    data-variant="Red, L">
+                </span>
+            </div>
+        `;
+
+        new PurchaseEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'purchase', {
+            'transaction_id': '10001',
+            'currency': 'EUR',
+            'value': 99.99,
+            'tax': 15.96,
+            'shipping': 0,
+            'coupon': 'SAVE20',
+            'items': [
+                {
+                    item_id: 'SW10000.1',
+                    item_name: 'Test Product',
+                    quantity: 1,
+                    price: 99.99,
+                    item_variant: 'Red, L',
+                },
+            ],
+        });
+    });
+
     test('does not fire event when order number element is missing', () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98"></div>

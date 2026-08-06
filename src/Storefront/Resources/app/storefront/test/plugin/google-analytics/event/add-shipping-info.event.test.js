@@ -89,6 +89,33 @@ describe('plugin/google-analytics/events/add-shipping-info.event', () => {
         });
     });
 
+    test('reports the applied promotion codes as coupon', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="99.99">
+                </span>
+            </div>
+            <div class="shipping-method-radio">
+                <input type="radio" class="shipping-method-input" checked>
+                <div class="shipping-method-description">
+                    <strong>Express Shipping</strong>
+                </div>
+            </div>
+        `;
+
+        new AddShippingInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_shipping_info', expect.objectContaining({
+            'coupon': 'SAVE20',
+        }));
+    });
+
     test('does not fire event when no shipping form exists (digital-only order)', () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR" data-value="49.99">

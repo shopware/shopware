@@ -53,6 +53,28 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         });
     });
 
+    test('reports the variant options of the product detail page', () => {
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L">
+                <span class="product-detail-ordernumber">SW10000.1</span>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'SW10000.1',
+                'item_variant': 'Red, L',
+            })],
+        }));
+    });
+
     test('fires add_to_wishlist event with line item data on checkout pages', () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
@@ -264,6 +265,51 @@ class MatchAllLineItemsRuleTest extends TestCase
             'no type match / promotion / minimum set / returns false' => [LineItem::PROMOTION_LINE_ITEM_TYPE, 1, false],
             'no type match / custom / no minimum / returns false' => [LineItem::CUSTOM_LINE_ITEM_TYPE, null, false],
             'no type match / custom / minimum set / returns false' => [LineItem::CUSTOM_LINE_ITEM_TYPE, 1, false],
+        ];
+    }
+
+    #[DataProvider('getPromotionTypeFilterWithProductsTestData')]
+    public function testPromotionTypeFilterWithProductsInCart(
+        string $operator,
+        bool $includeSelectedPromotion,
+        bool $expected
+    ): void {
+        $promotionId = 'selected-promotion-id';
+
+        $promotionRule = new PromotionLineItemRule($operator, [$promotionId]);
+
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, LineItem::PROMOTION_LINE_ITEM_TYPE);
+        $allLineItemsRule->addRule($promotionRule);
+
+        $lineItems = new LineItemCollection([
+            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+        ]);
+
+        if ($includeSelectedPromotion) {
+            $lineItems->add(
+                $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')
+                    ->setPayloadValue('promotionId', $promotionId)
+            );
+        }
+
+        $match = $allLineItemsRule->match(new CartRuleScope(
+            $this->createCart($lineItems),
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @return array<string, mixed[]>
+     */
+    public static function getPromotionTypeFilterWithProductsTestData(): array
+    {
+        return [
+            'products only / none of / matches vacuously' => [Rule::OPERATOR_NEQ, false, true],
+            'products only / are one of / matches vacuously' => [Rule::OPERATOR_EQ, false, true],
+            'products and selected promotion / none of / does not match' => [Rule::OPERATOR_NEQ, true, false],
+            'products and selected promotion / are one of / matches' => [Rule::OPERATOR_EQ, true, true],
         ];
     }
 

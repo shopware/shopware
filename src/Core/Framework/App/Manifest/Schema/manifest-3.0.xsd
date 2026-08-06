@@ -524,7 +524,7 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="consent">
-        <xs:choice maxOccurs="unbounded">
+        <xs:all>
             <xs:element type="consent-name" name="name">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">
@@ -539,6 +539,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element type="xs:date" name="since">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The date your app introduced the consent, as YYYY-MM-DD. Keep it unchanged when the
+                        terms of the consent change, use "revision" for that.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element type="xs:string" name="revision" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">
@@ -547,7 +555,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:choice>
+        </xs:all>
     </xs:complexType>
     <xs:simpleType name="consent-name">
         <xs:restriction base="xs:string">

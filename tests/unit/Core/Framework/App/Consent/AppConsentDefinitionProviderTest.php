@@ -47,17 +47,15 @@ class AppConsentDefinitionProviderTest extends TestCase
         );
     }
 
-    public function testRevisionAndSinceComeFromTheStoredFeature(): void
+    public function testRevisionAndSinceComeFromTheDeclarationNotTheRow(): void
     {
-        $createdAt = new \DateTimeImmutable('2026-02-03 10:00:00');
-
         $definitions = $this->createProvider(
-            $this->createAppFeature('swagApp', 'order_analysis', 'system', '2026-01-01', $createdAt),
+            $this->createAppFeature('swagApp', 'order_analysis', 'system', new \DateTimeImmutable('2026-02-03'), '2026-01-01'),
         )->getConsentDefinitions();
 
         static::assertCount(1, $definitions);
         static::assertSame('2026-01-01', $definitions[0]->getLatestRevision());
-        static::assertSame($createdAt, $definitions[0]->getSince());
+        static::assertSame('2026-02-03', $definitions[0]->getSince()->format('Y-m-d'));
     }
 
     /**
@@ -67,8 +65,8 @@ class AppConsentDefinitionProviderTest extends TestCase
         string $appName,
         string $name,
         string $scope,
+        ?\DateTimeImmutable $since = null,
         ?string $revision = null,
-        ?\DateTimeImmutable $createdAt = null,
     ): AppFeature {
         return new AppFeature(
             Uuid::randomHex(),
@@ -76,8 +74,8 @@ class AppConsentDefinitionProviderTest extends TestCase
             true,
             '1.0.0',
             true,
-            $createdAt ?? new \DateTimeImmutable(),
-            new ConsentConfig($name, $scope, $revision),
+            new \DateTimeImmutable('2020-01-01'),
+            new ConsentConfig($name, $scope, $since ?? new \DateTimeImmutable('2026-02-03'), $revision),
         );
     }
 

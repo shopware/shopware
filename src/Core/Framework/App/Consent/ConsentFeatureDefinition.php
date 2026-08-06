@@ -41,6 +41,7 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
             $configs[] = new ConsentConfig(
                 (string) $values['name'],
                 (string) $values['scope'],
+                new \DateTimeImmutable((string) $values['since']),
                 isset($values['revision']) ? (string) $values['revision'] : null,
             );
         }
@@ -49,8 +50,6 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
     }
 
     /**
-     * The whole declaration is owned by the app: there is no shop-side state in the payload to keep.
-     *
      * @return ConsentPayload
      */
     public function toPayload(AppFeatureConfig $declared, ?AppFeatureConfig $stored): array
@@ -66,6 +65,7 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
         return new ConsentConfig(
             $payload['name'],
             $payload['scope'],
+            new \DateTimeImmutable($payload['since']),
             $payload['revision'] ?? null,
         );
     }

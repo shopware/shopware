@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinitionProvider;
 
 /**
- * Hands the consents declared by active apps to the core consent registry.
+ * Hands the consents declared by active apps to the core consent system.
  *
  * @internal only for use by the app-system
  */
@@ -23,7 +23,7 @@ class AppConsentDefinitionProvider implements ConsentDefinitionProvider
         $definitions = [];
 
         foreach ($this->storage->forActiveApps(ConsentConfig::class) as $feature) {
-            $definitions[] = new AppConsentDefinition($feature->appName, $feature->config, $feature->createdAt);
+            $definitions[] = new AppConsentDefinition($feature->appName, $feature->config);
         }
 
         return $definitions;

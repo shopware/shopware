@@ -17,7 +17,6 @@ readonly class AppConsentDefinition implements ConsentDefinition
     public function __construct(
         private string $appName,
         private ConsentConfig $config,
-        private \DateTimeImmutable $since,
     ) {
     }
 
@@ -36,7 +35,7 @@ readonly class AppConsentDefinition implements ConsentDefinition
 
     public function getSince(): \DateTimeImmutable
     {
-        return $this->since;
+        return $this->config->since;
     }
 
     /**

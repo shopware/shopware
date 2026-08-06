@@ -37,9 +37,10 @@
 
                     <mt-button
                         v-else
+                        is="a"
                         variant="primary"
                         size="default"
-                        :link="url"
+                        :href="url"
                         target="_self"
                     >
                         {{ $t('global.sw-sso-error.error-card.button') }}

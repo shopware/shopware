@@ -3,6 +3,11 @@ import './sw-landing-page-tree.scss';
 
 const { Criteria } = Shopware.Data;
 
+// shopware.api.max_limit caps every Admin API request, rejecting anything higher instead of clamping.
+// It is configurable but defaults to 500, which the Administration hardcodes everywhere; stay consistent
+// with that until the value is exposed to the client.
+const PAGE_SIZE = 500;
+
 /**
  * @sw-package discovery
  */
@@ -62,6 +67,9 @@ export default {
             translationContext: 'sw-landing-page',
             linkContext: 'sw.category.landingPageDetail',
             isLoadingInitialData: true,
+            isLoadingMore: false,
+            page: 1,
+            total: 0,
         };
     },
 
@@ -71,8 +79,10 @@ export default {
         },
 
         cmsLandingPageCriteria() {
-            const criteria = new Criteria(1, 500);
+            const criteria = new Criteria(this.page, PAGE_SIZE);
             criteria.addSorting(Criteria.sort('name'));
+            // Names are not unique, so paging without a stable tiebreaker can skip or repeat entries.
+            criteria.addSorting(Criteria.sort('id'));
 
             return criteria;
         },
@@ -87,6 +97,10 @@ export default {
 
         landingPages() {
             return Object.values(this.loadedLandingPages);
+        },
+
+        hasMoreLandingPages() {
+            return this.landingPages.length < this.total;
         },
 
         disableContextMenu() {
@@ -139,7 +153,7 @@ export default {
 
         currentLanguageId() {
             this.isLoadingInitialData = true;
-            this.loadedLandingPages = {};
+            this.resetLandingPages();
 
             this.loadLandingPages().finally(() => {
                 this.isLoadingInitialData = false;
@@ -166,8 +180,32 @@ export default {
 
         loadLandingPages() {
             return this.landingPageRepository.search(this.cmsLandingPageCriteria).then((result) => {
+                this.total = result.total ?? result.length;
                 this.addLandingPages(result);
             });
+        },
+
+        loadMoreLandingPages() {
+            this.isLoadingMore = true;
+            this.page += 1;
+
+            return this.loadLandingPages()
+                .catch(() => {
+                    this.page -= 1;
+
+                    this.createNotificationError({
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoadingMore = false;
+                });
+        },
+
+        resetLandingPages() {
+            this.page = 1;
+            this.total = 0;
+            this.loadedLandingPages = {};
         },
 
         checkedElementsCount(count) {
@@ -230,6 +268,7 @@ export default {
                             element.parentId = null;
                         });
 
+                        this.total += landingPages.length;
                         this.addLandingPages(landingPages);
                     });
                 })
@@ -261,6 +300,7 @@ export default {
                     const criteria = new Criteria(1, 25);
                     criteria.setIds([newLandingPage.id].filter((id) => id !== null));
                     this.landingPageRepository.search(criteria).then((landingPages) => {
+                        this.total += landingPages.length;
                         this.addLandingPages(landingPages);
                     });
                 });
@@ -305,6 +345,8 @@ export default {
                     return key !== id;
                 }),
             );
+
+            this.total = Math.max(0, this.total - 1);
         },
 
         getLandingPageUrl(landingPage) {

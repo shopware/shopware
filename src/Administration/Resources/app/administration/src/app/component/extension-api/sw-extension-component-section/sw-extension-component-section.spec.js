@@ -88,7 +88,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    it('should not render tabs in card section', async () => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
@@ -101,9 +102,22 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         wrapper = await createWrapper();
         await flushPromises();
 
-        // Assert both implementations: the legacy container is the meaningful one by default, the
-        // meteor component under v6.8. Checking only one makes this vacuous in the other suite.
         expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render tabs in card section', async () => {
+        Shopware.Store.get('extensionComponentSections').addSection({
+            component: 'card',
+            positionId: 'test-position',
+            props: {
+                title: 'test-card',
+                subtitle: 'test-card-description',
+            },
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 

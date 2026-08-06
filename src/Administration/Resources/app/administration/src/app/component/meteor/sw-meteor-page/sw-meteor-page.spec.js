@@ -298,13 +298,18 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         },
     );
 
-    it('should not render the tabs when slot is empty', async () => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render the tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        // Assert both implementations: the legacy container is the meaningful one by default, the
-        // meteor component under v6.8. Checking only one makes this vacuous in the other suite.
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render the tabs when slot is empty', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 

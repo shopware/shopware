@@ -72,7 +72,9 @@ class ProductCategoryDenormalizer
             $toBeDeleted = array_values(array_diff($oldTrees, $categoryIds));
             $toBeAdded = array_values(array_diff($categoryIds, $oldTrees));
 
-            if ($toBeDeleted === [] && $toBeAdded === []) {
+            // The rows and the denormalized column are written independently, so the column is also
+            // compared: it has to be repaired when it drifted even though the rows are up to date.
+            if ($toBeDeleted === [] && $toBeAdded === [] && $this->treeColumnMatches($mapping['tree'] ?? null, $categoryIds)) {
                 continue;
             }
 
@@ -103,6 +105,32 @@ class ProductCategoryDenormalizer
         });
 
         $this->insertTree($inserts);
+    }
+
+    /**
+     * The order of the stored ids is not significant, `category_tree` is only read with contains
+     * checks, and the order the ids are collected in is not stable. Comparing the encoded strings
+     * would therefore report a difference on every run and rewrite the column each time.
+     *
+     * @param array<int, string> $categoryIds
+     */
+    private function treeColumnMatches(?string $storedTree, array $categoryIds): bool
+    {
+        if ($categoryIds === []) {
+            return $storedTree === null;
+        }
+
+        if ($storedTree === null) {
+            return false;
+        }
+
+        $stored = json_decode($storedTree, true);
+
+        if (!\is_array($stored)) {
+            return false;
+        }
+
+        return array_diff($stored, $categoryIds) === [] && array_diff($categoryIds, $stored) === [];
     }
 
     /**
@@ -158,7 +186,7 @@ class ProductCategoryDenormalizer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array<string, string|null>>
      */
     private function fetchMapping(array $ids, Context $context): array
     {
@@ -167,6 +195,8 @@ class ProductCategoryDenormalizer
             'LOWER(HEX(product.id)) as product_id',
             'GROUP_CONCAT(category.path SEPARATOR \'\') as paths',
             'GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR \'|\') as ids',
+            // carried along so the denormalized column can be repaired when it drifted from the rows
+            'product.category_tree as tree',
         );
         $query->from('product');
         $query->leftJoin(
@@ -204,7 +234,7 @@ class ProductCategoryDenormalizer
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array<string, string>> $unique */
+        /** @var array<string, array<string, string|null>> $unique */
         $unique = FetchModeHelper::groupUnique($rows);
 
         return $unique;

@@ -66,6 +66,31 @@ class ProductCategoryDenormalizerTest extends TestCase
         );
     }
 
+    public function testUpdateRepairsCategoryTreeColumnWhenItDriftedFromTheRows(): void
+    {
+        ['products' => $productFixture, 'categories' => $categoryIds] = $this->prepareData();
+        $productId = $productFixture['testable-product'];
+
+        $this->productRepository->update([
+            [
+                'id' => $productId,
+                'categories' => \array_map(static fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
+            ],
+        ], $this->context);
+
+        static::assertSame($categoryIds, $this->getProductCategoryList($productId));
+
+        // the rows stay correct while the denormalized column is lost
+        $this->connection->executeStatement(
+            'UPDATE product SET category_tree = NULL WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($productId)]
+        );
+
+        static::getContainer()->get(ProductCategoryDenormalizer::class)->update([$productId], $this->context);
+
+        static::assertSame($categoryIds, $this->getProductCategoryList($productId));
+    }
+
     public function testUpdateRemovesObsoleteTreeRowsInANonLiveVersionContext(): void
     {
         $denormalizer = static::getContainer()->get(ProductCategoryDenormalizer::class);

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,7 +31,7 @@ class PluginListCommandTest extends TestCase
      */
     private MockObject&EntityRepository $pluginRepoMock;
 
-    private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
+    private Stub&ComposerPluginLoader $composerPluginLoaderMock;
 
     private PluginListCommand $command;
 
@@ -38,7 +39,7 @@ class PluginListCommandTest extends TestCase
     {
         parent::setUp();
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
-        $this->composerPluginLoaderMock = $this->createMock(ComposerPluginLoader::class);
+        $this->composerPluginLoaderMock = static::createStub(ComposerPluginLoader::class);
 
         $this->command = new PluginListCommand($this->pluginRepoMock, $this->composerPluginLoaderMock);
     }
@@ -147,7 +148,16 @@ class PluginListCommandTest extends TestCase
             return true;
         });
 
-        $this->pluginRepoMock->method('search')->with($criteria, static::anything());
+        $this->pluginRepoMock->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $actualCriteria) use ($criteria): EntitySearchResult {
+                static::assertThat($actualCriteria, $criteria);
+
+                $result = static::createStub(EntitySearchResult::class);
+                $result->method('getEntities')->willReturn(new PluginCollection());
+
+                return $result;
+            });
 
         $commandTester = $this->executeCommand(['--filter' => $filterValue]);
 

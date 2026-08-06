@@ -20,6 +20,10 @@ export default function initializeTabs(): void {
         }
     });
 
+    Shopware.ExtensionAPI.handle('uiTabsSetVisibility', (setVisibilityConfig) => {
+        Shopware.Store.get('tabs').setVisibility(setVisibilityConfig);
+    });
+
     // Wait until the view is initialized
     void Shopware.Application.viewInitialized.then(() => {
         // Catch non-matching routes, check if they exist in the tabs and create them

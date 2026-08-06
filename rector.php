@@ -22,8 +22,7 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
-    // bigger chunks keep the workers busy with actual analysis instead of per-chunk
-    // overhead, which eats a quarter to a third of all CPU time at the default of 16
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
     ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',

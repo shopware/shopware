@@ -40,7 +40,7 @@ The report returns named lists, not only counts:
 
 JSON/PHP base-schema overlap cannot be allowlisted and always fails `--fail-on-mismatch`.
 
-The core allowlist lives in `Generator/StoreApiPhpGeneratedSchemaAllowlist.json`. It is a temporary migration aid, not the target state. Migrate schemas in small, domain-coherent batches:
+The core allowlist lives in `Generator/StoreApiPhpGeneratedSchemaAllowlist.json`. Core has completed the migration, so this allowlist is now empty and must stay empty. Downstream scopes can use the same migration process in small, domain-coherent batches:
 
 1. Capture the current generated StoreAPI component as the compatibility baseline.
 2. Add the explicit JSON component schema and verify that the final generated StoreAPI component stays compatible.
@@ -53,7 +53,7 @@ The next metadata-cleanup phase should first preserve the corresponding Admin AP
 
 JSON-owned Store API components use the flat JSON base schema and receive only typed extension fields from PHP. During the migration, definitions without a matching JSON component continue to generate their legacy flat and `*JsonApi` PHP schemas; both are tracked in `phpGeneratedStoreApiSchemas`.
 
-The target for core is that `jsonOverridesPhpGenerated` stays empty and `phpGeneratedStoreApiSchemas` shrinks to an empty list as JSON components are added. Once no PHP-owned definitions remain, the remaining legacy `*JsonApi` compatibility schemas can be removed.
+Core has reached the target state: `jsonOverridesPhpGenerated` and `phpGeneratedStoreApiSchemas` are empty. All core Store API entity components are JSON-owned, and the legacy PHP-generated `*JsonApi` compatibility schemas are no longer emitted.
 
 The platform CI runs the check in core scope:
 

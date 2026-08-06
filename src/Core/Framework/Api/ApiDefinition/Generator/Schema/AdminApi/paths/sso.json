@@ -64,6 +64,9 @@
                 "description": "Experimental: Creates a redirection to the SSO login page",
                 "operationId": "ssoAuth",
                 "responses": {
+                    "200": {
+                        "description": "Starts the SSO login flow."
+                    },
                     "302": {
                         "description": "Experimental: Forwards to SSO login Page"
                     }

@@ -45,8 +45,7 @@ class AppConsentDefinitionTest extends TestCase
     {
         return new AppConsentDefinition(
             'swagApp',
-            new ConsentConfig('order_analysis', $scope, $revision),
-            new \DateTimeImmutable('2026-02-03 10:00:00'),
+            new ConsentConfig('order_analysis', $scope, new \DateTimeImmutable('2026-02-03'), $revision),
         );
     }
 }

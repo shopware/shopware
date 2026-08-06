@@ -4337,16 +4337,14 @@ Assign the relevant app privilege to users or integrations that need to use an a
 ## Hosting & Configuration
 ### Apps can declare consents
 
-Apps can declare consents in a `<consents>` section of the manifest. Each consent has a name, a scope (`system` for one answer per shop, `admin_user` for one answer per admin user), a translatable label, an optional translatable description, and an optional revision:
+Apps can declare consents in a `<consents>` section of the manifest. Each consent has a name, a scope (`system` for one answer per shop, `admin_user` for one answer per admin user), the date the app introduced it, and an optional revision:
 
 ```xml
 <consents>
     <consent>
         <name>order_analysis</name>
         <scope>system</scope>
-        <label>Analyse orders</label>
-        <label lang="de-DE">Bestellungen analysieren</label>
-        <description>Sends order data to the app for analysis.</description>
+        <since>2026-01-01</since>
         <revision>2026-01-01</revision>
     </consent>
 </consents>

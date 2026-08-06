@@ -126,11 +126,13 @@
         <consent>
             <name>order_analysis</name>
             <scope>system</scope>
+            <since>2026-01-01</since>
             <revision>2026-01-01</revision>
         </consent>
         <consent>
             <name>usage_tracking</name>
             <scope>admin_user</scope>
+            <since>2026-02-15</since>
         </consent>
     </consents>
     <payments>

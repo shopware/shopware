@@ -52,18 +52,20 @@ class ConsentFeatureDefinitionTest extends TestCase
         $first = $configs[0];
         static::assertSame('order_analysis', $first->name);
         static::assertSame('system', $first->scope);
+        static::assertSame('2026-01-01', $first->since->format('Y-m-d'));
         static::assertSame('2026-01-01', $first->revision);
 
         $second = $configs[1];
         static::assertSame('usage_tracking', $second->name);
         static::assertSame('admin_user', $second->scope);
+        static::assertSame('2026-02-15', $second->since->format('Y-m-d'));
         static::assertNull($second->revision);
     }
 
     public function testPayloadRoundTripIgnoresStored(): void
     {
-        $declared = new ConsentConfig('order_analysis', 'system', '2026-01-01');
-        $stored = new ConsentConfig('order_analysis', 'admin_user', '2025-01-01');
+        $declared = new ConsentConfig('order_analysis', 'system', new \DateTimeImmutable('2026-01-01'), '2026-01-01');
+        $stored = new ConsentConfig('order_analysis', 'admin_user', new \DateTimeImmutable('2025-01-01'), '2025-01-01');
 
         $payload = $this->definition->toPayload($declared, $stored);
         $hydrated = $this->definition->fromPayload($payload);

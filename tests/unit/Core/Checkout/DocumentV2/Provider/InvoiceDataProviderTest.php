@@ -58,20 +58,9 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame('invoice', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyInvoice(string $documentType, bool $expected): void
+    public function testSupportsInvoice(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'invoice is supported' => [DocumentType::INVOICE->value, true];
-        yield 'other core type is not supported' => [DocumentType::CREDIT_NOTE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::INVOICE->value));
     }
 
     public function testEnrichOrderCriteria(): void

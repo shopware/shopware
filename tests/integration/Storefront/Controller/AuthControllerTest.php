@@ -378,7 +378,7 @@ class AuthControllerTest extends TestCase
     {
         $this->request('GET', '/account/login', []);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -643,7 +643,7 @@ class AuthControllerTest extends TestCase
             'redirectParameters' => ['deepLinkCode' => 'foo'],
         ]);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }

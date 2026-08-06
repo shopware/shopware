@@ -1,0 +1,63 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/legal-guarantee-notice": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Render the EU legal guarantee notice",
+                "description": "This route renders the EU-harmonised legal guarantee notice SVG and the matching europa.eu \"Your Europe\" guarantees page link in the customer-facing language of the sales channel context.",
+                "operationId": "renderLegalGuaranteeNotice",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rendered legal guarantee notice SVG and link.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "svg": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "link": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "svg",
+                                        "link"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

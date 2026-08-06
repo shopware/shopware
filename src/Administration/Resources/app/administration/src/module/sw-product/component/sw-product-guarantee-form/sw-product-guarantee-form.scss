@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-product-guarantee-form {
+    > p {
+        margin-bottom: 32px;
+        color: $color-darkgray-200;
+        font-size: $font-size-xs;
+        font-weight: 400;
+        line-height: $line-height-sm;
+    }
+
+    .sw-product-guarantee-form__switches {
+        display: flex;
+        align-items: center;
+        height: 100%;
+
+        .mt-switch {
+            margin: 0;
+        }
+    }
+}

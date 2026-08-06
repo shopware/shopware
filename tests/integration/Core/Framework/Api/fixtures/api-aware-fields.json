@@ -611,6 +611,8 @@
     "product.stock",
     "product.displayGroup",
     "product.manufacturerNumber",
+    "product.guaranteeMonths",
+    "product.guaranteeConfirmed",
     "product.ean",
     "product.purchaseSteps",
     "product.maxPurchase",

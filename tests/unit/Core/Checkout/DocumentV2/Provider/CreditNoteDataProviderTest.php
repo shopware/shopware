@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -16,9 +17,11 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
-use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CreditNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
@@ -45,38 +48,38 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(CancellationInvoiceDataProvider::class)]
-class CancellationInvoiceDataProviderTest extends TestCase
+#[CoversClass(CreditNoteDataProvider::class)]
+class CreditNoteDataProviderTest extends TestCase
 {
     private const COMPANY_COUNTRY_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c0';
 
-    public function testKeyIsStorno(): void
+    public function testKeyIsCreditNote(): void
     {
-        static::assertSame('storno', $this->createProvider()->getKey());
+        static::assertSame('credit_note', $this->createProvider()->getKey());
     }
 
-    public function testSupportsCancellationInvoice(): void
+    public function testSupportsCreditNote(): void
     {
-        static::assertTrue($this->createProvider()->supports(DocumentType::CANCELLATION_INVOICE->value));
+        static::assertTrue($this->createProvider()->supports(DocumentType::CREDIT_NOTE->value));
     }
 
     public function testEnrichOrderCriteriaDelegatesToInvoiceProvider(): void
     {
-        $cancellationCriteria = new Criteria();
-        $this->createProvider()->enrichOrderCriteria($cancellationCriteria);
+        $creditNoteCriteria = new Criteria();
+        $this->createProvider()->enrichOrderCriteria($creditNoteCriteria);
 
         $invoiceCriteria = new Criteria();
         $this->createInvoiceDataProvider()->enrichOrderCriteria($invoiceCriteria);
 
         static::assertSame(
             \array_keys($invoiceCriteria->getAssociations()),
-            \array_keys($cancellationCriteria->getAssociations()),
+            \array_keys($creditNoteCriteria->getAssociations()),
         );
     }
 
-    public function testProvideRenderingDataReferencesTheInvoiceAndAppliesTheInversion(): void
+    public function testProvideRenderingDataBillsTheCreditItemsAsPositivePositions(): void
     {
-        $order = self::createOrder();
+        $order = self::createOrder(withCredit: true);
         $input = new ProviderInput(
             $order,
             $this->buildRequest($order),
@@ -89,16 +92,60 @@ class CancellationInvoiceDataProviderTest extends TestCase
 
         $data = $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
 
-        static::assertSame(TypeCode::CANCELLATION_INVOICE, $data->typeCode);
-        static::assertSame('2000', $data->custom['stornoNumber']);
+        static::assertSame(TypeCode::CREDIT_NOTE, $data->typeCode);
+        static::assertSame('2000', $data->custom['creditNoteNumber']);
         static::assertSame('1000', $data->custom['invoiceNumber']);
 
-        static::assertLessThan(0, $data->monetarySummation->grandTotal);
+        static::assertCount(1, $data->lineItems);
+        static::assertGreaterThan(0, $data->lineItems[0]->lineTotal);
+        static::assertGreaterThan(0, $data->monetarySummation->grandTotal);
     }
 
-    private function createProvider(): CancellationInvoiceDataProvider
+    public function testProvideRenderingDataDropsTheInvoiceAllowanceChargesToAvoidDoubleCounting(): void
     {
-        return new CancellationInvoiceDataProvider($this->createInvoiceDataProvider());
+        $order = self::createOrder(withCredit: true);
+        $input = new ProviderInput(
+            $order,
+            $this->buildRequest($order),
+            new ReferencedDocument(
+                id: Uuid::randomHex(),
+                documentNumber: '1000',
+                orderVersionId: Uuid::randomHex(),
+            ),
+        );
+
+        $data = $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
+
+        static::assertSame([], $data->allowanceCharges);
+    }
+
+    public function testProvideRenderingDataThrowsWhenTheOrderHasNoCreditItems(): void
+    {
+        $order = self::createOrder(withCredit: false);
+        $input = new ProviderInput(
+            $order,
+            $this->buildRequest($order),
+            new ReferencedDocument(
+                id: Uuid::randomHex(),
+                documentNumber: '1000',
+                orderVersionId: Uuid::randomHex(),
+            ),
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::noCreditLineItems($order->getId()));
+
+        $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
+    }
+
+    private function createProvider(): CreditNoteDataProvider
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([]);
+
+        return new CreditNoteDataProvider(
+            $this->createInvoiceDataProvider(),
+            new CreditItemResolver($connection),
+        );
     }
 
     private function createInvoiceDataProvider(): InvoiceDataProvider
@@ -136,7 +183,7 @@ class CancellationInvoiceDataProviderTest extends TestCase
     {
         return new DocumentGenerationRequest(
             $order->getId(),
-            DocumentType::CANCELLATION_INVOICE,
+            DocumentType::CREDIT_NOTE,
             [DocumentFormat::ZUGFERD_XML],
             '2000',
             documentDate: '2026-05-05T12:00:00+00:00',
@@ -163,7 +210,7 @@ class CancellationInvoiceDataProviderTest extends TestCase
         return $entity;
     }
 
-    private static function createOrder(): OrderEntity
+    private static function createOrder(bool $withCredit): OrderEntity
     {
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
@@ -210,25 +257,62 @@ class CancellationInvoiceDataProviderTest extends TestCase
         $orderCustomer->setCustomerNumber('');
         $order->setOrderCustomer($orderCustomer);
 
-        $lineItem = new OrderLineItemEntity();
-        $lineItem->setUniqueIdentifier(Uuid::randomHex());
-        $lineItem->setId(Uuid::randomHex());
-        $lineItem->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $lineItem->setIdentifier('product-1');
-        $lineItem->setLabel('Product 1');
-        $lineItem->setPosition(1);
-        $lineItem->setQuantity(2);
-        $lineItem->setTotalPrice(100.0);
-        $lineItem->setPrice(new CalculatedPrice(
-            50.0,
+        $lineItems = [];
+
+        if ($withCredit) {
+            $lineItems[] = self::createCreditItem();
+        } else {
+            $lineItems[] = self::createProductItem();
+        }
+
+        $order->setLineItems(new OrderLineItemCollection($lineItems));
+
+        return $order;
+    }
+
+    private static function createCreditItem(): OrderLineItemEntity
+    {
+        $item = new OrderLineItemEntity();
+        $item->setUniqueIdentifier(Uuid::randomHex());
+        $item->setId(Uuid::randomHex());
+        $item->setType(LineItem::CREDIT_LINE_ITEM_TYPE);
+        $item->setIdentifier('credit-1');
+        $item->setLabel('Refund');
+        $item->setPosition(1);
+        $item->setQuantity(1);
+        $item->setUnitPrice(-30.0);
+        $item->setTotalPrice(-30.0);
+        $item->setPrice(new CalculatedPrice(
+            -30.0,
+            -30.0,
+            new CalculatedTaxCollection([new CalculatedTax(-5.7, 19.0, -30.0)]),
+            new TaxRuleCollection(),
+            1,
+        ));
+
+        return $item;
+    }
+
+    private static function createProductItem(): OrderLineItemEntity
+    {
+        $item = new OrderLineItemEntity();
+        $item->setUniqueIdentifier(Uuid::randomHex());
+        $item->setId(Uuid::randomHex());
+        $item->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $item->setIdentifier('product-1');
+        $item->setLabel('Product 1');
+        $item->setPosition(1);
+        $item->setQuantity(1);
+        $item->setUnitPrice(100.0);
+        $item->setTotalPrice(100.0);
+        $item->setPrice(new CalculatedPrice(
+            100.0,
             100.0,
             new CalculatedTaxCollection([new CalculatedTax(19.0, 19.0, 100.0)]),
             new TaxRuleCollection(),
-            2,
+            1,
         ));
 
-        $order->setLineItems(new OrderLineItemCollection([$lineItem]));
-
-        return $order;
+        return $item;
     }
 }

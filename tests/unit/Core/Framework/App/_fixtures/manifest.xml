@@ -122,6 +122,22 @@
             </entries>
         </group>
     </cookies>
+    <consents>
+        <consent>
+            <name>order_analysis</name>
+            <scope>system</scope>
+            <label>Analyse orders</label>
+            <label lang="de-DE">Bestellungen analysieren</label>
+            <description>Sends order data to the app for analysis.</description>
+            <description lang="de-DE">Sendet Bestelldaten zur Analyse an die App.</description>
+            <revision>2026-01-01</revision>
+        </consent>
+        <consent>
+            <name>usage_tracking</name>
+            <scope>admin_user</scope>
+            <label>Track my usage</label>
+        </consent>
+    </consents>
     <payments>
         <payment-method>
             <identifier>myMethod</identifier>

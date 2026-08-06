@@ -37,7 +37,9 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ConsentDefinitionRegistry::class)
         ->args([
             new TaggedIteratorArgument('shopware.consent.definition'),
-        ]);
+            new TaggedIteratorArgument('shopware.consent.definition_provider'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ConsentService::class)
         ->args([

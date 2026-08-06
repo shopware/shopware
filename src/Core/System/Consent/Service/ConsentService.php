@@ -179,12 +179,18 @@ class ConsentService implements ResetInterface
         }
 
         $states = [];
+        $definitions = $this->consentDefinitionRegistry->all();
 
         foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
-            $state = ConsentState::fromDefinitionAndRecord(
-                $this->consentDefinitionRegistry->get($record->name),
-                $record
-            );
+            $definition = $definitions[$record->name] ?? null;
+
+            if ($definition === null) {
+                // a stored answer outlives its definition: the consents an app declares are gone
+                // once the app is uninstalled, while the answer stays under the same name
+                continue;
+            }
+
+            $state = ConsentState::fromDefinitionAndRecord($definition, $record);
 
             $states[$this->key($state, $context)] = $state;
         }

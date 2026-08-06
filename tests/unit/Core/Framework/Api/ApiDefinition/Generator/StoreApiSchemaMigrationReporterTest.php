@@ -56,6 +56,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $report = $this->createReporter(
             schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('GroupByTest', 'AclRole'),
                 'components' => [
                     'schemas' => [
                         'CalculatedPrice' => ['type' => 'object'],
@@ -77,13 +78,14 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $report = $this->createReporter(
             schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('GroupByTest'),
                 'components' => [
                     'schemas' => [
                         'GroupByTest' => ['type' => 'object'],
                     ],
                 ],
             ]),
-            allowlistPath: $this->createAllowlistPath(['AclRole']),
+            allowlistPath: $this->createAllowlistPath(),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->jsonWithoutPhpGenerated);
@@ -95,7 +97,10 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     public function testReportTracksLegacyJsonApiSchemaForPhpOwnedDefinition(): void
     {
         $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('Simple'),
+                'components' => ['schemas' => []],
+            ]),
             allowlistPath: $this->createAllowlistPath(),
         )->report(
             $this->createDefinitions([SalesChannelSimpleDefinition::class]),
@@ -117,6 +122,7 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
             schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('DifferentSchema'),
                 'components' => [
                     'schemas' => [
                         'GroupByTest' => ['type' => 'object'],
@@ -136,7 +142,10 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $reporter = $this->createReporter(
             new BundleSchemaPathCollection([new ShopwareBundleWithName()]),
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
+            schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('GroupByTest', 'AclRole', 'Extension'),
+                'components' => ['schemas' => []],
+            ]),
             allowlistPath: $this->createAllowlistPath(['AclRole']),
         );
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
@@ -322,6 +331,34 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $this->filesystem->dumpFile($schemaPath . '/schema.json', json_encode($spec, \JSON_THROW_ON_ERROR));
 
         return $schemaPath;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function createPathReferencingSchemas(string ...$schemaNames): array
+    {
+        return [
+            '/test' => [
+                'get' => [
+                    'responses' => [
+                        '200' => [
+                            'description' => 'OK',
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'oneOf' => array_map(
+                                            static fn (string $schemaName): array => ['$ref' => '#/components/schemas/' . $schemaName],
+                                            $schemaNames
+                                        ),
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**

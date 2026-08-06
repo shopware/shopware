@@ -26,9 +26,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: ./.github/actions/codeowners-plus-status
         with:
           pr-number: ${{ github.event.pull_request.number }}
           draft: ${{ github.event.pull_request.draft }}
           head-sha: ${{ github.event.pull_request.head.sha }}
+          github-token: ${{ github.token }}

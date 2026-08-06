@@ -11,12 +11,20 @@ inputs:
   head-sha:
     description: 'Commit the status is reported on'
     required: true
+  github-token:
+    description: 'Token to authenticate the PR-head fetch below with — the checkout step strips its own credential on purpose'
+    required: true
 
 runs:
   using: composite
   steps:
     - shell: bash
-      run: git fetch --no-tags origin "pull/${{ inputs.pr-number }}/head"
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      run: |
+        git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+          fetch --no-tags origin "pull/${PR_NUMBER}/head"
 
     # GITHUB_TOKEN has no organization scope, so requesting a review from a team
     # fails with "Could not resolve to a node with the global id of 'T_…'". No

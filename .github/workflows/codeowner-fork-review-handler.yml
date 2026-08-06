@@ -57,3 +57,4 @@ jobs:
           pr-number: ${{ steps.pr-number.outputs.number }}
           draft: ${{ steps.pr.outputs.draft }}
           head-sha: ${{ steps.pr.outputs.head-sha }}
+          github-token: ${{ github.token }}

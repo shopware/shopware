@@ -82,7 +82,7 @@ class SystemConfigLimiterTest extends TestCase
     }
 
     /**
-     * @param array<string, int|null> $domainLimits
+     * @param array<string, int> $domainLimits
      */
     private function createLimiter(array $domainLimits): LimiterInterface
     {
@@ -91,7 +91,7 @@ class SystemConfigLimiterTest extends TestCase
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig
-            ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
+            ->expects($this->once())
             ->method('getInt')
             ->willReturnCallback(
                 static fn (string $domain) => $domainLimits[$domain] ?? 0

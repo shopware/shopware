@@ -70,8 +70,6 @@ Three rules follow from this:
    marks a test whose subject is being removed, and the registered test name gains a
    `(removed in <version>)` suffix so a skipped test explains itself in the reporter output.
 
-Run the suite with the major flags on via `composer admin:unit:major`.
-
 ## Consequences
 
 Legacy and post-major expectations can live side by side in one file, each stating which world it

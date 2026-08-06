@@ -331,15 +331,15 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## Hosting & Configuration
 
-### `No-Vary-Search` header on cacheable storefront responses
+### `No-Vary-Search` header on cacheable responses
 
-With `CACHE_REWORK` active, cacheable storefront responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. `HttpCacheKeyGenerator` already normalizes this server side, so the header only tells clients what was always true.
+With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. `HttpCacheKeyGenerator` already normalizes this server side, so the header only tells clients what was always true.
 
-Expect no speedup yet: browsers evaluate `No-Vary-Search` only for the prefetch and prerender cache of the Speculation Rules API, not the regular HTTP cache, and only in Chromium. Reverse proxies ignore it too, use `std.querysort()` in Varnish or `querystring.sort()` in Fastly for the same effect there.
+`No-Vary-Search` is an HTTP specification draft (`draft-ietf-httpbis-no-vary-search`). Support differs per browser and per cache the browser keeps, so check the [browser compatibility table](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search#browser_compatibility) before relying on it. A client that does not support the header keeps treating a reordered query string as a different URL, which is the behaviour you have today. It does not replace reverse proxy configuration either: Varnish and Fastly ignore the header, use `std.querysort()` or `querystring.sort()` there.
 
-Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. Omit it to send no header, as `store_api.cacheable` does, since store-api responses are fetched by script and never enter a speculation cache.
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. Omit the key to send no header.
 
-Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. Under prerendering a widened match shows a fully rendered page at a different URL, so declaring `p` irrelevant would display page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
+Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

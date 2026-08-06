@@ -1344,7 +1344,7 @@ class Configuration implements ConfigurationInterface
                                         ->end()
                                     ->end()
                                     ->scalarNode('no_vary_search')
-                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as prerendered pages would then be served for the wrong URL.')
+                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response, both in the HTTP cache and in the prefetch/prerender cache. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as the stored response would then be served for the wrong URL.')
                                         ->defaultNull()
                                         ->validate()
                                             // `\z` instead of `$`, otherwise a trailing newline would pass and could smuggle a second header

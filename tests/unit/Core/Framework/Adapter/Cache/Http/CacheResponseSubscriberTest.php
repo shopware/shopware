@@ -960,6 +960,15 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
     }
 
+    public function testNoVarySearchHeaderIsAppliedForCacheableStoreApiResponse(): void
+    {
+        // store-api responses are fetched by script rather than by navigation, but they still enter
+        // the browser HTTP cache, where `No-Vary-Search` applies just as it does on the storefront
+        $response = $this->dispatchWithNoVarySearchPolicy('key-order', area: 'store_api');
+
+        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
+    }
+
     public function testNoVarySearchHeaderIsNotAppliedWhenPolicyHasNone(): void
     {
         $response = $this->dispatchWithNoVarySearchPolicy(null);
@@ -1011,14 +1020,17 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * Dispatches a storefront GET response through the subscriber using a cacheable policy that
-     * optionally declares `no_vary_search`.
+     * Dispatches a GET response through the subscriber using a cacheable policy that optionally
+     * declares `no_vary_search`.
+     *
+     * @param 'storefront'|'store_api' $area
      */
     private function dispatchWithNoVarySearchPolicy(
         ?string $noVarySearch,
         string $method = Request::METHOD_GET,
         bool $httpCacheRoute = true,
         ?Response $response = null,
+        string $area = 'storefront',
     ): Response {
         $headers = ['cache_control' => ['public' => true, 's_maxage' => 100]];
         if ($noVarySearch !== null) {
@@ -1035,14 +1047,17 @@ class CacheResponseSubscriberTest extends TestCase
             $this->cacheHeadersService,
             $this->createCachePolicyProvider(
                 ['cacheable' => ['headers' => $headers], 'uncacheable' => ['headers' => ['cache_control' => ['private' => true]]]],
-                ['storefront' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
+                [$area => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
             ),
         );
 
         $request = new Request();
         $request->setMethod($method);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE,
+            [$area === 'store_api' ? StoreApiRouteScope::ID : StorefrontRouteScope::ID]
+        );
         if ($httpCacheRoute) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         }

@@ -232,6 +232,28 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 ### Admin Worker loads correctly when the Administration is hosted under a base path
 
 The Vite `asset-path-plugin` now also prefixes the literal `Worker`/`SharedWorker` script URLs that Vite bakes into the Administration bundle with `window.__sw__.assetPath`, the same prefix that is already applied to every other admin asset through the `assetsURL()` helper. Previously these worker URLs were emitted as absolute paths against the domain root (e.g. `new SharedWorker("/bundles/administration/administration/assets/adminWorker-*.js")`) and never passed through `assetsURL()`, so on any Shopware install served from a subdirectory / base path — including Shopware-hosted staging environments mounted under a subpath such as `/staging` — the Admin Worker's `SharedWorker` failed to load (404 against the domain root instead of the base path). This broke admin-worker-driven message-queue and scheduled-task processing in the Administration. Operators running the Administration under a base path now get a working Admin Worker; no action is required.
+### System config component exposes the selected sales channel scope
+
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
+
+The value is available on two surfaces, because they reach different consumers:
+
+* Slot props: the `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop, and `card-element-last`, which had no slot props, now provides it too. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so your component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
+
+```js
+// Options API: the injected value is unwrapped, read it directly
+inject: {
+    swSystemConfigCurrentSalesChannelId: { default: null },
+},
+
+// Composition API: you receive the ref itself, read `.value`
+const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+```
+
+The provided value is a read-only computed ref. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+
+Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors. (shopware/shopware#18731)
 ### Conditional visibility for app-registered tabs
 
 `sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.

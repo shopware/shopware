@@ -1,7 +1,7 @@
 {% block sw_product_guarantee_form %}
 <div class="sw-product-guarantee-form">
     {% block sw_product_guarantee_form_description %}
-    <p>{{ $t('sw-product.settingsForm.labelGuaranteeDescription') }}</p>
+    <p>{{ $tc('sw-product.settingsForm.labelGuaranteeDescription') }}</p>
     {% endblock %}
 
     {% block sw_product_guarantee_form_content %}
@@ -16,23 +16,20 @@
             :inherited-value="parentProduct.guaranteeMonths"
         >
             <template #content="props">
-                <mt-number-field
-                    :is-inheritance-field="props.isInheritField"
-                    :is-inherited="props.isInherited"
+                <sw-number-field
+                    :map-inheritance="props"
                     number-type="int"
                     :min="30"
                     :max="600"
                     :step="6"
                     :allow-empty="true"
                     :error="productGuaranteeMonthsError"
-                    :label="$t('sw-product.settingsForm.labelGuaranteeMonths')"
-                    :help-text="$t('sw-product.settingsForm.helpTextGuaranteeMonths')"
-                    :placeholder="$t('sw-product.settingsForm.placeholderGuaranteeMonths')"
+                    :label="$tc('sw-product.settingsForm.labelGuaranteeMonths')"
+                    :help-text="$tc('sw-product.settingsForm.helpTextGuaranteeMonths')"
+                    :placeholder="$tc('sw-product.settingsForm.placeholderGuaranteeMonths')"
                     :disabled="props.isInherited || !allowEdit"
-                    :model-value="props.currentValue"
-                    @update:model-value="props.updateCurrentValue"
-                    @inheritance-restore="props.restoreInheritance"
-                    @inheritance-remove="props.removeInheritance"
+                    :value="props.currentValue"
+                    @update:value="props.updateCurrentValue"
                 />
 
             </template>
@@ -47,17 +44,14 @@
                 :inherited-value="parentProduct.guaranteeConfirmed"
             >
                 <template #content="props">
-                    <mt-switch
-                        :is-inheritance-field="props.isInheritField"
-                        :is-inherited="props.isInherited"
+                    <sw-switch-field
+                        :map-inheritance="props"
                         :error="productGuaranteeConfirmedError"
-                        :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
-                        :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
+                        :label="$tc('sw-product.settingsForm.labelGuaranteeConfirmed')"
+                        :help-text="$tc('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
                         :disabled="props.isInherited || !allowEdit"
-                        :checked="props.currentValue"
-                        @update:checked="props.updateCurrentValue"
-                        @inheritance-restore="props.restoreInheritance"
-                        @inheritance-remove="props.removeInheritance"
+                        :value="props.currentValue"
+                        @update:value="props.updateCurrentValue"
                     />
 
                 </template>

@@ -41,58 +41,20 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             },
             global: {
                 stubs: {
-                    'sw-container': {
-                        template: '<div class="sw-container"><slot></slot></div>',
-                    },
-                    'sw-inherit-wrapper': {
-                        template: `
-                            <div class="sw-inherit-wrapper">
-                                <slot name="content" v-bind="{
-                                    currentValue: value,
-                                    isInherited: false,
-                                    updateCurrentValue: (val) => $emit('update:value', val)
-                                }"></slot>
-                            </div>`,
-                        props: [
-                            'value',
-                            'hasParent',
-                            'inheritedValue',
-                        ],
-                    },
-                    'mt-number-field': {
-                        template: `
-                            <div class="mt-number-field">
-                                <label>{{ label }}</label>
-                                <input
-                                    type="number"
-                                    :value="modelValue"
-                                    :disabled="disabled"
-                                    @input="$emit('update:model-value', Number($event.target.value))"
-                                />
-                            </div>`,
-                        props: [
-                            'modelValue',
-                            'label',
-                            'disabled',
-                        ],
-                    },
-                    'mt-switch': {
-                        template: `
-                            <div class="mt-switch">
-                                <label>{{ label }}</label>
-                                <input
-                                    type="checkbox"
-                                    :checked="checked"
-                                    :disabled="disabled"
-                                    @change="$emit('update:checked', $event.target.checked)"
-                                />
-                            </div>`,
-                        props: [
-                            'checked',
-                            'label',
-                            'disabled',
-                        ],
-                    },
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-icon': true,
                 },
                 provide: {
                     acl,
@@ -106,32 +68,35 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
     });
 
     it('should render the guarantee months and confirmation fields with current values', async () => {
-        expect(wrapper.vm.product.guaranteeMonths).toBe(12);
-        expect(wrapper.vm.product.guaranteeConfirmed).toBe(false);
-
-        const monthsField = wrapper.find('.mt-number-field input');
-        const confirmedField = wrapper.find('.mt-switch input');
+        const monthsField = wrapper.find('.sw-field--number input');
+        const confirmedField = wrapper.find('.sw-field--switch input');
 
         expect(monthsField.element.value).toBe('12');
         expect(confirmedField.element.checked).toBe(false);
     });
 
-    it('should be able to change the guarantee months and confirmation', async () => {
-        const monthsField = wrapper.find('.mt-number-field input');
-        const confirmedField = wrapper.find('.mt-switch input');
+    it('should write a changed guarantee duration back to the product', async () => {
+        const monthsField = wrapper.find('.sw-field--number input');
 
-        await monthsField.setValue(24);
+        await monthsField.setValue('36');
+        await monthsField.trigger('change');
+
+        expect(store.product.guaranteeMonths).toBe(36);
+    });
+
+    it('should write the guarantee confirmation back to the product', async () => {
+        const confirmedField = wrapper.find('.sw-field--switch input');
+
         await confirmedField.setValue(true);
 
-        expect(store.product.guaranteeMonths).toBe(24);
         expect(store.product.guaranteeConfirmed).toBe(true);
     });
 
     it('should disable the fields when allowEdit is false', async () => {
         wrapper = await createWrapper({ allowEdit: false }, ['product.editor']);
 
-        const monthsField = wrapper.find('.mt-number-field input');
-        const confirmedField = wrapper.find('.mt-switch input');
+        const monthsField = wrapper.find('.sw-field--number input');
+        const confirmedField = wrapper.find('.sw-field--switch input');
 
         expect(monthsField.element.disabled).toBe(true);
         expect(confirmedField.element.disabled).toBe(true);

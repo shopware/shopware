@@ -30,7 +30,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
 
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId);
-        let categories = ProductPageHelper.getCategories();
+        let categories = productData.categories ?? {};
 
         // Fallback to line item data (cart/checkout/finish pages)
         if (!productData.name) {
@@ -39,6 +39,12 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
                 productData = lineItemData;
                 categories = lineItemData.categories || {};
             }
+        }
+
+        // Last resort: the breadcrumb describes the page rather than the product, so it is only
+        // correct on the product detail page
+        if (Object.keys(categories).length === 0) {
+            categories = ProductPageHelper.getCategories();
         }
 
         this.pushEvent('add_to_wishlist', {

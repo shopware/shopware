@@ -53,6 +53,52 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         });
     });
 
+    test('reports the categories of the product card instead of the page breadcrumb', () => {
+        document.body.innerHTML = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Wishlist</span>
+            </nav>
+            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000", "categories": ["Clothing", "Shirts"] }'>
+                <div class="product-wishlist-product-123"></div>
+            </div>
+        `;
+
+        addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'SW10000',
+                'item_category': 'Clothing',
+                'item_category2': 'Shirts',
+            })],
+        }));
+    });
+
+    test('falls back to the breadcrumb when the card carries no categories', () => {
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_category': 'Clothing',
+                'item_category2': 'Shirts',
+            })],
+        }));
+    });
+
     test('reports the variant options of the product detail page', () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Test Product</h1>

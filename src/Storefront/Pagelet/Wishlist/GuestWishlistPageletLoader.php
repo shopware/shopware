@@ -93,6 +93,9 @@ class GuestWishlistPageletLoader
 
         $criteria->addAssociation('manufacturer')
             ->addAssociation('options.group')
+            // analytics reports the category path of every wishlisted product, see sw_analytics_category_path
+            ->addAssociation('categories')
+            ->addAssociation('mainCategories.category')
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         if ($this->systemConfigService->getBool(

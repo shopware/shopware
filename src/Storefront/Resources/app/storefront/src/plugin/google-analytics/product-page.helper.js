@@ -22,6 +22,7 @@ export default class ProductPageHelper {
             name: cardData.name,
             brand: cardData.brand,
             variant: cardData.variant,
+            categories: cardData.categories,
             currency: detailData.currency,
             value: cardData.value,
         };
@@ -68,10 +69,28 @@ export default class ProductPageHelper {
                 brand: info.brand,
                 variant: info.variant,
                 value: info.price,
+                categories: ProductPageHelper.mapCategories(info.categories),
             };
         } catch {
             return {};
         }
+    }
+
+    /**
+     * Maps a category path, ordered from the top level down, to the GA4 category properties.
+     * @param {string[]|undefined} names
+     * @returns {Object}
+     */
+    static mapCategories(names) {
+        const categories = {};
+
+        (names ?? []).slice(0, 5).forEach((name, index) => {
+            if (name) {
+                categories[index === 0 ? 'item_category' : `item_category${index + 1}`] = name;
+            }
+        });
+
+        return categories;
     }
 
     /**

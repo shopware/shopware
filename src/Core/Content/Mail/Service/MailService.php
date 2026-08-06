@@ -243,10 +243,6 @@ class MailService extends AbstractMailService
             }
         }
 
-        // Validated through data validator
-        \assert(\is_string($data['contentHtml']));
-        \assert(\is_string($data['contentPlain']));
-
         $contents = [];
         foreach ($this->buildContents($data['contentPlain'], $data['contentHtml'], $salesChannel) as $index => $template) {
             try {

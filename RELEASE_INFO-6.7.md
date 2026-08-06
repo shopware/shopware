@@ -4,6 +4,10 @@
 
 ## API
 
+### User uniqueness validation endpoints now require user read access
+
+The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
 ### Message queue admin endpoints now require ACL privileges
 
 Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -225,6 +229,28 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 ## Administration
 
+### System config component exposes the selected sales channel scope
+
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
+
+The value is available on two surfaces, because they reach different consumers:
+
+* Slot props: the `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop, and `card-element-last`, which had no slot props, now provides it too. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so your component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
+
+```js
+// Options API: the injected value is unwrapped, read it directly
+inject: {
+    swSystemConfigCurrentSalesChannelId: { default: null },
+},
+
+// Composition API: you receive the ref itself, read `.value`
+const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+```
+
+The provided value is a read-only computed ref. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+
+Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors. (shopware/shopware#18731)
 ### Conditional visibility for app-registered tabs
 
 `sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.

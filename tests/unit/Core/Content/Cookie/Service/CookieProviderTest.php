@@ -214,6 +214,29 @@ class CookieProviderTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyCookieConvertingSnippetNameInGroupWithWrongType(): void
+    {
+        $invalidGroup = [
+            'cookie' => 'test-cookie',
+            'snippet_name' => 123,
+        ];
+
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
+        /** @phpstan-ignore argument.type (Intentionally test not allowed values on purpose) */
+        $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
+
+        $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
+        (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            [],
+            $legacyCookieProvider,
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testLegacyCookieConvertingMissingCookieInEntry(): void
     {
         $invalidEntry = [
@@ -238,13 +261,42 @@ class CookieProviderTest extends TestCase
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyCookieConvertingCookieInEntryWithWrongType(): void
+    {
+        $invalidEntry = [
+            'snippet_name' => 'test-cookie',
+            'cookie' => 123,
+        ];
+
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
+        /** @phpstan-ignore argument.type (Intentionally test not allowed values on purpose) */
+        $legacyCookieProvider->setTestCookieGroups([
+            [
+                'snippet_name' => 'test-group-1',
+                'entries' => [$invalidEntry],
+            ],
+        ]);
+
+        $this->expectExceptionObject(CookieException::invalidLegacyCookieEntryProvided($invalidEntry));
+        (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            [],
+            $legacyCookieProvider,
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+    }
 }
 
 /**
  * @internal
  *
  * @phpstan-import-type CookieGroupArray from CookieProviderInterface
- * Can be removed with tag:v6.8.0
+ *
+ * @deprecated tag:v6.8.0 - Can be removed
  */
 class LegacyCookieProviderForTesting extends LegacyCookieProvider
 {

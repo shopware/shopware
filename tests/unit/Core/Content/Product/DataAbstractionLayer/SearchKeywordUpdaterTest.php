@@ -141,6 +141,8 @@ class SearchKeywordUpdaterTest extends TestCase
             ['product_id' => $productId, 'keyword' => 'reranked', 'ranking' => '250'],
             ['product_id' => $productId, 'keyword' => 'removed', 'ranking' => '500'],
         ]);
+        // the dictionary already knows every analyzed keyword
+        $connection->method('fetchFirstColumn')->willReturn(['unchanged', 'reranked', 'added']);
 
         $this->captureWrittenKeywords($connection, ['unchanged', 'reranked', 'added', 'removed']);
 
@@ -162,6 +164,41 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertSame(['added', 'reranked', 'unchanged'], $this->insertedKeywords);
     }
 
+    public function testUpdateRestoresMissingDictionaryRowsOfUnchangedProducts(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $analyzer = static::createStub(ProductSearchKeywordAnalyzerInterface::class);
+        $analyzer->method('analyze')->willReturn(new AnalyzedKeywordCollection([
+            new AnalyzedKeyword('unchanged', 500.0),
+        ]));
+
+        $connection = $this->createConnection([$this->createConfigField('name')]);
+        // the product's own keyword rows are up to date …
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['product_id' => $productId, 'keyword' => 'unchanged', 'ranking' => '500'],
+        ]);
+        // … while the dictionary lost its row, as a migration truncating it would leave things
+        $connection->method('fetchFirstColumn')->willReturn([]);
+
+        $this->captureWrittenKeywords($connection, ['unchanged']);
+
+        $updater = $this->createUpdater(
+            new StaticEntityRepository([
+                new ProductCollection([$this->createProduct($productId, null)]),
+                new ProductCollection(),
+            ], $this->createProductDefinition()),
+            $connection,
+            $analyzer
+        );
+
+        $updater->update([$productId], Context::createDefaultContext());
+
+        // the keyword rows are left alone, only the missing dictionary row is written
+        static::assertSame([], $this->rewrittenProductIds);
+        static::assertSame(['unchanged'], $this->insertedKeywords);
+    }
+
     public function testUpdateWritesNothingWhenAllKeywordsAreUnchanged(): void
     {
         $productId = Uuid::randomHex();
@@ -175,6 +212,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([
             ['product_id' => $productId, 'keyword' => 'unchanged', 'ranking' => '500'],
         ]);
+        $connection->method('fetchFirstColumn')->willReturn(['unchanged']);
 
         $this->captureWrittenKeywords($connection, ['unchanged']);
 

@@ -146,6 +146,7 @@ class SearchKeywordUpdater implements ResetInterface
         $oldKeywordsByProductId = FetchModeHelper::group($oldKeywordsByProductId);
 
         $productIdsToRewrite = [];
+        $analyzedKeywordPool = [];
 
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
@@ -163,6 +164,10 @@ class SearchKeywordUpdater implements ResetInterface
             foreach ($analyzed as $keyword) {
                 $analyzedKeywords[$keyword->getKeyword()] = $keyword->getRanking();
             }
+
+            // collected for every product, also the ones skipped below: a keyword needs its
+            // dictionary row regardless of whether the product's own rows are up to date
+            $analyzedKeywordPool += $analyzedKeywords;
 
             ksort($storedKeywords);
             ksort($analyzedKeywords);
@@ -186,23 +191,31 @@ class SearchKeywordUpdater implements ResetInterface
                     'ranking' => $keyword->getRanking(),
                     'created_at' => $now,
                 ];
-                $key = $keyword->getKeyword() . $languageId;
-                $dictionary[$key] = [
-                    'id' => Uuid::randomBytes(),
-                    'language_id' => $languageId,
-                    'keyword' => $keyword->getKeyword(),
-                ];
             }
         }
 
-        if ($productIdsToRewrite === []) {
+        // The dictionary is part of what a rebuild used to write, so it is part of what has to be
+        // compared: only the rows that are actually absent are written, which also repairs a
+        // dictionary that was emptied out of band (migrations do exactly that and then reindex).
+        $missingKeywords = $this->fetchMissingDictionaryKeywords(
+            array_map(strval(...), array_keys($analyzedKeywordPool)),
+            $languageId
+        );
+
+        foreach ($missingKeywords as $missingKeyword) {
+            $dictionary[$missingKeyword] = [
+                'id' => Uuid::randomBytes(),
+                'language_id' => $languageId,
+                'keyword' => $missingKeyword,
+            ];
+        }
+
+        if ($productIdsToRewrite === [] && $dictionary === []) {
             return $existingProducts;
         }
 
-        // One transaction for all three writes: the dictionary rows of a keyword are only written
-        // together with the keyword itself, so committing them separately could leave a product
-        // indexed without its dictionary entries, which no later run would repair because the
-        // product's keywords then compare equal.
+        // One transaction for all three writes, so an interrupted run cannot leave a product
+        // indexed without the dictionary rows its keywords imply.
         RetryableTransaction::retryable($this->connection, function () use ($productIdsToRewrite, $languageId, $versionId, $keywords, $dictionary): void {
             $this->deleteKeywords($productIdsToRewrite, $languageId, $versionId);
             $this->insertKeywords($keywords);
@@ -228,6 +241,33 @@ class SearchKeywordUpdater implements ResetInterface
         $this->buildCriteria(array_column($configFields, 'field'), $criteria, $context);
 
         return new RepositoryIterator($this->productRepository, $context, $criteria);
+    }
+
+    /**
+     * @param list<string> $keywords
+     *
+     * @return list<string>
+     */
+    private function fetchMissingDictionaryKeywords(array $keywords, string $languageId): array
+    {
+        if ($keywords === []) {
+            return [];
+        }
+
+        $existing = [];
+
+        foreach (array_chunk($keywords, 500) as $chunk) {
+            $existing = [
+                ...$existing,
+                ...$this->connection->fetchFirstColumn(
+                    'SELECT keyword FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword IN (:keywords)',
+                    ['languageId' => $languageId, 'keywords' => $chunk],
+                    ['keywords' => ArrayParameterType::STRING]
+                ),
+            ];
+        }
+
+        return array_values(array_diff($keywords, $existing));
     }
 
     /**

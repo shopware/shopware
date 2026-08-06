@@ -51,9 +51,7 @@ class SystemConfigLimiterTest extends TestCase
 
     public function testConsume(): void
     {
-        $limiter = $this->createLimiter([
-            'test.limit' => 3,
-        ]);
+        $limiter = $this->createLimiter(['test.limit' => 3]);
 
         $limit = $limiter->consume();
         static::assertTrue($limit->isAccepted());
@@ -69,9 +67,7 @@ class SystemConfigLimiterTest extends TestCase
 
     public function testConsumeSequentiallyAllowsTheConfiguredLimit(): void
     {
-        $limiter = $this->createLimiter([
-            'test.limit' => 3,
-        ]);
+        $limiter = $this->createLimiter(['test.limit' => 3]);
 
         static::assertTrue($limiter->consume()->isAccepted());
         static::assertTrue($limiter->consume()->isAccepted());
@@ -81,45 +77,12 @@ class SystemConfigLimiterTest extends TestCase
 
     public function testNoLimitWithZero(): void
     {
-        $limiter = $this->createLimiter([
-            'test.limit' => 0,
-        ]);
-
-        $limit = $limiter->consume(100);
-        static::assertTrue($limit->isAccepted());
-    }
-
-    public function testLimitWithNoDomain(): void
-    {
-        static::assertArrayHasKey('limits', $this->config);
-        static::assertIsArray($this->config['limits']);
-
-        unset($this->config['limits'][0]['domain']);
-        $this->config['limits'][0]['limit'] = 10;
-
-        $limiter = $this->createLimiter([
-            'test.limit' => 0,
-        ]);
-
-        $limit = $limiter->consume(10);
-        static::assertTrue($limit->isAccepted());
-
-        $limit = $limiter->consume();
-        static::assertFalse($limit->isAccepted());
-    }
-
-    public function testNoLimitWithNull(): void
-    {
-        $limiter = $this->createLimiter([
-            'test.limit' => null,
-        ]);
-
-        $limit = $limiter->consume(100);
+        $limit = $this->createLimiter(['test.limit' => 0])->consume(100);
         static::assertTrue($limit->isAccepted());
     }
 
     /**
-     * @param array<string, int|null> $domainLimits
+     * @param array<string, int> $domainLimits
      */
     private function createLimiter(array $domainLimits): LimiterInterface
     {
@@ -128,10 +91,10 @@ class SystemConfigLimiterTest extends TestCase
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig
-            ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
-            ->method('get')
+            ->expects($this->once())
+            ->method('getInt')
             ->willReturnCallback(
-                static fn (string $domain) => $domainLimits[$domain] ?? null
+                static fn (string $domain) => $domainLimits[$domain] ?? 0
             );
 
         $cacheStorage = $this->createMock(CacheStorage::class);

@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -114,22 +113,22 @@ class ProductCrossSellingSerializer extends EntitySerializer
             return $assignedProducts;
         }
 
-        // Read the existing assignments of the record in one query. Every entry belongs to the cross selling of
-        // the record, so this matches the same rows the per assignment lookups did, and only the product id is
-        // loaded instead of the whole entity.
+        // Read the existing assignments in one query, loading only the two keys next to the id. Today every entry
+        // carries the cross selling of the record, so this reads the same rows the per assignment lookups did, but
+        // the result is matched by the full key pair so that a mixed set stays correct.
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('crossSellingId', $assignedProducts[array_key_first($assignedProducts)]['crossSellingId']));
+        $criteria->addFilter(new EqualsAnyFilter('crossSellingId', array_column($assignedProducts, 'crossSellingId')));
         $criteria->addFilter(new EqualsAnyFilter('productId', array_column($assignedProducts, 'productId')));
-        $criteria->addFields(['productId']);
+        $criteria->addFields(['crossSellingId', 'productId']);
 
         $existing = [];
         foreach ($this->assignedProductsRepository->search($criteria, $context)->getEntities() as $entity) {
             \assert($entity instanceof PartialEntity);
-            $existing[(string) $entity->get('productId')] = (string) $entity->get('id');
+            $existing[(string) $entity->get('crossSellingId')][(string) $entity->get('productId')] = (string) $entity->get('id');
         }
 
         foreach ($assignedProducts as $i => $assignedProduct) {
-            $id = $existing[$assignedProduct['productId']] ?? null;
+            $id = $existing[$assignedProduct['crossSellingId']][$assignedProduct['productId']] ?? null;
 
             if ($id) {
                 $assignedProduct['id'] = $id;

@@ -189,6 +189,28 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
 
+    // Covers the default major-suite combination: the v6.8 meteor tabs still render the legacy
+    // sw-text-editor because METEOR_TEXT_EDITOR is a separate, non-major flag. Remove with sw-text-editor.
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should emit element-update on @input from the legacy editor under the meteor tabs',
+        async () => {
+            const wrapper = await createWrapper();
+
+            const updatedContent = 'Updated content';
+            const input = wrapper.find('input[type="text"]');
+            await input.setValue(updatedContent);
+
+            expect(input.element.value).toBe(updatedContent);
+
+            await input.trigger('input');
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
+            expect(wrapper.emitted('element-update')).toBeTruthy();
+            expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        },
+    );
+
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-text-editor blur integration.
     it.deprecated('v6.8.0.0')('should emits element-update when trigger @blur event', async () => {
         const wrapper = await createWrapper();
@@ -207,6 +229,28 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted('element-update')).toBeTruthy();
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
+
+    // Covers the default major-suite combination (v6.8 tabs + legacy editor, METEOR_TEXT_EDITOR off).
+    // Remove with sw-text-editor.
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should emit element-update on @blur from the legacy editor under the meteor tabs',
+        async () => {
+            const wrapper = await createWrapper();
+
+            const updatedContent = 'Updated content';
+            const input = wrapper.find('input[type="text"]');
+            await input.setValue(updatedContent);
+
+            expect(input.element.value).toBe(updatedContent);
+
+            await input.trigger('blur');
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
+            expect(wrapper.emitted('element-update')).toBeTruthy();
+            expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        },
+    );
 
     describe('handleUpdateContent', () => {
         it('should return true when textEditor ref is not available', async () => {

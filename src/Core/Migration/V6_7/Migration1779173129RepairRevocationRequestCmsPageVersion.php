@@ -109,7 +109,7 @@ SQL,
     }
 
     /**
-     * @return array{id: string, configuration_value: string|null}|null
+     * @return array{id: string, configuration_value: string}|null
      */
     private function getGlobalRevocationPageConfiguration(Connection $connection): ?array
     {
@@ -141,12 +141,8 @@ SQL,
         );
     }
 
-    private function extractCmsPageId(?string $configurationValue): ?string
+    private function extractCmsPageId(string $configurationValue): ?string
     {
-        if (!\is_string($configurationValue)) {
-            return null;
-        }
-
         $decoded = json_decode($configurationValue, true, 512, \JSON_THROW_ON_ERROR);
         if (!\is_array($decoded)) {
             return null;

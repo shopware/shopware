@@ -544,7 +544,7 @@ SQL,
     }
 
     /**
-     * @return array{id: string, configuration_value: string|null}|null
+     * @return array{id: string, configuration_value: string}|null
      */
     private function getGlobalRevocationPageConfiguration(Connection $connection): ?array
     {
@@ -605,12 +605,8 @@ SQL,
         ]);
     }
 
-    private function extractCmsPageId(?string $configurationValue): ?string
+    private function extractCmsPageId(string $configurationValue): ?string
     {
-        if (!\is_string($configurationValue)) {
-            return null;
-        }
-
         $decoded = json_decode($configurationValue, true, 512, \JSON_THROW_ON_ERROR);
         if (!\is_array($decoded)) {
             return null;
@@ -654,6 +650,7 @@ SQL,
      */
     private function getLanguageIdsWithDePrefix(Connection $connection): array
     {
+        /** @var list<string> $languageIds */
         $languageIds = $connection->fetchFirstColumn(
             <<<'SQL'
 SELECT `language`.`id`
@@ -664,16 +661,7 @@ ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
 SQL
         );
 
-        $languageByteIds = [];
-        foreach ($languageIds as $languageId) {
-            if (!\is_string($languageId)) {
-                continue;
-            }
-
-            $languageByteIds[] = $languageId;
-        }
-
-        return $languageByteIds;
+        return $languageIds;
     }
 
     /**
@@ -681,6 +669,7 @@ SQL
      */
     private function getLanguageIdsWithoutDePrefix(Connection $connection): array
     {
+        /** @var list<string> $languageIds */
         $languageIds = $connection->fetchFirstColumn(
             <<<'SQL'
 SELECT `language`.`id`
@@ -691,15 +680,6 @@ ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
 SQL
         );
 
-        $languageByteIds = [];
-        foreach ($languageIds as $languageId) {
-            if (!\is_string($languageId)) {
-                continue;
-            }
-
-            $languageByteIds[] = $languageId;
-        }
-
-        return $languageByteIds;
+        return $languageIds;
     }
 }

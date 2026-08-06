@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Consent\AppConsentDefinitionProvider;
 use Shopware\Core\Framework\App\Consent\ConsentConfig;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
-use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -78,13 +77,7 @@ class AppConsentDefinitionProviderTest extends TestCase
             '1.0.0',
             true,
             $createdAt ?? new \DateTimeImmutable(),
-            new ConsentConfig(
-                $name,
-                $scope,
-                new TranslatedString(['en-GB' => 'Analyse orders']),
-                new TranslatedString([]),
-                $revision,
-            ),
+            new ConsentConfig($name, $scope, $revision),
         );
     }
 

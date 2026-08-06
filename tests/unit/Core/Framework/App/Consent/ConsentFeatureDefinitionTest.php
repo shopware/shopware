@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Consent\ConsentConfig;
 use Shopware\Core\Framework\App\Consent\ConsentFeatureDefinition;
-use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -53,49 +52,18 @@ class ConsentFeatureDefinitionTest extends TestCase
         $first = $configs[0];
         static::assertSame('order_analysis', $first->name);
         static::assertSame('system', $first->scope);
-        static::assertSame('Analyse orders', $first->label->forLocale('en-GB'));
-        static::assertSame('Bestellungen analysieren', $first->label->forLocale('de-DE'));
-        static::assertSame('Sends order data to the app for analysis.', $first->description->forLocale('en-GB'));
         static::assertSame('2026-01-01', $first->revision);
 
         $second = $configs[1];
         static::assertSame('usage_tracking', $second->name);
         static::assertSame('admin_user', $second->scope);
-        static::assertSame('Track my usage', $second->label->forLocale('en-GB'));
-        static::assertSame([], $second->description->all());
         static::assertNull($second->revision);
-    }
-
-    public function testFromAppFillsMissingDefaultLocaleTranslationFromFallback(): void
-    {
-        $configs = $this->definition->fromApp(
-            Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
-            new Filesystem(__DIR__),
-            'fr-FR',
-        );
-
-        static::assertCount(2, $configs);
-        static::assertSame('Analyse orders', $configs[0]->label->forLocale('fr-FR'));
-        static::assertSame('Sends order data to the app for analysis.', $configs[0]->description->forLocale('fr-FR'));
     }
 
     public function testPayloadRoundTripIgnoresStored(): void
     {
-        $declared = new ConsentConfig(
-            'order_analysis',
-            'system',
-            new TranslatedString(['en-GB' => 'Analyse orders']),
-            new TranslatedString(['en-GB' => 'Sends order data']),
-            '2026-01-01',
-        );
-
-        $stored = new ConsentConfig(
-            'order_analysis',
-            'admin_user',
-            new TranslatedString(['en-GB' => 'Old label']),
-            new TranslatedString([]),
-            '2025-01-01',
-        );
+        $declared = new ConsentConfig('order_analysis', 'system', '2026-01-01');
+        $stored = new ConsentConfig('order_analysis', 'admin_user', '2025-01-01');
 
         $payload = $this->definition->toPayload($declared, $stored);
         $hydrated = $this->definition->fromPayload($payload);

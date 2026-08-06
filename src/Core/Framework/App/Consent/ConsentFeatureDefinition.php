@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Consent;
 
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
-use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Consent\Consent;
 use Shopware\Core\Framework\Log\Package;
@@ -35,23 +34,11 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
     public function fromApp(Manifest $manifest, Filesystem $appFilesystem, string $defaultLocale): array
     {
         return array_map(
-            static function (Consent $consent) use ($defaultLocale): ConsentConfig {
-                // toArray() fills the default locale translation when it is missing,
-                // so the shop's default language always has a label to show
-                $data = $consent->toArray($defaultLocale);
-                /** @var array<string, string> $label */
-                $label = $data['label'];
-                /** @var array<string, string> $description */
-                $description = $data['description'];
-
-                return new ConsentConfig(
-                    $consent->getName(),
-                    $consent->getScope(),
-                    new TranslatedString($label),
-                    new TranslatedString($description),
-                    $consent->getRevision(),
-                );
-            },
+            static fn (Consent $consent): ConsentConfig => new ConsentConfig(
+                $consent->getName(),
+                $consent->getScope(),
+                $consent->getRevision(),
+            ),
             $manifest->getConsents()?->getConsents() ?? [],
         );
     }
@@ -74,8 +61,6 @@ class ConsentFeatureDefinition implements AppFeatureDefinition
         return new ConsentConfig(
             $payload['name'],
             $payload['scope'],
-            new TranslatedString($payload['label'] ?? []),
-            new TranslatedString($payload['description'] ?? []),
             $payload['revision'] ?? null,
         );
     }

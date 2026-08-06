@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Consent\AppConsentDefinition;
 use Shopware\Core\Framework\App\Consent\ConsentConfig;
-use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,13 +45,7 @@ class AppConsentDefinitionTest extends TestCase
     {
         return new AppConsentDefinition(
             'swagApp',
-            new ConsentConfig(
-                'order_analysis',
-                $scope,
-                new TranslatedString(['en-GB' => 'Analyse orders']),
-                new TranslatedString([]),
-                $revision,
-            ),
+            new ConsentConfig('order_analysis', $scope, $revision),
             new \DateTimeImmutable('2026-02-03 10:00:00'),
         );
     }

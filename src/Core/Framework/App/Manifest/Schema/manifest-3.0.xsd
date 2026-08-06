@@ -539,8 +539,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
-            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:string" name="revision" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

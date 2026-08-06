@@ -54,7 +54,6 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
         string $referencedInvoiceNumber,
         array $lineItems,
         MonetarySummationView $monetarySummation,
-        ?\DateTimeImmutable $paymentDueDate,
     ): self {
         return new self(
             typeCode: TypeCode::CREDIT_NOTE,
@@ -66,7 +65,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
             taxBreakdown: $invoice->taxBreakdown,
             monetarySummation: $monetarySummation,
             paymentMeans: $invoice->paymentMeans,
-            paymentDueDate: $paymentDueDate,
+            paymentDueDate: null,
             intraCommunityDelivery: $invoice->intraCommunityDelivery,
             custom: [
                 'creditNoteNumber' => $creditNoteNumber,

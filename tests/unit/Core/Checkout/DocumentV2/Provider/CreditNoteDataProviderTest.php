@@ -101,25 +101,6 @@ class CreditNoteDataProviderTest extends TestCase
         static::assertGreaterThan(0, $data->monetarySummation->grandTotal);
     }
 
-    public function testProvideRenderingDataFallsBackToTheIssueDatePlus30DaysAsPaymentDueDate(): void
-    {
-        $order = self::createOrder(withCredit: true);
-        $input = new ProviderInput(
-            $order,
-            $this->buildRequest($order),
-            new ReferencedDocument(
-                id: Uuid::randomHex(),
-                documentNumber: '1000',
-                orderVersionId: Uuid::randomHex(),
-            ),
-        );
-
-        $data = $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
-
-        // issue date (2026-05-05) plus 30 days
-        static::assertEquals(new \DateTimeImmutable('2026-06-04T12:00:00+00:00'), $data->paymentDueDate);
-    }
-
     public function testProvideRenderingDataDropsTheInvoiceAllowanceChargesToAvoidDoubleCounting(): void
     {
         $order = self::createOrder(withCredit: true);

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CreditNoteRenderData;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Calculation\CreditOrderReducer;
@@ -63,12 +62,6 @@ final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
             $resolvedReference->documentNumber,
             $lineItems,
             MonetarySummationView::fromOrder($input->order, $lineItems, []),
-            $this->resolvePaymentDueDate($invoice, $input->generationRequest->documentDate),
         );
-    }
-
-    private function resolvePaymentDueDate(InvoiceRenderData $invoice, string $documentDate): \DateTimeImmutable
-    {
-        return $invoice->paymentDueDate ?? (new \DateTimeImmutable($documentDate))->add(new \DateInterval('P30D'));
     }
 }

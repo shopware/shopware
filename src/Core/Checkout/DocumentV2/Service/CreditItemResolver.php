@@ -116,15 +116,13 @@ final readonly class CreditItemResolver
             WHERE
                 d.referenced_document_id = :referencedInvoiceId
                 AND dt.technical_name IN (:creditTechnicalName)
-                AND oli.type = :creditType
-                AND d.order_version_id != :liveVersionId;
+                AND oli.type = :creditType;
         ';
 
         $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
             'creditTechnicalName' => self::CREDIT_NOTE_TECHNICAL_NAMES,
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
-            'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ], [
             'creditTechnicalName' => ArrayParameterType::STRING,
         ]);

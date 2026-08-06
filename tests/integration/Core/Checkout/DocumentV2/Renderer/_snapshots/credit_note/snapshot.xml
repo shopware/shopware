@@ -141,9 +141,7 @@
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
       <ram:SpecifiedTradePaymentTerms>
-        <ram:DueDateDateTime>
-          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
-        </ram:DueDateDateTime>
+        <ram:Description>The amount will be refunded.</ram:Description>
       </ram:SpecifiedTradePaymentTerms>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:LineTotalAmount>34.80</ram:LineTotalAmount>

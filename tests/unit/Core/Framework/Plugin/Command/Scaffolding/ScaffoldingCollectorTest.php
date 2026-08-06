@@ -196,4 +196,30 @@ class ScaffoldingCollectorTest extends TestCase
             $filesystem->remove($dir);
         }
     }
+
+    public function testCollectsOnlyRequestedGenerator(): void
+    {
+        $configuration = new PluginScaffoldConfiguration(
+            'TestPlugin',
+            'Test',
+            sys_get_temp_dir() . '/non-existing-plugin'
+        );
+
+        $selectedGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $selectedGenerator
+            ->expects($this->once())
+            ->method('generateStubs')
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
+                $stubCollection->add(Stub::raw('src/TestPlugin.php', 'class TestPlugin'));
+            });
+
+        $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $otherGenerator->expects($this->never())->method('generateStubs');
+
+        $stubCollection = (new ScaffoldingCollector([$selectedGenerator, $otherGenerator]))
+            ->collect($configuration, $selectedGenerator);
+
+        static::assertTrue($stubCollection->has('src/TestPlugin.php'));
+        static::assertCount(1, $stubCollection);
+    }
 }

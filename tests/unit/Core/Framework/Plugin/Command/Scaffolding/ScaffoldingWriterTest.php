@@ -49,4 +49,31 @@ class ScaffoldingWriterTest extends TestCase
 
         $scaffoldingWriter->write($stubCollection, $configuration);
     }
+
+    public function testDoesNotOverwriteExistingFilesAndAppendsAggregateFiles(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
+        $servicesFile = $directory . '/src/Resources/config/services.php';
+        $composerFile = $directory . '/composer.json';
+
+        try {
+            $filesystem->dumpFile($servicesFile, "<?php\n\nreturn static function (): void {\n    existing();\n};\n");
+            $filesystem->dumpFile($composerFile, '{"version":"custom"}');
+
+            (new ScaffoldingWriter($filesystem))->write(
+                new StubCollection([
+                    Stub::append('src/Resources/config/services.php', "\n    generated();\n"),
+                    Stub::raw('composer.json', '{"version":"generated"}'),
+                ]),
+                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+            );
+
+            static::assertStringContainsString('existing();', (string) file_get_contents($servicesFile));
+            static::assertStringContainsString('generated();', (string) file_get_contents($servicesFile));
+            static::assertSame('{"version":"custom"}', file_get_contents($composerFile));
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
 }

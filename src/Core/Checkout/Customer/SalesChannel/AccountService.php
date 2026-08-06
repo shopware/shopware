@@ -37,9 +37,9 @@ class AccountService
     use CheckPasswordLengthTrait;
 
     /**
-     * Bcrypt hash of a static dummy password used to equalize timing when the login cannot succeed.
+     * Bcrypt hash of a static placeholder password used to equalize timing when the login cannot succeed.
      */
-    private const DUMMY_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
 
     /**
      * @internal
@@ -130,7 +130,7 @@ class AccountService
             $customer = $this->getCustomerByEmail($email, $context);
         } catch (CustomerNotFoundException) {
             // Prevent customer enumeration via timing attacks by always running password_verify().
-            password_verify($password, self::DUMMY_PASSWORD_HASH);
+            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
 
             throw CustomerException::badCredentials();
         }
@@ -138,7 +138,7 @@ class AccountService
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
                 // Legacy md5/sha256 verification is far cheaper than bcrypt; match its cost so a wrong password does not reveal migrated accounts.
-                password_verify($password, self::DUMMY_PASSWORD_HASH);
+                password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
 
                 throw CustomerException::badCredentials();
             }
@@ -150,7 +150,7 @@ class AccountService
 
         $passwordHash = $customer->getPassword();
         if ($passwordHash === null) {
-            password_verify($password, self::DUMMY_PASSWORD_HASH);
+            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
 
             throw CustomerException::badCredentials();
         }

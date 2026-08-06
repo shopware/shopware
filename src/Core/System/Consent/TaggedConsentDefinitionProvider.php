@@ -5,8 +5,6 @@ namespace Shopware\Core\System\Consent;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Provides the consents that are registered in the container, tagged `shopware.consent.definition`.
- *
  * @internal
  */
 #[Package('data-services')]

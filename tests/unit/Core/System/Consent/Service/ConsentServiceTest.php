@@ -39,13 +39,13 @@ class ConsentServiceTest extends TestCase
         $this->consentRepository = $this->createMock(ConsentRepository::class);
     }
 
-    public function testDefinitionsAreCollectedFromAllProvidersKeyedByName(): void
+    public function testDefinitionsAreCollectedFromAllProvidersAndALaterOneWins(): void
     {
         $appConsent = new TestDefinition('MyApp-data_sharing', 'system');
         $backendData = new TestDefinition('backend_data', 'system');
 
         $service = $this->createServiceFromProviders([
-            $this->provider($appConsent),
+            new TaggedConsentDefinitionProvider([$appConsent, new TestDefinition('backend_data', 'admin_user')]),
             new TaggedConsentDefinitionProvider([$backendData]),
         ]);
 
@@ -53,18 +53,6 @@ class ConsentServiceTest extends TestCase
             'MyApp-data_sharing' => $appConsent,
             'backend_data' => $backendData,
         ], $service->definitions());
-    }
-
-    public function testDefinitionOfALaterProviderWins(): void
-    {
-        $backendData = new TestDefinition('backend_data', 'system');
-
-        $service = $this->createServiceFromProviders([
-            $this->provider(new TestDefinition('backend_data', 'admin_user')),
-            new TaggedConsentDefinitionProvider([$backendData]),
-        ]);
-
-        static::assertSame(['backend_data' => $backendData], $service->definitions());
     }
 
     public function testResetCollectsDefinitionsFromTheProvidersAgain(): void
@@ -642,13 +630,5 @@ class ConsentServiceTest extends TestCase
             $this->consentRepository,
             $eventDispatcher ?? new EventDispatcher()
         );
-    }
-
-    private function provider(ConsentDefinition ...$definitions): ConsentDefinitionProvider
-    {
-        $provider = static::createStub(ConsentDefinitionProvider::class);
-        $provider->method('getConsentDefinitions')->willReturn(array_values($definitions));
-
-        return $provider;
     }
 }

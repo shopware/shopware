@@ -406,23 +406,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
-### Apps can declare consents
-
-Apps can declare consents in a `<consents>` section of the manifest. Each consent has a name, a scope (`system` for one answer per shop, `admin_user` for one answer per admin user), the date the app introduced it, and an optional revision:
-
-```xml
-<consents>
-    <consent>
-        <name>order_analysis</name>
-        <scope>system</scope>
-        <since>2026-01-01</since>
-        <revision>2026-01-01</revision>
-    </consent>
-</consents>
-```
-
-Declared consents are stored through the app feature storage and appear in the consent system as `<app name>-<consent name>`, for example `SwagExample-order_analysis`. They are answered through the existing `/api/consents` endpoints, and answers are kept when the app is uninstalled. Changing the revision marks earlier answers as outdated.
-
 ### Optional `Clear-Site-Data` header on customer logout
 
 On customer logout the storefront can send a [`Clear-Site-Data`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data) header, so the browser drops data left over from the session. Disabled by default:

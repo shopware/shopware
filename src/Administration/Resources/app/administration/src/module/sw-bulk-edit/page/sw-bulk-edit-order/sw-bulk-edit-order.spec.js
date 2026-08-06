@@ -465,7 +465,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeUndefined();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy bulk-edit custom-field selection.
+    // @deprecated tag:v6.8.0.0 - Skipped under the major flag: mt-checkbox does not render the
+    // `.mt-field--checkbox__container input` structure this selector needs (same pre-existing failure
+    // as sw-bulk-edit-custom-fields.spec.js). onCustomFieldsChange itself is unconditional and not
+    // removed; re-enable once that shared mt-checkbox rendering issue is fixed.
     it.deprecated('v6.8.0.0')('should call onCustomFieldsChange when a customField is changed', async () => {
         wrapper = await createWrapper();
 

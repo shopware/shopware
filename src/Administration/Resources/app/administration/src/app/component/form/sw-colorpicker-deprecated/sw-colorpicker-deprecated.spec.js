@@ -19,7 +19,9 @@ async function createWrapper(additionalProps = {}) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'mt-floating-ui': true,
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
             },
         },
         props: {
@@ -432,8 +434,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.alpha).toBe(0.8);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
-    it.deprecated('v6.8.0.0')('should show the color picker', async () => {
+    it('should show the color picker', async () => {
         await wrapper.find('.sw-colorpicker__previewWrapper').trigger('click');
         await flushPromises();
 
@@ -573,8 +574,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
-    it.deprecated('v6.8.0.0')('should call moveSelector on dragging colorPicker', async () => {
+    it('should call moveSelector on dragging colorPicker', async () => {
         wrapper = await createWrapper();
         const moveSelectorSpy = jest.spyOn(wrapper.vm, 'moveSelector');
 
@@ -590,8 +590,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(moveSelectorSpy).toHaveBeenCalledTimes(1);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-colorpicker-deprecated.
-    it.deprecated('v6.8.0.0')('should call removeDragging on mouseup', async () => {
+    it('should call removeDragging on mouseup', async () => {
         wrapper = await createWrapper();
 
         const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
@@ -712,8 +711,7 @@ describe('components/form/sw-colorpicker', () => {
         ],
     ];
 
-    // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-colorpicker-deprecated.
-    it.deprecated('v6.8.0.0').each(moveSelectorDataSet)(
+    it.each(moveSelectorDataSet)(
         'should calculate luminanceValue and saturationValue correctly when moveSelector',
         async (clientX, clientY, left, top, expectedSaturationValue, expectedLuminanceValue) => {
             wrapper = await createWrapper();

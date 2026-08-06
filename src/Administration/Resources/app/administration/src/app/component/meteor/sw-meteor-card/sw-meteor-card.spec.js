@@ -57,7 +57,7 @@ async function createWrapper(customConfig = {}, { featureActive = false } = {}) 
     });
 }
 
-async function createMeteorCardWithTabs({ featureActive = false } = {}) {
+async function createMeteorCardWithTabs() {
     return mount(
         {
             template: `
@@ -87,9 +87,6 @@ async function createMeteorCardWithTabs({ featureActive = false } = {}) {
                     'mt-tabs': createMtTabsStub(),
                     'sw-extension-component-section': true,
                     'router-link': true,
-                },
-                provide: {
-                    feature: createFeatureMock(featureActive),
                 },
             },
         },
@@ -273,8 +270,8 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(content.text()).toBe('Tab 2');
     });
 
-    it('should render meteor tabs and change content', async () => {
-        const wrapper = await createMeteorCardWithTabs({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs and change content', async () => {
+        const wrapper = await createMeteorCardWithTabs();
         await flushPromises();
 
         const tabs = wrapper.findComponent({ name: 'mt-tabs' });
@@ -305,10 +302,12 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(tabs.props('defaultItem')).toBe('tab2');
     });
 
-    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
-        const wrapper = mount(
-            {
-                template: `
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should prefer the visible tab text over the title attribute for meteor tab labels',
+        async () => {
+            const wrapper = mount(
+                {
+                    template: `
 <sw-meteor-card defaultTab="tab1">
     <template #tabs="{ activeTab }">
         <sw-tabs-item
@@ -321,35 +320,33 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
     </template>
 </sw-meteor-card>
             `,
-            },
-            {
-                global: {
-                    stubs: {
-                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
-                        'sw-tabs': await wrapTestComponent('sw-tabs'),
-                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                        'sw-loader': true,
-                        'mt-tabs': createMtTabsStub(),
-                        'sw-extension-component-section': true,
-                        'router-link': true,
-                    },
-                    provide: {
-                        feature: createFeatureMock(true),
+                },
+                {
+                    global: {
+                        stubs: {
+                            'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                            'sw-tabs': await wrapTestComponent('sw-tabs'),
+                            'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                            'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                            'sw-loader': true,
+                            'mt-tabs': createMtTabsStub(),
+                            'sw-extension-component-section': true,
+                            'router-link': true,
+                        },
                     },
                 },
-            },
-        );
+            );
 
-        await flushPromises();
+            await flushPromises();
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-        expect(tabs.props('items')).toEqual([
-            {
-                label: 'Visible tab text',
-                name: 'tab1',
-            },
-        ]);
-    });
+            expect(tabs.props('items')).toEqual([
+                {
+                    label: 'Visible tab text',
+                    name: 'tab1',
+                },
+            ]);
+        },
+    );
 });

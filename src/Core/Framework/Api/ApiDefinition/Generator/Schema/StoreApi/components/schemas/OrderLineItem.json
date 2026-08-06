@@ -80,6 +80,10 @@
                     },
                     "payload": {
                         "type": "object",
+                        "required": [
+                            "manufacturerName",
+                            "categoryNames"
+                        ],
                         "properties": {
                             "categoryIds": {
                                 "type": "array",

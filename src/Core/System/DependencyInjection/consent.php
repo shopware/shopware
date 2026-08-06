@@ -3,7 +3,6 @@
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\System\Consent\Api\ConsentController;
-use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\Definition;
@@ -13,6 +12,7 @@ use Shopware\Core\System\Consent\Log\ConsentLogInterface;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\Consent\Subscriber\SetupStagingEventSubscriber;
+use Shopware\Core\System\Consent\TaggedConsentDefinitionProvider;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -34,17 +34,16 @@ return static function (ContainerConfigurator $container): void {
             new Reference(ClockInterface::class),
         ]);
 
-    $services->set(ConsentDefinitionRegistry::class)
+    $services->set(TaggedConsentDefinitionProvider::class)
         ->args([
             new TaggedIteratorArgument('shopware.consent.definition'),
-            new TaggedIteratorArgument('shopware.consent.definition_provider'),
         ])
-        ->tag('kernel.reset', ['method' => 'reset']);
+        ->tag('shopware.consent.definition_provider');
 
     $services->set(ConsentService::class)
         ->args([
             new TaggedIteratorArgument('shopware.consent.scope'),
-            new Reference(ConsentDefinitionRegistry::class),
+            new TaggedIteratorArgument('shopware.consent.definition_provider'),
             new Reference(ConsentRepository::class),
             new Reference('event_dispatcher'),
         ])
@@ -83,7 +82,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(ConsentHookableEventDescriber::class)
         ->args([
-            new Reference(ConsentDefinitionRegistry::class),
+            new Reference(ConsentService::class),
         ])
         ->tag('shopware.hookable_event.describer');
 };

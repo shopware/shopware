@@ -425,6 +425,6 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
-          # allow markdown-only PRs to skip the expensive jobs, and allow the Windows check to skip on PRs where it never runs
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, code-ql, php-security, blue-green-66-67, blue-green-67-68' || github.event_name == 'pull_request' && 'win-checkout' || '' }}
+          # allow markdown-only PRs to skip the expensive jobs, and allow jobs which do not run on a PR or outside the public repository to skip
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, code-ql, php-security, blue-green-66-67, blue-green-67-68' || github.repository != 'shopware/shopware' && github.event_name == 'pull_request' && 'win-checkout, code-ql' || github.repository != 'shopware/shopware' && 'code-ql' || github.event_name == 'pull_request' && 'win-checkout' || '' }}
           jobs: ${{ toJSON(needs) }}

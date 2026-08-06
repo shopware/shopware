@@ -55,7 +55,7 @@ describe('Jest feature flag extensions', () => {
         // A synthetic future version keeps this independent of the runner's baseline flags.
         createDeprecatedTest(testFunction)('v99.0.0.0')('deprecated test', jest.fn());
 
-        // The suffix has to stay greppable against the flag literal and the @deprecated markers.
+        // The suffix has to stay greppable against the flag literal and the deprecation markers.
         expect(testFunction).toHaveBeenCalledWith(
             expect.stringContaining('(removed in v99.0.0.0)'),
             expect.any(Function),
@@ -176,7 +176,7 @@ describe('Jest feature flag extensions', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(true);
         });
 
-        // @deprecated tag:v6.8.0.0 - Asserts the pre-major baseline, so it cannot run once v6.8 is the default.
+        // @deprecated tag:v6.8.0 - Asserts the pre-major baseline, so it cannot run once v6.8 is the default.
         it.deprecated('v6.8.0.0')('is not visible to Shopware.Feature without the helper', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(false);
         });

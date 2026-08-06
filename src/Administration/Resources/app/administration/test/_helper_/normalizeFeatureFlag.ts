@@ -7,7 +7,7 @@
  * either notation compares equal.
  *
  * Flags reach us in both spellings: `window._features_` and `.env` use `V6_8_0_0`, while
- * `@deprecated tag:` markers and most `isActive()` calls use `v6.8.0.0`. Uppercasing and replacing
+ * most `isActive()` calls use `v6.8.0.0`. Uppercasing and replacing
  * `.`, `:` and `-` with `_` maps both onto one key.
  *
  * ```

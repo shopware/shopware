@@ -13,6 +13,40 @@ function isActiveFeatureFlagsCall(node) {
     );
 }
 
+/**
+ * Resolves the `it.activeFeatureFlags([...])` call behind a registered test, for both shapes:
+ *
+ *   it.activeFeatureFlags([...])(name, fn)
+ *   it.activeFeatureFlags([...]).each(table)(name, fn)
+ *
+ * In the chained form the outer callee is the `.each(table)` call, so the flag call sits one level
+ * deeper. Returns null when the node is not a feature-flagged test.
+ */
+function findActiveFeatureFlagsCall(node) {
+    if (node.callee.type !== 'CallExpression') {
+        return null;
+    }
+
+    if (isActiveFeatureFlagsCall(node.callee.callee)) {
+        return node.callee;
+    }
+
+    const eachCallee = node.callee.callee;
+
+    if (
+        eachCallee.type === 'MemberExpression' &&
+        eachCallee.computed === false &&
+        eachCallee.property.type === 'Identifier' &&
+        eachCallee.property.name === 'each' &&
+        eachCallee.object.type === 'CallExpression' &&
+        isActiveFeatureFlagsCall(eachCallee.object.callee)
+    ) {
+        return eachCallee.object;
+    }
+
+    return null;
+}
+
 function getRemovalRanges(sourceCode, featureFlags, stabilizedFeatureFlags) {
     const removalRanges = [];
 
@@ -82,11 +116,13 @@ module.exports = {
 
         return {
             CallExpression(node) {
-                if (node.callee.type !== 'CallExpression' || !isActiveFeatureFlagsCall(node.callee.callee)) {
+                const activeFeatureFlagsCall = findActiveFeatureFlagsCall(node);
+
+                if (!activeFeatureFlagsCall) {
                     return;
                 }
 
-                const [featureFlags] = node.callee.arguments;
+                const [featureFlags] = activeFeatureFlagsCall.arguments;
                 if (featureFlags?.type !== 'ArrayExpression') {
                     return;
                 }
@@ -108,7 +144,8 @@ module.exports = {
                     data: { featureFlag: stabilizedFeatureFlag },
                     fix(fixer) {
                         if (activeFeatureFlags.length === stabilizedFeatureFlags.length) {
-                            return fixer.replaceText(node.callee, 'it');
+                            // Replace only the flag call, so a chained `.each(table)` survives.
+                            return fixer.replaceText(activeFeatureFlagsCall, 'it');
                         }
 
                         return getRemovalRanges(sourceCode, activeFeatureFlags, stabilizedFeatureFlags).map((range) =>

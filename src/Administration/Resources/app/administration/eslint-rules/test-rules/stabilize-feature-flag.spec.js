@@ -48,6 +48,20 @@ ruleTester.run('stabilize-feature-flag', rule, {
             errors: [{ messageId: 'stabilizedFeatureFlag' }],
         },
         {
+            name: 'turns a table-driven helper into a regular it.each when no active flags remain',
+            code: "it.activeFeatureFlags(['STABLE_FEATURE']).each(rows)('runs with %s', () => {});",
+            output: "it.each(rows)('runs with %s', () => {});",
+            options: ['STABLE_FEATURE'],
+            errors: [{ messageId: 'stabilizedFeatureFlag' }],
+        },
+        {
+            name: 'keeps the remaining flags on a table-driven helper',
+            code: "it.activeFeatureFlags(['STABLE_FEATURE', 'EXPERIMENTAL_FEATURE']).each(rows)('runs with %s', () => {});",
+            output: "it.activeFeatureFlags(['EXPERIMENTAL_FEATURE']).each(rows)('runs with %s', () => {});",
+            options: ['STABLE_FEATURE'],
+            errors: [{ messageId: 'stabilizedFeatureFlag' }],
+        },
+        {
             name: 'removes every duplicate occurrence of the stabilized feature flag',
             code: "it.activeFeatureFlags(['STABLE_FEATURE', 'STABLE_FEATURE'])('runs with a feature flag', () => {});",
             output: "it('runs with a feature flag', () => {});",

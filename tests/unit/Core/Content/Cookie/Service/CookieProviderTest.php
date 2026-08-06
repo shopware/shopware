@@ -202,7 +202,6 @@ class CookieProviderTest extends TestCase
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
-        /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */
         $legacyCookieProvider->setTestCookieGroups([$invalidGroup]);
 
         $this->expectExceptionObject(CookieException::invalidLegacyCookieGroupProvided($invalidGroup));
@@ -224,7 +223,6 @@ class CookieProviderTest extends TestCase
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
         $legacyCookieProvider = new LegacyCookieProviderForTesting(['name' => 'test-session-name-']);
-        /** @phpstan-ignore argument.type (Left out required array key for testing purpose) */
         $legacyCookieProvider->setTestCookieGroups([
             [
                 'snippet_name' => 'test-group-1',

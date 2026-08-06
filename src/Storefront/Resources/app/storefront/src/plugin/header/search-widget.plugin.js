@@ -48,8 +48,9 @@ export default class SearchWidgetPlugin extends Plugin {
 
     /**
      * Restores the submitted search term in the input field on the search result page.
-     * The header is rendered via ESI, so the search term of the current page is not
-     * available during rendering and has to be taken from the current URL instead.
+     * The header is rendered via ESI, so neither the search term nor the current route
+     * are available during rendering. Both are taken from the surrounding page instead,
+     * which sets `window.activeRoute` per request in `layout/meta.html.twig`.
      *
      * @private
      */
@@ -59,14 +60,11 @@ export default class SearchWidgetPlugin extends Plugin {
             return;
         }
 
-        const currentUrl = new URL(window.location.href);
-
-        // the form action points to the search result page, so it tells us whether we are on it
-        if (new URL(this.el.action, window.location.origin).pathname !== currentUrl.pathname) {
+        if (window.activeRoute !== 'frontend.search.page') {
             return;
         }
 
-        const term = currentUrl.searchParams.get(this._inputField.name);
+        const term = new URL(window.location.href).searchParams.get(this._inputField.name);
 
         if (!term) {
             return;

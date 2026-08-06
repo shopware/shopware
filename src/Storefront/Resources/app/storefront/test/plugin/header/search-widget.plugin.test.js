@@ -584,9 +584,11 @@ describe('SearchPlugin Tests', () => {
 
         afterEach(() => {
             window.history.pushState({}, '', '/');
+            delete window.activeRoute;
         });
 
         test('restores the search term from the URL on the search result page', () => {
+            window.activeRoute = 'frontend.search.page';
             window.history.pushState({}, '', `/search?search=${encodeURIComponent('red shirt')}`);
 
             const searchPlugin = createSearchPlugin();
@@ -594,7 +596,8 @@ describe('SearchPlugin Tests', () => {
             expect(searchPlugin._inputField.value).toBe('red shirt');
         });
 
-        test('does not restore the search term on other pages', () => {
+        test('does not restore the search term on other routes', () => {
+            window.activeRoute = 'frontend.detail.page';
             window.history.pushState({}, '', '/detail/0123456789?search=red');
 
             const searchPlugin = createSearchPlugin();
@@ -602,7 +605,16 @@ describe('SearchPlugin Tests', () => {
             expect(searchPlugin._inputField.value).toBe('');
         });
 
+        test('does not restore the search term when the active route is unknown', () => {
+            window.history.pushState({}, '', '/search?search=red');
+
+            const searchPlugin = createSearchPlugin();
+
+            expect(searchPlugin._inputField.value).toBe('');
+        });
+
         test('does not overwrite a search term which was rendered server-side', () => {
+            window.activeRoute = 'frontend.search.page';
             window.history.pushState({}, '', '/search?search=red');
 
             const searchPlugin = createSearchPlugin('green');
@@ -611,6 +623,7 @@ describe('SearchPlugin Tests', () => {
         });
 
         test('keeps the input empty when the URL has no search term', () => {
+            window.activeRoute = 'frontend.search.page';
             window.history.pushState({}, '', '/search');
 
             const searchPlugin = createSearchPlugin();

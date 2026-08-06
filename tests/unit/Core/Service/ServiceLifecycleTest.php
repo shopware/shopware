@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -60,11 +62,11 @@ class ServiceLifecycleTest extends TestCase
 
     private RequirementsValidator&MockObject $requirementsValidator;
 
-    private Client&MockObject $registryClient;
+    private Client&Stub $registryClient;
 
     private ServiceClient&MockObject $serviceClient;
 
-    private ServiceClientFactory&MockObject $serviceClientFactory;
+    private ServiceClientFactory&Stub $serviceClientFactory;
 
     protected function setUp(): void
     {
@@ -76,9 +78,9 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver = $this->createMock(ServiceSourceResolver::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
-        $this->registryClient = $this->createMock(Client::class);
+        $this->registryClient = static::createStub(Client::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
-        $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $this->serviceClientFactory = static::createStub(ServiceClientFactory::class);
     }
 
     public function testInstallInstallsWhenInstallationRequirementsAreMet(): void
@@ -170,6 +172,35 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('warning')
             ->with('Cannot install service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
+    }
+
+    public function testInstallReturnsFalseWhenManifestCannotBeParsed(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('install');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot install service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
@@ -391,6 +422,37 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with('Cannot update service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
+    }
+
+    public function testUpdateLogsErrorWhenManifestCannotBeParsed(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '8.0.0']);
+        $this->registryReturnsEntry();
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('update');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot update service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }

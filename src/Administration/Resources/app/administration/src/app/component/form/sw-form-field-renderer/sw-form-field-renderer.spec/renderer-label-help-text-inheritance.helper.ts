@@ -44,6 +44,8 @@ export type RendererField = FormFieldDefinition & {
 };
 
 type TestWrapper = DOMWrapper<Element> | VueWrapper;
+// `GlobalMountOptions` is not exported by @vue/test-utils, so derive the `global` option type from mount.
+type MountGlobal = NonNullable<NonNullable<Parameters<typeof mount>[1]>['global']>;
 
 type SystemConfigWrapper = VueWrapper<{
     actualConfigData: Record<string, Record<string, unknown>>;
@@ -53,24 +55,27 @@ type SystemConfigWrapper = VueWrapper<{
 
 const HEADLESS_SALES_CHANNEL_ID = 'headless-sales-channel-id';
 export function buildRendererFields(fields: FormFieldDefinition[]): RendererField[] {
-    return fields.map((field, index) => ({
-        ...field,
-        name: `renderer_field_${index}`,
-        config: {
-            ...(field.config ?? {}),
-            ...getAdditionalFieldConfig(field),
-            label: { 'en-GB': `Renderer label ${index}` },
-            helpText: { 'en-GB': `Renderer help text ${index}` },
-            options: [
-                { id: 'first', value: 'first', name: 'First option' },
-                { id: 'second', value: 'second', name: 'Second option' },
-            ],
-            ...(field.config?.componentName === 'sw-snippet-field' ? { snippet: 'renderer.snippet' } : {}),
-        },
-    }));
+    return fields.map(
+        (field, index) =>
+            ({
+                ...field,
+                name: `renderer_field_${index}`,
+                config: {
+                    ...(field.config ?? {}),
+                    ...getAdditionalFieldConfig(field),
+                    label: { 'en-GB': `Renderer label ${index}` },
+                    helpText: { 'en-GB': `Renderer help text ${index}` },
+                    options: [
+                        { id: 'first', value: 'first', name: 'First option' },
+                        { id: 'second', value: 'second', name: 'Second option' },
+                    ],
+                    ...(field.config?.componentName === 'sw-snippet-field' ? { snippet: 'renderer.snippet' } : {}),
+                },
+            }) as RendererField,
+    );
 }
 
-function getAdditionalFieldConfig(field: FormFieldDefinition) {
+function getAdditionalFieldConfig(field: FormFieldDefinition): Partial<FormFieldConfig> {
     const componentName = field.config?.componentName;
 
     if (
@@ -85,7 +90,7 @@ function getAdditionalFieldConfig(field: FormFieldDefinition) {
     }
 
     if (componentName === 'sw-price-field') {
-        return { currency: { id: Shopware.Context.app.systemCurrencyId, factor: 1 } };
+        return { currency: { id: Shopware.Context.app.systemCurrencyId ?? '', factor: 1 } };
     }
 
     return {};
@@ -128,7 +133,7 @@ async function createGlobalConfig(
             },
             ...additionalProvide,
         },
-    };
+    } as unknown as MountGlobal;
 }
 
 function meteorFieldComponents() {
@@ -235,7 +240,7 @@ function createSystemConfigService(fields: RendererField[]) {
                     elements: fields,
                 },
             ]),
-        getValues: (domain, salesChannelId) =>
+        getValues: (domain: string, salesChannelId: string | null) =>
             Promise.resolve(salesChannelId === null ? createDefaultFieldValueMap(fields) : {}),
     };
 }
@@ -400,10 +405,10 @@ export async function mountCustomFieldSetRenderer(fields: RendererField[], { has
     });
 }
 
-export async function mountSystemConfig(fields: RendererField[]) {
+export async function mountSystemConfig(fields: RendererField[]): Promise<SystemConfigWrapper> {
     ensureInnerTextSupport();
 
-    return mount(await wrapTestComponent('sw-system-config', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-system-config', { sync: true }), {
         props: {
             domain: 'Renderer.config',
             salesChannelId: null,
@@ -419,6 +424,8 @@ export async function mountSystemConfig(fields: RendererField[]) {
             },
         ),
     });
+
+    return wrapper as unknown as SystemConfigWrapper;
 }
 
 function tabsStub() {

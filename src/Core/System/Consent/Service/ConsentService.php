@@ -172,9 +172,6 @@ class ConsentService implements ResetInterface
         return $updatedState;
     }
 
-    /**
-     * The definitions of installed apps change while the shop runs, so they are collected again.
-     */
     public function reset(): void
     {
         $this->definitions = null;

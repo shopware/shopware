@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinitionProvider;
 
 /**
- * Hands the consents declared by active apps to the core consent system.
- *
  * @internal only for use by the app-system
  */
 #[Package('framework')]

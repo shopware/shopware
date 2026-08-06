@@ -4335,22 +4335,6 @@ The Administration module response omits modules for apps the current user canno
 Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
 
 ## Hosting & Configuration
-### Apps can declare consents
-
-Apps can declare consents in a `<consents>` section of the manifest. Each consent has a name, a scope (`system` for one answer per shop, `admin_user` for one answer per admin user), the date the app introduced it, and an optional revision:
-
-```xml
-<consents>
-    <consent>
-        <name>order_analysis</name>
-        <scope>system</scope>
-        <since>2026-01-01</since>
-        <revision>2026-01-01</revision>
-    </consent>
-</consents>
-```
-
-Declared consents are stored through the app feature storage and appear in the consent system as `<app name>-<consent name>`, for example `SwagExample-order_analysis`. They are answered through the existing `/api/consents` endpoints, and answers are kept when the app is uninstalled. Changing the revision marks earlier answers as outdated.
 
 ### Local translation files and optional automatic updates
 

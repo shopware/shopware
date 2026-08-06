@@ -2,6 +2,7 @@
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\Consent\ConsentFeatureDefinition;
 use Shopware\Core\System\Consent\Api\ConsentController;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -83,6 +84,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ConsentHookableEventDescriber::class)
         ->args([
             new Reference(ConsentService::class),
+            new Reference(ConsentFeatureDefinition::class),
         ])
         ->tag('shopware.hookable_event.describer');
 };

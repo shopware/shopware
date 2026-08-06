@@ -127,10 +127,3 @@ There are two providers:
 - `AppConsentDefinitionProvider` provides the consents apps declare in their manifest. These are only known at
   runtime, so they cannot be registered in the container.
 
-Implement `ConsentDefinitionProvider` for any other source of consents that only exists at runtime. The
-container-registered consents are provided last, so a provider cannot replace one of them.
-
-App consents come from `Shopware\Core\Framework\App\Consent\AppConsentDefinitionProvider`. Their name is
-the app name and the declared name, for example `SwagExample-order_analysis`. Answers are stored under that name
-and stay in `consent_state` when the app is uninstalled; a stored answer without a definition is left out of
-`ConsentService::list()`.

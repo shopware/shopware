@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  *
- * @implements AppFeatureDefinition<ConsentConfig>
+ * @extends AppFeatureDefinition<ConsentConfig>
  *
  * @phpstan-import-type ConsentPayload from ConsentConfig
  */
@@ -33,20 +33,7 @@ class ConsentFeatureDefinition extends AppFeatureDefinition
 
     public function fromApp(Manifest $manifest, Filesystem $appFilesystem, string $defaultLocale): array
     {
-        $configs = [];
-
-        foreach ($manifest->getDocument()->getElementsByTagName('consent') as $consent) {
-            $values = XmlParserUtils::parseChildren($consent);
-
-            $configs[] = new ConsentConfig(
-                (string) $values['name'],
-                (string) $values['scope'],
-                new \DateTimeImmutable((string) $values['since']),
-                isset($values['revision']) ? (string) $values['revision'] : null,
-            );
-        }
-
-        return $configs;
+        return $this->fromManifest($manifest);
     }
 
     /**
@@ -68,5 +55,26 @@ class ConsentFeatureDefinition extends AppFeatureDefinition
             new \DateTimeImmutable($payload['since']),
             $payload['revision'] ?? null,
         );
+    }
+
+    /**
+     * @return list<ConsentConfig>
+     */
+    public function fromManifest(Manifest $manifest): array
+    {
+        $configs = [];
+
+        foreach ($manifest->getDocument()->getElementsByTagName('consent') as $consent) {
+            $values = XmlParserUtils::parseChildren($consent);
+
+            $configs[] = new ConsentConfig(
+                (string) $values['name'],
+                (string) $values['scope'],
+                new \DateTimeImmutable((string) $values['since']),
+                isset($values['revision']) ? (string) $values['revision'] : null,
+            );
+        }
+
+        return $configs;
     }
 }

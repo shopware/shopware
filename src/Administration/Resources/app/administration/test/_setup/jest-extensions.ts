@@ -6,6 +6,9 @@ import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
 
 type EachTable = Parameters<jest.It['each']>[0];
 type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
+// jest's `.each(table)(...)` types its callback for the table row args; our helpers forward a plain
+// ProvidesCallback, so the returned registrar is cast to accept it. Runtime behaviour is unchanged.
+type EachRegister = (name: string, callback: jest.ProvidesCallback, timeout?: number) => void;
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
 
 function getActiveFeatureFlags(): string[] {
@@ -46,7 +49,7 @@ export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated
         }) as jest.FeatureFlagTest;
 
         run.each = ((table: EachTable) => (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
-            register.each(table)(withSuffix(name), callback, timeout)) as jest.It['each'];
+            (register.each(table) as EachRegister)(withSuffix(name), callback, timeout)) as jest.It['each'];
 
         return run;
     };
@@ -65,7 +68,7 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
         // pick up the same flags.
         run.each = ((table: EachTable) => (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
             withPendingFeatureFlags(featureFlags, () =>
-                testFunction.each(table)(name, callback, timeout),
+                (testFunction.each(table) as EachRegister)(name, callback, timeout),
             )) as jest.It['each'];
 
         return run;

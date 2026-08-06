@@ -5,6 +5,16 @@
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 const majorFeatureFlags = ['V6_8_0_0'];
 
+/**
+ * Pretends the runner was started with the v6.8 flag on, so the assertions below cover the major
+ * suite without needing a second Jest config.
+ *
+ * `Reflect.set` rather than plain assignment only because the key is a `Symbol`: `globalThis[sym] = x`
+ * is not expressible in TypeScript without widening `globalThis`, whereas `Reflect.set` takes any
+ * property key and type-checks as-is. Runtime behaviour is identical to an assignment. The baseline is
+ * kept under a symbol so it cannot collide with anything a spec puts on `globalThis`; the companion
+ * read in `jest-extensions.spec.ts` uses `Reflect.get` for the same reason.
+ */
 Reflect.set(globalThis, defaultActiveFeatureFlagsSymbol, majorFeatureFlags);
 globalThis.activeFeatureFlags = [...majorFeatureFlags];
 

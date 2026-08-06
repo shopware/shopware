@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -87,7 +88,7 @@ class ProductCrossSellingSerializer extends EntitySerializer
         }
 
         if ($crossSellingId) {
-            $assignedProducts = $this->findAssignedProductsIds($assignedProducts);
+            $assignedProducts = $this->findAssignedProductsIds((string) $crossSellingId, $assignedProducts);
         }
 
         $deserialized['assignedProducts'] = $assignedProducts;
@@ -101,11 +102,14 @@ class ProductCrossSellingSerializer extends EntitySerializer
     }
 
     /**
+     * All assignments of a record belong to the same cross selling, so it is passed explicitly instead of being
+     * read back out of the entries.
+     *
      * @param list<array{productId: string, crossSellingId: string, position: int}> $assignedProducts
      *
      * @return array<array{productId: string, crossSellingId: string, position: int, id?: string}>
      */
-    private function findAssignedProductsIds(array $assignedProducts): array
+    private function findAssignedProductsIds(string $crossSellingId, array $assignedProducts): array
     {
         $context = Context::createDefaultContext();
 
@@ -113,22 +117,20 @@ class ProductCrossSellingSerializer extends EntitySerializer
             return $assignedProducts;
         }
 
-        // Read the existing assignments in one query, loading only the two keys next to the id. Today every entry
-        // carries the cross selling of the record, so this reads the same rows the per assignment lookups did, but
-        // the result is matched by the full key pair so that a mixed set stays correct.
+        // Read the existing assignments in one query, loading only the product id next to the id of the assignment
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('crossSellingId', array_column($assignedProducts, 'crossSellingId')));
+        $criteria->addFilter(new EqualsFilter('crossSellingId', $crossSellingId));
         $criteria->addFilter(new EqualsAnyFilter('productId', array_column($assignedProducts, 'productId')));
-        $criteria->addFields(['crossSellingId', 'productId']);
+        $criteria->addFields(['productId']);
 
         $existing = [];
         foreach ($this->assignedProductsRepository->search($criteria, $context)->getEntities() as $entity) {
             \assert($entity instanceof PartialEntity);
-            $existing[(string) $entity->get('crossSellingId')][(string) $entity->get('productId')] = (string) $entity->get('id');
+            $existing[(string) $entity->get('productId')] = (string) $entity->get('id');
         }
 
         foreach ($assignedProducts as $i => $assignedProduct) {
-            $id = $existing[$assignedProduct['crossSellingId']][$assignedProduct['productId']] ?? null;
+            $id = $existing[$assignedProduct['productId']] ?? null;
 
             if ($id) {
                 $assignedProduct['id'] = $id;

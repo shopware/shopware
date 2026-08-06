@@ -1,5 +1,13 @@
 import type { Plugin } from 'vite';
 
+// Escapes RegExp metacharacters so a dynamic value is matched literally inside a pattern.
+// Hand-rolled equivalent of the native `RegExp.escape()`: RegExp.escape is only typed from
+// TS 5.8, while the admin pins TS 5.7 (lib ES2023). Once the lib target / TypeScript version
+// is updated, this helper should be replaced with the native `RegExp.escape()`.
+function escapeBundleName(bundleName: string): string {
+    return bundleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * @sw-package framework
  * @private
@@ -36,11 +44,8 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
             // Prefix them the same way assetsURL() is prefixed above. This runs on the final,
             // minified output because that is the only place the literal reliably matches.
             // Escape the bundle name so any regex metacharacters in it are matched literally.
-            // RegExp.escape is only typed from TS 5.8 (lib esnext); the admin currently pins TS 5.7
-            // (lib ES2023), so the suppressions below can be removed once TS is bumped.
             const workerUrlRegex = new RegExp(
-                // @ts-expect-error - RegExp.escape is only typed from TS 5.8; admin pins TS 5.7 (lib ES2023)
-                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${RegExp.escape(bundleName)}\\/administration\\/[^"]*)"`, // eslint-disable-line @typescript-eslint/no-unsafe-call
+                `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
                 'g',
             );
 

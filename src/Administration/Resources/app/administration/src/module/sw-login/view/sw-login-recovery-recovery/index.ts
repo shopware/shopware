@@ -4,7 +4,7 @@
 
 import template from './sw-login-recovery-recovery.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -15,6 +15,10 @@ export default Component.wrapComponentConfig({
 
     inject: [
         'userRecoveryService',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     emits: [
@@ -115,11 +119,24 @@ export default Component.wrapComponentConfig({
                 .then(() => {
                     void this.$router.push({ name: 'sw.login.index' });
                 })
-                .catch((error) => {
-                    Shopware.Store.get('error').addApiError({
-                        expression: `user.${this.hash}.password`,
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                .catch((error: unknown) => {
+                    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+                    // @ts-expect-error
+                    let apiError = error?.response?.data?.errors as unknown;
+                    apiError = Array.isArray(apiError) ? apiError[0] : undefined;
+                    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+
+                    if (apiError) {
+                        Shopware.Store.get('error').addApiError({
+                            expression: `user.${this.hash}.password`,
+                            error: new Shopware.Classes.ShopwareError(apiError),
+                        });
+                    }
+
+                    this.createNotificationError({
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        message: error?.message,
                     });
                 })
                 .finally(() => {

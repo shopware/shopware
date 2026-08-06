@@ -86,6 +86,23 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         });
     });
 
+    it('should show a notification when the update fails without a structured api error', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.userRecoveryService.updateUserPassword = jest.fn(() => Promise.reject(new Error('Bad gateway')));
+
+        await wrapper.setData({
+            newPassword: 'shopware',
+            newPasswordConfirm: 'shopware',
+        });
+        await wrapper.vm.updatePassword();
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Bad gateway',
+        });
+        expect(wrapper.emitted('is-not-loading')).toBeTruthy();
+    });
+
     it('should call updateUserPassword when submit button is clicked', async () => {
         const testHash = 'test-hash-123';
         const testPassword = 'testPassword123';

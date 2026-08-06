@@ -9,8 +9,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -112,19 +114,22 @@ class ProductCrossSellingSerializer extends EntitySerializer
             return $assignedProducts;
         }
 
-        // Read the existing assignments in one query. The filters describe a superset, so only the exact cross
-        // selling and product combinations below are used.
+        // Read the existing assignments of the record in one query. Every entry belongs to the cross selling of
+        // the record, so this matches the same rows the per assignment lookups did, and only the product id is
+        // loaded instead of the whole entity.
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('crossSellingId', array_column($assignedProducts, 'crossSellingId')));
+        $criteria->addFilter(new EqualsFilter('crossSellingId', $assignedProducts[array_key_first($assignedProducts)]['crossSellingId']));
         $criteria->addFilter(new EqualsAnyFilter('productId', array_column($assignedProducts, 'productId')));
+        $criteria->addFields(['productId']);
 
         $existing = [];
         foreach ($this->assignedProductsRepository->search($criteria, $context)->getEntities() as $entity) {
-            $existing[$entity->getCrossSellingId()][$entity->getProductId()] = $entity->getId();
+            \assert($entity instanceof PartialEntity);
+            $existing[(string) $entity->get('productId')] = (string) $entity->get('id');
         }
 
         foreach ($assignedProducts as $i => $assignedProduct) {
-            $id = $existing[$assignedProduct['crossSellingId']][$assignedProduct['productId']] ?? null;
+            $id = $existing[$assignedProduct['productId']] ?? null;
 
             if ($id) {
                 $assignedProduct['id'] = $id;

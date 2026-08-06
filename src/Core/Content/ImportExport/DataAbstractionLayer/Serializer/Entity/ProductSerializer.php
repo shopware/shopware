@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -182,15 +183,17 @@ class ProductSerializer extends EntitySerializer
             return $visibilities;
         }
 
-        // Read the existing visibilities of the whole record in one query. The filters describe a superset, so only
-        // the exact product and sales channel combinations below are used.
+        // Read the existing visibilities of the whole record in one query, loading only the sales channel next to
+        // the id instead of the whole entity.
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', array_keys($productIds)));
         $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_keys($salesChannelIds)));
+        $criteria->addFields(['productId', 'salesChannelId']);
 
         $existing = [];
         foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $entity) {
-            $existing[$entity->getProductId()][$entity->getSalesChannelId()] = $entity->getId();
+            \assert($entity instanceof PartialEntity);
+            $existing[(string) $entity->get('productId')][(string) $entity->get('salesChannelId')] = (string) $entity->get('id');
         }
 
         foreach ($visibilities as $i => $visibility) {
@@ -285,10 +288,12 @@ class ProductSerializer extends EntitySerializer
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $parentId));
         $criteria->addFilter(new EqualsAnyFilter('optionId', $optionIds));
+        $criteria->addFields(['optionId']);
 
         $existing = [];
         foreach ($this->productConfiguratorSettingRepository->search($criteria, $context)->getEntities() as $entity) {
-            $existing[$entity->getOptionId()] = $entity->getId();
+            \assert($entity instanceof PartialEntity);
+            $existing[(string) $entity->get('optionId')] = (string) $entity->get('id');
         }
 
         $configuratorSettings = [];
@@ -379,10 +384,12 @@ class ProductSerializer extends EntitySerializer
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
         $criteria->addFilter(new EqualsAnyFilter('media.id', $mediaIds));
+        $criteria->addFields(['mediaId']);
 
         $existing = [];
         foreach ($this->productMediaRepository->search($criteria, $context)->getEntities() as $productMediaEntity) {
-            $existing[$productMediaEntity->getMediaId()] = $productMediaEntity->getId();
+            \assert($productMediaEntity instanceof PartialEntity);
+            $existing[(string) $productMediaEntity->get('mediaId')] = (string) $productMediaEntity->get('id');
         }
 
         foreach ($productMedias as $i => $productMedia) {

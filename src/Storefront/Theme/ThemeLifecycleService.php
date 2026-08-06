@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -669,10 +670,12 @@ class ThemeLifecycleService
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('fileName', array_keys($fileNames)));
+        $criteria->addFields(['fileName']);
 
         $existing = [];
         foreach ($this->mediaRepository->search($criteria, $context)->getEntities() as $media) {
-            $existing[(string) $media->getFileName()] = true;
+            \assert($media instanceof PartialEntity);
+            $existing[(string) $media->get('fileName')] = true;
         }
 
         return $existing;

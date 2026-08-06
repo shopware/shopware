@@ -311,6 +311,36 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         expect(wrapper.vm.landingPages[0].id).toBe('id-0');
     });
 
+    it('should not request another page while one is still loading', async () => {
+        let resolveSecondPage;
+        const search = jest
+            .fn()
+            .mockResolvedValueOnce(createSearchResult(createLandingPages(500), 700))
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolveSecondPage = resolve;
+                }),
+            );
+
+        const wrapper = await createWrapper(search);
+        await flushPromises();
+
+        const button = wrapper.getComponent('.sw-landing-page-tree__load-more-button');
+
+        await button.trigger('click');
+        expect(button.props('disabled')).toBe(true);
+
+        await button.trigger('click');
+
+        expect(search).toHaveBeenCalledTimes(2);
+
+        resolveSecondPage(createSearchResult(createLandingPages(200, 500), 700));
+        await flushPromises();
+
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.isLoadingMore).toBe(false);
+    });
+
     it('should keep the current page when loading more landing pages fails', async () => {
         const search = jest
             .fn()

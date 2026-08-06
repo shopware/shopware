@@ -133,6 +133,7 @@
             class="sw-landing-page-tree__load-more-button"
             size="small"
             variant="secondary"
+            :disabled="isLoadingMore"
             :is-loading="isLoadingMore"
             @click="loadMoreLandingPages"
         >

@@ -40,9 +40,15 @@
         {% block sw_settings_language_list_smart_bar_actions_update_snippets %}
         <mt-button
             v-if="updatableLocales.length"
+            v-tooltip.bottom="{
+                message: $t('sw-privileges.tooltip.warning'),
+                disabled: allowEdit,
+                showOnDisabledElements: true
+            }"
             class="sw-settings-language-list__button-update-snippets"
             variant="secondary"
             size="default"
+            :disabled="!allowEdit || undefined"
             :is-loading="isUpdatingSnippets"
             @click="onUpdateAllSnippets"
         >
@@ -249,7 +255,7 @@
                             {% block sw_settings_language_list_content_list_bulk %}
                             <template #bulk-additional>
                                 <a
-                                    v-if="selectedUpdatableLocales.length"
+                                    v-if="allowEdit && selectedUpdatableLocales.length"
                                     class="sw-settings-language-list__bulk-update-snippets link link-primary"
                                     role="button"
                                     tabindex="0"

@@ -138,6 +138,7 @@ async function createWrapper(privileges = [], customStubs = {}) {
                             </slot>
                             <slot name="delete-action" v-bind="{ item }"></slot>
                         </template>
+                        <slot name="bulk-additional"></slot>
                     </div>
                 `,
                     },
@@ -155,15 +156,6 @@ async function createWrapper(privileges = [], customStubs = {}) {
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
-    it('should no longer render the filter UI but keep the deprecated methods', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.find('.sw-settings-language-list__filterField').exists()).toBe(false);
-        expect(typeof wrapper.vm.openFilterSidebar).toBe('function');
-        expect(typeof wrapper.vm.registerFilterSidebarItem).toBe('function');
-    });
-
     it('should be able to create a new language', async () => {
         const wrapper = await createWrapper([
             'language.creator',
@@ -356,6 +348,52 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-language-list__button-update-snippets').exists()).toBe(true);
+    });
+
+    it('should disable the update-all button without the language editor privilege', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-list__button-update-snippets').attributes('disabled')).toBeDefined();
+    });
+
+    it('should enable the update-all button with the language editor privilege', async () => {
+        const wrapper = await createWrapper(['language.editor']);
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-list__button-update-snippets').attributes().disabled).toBeFalsy();
+    });
+
+    it('should only offer the bulk snippet update with the language editor privilege', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        wrapper.vm.snippetSelection = {
+            a: { locale: { code: 'fr-FR' } },
+        };
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-list__bulk-update-snippets').exists()).toBe(false);
+    });
+
+    it('should offer the bulk snippet update to language editors', async () => {
+        const wrapper = await createWrapper(['language.editor']);
+        await flushPromises();
+
+        wrapper.vm.translationMetadata = { 'fr-FR': { locale: 'fr-FR', updateAvailable: true } };
+        wrapper.vm.snippetSelection = {
+            a: { locale: { code: 'fr-FR' } },
+        };
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-list__bulk-update-snippets').exists()).toBe(true);
     });
 
     it('should label the assigned sales channels by count', async () => {

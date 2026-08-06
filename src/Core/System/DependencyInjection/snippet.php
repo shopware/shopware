@@ -111,8 +111,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('shopware.translation.client', Client::class)
         ->args([
             [
-                'timeout' => 5,
-                'connect_timeout' => 1,
+                'timeout' => 30,
+                'connect_timeout' => 5,
             ],
         ]);
 

@@ -22,6 +22,17 @@ class SchemaUpdater
 
     final public const SHORTHAND_TABLE_PREFIX = 'ce_';
 
+    /**
+     * Entity and field names end up as SQL identifiers in the generated DDL, which Doctrine emits
+     * unquoted. Restrict them to characters that cannot terminate an identifier, so a name can
+     * never break out of its position and append arbitrary SQL.
+     *
+     * Currently identical to CustomFieldService::CUSTOM_FIELD_NAME_PATTERN, but intentionally not
+     * reused: that pattern keeps names valid Twig variables and must stay free to change without
+     * weakening this boundary.
+     */
+    final public const NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
+
     private const COMMENT = 'custom-entity-element';
 
     /**
@@ -43,6 +54,8 @@ class SchemaUpdater
                 );
             }
 
+            $this->validateNames($entityName, $fields);
+
             $tables[$entityName] = $fields;
         }
 
@@ -53,6 +66,22 @@ class SchemaUpdater
         // All primary keys must be defined before calling addAssociationFields
         foreach ($tables as $name => $fields) {
             $this->addAssociationFields($schema, $name, $fields);
+        }
+    }
+
+    /**
+     * @param list<CustomEntityField> $fields
+     */
+    private function validateNames(string $entityName, array $fields): void
+    {
+        if (!\preg_match(self::NAME_PATTERN, $entityName)) {
+            throw CustomEntityException::invalidEntityName($entityName);
+        }
+
+        foreach ($fields as $field) {
+            if (!\preg_match(self::NAME_PATTERN, $field['name'])) {
+                throw CustomEntityException::invalidFieldName($entityName, $field['name']);
+            }
         }
     }
 

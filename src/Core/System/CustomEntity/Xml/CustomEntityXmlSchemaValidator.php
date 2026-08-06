@@ -4,6 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Xml;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
@@ -21,6 +22,8 @@ class CustomEntityXmlSchemaValidator
         }
 
         foreach ($schema->getEntities()->getEntities() as $entity) {
+            $this->validateNames($entity);
+
             if ($entity->isCustomFieldsAware()) {
                 $label = $entity->getLabelProperty();
 
@@ -41,6 +44,23 @@ class CustomEntityXmlSchemaValidator
                 if ($field instanceof OneToManyField) {
                     $this->validateAssociation($field);
                 }
+            }
+        }
+    }
+
+    /**
+     * Reject names that cannot be safely used as SQL identifiers before they are persisted,
+     * so a bad manifest fails at install time instead of during the schema update.
+     */
+    private function validateNames(Entity $entity): void
+    {
+        if (!\preg_match(SchemaUpdater::NAME_PATTERN, $entity->getName())) {
+            throw CustomEntityException::invalidEntityName($entity->getName());
+        }
+
+        foreach ($entity->getFields() as $field) {
+            if (!\preg_match(SchemaUpdater::NAME_PATTERN, $field->getName())) {
+                throw CustomEntityException::invalidFieldName($entity->getName(), $field->getName());
             }
         }
     }

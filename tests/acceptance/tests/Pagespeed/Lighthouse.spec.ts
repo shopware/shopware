@@ -3,11 +3,6 @@ import { test } from '@fixtures/AcceptanceTest';
 /**
  * These tests should only run against APP_ENV=Prod
  */
-test.skip(
-    process.env.GITHUB_REPOSITORY !== undefined && process.env.GITHUB_REPOSITORY !== 'shopware/shopware',
-    'Lighthouse tests run only in shopware/shopware.',
-);
-
 test('Product Detail Lighthouse Report', async ({
     ShopCustomer,
     TestDataService,

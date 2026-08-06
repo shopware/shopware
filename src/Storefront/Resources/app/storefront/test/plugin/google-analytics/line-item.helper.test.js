@@ -15,6 +15,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                         data-name="Test Product"
                         data-quantity="2"
                         data-price="99.99"
+                        data-discount="10.00"
                         data-brand="Test Brand"
                         data-variant="Red, L">
                     </span>
@@ -29,9 +30,48 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 item_name: 'Test Product',
                 quantity: '2',
                 price: '99.99',
+                discount: '10.00',
                 item_brand: 'Test Brand',
                 item_variant: 'Red, L',
             });
+        });
+
+        test('leaves the discount empty for undiscounted line items', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR">
+                    <span class="hidden-line-item"
+                        data-id="product-123"
+                        data-name="Test Product"
+                        data-quantity="1"
+                        data-price="99.99"
+                        data-discount="">
+                    </span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getLineItems()[0].discount).toBe('');
+        });
+
+        test('derives the value from the discounted item prices', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR" data-shipping="0" data-tax="0">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="3"
+                        data-price="8.00"
+                        data-discount="2.00">
+                    </span>
+                    <span class="hidden-line-item"
+                        data-id="product-2"
+                        data-quantity="1"
+                        data-price="17.60"
+                        data-discount="4.40">
+                    </span>
+                </div>
+            `;
+
+            // 3 x 8.00 + 1 x 17.60, the example from the GA4 discount documentation
+            expect(LineItemHelper.getAdditionalProperties().value).toBe(41.6);
         });
 
         test('leaves item_variant empty for products without variant options', () => {

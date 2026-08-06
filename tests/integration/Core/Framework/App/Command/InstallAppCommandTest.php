@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -219,6 +218,8 @@ class InstallAppCommandTest extends TestCase
         $app = $this->createRecoveryApp('current-secret', 'pending-secret');
         $this->appendRecoveryHandshake('minted-recovery');
         $this->appendNewResponse(new Response(500));
+        // The recovery walks on to the committed secret, whose handshake fails before anything is minted.
+        $this->appendNewResponse(new Response(500));
 
         try {
             $this->createRecoveryCommandTester()->execute([
@@ -226,8 +227,8 @@ class InstallAppCommandTest extends TestCase
                 '-f' => true,
             ]);
             static::fail('An ambiguous recovery must surface so app:install can be retried.');
-        } catch (AppRegistrationException $e) {
-            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
         }
 
         $pending = $this->appFixture->getApp($app->getId());

@@ -161,7 +161,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::APP_SECRET_RECOVERY_FAILED,
-            'App "{{ appName }}" rejected every saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
+            'App "{{ appName }}" did not accept any saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
             ['appName' => $appName]
         );
     }

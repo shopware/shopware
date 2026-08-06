@@ -279,8 +279,8 @@ class AppSecretRotationServiceTest extends TestCase
 
     public function testAmbiguousFailureKeepsTheFreshIntegrationWhenAPendingSecretExists(): void
     {
-        // The counterpart: an ambiguous failure while an unconfirmed secret exists means a confirm may have
-        // delivered the fresh integration's credentials — keep it, so a later attempt can re-register
+        // The counterpart: an ambiguous failure *after this attempt stored a minted secret* means a confirm
+        // may have delivered the fresh integration's credentials — keep it, so a later attempt can re-register
         // against it, and leave the pending list for that retry to sign with.
         $appId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -292,8 +292,14 @@ class AppSecretRotationServiceTest extends TestCase
 
         $this->setupResolvableManifest();
 
+        // The registration stores the minted secret before it sends the confirm, so a grown unconfirmed list is
+        // what marks the confirm as having gone out.
         $this->registrationService->method('reRegisterWithAppHeldSecret')
-            ->willThrowException(new \RuntimeException('confirm timed out'));
+            ->willReturnCallback(function () use ($app): void {
+                $app->setUnconfirmedAppSecrets(['minted-before-the-confirm', 'pending-secret']);
+
+                throw new \RuntimeException('confirm timed out');
+            });
 
         // one integration write only: the switch onto the fresh integration — no revert
         $integrationRepository = $this->createMock(EntityRepository::class);

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
@@ -68,9 +68,10 @@ class AppSecretRotationService
      *
      * A pending unconfirmed secret is not rotated over — it is the only record of a secret the app may
      * already hold — so the handshake is signed with every secret the app might still trust until the app
-     * accepts one; a clean app reduces to a single attempt with its committed secret. If the app rejects
-     * every candidate, {@see AppException::appSecretRecoveryFailed} is thrown; an unknown outcome rethrows
-     * so the attempt can be retried. No database transaction is held open across the registration HTTP call.
+     * accepts one; a clean app reduces to a single attempt with its committed secret. Every failed attempt
+     * walks on to the next candidate — a refused signature and an unreachable app are indistinguishable — and
+     * {@see AppException::appSecretRecoveryFailed} is thrown if none is accepted. No database transaction is
+     * held open across the registration HTTP call.
      */
     public function rotateNow(
         string $appId,
@@ -85,6 +86,7 @@ class AppSecretRotationService
 
         $manifest = $this->manifestFactory->createFromApp($app);
         $candidateSecrets = $this->candidateSecrets($app);
+        $unconfirmedBefore = $app->getUnconfirmedAppSecrets();
 
         $this->logger->info('Starting app secret rotation', [
             'appId' => $app->getId(),
@@ -133,14 +135,29 @@ class AppSecretRotationService
                     ]);
 
                     return;
-                } catch (AppRegistrationRejectedException) {
-                    // App rejected this secret; try the next candidate. Other outcomes (5xx/timeout) propagate unchanged.
+                } catch (AppRegistrationException $failure) {
+                    // The app did not take this secret; try the next candidate. An app that cannot verify a
+                    // signature answers 500 as readily as 4xx, so a failure without a clear answer must walk on
+                    // too — anything already minted is recorded as unconfirmed, so the next candidate cannot
+                    // lose it. This log line is the only place the individual failure survives.
+                    $this->logger->warning('App did not accept a credential candidate', [
+                        'appId' => $app->getId(),
+                        'appName' => $app->getName(),
+                        'trigger' => $trigger,
+                        'error' => $failure->getMessage(),
+                    ]);
                 }
             }
+
+            // Keep the unconfirmed list: a transient 4xx/WAF response can look like a definitive rejection, so a
+            // later retry may still recover the app.
+            throw AppException::appSecretRecoveryFailed($app->getName());
         } catch (\Throwable $exception) {
-            // Keep the fresh integration when a confirm may have delivered its credentials (an unconfirmed
-            // secret was saved) so a later attempt can re-register against it; otherwise switch back.
-            if ($integrationUpdated && $this->loadApp($appId, $context)->getUnconfirmedAppSecrets() === null) {
+            // The confirm hands the app the fresh integration's credentials, and it is sent right after the
+            // minted secret is stored — so an unchanged unconfirmed list means nothing reached the app and it
+            // is still on the previous integration. Only then is switching back safe; keeping an integration
+            // the app never received would let a cleanup delete the one it actually uses.
+            if ($integrationUpdated && $this->loadApp($appId, $context)->getUnconfirmedAppSecrets() === $unconfirmedBefore) {
                 $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $currentIntegrationId, $newIntegrationId): void {
                     $this->appRepository->update([[
                         'id' => $app->getId(),
@@ -169,28 +186,6 @@ class AppSecretRotationService
 
             throw $exception;
         }
-
-        // The app refused every candidate. Keep the unconfirmed list: a transient 4xx/WAF response can look
-        // like a definitive rejection, so a later retry may still recover the app.
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $currentIntegrationId, $newIntegrationId): void {
-            $this->appRepository->update([[
-                'id' => $app->getId(),
-                'integrationId' => $currentIntegrationId,
-            ]], $context);
-
-            $this->integrationRepository->update([
-                [
-                    'id' => $currentIntegrationId,
-                    'deletedAt' => null,
-                ],
-                [
-                    'id' => $newIntegrationId,
-                    'deletedAt' => $this->clock->now(),
-                ],
-            ], $context);
-        });
-
-        throw AppException::appSecretRecoveryFailed($app->getName());
     }
 
     /**

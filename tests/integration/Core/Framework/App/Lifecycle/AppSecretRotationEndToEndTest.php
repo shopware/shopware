@@ -121,10 +121,10 @@ class AppSecretRotationEndToEndTest extends TestCase
 
         try {
             $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous confirm timeout must surface as a registration failure.');
-        } catch (AppRegistrationException $e) {
+            static::fail('An ambiguous confirm timeout must surface as a failure.');
+        } catch (AppException $e) {
             // expected — the outcome is unknown, the operator must recover
-            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
         }
 
         $afterRotation = $this->getInstalledApp();
@@ -241,6 +241,40 @@ class AppSecretRotationEndToEndTest extends TestCase
         );
     }
 
+    public function testRecoveryFallsBackWhenTheAppRefusesTheUnconfirmedSecretWithoutAClearAnswer(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        $pendingSecret = 'pending-secret';
+        $this->enqueueReRegistrationAttempt(minting: $pendingSecret, confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+
+        static::assertSame([$pendingSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
+
+        // The app never switched, so this handshake is signed with a secret it does not trust — and it refuses
+        // with a 500, which is indistinguishable from a faulty server. The walk must still reach the committed
+        // secret.
+        $recoveredSecret = 'recovered-after-refusal';
+        $this->enqueueFailedHandshake(new Response(500, [], '{"errors":[{"status":"500","message":"Signature could not be verified"}]}'));
+        $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+
+        $recovered = $this->getInstalledApp();
+        static::assertSame($recoveredSecret, $recovered->getAppSecret());
+        static::assertNull($recovered->getUnconfirmedAppSecrets());
+
+        // The refused candidate never reached a confirm, so the only confirm sent authenticates as the
+        // committed secret — the proof that the walk advanced past the refusal instead of stopping on it.
+        $this->assertConfirmCarriesDualSignature(
+            $this->lastConfirm(),
+            newSecret: $recoveredSecret,
+            previousSecret: $committedSecret,
+        );
+    }
+
     public function testRecoveryCommitsWithThePendingSecretWhenTheAppPromotedIt(): void
     {
         $app = $this->installApp();
@@ -350,7 +384,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         );
     }
 
-    public function testRecoveryKeepsTheFreshIntegrationAndThePendingWhenAnAttemptFailsAmbiguously(): void
+    public function testRecoveryKeepsThePendingAndSwitchesBackWhenNoCandidateReachesTheApp(): void
     {
         $app = $this->installApp();
         $committedSecret = $app->getAppSecret();
@@ -364,22 +398,34 @@ class AppSecretRotationEndToEndTest extends TestCase
         static::assertSame([$pendingSecret], $afterRotation->getUnconfirmedAppSecrets());
         $integrationBeforeRecovery = $afterRotation->getIntegrationId();
 
-        // Recovery's first attempt cannot even complete the handshake (a transport failure, not a rejection):
-        // the outcome is unknown. A pending secret exists, so the fresh integration stays — a later retry
-        // re-registers against it and hands its credentials over on the confirm — and the recovery record is
-        // preserved. Only a single 5xx is enqueued — it answers the handshake, so the confirm is never reached.
+        // Recovery's attempts cannot even complete the handshake (a transport failure, not a rejection): the
+        // outcome is unknown, so the recovery record is preserved for a later retry. One 5xx per candidate —
+        // it answers the handshake, so the confirm is never reached.
+        $requestsBeforeRecovery = $this->getRequestCount();
+        $this->enqueueFailedHandshake(new Response(500));
         $this->enqueueFailedHandshake(new Response(500));
         try {
             $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
-            static::fail('An ambiguous recovery attempt must surface as a registration failure.');
-        } catch (AppRegistrationException $e) {
-            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+            static::fail('An ambiguous recovery attempt must surface as a failure.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
         }
+
+        // Both candidates were handed to the app. An app that cannot verify a signature answers 500 just as
+        // readily as 4xx, so a candidate failing without a clear answer must not end the walk.
+        static::assertSame(
+            2,
+            $this->getRequestCount() - $requestsBeforeRecovery,
+            'recovery must hand every candidate secret to the app'
+        );
 
         $afterRecovery = $this->getInstalledApp();
         static::assertSame($committedSecret, $afterRecovery->getAppSecret());
         static::assertSame([$pendingSecret], $afterRecovery->getUnconfirmedAppSecrets());
-        static::assertNotSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
+        // No candidate got past the handshake, so no confirm handed the app the integration this attempt
+        // created. Switching back leaves the app on the integration it may already hold, instead of stranding
+        // it on one that a cleanup will delete.
+        static::assertSame($integrationBeforeRecovery, $afterRecovery->getIntegrationId());
     }
 
     // §3 — Hard failures: a 4xx rejection means the registration is claimed, so the operator must change the
@@ -464,10 +510,10 @@ class AppSecretRotationEndToEndTest extends TestCase
     {
         try {
             $this->rotationService->rotateNow($appId, $this->context, AppSecretRotationService::TRIGGER_API);
-            static::fail('An ambiguous rotation must surface as a registration failure.');
-        } catch (AppRegistrationException $e) {
-            // expected — the outcome is unknown, the operator must recover
-            static::assertSame(AppException::REGISTRATION_FAILED, $e->getErrorCode());
+            static::fail('An ambiguous rotation must surface as a failure.');
+        } catch (AppException $e) {
+            // expected — no candidate was accepted, the outcome is unknown and the operator must recover
+            static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());
         }
     }
 

@@ -144,6 +144,9 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             $newLocale->getCode(),
         ));
 
+        // the snippets of all apps are written in a single update
+        static::assertCount(1, $snippetRepository->updates);
+
         static::assertSame([
             'id' => $snippetOneToUpdate->getId(),
             'localeId' => $previousLocale->getId(),
@@ -152,7 +155,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
         static::assertSame([
             'id' => $snippetTwoToUpdate->getId(),
             'localeId' => $previousLocale->getId(),
-        ], $snippetRepository->updates[1][0]);
+        ], $snippetRepository->updates[0][1]);
     }
 
     #[DataProvider('localeCodes')]
@@ -164,8 +167,8 @@ class SystemLanguageChangedSubscriberTest extends TestCase
         ]);
 
         $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
-            $this->createSnippet('app-one-id', $previousLocale->getId()),
-            $this->createSnippet('app-two-id', $previousLocale->getId()),
+            $snippetOneToUpdate = $this->createSnippet('app-one-id', $previousLocale->getId()),
+            $snippetTwoToUpdate = $this->createSnippet('app-two-id', $previousLocale->getId()),
         ])]);
 
         $subscriber = new SystemLanguageChangedSubscriber(
@@ -179,7 +182,12 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             $newLocale->getCode(),
         ));
 
-        static::assertCount(2, $snippetRepository->updates);
+        // one update carrying the snippet of both apps, not one update per app
+        static::assertCount(1, $snippetRepository->updates);
+        static::assertSame([
+            ['id' => $snippetOneToUpdate->getId(), 'localeId' => $newLocale->getId()],
+            ['id' => $snippetTwoToUpdate->getId(), 'localeId' => $newLocale->getId()],
+        ], $snippetRepository->updates[0]);
     }
 
     public static function localeCodes(): \Generator
@@ -188,6 +196,32 @@ class SystemLanguageChangedSubscriberTest extends TestCase
         yield ['it-IT'];
         yield ['es-ES'];
         yield ['fr-FR'];
+    }
+
+    public function testWithoutSnippetsForEitherLocaleNothingIsWritten(): void
+    {
+        $localeRepository = new StaticEntityRepository([
+            new LocaleCollection([$previousLocale = $this->createLocale('en-GB')]),
+            new LocaleCollection([$newLocale = $this->createLocale('de-AT')]),
+        ]);
+
+        // the app has snippets, but none for the previous or the new locale
+        $snippetRepository = new StaticEntityRepository([new AppAdministrationSnippetCollection([
+            $this->createSnippet('app-one-id', 'other-locale-id'),
+        ])]);
+
+        $subscriber = new SystemLanguageChangedSubscriber(
+            $localeRepository,
+            $snippetRepository
+        );
+
+        $subscriber->onSystemLanguageChanged(new SystemLanguageChangeEvent(
+            'previous-language-id',
+            $previousLocale->getCode(),
+            $newLocale->getCode(),
+        ));
+
+        static::assertSame([], $snippetRepository->updates);
     }
 
     private function createLocale(string $code): LocaleEntity

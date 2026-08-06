@@ -103,7 +103,7 @@ class SeoUrlPersister
 
             $updatedFks[] = $fk;
 
-            if (!empty($seoUrl['error'])) {
+            if (($seoUrl['error'] ?? null) !== null) {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
@@ -245,6 +245,15 @@ class SeoUrlPersister
     }
 
     /**
+     * Identifies the group a seo url competes in for the canonical flag: the same foreign key, sales channel and
+     * route always resolve to a single canonical seo url.
+     */
+    private function canonicalGroup(string $foreignKey, string $salesChannelId, string $routeName): string
+    {
+        return $foreignKey . "\0" . $salesChannelId . "\0" . $routeName;
+    }
+
+    /**
      * @param array<string> $seoPathInfos
      *
      * @return array<array<string, mixed>>
@@ -283,34 +292,62 @@ class SeoUrlPersister
 
         $languageId = Uuid::fromHexToBytes($languageId);
 
-        $ids = [];
+        // A seo url without a sales channel can never match `sales_channel_id = :salesChannelId`, so it is skipped
+        // here just as the per-url lookup skipped it before.
+        $wanted = [];
         foreach ($seoUrls as $seoUrl) {
-            $id = $this->connection->fetchOne(
-                'SELECT id
-                 FROM seo_url
-                 WHERE language_id = :languageId
-                   AND foreign_key = :foreignKey
-                   AND sales_channel_id = :salesChannelId
-                   AND route_name = :routeName
-                   AND is_canonical IS NULL AND is_deleted = 0
-                 ORDER BY created_at ASC
-                 LIMIT 1',
-                [
-                    'languageId' => $languageId,
-                    'foreignKey' => $seoUrl['foreignKey'],
-                    'salesChannelId' => $seoUrl['salesChannelId'],
-                    'routeName' => (string) $seoUrl['routeName'],
-                ]
-            );
-
-            if ($id !== false) {
-                $ids[] = $id;
+            if ($seoUrl['salesChannelId'] === null) {
+                continue;
             }
+
+            $wanted[$this->canonicalGroup($seoUrl['foreignKey'], $seoUrl['salesChannelId'], (string) $seoUrl['routeName'])] = true;
+        }
+
+        if ($wanted === []) {
+            return;
+        }
+
+        // Load the candidates of all groups in a single query, ordered so that the earliest created seo url of a
+        // group is the first row seen for it, instead of running one `LIMIT 1` lookup per seo url.
+        $candidates = $this->connection->fetchAllAssociative(
+            'SELECT id, foreign_key, sales_channel_id, route_name
+             FROM seo_url
+             WHERE language_id = :languageId
+               AND foreign_key IN (:foreignKeys)
+               AND sales_channel_id IN (:salesChannelIds)
+               AND route_name IN (:routeNames)
+               AND is_canonical IS NULL AND is_deleted = 0
+             ORDER BY created_at ASC',
+            [
+                'languageId' => $languageId,
+                'foreignKeys' => array_column($seoUrls, 'foreignKey'),
+                'salesChannelIds' => array_values(array_filter(array_column($seoUrls, 'salesChannelId'))),
+                'routeNames' => array_map('strval', array_column($seoUrls, 'routeName')),
+            ],
+            [
+                'foreignKeys' => ArrayParameterType::BINARY,
+                'salesChannelIds' => ArrayParameterType::BINARY,
+                'routeNames' => ArrayParameterType::STRING,
+            ]
+        );
+
+        $ids = [];
+        foreach ($candidates as $candidate) {
+            $group = $this->canonicalGroup($candidate['foreign_key'], $candidate['sales_channel_id'], (string) $candidate['route_name']);
+
+            if (!isset($wanted[$group])) {
+                continue;
+            }
+
+            // the first row of a group is its earliest created seo url
+            $ids[$group] ??= $candidate['id'];
         }
 
         if ($ids === []) {
             return;
         }
+
+        $ids = array_values($ids);
 
         $this->connection->executeStatement(
             'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',

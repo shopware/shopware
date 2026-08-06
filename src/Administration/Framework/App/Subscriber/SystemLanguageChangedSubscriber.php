@@ -63,9 +63,9 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
         $previousLocale = $this->getLocale($event->previousLocaleCode, $context);
         $newLocale = $this->getLocale($event->newLocaleCode, $context);
 
-        foreach ($appsWithSnippets as $appId) {
-            $updates = [];
+        $updates = [];
 
+        foreach ($appsWithSnippets as $appId) {
             // Reassign the snippet that was previously associated with the new locale to the previous locale
             $snippetForPreviousLocale = $this->snippetForLocale($snippets, $appId, $newLocale);
             if ($snippetForPreviousLocale) {
@@ -83,9 +83,14 @@ readonly class SystemLanguageChangedSubscriber implements EventSubscriberInterfa
                     'localeId' => $newLocale->getId(),
                 ];
             }
-
-            $this->snippetRepository->update($updates, $context);
         }
+
+        if ($updates === []) {
+            return;
+        }
+
+        // one write for every app instead of one per app
+        $this->snippetRepository->update($updates, $context);
     }
 
     private function getLocale(string $code, Context $context): LocaleEntity

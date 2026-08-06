@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -66,7 +66,9 @@ class ProductCrossSellingSerializer extends EntitySerializer
         $deserialized = parent::deserialize($config, $definition, $entity);
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
-        if (empty($deserialized['assignedProducts'])) {
+        $assignedProductIds = $deserialized['assignedProducts'] ?? null;
+
+        if ($assignedProductIds === null || $assignedProductIds === '' || $assignedProductIds === []) {
             return $deserialized;
         }
 
@@ -106,12 +108,23 @@ class ProductCrossSellingSerializer extends EntitySerializer
     {
         $context = Context::createDefaultContext();
 
-        foreach ($assignedProducts as $i => $assignedProduct) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('crossSellingId', $assignedProduct['crossSellingId']));
-            $criteria->addFilter(new EqualsFilter('productId', $assignedProduct['productId']));
+        if ($assignedProducts === []) {
+            return $assignedProducts;
+        }
 
-            $id = $this->assignedProductsRepository->searchIds($criteria, $context)->firstId();
+        // Read the existing assignments in one query. The filters describe a superset, so only the exact cross
+        // selling and product combinations below are used.
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('crossSellingId', array_column($assignedProducts, 'crossSellingId')));
+        $criteria->addFilter(new EqualsAnyFilter('productId', array_column($assignedProducts, 'productId')));
+
+        $existing = [];
+        foreach ($this->assignedProductsRepository->search($criteria, $context)->getEntities() as $entity) {
+            $existing[$entity->getCrossSellingId()][$entity->getProductId()] = $entity->getId();
+        }
+
+        foreach ($assignedProducts as $i => $assignedProduct) {
+            $id = $existing[$assignedProduct['crossSellingId']][$assignedProduct['productId']] ?? null;
 
             if ($id) {
                 $assignedProduct['id'] = $id;

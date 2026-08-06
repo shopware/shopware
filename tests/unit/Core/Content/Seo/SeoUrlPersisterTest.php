@@ -244,28 +244,51 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => 'id1',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-                [
-                    'id' => 'id2',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-            ]);
+        $inUse = [
+            [
+                'id' => 'id1',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+            [
+                'id' => 'id2',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+        ];
+
+        // the earliest created candidate of each group wins, so the second row of group one must be ignored
+        $candidates = [
+            [
+                'id' => $id1,
+                'foreign_key' => $inUse[0]['foreignKey'],
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+            [
+                'id' => Uuid::randomBytes(),
+                'foreign_key' => $inUse[0]['foreignKey'],
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+            [
+                'id' => $id2,
+                'foreign_key' => $inUse[1]['foreignKey'],
+                'sales_channel_id' => $inUse[1]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+        ];
 
         $connection->expects($this->exactly(2))
-            ->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($id1, $id2);
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls($inUse, $candidates);
+
+        $connection->expects($this->never())
+            ->method('fetchOne');
 
         $connection->expects($this->once())
             ->method('executeStatement')
@@ -284,6 +307,61 @@ class SeoUrlPersisterTest extends TestCase
             [
                 'foreignKey' => Uuid::randomHex(),
             ],
+            $seoUrls,
+            $seoChannel
+        );
+    }
+
+    public function testInuseSeoPathsWithoutCandidatesAreNotMarkedCanonical(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+
+        $seoUrls = [
+            [
+                'languageId' => Uuid::randomHex(),
+                'foreignKey' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomHex(),
+                'routeName' => 'test-route',
+                'pathInfo' => 'path1',
+                'seoPathInfo' => 'path1',
+            ],
+        ];
+
+        $inUse = [
+            [
+                'id' => 'id1',
+                'languageId' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomBytes(),
+                'foreignKey' => Uuid::randomBytes(),
+                'routeName' => 'test-route',
+            ],
+        ];
+
+        // the only candidate belongs to another group, so no seo url becomes canonical
+        $candidates = [
+            [
+                'id' => Uuid::randomBytes(),
+                'foreign_key' => Uuid::randomBytes(),
+                'sales_channel_id' => $inUse[0]['salesChannelId'],
+                'route_name' => 'test-route',
+            ],
+        ];
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls($inUse, $candidates);
+
+        $connection->expects($this->never())
+            ->method('executeStatement');
+
+        $seoChannel = new SalesChannelEntity();
+        $seoChannel->setId(Uuid::randomHex());
+
+        $seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'test-route',
+            ['foreignKey' => Uuid::randomHex()],
             $seoUrls,
             $seoChannel
         );

@@ -141,6 +141,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];
 
+        // Resolve the active languages of every registration sales channel in one query instead of one per channel
+        $activeLanguages = $this->findActiveLanguages($groups, $context);
+
         foreach ($groups as $group) {
             if ($group->getRegistrationSalesChannels() === null) {
                 continue;
@@ -156,13 +159,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 }
 
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $languageCriteria = new Criteria($languageIds);
-                $languageCriteria->addFilter(new EqualsFilter('active', true));
-
-                $languageCollection = $this->languageRepository->search($languageCriteria, $context)->getEntities();
 
                 foreach ($languageIds as $languageId) {
-                    $language = $languageCollection->get($languageId);
+                    $language = $activeLanguages->get($languageId);
                     if (!$language) {
                         continue;
                     }
@@ -209,6 +208,30 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 $config['salesChannel']
             );
         }
+    }
+
+    /**
+     * The active languages of every registration sales channel of the given groups, in one query.
+     */
+    private function findActiveLanguages(CustomerGroupCollection $groups, Context $context): LanguageCollection
+    {
+        $languageIds = [];
+        foreach ($groups as $group) {
+            foreach ($group->getRegistrationSalesChannels() ?? [] as $registrationSalesChannel) {
+                foreach ($registrationSalesChannel->getLanguages()?->getIds() ?? [] as $languageId) {
+                    $languageIds[$languageId] = true;
+                }
+            }
+        }
+
+        if ($languageIds === []) {
+            return new LanguageCollection();
+        }
+
+        $criteria = new Criteria(array_keys($languageIds));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        return $this->languageRepository->search($criteria, $context)->getEntities();
     }
 
     private function getTranslatedTitle(?CustomerGroupTranslationCollection $translations, LanguageEntity $language): string

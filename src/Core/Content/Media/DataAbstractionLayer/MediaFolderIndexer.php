@@ -109,21 +109,23 @@ class MediaFolderIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 
+        // Load the parent configuration of every folder of the message in a single query instead of one per folder
+        $parentConfigurationIds = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(child.id)) as id,
+                   LOWER(HEX(parent.media_folder_configuration_id)) AS parent_configuration_id
+            FROM media_folder child
+                LEFT JOIN media_folder as parent
+                    ON parent.id = child.parent_id
+            WHERE child.id IN (:ids)
+                AND child.media_folder_configuration_id != parent.media_folder_configuration_id
+                AND child.use_parent_configuration = 1',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
         $children = [];
         foreach ($ids as $id) {
-            $folder = $this->connection->fetchAssociative(
-                'SELECT LOWER(HEX(child.id)) as id,
-                       LOWER(HEX(parent.media_folder_configuration_id)) AS parent_configuration_id
-                FROM media_folder child
-                    LEFT JOIN media_folder as parent
-                        ON parent.id = child.parent_id
-                WHERE child.id = :id
-                    AND child.media_folder_configuration_id != parent.media_folder_configuration_id
-                    AND child.use_parent_configuration = 1',
-                ['id' => Uuid::fromHexToBytes($id)]
-            );
-
-            if ($folder === false) {
+            if (!isset($parentConfigurationIds[$id])) {
                 continue;
             }
 
@@ -132,7 +134,7 @@ class MediaFolderIndexer extends EntityIndexer
             foreach (array_merge([$id], $children) as $folderId) {
                 $update->execute([
                     'id' => Uuid::fromHexToBytes($folderId),
-                    'configId' => Uuid::fromHexToBytes($folder['parent_configuration_id']),
+                    'configId' => Uuid::fromHexToBytes($parentConfigurationIds[$id]),
                 ]);
             }
         }

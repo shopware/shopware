@@ -36,6 +36,16 @@ class AppUpdater extends AbstractAppUpdater
         $extensions = $this->extensionDataProvider->getInstalledExtensions($context, true);
         $extensions = $extensions->filterByType(ExtensionStruct::EXTENSION_TYPE_APP);
 
+        $localIds = array_values(array_filter(array_map(
+            static fn (ExtensionStruct $extension): ?string => $extension->getLocalId(),
+            $extensions->getElements()
+        )));
+
+        // read every installed app once instead of one query per extension
+        $localApps = $localIds === []
+            ? new AppCollection()
+            : $this->appRepo->search(new Criteria($localIds), $context)->getEntities();
+
         $outdatedApps = [];
 
         foreach ($extensions as $extension) {
@@ -43,7 +53,7 @@ class AppUpdater extends AbstractAppUpdater
             if (!$id) {
                 continue;
             }
-            $localApp = $this->appRepo->search(new Criteria([$id]), $context)->getEntities()->first();
+            $localApp = $localApps->get($id);
             if ($localApp === null) {
                 continue;
             }

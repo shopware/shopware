@@ -40,32 +40,35 @@ class ProductExportEventListener implements EventSubscriberInterface
 
     public function afterWrite(EntityWrittenEvent $event): void
     {
+        $ids = [];
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
             if (!$this->productExportWritten($writeResult)) {
                 continue;
             }
 
             $primaryKey = $writeResult->getPrimaryKey();
-            $primaryKey = \is_array($primaryKey) ? $primaryKey['id'] : $primaryKey;
+            $ids[] = \is_array($primaryKey) ? $primaryKey['id'] : $primaryKey;
+        }
 
-            $this->productExportRepository->update(
-                [
-                    [
-                        'id' => $primaryKey,
-                        'generatedAt' => null,
-                        'nextGenerationAt' => null,
-                        // Reset stuck runs when a user/admin edits the export
-                        'isRunning' => false,
-                    ],
-                ],
-                $event->getContext()
-            );
+        if ($ids === []) {
+            return;
+        }
 
-            $productExport = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext())->getEntities()->first();
-            if (!$productExport) {
-                continue;
-            }
+        // reset and reload all written exports at once instead of one round-trip pair per export
+        $this->productExportRepository->update(
+            array_map(static fn (string $id): array => [
+                'id' => $id,
+                'generatedAt' => null,
+                'nextGenerationAt' => null,
+                // Reset stuck runs when a user/admin edits the export
+                'isRunning' => false,
+            ], $ids),
+            $event->getContext()
+        );
 
+        $productExports = $this->productExportRepository->search(new Criteria($ids), $event->getContext())->getEntities();
+
+        foreach ($productExports as $productExport) {
             $filePath = $this->productExportFileHandler->getFilePath($productExport);
             if ($this->fileSystem->fileExists($filePath)) {
                 $this->fileSystem->delete($filePath);

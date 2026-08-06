@@ -180,7 +180,7 @@ Module.register('sw-flow', {
             label: 'sw-flow.general.mainMenuItemGeneral',
             path: 'sw.flow.index',
             icon: 'regular-flow',
-            color: 'var(--color-cyan-500)',
+            color: 'var(--color-red-300)',
             parent: 'sw-automation',
             privilege: 'flow.viewer',
             position: 20,

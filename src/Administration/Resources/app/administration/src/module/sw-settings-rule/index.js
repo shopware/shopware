@@ -114,23 +114,25 @@ Module.register('sw-settings-rule', {
         },
     },
 
+    // The child entry must stay first here, so the main menu active state is working correctly for rule builders
+    // sub routes (children of `sw.settings.index`). Settings menu entry would be active otherwise.
     navigation: [
-        {
-            id: 'sw-automation',
-            label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
-            icon: 'regular-rule',
-            color: 'var(--color-cyan-500)',
-            position: 70,
-        },
         {
             id: 'sw-settings-rule',
             label: 'sw-settings-rule.general.mainMenuItemGeneral',
             path: 'sw.settings.rule.index',
             icon: 'regular-rule',
-            color: 'var(--color-cyan-500)',
+            color: 'var(--color-red-300)',
             parent: 'sw-automation',
             privilege: 'rule.viewer',
             position: 10,
+        },
+        {
+            id: 'sw-automation',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+            icon: 'regular-rule',
+            color: 'var(--color-red-300)',
+            position: 70,
         },
     ],
 

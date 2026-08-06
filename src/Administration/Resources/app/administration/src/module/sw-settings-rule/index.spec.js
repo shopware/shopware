@@ -47,23 +47,23 @@ describe('src/module/sw-settings-rule/index.js', () => {
             routes: expect.any(Object),
             navigation: [
                 {
-                    id: 'sw-automation',
-                    label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
-                    icon: 'regular-rule',
-                    color: 'var(--color-zinc-100)',
-                    moduleType: 'core',
-                    position: 70,
-                },
-                {
                     id: 'sw-settings-rule',
                     label: 'sw-settings-rule.general.mainMenuItemGeneral',
                     path: 'sw.settings.rule.index',
                     icon: 'regular-rule',
-                    color: 'var(--color-zinc-100)',
+                    color: 'var(--color-red-300)',
                     parent: 'sw-automation',
                     privilege: 'rule.viewer',
                     moduleType: 'core',
                     position: 10,
+                },
+                {
+                    id: 'sw-automation',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+                    icon: 'regular-rule',
+                    color: 'var(--color-red-300)',
+                    moduleType: 'core',
+                    position: 70,
                 },
             ],
             settingsItem: [

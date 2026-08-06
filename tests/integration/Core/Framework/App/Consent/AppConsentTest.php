@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService;
@@ -26,13 +25,10 @@ class AppConsentTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private ConsentDefinitionRegistry $registry;
-
     private ConsentService $consentService;
 
     protected function setUp(): void
     {
-        $this->registry = static::getContainer()->get(ConsentDefinitionRegistry::class);
         $this->consentService = static::getContainer()->get(ConsentService::class);
     }
 
@@ -40,7 +36,7 @@ class AppConsentTest extends TestCase
     {
         $this->installApp();
 
-        $definitions = $this->registry->all();
+        $definitions = $this->consentService->definitions();
 
         static::assertArrayHasKey('SwagConsentApp-order_analysis', $definitions);
         static::assertArrayHasKey('SwagConsentApp-usage_tracking', $definitions);
@@ -60,7 +56,7 @@ class AppConsentTest extends TestCase
     {
         $this->installApp(activate: false);
 
-        static::assertArrayNotHasKey('SwagConsentApp-order_analysis', $this->registry->all());
+        static::assertArrayNotHasKey('SwagConsentApp-order_analysis', $this->consentService->definitions());
     }
 
     public function testAnswerIsStoredUnderAppAndConsentNameAndOutlivesTheApp(): void
@@ -78,7 +74,7 @@ class AppConsentTest extends TestCase
 
         $this->deactivateApp();
 
-        static::assertArrayNotHasKey('SwagConsentApp-order_analysis', $this->registry->all());
+        static::assertArrayNotHasKey('SwagConsentApp-order_analysis', $this->consentService->definitions());
         static::assertSame([
             ['name' => 'SwagConsentApp-order_analysis', 'identifier' => 'system'],
         ], $this->storedAnswers());
@@ -92,7 +88,7 @@ class AppConsentTest extends TestCase
     private function installApp(bool $activate = true): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/consentApp', $activate);
-        $this->registry->reset();
+        $this->consentService->reset();
     }
 
     private function deactivateApp(): void
@@ -106,7 +102,6 @@ class AppConsentTest extends TestCase
         static::assertIsString($appId);
 
         $appRepository->update([['id' => $appId, 'active' => false]], $context);
-        $this->registry->reset();
         $this->consentService->reset();
     }
 

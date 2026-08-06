@@ -392,7 +392,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AppFeatureStorage::class),
         ])
-        ->tag('shopware.consent.definition_provider');
+        // provided before the consents registered in the container, so an app cannot replace one of them
+        ->tag('shopware.consent.definition_provider', ['priority' => 100]);
 
     $services->set(ScriptFileReader::class)
         ->args([

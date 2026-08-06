@@ -113,14 +113,24 @@ The `revision` column stores the accepted revision only. Non-accepted states cle
  2) Register it as a service and tag it with `shopware.consent.definition`.
  3) If you need a new scope, implement `ConsentScope`, register it as a service, and tag it with `shopware.consent.scope`. Ensure it resolves both the identifier and actor from the `Context` or throws an appropriate `ConsentException`.
 
-## Consents that only exist at runtime
+## Where definitions come from
 
-Consents that are not known when the container is built, for example the consents an app declares in its
-manifest, come from a `ConsentDefinitionProvider` tagged `shopware.consent.definition_provider`. The registry
-collects the tagged definitions and the provided ones; a provider cannot replace a tagged definition.
-The collected set is cached until the registry is reset.
+`ConsentService` collects every definition from the `ConsentDefinitionProvider`s tagged
+`shopware.consent.definition_provider`, keyed by name. The providers are iterated in tag priority order and a
+later one wins. The collected set is cached until `ConsentService::reset()`, because the consents of installed
+apps change while the shop runs.
 
-App consents are provided by `Shopware\Core\Framework\App\Consent\AppConsentDefinitionProvider`. Their name is
+There are two providers:
+
+- `TaggedConsentDefinitionProvider` provides the consents registered in the container, tagged
+  `shopware.consent.definition`. This is how a new bundled consent is added, see above.
+- `AppConsentDefinitionProvider` provides the consents apps declare in their manifest. These are only known at
+  runtime, so they cannot be registered in the container.
+
+Implement `ConsentDefinitionProvider` for any other source of consents that only exists at runtime. The
+container-registered consents are provided last, so a provider cannot replace one of them.
+
+App consents come from `Shopware\Core\Framework\App\Consent\AppConsentDefinitionProvider`. Their name is
 the app name and the declared name, for example `SwagExample-order_analysis`. Answers are stored under that name
 and stay in `consent_state` when the app is uninstalled; a stored answer without a definition is left out of
 `ConsentService::list()`.

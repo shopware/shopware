@@ -114,6 +114,26 @@ Module.register('sw-settings-rule', {
         },
     },
 
+    navigation: [
+        {
+            id: 'sw-automation',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+            icon: 'regular-rule',
+            color: 'var(--color-cyan-500)',
+            position: 70,
+        },
+        {
+            id: 'sw-settings-rule',
+            label: 'sw-settings-rule.general.mainMenuItemGeneral',
+            path: 'sw.settings.rule.index',
+            icon: 'regular-rule',
+            color: 'var(--color-cyan-500)',
+            parent: 'sw-automation',
+            privilege: 'rule.viewer',
+            position: 10,
+        },
+    ],
+
     settingsItem: {
         group: 'automation',
         to: 'sw.settings.rule.index',

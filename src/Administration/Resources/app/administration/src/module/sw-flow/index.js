@@ -174,6 +174,19 @@ Module.register('sw-flow', {
         },
     },
 
+    navigation: [
+        {
+            id: 'sw-flow',
+            label: 'sw-flow.general.mainMenuItemGeneral',
+            path: 'sw.flow.index',
+            icon: 'regular-flow',
+            color: 'var(--color-cyan-500)',
+            parent: 'sw-automation',
+            privilege: 'flow.viewer',
+            position: 20,
+        },
+    ],
+
     settingsItem: {
         group: 'automation',
         to: 'sw.flow.index',

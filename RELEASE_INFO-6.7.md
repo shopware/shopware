@@ -2,6 +2,10 @@
 
 ## Features
 
+### New "Automation" administration menu entry
+
+Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation". The existing "Settings > Automation" entries are unchanged.
+
 ## API
 
 ### User uniqueness validation endpoints now require user read access

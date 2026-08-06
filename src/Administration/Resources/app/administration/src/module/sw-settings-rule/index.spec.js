@@ -45,6 +45,27 @@ describe('src/module/sw-settings-rule/index.js', () => {
             favicon: 'icon-module-settings.png',
             entity: 'rule',
             routes: expect.any(Object),
+            navigation: [
+                {
+                    id: 'sw-automation',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+                    icon: 'regular-rule',
+                    color: 'var(--color-zinc-100)',
+                    moduleType: 'core',
+                    position: 70,
+                },
+                {
+                    id: 'sw-settings-rule',
+                    label: 'sw-settings-rule.general.mainMenuItemGeneral',
+                    path: 'sw.settings.rule.index',
+                    icon: 'regular-rule',
+                    color: 'var(--color-zinc-100)',
+                    parent: 'sw-automation',
+                    privilege: 'rule.viewer',
+                    moduleType: 'core',
+                    position: 10,
+                },
+            ],
             settingsItem: [
                 {
                     id: 'sw-settings-rule',

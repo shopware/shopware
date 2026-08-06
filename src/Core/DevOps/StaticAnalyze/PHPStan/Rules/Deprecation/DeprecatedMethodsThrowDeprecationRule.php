@@ -61,7 +61,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract() || $node->isMagic()) {
+        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract()) {
             return [];
         }
 

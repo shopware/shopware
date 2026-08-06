@@ -17,16 +17,26 @@ import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextFi
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtUrlField from '@shopware-ag/meteor-component-library/dist/esm/MtUrlField';
-import { type FormFieldDefinition } from 'src/core/service/utils/form-field-type-mapping.utils';
+interface FormFieldConfig {
+    componentName?: string;
+    type?: string;
+    entity?: string;
+    snippet?: string;
+    currency?: { id: string; factor: number };
+    label?: { 'en-GB': string };
+    helpText?: { 'en-GB': string };
+    options?: Array<{ id: string; name: string; value?: string }>;
+}
+
+export interface FormFieldDefinition {
+    name?: string;
+    type: string;
+    config?: FormFieldConfig;
+}
 
 export type RendererField = FormFieldDefinition & {
     name: string;
-    type: string;
-    config: {
-        componentName?: string;
-        type?: string;
-        entity?: string;
-        snippet?: string;
+    config: FormFieldConfig & {
         label: { 'en-GB': string };
         helpText: { 'en-GB': string };
         options: Array<{ id: string; name: string; value?: string }>;

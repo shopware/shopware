@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import { type FormFieldDefinition } from 'src/core/service/utils/form-field-type-mapping.utils';
 import {
+    type FormFieldDefinition,
     buildRendererFields,
     customFieldSelector,
     expectInheritanceSwitches,
@@ -79,12 +79,14 @@ const COMPONENT_OWNED_INHERITANCE_DEFINITIONS = TESTED_FIELD_DEFINITIONS.filter(
 });
 
 const FORM_FIELD_RENDERER_LABEL_FIELDS = buildRendererFields(removeTestMetadata(SIMPLE_LABEL_HELP_DEFINITIONS));
-const FORM_FIELD_RENDERER_INHERITANCE_FIELDS = buildRendererFields(removeTestMetadata(COMPONENT_OWNED_INHERITANCE_DEFINITIONS));
+const FORM_FIELD_RENDERER_INHERITANCE_FIELDS = buildRendererFields(
+    removeTestMetadata(COMPONENT_OWNED_INHERITANCE_DEFINITIONS),
+);
 const SIMPLE_LABEL_HELP_FIELDS = buildRendererFields(removeTestMetadata(SIMPLE_LABEL_HELP_DEFINITIONS));
 const COMPONENT_OWNED_INHERITANCE_FIELDS = buildRendererFields(removeTestMetadata(COMPONENT_OWNED_INHERITANCE_DEFINITIONS));
 
 function removeTestMetadata(fields: TestedFieldDefinition[]): FormFieldDefinition[] {
-    return fields.map(({ labelHelp, inheritance, ...field }) => field);
+    return fields.map(({ type, config }) => ({ type, config }));
 }
 
 describe('components/form/sw-form-field-renderer label, help text, and inheritance rendering', () => {

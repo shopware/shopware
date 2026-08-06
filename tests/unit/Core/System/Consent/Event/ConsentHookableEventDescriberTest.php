@@ -22,7 +22,7 @@ class ConsentHookableEventDescriberTest extends TestCase
         $resolver = new ConsentHookableEventDescriber(new ConsentDefinitionRegistry([
             new TestDefinition('backend_data', 'system'),
             new TestDefinition('product_analytics', 'admin_user'),
-        ]));
+        ], []));
 
         static::assertEquals([
             new HookableEventDescription('consent.backend_data.accepted', 'Fires when the backend_data consent is accepted.', ['consent:backend_data:read']),

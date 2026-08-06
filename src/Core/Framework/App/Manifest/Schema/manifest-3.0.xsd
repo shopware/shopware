@@ -96,6 +96,17 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="consents" type="consents" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Define consents the shop owner can accept or revoke for your app.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueConsentName">
+                        <xs:selector xpath="consent"/>
+                        <xs:field xpath="name"/>
+                    </xs:unique>
+                </xs:element>
                 <xs:element name="payments" type="payments" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -507,6 +518,50 @@
             <xs:element name="entries" type="cookie-entries" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
+    <xs:complexType name="consents">
+        <xs:sequence>
+            <xs:element name="consent" type="consent" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="consent">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="consent-name" name="name">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Identifies the consent within your app. The shop stores answers under your app name and this name.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="consent-scope" name="scope">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Who answers the consent: "system" for one answer per shop, "admin_user" for one answer per admin user.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="xs:string" name="revision" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Optional: change this value when the terms of the consent change. Answers given for an
+                        earlier revision are then reported as outdated.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:simpleType name="consent-name">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z0-9_]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="consent-scope">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="system"/>
+            <xs:enumeration value="admin_user"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="payments">
         <xs:sequence>
             <xs:element name="payment-method" type="payment-method" minOccurs="0" maxOccurs="unbounded"/>

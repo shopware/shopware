@@ -65,6 +65,8 @@ use Shopware\Core\Framework\App\Command\RefreshAppCommand;
 use Shopware\Core\Framework\App\Command\RotateAppSecretCommand;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
+use Shopware\Core\Framework\App\Consent\AppConsentDefinitionProvider;
+use Shopware\Core\Framework\App\Consent\ConsentFeatureDefinition;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
@@ -382,6 +384,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
             service(AppFeatureDefinitionRegistry::class),
         ]);
+
+    $services->set(ConsentFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
+
+    $services->set(AppConsentDefinitionProvider::class)
+        ->args([
+            service(AppFeatureStorage::class),
+        ])
+        ->tag('shopware.consent.definition_provider');
 
     $services->set(ScriptFileReader::class)
         ->args([

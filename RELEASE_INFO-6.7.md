@@ -406,7 +406,24 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
-## Hosting & Configuration
+### Apps can declare consents
+
+Apps can declare consents in a `<consents>` section of the manifest. Each consent has a name, a scope (`system` for one answer per shop, `admin_user` for one answer per admin user), a translatable label, an optional translatable description, and an optional revision:
+
+```xml
+<consents>
+    <consent>
+        <name>order_analysis</name>
+        <scope>system</scope>
+        <label>Analyse orders</label>
+        <label lang="de-DE">Bestellungen analysieren</label>
+        <description>Sends order data to the app for analysis.</description>
+        <revision>2026-01-01</revision>
+    </consent>
+</consents>
+```
+
+Declared consents are stored through the app feature storage and appear in the consent system as `<app name>-<consent name>`, for example `SwagExample-order_analysis`. They are answered through the existing `/api/consents` endpoints, and answers are kept when the app is uninstalled. Changing the revision marks earlier answers as outdated.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

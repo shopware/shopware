@@ -583,7 +583,7 @@ class ConsentServiceTest extends TestCase
                 new ConsentScope\System(),
                 new AdminUser(),
             ],
-            new ConsentDefinitionRegistry($definitions),
+            new ConsentDefinitionRegistry($definitions, []),
             $this->consentRepository,
             $eventDispatcher ?? new EventDispatcher()
         );

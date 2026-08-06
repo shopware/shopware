@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  *
- * Guards the 4.3 acceptance criterion: a freshly scaffolded TypeScript
- * Administration module (the exact `ts-module.stub` that `plugin:create
- * --create-admin-module` ships) passes the tooling with no manual repair. Reads
- * the real stub so a future edit that breaks type-checking fails here.
+ * A freshly scaffolded TypeScript Administration module (the exact
+ * `ts-module.stub` that `plugin:create --create-admin-module` ships) passes the
+ * tooling with no manual repair. Reads the real stub rather than a copy, so an
+ * edit to it that breaks type-checking or linting fails here.
  */
 
 import fs from 'fs';

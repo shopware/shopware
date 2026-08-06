@@ -337,6 +337,10 @@ The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that 
 bin/console plugin:create MyPlugin MyNamespace --no-scaffold
 ```
 
+### `plugin:create --create-admin-module` scaffolds a TypeScript module
+
+`bin/console plugin:create <name> <namespace> --create-admin-module` now scaffolds the example Administration module as TypeScript (`src/module/swag-example/index.ts` and `src/main.ts`) instead of JavaScript, so a freshly created plugin type-checks and lints cleanly against the Administration extension toolchain (`admin:check-extensions`) without any toolchain files of its own. Existing plugins are untouched: a plugin that ships `main.js` keeps being built from it.
+
 ### Dynamic product groups can keep matching variants ungrouped
 
 Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
@@ -530,10 +534,6 @@ Both commands validate their options strictly: `-- --help` prints a generated re
 The Composer scripts above exist in a platform (monorepo) checkout. In a Composer/Flex-installed shop — the standard installation layout, where the Administration lives under `vendor/shopware/administration` — the same toolchain is available through `bin/console administration:setup-extension-tooling`, `bin/console administration:check-extensions`, and `bin/console administration:generate-entity-schema-types` (options after `--`, e.g. `-- --only=MyPlugin`). Both resolve the shop root automatically; run `npm ci` once in the Administration directory first, since its Node dependencies are not part of the Composer package. The tooling's own printed guidance adapts to the layout, so any next step it suggests uses whichever invocation applies to the current install.
 
 The type surface is the live installed Administration types (`global.types.ts` plus the generated entity schema). The API boundary is expressed through JSDoc annotations (`@deprecated`) enforced via ESLint (`@typescript-eslint/no-deprecated`, `sw-deprecation-rules`); internal plugins may lower `internalApiSeverity` in their own config. Nothing changes for existing flows: no default build, watch, init, or CI pipeline invokes the new commands.
-
-### `plugin:create --create-admin-module` scaffolds a TypeScript module
-
-`bin/console plugin:create <name> <namespace> --create-admin-module` now scaffolds the example Administration module in TypeScript (`ts-module.stub`) instead of JavaScript, so a freshly created plugin type-checks and lints cleanly against the Administration toolchain (`admin:check-extensions`) with no toolchain files of its own. When run non-interactively the command names the specific missing argument (plugin name or namespace) in the error instead of a generic message, and after creating the plugin it prints how to install, activate, and check it — noting that a Composer-managed (`--static`) plugin is checked with read-only vendor semantics.
 
 ### Reworked search behaviour options
 

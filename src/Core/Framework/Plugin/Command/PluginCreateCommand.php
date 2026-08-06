@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -78,7 +76,6 @@ class PluginCreateCommand extends Command
                 $pluginName = $this->askPascalCaseString(
                     input: $input,
                     questionText: 'Please enter a plugin name (PascalCase)',
-                    argumentName: 'plugin-name',
                     io: $io
                 );
             }
@@ -97,7 +94,6 @@ class PluginCreateCommand extends Command
                 $namespace = $this->askPascalCaseString(
                     input: $input,
                     questionText: 'Please enter a plugin namespace (PascalCase)',
-                    argumentName: 'plugin-namespace',
                     io: $io
                 );
             }
@@ -130,47 +126,6 @@ class PluginCreateCommand extends Command
 
             $io->success('Plugin created successfully');
 
-            if (
-                $configuration->hasOption(AdminModuleGenerator::OPTION_NAME)
-                && $configuration->getOption(AdminModuleGenerator::OPTION_NAME) === true
-            ) {
-                // A static plugin lives under custom/static-plugins/, which
-                // plugin:refresh does not scan — it must be pulled in through
-                // the Composer path repository before the lifecycle sees it.
-                $discoverySteps = $input->getOption('static')
-                    ? [
-                        \sprintf('    composer require %s', ComposerGenerator::composerPackageName($namespace, $pluginName)),
-                        '    bin/console plugin:refresh',
-                        \sprintf('    bin/console plugin:install --activate %s', $pluginName),
-                        '    bin/console bundle:dump',
-                    ]
-                    : [
-                        '    bin/console plugin:refresh',
-                        \sprintf('    bin/console plugin:install --activate %s', $pluginName),
-                        '    bin/console bundle:dump',
-                    ];
-
-                $noteLines = [
-                    'An example Administration module was scaffolded (TypeScript).',
-                    'Install and activate the plugin, then type-check and lint it with the Administration toolchain:',
-                    ...$discoverySteps,
-                    \sprintf('    composer admin:check-extensions -- --only=%s', $pluginName),
-                    'It needs no toolchain of its own (see extension-tooling/README.md).',
-                ];
-
-                if ($input->getOption('static') === true) {
-                    // A Composer-managed plugin resolves through the vendor/ path,
-                    // so the toolchain classifies it as a read-only vendor
-                    // extension: findings are non-fatal and baseline/--shim are
-                    // unavailable. custom/plugins/ gets full first-party tooling.
-                    $noteLines[] = 'As a Composer-managed (static) plugin it is checked with read-only vendor semantics: '
-                        . 'findings are non-fatal and baseline/--shim are unavailable (use --strict-vendor to gate it in '
-                        . 'CI). For full first-party tooling, develop under custom/plugins/ instead.';
-                }
-
-                $io->note($noteLines);
-            }
-
             return self::SUCCESS;
         } catch (\Throwable $exception) {
             $io->error($exception->getMessage());
@@ -186,15 +141,10 @@ class PluginCreateCommand extends Command
     private function askPascalCaseString(
         InputInterface $input,
         string $questionText,
-        string $argumentName,
         SymfonyStyle $io
     ): string {
         if (!$input->isInteractive()) {
-            throw PluginException::invalidPluginCreationInputError(\sprintf(
-                'The "%s" argument is required when running non-interactively (-n). '
-                . 'Provide it on the command line, e.g. bin/console plugin:create <plugin-name> <plugin-namespace> -n.',
-                $argumentName
-            ));
+            throw PluginException::invalidPluginCreationInputError('This command requires interactive mode or the argument must be provided.');
         }
 
         $question = new Question($questionText);

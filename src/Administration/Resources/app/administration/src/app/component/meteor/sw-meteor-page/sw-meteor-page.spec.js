@@ -210,7 +210,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(title.text()).toBe('sw.example.title');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render the deprecated tabs when slot is filled', async () => {
         const wrapper = await createWrapper({
             'page-tabs': pageTabsSlot,
@@ -298,7 +298,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should not render the tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -42,7 +42,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         });
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate an empty product and report errors', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
@@ -87,7 +87,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         }),
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate missing price for a product', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
@@ -146,7 +146,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         }),
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a complete product and report no errors', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
@@ -199,7 +199,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         }),
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a product and report callback errors', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);
@@ -292,7 +292,7 @@ describe('src/app/service/entity-validation.service.js', () => {
         }),
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the optional product type schema.
+    // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.
     it.deprecated('v6.8.0.0')('should validate a complete product with ignore fields and report no errors', () => {
         const service = createService();
         service.errorResolver.handleWriteErrors = jest.fn(() => undefined);

@@ -287,7 +287,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         ]);
     };
 
-    // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
+    // @deprecated tag:v6.8.0 - The tests will be removed with sw-text-editor-link-menu.
     it.deprecated('v6.8.0.0').each(linkDataProvider.filter((link) => DEPRECATED_LINK_TYPES.includes(link.type)))(
         'parses $type URLs correctly',
         async (link) => {
@@ -302,7 +302,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with sw-text-editor-link-menu.
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-text-editor-link-menu.
     it.deprecated('v6.8.0.0')('parses product detail links and reacts to changes correctly', async () => {
         const wrapper = await createWrapper({
             value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,

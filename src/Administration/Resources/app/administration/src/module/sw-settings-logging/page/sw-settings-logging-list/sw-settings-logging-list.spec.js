@@ -79,7 +79,7 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
         expect(wrapper.find('sw-settings-logging-entry-info').exists()).toBe(true);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy logging modal tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy logging modal tabs.
     it.deprecated('v6.8.0.0')('should load dynamic modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

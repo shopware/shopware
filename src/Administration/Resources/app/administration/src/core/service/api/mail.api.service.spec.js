@@ -100,7 +100,7 @@ describe('mailApiService', () => {
             return JSON.parse(clientMock.history.post[0].data).mailTemplateData;
         };
 
-        // @deprecated tag:v6.8.0.0 - The test will be removed with the persisted template-data fallback.
+        // @deprecated tag:v6.8.0 - The test will be removed with the persisted template-data fallback.
         it.deprecated('v6.8.0.0')('falls back to persisted mail template type data', async () => {
             await expect(sendWithoutTemplateData()).resolves.toEqual({
                 order: {

@@ -18,7 +18,7 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-loader', () => {
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-loader implementation.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-loader implementation.
     it.deprecated('v6.8.0.0')('should render the deprecated sw-loader', async () => {
         const wrapper = await createWrapper();
 

@@ -141,7 +141,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy new-customer tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
     it.deprecated('v6.8.0.0')('should render the fallback tabs branch', () => {
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
@@ -240,7 +240,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         });
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy new-customer tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
     it.deprecated('v6.8.0.0')('should navigate tab correctly', async () => {
         let customerBaseForm = wrapper.find('sw-customer-base-form-stub');
         let customerAddressForm = wrapper.find('sw-customer-address-form-stub');
@@ -337,7 +337,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy new-customer tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
     it.deprecated('v6.8.0.0')('should show error inside sw-tabs-item component', async () => {
         let swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         let swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);

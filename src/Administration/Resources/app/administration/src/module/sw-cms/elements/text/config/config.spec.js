@@ -106,7 +106,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         await setupCmsEnvironment();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy CMS text tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy CMS text tabs.
     it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
@@ -146,7 +146,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.find('.sw-cms-el-config-text__tab-settings').exists()).toBe(true);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy CMS text editor.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy CMS text editor.
     it.deprecated('v6.8.0.0')('should emits element-update when trigger @input event', async () => {
         const wrapper = await createWrapper();
 
@@ -189,7 +189,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-text-editor blur integration.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-text-editor blur integration.
     it.deprecated('v6.8.0.0')('should emits element-update when trigger @blur event', async () => {
         const wrapper = await createWrapper();
 

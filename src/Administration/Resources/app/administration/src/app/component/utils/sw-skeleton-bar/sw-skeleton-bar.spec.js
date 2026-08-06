@@ -17,7 +17,7 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-skeleton-bar', () => {
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-skeleton-bar implementation.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-skeleton-bar implementation.
     it.deprecated('v6.8.0.0')('should render the deprecated skeleton-bar', async () => {
         const wrapper = await createWrapper();
 

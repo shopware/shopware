@@ -359,7 +359,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should load user config for banner on created', async () => {
         await createWrapper();
 
@@ -369,7 +369,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should show banner by default when no config is set', async () => {
         const wrapper = await createWrapper();
 
@@ -381,7 +381,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should hide banner when config is set to true', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
@@ -400,7 +400,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should show banner when config is set to false', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
@@ -419,7 +419,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename banner.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
     it.deprecated('v6.8.0.0')('should toggle banner visibility and save config', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
@@ -444,7 +444,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the settings rename notice.
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename notice.
     it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
 
@@ -457,7 +457,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     });
 
     /**
-     * @deprecated tag:v6.8.0.0 - Do NOT delete this test, it guards every future change notice.
+     * @deprecated tag:v6.8.0 - Do NOT delete this test, it guards every future change notice.
      * At v6.8: delete the `sw-settings.index.textSettingRenameBanner` entry from
      * `sw-settings-index/index.ts` plus its snippet, then lower this back to a plain `it()`.
      * It is skipped under the flag because it is designed to fail once a notice's version has

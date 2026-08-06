@@ -93,7 +93,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
+    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
     it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper();
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;

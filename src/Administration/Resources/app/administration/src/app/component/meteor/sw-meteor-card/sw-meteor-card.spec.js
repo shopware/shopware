@@ -208,7 +208,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(actionsSlot.text()).toBe('I am in the action slot');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render the tabs', async () => {
         const wrapper = mount(
             {
@@ -254,7 +254,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(tabItems.at(1).text()).toBe('Tab 2');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render deprecated tabs and change content', async () => {
         const wrapper = await createMeteorCardWithTabs();
         await flushPromises();

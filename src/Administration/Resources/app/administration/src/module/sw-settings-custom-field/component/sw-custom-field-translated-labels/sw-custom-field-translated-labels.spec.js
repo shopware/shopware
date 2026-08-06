@@ -122,7 +122,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         expect(wrapper.vm.config.label1[en]).toBe(value !== '' ? value : null);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render multiple locales with deprecated tabs', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -186,7 +186,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.de-DE)');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy translated-label tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy translated-label tabs.
     it.deprecated('v6.8.0.0')('should update multiple locales with tabs', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

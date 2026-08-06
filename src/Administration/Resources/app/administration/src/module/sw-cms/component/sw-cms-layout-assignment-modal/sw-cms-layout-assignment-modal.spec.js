@@ -323,7 +323,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should render tabs when type is shop page', async () => {
         const wrapper = await createWrapper('page');
 
@@ -332,7 +332,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper('page');
 
@@ -421,7 +421,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should disable shop pages tab with missing system config permission', async () => {
         const wrapper = await createWrapper('page');
 
@@ -803,7 +803,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should load system config with different sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
@@ -847,7 +847,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         ]);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')(
         'should load system config with different sales channel without matching shop pages',
         async () => {
@@ -895,7 +895,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should load system config when changing sales channel', async () => {
         global.activeAclRoles = ['system.system_config'];
 
@@ -1204,7 +1204,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy layout-assignment tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy layout-assignment tabs.
     it.deprecated('v6.8.0.0')('should render tabs when type is landing pages', async () => {
         const wrapper = await createWrapper('landingpage');
 

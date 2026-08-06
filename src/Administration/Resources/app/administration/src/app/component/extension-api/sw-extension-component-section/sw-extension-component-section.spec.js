@@ -88,7 +88,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
@@ -121,7 +121,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render deprecated tabs in card section', async () => {
         addSectionWithTabs();
 
@@ -161,7 +161,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {
         addSectionWithTabs();
 

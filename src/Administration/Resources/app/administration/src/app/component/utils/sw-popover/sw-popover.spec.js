@@ -18,7 +18,7 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-popover', () => {
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover implementation.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-popover implementation.
     it.deprecated('v6.8.0.0')('should render the deprecated popover', async () => {
         const wrapper = await createWrapper();
 
@@ -129,7 +129,7 @@ describe('src/app/component/base/sw-popover', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover implementation.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-popover implementation.
     it.deprecated('v6.8.0.0')(
         'should pass the "resizeWidth" prop to sw-popover-deprecated when feature flag is disabled and matchReferenceWidth is set',
         async () => {
@@ -144,7 +144,7 @@ describe('src/app/component/base/sw-popover', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-popover implementation.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-popover implementation.
     it.deprecated('v6.8.0.0')(
         'should pass the "resizeWidth" prop to sw-popover-deprecated when feature flag is disabled and deprecated resizeWidth is set',
         async () => {

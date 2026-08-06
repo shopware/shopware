@@ -63,7 +63,7 @@ async function createWrapper({ routeName = 'sw.settings.usage.data.index.general
 describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => {
     let wrapper;
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should show deprecated tabs', async () => {
         wrapper = await createWrapper();
         await flushPromises();

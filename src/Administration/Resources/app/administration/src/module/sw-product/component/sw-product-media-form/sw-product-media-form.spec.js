@@ -160,7 +160,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy product-media popover.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy product-media popover.
     it.deprecated('v6.8.0.0')('should not show cover when `showCoverLabel` is false', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -201,7 +201,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy product-media popover.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy product-media popover.
     it.deprecated('v6.8.0.0')('should move media to first position when it is marked as cover', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

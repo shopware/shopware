@@ -1413,7 +1413,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         showCustomFieldSetSelection: false,
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')('should not filter custom field sets when selection not active', async () => {
         wrapper = await createWrapper(propsWithInactiveSetSelection());
 
@@ -1442,7 +1442,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         showCustomFieldSetSelection: true,
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')('should not filter custom field sets when entity has no customFieldSets column', async () => {
         wrapper = await createWrapper(propsWithoutCustomFieldSetsColumn());
 
@@ -1493,7 +1493,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         showCustomFieldSetSelection: true,
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')('should render the correct tab label given from the config', async () => {
         wrapper = await createWrapper(propsWithSetLabel('Set 1 Label'));
 
@@ -1513,7 +1513,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         ]);
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')('should render the fallback tab label when no label exists in the config', async () => {
         wrapper = await createWrapper(propsWithSetLabel(null));
 
@@ -1547,7 +1547,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         showCustomFieldSetSelection: true,
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no customFieldSetSelectionActive column',
         async () => {
@@ -1583,7 +1583,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         showCustomFieldSetSelection: true,
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
         async () => {
@@ -1614,7 +1614,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         },
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy custom-field tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy custom-field tabs.
     it.deprecated('v6.8.0.0')(
         'should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
         async () => {
@@ -1696,7 +1696,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(wrapper.vm.visibleCustomFieldSets.first().name).toBe('set2');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should show the tabs', async () => {
         wrapper = await createWrapper({
             entity: {},
@@ -1809,7 +1809,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.element.style.display).not.toBe('none');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should contain the right fields for each tab', async () => {
         wrapper = await createWrapper({
             entity: {},
@@ -1917,7 +1917,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabContentClothing.element.style.display).not.toBe('none');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should load the current active tab', async () => {
         wrapper = await createWrapper({
             entity: {},

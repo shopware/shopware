@@ -110,7 +110,7 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         wrapper = await createWrapper();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         await flushPromises();
 

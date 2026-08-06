@@ -119,7 +119,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
     describe('legacy direct-list layout', () => {
-        // @deprecated tag:v6.8.0.0 - The test will be removed with the direct-list mail-template layout.
+        // @deprecated tag:v6.8.0 - The test will be removed with the direct-list mail-template layout.
         it.deprecated('v6.8.0.0')('should render both lists directly', async () => {
             const wrapper = await createWrapper();
 

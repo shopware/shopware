@@ -542,7 +542,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the fallback sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the fallback sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -848,7 +848,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy rule-detail tabs.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy rule-detail tabs.
     it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

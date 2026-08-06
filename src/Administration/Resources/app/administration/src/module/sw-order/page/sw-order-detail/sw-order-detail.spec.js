@@ -160,7 +160,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
     it.deprecated('v6.8.0.0')('should render the fallback tabs branch', async () => {
         wrapper = await createWrapper();
 

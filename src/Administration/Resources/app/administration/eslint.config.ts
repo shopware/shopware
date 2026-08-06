@@ -634,7 +634,16 @@ export default [
             'sw-test-rules/await-async-functions': 'error',
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
-            'jest/expect-expect': 'error',
+            'jest/expect-expect': [
+                'error',
+                {
+                    // Shared assertion helpers are named expect*, so calling one counts as asserting.
+                    assertFunctionNames: [
+                        'expect',
+                        'expect*',
+                    ],
+                },
+            ],
             'jest/no-standalone-expect': [
                 'error',
                 {

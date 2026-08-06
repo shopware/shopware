@@ -45,8 +45,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome, InstanceMeta }) => {
-        test.slow(InstanceMeta.isSaaS);
+    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup({
             name: 'Color',

@@ -17,9 +17,7 @@ test(
         StorefrontHome,
         SelectProductFilterOption,
         CheckVisibilityInHome,
-        InstanceMeta,
     }) => {
-        test.slow(InstanceMeta.isSaaS);
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup({
             name: 'Color',
@@ -79,9 +77,7 @@ test(
 
         await test.step('Verify setup filters display & enabled', async () => {
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
-                    await TestDataService.clearCaches();
-                }
+                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -138,9 +134,7 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
-                    await TestDataService.clearCaches();
-                }
+                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({
                     timeout: TIMEOUT,
@@ -228,9 +222,7 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
-                    await TestDataService.clearCaches();
-                }
+                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
                 await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
@@ -281,8 +273,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome, InstanceMeta }) => {
-        test.slow(InstanceMeta.isSaaS);
+    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup();
         const propertyGroupsColor: PropertyGroup[] = [color];
@@ -324,9 +315,7 @@ test(
 
         await test.step('Verify setup filters display', async () => {
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
-                    await TestDataService.clearCaches();
-                }
+                await TestDataService.clearCaches();
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
                 await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });

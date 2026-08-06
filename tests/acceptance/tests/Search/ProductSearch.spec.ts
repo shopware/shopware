@@ -15,7 +15,6 @@ test(
         StorefrontSearchSuggest,
         SearchForTerm,
         IdProvider,
-        InstanceMeta,
     }) => {
         const productNameSuffix1 = IdProvider.getIdPair().uuid;
         await TestDataService.createBasicProduct({
@@ -50,22 +49,8 @@ test(
 
         await test.step('Customer searches term and sees a single matching product', async () => {
             await ShopCustomer.attemptsTo(SearchForTerm(`Bottle${productNameSuffix1}`));
-            // eslint-disable-next-line playwright/no-conditional-in-test
-            if (InstanceMeta.isSaaS) {
-                let productFound = false;
-                for (const lineItem of await StorefrontSearchSuggest.searchSuggestLineItemName.all()) {
-                    const lineItemText = await lineItem.textContent();
-                    // eslint-disable-next-line playwright/no-conditional-in-test
-                    if (lineItemText.includes(`Bottle${productNameSuffix1}`)) {
-                        productFound = true;
-                        break;
-                    }
-                }
-                ShopCustomer.expects(productFound).toBe(true);
-            } else {
-                const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
-                await ShopCustomer.expects(totalCount1).toBe(1);
-            }
+            const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+            await ShopCustomer.expects(totalCount1).toBe(1);
         });
 
         await test.step('Customer searches for a partial term and sees multiple matching products', async () => {

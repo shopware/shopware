@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemEvent extends AnalyticsEvent
@@ -24,9 +25,13 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
+        // the list the product was selected from, so both events describe one journey
+        const list = ListAttributionHelper.consume(productData.id);
+
         this.pushEvent('view_item', {
             'currency': productData.currency,
             'value': productData.value,
+            ...list,
             'items': [{
                 'item_id': productData.id,
                 'item_name': productData.name,

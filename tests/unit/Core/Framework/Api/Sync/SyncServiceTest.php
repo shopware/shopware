@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
@@ -70,6 +72,7 @@ class SyncServiceTest extends TestCase
             ),
             $this->createMock(EntitySearcherInterface::class),
             $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
@@ -140,10 +143,51 @@ class SyncServiceTest extends TestCase
                 new CriteriaArrayConverter(new AggregationParser()),
                 100
             ),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
         $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
+    }
+
+    public function testCriteriaDeleteDoesNotSearchWithoutReadPrivileges(): void
+    {
+        $filter = [['type' => 'equals', 'field' => 'productNumber', 'value' => 'product-number']];
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('productNumber', 'product-number'));
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->expects($this->once())
+            ->method('fromArray')
+            ->with(['filter' => $filter])
+            ->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->willReturn(['product:read']);
+
+        $searcher = $this->createMock(EntitySearcherInterface::class);
+        $searcher->expects($this->never())->method('search');
+
+        $service = new SyncService(
+            static::createStub(EntityWriterInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            new StaticDefinitionInstanceRegistry(
+                [ProductDefinition::class],
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
+            ),
+            $searcher,
+            $criteriaBuilder,
+            $criteriaValidator,
+            static::createStub(SyncFkResolver::class)
+        );
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['product:read']));
+
+        $service->sync([
+            new SyncOperation('delete-products', 'product', SyncOperation::ACTION_DELETE, [], $filter),
+        ], Context::createDefaultContext(), new SyncBehavior());
     }
 
     public function testWrittenEventsAreDispatchedInSystemScopeWithOriginalSource(): void
@@ -194,6 +238,7 @@ class SyncServiceTest extends TestCase
             ),
             $this->createMock(EntitySearcherInterface::class),
             $this->createMock(RequestCriteriaBuilder::class),
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 
@@ -274,6 +319,7 @@ class SyncServiceTest extends TestCase
             ),
             $searcher,
             $criteriaBuilder,
+            $this->createMock(AclCriteriaValidator::class),
             $this->createMock(SyncFkResolver::class)
         );
 

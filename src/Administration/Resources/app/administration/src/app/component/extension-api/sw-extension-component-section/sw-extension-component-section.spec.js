@@ -101,8 +101,10 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         wrapper = await createWrapper();
         await flushPromises();
 
-        const tabs = wrapper.find('.sw-tabs');
-        expect(tabs.exists()).toBe(false);
+        // Assert both implementations: the legacy container is the meaningful one by default, the
+        // meteor component under v6.8. Checking only one makes this vacuous in the other suite.
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.

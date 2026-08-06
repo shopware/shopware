@@ -302,8 +302,10 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const tabsContent = wrapper.find('.sw-tabs__content');
-        expect(tabsContent.exists()).toBe(false);
+        // Assert both implementations: the legacy container is the meaningful one by default, the
+        // meteor component under v6.8. Checking only one makes this vacuous in the other suite.
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
     it('should render the content', async () => {

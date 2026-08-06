@@ -120,6 +120,10 @@ export default Component.wrapComponentConfig({
             this.rateLimitMessage = this.$t('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds }, 0);
             this.$emit('is-not-loading');
 
+            if (this.rateLimitTimeout) {
+                clearTimeout(this.rateLimitTimeout);
+            }
+
             this.rateLimitTimeout = setTimeout(() => {
                 this.rateLimitMessage = '';
                 this.rateLimitTimeout = null;

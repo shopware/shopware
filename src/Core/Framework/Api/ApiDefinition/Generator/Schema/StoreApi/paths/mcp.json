@@ -855,6 +855,7 @@
                 "summary": "MCP CORS preflight (Store API)",
                 "description": "Handles CORS preflight requests for the Store API MCP endpoint. Answered before routing; the response carries the `Access-Control-Allow-*` headers including `mcp-session-id` and `mcp-protocol-version`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpOptions",
+                "security": [],
                 "responses": {
                     "200": {
                         "description": "CORS preflight accepted."

@@ -33,7 +33,7 @@ test('Customer sees GARAN label on product detail, cart and checkout with legal 
             const slug = languagePrefix === 'de' ? 'garantien' : 'guarantees';
         
             return `https://europa.eu/youreurope/${slug}`;
-        }
+        };
         const product = await TestDataService.createBasicProduct({
             name: 'GARAN-Label-Checkout-Product',
             manufacturerId: manufacturer.id,

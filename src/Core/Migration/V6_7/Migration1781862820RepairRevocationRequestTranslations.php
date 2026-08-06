@@ -607,7 +607,7 @@ SQL,
 
     private function extractCmsPageId(string $configurationValue): ?string
     {
-        $decoded = json_decode($configurationValue, true, 512, \JSON_THROW_ON_ERROR);
+        $decoded = json_decode($configurationValue, true);
         if (!\is_array($decoded)) {
             return null;
         }

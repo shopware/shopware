@@ -67,6 +67,18 @@ class SystemConfigLimiterTest extends TestCase
         static::assertFalse($limit->isAccepted());
     }
 
+    public function testConsumeSequentiallyAllowsTheConfiguredLimit(): void
+    {
+        $limiter = $this->createLimiter([
+            'test.limit' => 3,
+        ]);
+
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertTrue($limiter->consume()->isAccepted());
+        static::assertFalse($limiter->consume()->isAccepted());
+    }
+
     public function testNoLimitWithZero(): void
     {
         $limiter = $this->createLimiter([

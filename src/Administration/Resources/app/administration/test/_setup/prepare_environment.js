@@ -57,6 +57,9 @@ import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
 
+// The runner's baseline flags, snapshotted before any test can mutate them. Kept on a symbol-keyed
+// global rather than a module-scoped const because feature-flag-test-environment.js runs in its own
+// module context and has to read the same value to restore the baseline after each test.
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
 
@@ -677,6 +680,9 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
+    // Supersedes trunk's plain baseline reset: same behaviour for ordinary tests, but leaves the
+    // flags alone when it.activeFeatureFlags() set them for this test. This hook runs after the
+    // environment's test_start, so an unconditional reset here would undo them.
     global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...global[defaultActiveFeatureFlagsSymbol]];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {

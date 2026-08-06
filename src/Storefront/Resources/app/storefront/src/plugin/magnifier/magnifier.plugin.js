@@ -163,22 +163,29 @@ export default class MagnifierPlugin extends Plugin {
             this._createZoomImage();
             this._getImageUrl(image);
 
-            if (this._imageUrl && this._zoomImage && this._overlay) {
+            const geometry = this._getZoomGeometry(image);
+
+            if (this._imageUrl && this._zoomImage && this._overlay && geometry) {
                 const containerPos = this._getContainerPos(imageContainer);
                 const imagePos = this._getImagePos(image);
-                const imageDimensions = this._getImageDimensions(image);
-                const imageSize = this._getImageSize(image);
-                const overlaySize = this._getOverlaySize(imageSize);
                 const imageOffset = containerPos.subtract(imagePos);
                 imageOffset.x = Math.abs(imageOffset.x);
                 imageOffset.y = Math.abs(imageOffset.y);
 
-                const mousePos = new Vector2(event.pageX, event.pageY).subtract(imagePos);
+                this._setZoomImageSize(geometry.region.size);
 
-                const mousePosPercent = mousePos.divide(imageSize).clamp(0, 1);
+                const zoomWindowSize = this._getZoomImageSize();
+                const zoomFactor = this._getEffectiveZoomFactor(geometry.region.size, zoomWindowSize);
+                const overlaySize = this._getOverlaySize(geometry.region.size, zoomWindowSize, zoomFactor);
 
-                this._setOverlayPosition(imageOffset, overlaySize, imageSize, mousePosPercent);
-                this._setZoomImage(mousePos, imageSize, overlaySize, imageDimensions);
+                // mouse position relative to the visible image content, not to the image element
+                const mousePos = new Vector2(event.pageX, event.pageY)
+                    .subtract(imagePos)
+                    .subtract(geometry.region.offset);
+                const progress = this._getZoomProgress(mousePos, geometry.region.size, overlaySize);
+
+                this._setOverlayPosition(imageOffset.add(geometry.region.offset), overlaySize, geometry.region.size, progress);
+                this._setZoomImage(geometry, zoomWindowSize, zoomFactor, progress);
             }
         }
 
@@ -186,19 +193,128 @@ export default class MagnifierPlugin extends Plugin {
     }
 
     /**
-     * sets the position of the overlay
+     * returns the geometry needed to map the lens onto the zoomed image
      *
-     * @param {Vector2} imageOffset
-     * @param {Vector2} overlaySize
-     * @param {Vector2} imageSize
-     * @param {Vector2} mousePosPercent
-     * @return {VectorBase|*}
+     * `region` describes the area of the image element which actually renders image content,
+     * `source` describes the part of the image which is rendered inside that area.
+     * Both differ from the element itself as soon as `object-fit` letterboxes or crops the image.
+     * A centered `object-position` (the CSS default and the storefront default) is assumed.
+     *
+     * @param {HTMLElement} image
+     * @return {{natural: Vector2, scale: Vector2, region: {offset: Vector2, size: Vector2}, source: {offset: Vector2, size: Vector2}}|null}
+     *
      * @private
      */
-    _setOverlayPosition(imageOffset, overlaySize, imageSize, mousePosPercent) {
-        let overlayPos = imageOffset.subtract(overlaySize.divide(2)); // offset the lens so that the cursor is in the middle
-        overlayPos = overlayPos.add(imageSize.multiply(mousePosPercent)); // add the mouse offset
-        overlayPos = overlayPos.clamp(imageOffset, imageOffset.add(imageSize).subtract(overlaySize)); // clamp the position to image min max
+    _getZoomGeometry(image) {
+        const elementSize = this._getImageSize(image);
+        const natural = this._getImageDimensions(image);
+
+        if (elementSize.x <= 0 || elementSize.y <= 0 || natural.x <= 0 || natural.y <= 0) {
+            return null;
+        }
+
+        const scale = this._getObjectFitScale(image, elementSize, natural);
+        const renderedSize = natural.multiply(scale);
+
+        // the image content is either letterboxed inside the element or cropped by it
+        const regionSize = new Vector2(Math.min(renderedSize.x, elementSize.x), Math.min(renderedSize.y, elementSize.y));
+        const regionOffset = elementSize.subtract(regionSize).divide(2);
+        const sourceSize = regionSize.divide(scale);
+        const sourceOffset = natural.subtract(sourceSize).divide(2);
+
+        return {
+            natural,
+            scale,
+            region: { offset: regionOffset, size: regionSize },
+            source: { offset: sourceOffset, size: sourceSize },
+        };
+    }
+
+    /**
+     * returns the scale factor the browser applies to the image because of `object-fit`
+     *
+     * @param {HTMLElement} image
+     * @param {Vector2} elementSize
+     * @param {Vector2} natural
+     * @return {Vector2}
+     *
+     * @private
+     */
+    _getObjectFitScale(image, elementSize, natural) {
+        const fitScale = elementSize.divide(natural);
+        const objectFit = window.getComputedStyle(image).objectFit;
+
+        switch (objectFit) {
+            case 'fill':
+                return fitScale;
+            case 'cover':
+                return new Vector2(Math.max(fitScale.x, fitScale.y), Math.max(fitScale.x, fitScale.y));
+            case 'none':
+                return new Vector2(1, 1);
+            case 'scale-down':
+                return new Vector2(Math.min(fitScale.x, fitScale.y, 1), Math.min(fitScale.x, fitScale.y, 1));
+            case 'contain':
+            default:
+                // `contain` is the object-fit of the storefront gallery images and the safe fallback
+                // for unknown values (e.g. an empty string returned by jsdom in the unit tests)
+                return new Vector2(Math.min(fitScale.x, fitScale.y), Math.min(fitScale.x, fitScale.y));
+        }
+    }
+
+    /**
+     * returns the zoom factor which is actually applied
+     *
+     * The configured zoom factor is only usable as long as the zoomed image still covers the zoom window.
+     * Otherwise the zoom window would render empty areas next to the image.
+     *
+     * @param {Vector2} regionSize
+     * @param {Vector2} zoomWindowSize
+     * @return {number}
+     *
+     * @private
+     */
+    _getEffectiveZoomFactor(regionSize, zoomWindowSize) {
+        return Math.max(
+            this.options.zoomFactor,
+            zoomWindowSize.x / regionSize.x,
+            zoomWindowSize.y / regionSize.y,
+        );
+    }
+
+    /**
+     * returns how far the lens is moved inside its range, per axis, in a range of 0 to 1
+     *
+     * @param {Vector2} mousePos
+     * @param {Vector2} regionSize
+     * @param {Vector2} overlaySize
+     * @return {Vector2}
+     *
+     * @private
+     */
+    _getZoomProgress(mousePos, regionSize, overlaySize) {
+        const range = regionSize.subtract(overlaySize);
+        // offset the lens so that the cursor is in the middle
+        const lensPos = mousePos.subtract(overlaySize.divide(2));
+
+        return new Vector2(
+            range.x > 0 ? lensPos.x / range.x : 0,
+            range.y > 0 ? lensPos.y / range.y : 0,
+        ).clamp(0, 1);
+    }
+
+    /**
+     * sets the position of the overlay
+     *
+     * @param {Vector2} regionOffset
+     * @param {Vector2} overlaySize
+     * @param {Vector2} regionSize
+     * @param {Vector2} progress
+     * @return {Vector2}
+     * @private
+     */
+    _setOverlayPosition(regionOffset, overlaySize, regionSize, progress) {
+        const overlayPos = regionOffset.add(regionSize.subtract(overlaySize).multiply(progress));
+
         this._overlay.style.left = `${overlayPos.x}px`;
         this._overlay.style.top = `${overlayPos.y}px`;
 
@@ -206,30 +322,64 @@ export default class MagnifierPlugin extends Plugin {
     }
 
     /**
-     *  sets the background position of the zoomed image
+     *  sets the background size and position of the zoomed image
      *
-     * @param {Vector2} mousePos
-     * @param {Vector2} imageSize
-     * @param {Vector2} overlaySize
-     * @param {Vector2} imageDimensions
+     * @param {Object} geometry
+     * @param {Vector2} zoomWindowSize
+     * @param {number} zoomFactor
+     * @param {Vector2} progress
      *
      * @private
      */
-    _setZoomImage(mousePos, imageSize, overlaySize, imageDimensions) {
-        this._setZoomImageSize(imageSize);
-
+    _setZoomImage(geometry, zoomWindowSize, zoomFactor, progress) {
         // set background image
         this._zoomImage.style.backgroundImage = `url('${this._imageUrl}')`;
 
         // set background image size
-        const zoomImageBackgroundSize = this.calculateZoomBackgroundImageSize(imageDimensions, imageSize);
-        this._zoomImage.style.backgroundSize = `${zoomImageBackgroundSize.x}px ${zoomImageBackgroundSize.y}px`;
+        const backgroundSize = this._getZoomBackgroundSize(geometry, zoomFactor);
+        this._zoomImage.style.backgroundSize = `${backgroundSize.x}px ${backgroundSize.y}px`;
 
         // set background image position
-        const zoomImagePosPercent = this.calculateZoomImageBackgroundPosition(mousePos, imageSize, overlaySize, imageDimensions, zoomImageBackgroundSize);
-        this._zoomImage.style.backgroundPosition = `-${zoomImagePosPercent.x}px -${zoomImagePosPercent.y}px`;
+        const backgroundOffset = this._getZoomBackgroundOffset(geometry, zoomWindowSize, zoomFactor, progress);
+        this._zoomImage.style.backgroundPosition = `${-backgroundOffset.x}px ${-backgroundOffset.y}px`;
 
         this.$emitter.publish('setZoomImagePosition');
+    }
+
+    /**
+     * returns the size the whole image is rendered with inside the zoom window
+     *
+     * @param {Object} geometry
+     * @param {number} zoomFactor
+     * @return {Vector2}
+     *
+     * @private
+     */
+    _getZoomBackgroundSize(geometry, zoomFactor) {
+        return geometry.natural.multiply(geometry.scale).multiply(zoomFactor);
+    }
+
+    /**
+     * returns the offset of the zoomed image inside the zoom window
+     *
+     * The pannable range is the difference between the zoomed image content and the zoom window,
+     * which keeps every part of the image reachable for any zoom window size and aspect ratio.
+     *
+     * @param {Object} geometry
+     * @param {Vector2} zoomWindowSize
+     * @param {number} zoomFactor
+     * @param {Vector2} progress
+     * @return {Vector2}
+     *
+     * @private
+     */
+    _getZoomBackgroundOffset(geometry, zoomWindowSize, zoomFactor, progress) {
+        const zoomedRegionSize = geometry.region.size.multiply(zoomFactor);
+        const pannableRange = zoomedRegionSize.subtract(zoomWindowSize).clamp(0, Infinity);
+        // skip the part of the image which is cropped by the image element
+        const croppedOffset = geometry.source.offset.multiply(geometry.scale).multiply(zoomFactor);
+
+        return croppedOffset.add(pannableRange.multiply(progress));
     }
 
     /**
@@ -406,20 +556,20 @@ export default class MagnifierPlugin extends Plugin {
     }
 
     /**
-     * @param {Vector2} zoomImageSize
+     * sets and returns the lens size
      *
-     * @return {VectorBase|*}
+     * The lens marks exactly the image area which is rendered inside the zoom window,
+     * therefore it is derived from the zoom window and not from the image itself.
+     *
+     * @param {Vector2} regionSize
+     * @param {Vector2} zoomWindowSize
+     * @param {number} zoomFactor
+     *
+     * @return {Vector2}
      * @private
      */
-    _getOverlaySize(zoomImageSize) {
-        const overlaySize = zoomImageSize.divide(this.options.zoomFactor);
-
-        if (!this.options.keepAspectRatioOnZoom) {
-            const min = Math.min(overlaySize.x, overlaySize.y);
-
-            overlaySize.x = min;
-            overlaySize.y = min;
-        }
+    _getOverlaySize(regionSize, zoomWindowSize, zoomFactor) {
+        const overlaySize = zoomWindowSize.divide(zoomFactor).clamp(0, regionSize);
 
         this._overlay.style.width = `${Math.ceil(overlaySize.x)}px`;
         this._overlay.style.height = `${Math.ceil(overlaySize.y)}px`;

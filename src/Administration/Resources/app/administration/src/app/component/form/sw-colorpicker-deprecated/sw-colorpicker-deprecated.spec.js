@@ -712,48 +712,37 @@ describe('components/form/sw-colorpicker', () => {
         ],
     ];
 
-    moveSelectorDataSet.forEach(
-        ([
-            clientX,
-            clientY,
-            left,
-            top,
-            expectedSaturationValue,
-            expectedLuminanceValue,
-        ]) => {
-            // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-colorpicker-deprecated.
-            it.deprecated('v6.8.0.0')(
-                `should calculate luminanceValue and saturationValue for ${clientX}, ${clientY}`,
-                async () => {
-                    wrapper = await createWrapper();
+    // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-colorpicker-deprecated.
+    it.deprecated('v6.8.0.0').each(moveSelectorDataSet)(
+        'should calculate luminanceValue and saturationValue correctly when moveSelector',
+        async (clientX, clientY, left, top, expectedSaturationValue, expectedLuminanceValue) => {
+            wrapper = await createWrapper();
 
-                    await wrapper.setData({
-                        visible: true,
-                        isDragging: true,
-                    });
-                    await flushPromises();
+            await wrapper.setData({
+                visible: true,
+                isDragging: true,
+            });
+            await flushPromises();
 
-                    const event = {
-                        clientX,
-                        clientY,
-                        preventDefault: jest.fn(),
-                    };
+            const event = {
+                clientX,
+                clientY,
+                preventDefault: jest.fn(),
+            };
 
-                    jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
-                        return {
-                            left,
-                            top,
-                            width: 200,
-                            height: 100,
-                        };
-                    });
+            jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
+                return {
+                    left,
+                    top,
+                    width: 200,
+                    height: 100,
+                };
+            });
 
-                    wrapper.vm.moveSelector(event);
+            wrapper.vm.moveSelector(event);
 
-                    expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
-                    expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
-                },
-            );
+            expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
+            expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
         },
     );
 

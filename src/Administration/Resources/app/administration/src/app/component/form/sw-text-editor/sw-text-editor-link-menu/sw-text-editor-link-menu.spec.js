@@ -220,86 +220,84 @@ responses.addResponse({
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
-    linkDataProvider.forEach((link) => {
-        const testLinkParsing = async () => {
-            const wrapper = await createWrapper(link.buttonConfig);
-            await flushPromises();
+    const DEPRECATED_LINK_TYPES = [
+        'detail',
+        'media',
+    ];
 
-            // Label should be set
-            expect(wrapper.text()).toContain(link.label);
+    const expectLinkParsedCorrectly = async (link) => {
+        const wrapper = await createWrapper(link.buttonConfig);
+        await flushPromises();
 
-            // Element should have correct parsed value and placeholder
-            const inputField = wrapper.find(link.selector);
+        // Label should be set
+        expect(wrapper.text()).toContain(link.label);
 
-            // sw-entity-single-select only uses the input field for the search
-            if (
-                ![
-                    'detail',
-                    'media',
-                ].includes(link.type)
-            ) {
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(inputField.element.value).toBe(link.value);
-            }
+        // Element should have correct parsed value and placeholder
+        const inputField = wrapper.find(link.selector);
 
-            let placeholderId = 'some-id';
-            if (!['media'].includes(link.type)) {
-                // Placeholder should be set for all types
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(inputField.attributes('placeholder')).toBe(link.placeholder);
-
-                await inputField.setValue(placeholderId);
-            }
-
-            // sw-entity-single-select specific changes
-            if (link.type === 'detail') {
-                await inputField.trigger('click');
-                await flushPromises();
-
-                await wrapper.find('.sw-select-option--1').trigger('click');
-
-                placeholderId += '#';
-            } else if (link.type === 'media') {
-                await wrapper.find('.sw-media-field__toggle-button').trigger('click');
-                await flushPromises();
-
-                await wrapper.find('.sw-media-field__media-list-item').trigger('click');
-                await flushPromises();
-
-                placeholderId = `${link.value}#`;
-            }
-
-            await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
-            await flushPromises();
-
-            const dispatchedInputEvents = wrapper.emitted('button-click');
-
-            expect(dispatchedInputEvents[0]).toStrictEqual([
-                {
-                    buttonVariant: undefined,
-                    displayAsButton: true,
-                    newTab: true,
-                    type: 'link',
-                    value: link.prefix + placeholderId,
-                },
-            ]);
-        };
-
+        // sw-entity-single-select only uses the input field for the search
         if (
-            [
+            ![
                 'detail',
                 'media',
             ].includes(link.type)
         ) {
-            // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
-            it.deprecated('v6.8.0.0')(`parses ${link.type} URLs correctly`, testLinkParsing);
-
-            return;
+            expect(inputField.element.value).toBe(link.value);
         }
 
-        // eslint-disable-next-line jest/expect-expect -- Assertions are declared in the shared testLinkParsing callback.
-        it(`parses ${link.type} URLs correctly`, testLinkParsing);
-    });
+        let placeholderId = 'some-id';
+        if (!['media'].includes(link.type)) {
+            // Placeholder should be set for all types
+            expect(inputField.attributes('placeholder')).toBe(link.placeholder);
+
+            await inputField.setValue(placeholderId);
+        }
+
+        // sw-entity-single-select specific changes
+        if (link.type === 'detail') {
+            await inputField.trigger('click');
+            await flushPromises();
+
+            await wrapper.find('.sw-select-option--1').trigger('click');
+
+            placeholderId += '#';
+        } else if (link.type === 'media') {
+            await wrapper.find('.sw-media-field__toggle-button').trigger('click');
+            await flushPromises();
+
+            await wrapper.find('.sw-media-field__media-list-item').trigger('click');
+            await flushPromises();
+
+            placeholderId = `${link.value}#`;
+        }
+
+        await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
+        await flushPromises();
+
+        const dispatchedInputEvents = wrapper.emitted('button-click');
+
+        expect(dispatchedInputEvents[0]).toStrictEqual([
+            {
+                buttonVariant: undefined,
+                displayAsButton: true,
+                newTab: true,
+                type: 'link',
+                value: link.prefix + placeholderId,
+            },
+        ]);
+    };
+
+    // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
+    it.deprecated('v6.8.0.0').each(linkDataProvider.filter((link) => DEPRECATED_LINK_TYPES.includes(link.type)))(
+        'parses $type URLs correctly',
+        expectLinkParsedCorrectly,
+    );
+
+    // eslint-disable-next-line jest/expect-expect -- Assertions live in the shared expectLinkParsedCorrectly callback.
+    it.each(linkDataProvider.filter((link) => !DEPRECATED_LINK_TYPES.includes(link.type)))(
+        'parses $type URLs correctly',
+        expectLinkParsedCorrectly,
+    );
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-text-editor-link-menu.
     it.deprecated('v6.8.0.0')('parses product detail links and reacts to changes correctly', async () => {

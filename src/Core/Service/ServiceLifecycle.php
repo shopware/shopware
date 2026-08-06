@@ -5,6 +5,7 @@ namespace Shopware\Core\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -187,7 +188,13 @@ class ServiceLifecycle
             return false;
         }
 
-        $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        try {
+            $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        } catch (AppXmlParsingException $e) {
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+
+            return false;
+        }
 
         try {
             $this->appManager->install(
@@ -229,7 +236,13 @@ class ServiceLifecycle
             return false;
         }
 
-        $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        try {
+            $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        } catch (AppXmlParsingException $e) {
+            $this->logger->warning(\sprintf('Cannot update service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+
+            return false;
+        }
 
         try {
             $this->appManager->update(

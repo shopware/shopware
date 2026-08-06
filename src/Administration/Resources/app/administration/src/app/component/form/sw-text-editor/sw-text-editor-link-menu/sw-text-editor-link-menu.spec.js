@@ -290,13 +290,16 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     // @deprecated tag:v6.8.0.0 - The tests will be removed with sw-text-editor-link-menu.
     it.deprecated('v6.8.0.0').each(linkDataProvider.filter((link) => DEPRECATED_LINK_TYPES.includes(link.type)))(
         'parses $type URLs correctly',
-        expectLinkParsedCorrectly,
+        async (link) => {
+            await expectLinkParsedCorrectly(link);
+        },
     );
 
-    // eslint-disable-next-line jest/expect-expect -- Assertions live in the shared expectLinkParsedCorrectly callback.
     it.each(linkDataProvider.filter((link) => !DEPRECATED_LINK_TYPES.includes(link.type)))(
         'parses $type URLs correctly',
-        expectLinkParsedCorrectly,
+        async (link) => {
+            await expectLinkParsedCorrectly(link);
+        },
     );
 
     // @deprecated tag:v6.8.0.0 - The test will be removed with sw-text-editor-link-menu.

@@ -40,10 +40,10 @@ class MailServiceTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
 
         $data = [
-            'recipients' => ['foo@bar.de'],
+            'recipients' => ['foo@bar.de' => null],
             'salesChannelId' => $salesChannelId,
             'subject' => 'test',
             'senderName' => 'test',

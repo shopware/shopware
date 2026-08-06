@@ -168,12 +168,15 @@ class McpJsonRpcResponse implements \JsonSerializable
 
         try {
             if (\array_key_exists('tools', $resultData)) {
+                /** @phpstan-ignore argument.type (To fix this issue, the response array would need to be validated to contain only allowed values) */
                 return ListToolsResult::fromArray($resultData);
             }
             if (\array_key_exists('resources', $resultData)) {
+                /** @phpstan-ignore argument.type (To fix this issue, the response array would need to be validated to contain only allowed values) */
                 return ListResourcesResult::fromArray($resultData);
             }
             if (\array_key_exists('prompts', $resultData)) {
+                /** @phpstan-ignore argument.type (To fix this issue, the response array would need to be validated to contain only allowed values) */
                 return ListPromptsResult::fromArray($resultData);
             }
             if (\array_key_exists('capabilities', $resultData)) {
@@ -193,6 +196,7 @@ class McpJsonRpcResponse implements \JsonSerializable
                 }
 
                 return new InitializeResult(
+                    /** @phpstan-ignore argument.type (To fix this issue, the response array would need to be validated to contain only allowed values) */
                     capabilities: ServerCapabilities::fromArray($capabilitiesData),
                     serverInfo: new Implementation(name: $serverName, version: $serverVersion),
                     instructions: \is_string($resultData['instructions'] ?? null) ? $resultData['instructions'] : null,

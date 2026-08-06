@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
@@ -78,7 +79,7 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
 
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($context->defaultLocale);
-            $payload['handlerIdentifier'] = \sprintf('app\\%s_%s', $appName, $paymentMethod->getIdentifier());
+            $payload['handlerIdentifier'] = AppHandlerIdentifier::build($appName, $paymentMethod->getIdentifier());
             $payload['technicalName'] = \sprintf('payment_%s_%s', $appName, $paymentMethod->getIdentifier());
 
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();

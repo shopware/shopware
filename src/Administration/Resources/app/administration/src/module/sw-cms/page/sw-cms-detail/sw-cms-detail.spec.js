@@ -337,6 +337,46 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(cmsSidebar.attributes().disabled).toBeUndefined();
     });
 
+    it.each([
+        [
+            'missing ACL rights',
+            [],
+            false,
+        ],
+        [
+            'a locked page',
+            ['cms.editor'],
+            false,
+        ],
+        [
+            'a loading page',
+            ['cms.editor'],
+            false,
+        ],
+    ])('should not save when %s', async (reason, aclRoles, expectedCanSave) => {
+        global.activeAclRoles = aclRoles;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: reason === 'a loading page',
+            page: {
+                locked: reason === 'a locked page',
+            },
+        });
+
+        const saveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
+
+        expect(wrapper.vm.canSave).toBe(expectedCanSave);
+        expect(wrapper.find('.sw-cms-detail__save-action').attributes().disabled).toBe('true');
+        expect(wrapper.vm.$options.shortcuts['SYSTEMKEY+S'].active.call(wrapper.vm)).toBe(false);
+
+        await wrapper.vm.onSave();
+        await wrapper.vm.onSaveEntity();
+
+        expect(saveSpy).not.toHaveBeenCalled();
+    });
+
     it('should have warning message if there are more than 1 product page element in product page layout', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

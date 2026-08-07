@@ -89,6 +89,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect(wrapper.vm.signedIframeSrc).toBeNull();
+
+        // Plugin iframes must stay keyboard-reachable inside focus traps as well
+        expect(wrapper.find('iframe').attributes('tabindex')).toBe('0');
     });
 
     it('should call signIframeSrc for apps', async () => {
@@ -151,6 +154,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         const iFrame = wrapper.find('iframe');
         expect(iFrame.exists()).toBe(true);
+
+        // Keeps the iframe reachable inside focus traps, e.g. the sidebar overlay
+        expect(iFrame.attributes('tabindex')).toBe('0');
 
         const testComponent = wrapper.find('#my-replacement-component');
         expect(testComponent.exists()).toBe(false);

@@ -12,7 +12,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
     // Narrow enough that a resizable sidebar opens straight into overlay mode
     const OVERLAY_PAGE_WIDTH = 1400;
 
-    async function createWrapper() {
+    async function createWrapper(stubs: Record<string, object | boolean> = {}) {
         return mount(
             await wrapTestComponent('sw-sidebar-renderer', {
                 sync: true,
@@ -22,6 +22,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
                     stubs: {
                         'sw-iframe-renderer': true,
                         'mt-icon': true,
+                        ...stubs,
                     },
                 },
                 attachTo: document.body,
@@ -29,8 +30,11 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         );
     }
 
-    async function createOverlayWrapper({ resizable = true }: { resizable?: boolean } = {}) {
-        const wrapper = await createWrapper();
+    async function createOverlayWrapper({
+        resizable = true,
+        stubs = {},
+    }: { resizable?: boolean; stubs?: Record<string, object | boolean> } = {}) {
+        const wrapper = await createWrapper(stubs);
 
         await ui.sidebar.add({
             icon: 'regular-star',
@@ -160,6 +164,34 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         expect(focusIsTrappedInside(panel.element)).toBe(false);
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(true);
         expect(Shopware.Store.get('sidebar').closingSidebar).toBeNull();
+
+        wrapper.unmount();
+    });
+
+    it('should keep the app iframe keyboard-reachable inside the trap', async () => {
+        const wrapper = await createOverlayWrapper({
+            stubs: {
+                // Mirrors the real sw-iframe-renderer markup, which sets an explicit tabindex on its iframe
+                'sw-iframe-renderer': { template: '<iframe tabindex="0" title="app-content"></iframe>' },
+            },
+        });
+
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        const iframe = panel.find('iframe').element as HTMLElement;
+        const closeButton = wrapper.find<HTMLElement>('.sw-sidebar-renderer__button-close').element;
+
+        // Not intercepted: the browser moves the focus natively from the button into the iframe
+        closeButton.focus();
+        const tabFromButton = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        closeButton.dispatchEvent(tabFromButton);
+        expect(tabFromButton.defaultPrevented).toBe(false);
+
+        // Intercepted: the iframe is the last tabbable node of the trap, so Tab wraps around
+        iframe.focus();
+        const tabFromIframe = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        iframe.dispatchEvent(tabFromIframe);
+        expect(tabFromIframe.defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(closeButton);
 
         wrapper.unmount();
     });

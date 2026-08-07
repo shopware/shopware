@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * Bcrypt hash for a static dummy password used to equalize timing when no user is found.
+     * Bcrypt hash for a static placeholder password used to equalize timing when no user is found.
      */
-    private const DUMMY_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
 
     /**
      * @internal
@@ -48,7 +48,7 @@ class UserRepository implements UserRepositoryInterface
 
         if (!$user) {
             // Prevent user enumeration via timing attacks by always running password_verify().
-            $user = ['password' => self::DUMMY_PASSWORD_HASH];
+            $user = ['password' => self::PLACEHOLDER_PASSWORD_HASH];
             $password = 'invalid-password-will-always-fail';
         }
 

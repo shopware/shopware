@@ -74,6 +74,25 @@ describe('Jest feature flag extensions', () => {
         expect(eachRegister).toHaveBeenCalledWith('handles %s (removed in v99.0.0.0)', expect.any(Function), undefined);
     });
 
+    it('forwards the tagged-template each values to Jest', () => {
+        const testFunction = createTestFunctionSpy();
+        const eachRegister = jest.fn();
+        (testFunction.each as unknown as jest.Mock).mockReturnValue(eachRegister);
+
+        // The tagged-template form calls each(strings, ...values); every interpolated value must survive.
+        createDeprecatedTest(testFunction)('v99.0.0.0').each`col ${1} ${2}`('handles it', jest.fn());
+
+        expect(testFunction.each).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                'col ',
+                ' ',
+                '',
+            ]),
+            1,
+            2,
+        );
+    });
+
     it.activeFeatureFlags(['v6.8.0.0'])('forwards each() to skip when the major feature flag is active', () => {
         const testFunction = createTestFunctionSpy();
 

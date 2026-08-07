@@ -9,6 +9,9 @@ type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
 // jest's `.each(table)(...)` types its callback for the table row args; our helpers forward a plain
 // ProvidesCallback, so the returned registrar is cast to accept it. Runtime behaviour is unchanged.
 type EachRegister = (name: string, callback: jest.ProvidesCallback, timeout?: number) => void;
+// `.each` supports both an inline table and a tagged-template call — `each`a|b`(...)` — which JS
+// invokes as (strings, ...values). Forward every argument so interpolated values are not dropped.
+type EachArgs = [table: EachTable] | [strings: TemplateStringsArray, ...values: unknown[]];
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
 
 function getActiveFeatureFlags(): string[] {
@@ -48,8 +51,13 @@ export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated
             register(withSuffix(name), callback as jest.ProvidesCallback, timeout);
         }) as jest.FeatureFlagTest;
 
-        run.each = ((table: EachTable) => (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
-            (register.each(table) as EachRegister)(withSuffix(name), callback, timeout)) as jest.It['each'];
+        run.each = ((...eachArgs: EachArgs) =>
+            (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
+                (register.each as (...args: EachArgs) => EachRegister)(...eachArgs)(
+                    withSuffix(name),
+                    callback,
+                    timeout,
+                )) as jest.It['each'];
 
         return run;
     };
@@ -66,10 +74,11 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
 
         // `it.each(table)(...)` registers every row synchronously inside this one call, so all rows
         // pick up the same flags.
-        run.each = ((table: EachTable) => (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
-            withPendingFeatureFlags(featureFlags, () =>
-                (testFunction.each(table) as EachRegister)(name, callback, timeout),
-            )) as jest.It['each'];
+        run.each = ((...eachArgs: EachArgs) =>
+            (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
+                withPendingFeatureFlags(featureFlags, () =>
+                    (testFunction.each as (...args: EachArgs) => EachRegister)(...eachArgs)(name, callback, timeout),
+                )) as jest.It['each'];
 
         return run;
     };

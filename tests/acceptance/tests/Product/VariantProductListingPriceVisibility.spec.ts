@@ -58,21 +58,14 @@ test(
 
         await TestDataService.clearCaches();
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Wait for products to be visible on storefront.', async () => {
-                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-                const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
-                await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
-            });
-        }).toPass({
-            intervals: [
-                1_000,
-                2_500,
-            ],
+        await test.step('Product is visible on storefront.', async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+            await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
         });
 
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            await ShopCustomer.goesTo(StorefrontHome.url());
             const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(10.0));
             await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(formatPrice(20.0));

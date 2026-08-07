@@ -178,7 +178,7 @@ class McpJsonRpcResponse implements \JsonSerializable
             }
             if (\array_key_exists('capabilities', $resultData)) {
                 $protocolVersion = $resultData['protocolVersion'] ?? null;
-                $capabilitiesData = $resultData['capabilities'] ?? null;
+                $capabilitiesData = $resultData['capabilities'];
                 $serverInfoData = $resultData['serverInfo'] ?? null;
 
                 if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {

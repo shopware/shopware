@@ -290,7 +290,7 @@
         "init:js": " ",
         "init:testdb": "Initializes the test database",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
-        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint and checks their formatting with yamlfmt",
+        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",

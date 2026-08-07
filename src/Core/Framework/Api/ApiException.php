@@ -22,6 +22,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
@@ -67,6 +68,7 @@ class ApiException extends HttpException
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
+    public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -199,6 +201,18 @@ class ApiException extends HttpException
     public static function noEntityCloned(string $entity, string $id): ShopwareHttpException
     {
         return new NoEntityClonedException($entity, $id);
+    }
+
+    public static function expectationNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_EXPECTATION_FAILED,
+            self::API_EXPECTATION_NOT_SUPPORTED,
+            \sprintf(
+                'The "%s" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+                PlatformRequest::HEADER_EXPECT_PACKAGES
+            )
+        );
     }
 
     /**

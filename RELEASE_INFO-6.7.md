@@ -4,6 +4,15 @@
 
 ## API
 
+### Order recalculation and conversion endpoints now require ACL privileges
+
+Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
+* `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
+
+Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
 ### User uniqueness validation endpoints now require user read access
 
 The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
@@ -60,6 +69,12 @@ Four admin action endpoints that previously only required authentication now enf
 * `POST /api/_action/extension-sdk/run-action` requires `app.all` or the app-specific `app.{appName}` privilege.
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
+
+### `sw-expect-packages` is rejected on endpoints that do not require authentication
+
+The `sw-expect-packages` header is no longer evaluated on API endpoints that do not require authentication, because the failure messages disclose the installed versions of Shopware and its dependencies. Sending it to such an endpoint now returns `417` with the new error code `FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED` instead of evaluating the constraint. Affected endpoints include `GET /api/_info/health-check`, `POST /api/oauth/token`, `GET /api/app-system/shop/verify`, and the `POST /api/_action/user/user-recovery` routes.
+
+Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
 ## Core
 

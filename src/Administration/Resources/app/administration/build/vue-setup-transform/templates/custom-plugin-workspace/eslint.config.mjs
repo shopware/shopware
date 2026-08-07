@@ -50,6 +50,11 @@ export default [
         },
         rules: {
             'sw-core-rules/valid-shopware-setup': 'error',
+            // The filename becomes the component's template tag and its public override target, so a
+            // non-kebab name (`Bad_Name.vue`, single-word `widget.vue`) registers a working but
+            // unconventional component. The Administration enforces this at `error`; a plugin workspace
+            // needs the same guard, since nothing else reports the name a plugin author's file will claim.
+            'sw-core-rules/native-setup-filename': 'error',
             // The prop/setup name collision is the one native-setup mistake with silent consequences: the
             // runtime strips declared prop keys from returned state, so the binding is deleted and the
             // template reads `undefined` - no build error, no crash. The transform cannot catch it (a prop

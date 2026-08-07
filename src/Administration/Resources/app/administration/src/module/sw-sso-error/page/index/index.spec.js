@@ -80,4 +80,13 @@ describe('src/module/sw-sso-error/page/index', () => {
         expect(wrapper.find('.sw-sso-error__logged-in-as-email').exists()).toBe(false);
     });
 
+    it('should render the login button as a native link that opens in the same tab', async () => {
+        const wrapper = await createWrapper(false);
+        await flushPromises();
+
+        const loginButton = wrapper.get('a.mt-button--primary');
+
+        expect(loginButton.attributes('href')).toBe('https://foo.bar.baz&usePromptLogin=1');
+        expect(loginButton.attributes('target')).toBe('_self');
+    });
 });

@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CreditNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
@@ -23,9 +25,15 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
+use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
+use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
+use Shopware\Core\Checkout\DocumentV2\Type\DeliveryNoteDocumentType;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
@@ -86,17 +94,46 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->tag('shopware.document_v2.provider');
 
+    $services->set(CreditItemResolver::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
     $services->set(CancellationInvoiceDataProvider::class)
         ->public()
         ->args([
             service(InvoiceDataProvider::class),
-            service(ReferenceInvoiceLoader::class),
+        ])
+        ->tag('shopware.document_v2.provider');
+
+    $services->set(CreditNoteDataProvider::class)
+        ->public()
+        ->args([
+            service(InvoiceDataProvider::class),
+            service(CreditItemResolver::class),
         ])
         ->tag('shopware.document_v2.provider');
 
     $services->set(DocumentDataProviderRegistry::class)
         ->args([
             tagged_iterator('shopware.document_v2.provider'),
+        ]);
+
+    $services->set(InvoiceDocumentType::class)
+        ->tag('shopware.document_v2.type');
+
+    $services->set(CancellationInvoiceDocumentType::class)
+        ->tag('shopware.document_v2.type');
+
+    $services->set(DeliveryNoteDocumentType::class)
+        ->tag('shopware.document_v2.type');
+
+    $services->set(CreditNoteDocumentType::class)
+        ->tag('shopware.document_v2.type');
+
+    $services->set(DocumentTypeRegistry::class)
+        ->args([
+            tagged_iterator('shopware.document_v2.type'),
         ]);
 
     $services->set(DocumentTemplateRenderer::class)
@@ -168,6 +205,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
         ]);
 
+    $services->set(ReferencedDocumentResolver::class)
+        ->args([
+            service(ReferenceInvoiceLoader::class),
+            service(Connection::class),
+        ]);
+
     $services->set(DocumentGenerator::class)
         ->public()
         ->args([
@@ -176,13 +219,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentNumberGenerator::class),
             service(DocumentPersister::class),
             service(DocumentDependencyResolver::class),
+            service(ReferencedDocumentResolver::class),
             service('order.repository'),
         ]);
 
     $services->set(DocumentGenerationRequestResolver::class)
         ->args([
             service(DataValidator::class),
-            service(DocumentRendererRegistry::class),
+            service(DocumentTypeRegistry::class),
         ])
         ->tag('controller.argument_value_resolver');
 
@@ -191,6 +235,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DocumentGenerator::class),
             service(DocumentRendererRegistry::class),
+            service(DocumentTypeRegistry::class),
             service(DocumentArchiveGenerator::class),
             service('document.repository'),
             service('document_file.repository'),

@@ -71,7 +71,7 @@ describe('Plugin Registry', () => {
             const pluginMap = registry.get('TestPlugin');
             expect(pluginMap.get('class')).toBe(pluginClass);
             expect(pluginMap.get('name')).toBe('TestPlugin');
-            expect(pluginMap.has('async')).toBe(false);
+            expect(pluginMap.get('async')).toBe(false);
         });
 
         it('should add a plugin with selector', () => {
@@ -268,6 +268,17 @@ describe('Plugin Registry', () => {
             // Delete remaining registration
             registry.delete('ComplexPlugin', '.selector2');
             expect(registry.get('ComplexPlugin').get('registrations').has('.selector2')).toBe(false);
+        });
+
+        it('should reset the async flag when the plugin is re-registered with a sync class', () => {
+            const asyncImport = () => Promise.resolve({ default: class AsyncPlugin {} });
+            const syncClass = class SyncPlugin {};
+
+            registry.set('SomePlugin', asyncImport, '.selector', {}, true);
+            registry.set('SomePlugin', syncClass, '.selector', {});
+
+            expect(registry.get('SomePlugin').get('async')).toBe(false);
+            expect(registry.get('SomePlugin').get('class')).toBe(syncClass);
         });
 
         it('should handle async plugins correctly', () => {

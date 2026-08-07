@@ -69,7 +69,7 @@ class SecurityExtension extends AbstractExtension
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $function
+     * @param callable-string|callable(mixed): mixed|\Closure $function
      */
     public function reduce(?iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
     {
@@ -85,17 +85,20 @@ class SecurityExtension extends AbstractExtension
             throw AdapterException::securityFunctionNotAllowed($function);
         }
 
+        if (!\is_callable($function)) {
+            return null;
+        }
+
         if (!\is_array($array)) {
             $array = iterator_to_array($array);
         }
 
-        // @phpstan-ignore-next-line
         return array_reduce($array, $function, $initial);
     }
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $arrow
+     * @param callable-string|callable(mixed): mixed|\Closure $arrow
      *
      * @return iterable<mixed>
      */
@@ -113,18 +116,20 @@ class SecurityExtension extends AbstractExtension
             throw AdapterException::securityFunctionNotAllowed($arrow);
         }
 
+        if (!\is_callable($arrow)) {
+            return null;
+        }
+
         if (\is_array($array)) {
-            // @phpstan-ignore-next-line
             return array_filter($array, $arrow, \ARRAY_FILTER_USE_BOTH);
         }
 
-        // @phpstan-ignore-next-line
         return new \CallbackFilterIterator(new \IteratorIterator($array), $arrow);
     }
 
     /**
      * @param iterable<mixed> $array
-     * @param string|callable(mixed): mixed|\Closure $arrow
+     * @param callable-string|callable(mixed): int|\Closure $arrow
      *
      * @return array<mixed>
      */
@@ -146,8 +151,7 @@ class SecurityExtension extends AbstractExtension
             $array = iterator_to_array($array);
         }
 
-        if ($arrow !== null) {
-            // @phpstan-ignore-next-line
+        if (\is_callable($arrow)) {
             uasort($array, $arrow);
         } else {
             asort($array);

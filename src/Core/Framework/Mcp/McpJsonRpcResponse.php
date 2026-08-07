@@ -148,7 +148,10 @@ class McpJsonRpcResponse implements \JsonSerializable
         return true;
     }
 
-    public function jsonSerialize(): mixed
+    /**
+     * @return array{jsonrpc: string, id: string|int, result: ResultInterface}
+     */
+    public function jsonSerialize(): array
     {
         return [
             'jsonrpc' => $this->jsonrpc,
@@ -175,7 +178,7 @@ class McpJsonRpcResponse implements \JsonSerializable
             }
             if (\array_key_exists('capabilities', $resultData)) {
                 $protocolVersion = $resultData['protocolVersion'] ?? null;
-                $capabilitiesData = $resultData['capabilities'] ?? null;
+                $capabilitiesData = $resultData['capabilities'];
                 $serverInfoData = $resultData['serverInfo'] ?? null;
 
                 if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {

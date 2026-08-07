@@ -46,6 +46,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
+            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
             $function = implode('::', $function);
             \assert(\is_callable($function));
         }
@@ -78,6 +79,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
+            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
             $function = implode('::', $function);
         }
 
@@ -109,6 +111,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($arrow)) {
+            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
             $arrow = implode('::', $arrow);
         }
 
@@ -140,6 +143,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($arrow)) {
+            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
             $arrow = implode('::', $arrow);
         }
 

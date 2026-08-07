@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -22,14 +23,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  *
+ * @phpstan-import-type CookieEntryArray from AppEntity
  * @phpstan-import-type Cookie from AppEntity
  */
 #[Package('framework')]
 class AppCookieCollectListener
 {
     private const ANY_PAYMENT_METHOD = '*';
-
-    private const APP_HANDLER_PREFIX = 'app\\';
 
     /**
      * @param EntityRepository<AppCollection> $appRepository
@@ -131,7 +131,7 @@ class AppCookieCollectListener
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new PrefixFilter('handlerIdentifier', self::APP_HANDLER_PREFIX),
+            new PrefixFilter('handlerIdentifier', AppHandlerIdentifier::prefix()),
             new EqualsFilter('active', true),
             new EqualsFilter('salesChannels.id', $event->getSalesChannelContext()->getSalesChannelId())
         );
@@ -190,7 +190,7 @@ class AppCookieCollectListener
     }
 
     /**
-     * @param array{active_payment_methods?: list<string>} $cookie
+     * @param Cookie|CookieEntryArray $cookie
      * @param array<string, true> $activeHandlerIdentifiers
      */
     private function isCookieAllowed(string $appName, array $cookie, array $activeHandlerIdentifiers): bool
@@ -202,7 +202,7 @@ class AppCookieCollectListener
 
         foreach ($identifiers as $identifier) {
             if ($identifier === self::ANY_PAYMENT_METHOD) {
-                $prefix = self::buildHandlerIdentifier($appName, '');
+                $prefix = AppHandlerIdentifier::build($appName, '');
                 foreach (array_keys($activeHandlerIdentifiers) as $handlerIdentifier) {
                     if (str_starts_with($handlerIdentifier, $prefix)) {
                         return true;
@@ -212,17 +212,11 @@ class AppCookieCollectListener
                 continue;
             }
 
-            if (isset($activeHandlerIdentifiers[self::buildHandlerIdentifier($appName, $identifier)])) {
+            if (isset($activeHandlerIdentifiers[AppHandlerIdentifier::build($appName, $identifier)])) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private static function buildHandlerIdentifier(string $appName, string $identifier): string
-    {
-        // must match PaymentMethodLifecycleHandler
-        return \sprintf('%s%s_%s', self::APP_HANDLER_PREFIX, $appName, $identifier);
     }
 }

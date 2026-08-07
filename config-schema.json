@@ -568,6 +568,9 @@
                 "cart_add_line_item_from": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
+                "import_export_file_download": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
                 "mcp": {
                     "$ref": "#/definitions/rate_limiter_config"
                 }

@@ -92,9 +92,7 @@ function createClient() {
      * @returns {Promise} - Promise that resolves with the response
      */
     const dispatcher = (configOrUrl, config = {}) => {
-        const requestConfig = typeof configOrUrl === 'string'
-            ? { ...config, url: configOrUrl }
-            : configOrUrl;
+        const requestConfig = typeof configOrUrl === 'string' ? { ...config, url: configOrUrl } : configOrUrl;
 
         // Determine which axios version to use:
         // 1. If useAxiosV1 is explicitly set (true/false), use that

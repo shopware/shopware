@@ -21,7 +21,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
     async function createWrapper(propsOverride = {}, privileges = []) {
         store = State.get('swProductDetail');
-        store.product.guaranteeMonths = 12;
+        store.product.guaranteeMonths = 36;
         store.product.guaranteeConfirmed = false;
 
         const acl = {
@@ -41,18 +41,19 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             },
             global: {
                 stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                    'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                     'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                    'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                     'sw-ai-copilot-badge': true,
+                    'sw-field-copyable': true,
                     'sw-help-text': true,
                     'sw-icon': true,
                 },
@@ -71,17 +72,17 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         const monthsField = wrapper.find('.sw-field--number input');
         const confirmedField = wrapper.find('.sw-field--switch input');
 
-        expect(monthsField.element.value).toBe('12');
+        expect(monthsField.element.value).toBe('36');
         expect(confirmedField.element.checked).toBe(false);
     });
 
     it('should write a changed guarantee duration back to the product', async () => {
         const monthsField = wrapper.find('.sw-field--number input');
 
-        await monthsField.setValue('36');
+        await monthsField.setValue('42');
         await monthsField.trigger('change');
 
-        expect(store.product.guaranteeMonths).toBe(36);
+        expect(store.product.guaranteeMonths).toBe(42);
     });
 
     it('should write the guarantee confirmation back to the product', async () => {

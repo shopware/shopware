@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,6 +47,8 @@ class WebhookDrainToAsyncCommandTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->connection = static::getContainer()->get(Connection::class);
         $this->messageBus = static::getContainer()->get('messenger.default_bus');
 
@@ -156,6 +159,15 @@ class WebhookDrainToAsyncCommandTest extends TestCase
         // Row must remain QUEUED — the drain refused before touching anything.
         $row = $this->fetchDeliveryRow('wh-1');
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $row['delivery_status']);
+    }
+
+    public function testRollbackDrainThrowsDeprecationWhenMajorFeatureIsActive(): void
+    {
+        $this->expectException(FeatureException::class);
+
+        Feature::withFeatureEnabled('v6.8.0.0', function (): void {
+            $this->runCommand(['--force' => true]);
+        });
     }
 
     public function testRollbackDrainAbortsWhenConfirmationDeclined(): void

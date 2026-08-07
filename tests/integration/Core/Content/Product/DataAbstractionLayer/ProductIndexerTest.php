@@ -127,7 +127,7 @@ class ProductIndexerTest extends TestCase
         ));
 
         static::assertNotNull($message);
-        static::assertEqualsCanonicalizing([$productId, $parentId, $childId], $message->getData());
+        static::assertEqualsCanonicalizing([$productId, $parentId, $childId], array_values($message->getData()));
     }
 
     #[DataProvider('updateCases')]

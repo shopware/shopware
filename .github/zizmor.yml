@@ -1,0 +1,98 @@
+# zizmor configuration — https://docs.zizmor.sh/configuration/
+#
+# zizmor is adopted one audit at a time. Everything except `unpinned-uses` is
+# disabled below; enabling an audit means deleting its entry, fixing whatever it
+# reports, and landing that as its own change. A full run currently reports ~230
+# findings across the disabled audits, so switching them on wholesale would make
+# the job permanently red.
+#
+# Run locally with `composer lint:actions`, or `zizmor .` directly.
+
+rules:
+  # Third-party actions must be pinned to a commit hash. `shopware/*` actions are
+  # first-party and may track a mutable ref such as `@main`; namespaces not listed
+  # here fall back to zizmor's default hash-pin policy.
+  unpinned-uses:
+    config:
+      policies:
+        shopware/*: ref-pin
+
+  # --- not adopted yet -------------------------------------------------------
+  adhoc-packages:
+    disable: true
+  anonymous-definition:
+    disable: true
+  archived-uses:
+    disable: true
+  artipacked:
+    disable: true
+  bot-conditions:
+    disable: true
+  cache-poisoning:
+    disable: true
+  concurrency-limits:
+    disable: true
+  dangerous-triggers:
+    disable: true
+  dependabot-cooldown:
+    disable: true
+  dependabot-execution:
+    disable: true
+  excessive-permissions:
+    disable: true
+  forbidden-uses:
+    disable: true
+  github-app:
+    disable: true
+  github-env:
+    disable: true
+  hardcoded-container-credentials:
+    disable: true
+  impostor-commit:
+    disable: true
+  insecure-commands:
+    disable: true
+  insecure-url-scheme:
+    disable: true
+  known-vulnerable-actions:
+    disable: true
+  misfeature:
+    disable: true
+  obfuscation:
+    disable: true
+  overprovisioned-secrets:
+    disable: true
+  ref-confusion:
+    disable: true
+  ref-version-mismatch:
+    disable: true
+  secrets-inherit:
+    disable: true
+  secrets-outside-env:
+    disable: true
+  self-hosted-runner:
+    disable: true
+  stale-action-refs:
+    disable: true
+  superfluous-actions:
+    disable: true
+  template-injection:
+    disable: true
+  typosquat-uses:
+    disable: true
+  undocumented-permissions:
+    disable: true
+  unpinned-images:
+    disable: true
+  unpinned-tools:
+    disable: true
+  unredacted-secrets:
+    disable: true
+  unsound-condition:
+    disable: true
+  unsound-contains:
+    disable: true
+  unsound-ternary:
+    disable: true
+  use-trusted-publishing:
+    disable: true

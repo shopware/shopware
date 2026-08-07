@@ -91,7 +91,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             // Check if the path matches the expected structure. If not, the directory was modified and the file should be skipped.
             $validityCheck = \array_intersect_key($pathComponents, array_fill_keys(['locale', 'component'], true));
-            if (\count($validityCheck) !== 2 || empty($pathComponents['locale']) || empty($pathComponents['component'])) {
+            if (\count($validityCheck) !== 2 || $pathComponents['locale'] === '' || $pathComponents['component'] === '') {
                 continue;
             }
 

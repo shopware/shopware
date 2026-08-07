@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -44,7 +45,7 @@ class DownloadServiceTest extends TestCase
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
-        $downloadService->createFileResponse(Context::createDefaultContext(), $fileEntity->getId(), $accessToken);
+        $downloadService->createFileResponse(Context::createDefaultContext(), $fileEntity->getId(), $accessToken, '127.0.0.1');
     }
 
     #[DataProvider('dataProviderNotFoundFile')]
@@ -57,7 +58,7 @@ class DownloadServiceTest extends TestCase
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
 
-        $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
+        $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken, '127.0.0.1');
     }
 
     #[DataProvider('dataProviderCreateFileResponse')]
@@ -81,7 +82,7 @@ class DownloadServiceTest extends TestCase
             fileRepository: $fileRepository
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken, '127.0.0.1');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
@@ -129,7 +130,7 @@ class DownloadServiceTest extends TestCase
             localPathPrefix: $localPathPrefix,
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken');
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
 
         AssertResponseHelper::assertResponseEquals($expectedResponse, $response);
     }
@@ -193,7 +194,7 @@ class DownloadServiceTest extends TestCase
             fileRepository: $fileRepository,
         );
 
-        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken');
+        $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
 
         AssertResponseHelper::assertResponseEquals(new RedirectResponse('https://example.com/download'), $response);
     }
@@ -391,17 +392,20 @@ class DownloadServiceTest extends TestCase
         ?EntityRepository $fileRepository = null,
         ?LoggerInterface $logger = null,
         string $localDownloadStrategy = self::DEFAULT_STRATEGY,
-        string $localPathPrefix = ''
+        string $localPathPrefix = '',
+        ?RateLimiter $rateLimiter = null,
     ): DownloadService {
         $fileSystem ??= $this->createFileSystem();
         $fileRepository ??= $this->createFileRepository();
         $logger ??= static::createStub(LoggerInterface::class);
+        $rateLimiter ??= static::createStub(RateLimiter::class);
 
         return new DownloadService(
             $fileSystem,
             $fileRepository,
             $logger,
             $localDownloadStrategy,
+            $rateLimiter,
             $localPathPrefix,
             new NativeClock()
         );

@@ -11,8 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -20,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityIndexerRegistry::class)]
 class EntityIndexerRegistryTest extends TestCase
 {
@@ -31,6 +34,8 @@ class EntityIndexerRegistryTest extends TestCase
 
     private EntityIndexer&Stub $indexerMock2;
 
+    private IndexerMetricsInstrumentor&Stub $instrumentorStub;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,6 +44,7 @@ class EntityIndexerRegistryTest extends TestCase
         $this->dispatcherMock = static::createStub(EventDispatcherInterface::class);
         $this->indexerMock1 = static::createStub(EntityIndexer::class);
         $this->indexerMock2 = static::createStub(EntityIndexer::class);
+        $this->instrumentorStub = static::createStub(IndexerMetricsInstrumentor::class);
     }
 
     public function testIndexSuccessful(): void
@@ -54,7 +60,7 @@ class EntityIndexerRegistryTest extends TestCase
                 return null;
             });
 
-        $registry = new EntityIndexerRegistry([$this->indexerMock1, $this->indexerMock2], $this->messageBusMock, $dispatcher);
+        $registry = new EntityIndexerRegistry([$this->indexerMock1, $this->indexerMock2], $this->messageBusMock, $dispatcher, $this->instrumentorStub);
         $registry->index(false);
     }
 
@@ -68,7 +74,7 @@ class EntityIndexerRegistryTest extends TestCase
         $indexers = [$this->indexerMock1, $this->indexerMock2];
 
         $registryMock = $this->getMockBuilder(EntityIndexerRegistry::class)
-            ->setConstructorArgs([$indexers, $this->messageBusMock, $this->dispatcherMock])
+            ->setConstructorArgs([$indexers, $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub])
             ->onlyMethods(['index'])
             ->getMock();
 
@@ -100,7 +106,7 @@ class EntityIndexerRegistryTest extends TestCase
         $indexer1->expects($this->never())->method('iterate');
         $indexer2->expects($this->atLeastOnce())->method('iterate');
 
-        $registry = new EntityIndexerRegistry([$indexer1, $indexer2], $this->messageBusMock, $this->dispatcherMock);
+        $registry = new EntityIndexerRegistry([$indexer1, $indexer2], $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub);
         $registry->index(false, $skip, $only);
     }
 
@@ -147,8 +153,62 @@ class EntityIndexerRegistryTest extends TestCase
             ->method('addSkip')
             ->with('skip1', 'skip2');
 
-        $registry = new EntityIndexerRegistry([$indexer1, $this->indexerMock2], $this->messageBusMock, $this->dispatcherMock);
+        $registry = new EntityIndexerRegistry([$indexer1, $this->indexerMock2], $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub);
         $registry->refresh($eventMock);
+    }
+
+    public function testHandleIsRoutedThroughTheMetricsInstrumentor(): void
+    {
+        $message = new EntityIndexingMessage(['id-1'], null, null, false, true);
+        $message->setIndexer('indexer1');
+
+        $indexer1 = $this->createMock(EntityIndexer::class);
+        $indexer1->method('getName')->willReturn('indexer1');
+        $this->indexerMock2->method('getName')->willReturn('indexer2');
+
+        $metricsInstrumentor = $this->createMock(IndexerMetricsInstrumentor::class);
+        $metricsInstrumentor->expects($this->once())
+            ->method('measureRun')
+            ->with($indexer1, $message, static::isInstanceOf(\Closure::class))
+            // the collaborator owns the invocation; run the callback so the indexer still handles the message
+            ->willReturnCallback(static fn (EntityIndexer $indexer, EntityIndexingMessage $msg, \Closure $callback) => $callback());
+
+        $indexer1->expects($this->once())->method('handle')->with($message);
+
+        $registry = new EntityIndexerRegistry([$indexer1, $this->indexerMock2], $this->messageBusMock, $this->dispatcherMock, $metricsInstrumentor);
+        $registry->__invoke($message);
+    }
+
+    public function testRefreshResetsWorkingStateWhenIndexerThrows(): void
+    {
+        $event = static::createStub(EntityWrittenContainerEvent::class);
+        $event->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $calls = 0;
+        $indexer = $this->createMock(EntityIndexer::class);
+        $indexer->expects($this->exactly(2))
+            ->method('update')
+            ->with($event)
+            ->willReturnCallback(static function () use (&$calls): ?EntityIndexingMessage {
+                if (++$calls === 1) {
+                    throw new \RuntimeException('indexer failed');
+                }
+
+                return null;
+            });
+
+        $registry = new EntityIndexerRegistry([$indexer], $this->messageBusMock, $this->dispatcherMock, $this->instrumentorStub);
+
+        try {
+            $registry->refresh($event);
+            static::fail('expected the indexer exception to bubble up');
+        } catch (\RuntimeException $e) {
+            static::assertSame('indexer failed', $e->getMessage());
+        }
+
+        // the second refresh must reach the indexer again - the working flag was reset despite the exception,
+        // otherwise all indexing stays silently disabled for the rest of the process
+        $registry->refresh($event);
     }
 
     public function testAddOnliesAddsCorrectSkips(): void

@@ -60,6 +60,8 @@ final readonly class DocumentTemplateRenderer
             'documentNumber' => $input->documentNumber,
             'rootDir' => $this->rootDir,
             'context' => $salesChannelContext,
+            // @deprecated tag:v6.8.0 - Remove together with the v1 renderers
+            'documentV2' => true,
             ...$additionalParameters,
         ];
 

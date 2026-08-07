@@ -15,11 +15,13 @@ use Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductProxy::class)]
 class ProductProxyTest extends TestCase
 {

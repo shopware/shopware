@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -37,6 +38,7 @@ class ZugferdRendererTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();
+        $shippingMethodId = $this->createShippingMethod();
         $shippingAddressId = Uuid::randomHex();
 
         $options = [
@@ -59,11 +61,13 @@ class ZugferdRendererTest extends TestCase
             TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $this->createCustomer($options, $additionalAddress),
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
             ]
         );
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->renderer = static::getContainer()->get(ZugferdRenderer::class);
+        $this->upsertDocumentSellerAddress(InvoiceRenderer::TYPE);
     }
 
     public function testDocumentSnapshot(): void

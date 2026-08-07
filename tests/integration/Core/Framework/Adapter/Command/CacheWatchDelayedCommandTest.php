@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Command;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Process\Process;
 
@@ -14,6 +15,7 @@ use Symfony\Component\Process\Process;
  *
  * @internal
  */
+#[Package('framework')]
 class CacheWatchDelayedCommandTest extends TestCase
 {
     use KernelTestBehaviour;

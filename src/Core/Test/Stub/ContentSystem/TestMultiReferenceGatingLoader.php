@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * A data loader proving the binding convenience layer treats an extension-registered loader exactly like a shipped
- * one. Tagged `content_system.data_loader` in services_test.xml so the whole subsystem discovers it
+ * one. Tagged `content_system.data_loader` in services_test.php so the whole subsystem discovers it
  * through the production seam: the compiler pass dry-runs its `configSpecification()`/`@extends`, and the
  * canonicalizer and diagnostics see it through the real data-loader map.
  * It produces `MediaEntity` so its `entityName` key is FQCN-derivable and it wires onto the shipped `Sw:Media:Image`

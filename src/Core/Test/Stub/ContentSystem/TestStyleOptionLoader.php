@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Registers a single flat (breakpointAware=false) style option so the persistence tests can exercise the
  * flat write→DB→decode round-trip end-to-end — no shipped core option is flat. Wired only in the test
- * environment via the content_system.style_option_loader tag in services_test.xml.
+ * environment via the content_system.style_option_loader tag in services_test.php.
  *
  * @internal
  *

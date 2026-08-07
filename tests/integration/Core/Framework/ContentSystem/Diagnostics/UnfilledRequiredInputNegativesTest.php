@@ -28,7 +28,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfig;
  *   element's own stored wiring) is resolvable and never gates, even with no `mediaId` value; the rule fires only
  *   on a {@see \Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin::Stored} resolution.
  * - Navigation shape: the same reference wired through a loader whose only `propertyReference` key is defaulted
- *   ({@see TestNavigationShapedLoader}, tag-registered in services_test.xml) resolves via its own stored wiring but
+ *   ({@see TestNavigationShapedLoader}, tag-registered in services_test.php) resolves via its own stored wiring but
  *   demands no input, because no config key is a required `propertyReference`. This is the shipped `navigation`
  *   loader's shape, exercised here through the tagged test loader because no shipped core element type references
  *   the navigation `Tree`.

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\CustomField\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class CustomFieldSetActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

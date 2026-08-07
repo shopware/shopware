@@ -87,8 +87,37 @@ class ApiController
 }
 ```
 
+## Planning public API changes
+
+Plan an API break for the next major with the matching attribute from
+`Shopware\Core\Framework\Deprecation\BCChange`, for example
+`#[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]`.
+These attributes describe a future contract change; they are not deprecations and the current API
+must remain usable until the announced version. Do not use `@deprecated reason:*` for this purpose:
+those annotations are treated as actionable deprecations by third-party static analysis even when
+there is no replacement today.
+
+Choose the attribute according to the affected audience. A
+`CallSiteCompatibilityChange` can break code that invokes a method, including a `parent::` call in
+a subclass. An `ExtenderCompatibilityChange` can break a subclass's override declaration or its
+inheritance relationship. Some attributes affect both. Use a real `@deprecated` annotation only
+when functionality is removed or has a replacement that callers must use now.
+
+For a planned change whose legacy use can be identified while the current API is executed
+(`BecomesAbstract`, `NewRequiredParameter`, `ParameterRemoval`, or `ParameterTypeNarrowing`),
+keep the old behavior and call `Feature::triggerDeprecationOrThrow()` only for the incompatible
+legacy use. This provides a runtime migration signal before the declared signature change.
+Framework-invoked methods are the exception because the framework would trigger the warning for
+legitimate calls.
+
+Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class references, and the
+actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
+attributes that do not describe a real future change.
+
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
+
+`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (`FEATURE_ALL`), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
 
 ```php
 use Shopware\Core\Test\Annotation\DisabledFeatures;

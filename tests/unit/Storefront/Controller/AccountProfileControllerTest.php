@@ -27,8 +27,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[CoversClass(AccountProfileController::class)]
 #[Package('checkout')]
+#[CoversClass(AccountProfileController::class)]
 class AccountProfileControllerTest extends TestCase
 {
     private ChangePasswordRoute&Stub $changePasswordRoute;

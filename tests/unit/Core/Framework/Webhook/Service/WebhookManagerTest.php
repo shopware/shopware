@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -47,13 +49,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookManager::class)]
 #[DisabledFeatures(['WEBHOOKS_REWORK'])]
 class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
     private MockHandler $clientMock;
 
@@ -68,10 +71,10 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
-        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
         $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
@@ -532,7 +535,7 @@ class WebhookManagerTest extends TestCase
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
-        $deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $deliveryService = static::createStub(WebhookDeliveryService::class);
         $deliveryService->method('buildRequest')->willReturnCallback(
             fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
         );
@@ -541,7 +544,7 @@ class WebhookManagerTest extends TestCase
             $this->webhookLoader,
             $this->eventDispatcher,
             $this->eventFactory,
-            $this->createMock(AppLocaleProvider::class),
+            static::createStub(AppLocaleProvider::class),
             $appPayloadServiceHelper,
             $this->webhookClient,
             $this->bus,

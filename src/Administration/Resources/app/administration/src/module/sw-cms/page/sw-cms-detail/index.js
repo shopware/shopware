@@ -39,7 +39,12 @@ export default {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            method: 'onSave',
+            active() {
+                return this.canSave;
+            },
+        },
     },
 
     data() {
@@ -172,6 +177,10 @@ export default {
                 entity: null,
                 mode: 'static',
             };
+        },
+
+        canSave() {
+            return !this.isLoading && !this.page.locked && this.acl.can('cms.editor');
         },
 
         blockConfigDefaults() {
@@ -355,14 +364,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        this.cmsPageState.pageEntityName,
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         async loadPage(pageId) {
@@ -666,6 +682,10 @@ export default {
         onSave() {
             this.isSaveSuccessful = false;
 
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             if (!this.pageIsValid()) {
                 this.createNotificationError({
                     message: this.$t('sw-cms.detail.notification.pageInvalid'),
@@ -678,6 +698,10 @@ export default {
         },
 
         onSaveEntity() {
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
 

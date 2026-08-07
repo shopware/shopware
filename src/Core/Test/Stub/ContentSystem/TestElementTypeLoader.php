@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * independent of the shipped type definitions: a property-free component that is resolvable against every binding,
  * a component with a required reference to {@see UnresolvableContextTarget} that is resolvable against none, and a
  * component with a required primitive carrying a type default (used to prove the write-boundary default seeding).
- * Wired only in the test environment via the content_system.type_loader tag in services_test.xml.
+ * Wired only in the test environment via the content_system.type_loader tag in services_test.php.
  *
  * @internal
  *

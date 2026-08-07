@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\ResolvedSeoUrl;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ResolvedSeoUrl::class)]
 class ResolvedSeoUrlTest extends TestCase
 {

@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * A navigation-shaped data loader: like the shipped `navigation` loader, its only `propertyReference`
  * key is defaulted, so a required reference wired through it resolves without ever demanding a stored input value;
- * it never raises `UnfilledRequiredInput`. Tagged `content_system.data_loader` in services_test.xml. It produces
+ * it never raises `UnfilledRequiredInput`. Tagged `content_system.data_loader` in services_test.php. It produces
  * `MediaEntity` so it can wire onto the shipped `Sw:Media:Image` type's required `media` reference.
  *
  * @internal

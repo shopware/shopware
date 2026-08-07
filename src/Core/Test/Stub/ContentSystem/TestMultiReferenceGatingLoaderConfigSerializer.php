@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The config serializer of {@see TestMultiReferenceGatingLoader}, tagged `content_system.config_serializer` in
- * services_test.xml.
+ * services_test.php.
  *
  * @internal
  *

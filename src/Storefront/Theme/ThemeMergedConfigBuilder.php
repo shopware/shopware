@@ -14,7 +14,7 @@ use Shopware\Storefront\Theme\Exception\ThemeException;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeMergedConfigBuilder
 {
     private ThemeCollection $themes;
@@ -66,8 +66,10 @@ class ThemeMergedConfigBuilder
         $configFields = [];
 
         if ($isLegacy) {
-            $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
-            $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+            [$labels, $helpTexts] = Feature::silent('v6.8.0.0', static fn (): array => [
+                array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []),
+                array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []),
+            ]);
         }
 
         if ($theme->getParentThemeId()) {
@@ -76,8 +78,10 @@ class ThemeMergedConfigBuilder
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
 
                 if ($isLegacy) {
-                    $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
-                    $helpTexts = array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []);
+                    [$labels, $helpTexts] = Feature::silent('v6.8.0.0', static fn (): array => [
+                        array_replace_recursive($labels, $parentTheme->getLabels() ?? []),
+                        array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []),
+                    ]);
                 }
             }
         }
@@ -185,7 +189,7 @@ class ThemeMergedConfigBuilder
 
         $translations = [];
         if ($isLegacy && $translate) {
-            $translations = $this->getTranslations($themeId, $context);
+            $translations = Feature::silent('v6.8.0.0', fn (): array => $this->getTranslations($themeId, $context));
             $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
         }
 
@@ -530,9 +534,7 @@ class ThemeMergedConfigBuilder
         string $section,
         string $fieldName
     ): ?array {
-        $custom = $custom ?? null;
-
-        if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
+        if (\is_array($custom) && isset($custom['options']) && \is_array($custom['options'])) {
             foreach ($custom['options'] as $optionIndex => &$option) {
                 $option['labelSnippetKey'] = $this->buildSnippetKey(
                     $themeTechnicalName,

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -21,6 +23,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @phpstan-import-type AppModule from ModuleLoader
  */
+#[Package('framework')]
 class ModuleLoaderTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -113,6 +116,38 @@ class ModuleLoaderTest extends TestCase
         $loadedModules = $this->getSortedModules();
 
         static::assertSame([], $loadedModules);
+    }
+
+    public function testLoadModulesFiltersAppsWithoutPermission(): void
+    {
+        $this->createApp('AllowedApp', [
+            'modules' => [
+                [
+                    'label' => ['en-GB' => 'allowed module'],
+                    'source' => 'https://allowed.app.com',
+                    'name' => 'allowed-module',
+                ],
+            ],
+        ]);
+        $this->createApp('ForbiddenApp', [
+            'modules' => [
+                [
+                    'label' => ['en-GB' => 'forbidden module'],
+                    'source' => 'https://forbidden.app.com',
+                    'name' => 'forbidden-module',
+                ],
+            ],
+        ]);
+
+        $source = new AdminApiSource(null);
+        $source->setPermissions(['app.AllowedApp']);
+        $context = Context::createDefaultContext($source);
+
+        $modules = $this->moduleLoader->loadModules($context);
+
+        static::assertCount(1, $modules);
+        static::assertSame('AllowedApp', $modules[0]['name']);
+        static::assertSame('allowed-module', $modules[0]['modules'][0]['name']);
     }
 
     public function testMainModules(): void

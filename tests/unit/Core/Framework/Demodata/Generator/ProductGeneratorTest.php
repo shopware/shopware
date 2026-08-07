@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -24,6 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductGenerator::class)]
 class ProductGeneratorTest extends TestCase
 {
@@ -70,7 +72,7 @@ class ProductGeneratorTest extends TestCase
 
         $instantDeliveryId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
             ->willReturnCallback(static function () use ($salesChannelIds, $properties, $categoryIds) {
                 $sqlStatement = \func_get_arg(0);
@@ -92,7 +94,7 @@ class ProductGeneratorTest extends TestCase
         $connection->method('fetchFirstColumn')->willReturn($ruleIds, $manufacturerIds, $tagIds);
         $connection->method('fetchOne')->willReturn($instantDeliveryId);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
 
         $taxEntity = (new TaxEntity())
             ->assign([
@@ -155,7 +157,7 @@ class ProductGeneratorTest extends TestCase
         $generator = Factory::create();
         $generator->addProvider(new Commerce($generator));
 
-        $context = $this->createMock(DemodataContext::class);
+        $context = static::createStub(DemodataContext::class);
         $context->method('getFaker')->willReturn($generator);
 
         $io = $this->createMock(SymfonyStyle::class);

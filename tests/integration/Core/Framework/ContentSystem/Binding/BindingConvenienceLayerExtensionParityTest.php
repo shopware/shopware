@@ -18,7 +18,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfig;
 
 /**
  * Proves extension parity end to end. {@see TestMultiReferenceGatingLoader} is a data loader
- * registered only through the `content_system.data_loader` tag in services_test.xml (with its config serializer
+ * registered only through the `content_system.data_loader` tag in services_test.php (with its config serializer
  * under `content_system.config_serializer`); nothing in `Binding/` or `Diagnostics/` knows it exists. Because it is
  * tag-registered, this proof exercises the full seam: the compiler pass accepts its constructor-independent
  * `configSpecification()` and its `@extends` annotation at build time, the `ContentSystemDataLoaderMapResolver`

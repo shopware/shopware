@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Schedule
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -18,12 +19,12 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskRunner::class)]
 class TaskRunnerTest extends TestCase
 {
     public function testNonExistingTask(): void
     {
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $scheduledTaskRepository */
         $scheduledTaskRepository = new StaticEntityRepository([new ScheduledTaskCollection()]);
         $taskRunner = new TaskRunner([], $scheduledTaskRepository, new NativeClock());
 
@@ -54,7 +55,6 @@ class TaskRunnerTest extends TestCase
         $task->setId('task-id');
         $task->setScheduledTaskClass(TestTask::class);
 
-        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
 
         return $repository;
@@ -107,7 +107,7 @@ class TestTaskHandler extends ScheduledTaskHandler
  *
  * @final
  */
-#[AsMessageHandler()]
+#[AsMessageHandler]
 class TestTask2Handler extends ScheduledTaskHandler
 {
     public bool $called = false;

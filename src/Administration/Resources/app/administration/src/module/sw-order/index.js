@@ -127,7 +127,7 @@ Module.register('sw-order', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-purple-500)',
-    icon: 'solid-shopping-bag',
+    icon: 'regular-shopping-bag',
     favicon: 'icon-module-orders.png',
     entity: 'order',
 

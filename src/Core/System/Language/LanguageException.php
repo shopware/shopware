@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\System\Language;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class LanguageException extends HttpException
 {
@@ -15,9 +19,7 @@ class LanguageException extends HttpException
 
     final public const INVALID_FIELD_VALUE_TYPE = 'LANGUAGE__INVALID_FIELD_VALUE_TYPE';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
         if (!Feature::isActive('v6.8.0.0')) {

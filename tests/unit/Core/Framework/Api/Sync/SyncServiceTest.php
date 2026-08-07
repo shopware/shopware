@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
@@ -31,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -40,6 +43,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncService::class)]
 class SyncServiceTest extends TestCase
 {
@@ -63,15 +67,16 @@ class SyncServiceTest extends TestCase
 
         $service = new SyncService(
             $writer,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(RequestCriteriaBuilder::class),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $upsert = new SyncOperation('foo', 'product', SyncOperation::ACTION_UPSERT, [
@@ -120,8 +125,8 @@ class SyncServiceTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ProductCategoryDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $searcher = $this->createMock(EntitySearcher::class);
@@ -131,21 +136,62 @@ class SyncServiceTest extends TestCase
             ->with($registry->get(ProductCategoryDefinition::class), $criteria);
 
         $service = new SyncService(
-            $this->createMock(EntityWriter::class),
+            static::createStub(EntityWriter::class),
             new EventDispatcher(),
             $registry,
             $searcher,
             new RequestCriteriaBuilder(
                 new AggregationParser(),
-                $this->createMock(ApiCriteriaValidator::class),
+                static::createStub(ApiCriteriaValidator::class),
                 new CriteriaArrayConverter(new AggregationParser()),
                 new CompressedCriteriaDecoder(),
                 100
             ),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $service->sync($operations, Context::createCLIContext(), new SyncBehavior());
+    }
+
+    public function testCriteriaDeleteDoesNotSearchWithoutReadPrivileges(): void
+    {
+        $filter = [['type' => 'equals', 'field' => 'productNumber', 'value' => 'product-number']];
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('productNumber', 'product-number'));
+
+        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder->expects($this->once())
+            ->method('fromArray')
+            ->with(['filter' => $filter])
+            ->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->willReturn(['product:read']);
+
+        $searcher = $this->createMock(EntitySearcherInterface::class);
+        $searcher->expects($this->never())->method('search');
+
+        $service = new SyncService(
+            static::createStub(EntityWriterInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            new StaticDefinitionInstanceRegistry(
+                [ProductDefinition::class],
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
+            ),
+            $searcher,
+            $criteriaBuilder,
+            $criteriaValidator,
+            static::createStub(SyncFkResolver::class)
+        );
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['product:read']));
+
+        $service->sync([
+            new SyncOperation('delete-products', 'product', SyncOperation::ACTION_DELETE, [], $filter),
+        ], Context::createDefaultContext(), new SyncBehavior());
     }
 
     public function testWrittenEventsAreDispatchedInSystemScopeWithOriginalSource(): void
@@ -191,12 +237,13 @@ class SyncServiceTest extends TestCase
             $eventDispatcher,
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(RequestCriteriaBuilder::class),
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $service->sync(
@@ -268,15 +315,16 @@ class SyncServiceTest extends TestCase
 
         $service = new SyncService(
             $writer,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             new StaticDefinitionInstanceRegistry(
                 [ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class),
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class),
             ),
             $searcher,
             $criteriaBuilder,
-            $this->createMock(SyncFkResolver::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(SyncFkResolver::class)
         );
 
         $delete = new SyncOperation(

@@ -2,8 +2,10 @@
     <div class="checkout-aside-summary-container">
         {% if page.cart %}
             {% set summary = page.cart %}
+            {% set isoCode = context.currency.isoCode %}
         {% elseif page.order %}
             {% set summary = page.order %}
+            {% set isoCode = page.order.currency.isoCode %}
         {% endif %}
 
         {% set displayRounded = context.totalRounding.interval != 0.01 or context.totalRounding.decimals != context.itemRounding.decimals %}
@@ -19,7 +21,7 @@
             <div class="cart-live-update visually-hidden" role="alert" aria-live="assertive">
                 {{ 'checkout.cartScreenReaderUpdate'|trans({
                     '%count%': summary.lineItems|length,
-                    '%total%': total|currency,
+                    '%total%': total|currency(isoCode),
                 })|sw_sanitize }}
             </div>
         {% endblock %}
@@ -27,41 +29,45 @@
         <dl class="row checkout-aside-summary-list g-0 {% if displayRounded %}display-rounded{% endif %}">
             {% block page_checkout_summary_inner %}
 
-                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-position.html.twig' with { summary: summary } %}
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-position.html.twig' with { summary: summary, isoCode: isoCode } %}
 
-                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' with { summary: summary } %}
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' with { summary: summary, isoCode: isoCode } %}
 
                 {% if summary.price.taxStatus == 'gross' %}
                     {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
                         total: total,
-                        decimals: decimals
+                        decimals: decimals,
+                        isoCode: isoCode
                     } %}
 
                     {% if displayRounded %}
                         {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
                             summary: summary,
-                            decimals: context.totalRounding.decimals
+                            decimals: context.totalRounding.decimals,
+                            isoCode: isoCode
                         } %}
                     {% endif %}
 
-                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary } %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary, isoCode: isoCode } %}
 
-                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary } %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary, isoCode: isoCode } %}
                 {% else %}
 
-                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary } %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { summary: summary, isoCode: isoCode } %}
 
-                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary } %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { summary: summary, isoCode: isoCode } %}
 
                     {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
                         total: total,
-                        decimals: decimals
+                        decimals: decimals,
+                        isoCode: isoCode
                     } %}
 
                     {% if displayRounded %}
                         {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
                             summary: summary,
-                            decimals: context.totalRounding.decimals
+                            decimals: context.totalRounding.decimals,
+                            isoCode: isoCode
                         } %}
                     {% endif %}
                 {% endif %}

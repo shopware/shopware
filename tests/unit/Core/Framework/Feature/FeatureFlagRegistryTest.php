@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature\Event\BeforeFeatureFlagToggleEvent;
 use Shopware\Core\Framework\Feature\Event\FeatureFlagToggledEvent;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -20,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagRegistry::class)]
 class FeatureFlagRegistryTest extends TestCase
 {
@@ -496,7 +498,7 @@ class FeatureFlagRegistryTest extends TestCase
     {
         Feature::resetRegisteredFeatures();
         $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->expects($this->once())->method('get')->with(FeatureFlagRegistry::STORAGE_KEY, [])->willThrowException($this->createMock(ConnectionException::class));
+        $storage->expects($this->once())->method('get')->with(FeatureFlagRegistry::STORAGE_KEY, [])->willThrowException(static::createStub(ConnectionException::class));
 
         $service = new FeatureFlagRegistry(
             $storage,
@@ -550,7 +552,7 @@ class FeatureFlagRegistryTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{staticFeatureFlags: array<string, FeatureFlagConfig>, stored: array<string, FeatureFlagConfig>|string, expected: array<string, FeatureFlagConfig>}>
+     * @return iterable<array-key, array{enabled: bool, staticFeatureFlags: array<string, FeatureFlagConfig>, stored: array<string, FeatureFlagConfig>|string, expected: array<string, FeatureFlagConfig>}>
      */
     public static function registerDataProvider(): iterable
     {

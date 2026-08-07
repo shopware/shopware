@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -37,8 +39,10 @@ use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,7 +55,7 @@ class InfoControllerTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    private ShopIdProvider&Stub $shopIdProvider;
+    private ShopIdProvider&MockObject $shopIdProvider;
 
     private StatsService&Stub $statsService;
 
@@ -62,7 +66,7 @@ class InfoControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
+        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->statsService = static::createStub(StatsService::class);
         $this->migrationInfo = static::createStub(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -118,7 +122,11 @@ class InfoControllerTest extends TestCase
             || \is_string($settings['firstMigrationDate'])
         );
         static::assertArrayHasKey('private_allowed_extensions', $settings);
-        static::assertFalse($settings['private_allowed_extensions']);
+        static::assertSame(['pdf', 'epub'], $settings['private_allowed_extensions']);
+        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $settings);
+        static::assertIsArray($settings['private_allowed_mime_types_by_extension']);
+        static::assertContains('application/pdf', $settings['private_allowed_mime_types_by_extension']['pdf']);
+        static::assertSame(['application/epub+zip'], $settings['private_allowed_mime_types_by_extension']['epub']);
         static::assertArrayHasKey('enableHtmlSanitizer', $settings);
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
@@ -448,6 +456,23 @@ class InfoControllerTest extends TestCase
         yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
     }
 
+    #[DataProvider('aclProtectedRouteProvider')]
+    public function testRouteRequiresMessageQueueStatsReadPrivilege(string $routeName): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $route = (new AttributeRouteControllerLoader())->load(InfoController::class)->get($routeName);
+
+        static::assertNotNull($route, \sprintf('Route "%s" is not defined on %s', $routeName, InfoController::class));
+        static::assertSame(['message_queue_stats:read'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    public static function aclProtectedRouteProvider(): \Generator
+    {
+        yield 'queue stats' => ['api.info.queue'];
+        yield 'message stats' => ['api.info.message-stats'];
+    }
+
     private function bindingSpecification(string $type = 'media-gallery'): BindingSpecification
     {
         return new BindingSpecification('media-picker', $type, 'Media Picker', [], [], 'core');
@@ -506,7 +531,8 @@ class InfoControllerTest extends TestCase
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
-            'shopware.filesystem.private_allowed_extensions' => false,
+            'shopware.filesystem.allowed_extensions' => [],
+            'shopware.filesystem.private_allowed_extensions' => ['pdf', 'epub'],
             'shopware.admin_worker.transports' => $adminWorkerTransports,
             'shopware.admin_worker.enable_notification_worker' => true,
             'shopware.admin_worker.enable_queue_stats_worker' => true,
@@ -538,6 +564,7 @@ class InfoControllerTest extends TestCase
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $bindingSpecificationRegistry ?? static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             null,
+            new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );
     }
 }

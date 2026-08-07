@@ -6,19 +6,16 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Read-only flat-namespace view over an {@see AbstractRenderData} for legacy Twig templates.
+ * Read-only flat `config.*` view over the render data for the legacy Twig templates.
  *
- * Resolves dot-access (`config.companyName`, `config.displayHeader`, `config.documentDate`)
- * through an explicit compatibility map that preserves the historical flat `config.*` contract
- * document templates and their plugin extensions rely on.
- *
- * The legacyConfig fallback exists so keys that have not yet been promoted to typed properties
- * keep working during the v6.7 → v6.8 deprecation window.
+ * Builds a compatibility map from the shared {@see DocumentMetaRenderData} and flattens the public
+ * fields of each type-specific DTO on top, so no per-type knowledge lives here. The legacyConfig
+ * fallback keeps not-yet-typed keys working during the v6.7 → v6.8 window.
  *
  * @internal
  *
@@ -27,9 +24,8 @@ use Shopware\Core\Framework\Log\Package;
  * @mixin DocumentConfig
  * @mixin DocumentCompanyInfo
  * @mixin DocumentDisplayOptions
- * @mixin InvoiceRenderData
+ * @mixin DocumentMetaRenderData
  *
- * @property mixed $fileType
  * @property mixed $getAddressParts
  * @property mixed $displayAdditionalNoteDelivery
  */
@@ -41,26 +37,31 @@ final readonly class TemplateContext implements \ArrayAccess
      */
     private array $properties;
 
-    public function __construct(
-        AbstractRenderData $data,
-        ?string $fileType = null,
-        ?int $itemsPerPage = null,
-    ) {
-        $properties = array_replace(
-            $data->legacyConfig,
-            self::companyProperties($data->company),
-            self::configProperties($data->config),
-            self::renderDataProperties($data),
+    /**
+     * @param array<AbstractRenderData> $typeData
+     */
+    public function __construct(DocumentMetaRenderData $meta, array $typeData = [])
+    {
+        $shared = array_replace(
+            self::companyProperties($meta->company),
+            self::configProperties($meta->config),
+            self::metaProperties($meta),
+            ['getAddressParts' => $meta->company->getAddressParts()],
         );
 
-        $properties['getAddressParts'] = $data->company->getAddressParts();
+        $properties = array_replace($meta->legacyConfig, $shared);
 
-        if ($fileType !== null) {
-            $properties['fileType'] = $fileType;
-        }
+        $typeKeys = [];
 
-        if ($itemsPerPage !== null) {
-            $properties['itemsPerPage'] = $itemsPerPage;
+        foreach ($typeData as $data) {
+            foreach (get_object_vars($data) as $key => $value) {
+                if (\array_key_exists($key, $shared) || isset($typeKeys[$key])) {
+                    throw DocumentV2Exception::templateContextPropertyCollision($key);
+                }
+
+                $typeKeys[$key] = true;
+                $properties[$key] = $value;
+            }
         }
 
         $this->properties = $properties;
@@ -140,33 +141,23 @@ final readonly class TemplateContext implements \ArrayAccess
     /**
      * @return array<string, mixed>
      */
-    private static function renderDataProperties(AbstractRenderData $data): array
+    private static function metaProperties(DocumentMetaRenderData $meta): array
     {
-        $properties = [
-            'documentDate' => $data->documentDate,
-            'documentNumber' => $data->documentNumber,
-            'documentComment' => $data->documentComment,
-            'displayHeader' => $data->display->displayHeader,
-            'displayFooter' => $data->display->displayFooter,
-            'displayPageCount' => $data->display->displayPageCount,
-            'displayCompanyAddress' => $data->display->displayCompanyAddress,
-            'displayReturnAddress' => $data->display->displayReturnAddress,
-            'displayCustomerVatId' => $data->display->displayCustomerVatId,
-            'displayLineItems' => $data->display->displayLineItems,
-            'displayLineItemPosition' => $data->display->displayLineItemPosition,
-            'displayPrices' => $data->display->displayPrices,
-            'displayDivergentDeliveryAddress' => $data->display->displayDivergentDeliveryAddress,
-            'deliveryCountries' => $data->display->deliveryCountries,
-            'custom' => $data->custom,
-        ];
-
-        if (!$data instanceof InvoiceRenderData) {
-            return $properties;
-        }
-
         return [
-            ...$properties,
-            'intraCommunityDelivery' => $data->intraCommunityDelivery,
+            'documentDate' => $meta->documentDate,
+            'documentNumber' => $meta->documentNumber,
+            'documentComment' => $meta->documentComment,
+            'displayHeader' => $meta->display->displayHeader,
+            'displayFooter' => $meta->display->displayFooter,
+            'displayPageCount' => $meta->display->displayPageCount,
+            'displayCompanyAddress' => $meta->display->displayCompanyAddress,
+            'displayReturnAddress' => $meta->display->displayReturnAddress,
+            'displayCustomerVatId' => $meta->display->displayCustomerVatId,
+            'displayLineItems' => $meta->display->displayLineItems,
+            'displayLineItemPosition' => $meta->display->displayLineItemPosition,
+            'displayPrices' => $meta->display->displayPrices,
+            'displayDivergentDeliveryAddress' => $meta->display->displayDivergentDeliveryAddress,
+            'deliveryCountries' => $meta->display->deliveryCountries,
         ];
     }
 }

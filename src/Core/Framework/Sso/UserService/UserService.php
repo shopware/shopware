@@ -214,7 +214,7 @@ final readonly class UserService
             new EqualsFilter('email', $email),
         );
 
-        return $this->userRepository->search($criteria, $context)->first();
+        return $this->userRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function isInvitedUser(UserEntity $user): bool

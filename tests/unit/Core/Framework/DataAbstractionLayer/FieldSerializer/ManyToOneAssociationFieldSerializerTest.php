@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ManyToOneAssociationFieldSerializer::class)]
 class ManyToOneAssociationFieldSerializerTest extends TestCase
 {
@@ -47,15 +49,15 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
                 OrderDefinition::class => $orderDefinition = new OrderDefinition(),
                 CustomerDefinition::class => new CustomerDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $orderDefinition->getField('customer');
 
         static::assertInstanceOf(ManyToOneAssociationField::class, $field);
 
-        $serializer = new ManyToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $orderDefinition,
@@ -66,7 +68,7 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
 
         $result = $serializer->encode(
             $field,
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             new KeyValuePair('customer', $payload, true),
             $params
         );
@@ -83,15 +85,15 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
                 OrderDefinition::class => $orderDefinition = new OrderDefinition(),
                 CustomerDefinition::class => new CustomerDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $orderDefinition->getField('customer');
 
         static::assertInstanceOf(ManyToOneAssociationField::class, $field);
 
-        $serializer = new ManyToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $orderDefinition,
@@ -133,15 +135,15 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
                 OrderDefinition::class => $orderDefinition = new OrderDefinition(),
                 CustomerDefinition::class => new CustomerDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $orderDefinition->getField('customer');
 
         static::assertInstanceOf(ManyToOneAssociationField::class, $field);
 
-        $serializer = new ManyToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToOneAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $orderDefinition,
@@ -154,7 +156,7 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
 
         $result = $serializer->encode(
             $field,
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             new KeyValuePair('customer', ['id' => $id, 'name' => 'Jimmy'], true),
             $params
         );

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Exception;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class LineItemNotFoundException extends CartException
 {

@@ -3,12 +3,17 @@
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\ReferencesDocument;
+use Shopware\Core\Checkout\DocumentV2\Provider\RendersReferencedSnapshot;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -34,6 +39,7 @@ final readonly class DocumentGenerator
         private DocumentNumberGenerator $documentNumberGenerator,
         private DocumentPersister $documentPersister,
         private DocumentDependencyResolver $dependencyResolver,
+        private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
     ) {
     }
@@ -41,7 +47,7 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
-     * The request must contain at least one format and a non-live order version id.
+     * The request must contain at least one format.
      *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
@@ -50,7 +56,69 @@ final readonly class DocumentGenerator
      */
     public function generate(DocumentGenerationRequest $generationRequest, Context $apiContext): DocumentEntity
     {
-        $this->validateGenerationRequest($generationRequest);
+        [
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+            'resolvedReference' => $resolvedReference,
+        ] = $this->generateDocument($generationRequest, $apiContext);
+
+        return $this->documentPersister->persist(
+            $generationRequest,
+            $renderInput,
+            $renderState,
+            $requestedFormats,
+            $resolvedReference,
+            $apiContext,
+        );
+    }
+
+    /**
+     * Generates one logical document and returns the first requested format as a RenderedDocument.
+     *
+     * @throws DocumentV2Exception
+     */
+    public function preview(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+    ): RenderedDocument {
+        [
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+        ] = $this->generateDocument($generationRequest, $apiContext, true);
+
+        $result = $renderState->require($requestedFormats[0]);
+
+        $document = new RenderedDocument(
+            name: $result->fileName . '.' . $result->fileExtension,
+            fileExtension: $result->fileExtension,
+            contentType: $result->mimeType,
+        );
+        $document->setContent($result->content);
+
+        return $document;
+    }
+
+    /**
+     * @throws DocumentV2Exception
+     *
+     * @return array{
+     *     generationRequest: DocumentGenerationRequest,
+     *     renderInput: RenderInput,
+     *     renderState: RenderState,
+     *     requestedFormats: list<string>,
+     *     resolvedReference: ?ReferencedDocument
+     * }
+     */
+    private function generateDocument(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+        bool $preview = false,
+    ): array {
+        if ($generationRequest->requestedFormats === []) {
+            throw DocumentV2Exception::missingFormats();
+        }
 
         $requestedFormats = $this->normalizeRequestedFormats($generationRequest->requestedFormats);
 
@@ -69,29 +137,33 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
+        [$orderVersionId, $resolvedReference] = $this->resolveOrderVersion(
+            $providers,
             $generationRequest,
+            $preview,
             $apiContext,
         );
 
-        $order = $this->loadOrder(
-            $criteria,
+        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
             $generationRequest->orderId,
-            $orderVersionContext,
+            $orderVersionId,
+            $apiContext,
         );
+
+        $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
 
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,
             $order,
             $apiContext,
+            $preview,
         );
 
         $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
 
         $providerData = $this->collectProviderData(
             $providers,
-            $order,
-            $generationRequest,
+            new ProviderInput($order, $generationRequest, $resolvedReference),
             $languageAwareContext,
         );
 
@@ -104,10 +176,7 @@ final readonly class DocumentGenerator
         );
 
         foreach ($renderPlan as $format) {
-            $renderer = $this->documentRendererRegistry->getRenderer(
-                $format,
-                $generationRequest->documentType,
-            );
+            $renderer = $this->documentRendererRegistry->getRenderer($format);
 
             $result = $renderer->renderToString(
                 $renderInput,
@@ -118,13 +187,70 @@ final readonly class DocumentGenerator
             $renderState->add($result);
         }
 
-        return $this->documentPersister->persist(
-            $generationRequest,
-            $renderInput,
-            $renderState,
-            $requestedFormats,
-            $apiContext,
-        );
+        return [
+            'generationRequest' => $generationRequest,
+            'renderInput' => $renderInput,
+            'renderState' => $renderState,
+            'requestedFormats' => $requestedFormats,
+            'resolvedReference' => $resolvedReference,
+        ];
+    }
+
+    /**
+     * @param list<AbstractDocumentDataProvider> $providers
+     *
+     * @throws DocumentV2Exception
+     *
+     * @return array{string, ?ReferencedDocument}
+     */
+    private function resolveOrderVersion(
+        array $providers,
+        DocumentGenerationRequest $generationRequest,
+        bool $preview,
+        Context $apiContext,
+    ): array {
+        $resolvedReference = null;
+
+        if ($this->anyProviderImplements($providers, ReferencesDocument::class)) {
+            $resolvedReference = $this->referencedDocumentResolver->resolve(
+                $generationRequest->orderId,
+                $generationRequest->referencedDocumentId,
+            );
+
+            if ($this->anyProviderImplements($providers, RendersReferencedSnapshot::class)) {
+                return [$resolvedReference->orderVersionId, $resolvedReference];
+            }
+        } elseif ($generationRequest->referencedDocumentId !== null) {
+            throw DocumentV2Exception::referencedDocumentNotSupported(
+                $generationRequest->documentType,
+                $generationRequest->referencedDocumentId,
+            );
+        }
+
+        $orderVersionId = $preview
+            ? Defaults::LIVE_VERSION
+            : $this->orderRepository->createVersion(
+                $generationRequest->orderId,
+                $apiContext,
+                'document',
+            );
+
+        return [$orderVersionId, $resolvedReference];
+    }
+
+    /**
+     * @param list<AbstractDocumentDataProvider> $providers
+     * @param class-string $marker
+     */
+    private function anyProviderImplements(array $providers, string $marker): bool
+    {
+        foreach ($providers as $provider) {
+            if ($provider instanceof $marker) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -134,16 +260,14 @@ final readonly class DocumentGenerator
      */
     private function collectProviderData(
         array $providers,
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): array {
         $data = [];
 
         foreach ($providers as $provider) {
             $data[$provider->getKey()] = $provider->provideRenderingData(
-                $order,
-                $generationRequest,
+                $input,
                 $context,
             );
         }
@@ -157,13 +281,14 @@ final readonly class DocumentGenerator
      * @return array{0: Context, 1: Context}
      */
     private function createGenerationContexts(
-        DocumentGenerationRequest $generationRequest,
+        string $orderId,
+        string $orderVersionId,
         Context $apiContext,
     ): array {
-        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $orderVersionContext = $apiContext->createWithVersionId($orderVersionId);
         $languageAwareContext = clone $apiContext;
 
-        $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $orderVersionContext);
+        $orderLanguageId = $this->loadOrderLanguageId($orderId, $orderVersionContext);
 
         $langChain = [
             'languageIdChain' => array_values(array_unique(array_filter(
@@ -202,9 +327,9 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function loadOrderLanguageId(string $orderId, Context $context): string
     {
-        $criteria = (new Criteria([$generationRequest->orderId]))
+        $criteria = (new Criteria([$orderId]))
             ->setTitle('document-v2-generator::load-order-language')
             ->addFields(['languageId']);
 
@@ -215,24 +340,10 @@ final readonly class DocumentGenerator
             ?->get('languageId');
 
         if (!\is_string($languageId)) {
-            throw DocumentV2Exception::orderNotFound($generationRequest->orderId);
+            throw DocumentV2Exception::orderNotFound($orderId);
         }
 
         return $languageId;
-    }
-
-    /**
-     * @throws DocumentV2Exception
-     */
-    private function validateGenerationRequest(DocumentGenerationRequest $generationRequest): void
-    {
-        if ($generationRequest->requestedFormats === []) {
-            throw DocumentV2Exception::missingFormats();
-        }
-
-        if ($generationRequest->orderVersionId === Defaults::LIVE_VERSION) {
-            throw DocumentV2Exception::liveVersionNotAllowed();
-        }
     }
 
     /**

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type MessageData array{
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IterateEntityIndexerMessage::class)]
 class IterateEntityIndexerMessageTest extends TestCase
 {

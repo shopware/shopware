@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-property-search__search-field.sw-product-variants-configurator-selection-search__search-field {
     .sw-simple-search-field {
         margin: 0;
@@ -26,7 +24,7 @@
     }
 
     .generate-variant-progress-bar__description {
-        color: var(--color-darkgray-200);
+        color: var(--color-text-secondary-default);
         margin-top: var(--scale-size-20);
     }
 }

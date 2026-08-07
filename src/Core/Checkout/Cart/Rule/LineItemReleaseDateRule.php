@@ -78,7 +78,7 @@ class LineItemReleaseDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true, true)
             ->dateTimeField('lineItemReleaseDate');
     }
 
@@ -89,6 +89,10 @@ class LineItemReleaseDateRule extends Rule
      */
     private function matchesReleaseDate(LineItem $lineItem, string|array $ruleValue): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         /** @var string|null $releasedAtString */
         $releasedAtString = $lineItem->getPayloadValue('releaseDate');
 

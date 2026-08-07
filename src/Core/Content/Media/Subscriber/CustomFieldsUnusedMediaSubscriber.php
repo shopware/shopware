@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore
  *
- * @see CustomFieldsUnusedMediaSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriberTest
  */
 #[Package('discovery')]
 class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface

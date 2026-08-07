@@ -5,6 +5,10 @@ Contains skin styles for the top bar located at the top of the page.
 The top bar contains e.g. the language switcher, the currency switcher and the service menu.
 */
 
+.top-bar {
+    padding-top: 0.25rem;
+}
+
 .top-bar-nav-btn.btn {
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-color: #{$body-color};
@@ -14,6 +18,7 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
     --#{$prefix}btn-padding-x: 0;
     --#{$prefix}btn-padding-y: 0;
     --#{$prefix}btn-hover-color: #{$primary};
+    --#{$prefix}btn-line-height: 2rem;
 }
 
 .top-bar-list {
@@ -25,4 +30,10 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
 
 .top-bar-list-item-currency-symbol {
     min-width: 1.7rem;
+}
+
+// Prevent unintended button focus in Safari when clicking a button containg an icon.
+.top-bar-nav-text,
+.top-bar-list-icon {
+    pointer-events: none;
 }

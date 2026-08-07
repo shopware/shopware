@@ -15,7 +15,9 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -42,7 +45,7 @@ class ProductStreamProcessorTest extends TestCase
 
     protected FieldConfigCollection $config;
 
-    private AbstractProductStreamBuilder&MockObject $productStreamBuilder;
+    private ProductStreamBuilder&MockObject $productStreamBuilder;
 
     /**
      * @var SalesChannelRepository<ProductCollection>&MockObject
@@ -55,7 +58,7 @@ class ProductStreamProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->configureProductStreamBuilder();
 
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
@@ -128,7 +131,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertCount(1, $criteria->getFilters());
         static::assertCount(0, $criteria->getGroupFields());
-        static::assertTrue($criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
     }
 
     public function testCollectEventCanModifyCriteria(): void
@@ -166,7 +169,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $exception = new EntityNotFoundException('product_stream', 'deleted-product-stream-id');
 
-        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
             ->with(static::isInstanceOf(Criteria::class), 'deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
@@ -186,6 +189,36 @@ class ProductStreamProcessorTest extends TestCase
             ->method('dispatch');
 
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
+    }
+
+    public function testCollectDoesNotSwallowDeprecationFromBuildFiltersFallback(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $this->config->add($config);
+
+        // An interface-only builder makes the slider fall back to the deprecated buildFilters(), which
+        // throws under the v6.8.0.0 flag. That FeatureException must propagate, not be swallowed by the
+        // EntityNotFoundException catch around the stream enrichment.
+        $exception = FeatureException::error('buildFilters() is removed in v6.8.0.0');
+
+        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $productStreamBuilder->expects($this->once())
+            ->method('buildFilters')
+            ->willThrowException($exception);
+
+        $processor = new ProductStreamProcessor(
+            $productStreamBuilder,
+            $this->productRepository,
+            $this->eventDispatcher,
+            $this->logger
+        );
+
+        $this->expectExceptionObject($exception);
+
+        $processor->collect($slot, $this->config, $resolverContext);
     }
 
     public function testCollectAddsRandomSortingIfRequired(): void
@@ -308,7 +341,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $criteria = new Criteria();
-        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
         $products = $this->getProducts();
         $result = new EntitySearchResult(
@@ -339,7 +372,7 @@ class ProductStreamProcessorTest extends TestCase
 
     private function configureProductStreamBuilder(bool $displayAsGroup = true): void
     {
-        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
 
         $filter = $this->getFilter();
 
@@ -348,7 +381,7 @@ class ProductStreamProcessorTest extends TestCase
                 $criteria->addFilter($filter);
 
                 if (!$displayAsGroup) {
-                    $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+                    $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
                 }
             });
     }

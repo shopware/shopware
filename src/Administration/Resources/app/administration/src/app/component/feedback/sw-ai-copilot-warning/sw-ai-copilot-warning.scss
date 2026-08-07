@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-ai-copilot-warning {
-    font-size: $font-size-xs;
-    color: $color-gray-600;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary-default);
     display: flex;
     align-items: center;
     margin-bottom: 8px;

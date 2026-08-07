@@ -7,7 +7,7 @@ use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Implementation;
 use Mcp\Schema\JsonRpc\ResultInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Result\InitializeResult;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;
@@ -17,7 +17,7 @@ use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Typed DTO for a JSON-RPC response body received from the MCP SDK.
  *
@@ -89,7 +89,7 @@ class McpJsonRpcResponse implements \JsonSerializable
         $filtered = array_values(
             array_filter(
                 $this->result->resources,
-                static fn (Resource $resource): bool => \in_array($resource->uri, $allowlist, true),
+                static fn (ResourceDefinition $resource): bool => \in_array($resource->uri, $allowlist, true),
             ),
         );
 
@@ -148,7 +148,10 @@ class McpJsonRpcResponse implements \JsonSerializable
         return true;
     }
 
-    public function jsonSerialize(): mixed
+    /**
+     * @return array{jsonrpc: string, id: string|int, result: ResultInterface}
+     */
+    public function jsonSerialize(): array
     {
         return [
             'jsonrpc' => $this->jsonrpc,
@@ -175,7 +178,7 @@ class McpJsonRpcResponse implements \JsonSerializable
             }
             if (\array_key_exists('capabilities', $resultData)) {
                 $protocolVersion = $resultData['protocolVersion'] ?? null;
-                $capabilitiesData = $resultData['capabilities'] ?? null;
+                $capabilitiesData = $resultData['capabilities'];
                 $serverInfoData = $resultData['serverInfo'] ?? null;
 
                 if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {

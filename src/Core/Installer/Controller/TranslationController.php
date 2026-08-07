@@ -41,7 +41,7 @@ class TranslationController extends InstallerController
         /** @var list<string> $locales */
         $locales = (array) $session->get('SELECTED_LANGUAGES', []);
 
-        if (empty($locales)) {
+        if ($locales === []) {
             return new JsonResponse([
                 'isFinished' => true,
                 'failed' => false,

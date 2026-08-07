@@ -6,10 +6,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * Enriches a criteria with a product stream's filters and grouping state.
+ */
 #[Package('inventory')]
 abstract class AbstractProductStreamBuilder
 {
-    final public const STATE_DISPLAY_AS_GROUP_DISABLED = 'PRODUCT_STREAM_DISPLAY_AS_GROUP_DISABLED';
-
     abstract public function enrichCriteria(Criteria $criteria, string $id, Context $context): void;
 }

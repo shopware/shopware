@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\AppCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -24,6 +26,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TemplateLifecycleHandler::class)]
 class TemplateLifecycleHandlerTest extends TestCase
 {
@@ -36,7 +39,7 @@ class TemplateLifecycleHandlerTest extends TestCase
      */
     private readonly StaticEntityRepository $templateRepository;
 
-    private readonly Manifest&MockObject $manifest;
+    private readonly Manifest&Stub $manifest;
 
     private readonly IdsCollection $ids;
 
@@ -44,7 +47,7 @@ class TemplateLifecycleHandlerTest extends TestCase
     {
         $this->templateLoader = $this->createMock(AbstractTemplateLoader::class);
         $this->templateRepository = new StaticEntityRepository([]);
-        $this->manifest = $this->createMock(Manifest::class);
+        $this->manifest = static::createStub(Manifest::class);
         $this->cacheClearer = $this->createMock(CacheClearer::class);
         $this->ids = new IdsCollection();
     }
@@ -216,7 +219,6 @@ class TemplateLifecycleHandlerTest extends TestCase
         }, array_keys($templates), $templates)));
         $app->setActive(true);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
         return $repo;

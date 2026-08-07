@@ -26,11 +26,9 @@ Thumbs.db
 yalc.lock
 
 # AI/LLM Development Tools
-# Ignore everything in .claude/ EXCEPT .claude/skills/ — that path holds shared,
-# portable Agent Skills that all AI runtimes (Claude Code, opencode, Codex CLI,
-# Cursor, etc.) auto-load. Skills are project content, not user-local config.
+# Ignore everything in .claude/ EXCEPT the skills symlink for Claude Code.
 .claude/*
-!.claude/skills/
+!.claude/skills
 .codex/
 .cursor/
 .cursorrules
@@ -135,10 +133,6 @@ app/config/parameters.yml
 *.cursorindexingignore.local
 *.tabnineignore.local
 
-# AI/LLM Documentation
-CLAUDE.md
-GEMINI.md
-
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 src/Core/DevOps/Locust/fixtures/*
@@ -178,7 +172,7 @@ config/routes*
 config/routes/*
 !config/routes/test/
 config/services*
-!/config/services_test.xml
+!/config/services_test.php
 
 custom
 !/custom/scripts/boot

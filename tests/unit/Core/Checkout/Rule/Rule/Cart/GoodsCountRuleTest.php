@@ -36,7 +36,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -48,7 +48,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -60,7 +60,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -72,7 +72,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -87,7 +87,7 @@ class GoodsCountRuleTest extends TestCase
 
         $cart->add((new LineItem('A', 'test'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -100,7 +100,7 @@ class GoodsCountRuleTest extends TestCase
 
         $cart = new Cart('test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -112,7 +112,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -124,7 +124,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -136,7 +136,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -150,7 +150,7 @@ class GoodsCountRuleTest extends TestCase
         $cart = new Cart('test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -160,7 +160,7 @@ class GoodsCountRuleTest extends TestCase
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $goodsCountRule = new GoodsCountRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($goodsCountRule->match($wrongScope));
     }
@@ -252,7 +252,7 @@ class GoodsCountRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $this->createLineItemWithGoodsCount(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -284,7 +284,7 @@ class GoodsCountRuleTest extends TestCase
         $cart->add((new LineItem('b', 'a'))->setGood(true));
         $cart->add((new LineItem('c', 'a'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         return new CartRuleScope($cart, $context);
     }

@@ -24,10 +24,11 @@
 
         <input-field type="bool">
             <name>buildBreadcrumbByReferrerCategory</name>
+            <flag>BREADCRUMB_REWORK</flag>
             <label>Build breadcrumb based on referrer category</label>
             <label lang="de-DE">Breadcrumb anhand der Referrer-Kategorie aufbauen</label>
-            <helpText>Build the product breadcrumb based on the linking category if available. Feature flag BREADCRUMB_REWORK has to be active.</helpText>
-            <helpText lang="de-DE">Produkt-Breadcrumb basierend auf der verlinkenden Kategorie aufbauen, falls verfügbar. Feature-Flag BREADCRUMB_REWORK muss dafür aktiv sein.</helpText>
+            <helpText>Build the product breadcrumb based on the linking category if available.</helpText>
+            <helpText lang="de-DE">Produkt-Breadcrumb basierend auf der verlinkenden Kategorie aufbauen, falls verfügbar.</helpText>
             <defaultValue>false</defaultValue>
         </input-field>
 

@@ -58,7 +58,9 @@ class LineItemIsNewRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->booleanField('isNew');
+            ->booleanField('isNew', [
+                'isMatchAny' => true,
+            ]);
     }
 
     /**
@@ -66,6 +68,10 @@ class LineItemIsNewRule extends Rule
      */
     private function matchLineItemIsNew(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         return (bool) $lineItem->getPayloadValue('isNew') === $this->isNew;
     }
 }

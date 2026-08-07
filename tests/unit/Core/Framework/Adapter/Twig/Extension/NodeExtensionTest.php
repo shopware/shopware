@@ -10,19 +10,21 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\TokenParser\TokenParserInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NodeExtension::class)]
 class NodeExtensionTest extends TestCase
 {
     public function testGetTokenParsers(): void
     {
         $extension = new NodeExtension(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TemplateScopeDetector::class),
         );
         static::assertCount(3, $extension->getTokenParsers());
         static::assertSame([
@@ -34,10 +36,10 @@ class NodeExtensionTest extends TestCase
 
     public function testGetFinder(): void
     {
-        $finder = $this->createMock(TemplateFinder::class);
+        $finder = static::createStub(TemplateFinder::class);
         $extension = new NodeExtension(
             $finder,
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateScopeDetector::class),
         );
         static::assertSame($finder, $extension->getFinder());
     }
@@ -45,8 +47,8 @@ class NodeExtensionTest extends TestCase
     public function testEmptyExtensions(): void
     {
         $extension = new NodeExtension(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TemplateScopeDetector::class),
         );
 
         static::assertSame([], $extension->getFunctions());

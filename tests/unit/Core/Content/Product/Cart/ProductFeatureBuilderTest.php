@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -36,18 +36,18 @@ class ProductFeatureBuilderTest extends TestCase
     private ProductFeatureBuilder $productFeatureBuilder;
 
     /**
-     * @var MockObject&EntityRepository<ProductFeatureSetCollection>
+     * @var Stub&EntityRepository<ProductFeatureSetCollection>
      */
-    private MockObject&EntityRepository $customFieldRepository;
+    private Stub&EntityRepository $customFieldRepository;
 
-    private MockObject&LanguageLocaleCodeProvider $languageLocaleProvider;
+    private Stub&LanguageLocaleCodeProvider $languageLocaleProvider;
 
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->customFieldRepository = $this->createMock(EntityRepository::class);
-        $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $this->customFieldRepository = static::createStub(EntityRepository::class);
+        $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
         $this->productFeatureBuilder = new ProductFeatureBuilder(

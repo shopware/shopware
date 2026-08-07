@@ -63,13 +63,25 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
+
+        $schemaPaths = [$this->schemaPath];
+
+        if ($bundleName !== null && $bundleName !== '') {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
+
+        $loader = new OpenApiFileLoader($schemaPaths);
+        $jsonSpec = $loader->loadOpenapiSpecification();
+        $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
 
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
@@ -82,9 +94,24 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
+            if (\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $jsonSchemaNames, true)) {
+                // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
+                $schema = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                );
+            } else {
+                $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyReference,
+                    DefinitionService::TYPE_JSON_API,
+                );
+            }
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
         }
 
         $this->addGeneralInformation($openApi);
@@ -93,20 +120,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
 
-        $schemaPaths = [$this->schemaPath];
-
-        if ($bundleName !== null && $bundleName !== '') {
-            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        } else {
-            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        }
-
-        $loader = new OpenApiFileLoader($schemaPaths);
-
-        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
+        $this->filterUndefinedRequiredProperties($finalSpecs);
+        /** @var OpenApiSpec $finalSpecs */
         $this->resolveParameterGroups($finalSpecs);
         $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
@@ -252,6 +271,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
+     * @param array<string, mixed> $schema
+     */
+    private function filterUndefinedRequiredProperties(array &$schema): void
+    {
+        foreach ($schema as &$value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $this->filterUndefinedRequiredProperties($value);
+        }
+
+        if (!isset($schema['required'], $schema['properties']) || !\is_array($schema['required']) || !\is_array($schema['properties'])) {
+            return;
+        }
+
+        $properties = array_flip(array_keys($schema['properties']));
+        $schema['required'] = array_values(array_filter(
+            $schema['required'],
+            static fn (mixed $property): bool => \is_string($property) && isset($properties[$property])
+        ));
+
+        if ($schema['required'] === []) {
+            unset($schema['required']);
+        }
+    }
+
+    /**
      * [WARNING] Please refrain from using this functionality in new code. It is a workaround to reduce duplication of
      * the criteria parameter groups and may be removed in the future.
      *
@@ -302,10 +349,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function resolveParameterGroups(array &$specs): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // this is a custom extension that is not supported by the OpenAPI spec
         // it has to be processed and removed before the final output
         $parameterGroups = $specs['components']['x-parameter-groups'] ?? [];
@@ -397,10 +440,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function enrichPathsWithAssociations(array &$specs, array $definitions): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // Build a map of entity names to their association documentation
         $associationDocs = [];
         foreach ($definitions as $def) {

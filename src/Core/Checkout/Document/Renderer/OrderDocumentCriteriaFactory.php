@@ -27,6 +27,8 @@ final class OrderDocumentCriteriaFactory
 
         $criteria->addAssociations([
             'primaryOrderDelivery',
+            'primaryOrderDelivery.shippingOrderAddress.country',
+            'primaryOrderDelivery.shippingOrderAddress.countryState',
             'lineItems',
             'primaryOrderTransaction.paymentMethod',
             'primaryOrderTransaction.stateMachineState',

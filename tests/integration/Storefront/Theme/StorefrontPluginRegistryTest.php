@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -11,6 +12,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
+#[Package('discovery')]
 class StorefrontPluginRegistryTest extends TestCase
 {
     use AppSystemTestBehaviour;

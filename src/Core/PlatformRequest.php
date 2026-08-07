@@ -36,6 +36,12 @@ final class PlatformRequest
     public const HEADER_MEASUREMENT_LENGTH_UNIT = 'sw-measurement-length-unit';
 
     /**
+     * MCP Streamable HTTP transport headers (Model Context Protocol)
+     */
+    public const HEADER_MCP_SESSION_ID = 'mcp-session-id';
+    public const HEADER_MCP_PROTOCOL_VERSION = 'mcp-protocol-version';
+
+    /**
      * API Expectation headers to check requirements are fulfilled
      */
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
@@ -76,6 +82,8 @@ final class PlatformRequest
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
+
+    public const ATTRIBUTE_CLEAR_SITE_DATA = '_clearSiteData';
 
     public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
         self::ATTRIBUTE_CAPTCHA,

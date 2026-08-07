@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(Cart::class)]
 #[Package('checkout')]
+#[CoversClass(Cart::class)]
 class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void

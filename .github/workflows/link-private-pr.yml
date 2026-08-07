@@ -1,0 +1,32 @@
+name: Link private PR on Issue close
+on:
+  issues:
+    types:
+      - closed
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  link_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shopware/octo-sts-action@main
+        id: sts
+        with:
+          scope: shopware
+          identity: ShopwareLinkClosingPR
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          PR_READ_TOKEN: ${{ steps.sts.outputs.token }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { linkClosingPR } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await linkClosingPR({github, core, context}, context.issue.number, process.env.PR_READ_TOKEN)

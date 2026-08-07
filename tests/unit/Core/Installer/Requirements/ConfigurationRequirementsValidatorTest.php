@@ -4,8 +4,9 @@ namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator;
 use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
@@ -15,16 +16,17 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConfigurationRequirementsValidator::class)]
 class ConfigurationRequirementsValidatorTest extends TestCase
 {
-    private MockObject&IniConfigReader $configReader;
+    private Stub&IniConfigReader $configReader;
 
     private ConfigurationRequirementsValidator $validator;
 
     protected function setUp(): void
     {
-        $this->configReader = $this->createMock(IniConfigReader::class);
+        $this->configReader = static::createStub(IniConfigReader::class);
         $this->validator = new ConfigurationRequirementsValidator($this->configReader);
     }
 

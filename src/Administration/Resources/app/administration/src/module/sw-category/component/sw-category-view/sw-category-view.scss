@@ -7,7 +7,7 @@
     }
 
     .swag-category-view__column-info-header {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         margin-bottom: 10px;
     }
 }

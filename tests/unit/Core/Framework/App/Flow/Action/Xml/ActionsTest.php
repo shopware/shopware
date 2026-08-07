@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Actions;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Actions::class)]
 class ActionsTest extends TestCase
 {
@@ -46,6 +48,9 @@ XML));
         static::assertSame('second.action', $actions->getActions()[1]->getMeta()->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

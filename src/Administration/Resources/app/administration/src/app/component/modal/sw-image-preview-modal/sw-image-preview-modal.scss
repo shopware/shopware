@@ -35,9 +35,9 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-image-preview-modal__button-action {
         padding: 8px 12px;
-        background: $color-gray-50;
+        background: var(--color-background-secondary-default);
         border: 1px solid transparent;
-        color: $color-gray-900;
+        color: var(--color-text-primary-default);
 
         &:first-child {
             border-top-left-radius: $border-radius-default;
@@ -72,11 +72,11 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         bottom: 0;
         width: 100%;
         padding: 20px 0;
-        background: $color-white;
+        background: var(--color-background-primary-default);
     }
 
     .sw-image-preview-modal__divider {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         position: absolute;
         bottom: 139px;
         left: 20px;

@@ -402,7 +402,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);

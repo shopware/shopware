@@ -418,7 +418,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -488,7 +488,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => Hasher::hash('teg-reg@example.com', 'sha1')], \JSON_THROW_ON_ERROR));
@@ -608,7 +608,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -668,7 +668,7 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
 
-        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
@@ -1201,7 +1201,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('addresses');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -1463,7 +1463,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('salutation');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 

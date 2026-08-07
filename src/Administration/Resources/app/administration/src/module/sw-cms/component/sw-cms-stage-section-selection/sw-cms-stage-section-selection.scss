@@ -37,7 +37,7 @@
     .sw-cms-stage-section-selection__default-preview-inner {
         height: 100%;
         width: 100%;
-        border: 1px dashed var(--color-border-primary-default);
+        border: 1px dashed var(--color-border-secondary-default);
         border-radius: $border-radius-default;
     }
 
@@ -49,7 +49,7 @@
         justify-content: center;
 
         .sw-cms-stage-section-selection__sidebar-preview-placeholder {
-            border: 1px dashed var(--color-border-primary-default);
+            border: 1px dashed var(--color-border-secondary-default);
             border-radius: $border-radius-default;
         }
     }

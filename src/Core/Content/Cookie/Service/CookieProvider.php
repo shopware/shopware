@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @phpstan-import-type CookieGroupArray from CookieProviderInterface
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CookieProvider
 {
     final public const SNIPPET_NAME_COOKIE_GROUP_REQUIRED = 'cookie.groupRequired';
@@ -215,10 +215,9 @@ class CookieProvider
     {
         foreach ($legacyCookieGroups as $legacyCookieGroup) {
             $snippetName = $legacyCookieGroup['snippet_name'] ?? null;
-            if ($snippetName === null) {
+            if (!\is_string($snippetName)) {
                 throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup);
             }
-            $snippetName = (string) $snippetName;
 
             $cookieGroup = $cookieGroupCollection->get($snippetName);
             if ($cookieGroup === null) {
@@ -258,10 +257,10 @@ class CookieProvider
 
                 foreach ($legacyCookieGroup['entries'] as $entry) {
                     $cookie = $entry['cookie'] ?? null;
-                    if ($cookie === null) {
+                    if (!\is_string($cookie)) {
                         throw CookieException::invalidLegacyCookieEntryProvided($entry);
                     }
-                    $cookieEntry = new CookieEntry((string) $cookie);
+                    $cookieEntry = new CookieEntry($cookie);
 
                     if (\array_key_exists('snippet_name', $entry)) {
                         $name = (string) $entry['snippet_name'];

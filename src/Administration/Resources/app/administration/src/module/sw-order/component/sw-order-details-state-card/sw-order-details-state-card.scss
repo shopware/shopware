@@ -1,13 +1,11 @@
-@import "~scss/variables";
-
 .sw-order-detail-state-card {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
 
     &__divider {
         margin: 32px 0;
         border: none;
         height: 1px;
-        background-color: var(--color-border-primary-default);
+        background-color: var(--color-border-secondary-default);
     }
 
     &__content {

@@ -132,7 +132,7 @@ class CustomerBirthdayRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['birthday' => '2000-09-05', 'operator' => Rule::OPERATOR_EQ]);
@@ -143,7 +143,7 @@ class CustomerBirthdayRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
 
         $this->rule->assign(['birthday' => '2000-09-05', 'operator' => Rule::OPERATOR_EQ]);
 
@@ -192,7 +192,7 @@ class CustomerBirthdayRuleTest extends TestCase
 
     public function createScope(CustomerEntity $customer): CheckoutRuleScope
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         return new CheckoutRuleScope($context);

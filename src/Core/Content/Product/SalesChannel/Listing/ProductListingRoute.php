@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,8 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductListingRoute extends AbstractProductListingRoute
 {
     /**
@@ -37,7 +38,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -109,7 +110,12 @@ class ProductListingRoute extends AbstractProductListingRoute
                 EntityCacheKeyGenerator::buildStreamTag($productStreamId)
             );
 
-            $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
+            }
 
             return;
         }

@@ -28,7 +28,7 @@ class LineItemTotalPriceRuleTest extends TestCase
         $rule = (new LineItemTotalPriceRule())
             ->assign(['amount' => 200, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -50,7 +50,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -72,7 +72,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -88,7 +88,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 201, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -104,7 +104,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -120,7 +120,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -136,7 +136,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     {
         $rule = (new LineItemTotalPriceRule())->assign(['amount' => 199, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $lineItem = (new LineItem('A', 'product'))
             ->setPrice(
@@ -157,7 +157,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))
@@ -173,7 +173,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($lineItem, $context))
@@ -189,7 +189,7 @@ class LineItemTotalPriceRuleTest extends TestCase
                 new CalculatedPrice(100, 200, new CalculatedTaxCollection(), new TaxRuleCollection())
             );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))

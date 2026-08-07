@@ -1,16 +1,8 @@
 @import "~scss/variables";
 
-$sw-media-field-font-size-label: $font-size-xs;
-$sw-media-field-color-label: $color-darkgray-200;
 $sw-media-field-border-radius-input: $border-radius-default;
-$sw-media-field-border-color-input: $color-gray-300;
-$sw-media-field-border-color-input-active: $color-shopware-brand-500;
 $sw-media-field-border-radius-picker: $border-radius-default;
-$sw-media-field-border-color-picker: $color-gray-300;
-$sw-media-field-background-color-picker: $color-white;
-$sw-media-field-background-color-list-item-hover: $color-shopware-brand-50;
-$sw-media-field-color-picker-toggle: $color-shopware-brand-500;
-$sw-media-field-color-unlink: $color-crimson-500;
+$sw-media-field-border-color-picker: var(--color-border-secondary-default);
 
 .sw-media-field {
     position: relative;
@@ -19,8 +11,8 @@ $sw-media-field-color-unlink: $color-crimson-500;
 
     .sw-media-field__label {
         display: block;
-        font-size: $sw-media-field-font-size-label;
-        color: $sw-media-field-color-label;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
         margin-bottom: 8px;
         line-height: 16px;
         font-weight: normal;
@@ -36,8 +28,8 @@ $sw-media-field-color-unlink: $color-crimson-500;
 
         .sw-media-field__input {
             padding: 2px 2px 2px 8px;
-            background-color: $color-white;
-            border: 1px solid $sw-media-field-border-color-input;
+            background-color: var(--color-background-primary-default);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $sw-media-field-border-radius-input 0 0 $sw-media-field-border-radius-input;
         }
 
@@ -48,14 +40,14 @@ $sw-media-field-color-unlink: $color-crimson-500;
 
         .mt-button--square {
             border-radius: 0 $sw-media-field-border-radius-input $sw-media-field-border-radius-input 0;
-            border: 1px solid $sw-media-field-border-color-input;
+            border: 1px solid var(--color-border-primary-default);
             border-left: 0 none;
             width: 45px;
             height: 45px;
         }
 
         &.is--active .sw-media-field__input {
-            border: 1px solid $sw-media-field-border-color-input-active;
+            border: 1px solid var(--color-border-brand-default);
         }
     }
 
@@ -74,7 +66,7 @@ $sw-media-field-color-unlink: $color-crimson-500;
 .sw-media-field__expanded-content {
     width: 380px;
     padding: 30px;
-    background-color: $sw-media-field-background-color-picker;
+    background-color: var(--color-elevation-surface-raised);
     border: 1px solid $sw-media-field-border-color-picker;
     border-radius: $sw-media-field-border-radius-picker;
     transform: translate(calc(-100% + 45px), 6px);
@@ -88,7 +80,7 @@ $sw-media-field-color-unlink: $color-crimson-500;
 
         > .sw-media-field__suggestion-list-entry:hover {
             cursor: pointer;
-            background: $sw-media-field-background-color-list-item-hover;
+            background: var(--color-background-brand-default);
         }
     }
 
@@ -104,7 +96,7 @@ $sw-media-field-color-unlink: $color-crimson-500;
         height: 8px;
         width: 8px;
         transform: rotate(45deg);
-        background: $color-white;
+        background: var(--color-elevation-surface-raised);
         border-top: 1px solid $sw-media-field-border-color-picker;
         border-left: 1px solid $sw-media-field-border-color-picker;
         z-index: $z-index-context-menu;
@@ -121,21 +113,21 @@ $sw-media-field-color-unlink: $color-crimson-500;
         border: none;
         background: none;
         padding: 0;
-        color: $sw-media-field-color-picker-toggle;
+        color: var(--color-icon-brand-default);
         justify-self: start;
 
         &.is--remove {
-            color: $sw-media-field-color-unlink;
+            color: var(--color-icon-critical-default);
             justify-self: end;
         }
     }
 
     .sw-media-field__icon-add {
-        color: $sw-media-field-color-picker-toggle;
+        color: var(--color-icon-brand-default);
     }
 
     .sw-media-field__icon-remove {
-        color: $sw-media-field-color-unlink;
+        color: var(--color-icon-critical-default);
     }
 
     .sw-media-field__picker-loader {

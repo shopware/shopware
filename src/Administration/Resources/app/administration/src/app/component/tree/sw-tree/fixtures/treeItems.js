@@ -234,8 +234,7 @@ export default function getTreeItems() {
                     active: true,
                     hreflangActive: false,
                     maintenance: false,
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    maintenanceIpWhitelist: null,
+                    maintenanceIpAllowlist: null,
                     customFields: null,
                     paymentMethodIds: [
                         '04c5cd32601941078fa77eec6cc54275',
@@ -317,8 +316,7 @@ export default function getTreeItems() {
                     active: true,
                     hreflangActive: false,
                     maintenance: false,
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    maintenanceIpWhitelist: null,
+                    maintenanceIpAllowlist: null,
                     customFields: null,
                     paymentMethodIds: [
                         '04c5cd32601941078fa77eec6cc54275',

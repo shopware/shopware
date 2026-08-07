@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -45,7 +45,7 @@ class SystemConfigValidator
 
             $allKeys = array_keys($inputValues);
 
-            $domains = array_map(static fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
+            $domains = array_map($this->getSystemConfigDomain(...), $allKeys);
             $domains = array_unique($domains);
 
             $subDefinition = new DataValidationDefinition('systemConfig.update.' . $saleChannelId);
@@ -135,8 +135,19 @@ class SystemConfigValidator
     {
         try {
             return $this->configurationService->getConfiguration($domain, $context);
-        } catch (BundleConfigNotFoundException) {
+        } catch (SystemConfigException) {
             return [];
         }
+    }
+
+    private function getSystemConfigDomain(string $key): string
+    {
+        $parts = explode('.', $key);
+
+        if (\count($parts) < 3) {
+            return $parts[0];
+        }
+
+        return $parts[0] . '.' . $parts[1];
     }
 }

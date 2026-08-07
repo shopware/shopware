@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
@@ -30,7 +29,6 @@ class CacheControllerTest extends TestCase
         $this->cache = static::getContainer()->get('cache.object');
     }
 
-    #[Group('slow')]
     public function testClearCacheEndpoint(): void
     {
         $this->cache = static::getContainer()->get('cache.object');
@@ -76,7 +74,7 @@ class CacheControllerTest extends TestCase
         static::assertArrayHasKey('httpCache', $decodedContent);
         static::assertIsBool($decodedContent['httpCache']);
         static::assertArrayHasKey('cacheAdapter', $decodedContent);
-        static::assertSame('Array', $decodedContent['cacheAdapter']);
+        static::assertSame('Filesystem', $decodedContent['cacheAdapter']);
     }
 
     public function testCacheIndexEndpoint(): void

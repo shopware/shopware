@@ -14,8 +14,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 final readonly class RefreshHttpCacheMessageHandler
 {
     public function __construct(

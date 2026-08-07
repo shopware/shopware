@@ -13,7 +13,9 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -36,7 +38,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly AbstractProductStreamBuilder $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
@@ -112,11 +114,19 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         try {
-            $this->productStreamBuilder->enrichCriteria(
-                $criteria,
-                $config->getStringValue(),
-                $resolverContext->getSalesChannelContext()->getContext()
-            );
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria(
+                    $criteria,
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                );
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters(
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                ));
+            }
         } catch (EntityNotFoundException $exception) {
             $this->logger->warning(
                 'Product stream configured for CMS product slider could not be found.',
@@ -131,7 +141,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         $criteria->setLimit($limit);
 
-        if (!$this->isDisplayAsGroupDisabled($criteria)) {
+        if (!$this->shouldSkipGrouping($criteria)) {
             $this->addGrouping($criteria);
         }
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
@@ -154,7 +164,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
-        if ($this->isDisplayAsGroupDisabled($originCriteria)) {
+        if ($this->shouldSkipGrouping($originCriteria)) {
             return $streamResult;
         }
 
@@ -222,8 +232,8 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         }
     }
 
-    private function isDisplayAsGroupDisabled(Criteria $criteria): bool
+    private function shouldSkipGrouping(Criteria $criteria): bool
     {
-        return $criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        return $criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
     }
 }

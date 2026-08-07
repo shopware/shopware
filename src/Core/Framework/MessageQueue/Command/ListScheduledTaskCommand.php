@@ -12,11 +12,11 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:list',
     description: 'List all scheduled tasks',
 )]
-#[Package('framework')]
 class ListScheduledTaskCommand extends Command
 {
     /**

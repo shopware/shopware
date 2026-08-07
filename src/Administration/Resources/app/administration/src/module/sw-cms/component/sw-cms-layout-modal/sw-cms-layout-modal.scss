@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-cms-layout-modal {
     .sw-cms-layout-modal__header {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 24px;
         padding: 24px 30px;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-cms-layout-modal__actions-sorting {
             display: grid;
@@ -33,7 +31,7 @@
         }
 
         .sw-cms-layout-modal__header-title {
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;

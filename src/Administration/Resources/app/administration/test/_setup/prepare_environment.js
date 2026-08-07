@@ -9,6 +9,9 @@ import '@testing-library/jest-dom';
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import {
+    MtActionMenu,
+    MtActionMenuGroup,
+    MtActionMenuItem,
     MtBanner,
     MtButton,
     MtCard,
@@ -16,6 +19,9 @@ import {
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
+    MtDropdownMenuPortal,
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
     MtFloatingUi,
@@ -38,7 +44,7 @@ import {
     MtToast,
     MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
-import {createI18n} from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -49,6 +55,9 @@ import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent 
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
+import CacheService from '../../src/app/service/cache.service';
+
+const defaultFeatureFlags = [...global.activeFeatureFlags];
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -112,33 +121,47 @@ config.plugins.VueWrapper.install((wrapper) => {
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
 
+const cacheService = new CacheService();
+const userConfigService = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+const customFieldDataProviderService = {
+    getCustomFieldSets: jest.fn(() => Promise.resolve([])),
+};
+
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
 Shopware.Feature = Shopware.Service('feature');
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
+Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 
 // Provide all services
-Shopware.Service().list().forEach(serviceKey => {
-    config.global.provide[serviceKey] = Shopware.Service(serviceKey);
-});
+Shopware.Service()
+    .list()
+    .forEach((serviceKey) => {
+        config.global.provide[serviceKey] = Shopware.Service(serviceKey);
+    });
+Shopware.Service().register('cacheService', () => cacheService);
+Shopware.Service().register('userConfigService', () => userConfigService);
 
 // Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
-        return target[propertyName] = value;
+        return (target[propertyName] = value);
     },
     deleteReactive(target, propertyName) {
         delete target[propertyName];
     },
     root: {
-        $t: v => v,
+        $t: (v) => v,
     },
     i18n: {
         global: {
-            tc: v => v,
-            te: v => v,
-            t: v => v,
+            tc: (v) => v,
+            te: (v) => v,
+            t: (v) => v,
         },
     },
 };
@@ -155,7 +178,8 @@ Shopware.Store.get('context').api.liveVersionId = '0fa91ce3e96a4bc2be4bd9ce752c3
 Shopware.Context.api.authToken = {
     access: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5IiwiaWF0IjoxNjAyODM5OTgxLCJuYmYiOjE2MDI4Mzk5ODEsImV4cCI6MTYwMjg0MDU4MSwic3ViIjoiNzk5Y2NmNzY3MzZjNDkxYTgzNTA5MzA0Mjc3YzI3MTkiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.Df0EnZyZ-eY1iNCB-0x-0Ir8a8XW_HOdhq9HEcx7AbCEogHIFtU_0UPxTLX9_Wo3r-5C4FmbQrN31ReBWxkbEldMb3EU-UL4FIJA2gYhFWAXV2ZhaEJ5hRQ04n4gra0Os48vzYIEOq87_0lPPQqqVZLi68aHLVSF962VE1SkbofKqS2l2mDh9JJjnyhZavpkmpLhLkoWBBUWJS7G-EHo_-DttxPpA8W0Kgyg8Ch4Z2xqZ1r0zaB6hIS97-m8qLFHtjPhrbLW8NIMURIU3_brkkO2wFXrLKc0Y6MLJac8BVEe8VTEoEo8x8Ft2dCQU5aF2Aht3Y_55m1VjUMXBSb77A',
     expiry: 1602840582,
-    refresh: 'def5020065a671fb38ec810a50bb627db679fd9a046ca0187215d418986fce75d3b55f7e0588c33318f3f7a280edc1e82b764a6b1fb82275e457459e58fff73afaa2aac08acd23322d398a74babbd9e02c11228985a5f140742eaa2c30af55ae350aca32e898ca9a5955c0bf057dee2b39bb5134aa6176668744fe05d6dbc9a0294bf6fa4dd6b4b07ed5d235d89005eeffc0e69ddc072e2023e522a5fd699c3e68b1dcdcc9f60c63f62ff4ed1778abfb0f3b95c4b44ad92d885bf1dca115f086b1a2368e7326f467331b6a0e65049e790c4d3a35fc1d77dfbd91da74c4d7cc449604adecd41bd84596efa4651b75bef0eeba6aef0d33338be22bf4e816584aefce9588a85d1dafbe311e330835d54dc19f43baa7a7ad63ee9573c98444219d80266b52b6e840354596d369e8350f3df18dae21a9dc607dcf70d66ddf78652a0d4083b85a832cc808d61ad15c196e1579cdea3829a8b480572f7afd590cd18fe811b5596554a58c5800756fdb1c051a461e4d7cf7c94c552ccf79d7a1368dfe8e63f4402abbaa6cabbd92437cf3f78c302ea7492dd60f5cfd8f7b4e8aa714',
+    refresh:
+        'def5020065a671fb38ec810a50bb627db679fd9a046ca0187215d418986fce75d3b55f7e0588c33318f3f7a280edc1e82b764a6b1fb82275e457459e58fff73afaa2aac08acd23322d398a74babbd9e02c11228985a5f140742eaa2c30af55ae350aca32e898ca9a5955c0bf057dee2b39bb5134aa6176668744fe05d6dbc9a0294bf6fa4dd6b4b07ed5d235d89005eeffc0e69ddc072e2023e522a5fd699c3e68b1dcdcc9f60c63f62ff4ed1778abfb0f3b95c4b44ad92d885bf1dca115f086b1a2368e7326f467331b6a0e65049e790c4d3a35fc1d77dfbd91da74c4d7cc449604adecd41bd84596efa4651b75bef0eeba6aef0d33338be22bf4e816584aefce9588a85d1dafbe311e330835d54dc19f43baa7a7ad63ee9573c98444219d80266b52b6e840354596d369e8350f3df18dae21a9dc607dcf70d66ddf78652a0d4083b85a832cc808d61ad15c196e1579cdea3829a8b480572f7afd590cd18fe811b5596554a58c5800756fdb1c051a461e4d7cf7c94c552ccf79d7a1368dfe8e63f4402abbaa6cabbd92437cf3f78c302ea7492dd60f5cfd8f7b4e8aa714',
 };
 Shopware.Store.get('session').setAdminLocaleState({
     locales: ['en-GB'],
@@ -169,10 +193,10 @@ Shopware.Telemetry.track = () => {};
 
 // Add global mocks
 config.global.mocks = {
-    $tc: v => v,
-    $t: v => v,
+    $tc: (v) => v,
+    $t: (v) => v,
     $te: () => true,
-    $sanitize: key => key,
+    $sanitize: (key) => key,
     $i18n: {
         locale: 'en-GB',
         fallbackLocale: 'en-GB',
@@ -218,8 +242,11 @@ config.global.stubs = {
     `,
     },
     'mt-popover-deprecated': {
-        template: `<div class="mt-popover-deprecated"><slot/></div>`
+        template: `<div class="mt-popover-deprecated"><slot/></div>`,
     },
+    'mt-action-menu': MtActionMenu,
+    'mt-action-menu-group': MtActionMenuGroup,
+    'mt-action-menu-item': MtActionMenuItem,
     'mt-banner': MtBanner,
     'mt-button': MtButton,
     'mt-card': MtCard,
@@ -227,6 +254,9 @@ config.global.stubs = {
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,
+    'mt-dropdown-menu-portal': MtDropdownMenuPortal,
+    'mt-dropdown-menu-root': MtDropdownMenuRoot,
+    'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,
@@ -267,8 +297,8 @@ const i18n = createI18n({
         }
 
         return path;
-    }
-})
+    },
+});
 
 // Add global plugins
 config.global.plugins = [
@@ -324,7 +354,7 @@ global.allowedErrors = [
     },
     {
         method: 'warn',
-        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".'
+        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".',
     },
     {
         method: 'error',
@@ -373,8 +403,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use');
+            return (
+                msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use')
+            );
         },
     },
     /*
@@ -389,8 +421,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is already registered. Please select a unique name for your component.') ||
-                msg1?.includes?.('is already registered. Please select a unique name for your component.');
+            return (
+                msg0?.includes('is already registered. Please select a unique name for your component.') ||
+                msg1?.includes?.('is already registered. Please select a unique name for your component.')
+            );
         },
     },
     /*
@@ -415,8 +449,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('Missing registration for slot type') ||
-                msg1?.includes?.('Missing registration for slot type');
+            return (
+                msg0?.includes('Missing registration for slot type') ||
+                msg1?.includes?.('Missing registration for slot type')
+            );
         },
     },
 
@@ -427,8 +463,10 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('No definition found for entity type') ||
-                msg1?.includes?.('No definition found for entity type');
+            return (
+                msg0?.includes('No definition found for entity type') ||
+                msg1?.includes?.('No definition found for entity type')
+            );
         },
     },
 
@@ -529,7 +567,7 @@ const { error, warn } = console;
 // This allows tests to use jest.spyOn(console, 'warn') without conflicts
 global.console.error = (...args) => {
     let silenceError = false;
-    global.allowedErrors.some(allowedError => {
+    global.allowedErrors.some((allowedError) => {
         if (allowedError.method !== 'error') {
             return;
         }
@@ -565,7 +603,7 @@ global.console.error = (...args) => {
 
 global.console.warn = (...args) => {
     let silenceWarning = false;
-    global.allowedErrors.some(allowedError => {
+    global.allowedErrors.some((allowedError) => {
         if (allowedError.method !== 'warn') {
             return;
         }
@@ -611,7 +649,24 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = [];
+    global.activeFeatureFlags = [...defaultFeatureFlags];
+
+    if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
+        return;
+    }
+
+    Shopware.Service('cacheService')?.clear?.();
+
+    const registeredUserConfigService = Shopware.Service('userConfigService');
+    if (jest.isMockFunction(registeredUserConfigService?.search)) {
+        registeredUserConfigService.search.mockReset();
+        registeredUserConfigService.search.mockResolvedValue({ data: {} });
+    }
+
+    if (jest.isMockFunction(registeredUserConfigService?.upsert)) {
+        registeredUserConfigService.upsert.mockReset();
+        registeredUserConfigService.upsert.mockResolvedValue();
+    }
 });
 
 // eslint-disable-next-line jest/require-top-level-describe

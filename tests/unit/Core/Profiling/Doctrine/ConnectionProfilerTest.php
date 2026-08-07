@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
@@ -19,6 +20,7 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConnectionProfiler::class)]
 class ConnectionProfilerTest extends TestCase
 {
@@ -90,6 +92,26 @@ class ConnectionProfilerTest extends TestCase
 
         $collectedQueries = $c->getQueries();
         static::assertSame([], $collectedQueries['default'][0]['types']);
+    }
+
+    public function testLateCollectIsStableAcrossSubRequests(): void
+    {
+        // The data holder is shared across the whole request and lateCollect() runs once per profiled
+        // request, i.e. once for the main request and once for every sub-request (e.g. storefront
+        // pagelets). Repeated calls without an intermediate reset() must keep reporting every query,
+        // otherwise the main-request profile ends up showing zero queries.
+        $queries = [
+            ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 1],
+            ['sql' => 'SELECT * FROM table2', 'params' => [], 'types' => [], 'executionMS' => 1],
+        ];
+        $c = $this->createCollector($queries);
+
+        $c->lateCollect();
+        $c->lateCollect();
+        $c->lateCollect();
+
+        $c = Serialization::assertRoundTrip($c);
+        static::assertSame(2, $c->getQueryCount());
     }
 
     public function testReset(): void

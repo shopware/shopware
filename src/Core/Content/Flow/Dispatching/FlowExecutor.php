@@ -73,7 +73,7 @@ class FlowExecutor
             $name = $flowHolder['name'];
 
             try {
-                $this->publishExecution($flow, $event);
+                $this->runFlow($flow, $event);
             } catch (ExecuteSequenceException $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
@@ -99,7 +99,7 @@ class FlowExecutor
 
     public function execute(Flow $flow, StorableFlow $event): void
     {
-        $this->publishExecution($flow, $event);
+        $this->runFlow($flow, $event);
     }
 
     public function executeSequence(?Sequence $sequence, StorableFlow $event): void
@@ -158,8 +158,10 @@ class FlowExecutor
         $this->executeSequence($sequence->falseCase, $event);
     }
 
-    private function publishExecution(Flow $flow, StorableFlow $event): void
+    private function runFlow(Flow $flow, StorableFlow $event): void
     {
+        // Metric covers extension too: an extension may stop propagation and replace _execute entirely - and
+        // every flow execution still will be covered, and the duration will include extension pre/post overhead.
         $this->flowMetrics->measureExecution(
             $event,
             fn () => $this->extensions->publish(

@@ -11,10 +11,11 @@ export type HttpHeaders = Record<string, HttpClientValue>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface HttpRequestConfig<Data = HttpClientValue> {
+    [key: string]: HttpClientValue;
     url?: string;
     method?: string;
     baseURL?: string;
-    headers?: HttpHeaders;
+    headers?: HttpClientValue;
     params?: HttpClientValue;
     data?: Data;
     timeout?: number;
@@ -50,10 +51,12 @@ interface HttpCancelTokenSource {
 }
 
 interface HttpCancelTokenFactory {
+    new (executor: (cancel: (message?: string) => void) => void): HttpCancelToken;
     source: () => HttpCancelTokenSource;
 }
 
 interface HttpInterceptorManager<Value> {
+    handlers: HttpClientValue[];
     use: <Result = Value>(
         onFulfilled?: (value: Value) => Result | Promise<Result>,
         onRejected?: (error: HttpClientValue) => HttpClientValue,
@@ -61,6 +64,7 @@ interface HttpInterceptorManager<Value> {
     ) => number;
     eject: (id: number) => void;
     clear: () => void;
+    forEach: (callback: (handler: HttpClientValue) => void) => void;
 }
 
 interface HttpClientDefaults extends HttpRequestConfig {

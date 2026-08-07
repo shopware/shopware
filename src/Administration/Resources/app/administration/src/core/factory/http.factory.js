@@ -138,6 +138,15 @@ function createClient() {
     };
     dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
 
+    // Keep the former runtime escape hatches for extensions that already use them.
+    // They intentionally stay out of the TypeScript contract so new code uses the version-agnostic facade.
+    dispatcher.axiosV0 = axiosV0;
+    dispatcher.axiosV1 = axiosV1;
+    dispatcher.interceptorsV0 = axiosV0.interceptors;
+    dispatcher.interceptorsV1 = axiosV1.interceptors;
+    dispatcher.defaultsV0 = axiosV0.defaults;
+    dispatcher.defaultsV1 = axiosV1.defaults;
+
     return dispatcher;
 }
 
@@ -155,52 +164,80 @@ function createFormConfig(method, url, data, config) {
 }
 
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
-    const interceptorIds = new Map();
-    let handlers = [];
-    let nextId = 0;
+    const handlers = [];
+
+    const syncHandlers = () => {
+        axiosV0Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+        axiosV1Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+    };
+    const mirroredHandlers = new Proxy(handlers, {
+        set(target, property, value) {
+            Reflect.set(target, property, value);
+            syncHandlers();
+
+            return true;
+        },
+        deleteProperty(target, property) {
+            Reflect.deleteProperty(target, property);
+            syncHandlers();
+
+            return true;
+        },
+    });
+    const replaceHandlers = (value) => {
+        if (value === mirroredHandlers) {
+            return;
+        }
+
+        handlers.length = 0;
+        handlers.push(...value);
+        syncHandlers();
+    };
+
+    replaceHandlers(axiosV0Interceptors.handlers);
 
     return {
         get handlers() {
-            return handlers;
+            return mirroredHandlers;
         },
         set handlers(value) {
-            handlers = value;
+            replaceHandlers(value);
         },
         use(onFulfilled, onRejected, options) {
-            const id = nextId;
-            nextId += 1;
-
-            interceptorIds.set(id, [
-                axiosV0Interceptors.use(onFulfilled, onRejected, options),
-                axiosV1Interceptors.use(onFulfilled, onRejected, options),
-            ]);
-            handlers[id] = {
+            const id = handlers.length;
+            handlers.push({
                 fulfilled: onFulfilled,
                 rejected: onRejected,
                 synchronous: options?.synchronous ?? false,
                 runWhen: options?.runWhen ?? null,
-            };
+            });
+            syncHandlers();
 
             return id;
         },
         eject(id) {
-            const axiosIds = interceptorIds.get(id);
-            if (!axiosIds) {
+            if (!handlers[id]) {
                 return;
             }
 
-            axiosV0Interceptors.eject(axiosIds[0]);
-            axiosV1Interceptors.eject(axiosIds[1]);
-            interceptorIds.delete(id);
             handlers[id] = null;
+            syncHandlers();
         },
         clear() {
-            axiosV0Interceptors.clear?.();
-            axiosV1Interceptors.clear?.();
-            interceptorIds.clear();
-            handlers.length = 0;
+            replaceHandlers([]);
+        },
+        forEach(callback) {
+            handlers.forEach((handler) => {
+                if (handler !== null) {
+                    callback(handler);
+                }
+            });
         },
     };
+}
+
+function cloneInterceptorHandler(handler) {
+    return handler === null || handler === undefined ? handler : { ...handler };
 }
 
 function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {

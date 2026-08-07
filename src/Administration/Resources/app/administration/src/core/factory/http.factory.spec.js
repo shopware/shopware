@@ -417,24 +417,48 @@ describe('core/factory/http.factory.js', () => {
         client.interceptors.response.clear();
 
         expect(client.interceptors.response.handlers).toHaveLength(0);
+        expect(client.interceptorsV0.response.handlers).toHaveLength(0);
+        expect(client.interceptorsV1.response.handlers).toHaveLength(0);
     });
 
     it('should register public interceptors after handlers are replaced', () => {
         const client = createHTTPClient();
         client.interceptors.response.handlers = [];
 
-        client.interceptors.response.use((response) => response);
+        expect(client.interceptorsV0.response.handlers).toHaveLength(0);
+        expect(client.interceptorsV1.response.handlers).toHaveLength(0);
+
+        const interceptorId = client.interceptors.response.use((response) => response);
 
         expect(client.interceptors.response.handlers).toHaveLength(1);
+        expect(interceptorId).toBe(0);
+        expect(client.interceptorsV0.response.handlers).toHaveLength(1);
+        expect(client.interceptorsV1.response.handlers).toHaveLength(1);
     });
 
-    it('should not expose the underlying axios instances', () => {
-        expect(httpClient).not.toHaveProperty('axiosV0');
-        expect(httpClient).not.toHaveProperty('axiosV1');
-        expect(httpClient).not.toHaveProperty('interceptorsV0');
-        expect(httpClient).not.toHaveProperty('interceptorsV1');
-        expect(httpClient).not.toHaveProperty('defaultsV0');
-        expect(httpClient).not.toHaveProperty('defaultsV1');
+    it('should mirror direct public interceptor handler mutations', () => {
+        const client = createHTTPClient();
+        const handler = {
+            fulfilled: (response) => response,
+            rejected: null,
+            synchronous: false,
+            runWhen: null,
+        };
+
+        client.interceptors.response.handlers = [];
+        client.interceptors.response.handlers.push(handler);
+
+        expect(client.interceptorsV0.response.handlers).toEqual([handler]);
+        expect(client.interceptorsV1.response.handlers).toEqual([handler]);
+    });
+
+    it('should keep the legacy runtime axios escape hatches', () => {
+        expect(httpClient).toHaveProperty('axiosV0');
+        expect(httpClient).toHaveProperty('axiosV1');
+        expect(httpClient).toHaveProperty('interceptorsV0');
+        expect(httpClient).toHaveProperty('interceptorsV1');
+        expect(httpClient).toHaveProperty('defaultsV0');
+        expect(httpClient).toHaveProperty('defaultsV1');
     });
 
     it('should have an isCancel method that detects cancellations', () => {

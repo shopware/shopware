@@ -8,14 +8,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        StorefrontSearchSuggest,
-        SearchForTerm,
-        IdProvider,
-    }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontSearchSuggest, SearchForTerm, IdProvider }) => {
         const productNameSuffix1 = IdProvider.getIdPair().uuid;
         await TestDataService.createBasicProduct({
             name: `Bottle${productNameSuffix1}`,

@@ -59,13 +59,9 @@ test(
         });
         const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
 
-        const variantProductColor = await TestDataService.createVariantProducts(
-            parentProductColor,
-            propertyGroupsColor,
-            {
-                description: 'Variant description',
-            },
-        );
+        const variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
+            description: 'Variant description',
+        });
         await TestDataService.clearCaches();
 
         await test.step('Verify property display on the product detail page', async () => {

@@ -8,13 +8,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        StorefrontProductDetail,
-        SalesChannelBaseConfig,
-    }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {

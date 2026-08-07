@@ -224,6 +224,105 @@ class ProductListRouteTest extends TestCase
         static::assertSame('test hidden own review', $reviews[1]['title']);
     }
 
+    public function testListingProductsIncludesOnlyPublicReviewsForNestedAssociations(): void
+    {
+        $foreignCustomerId = $this->login($this->browser);
+        // the second login switches the browser to another customer, the hidden review stays owned by the first one
+        $this->login($this->browser);
+
+        $product = (new ProductBuilder($this->ids, 'nested-review-parent'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->variant(
+                (new ProductBuilder($this->ids, 'nested-review-child'))
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->price(10)
+                    ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
+                    ->review('test hidden foreign review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $foreignCustomerId)
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('nested-review-parent')],
+                'associations' => [
+                    'children' => [
+                        'associations' => [
+                            'productReviews' => [],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(1, $response['elements'][0]['children']);
+        static::assertArrayHasKey('productReviews', $response['elements'][0]['children'][0]);
+
+        $reviews = $response['elements'][0]['children'][0]['productReviews'];
+        static::assertCount(1, $reviews);
+        static::assertSame('test public review', $reviews[0]['title']);
+    }
+
+    public function testListingProductsIncludesOwnInactiveReviewsForNestedAssociations(): void
+    {
+        $customerId = $this->login($this->browser);
+
+        $product = (new ProductBuilder($this->ids, 'nested-own-review-parent'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->variant(
+                (new ProductBuilder($this->ids, 'nested-own-review-child'))
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->price(10)
+                    ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
+                    ->review('test hidden own review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $customerId)
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('nested-own-review-parent')],
+                'associations' => [
+                    'children' => [
+                        'associations' => [
+                            'productReviews' => [
+                                'sort' => [['field' => 'points', 'order' => FieldSorting::DESCENDING]],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(1, $response['elements'][0]['children']);
+        static::assertArrayHasKey('productReviews', $response['elements'][0]['children'][0]);
+
+        $reviews = $response['elements'][0]['children'][0]['productReviews'];
+        static::assertCount(2, $reviews);
+        static::assertSame('test public review', $reviews[0]['title']);
+        static::assertSame('test hidden own review', $reviews[1]['title']);
+    }
+
     public function testListingProductsLimitsChildrenAssociation(): void
     {
         $product = (new ProductBuilder($this->ids, 'parent-with-limited-children'))

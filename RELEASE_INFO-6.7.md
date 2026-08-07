@@ -375,6 +375,10 @@ Variant products report their selected options as `item_variant`, for example `R
 
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
 
+`add_to_wishlist` and `remove_from_wishlist` report the category path of the product. Product boxes carry it in their `data-product-information` attribute, resolved by the new Twig function `sw_analytics_category_path(product, context)`. Both events previously fell back to the page breadcrumb, which describes the wishlist on the wishlist page and the listing category on a listing, so the reported categories were wrong or missing. The breadcrumb is still used when a product box carries no path, which keeps the product detail page correct.
+
+The path is only resolved when a page loads the `categories` and `mainCategories.category` associations. The customer and the guest wishlist page now do, which costs two additional database reads per wishlist page. Product listings, product sliders, and cross selling do not, so their product boxes report an empty path and their query count is unchanged.
+
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. It reads the product number from `.product-detail-ordernumber` and the manufacturer from the `product:brand` meta tag instead, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 ### `theme:create` gains `--full` and granular scaffold flags
 

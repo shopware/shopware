@@ -94,6 +94,9 @@ class WishlistPageLoader
             ->addSorting(new FieldSorting('wishlists.updatedAt', FieldSorting::ASCENDING))
             ->addAssociation('manufacturer')
             ->addAssociation('options.group')
+            // analytics reports the category path of every wishlisted product, see sw_analytics_category_path
+            ->addAssociation('categories')
+            ->addAssociation('mainCategories.category')
             ->setLimit($limit)
             ->setOffset($offset)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

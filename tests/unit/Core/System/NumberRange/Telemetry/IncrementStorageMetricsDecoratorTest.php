@@ -35,11 +35,13 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         $duration = $this->getMetric('number_range.allocation.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        static::assertSame([
+        static::assertSame(
+            [
                 'number_range_type' => 'number_range_type_label:order',
                 'storage' => 'mysql',
-                'result' => 'success'
-            ], $duration->labels,
+                'result' => 'success',
+            ],
+            $duration->labels,
         );
     }
 

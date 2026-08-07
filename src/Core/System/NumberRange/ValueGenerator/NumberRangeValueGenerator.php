@@ -10,9 +10,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\NumberRangeException;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type ValueGeneratorConfig from AbstractValueGenerator
+ */
 #[Package('framework')]
 class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
@@ -169,7 +173,7 @@ class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implem
     }
 
     /**
-     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
+     * @param ValueGeneratorConfig $config
      * @param array<string> $parsedPattern
      */
     private function generate(array $parsedPattern, array $config, ?bool $preview = false): string

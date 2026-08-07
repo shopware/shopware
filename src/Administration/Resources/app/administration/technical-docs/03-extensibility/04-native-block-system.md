@@ -337,24 +337,24 @@ Component with <sw-block name="foo"> (data scope wired by the setup transform)
 │  Mount
 │
 │  Compose [defaultSlot, ...shimSlots, ...getBlocks("foo")]
-│  → [defaultSlot, overrideSlot1, overrideSlot2]   (no legacy shims here)
+│  → [defaultSlot, shimSlot, nativeSlot]   (one legacy shim, one native override)
 │
 │  Call each slot with $dataScope
-│  → [defaultVNodes, override1VNodes, override2VNodes]
+│  → [defaultVNodes, shimVNodes, nativeVNodes]
 │
-│  provide(parentsInjectionKey, [defaultVNodes, override1VNodes])
-│  render → override2VNodes   ← last one wins
+│  providedParents.value = [defaultVNodes, shimVNodes]
+│  render → nativeVNodes   ← last one wins
 │
-│       ↓ inside override2VNodes template ↓
-│
-│  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
-│  → override1VNodes   ← previous in chain
-│
-│       ↓ inside override1VNodes template ↓
+│       ↓ inside nativeVNodes template ↓
 │
 │  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
+│  setup() reserves slot 1, computed reads providedParents.value[1]
+│  → shimVNodes   ← previous in chain
+│
+│       ↓ inside shimVNodes template ↓
+│
+│  <sw-block-parent />
+│  setup() reserves slot 0, computed reads providedParents.value[0]
 │  → defaultVNodes
 ```
 

@@ -20,6 +20,8 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -395,6 +397,7 @@ class InvoiceDataProviderTest extends TestCase
 
         return new InvoiceDataProvider(
             $configLoader,
+            new DocumentTypeRegistry([new InvoiceDocumentType()]),
             $validator ?? static::createStub(ValidatorInterface::class),
         );
     }

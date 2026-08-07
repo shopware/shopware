@@ -18,6 +18,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -486,14 +487,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
             ->with(static::isInstanceOf(Criteria::class), $productStreamId, $context->getContext())
-            ->willThrowException(new NoFilterException($productStreamId));
-        $this->connection->expects($this->once())
-            ->method('fetchAssociative')
-            ->with(
-                'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
-                ['id' => Uuid::fromHexToBytes($productStreamId)]
-            )
-            ->willReturn(['api_filter' => '[]', 'invalid' => 0]);
+            ->willThrowException(new EmptyProductStreamException($productStreamId));
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
@@ -532,13 +526,6 @@ class ProductExportGeneratorTest extends TestCase
             ->method('enrichCriteria')
             ->with(static::isInstanceOf(Criteria::class), $productStreamId, $context->getContext())
             ->willThrowException(new NoFilterException($productStreamId));
-        $this->connection->expects($this->once())
-            ->method('fetchAssociative')
-            ->with(
-                'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
-                ['id' => Uuid::fromHexToBytes($productStreamId)]
-            )
-            ->willReturn(['api_filter' => null, 'invalid' => 1]);
         $this->connection->expects($this->never())->method('delete');
 
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn(static::createStub(TwigVariableParser::class));

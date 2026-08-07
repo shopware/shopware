@@ -5,14 +5,20 @@ namespace Shopware\Tests\Unit\Core\Content\ProductStream\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -53,5 +59,45 @@ class ProductStreamBuilderTest extends TestCase
         $this->expectException(EntityNotFoundException::class);
 
         $builder->buildFilters('stream-id', Context::createDefaultContext());
+    }
+
+    public function testEnrichCriteriaThrowsEmptyProductStreamExceptionForValidStreamWithoutFilters(): void
+    {
+        $streamId = Uuid::randomHex();
+        $stream = new ProductStreamEntity();
+        $stream->setId($streamId);
+        $stream->setUniqueIdentifier($streamId);
+        $stream->setApiFilter([]);
+        $stream->setInvalid(false);
+
+        $repository = new StaticEntityRepository([new ProductStreamCollection([$stream])], new ProductStreamDefinition());
+        $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
+
+        $this->expectException(EmptyProductStreamException::class);
+
+        $builder->enrichCriteria(new Criteria(), $streamId, Context::createDefaultContext());
+    }
+
+    /**
+     * A broken/invalid stream must throw the plain NoFilterException, not the EmptyProductStreamException subtype.
+     */
+    public function testEnrichCriteriaThrowsNoFilterExceptionForInvalidStream(): void
+    {
+        $streamId = Uuid::randomHex();
+        $stream = new ProductStreamEntity();
+        $stream->setId($streamId);
+        $stream->setUniqueIdentifier($streamId);
+        $stream->setApiFilter(null);
+        $stream->setInvalid(true);
+
+        $repository = new StaticEntityRepository([new ProductStreamCollection([$stream])], new ProductStreamDefinition());
+        $builder = new ProductStreamBuilder($repository, static::createStub(EntityDefinition::class));
+
+        try {
+            $builder->enrichCriteria(new Criteria(), $streamId, Context::createDefaultContext());
+            static::fail('Expected NoFilterException to be thrown');
+        } catch (NoFilterException $exception) {
+            static::assertNotInstanceOf(EmptyProductStreamException::class, $exception);
+        }
     }
 }

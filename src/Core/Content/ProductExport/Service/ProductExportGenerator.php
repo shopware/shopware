@@ -14,7 +14,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
-use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -114,14 +114,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             } else {
                 $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
             }
-        } catch (NoFilterException $exception) {
-            // A dynamic product stream whose filters were all removed serializes to an empty api_filter,
-            // which makes the builder throw NoFilterException. In that case we deliberately leave the
-            // criteria unfiltered so the export falls back to all products (empty filters = all products).
-            // Any other stream that throws is genuinely broken, so we rethrow.
-            if (!$this->isEmptyProductStream($productExport->getProductStreamId())) {
-                throw $exception;
-            }
+        } catch (EmptyProductStreamException) {
+            // No filters left on a valid stream → export all products (criteria stays unfiltered).
+            // A broken stream throws NoFilterException instead, which we intentionally let propagate.
         }
 
         $associations = $this->getAssociations($productExport, $context);
@@ -334,19 +329,5 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
 
         return array_filter(array_unique($associations));
-    }
-
-    private function isEmptyProductStream(string $productStreamId): bool
-    {
-        $stream = $this->connection->fetchAssociative(
-            'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
-            ['id' => Uuid::fromHexToBytes($productStreamId)]
-        );
-
-        if (!\is_array($stream)) {
-            return false;
-        }
-
-        return $stream['api_filter'] === '[]' && (int) $stream['invalid'] === 0;
     }
 }

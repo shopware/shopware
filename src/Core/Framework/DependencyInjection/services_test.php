@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler;
 use Shopware\Core\Framework\Test\TestCacheClearer;
 use Shopware\Core\Framework\Test\TestCaseHelper\StoreApiSessionListener;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Framework\Test\TestResetCounter;
 use Shopware\Core\Framework\Test\TestSessionStorageFactory;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
@@ -166,6 +167,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CountingEntitySearcher::class . '.inner'),
         ]);
+
+    $services->set(TestResetCounter::class)
+        ->public()
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(TestCacheClearer::class)
         ->args([

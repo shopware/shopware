@@ -14,7 +14,7 @@ framework:
     fragments: ~
     assets: ~
     http_cache:
-        enabled: true
+        enabled: false
     session:
         name: 'session-'
         handler_id: ~

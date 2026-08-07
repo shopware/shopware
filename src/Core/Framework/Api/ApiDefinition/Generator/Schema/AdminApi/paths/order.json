@@ -211,6 +211,17 @@
                     "type": "string",
                     "format": "date-time",
                     "example": "2026-07-13T00:00:00.000+00:00"
+                  },
+                  "deliveryDate": {
+                    "description": "Optional delivery date as an ISO 8601 date-time string. Required by the `delivery_note` document type.",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-07-15T00:00:00.000+00:00"
+                  },
+                  "referencedDocumentId": {
+                    "description": "Optional identifier of the referenced document. When omitted, the order's latest invoice is used.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
                   }
                 },
                 "example": {
@@ -652,6 +663,17 @@
                     "type": "string",
                     "format": "date-time",
                     "example": "2026-07-13T00:00:00.000+00:00"
+                  },
+                  "deliveryDate": {
+                    "description": "Optional delivery date as an ISO 8601 date-time string. Required by the `delivery_note` document type.",
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-07-15T00:00:00.000+00:00"
+                  },
+                  "referencedDocumentId": {
+                    "description": "Optional identifier of the referenced document. When omitted, the order's latest invoice is used.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
                   }
                 },
                 "example": {

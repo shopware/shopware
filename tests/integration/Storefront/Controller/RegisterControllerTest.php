@@ -266,7 +266,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->request('GET', '/account/register', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -279,7 +279,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->request('GET', 'customer-group-registration/' . $ids->get('group'), []);
         static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CustomerGroupRegistrationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -301,7 +301,7 @@ class RegisterControllerTest extends TestCase
         $response = $this->request('GET', '/checkout/register', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
     }

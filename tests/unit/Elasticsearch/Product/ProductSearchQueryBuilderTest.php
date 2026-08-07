@@ -111,7 +111,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}} $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}> $config
      * @param array<string, mixed> $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
@@ -128,7 +128,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}} $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}> $config
      * @param array<string, mixed> $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
@@ -152,7 +152,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>, term: string, expected: array<string, mixed>}>
      */
     public static function buildSingleLanguageProvider(): iterable
     {
@@ -311,7 +311,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>, term: string, expected: array<string, mixed>}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -671,7 +671,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}|null $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>|null $config
      */
     private function getBuilder(?array $config): ProductSearchQueryBuilder
     {
@@ -776,7 +776,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @param array<mixed> $queries
      *
-     * @return array{dis_max: array{queries: array<mixed>}}
+     * @return array{dis_max: array{queries: array<mixed>, boost?: float, tie_breaker?: float}}
      */
     private static function disMax(array $queries, float|int|null $boost = null, ?float $tieBreaker = 0.2): array
     {

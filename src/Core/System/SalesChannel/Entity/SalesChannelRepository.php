@@ -210,7 +210,12 @@ class SalesChannelRepository
             ['definition' => $this->definition, 'criteria' => $topCriteria, 'path' => ''],
         ];
 
-        $maxCount = 100;
+        // A criteria that is not processed keeps none of the restrictions its definition adds,
+        // so stopping early returns unfiltered data instead of less data. The bound is therefore
+        // derived from the incoming criteria and only guards against a processCriteria
+        // implementation that keeps adding associations: a many-to-many association queues two
+        // entries per criteria, and the root criteria may gain a few default associations.
+        $maxCount = $this->countCriteria($topCriteria) * 2 + 100;
 
         $processed = [];
 
@@ -256,5 +261,16 @@ class SalesChannelRepository
                 $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
             }
         }
+    }
+
+    private function countCriteria(Criteria $criteria): int
+    {
+        $count = 1;
+
+        foreach ($criteria->getAssociations() as $association) {
+            $count += $this->countCriteria($association);
+        }
+
+        return $count;
     }
 }

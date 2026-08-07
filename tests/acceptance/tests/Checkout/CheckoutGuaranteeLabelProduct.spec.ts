@@ -1,6 +1,7 @@
 import { test, getLanguageCode, getLocale, type Product } from '@fixtures/AcceptanceTest';
 
-test('Customer sees GARAN label on product detail, cart and checkout with legal guarantee notice enabled.',
+test(
+    'Customer sees GARAN label on product detail, cart and checkout with legal guarantee notice enabled.',
     {
         tag: [
             '@Checkout',
@@ -22,16 +23,17 @@ test('Customer sees GARAN label on product detail, cart and checkout with legal 
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        await TestDataService.setSystemConfig({'core.cart.showLegalGuaranteeNotice': true });
+        await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': true });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME' });
         const guaranteeMonths = 36;
         // Label shows full years (and ",5" for half years) — see GaranLabelDurationFormatter.
-        const expectedGuaranteeDuration = guaranteeMonths % 12 === 0 ? String(guaranteeMonths / 12) : `${Math.floor(guaranteeMonths / 12)},5`;
+        const expectedGuaranteeDuration =
+            guaranteeMonths % 12 === 0 ? String(guaranteeMonths / 12) : `${Math.floor(guaranteeMonths / 12)},5`;
 
         const expectedLegalGuaranteeNoticeUrl = (locale = getLocale()): string => {
             const languagePrefix = getLanguageCode(locale).split('-')[0]?.toLowerCase() ?? 'en';
             const slug = languagePrefix === 'de' ? 'garantien' : 'guarantees';
-        
+
             return `https://europa.eu/youreurope/${slug}`;
         };
         const product = await TestDataService.createBasicProduct({
@@ -71,7 +73,10 @@ test('Customer sees GARAN label on product detail, cart and checkout with legal 
         });
 
         await test.step('Legal guarantee notice modal displays with expected Europe language URL.', async () => {
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.legalGuaranteeNoticeLink).toHaveAttribute('href', expectedLegalGuaranteeNoticeUrl());
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.legalGuaranteeNoticeLink).toHaveAttribute(
+                'href',
+                expectedLegalGuaranteeNoticeUrl(),
+            );
         });
 
         let orderNumber: string;
@@ -96,7 +101,8 @@ test('Customer sees GARAN label on product detail, cart and checkout with legal 
     },
 );
 
-test('Customer sees standard terms and no GARAN label when legal guarantee notice is disabled.',
+test(
+    'Customer sees standard terms and no GARAN label when legal guarantee notice is disabled.',
     {
         tag: [
             '@Checkout',

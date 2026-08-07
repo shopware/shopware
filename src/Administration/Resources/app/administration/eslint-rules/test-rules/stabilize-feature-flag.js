@@ -2,6 +2,18 @@
  * @sw-package framework
  */
 
+// Bring a flag into the runtime's upper snake case form so `v6.8.0.0` and `V6_8_0_0` compare equal.
+function normalizeFeatureFlag(featureFlag) {
+    return featureFlag.toUpperCase().replace(/[.:-]/g, '_');
+}
+
+// The stabilized flag names are handcrafted and passed through the ESLint config (see
+// eslint.config.ts). Every listed flag has shipped and is permanently on, so activating it in a
+// test is a no-op and can be removed.
+function getStabilizedFlags(flagList) {
+    return new Set((flagList ?? []).map(normalizeFeatureFlag));
+}
+
 function isActiveFeatureFlagsCall(node) {
     return (
         node.type === 'MemberExpression' &&
@@ -54,7 +66,7 @@ function getRemovalRanges(sourceCode, featureFlags, stabilizedFeatureFlags) {
         const firstFeatureFlag = stabilizedFeatureFlags[index];
         let lastFeatureFlag = firstFeatureFlag;
 
-        // collect all non-experimental flags in one go for one consecutive removal range
+        // collect all consecutive stabilized flags in one go for one consecutive removal range
         while (stabilizedFeatureFlags[index + 1]?.activeIndex === lastFeatureFlag.activeIndex + 1) {
             index += 1;
             lastFeatureFlag = stabilizedFeatureFlags[index];
@@ -96,23 +108,37 @@ module.exports = {
     meta: {
         type: 'suggestion',
         docs: {
-            description: 'Remove a stabilized feature flag from it.activeFeatureFlags calls',
+            description: 'Auto-remove stabilized feature flags from it.activeFeatureFlags calls.',
         },
         fixable: 'code',
         schema: [
             {
-                type: 'string',
-                minLength: 1,
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                    // Handcrafted list of stabilized feature-flag names. Each is removed from
+                    // it.activeFeatureFlags activations.
+                    stabilizedFlags: {
+                        type: 'array',
+                        items: { type: 'string' },
+                    },
+                },
             },
         ],
         messages: {
             stabilizedFeatureFlag: "Feature flag '{{ featureFlag }}' is stable and no longer needs to be activated.",
+            arrayLiteralRequired: 'it.activeFeatureFlags(...) requires an inline array of string literals.',
         },
     },
 
     create(context) {
         const sourceCode = context.sourceCode;
-        const [stabilizedFeatureFlag] = context.options;
+        const stabilizedFlags = getStabilizedFlags(context.options[0]?.stabilizedFlags);
+
+        // Nothing to enforce without a configured flag list.
+        if (stabilizedFlags.size === 0) {
+            return {};
+        }
 
         return {
             CallExpression(node) {
@@ -123,16 +149,27 @@ module.exports = {
                 }
 
                 const [featureFlags] = activeFeatureFlagsCall.arguments;
-                if (featureFlags?.type !== 'ArrayExpression') {
+
+                // The autofixer can only reason about an inline array of string literals; anything else
+                // (a variable, a spread, a computed value) must be made explicit.
+                if (
+                    featureFlags?.type !== 'ArrayExpression' ||
+                    featureFlags.elements.some((element) => element === null || element.type !== 'Literal')
+                ) {
+                    context.report({
+                        node: activeFeatureFlagsCall,
+                        messageId: 'arrayLiteralRequired',
+                    });
                     return;
                 }
 
-                const activeFeatureFlags = featureFlags.elements.filter(Boolean);
-                const stabilizedFeatureFlags = activeFeatureFlags
-                    .map((featureFlag, activeIndex) => ({ node: featureFlag, activeIndex }))
-                    .filter(({ node: featureFlag }) => {
-                        return featureFlag.type === 'Literal' && featureFlag.value === stabilizedFeatureFlag;
-                    });
+                const activeFeatureFlags = featureFlags.elements.map((element, activeIndex) => ({
+                    node: element,
+                    activeIndex,
+                    normalized: normalizeFeatureFlag(String(element.value)),
+                }));
+
+                const stabilizedFeatureFlags = activeFeatureFlags.filter((flag) => stabilizedFlags.has(flag.normalized));
 
                 if (stabilizedFeatureFlags.length === 0) {
                     return;
@@ -141,16 +178,18 @@ module.exports = {
                 context.report({
                     node: stabilizedFeatureFlags[0].node,
                     messageId: 'stabilizedFeatureFlag',
-                    data: { featureFlag: stabilizedFeatureFlag },
+                    data: { featureFlag: String(stabilizedFeatureFlags[0].node.value) },
                     fix(fixer) {
                         if (activeFeatureFlags.length === stabilizedFeatureFlags.length) {
                             // Replace only the flag call, so a chained `.each(table)` survives.
                             return fixer.replaceText(activeFeatureFlagsCall, 'it');
                         }
 
-                        return getRemovalRanges(sourceCode, activeFeatureFlags, stabilizedFeatureFlags).map((range) =>
-                            fixer.removeRange(range),
-                        );
+                        return getRemovalRanges(
+                            sourceCode,
+                            activeFeatureFlags.map((flag) => flag.node),
+                            stabilizedFeatureFlags,
+                        ).map((range) => fixer.removeRange(range));
                     },
                 });
             },

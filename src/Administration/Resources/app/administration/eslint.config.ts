@@ -632,6 +632,18 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
+            'sw-test-rules/stabilize-feature-flag': [
+                'error',
+                {
+                    // Handcrafted list of stabilized (shipped) feature flags; each is auto-removed from
+                    // it.activeFeatureFlags activations. Add a flag here once its major has shipped.
+                    stabilizedFlags: [
+                        'v6.5.0.0',
+                        'v6.6.0.0',
+                        'v6.7.0.0',
+                    ],
+                },
+            ],
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
             'jest/expect-expect': [

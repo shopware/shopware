@@ -402,7 +402,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $limit = $criteria->getLimit();
+        $limit = $criteria->getLimit() ?? 0;
 
         $offset = $limit * ($page - 1);
         $criteria->setOffset($offset);

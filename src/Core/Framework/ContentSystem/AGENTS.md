@@ -51,4 +51,4 @@
 - Exception class: `ContentSystemException`
 - Package: `#[Package('framework')]`
 - DAL: Use Criteria API + EntityDefinition, NOT Doctrine ORM
-- DI config: `content-system.xml` contains only framework-owned infrastructure; domain-specific services are registered in their owning module's DI
+- DI config: `content-system.php` contains only framework-owned infrastructure; domain-specific services are registered in their owning module's DI

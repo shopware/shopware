@@ -555,7 +555,7 @@ Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
 | `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
-Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.xml`
+Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`
 
 ---
 

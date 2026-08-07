@@ -13,7 +13,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -29,10 +28,8 @@ class Storefront extends Bundle implements ThemeInterface
         parent::build($container);
         $this->buildDefaultConfig($container);
 
-        $xmlLoader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
-        $xmlLoader->load('content-system.xml');
-
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $loader->load('content-system.php');
         $loader->load('services.php');
         $loader->load('captcha.php');
         $loader->load('seo.php');

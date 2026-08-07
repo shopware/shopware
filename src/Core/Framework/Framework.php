@@ -53,7 +53,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -75,11 +74,9 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('content-system.xml');
-
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
+        $phpLoader->load('content-system.php');
         $phpLoader->load('http_discovery.php');
         $phpLoader->load('acl.php');
         $phpLoader->load('api.php');

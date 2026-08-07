@@ -1340,27 +1340,38 @@ class EntityAggregatorTest extends TestCase
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedNameNested(): void
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedAggregationNames(): \Generator
+    {
+        yield 'question mark' => ['foo?foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedNameNested(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
 
-        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation($name, 'taxRate')));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedName(): void
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedName(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+        $criteria->addAggregation(new SumAggregation($name, 'taxRate'));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }

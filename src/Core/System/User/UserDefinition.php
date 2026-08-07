@@ -90,7 +90,9 @@ class UserDefinition extends EntityDefinition
             (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Title of the user.'),
             (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Email of the user.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the user is enabled.'),
-            (new BoolField('admin', 'admin'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Parameter that indicates if the user is an admin.'),
+            // The regular Admin API CRUD endpoint authorizes elevated admin changes in the controller; direct DAL writes remain write-protected.
+            // @see \Shopware\Core\Framework\Api\Controller\UserController
+            (new BoolField('admin', 'admin'))->addFlags((new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi())->setDescription('Parameter that indicates if the user is an admin.'),
             (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription(
                 'Optional per-type MCP allowlist for this user. Structured as {tools, resources, prompts} '
                 . 'where each key is null (unrestricted) or a list of allowed names/URIs.'

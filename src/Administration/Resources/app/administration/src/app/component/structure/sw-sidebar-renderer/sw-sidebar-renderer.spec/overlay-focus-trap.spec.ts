@@ -139,15 +139,31 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         wrapper.unmount();
     });
 
-    it('should render a non-resizable sidebar docked and without a trap', async () => {
+    it('should render a non-resizable sidebar docked and without a trap on wide viewports', async () => {
+        (window as { innerWidth: number }).innerWidth = 2600;
+
         const wrapper = await createOverlayWrapper({ resizable: false });
 
-        // Non-resizable sidebars keep the default width and never enter overlay mode
         expect((wrapper.vm as unknown as SidebarRendererVm).sidebarDisplayOptions.isOverlayMode).toBe(false);
 
         const panel = wrapper.find('.sw-sidebar-renderer.is-active');
         expect(panel.attributes('role')).toBeUndefined();
         expect(focusIsTrappedInside(panel.element)).toBe(false);
+
+        wrapper.unmount();
+    });
+
+    it('should trap the focus for a non-resizable sidebar in overlay mode', async () => {
+        const wrapper = await createOverlayWrapper({ resizable: false });
+
+        // The default width does not fit next to the main content on narrow viewports
+        expect((wrapper.vm as unknown as SidebarRendererVm).sidebarDisplayOptions.isOverlayMode).toBe(true);
+
+        const panel = wrapper.find('.sw-sidebar-renderer.is-active');
+        expect(panel.attributes('role')).toBe('dialog');
+        expect(panel.attributes('aria-modal')).toBe('true');
+        expect(panel.element.contains(document.activeElement)).toBe(true);
+        expect(focusIsTrappedInside(panel.element)).toBe(true);
 
         wrapper.unmount();
     });

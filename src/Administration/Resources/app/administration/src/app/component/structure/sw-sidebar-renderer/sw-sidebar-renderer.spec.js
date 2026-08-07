@@ -165,7 +165,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
         beforeEach(() => {
             window.innerWidth = PAGE_WIDTH;
-            mockLocalStorage.getItem.mockClear();
+            mockLocalStorage.getItem.mockReset();
             mockLocalStorage.setItem.mockClear();
         });
 
@@ -173,6 +173,14 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             mockLocalStorage.getItem.mockReturnValue('600');
 
             const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
@@ -315,6 +323,79 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
             expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`${PAGE_WIDTH - 1200}px`);
+        });
+
+        it('should switch a non-resizable sidebar to overlay mode when the viewport is too narrow', async () => {
+            window.innerWidth = 1400;
+
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: false,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
+
+            expect(wrapper.find('.sw-sidebar-renderer-backdrop').exists()).toBe(true);
+            expect(wrapper.find('.sw-sidebar-renderer__overlay-resizable').exists()).toBe(true);
+
+            wrapper.unmount();
+        });
+
+        it('should keep a non-resizable sidebar docked when there is enough room', async () => {
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'Test sidebar',
+                locationId: 'test-sidebar',
+                resizable: false,
+            });
+            Shopware.Store.get('sidebar').sidebars[0].active = true;
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('512px');
+
+            expect(wrapper.find('.sw-sidebar-renderer-backdrop').exists()).toBe(false);
+            expect(wrapper.find('.sw-sidebar-renderer__overlay-resizable').exists()).toBe(false);
+
+            wrapper.unmount();
+        });
+
+        it('should expose the previous width so a switched-in sidebar can morph from it', async () => {
+            mockLocalStorage.getItem.mockReturnValue('700');
+
+            const wrapper = await createWrapper();
+
+            await ui.sidebar.add({
+                title: 'First sidebar',
+                locationId: 'first-sidebar',
+                resizable: true,
+            });
+            Shopware.Store.get('sidebar').setActiveSidebar('first-sidebar');
+            await wrapper.vm.$nextTick();
+
+            await ui.sidebar.add({
+                title: 'Second sidebar',
+                locationId: 'second-sidebar',
+                resizable: false,
+            });
+            Shopware.Store.get('sidebar').setActiveSidebar('second-sidebar');
+            await wrapper.vm.$nextTick();
+
+            const activePanel = wrapper.find('.sw-sidebar-renderer.is-active');
+            expect(activePanel.classes()).toContain('is-switched');
+
+            // The @starting-style rule morphs the width from the switch width to the current width
+            expect(activePanel.attributes('style')).toContain('--sw-sidebar-switch-width: 700px');
+            expect(activePanel.attributes('style')).toContain('--sw-sidebar-width: 512px');
+
+            wrapper.unmount();
         });
 
         it('should handle window resizing', async () => {

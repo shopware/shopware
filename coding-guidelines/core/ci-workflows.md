@@ -85,7 +85,7 @@ skipped job is visible in the UI, a suppressed failure is not.
   one audit at a time; the remaining audits are disabled there and report a few
   hundred findings between them, so enabling one is its own piece of work.
 - zizmor cannot parse a workflow whose `strategy:` is a dynamic
-  `${{ fromJson(...) }}` matrix, and it *warns and exits 0* rather than failing —
+  <code v-pre>${{ fromJson(...) }}</code> matrix, and it *warns and exits 0* rather than failing —
   an unparsed file is an unaudited file. `zizmor-collection-guard.ts` reconciles
   those warnings against a known list so a new one fails the lint, and so a
   listed file that starts parsing again is reported as a stale entry.

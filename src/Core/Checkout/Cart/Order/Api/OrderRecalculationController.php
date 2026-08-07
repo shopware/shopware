@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,7 @@ class OrderRecalculationController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function recalculateOrder(string $orderId, Context $context): Response
     {
         $errors = $this->recalculationService->recalculate($orderId, $context);
@@ -45,7 +46,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/product/{productId}', name: 'api.action.order.add-product', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/product/{productId}', name: 'api.action.order.add-product', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function addProductToOrder(string $orderId, string $productId, Request $request, Context $context): Response
     {
         $quantity = $request->request->getInt('quantity', 1);
@@ -54,7 +55,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/creditItem', name: 'api.action.order.add-credit-item', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/creditItem', name: 'api.action.order.add-credit-item', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function addCreditItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = (string) $request->request->get('identifier');
@@ -95,7 +96,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/lineItem', name: 'api.action.order.add-line-item', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/lineItem', name: 'api.action.order.add-line-item', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = (string) $request->request->get('identifier');
@@ -112,7 +113,7 @@ class OrderRecalculationController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/promotion-item', name: 'api.action.order.add-promotion-item', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/promotion-item', name: 'api.action.order.add-promotion-item', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function addPromotionItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $code = (string) $request->request->get('code');
@@ -125,7 +126,7 @@ class OrderRecalculationController extends AbstractController
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use {@see applyAutomaticPromotions} instead.
      */
-    #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
         $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
@@ -135,7 +136,7 @@ class OrderRecalculationController extends AbstractController
         return new CartResponse($cart);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/applyAutomaticPromotions', name: 'api.action.order.apply-automatic-promotions', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/applyAutomaticPromotions', name: 'api.action.order.apply-automatic-promotions', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']], methods: ['POST'])]
     public function applyAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
         $errors = $this->recalculationService->applyAutomaticPromotions($orderId, $context);
@@ -143,7 +144,7 @@ class OrderRecalculationController extends AbstractController
         return new JsonResponse(['errors' => $errors]);
     }
 
-    #[Route(path: '/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}', name: 'api.action.order.replace-order-address', methods: ['POST'])]
+    #[Route(path: '/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}', name: 'api.action.order.replace-order-address', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_address:update']], methods: ['POST'])]
     public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): JsonResponse
     {
         $this->recalculationService->replaceOrderAddressWithCustomerAddress($orderAddressId, $customerAddressId, $context);
@@ -151,7 +152,7 @@ class OrderRecalculationController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/order-address', name: 'api.action.order.update', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/order-address', name: 'api.action.order.update', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_address:update']], methods: ['POST'])]
     public function updateOrderAddresses(string $orderId, Request $request, Context $context): JsonResponse
     {
         $mapping = $request->request->all('mapping');

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { computed, nextTick, ref, shallowRef, onMounted, onUnmounted, onUpdated, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, onMounted, onUnmounted, watch } from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 import { createFocusTrap } from 'focus-trap';
 import type { FocusTrap } from 'focus-trap';
@@ -38,11 +38,12 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const sidebarDisplayOptions = computed(() => {
-            const availableWidth = activeSidebar.value?.resizable
-                ? windowWidth.value - MAIN_CONTENT_MIN_SIZE
-                : DEFAULT_SIDEBAR_WIDTH;
+            const availableWidth = windowWidth.value - MAIN_CONTENT_MIN_SIZE;
 
-            const currentWidth = Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value);
+            // Non-resizable sidebars always keep the default width
+            const currentWidth = activeSidebar.value?.resizable
+                ? Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value)
+                : DEFAULT_SIDEBAR_WIDTH;
             const isOverlayMode = availableWidth < currentWidth;
 
             return {
@@ -53,6 +54,18 @@ export default Shopware.Component.wrapComponentConfig({
                 isCollapsable: availableWidth > DEFAULT_SIDEBAR_WIDTH,
                 isResizing: isResizing.value,
             };
+        });
+
+        // Lets a switched-in sidebar start its width transition from the previous sidebar's width
+        const previousSidebarWidth = ref<string | null>(null);
+        watch(activeSidebar, (next, previous) => {
+            if (!next || !previous || next.locationId === previous.locationId) {
+                return;
+            }
+
+            previousSidebarWidth.value = previous.resizable
+                ? `${Math.max(MIN_SIDEBAR_WIDTH, sidebarSetWidth.value)}px`
+                : `${DEFAULT_SIDEBAR_WIDTH}px`;
         });
 
         const closeSidebar = (locationId: string) => {
@@ -81,7 +94,7 @@ export default Shopware.Component.wrapComponentConfig({
         const overlayTrapTarget = computed(() => {
             const sidebar = activeSidebar.value;
 
-            if (!sidebar?.resizable || closingSidebar.value === sidebar.locationId) {
+            if (!sidebar || closingSidebar.value === sidebar.locationId) {
                 return null;
             }
 
@@ -203,12 +216,6 @@ export default Shopware.Component.wrapComponentConfig({
             windowWidth.value = window.innerWidth;
         };
 
-        onUpdated(() => {
-            if (activeSidebar.value && !activeSidebar.value?.resizable && sidebarSetWidth.value !== DEFAULT_SIDEBAR_WIDTH) {
-                sidebarSetWidth.value = DEFAULT_SIDEBAR_WIDTH;
-            }
-        });
-
         onMounted(() => {
             const savedWidth = localStorage.getItem('sw-sidebar-width');
             if (savedWidth) {
@@ -230,6 +237,7 @@ export default Shopware.Component.wrapComponentConfig({
             sidebarDisplayOptions,
             closingSidebar,
             switchedWhileOpen,
+            previousSidebarWidth,
             closeSidebar,
             startSidebarResize,
             collapseSidebar,

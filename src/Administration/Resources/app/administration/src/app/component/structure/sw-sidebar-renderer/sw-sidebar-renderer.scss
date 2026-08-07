@@ -23,7 +23,9 @@
 }
 
 .sw-sidebar-renderer {
-    transition: all 0.3s ease-in-out;
+    width: var(--sw-sidebar-width);
+    max-width: var(--sw-sidebar-max-width);
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
     will-change: width;
     display: none;
     z-index: $z-index-modal;
@@ -61,8 +63,17 @@
     &.is-active.is-switched:not(.is-closing) {
         animation: none;
 
+        // Instead, the width morphs over from the previous sidebar's width
+        @starting-style {
+            width: var(--sw-sidebar-switch-width, var(--sw-sidebar-width));
+        }
+
         .sw-sidebar-renderer__overlay {
             animation: none;
+
+            @starting-style {
+                width: calc(var(--sw-sidebar-switch-width, var(--sw-sidebar-width)) - var(--scale-size-8));
+            }
         }
     }
 
@@ -103,6 +114,7 @@
     }
 
     &__overlay {
+        width: var(--sw-sidebar-panel-width);
         position: relative;
         display: flex;
         flex-direction: column;
@@ -118,6 +130,7 @@
         transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
         overflow: hidden;
 
+        // Applied to resizable sidebars and to any sidebar in overlay mode
         &-resizable {
             position: fixed;
         }

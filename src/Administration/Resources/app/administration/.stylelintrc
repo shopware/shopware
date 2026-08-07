@@ -23,7 +23,9 @@
       "severity": "warning"
     }],
     "at-rule-no-unknown": null,
-    "scss/at-rule-no-unknown": true,
+    "scss/at-rule-no-unknown": [true, {
+      "ignoreAtRules": ["starting-style"]
+    }],
     "selector-class-pattern": null,
     "color-function-notation": "legacy",
     "declaration-block-no-redundant-longhand-properties": null,

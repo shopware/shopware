@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -102,6 +103,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -173,6 +175,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -250,6 +253,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -323,6 +327,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -391,6 +396,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -458,6 +464,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $salutationRepository,
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -529,6 +536,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $salutationRepository,
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -605,6 +613,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -679,6 +688,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $data = [
@@ -805,6 +815,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -911,6 +922,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(CustomerNewsletterSalesChannelsUpdater::class),
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -980,6 +992,69 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    public function testUpdatesNewsletterSalesChannelIdsBeforeCustomerIsLoaded(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customerEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $createdCustomerId = null;
+        $calls = [];
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) use (&$createdCustomerId, &$calls) {
+                $calls[] = 'create';
+                $createdCustomerId = $create[0]['id'];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+        $customerRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function () use (&$calls, $result) {
+                static::assertSame(['create', 'update'], $calls);
+
+                return $result;
+            });
+
+        $customerNewsletterSalesChannelsUpdater = $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
+        $customerNewsletterSalesChannelsUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$calls): void {
+                $calls[] = 'update';
+
+                static::assertNotNull($createdCustomerId);
+                static::assertSame([$createdCustomerId], $ids);
+                static::assertTrue($reverseUpdate);
+            });
+
+        $registerRoute = $this->createRegisterRoute(
+            customerRepository: $customerRepository,
+            customerNewsletterSalesChannelsUpdater: $customerNewsletterSalesChannelsUpdater
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData()),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1010,7 +1085,8 @@ class RegisterRouteTest extends TestCase
         ?StoreApiCustomFieldMapper $customFieldMapper = null,
         ?EntityRepository $salutationRepository = null,
         ?StaticSystemConfigService $systemConfigService = null,
-        EntityRepository|StaticEntityRepository|null $customerRepository = null
+        EntityRepository|StaticEntityRepository|null $customerRepository = null,
+        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null
     ): RegisterRoute {
         $dataValidator ??= $this->createMock(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
@@ -1024,6 +1100,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
         $customerRepository ??= $this->createCustomerRepository();
+        $customerNewsletterSalesChannelsUpdater ??= $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
 
         return new RegisterRoute(
             $eventDispatcher,
@@ -1039,6 +1116,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
+            $customerNewsletterSalesChannelsUpdater,
         );
     }
 

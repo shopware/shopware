@@ -257,6 +257,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
             <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">

@@ -66,9 +66,7 @@ function getCollection(entity, collection) {
 async function createWrapper(props = {}) {
     const {
         order = orderFixture,
-        documentTypeCollection = documentTypeFixture,
-        reserveMock = jest.fn().mockResolvedValue({ number: '1000' }),
-        searchIdsResult = [],
+        numberRangeReserveMock = jest.fn().mockResolvedValue({ number: '1000' }),
         supportedDocumentTypes = {
             invoice: {
                 formats: [
@@ -78,80 +76,63 @@ async function createWrapper(props = {}) {
                     'zugferd_xml',
                 ],
             },
+            storno: {
+                formats: [
+                    'pdf',
+                    'html',
+                ],
+            },
         },
-        ...componentProps
     } = props;
 
     return mount(component, {
         props: {
+            order: order,
+            documentType: props.documentType ?? null,
             isLoadingDocument: false,
             isLoadingPreview: false,
-            order,
-            documentType: null,
-            ...componentProps,
         },
         global: {
-            stubs: {
-                'sw-modal': {
-                    props: ['isLoading'],
-                    template:
-                        '<div class="sw-modal" :data-is-loading="isLoading"><slot></slot><slot name="modal-footer"></slot></div>',
-                },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
-                'sw-context-menu-item': {
-                    emits: ['click'],
-                    template:
-                        '<button type="button" class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></button>',
-                },
-                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-select-result': await wrapTestComponent('sw-select-result'),
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-field-error': true,
-                'sw-loader': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-                'sw-highlight-text': true,
-                'mt-button': true,
-                'mt-datepicker': true,
-                'mt-icon': true,
-                'mt-select': true,
-                'mt-text-field': true,
-                'mt-textarea': true,
-                'router-link': true,
-            },
             provide: {
+                documentV2ApiService: {
+                    getAvailableTypes: () => {
+                        return {
+                            data: {
+                                documentTypes: supportedDocumentTypes,
+                            },
+                        };
+                    },
+                },
                 documentV2Service: {
-                    getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: supportedDocumentTypes,
-                        },
-                    }),
+                    createEmptyDocumentConfig: () => {
+                        return {
+                            documentComment: '',
+                            documentDate: '1970-01-01T00:00:00.000Z',
+                            documentNumber: '',
+                            requestedFileFormats: [],
+                        };
+                    },
+                    getDocumentFamily: (documentType) => documentType,
+                    getDocumentNumberRangeType: (documentType) => documentType,
+                    sortFileFormats: (formats) => formats,
+                    getFileFormatSnippet: (format) => `${format}--snippet`,
+                    getDocumentNumbersByTypes: () => [],
+                    getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                 },
                 numberRangeService: {
-                    reserve: reserveMock,
+                    reserve: numberRangeReserveMock,
                 },
                 repositoryFactory: {
                     create: (entity) => {
                         if (entity === 'document_type') {
                             return {
-                                search: jest.fn().mockResolvedValue(getCollection('document_type', documentTypeCollection)),
+                                search: jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture)),
                             };
                         }
 
                         if (entity === 'document') {
                             return {
-                                searchIds: jest.fn().mockResolvedValue(getCollection('document', searchIdsResult)),
+                                searchIds: jest.fn().mockResolvedValue(getCollection('document', [])),
                             };
                         }
 
@@ -164,45 +145,74 @@ async function createWrapper(props = {}) {
 }
 
 describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
-    it('renders the empty state until a document type is selected', async () => {
+    it('renders the empty state no document type is selected', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
+        expect(wrapper.find('.sw-order-create-document-modal__file-formats').classes()).toContain('is--disabled');
         expect(wrapper.find('.sw-order-create-document-modal__empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-order-create-document-modal__preview-button').attributes().disabled).toBeDefined();
+        expect(wrapper.find('.sw-order-create-document-modal__preview-button-arrow').attributes().disabled).toBe('true');
         expect(wrapper.find('.sw-order-create-document-modal__create-button').attributes().disabled).toBeDefined();
+        expect(wrapper.find('.sw-order-create-document-modal__create-button-arrow').attributes().disabled).toBe('true');
     });
 
-    it('only exposes V2-supported document types and formats', async () => {
+    it('changes selectable file formats depending on the document type', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.documentTypeOptions).toHaveLength(1);
-        expect(wrapper.vm.documentTypeOptions[0]).toEqual(
-            expect.objectContaining({
-                value: 'invoice',
-            }),
+        const documentTypeSelectInput = wrapper.find(
+            '.sw-order-create-document-modal__document-type .mt-select-selection-list__input',
         );
-
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        await documentTypeSelectInput.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.fileFormatOptions).toEqual([
-            {
-                label: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                value: 'pdf',
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        const documentFormatSelectInput = wrapper.find(
+            '.sw-order-create-document-modal__file-formats .mt-select-selection-list__input',
+        );
+        await documentFormatSelectInput.trigger('click');
+        await flushPromises();
+
+        const documentFormatInvoiceListElements = wrapper.findAll(
+            '.sw-order-create-document-modal__file-formats .mt-select-result',
+        );
+
+        const documentFormatInvoiceListElementsText = documentFormatInvoiceListElements.map((element) => {
+            return element.text();
+        });
+
+        expect(documentFormatInvoiceListElementsText).toEqual([
+            'pdf--snippet',
+            'html--snippet',
+            'zugferd_embedded_pdf--snippet',
+            'zugferd_xml--snippet',
+        ]);
+
+        await documentTypeSelectInput.trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--storno').trigger('click');
+        await flushPromises();
+
+        await documentFormatSelectInput.trigger('click');
+        await flushPromises();
+
+        const documentFormatCancellationInvoiceListElements = wrapper.findAll(
+            '.sw-order-create-document-modal__file-formats .mt-select-result',
+        );
+
+        const documentFormatCancellationInvoiceListElementsText = documentFormatCancellationInvoiceListElements.map(
+            (element) => {
+                return element.text();
             },
-            {
-                label: 'sw-order.components.createDocumentModal.fileFormats.html',
-                value: 'html',
-            },
-            {
-                label: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-                value: 'zugferd_embedded_pdf',
-            },
-            {
-                label: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
-                value: 'zugferd_xml',
-            },
+        );
+
+        expect(documentFormatCancellationInvoiceListElementsText).toEqual([
+            'pdf--snippet',
+            'html--snippet',
         ]);
     });
 
@@ -210,37 +220,46 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        const documentTypeSelectInput = wrapper.find(
+            '.sw-order-create-document-modal__document-type .mt-select-selection-list__input',
+        );
+        await documentTypeSelectInput.trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.documentConfig.documentNumber).toBe('1000');
-        expect(wrapper.vm.selectedFileFormats).toEqual([]);
+        const documentTypeInvoiceOption = wrapper.find(
+            '.sw-order-create-document-modal__document-type .mt-select-option--invoice',
+        );
+        await documentTypeInvoiceOption.trigger('click');
+        await flushPromises();
+
+        const documentFileFormatSelectedElements = wrapper.findAll(
+            '.sw-order-create-document-modal__file-formats .mt-select-selection-list__item-holder',
+        );
+        expect(documentFileFormatSelectedElements).toEqual([]);
     });
 
     it('keeps the form hidden while reserving the document number for a selected type', async () => {
-        let resolveReserve;
-        const reserveMock = jest.fn().mockImplementation(
-            () =>
-                new Promise((resolve) => {
-                    resolveReserve = resolve;
-                }),
-        );
-
-        const wrapper = await createWrapper({ reserveMock });
+        const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-order-create-document-modal__content').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-order-create-document-modal__empty-state').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-modal').attributes()['data-is-loading']).toBe('true');
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
 
-        resolveReserve({ number: '1000' });
+        const documentModal = wrapper.find('.sw-order-create-document-modal');
+
+        expect(documentModal.attributes()['is-loading']).toBe('true');
+        expect(wrapper.find('.sw-order-create-document-modal__content').exists()).toBe(false);
+
         await flushPromises();
 
-        expect(wrapper.find('.sw-order-create-document-modal__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-modal').attributes()['data-is-loading']).toBe('false');
+        expect(documentModal.attributes()['is-loading']).toBe('false');
+
+        const documentNumberInput = wrapper.find('.sw-order-create-document-modal__document-number input');
+        expect(documentNumberInput.attributes()['value']).toBe('1000');
     });
 
     it('marks the invoice selector as required while configuring credit-note documents', async () => {
@@ -276,47 +295,79 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         });
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'credit-note' });
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-order-create-document-modal__invoice-number').attributes().required).toBeDefined();
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit-note').trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper.find('.sw-order-create-document-modal__referenced-document-number label').classes('is--required'),
+        ).toBeDefined();
     });
 
-    it('emits the selected formats when creating a V2 document', async () => {
+    it('emits the document configuration when creating a V2 document', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
-        await wrapper.setData({
-            selectedFileFormats: [
-                'pdf',
-                'html',
-            ],
-        });
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--html').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--pdf').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-order-create-document-modal__create-button').trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
-        expect(wrapper.emitted()['document-create'][0][0].custom.invoiceNumber).toBe('1000');
-        expect(wrapper.emitted()['document-create'][0][0].requestedFormats).toEqual([
-            'pdf',
-            'html',
-        ]);
+        expect(wrapper.emitted()['document-create'][0][0]).toStrictEqual({
+            documentComment: '',
+            documentDate: '1970-01-01T00:00:00.000Z',
+            documentNumber: '1000',
+            requestedFileFormats: [
+                'html',
+                'pdf',
+            ],
+        });
     });
 
     it('emits the send action when using the generate and send menu item', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
-        await wrapper.setData({
-            selectedFileFormats: [
-                'pdf',
-            ],
-        });
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--pdf').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-order-create-document-modal__create-button-send').trigger('click');
@@ -329,18 +380,106 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ documentTypeId: 'invoice' });
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
         await flushPromises();
-        await wrapper.setData({
-            selectedFileFormats: [
-                'pdf',
-            ],
-        });
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--pdf').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-order-create-document-modal__create-button-download').trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
         expect(wrapper.emitted()['document-create'][0][1]).toBe('download');
+    });
+
+    it('emits the document configuration when previewing a V2 document', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--html').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--pdf').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__preview-button').trigger('click');
+
+        expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][0]).toStrictEqual({
+            documentComment: '',
+            documentDate: '1970-01-01T00:00:00.000Z',
+            documentNumber: '1000',
+            requestedFileFormats: [
+                'html',
+                'pdf',
+            ],
+        });
+
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
+    });
+
+    it('emits the document configuration when explicitly previewing a pdf V2 document', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__file-formats .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--html').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__file-formats .mt-select-option--pdf').trigger('click');
+        await flushPromises();
+
+        const previewOptions = wrapper.findAll('.sw-order-create-document-modal__preview-button-option');
+        expect(previewOptions).toHaveLength(2);
+
+        await previewOptions[1].trigger('click');
+
+        expect(wrapper.emitted()['preview-show']).toBeTruthy();
+        expect(wrapper.emitted()['preview-show'][0][0]).toStrictEqual({
+            documentComment: '',
+            documentDate: '1970-01-01T00:00:00.000Z',
+            documentNumber: '1000',
+            requestedFileFormats: [
+                'html',
+                'pdf',
+            ],
+        });
+
+        expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
     });
 });

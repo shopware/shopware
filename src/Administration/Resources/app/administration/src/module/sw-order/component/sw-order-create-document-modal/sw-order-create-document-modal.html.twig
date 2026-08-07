@@ -26,6 +26,7 @@
             :options="fileFormatOptions"
             :enable-multi-selection="true"
             :disabled="!currentDocumentType || isModalLoading"
+            required
         />
     </div>
 
@@ -43,6 +44,7 @@
                 centered
                 icon="regular-files"
                 :headline="$t('sw-order.components.createDocumentModal.emptyStateTitle')"
+                :description="$t('sw-order.components.createDocumentModal.emptyStateDescription')"
             />
         </div>
 

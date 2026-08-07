@@ -62,18 +62,25 @@ const CANCELLATION_INVOICE_DOCUMENT_TYPES: string[] = [
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
 ] as const;
 
+const FILE_FORMATS = {
+    PDF: 'pdf',
+    ZUGFERD_EMBEDDED_PDF: 'zugferd_embedded_pdf',
+    HTML: 'html',
+    ZUGFERD_XML: 'zugferd_xml',
+} as const;
+
 const FILE_FORMAT_PRIORITY: string[] = [
-    'pdf',
-    'html',
-    'zugferd_embedded_pdf',
-    'zugferd_xml',
+    FILE_FORMATS.PDF,
+    FILE_FORMATS.HTML,
+    FILE_FORMATS.ZUGFERD_EMBEDDED_PDF,
+    FILE_FORMATS.ZUGFERD_XML,
 ] as const;
 
 const FILE_FORMAT_MIME_TYPES: Record<string, string> = {
-    html: 'text/html',
-    pdf: 'application/pdf',
-    zugferd_embedded_pdf: 'application/pdf',
-    zugferd_xml: 'application/xml,text/xml',
+    [FILE_FORMATS.HTML]: 'text/html',
+    [FILE_FORMATS.PDF]: 'application/pdf',
+    [FILE_FORMATS.ZUGFERD_EMBEDDED_PDF]: 'application/pdf',
+    [FILE_FORMATS.ZUGFERD_XML]: 'application/xml,text/xml',
 } as const;
 
 /**
@@ -86,6 +93,7 @@ export {
     INVOICE_DOCUMENT_TYPES,
     CREDIT_NOTE_DOCUMENT_TYPES,
     CANCELLATION_INVOICE_DOCUMENT_TYPES,
+    FILE_FORMATS,
     FILE_FORMAT_MIME_TYPES,
 };
 
@@ -95,7 +103,7 @@ export {
  * @class
  */
 export default class DocumentV2Service {
-    getDocumentFamily(technicalName: string | null): string | null {
+    public getDocumentFamily(technicalName: string | null): string | null {
         if (!technicalName) {
             return null;
         }
@@ -115,7 +123,7 @@ export default class DocumentV2Service {
         return technicalName;
     }
 
-    getDocumentNumberRangeType(technicalName: string): string {
+    public getDocumentNumberRangeType(technicalName: string): string {
         return this.getDocumentFamily(technicalName) ?? technicalName;
     }
 
@@ -125,13 +133,13 @@ export default class DocumentV2Service {
         return priority === -1 ? Number.MAX_SAFE_INTEGER : priority;
     }
 
-    sortFileFormats(fileFormats: string[]): string[] {
+    public sortFileFormats(fileFormats: string[]): string[] {
         return [...fileFormats].sort((left, right) => {
             return this.getFileFormatPriority(left) - this.getFileFormatPriority(right);
         });
     }
 
-    getPreferredFileFormat(fileFormats: string[], defaultFormat: string | null = null): string | null {
+    public getPreferredFileFormat(fileFormats: string[], defaultFormat: string | null = null): string | null {
         return this.sortFileFormats(fileFormats)[0] ?? defaultFormat;
     }
 
@@ -157,7 +165,7 @@ export default class DocumentV2Service {
         };
     }
 
-    filterDocumentsByTypes(documents: Entity<'document'>[], documentTypes: string[]): Entity<'document'>[] {
+    public filterDocumentsByTypes(documents: Entity<'document'>[], documentTypes: string[]): Entity<'document'>[] {
         return documents.filter((document) => {
             const technicalName = document.documentType?.technicalName;
 
@@ -165,19 +173,20 @@ export default class DocumentV2Service {
         });
     }
 
-    getDocumentNumbersByTypes(documents: Entity<'document'>[], documentTypes: string[]): string[] {
+    public getDocumentNumbersByTypes(documents: Entity<'document'>[], documentTypes: string[]): string[] {
         return this.filterDocumentsByTypes(documents, documentTypes)
             .map((document) => document.documentNumber)
             .filter((documentNumber): documentNumber is string => !!documentNumber);
     }
 
-    getFileFormatSnippet(format: string): string {
+    public getFileFormatSnippet(format: string): string {
         const translationKey = (
             {
-                html: 'sw-order.components.createDocumentModal.fileFormats.html',
-                pdf: 'sw-order.components.createDocumentModal.fileFormats.pdf',
-                zugferd_embedded_pdf: 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-                zugferd_xml: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
+                [FILE_FORMATS.HTML]: 'sw-order.components.createDocumentModal.fileFormats.html',
+                [FILE_FORMATS.PDF]: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                [FILE_FORMATS.ZUGFERD_EMBEDDED_PDF]:
+                    'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
+                [FILE_FORMATS.ZUGFERD_XML]: 'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
             } as Record<string, string>
         )[format];
 

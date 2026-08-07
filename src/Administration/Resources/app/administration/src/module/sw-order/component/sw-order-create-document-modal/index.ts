@@ -1,7 +1,7 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
-import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES } from 'src/core/service/documentV2.service';
+import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from 'src/core/service/documentV2.service';
 import type { DocumentConfig } from 'src/core/service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
@@ -323,7 +323,11 @@ export default Component.wrapComponentConfig({
             this.$emit(
                 'preview-show',
                 this.documentConfig,
-                format || this.documentV2Service.getPreferredFileFormat(this.documentConfig.requestedFileFormats, 'pdf'),
+                format ||
+                    this.documentV2Service.getPreferredFileFormat(
+                        this.documentConfig.requestedFileFormats,
+                        FILE_FORMATS.PDF,
+                    ),
             );
         },
 

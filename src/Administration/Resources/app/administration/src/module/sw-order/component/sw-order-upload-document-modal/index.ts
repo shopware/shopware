@@ -55,32 +55,32 @@ export default Component.wrapComponentConfig({
     data(): {
         documentConfig: DocumentConfig;
         documentNumberPreview: string;
+        documentTypeLoading: boolean;
         documentTypeCollection: EntityCollection<'document_type'> | null;
         documentTypeId: string | null;
-        documentTypeLoading: boolean;
         documentTypes: Entity<'document_type'>[];
         features: { uploadFileSizeLimit: number };
         isLoading: boolean;
+        supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
         selectedDocumentFile: Entity<'media'> | null;
         selectedFileFormat: string | null;
         showMediaModal: boolean;
-        supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
     } {
         return {
             documentConfig: this.documentV2Service.createEmptyDocumentConfig(),
             documentNumberPreview: '',
+            documentTypeLoading: false,
             documentTypeCollection: null,
             documentTypeId: this.documentType?.id ?? null,
-            documentTypeLoading: false,
             documentTypes: [],
             features: {
                 uploadFileSizeLimit: FILE_SIZE_LIMIT,
             },
             isLoading: false,
+            supportedDocumentTypes: {},
             selectedDocumentFile: null,
             selectedFileFormat: null,
             showMediaModal: false,
-            supportedDocumentTypes: {},
         };
     },
 
@@ -295,10 +295,9 @@ export default Component.wrapComponentConfig({
                 'document-upload',
                 {
                     ...this.documentConfig,
-                    requestedFormats: [this.selectedFileFormat],
+                    requestedFileFormats: [this.selectedFileFormat],
                 },
                 additionalAction,
-                null,
                 this.selectedDocumentFile,
             );
         },

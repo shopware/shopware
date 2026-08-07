@@ -638,7 +638,8 @@
                 "generateAndDownload": "Generate and download",
                 "generateAndSend": "Generate and send",
                 "placeholderComment": "Write a comment...",
-                "emptyStateTitle": "Select a document type to configure the document",
+                "emptyStateTitle": "Document type missing",
+                "emptyStateDescription": "Select a document type to configure the document",
                 "fileFormats": {
                     "pdf": "PDF",
                     "html": "HTML",

@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -42,7 +42,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly TranslationConfig $config,
         private readonly AbstractTranslationLoader $translationLoader,
-        private readonly Filesystem $translationReader,
+        private readonly FilesystemOperator $translationReader,
         private readonly SourceResolver $sourceResolver,
         private readonly LoggerInterface $logger,
     ) {

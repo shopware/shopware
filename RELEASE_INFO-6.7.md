@@ -566,6 +566,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 ## Hosting & Configuration
 
+### Local translation files and optional automatic updates
+
+The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.
+
+The daily translation update task can be disabled with `shopware.translation.scheduled_task.enabled: false`. Use this for immutable deployments that update translation files only during builds. Both options retain their previous behavior by default.
+
 ### Optional `Clear-Site-Data` header on customer logout
 
 On customer logout the storefront can send a [`Clear-Site-Data`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data) header, so the browser drops data left over from the session. Disabled by default:

@@ -16,6 +16,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -109,10 +110,16 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
-        } else {
-            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+
+        try {
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+            }
+        } catch (EmptyProductStreamException) {
+            // No filters left on a valid stream → export all products (criteria stays unfiltered).
+            // A broken stream throws NoFilterException instead, which we intentionally let propagate.
         }
 
         $associations = $this->getAssociations($productExport, $context);

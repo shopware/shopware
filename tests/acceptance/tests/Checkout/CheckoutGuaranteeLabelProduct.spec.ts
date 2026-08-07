@@ -26,9 +26,7 @@ test(
         await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': true });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME' });
         const guaranteeMonths = 36;
-        // Label shows full years (and ",5" for half years) — see GaranLabelDurationFormatter.
-        const expectedGuaranteeDuration =
-            guaranteeMonths % 12 === 0 ? String(guaranteeMonths / 12) : `${Math.floor(guaranteeMonths / 12)},5`;
+        const expectedGuaranteeDuration = '3';
 
         const expectedLegalGuaranteeNoticeUrl = (locale = getLocale()): string => {
             const languagePrefix = getLanguageCode(locale).split('-')[0]?.toLowerCase() ?? 'en';
@@ -150,6 +148,7 @@ test(
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
             await ShopCustomer.expects(StorefrontCheckoutConfirm.lineItemGaranLabel).not.toBeVisible();
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.legalGuaranteeNoticeLink).not.toBeVisible();
             await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeVisible();
         });
 

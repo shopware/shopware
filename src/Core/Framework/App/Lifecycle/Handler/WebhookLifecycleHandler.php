@@ -172,6 +172,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
 
         return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
+            unset($payload['event']);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 

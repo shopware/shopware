@@ -8,6 +8,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -20,6 +22,8 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
@@ -82,6 +86,8 @@ class ProductExportGeneratorTest extends TestCase
 
     private MockObject&TwigVariableParserFactory $parserFactory;
 
+    private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
+
     protected function setUp(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
@@ -107,6 +113,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->productDefinition = $productDefinition;
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);
+        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
     }
 
     public function testGenerateWithInvalidProductExportId(): void
@@ -143,7 +150,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
@@ -181,7 +189,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         $this->expectExceptionObject(ProductExportException::renderProductException($errorMessage));
@@ -220,7 +229,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
 
         // Reaching the "not found" result (no products resolve) proves the interface-only builder was routed
@@ -676,6 +686,116 @@ class ProductExportGeneratorTest extends TestCase
         static::assertSame(41, $result->getOffset());
     }
 
+    public function testGeneratePopulatesSeoCategoryForExportedProducts(): void
+    {
+        // Populates seoCategory so feed templates can render the configured main category.
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+        $product->setMainCategories($this->mainCategoryCollectionForSalesChannel('storefrontSalesChannelId'));
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        $mainCategory = new CategoryEntity();
+        $mainCategory->setId('main-category-id');
+        $mainCategory->setUniqueIdentifier('main-category-id');
+        $this->breadcrumbBuilder->expects($this->once())
+            ->method('getProductSeoCategory')
+            ->with($product, $context)
+            ->willReturn($mainCategory);
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('rendered');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertSame($mainCategory, $product->getSeoCategory());
+    }
+
+    public function testGeneratePopulatesSeoCategoryForJsonlPath(): void
+    {
+        // The JSONL path must also populate seoCategory.
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{"id":"{{ product.id }}"}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+        $product->setMainCategories($this->mainCategoryCollectionForSalesChannel('storefrontSalesChannelId'));
+
+        $this->prepareGeneratorDependencies($context, '{"id":"{{ product.id }}"}');
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        $mainCategory = new CategoryEntity();
+        $mainCategory->setId('main-category-id');
+        $mainCategory->setUniqueIdentifier('main-category-id');
+        $this->breadcrumbBuilder->expects($this->once())
+            ->method('getProductSeoCategory')
+            ->with($product, $context)
+            ->willReturn($mainCategory);
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('{"id":"product-id"}');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertSame($mainCategory, $product->getSeoCategory());
+    }
+
+    public function testGenerateSkipsSeoCategoryResolutionWhenProductHasNoMainCategory(): void
+    {
+        // Without a main category the builder is not called; the template uses categories.first.
+        $productExport = $this->getProductExportEntity();
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        $this->breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
+
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('rendered');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNull($product->getSeoCategory());
+    }
+
     private function createGenerator(): ProductExportGenerator
     {
         return new ProductExportGenerator(
@@ -693,7 +813,8 @@ class ProductExportGeneratorTest extends TestCase
             $this->twig,
             $this->productDefinition,
             $this->languageLocaleProvider,
-            $this->parserFactory
+            $this->parserFactory,
+            $this->breadcrumbBuilder
         );
     }
 
@@ -751,6 +872,16 @@ class ProductExportGeneratorTest extends TestCase
         $product->setAutoIncrement($autoIncrement);
 
         return $product;
+    }
+
+    private function mainCategoryCollectionForSalesChannel(string $salesChannelId): MainCategoryCollection
+    {
+        $assignment = new MainCategoryEntity();
+        $assignment->setId('main-category-' . $salesChannelId);
+        $assignment->setUniqueIdentifier('main-category-' . $salesChannelId);
+        $assignment->setSalesChannelId($salesChannelId);
+
+        return new MainCategoryCollection([$assignment]);
     }
 
     /**

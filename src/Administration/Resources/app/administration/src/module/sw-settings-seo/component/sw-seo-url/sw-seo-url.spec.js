@@ -12,15 +12,23 @@ const AGENTIC_COMMERCE_TYPE_ID = '5e29f9890c4d4d519a1c7f9d5c24b7c1';
 
 const STOREFRONT_SALES_CHANNEL_ID = '863137935ecf48999d69096de547b090';
 const HEADLESS_SALES_CHANNEL_ID = 'headless-sales-channel-id';
+const HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID = 'headless-no-domain-sales-channel-id';
 const PRODUCT_COMPARISON_SALES_CHANNEL_ID = 'product-comparison-sales-channel-id';
 const AGENTIC_COMMERCE_SALES_CHANNEL_ID = 'agentic-commerce-sales-channel-id';
 
 const FK = '4066b6039fcf41f089bdf859cc6ce662';
 const LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b'; // Shopware.Context.api.languageId in tests
 
+const HEADLESS_DOMAIN = 'https://headless.example.com';
+
 const SALES_CHANNELS = [
     { id: STOREFRONT_SALES_CHANNEL_ID, typeId: STOREFRONT_TYPE_ID },
-    { id: HEADLESS_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID },
+    {
+        id: HEADLESS_SALES_CHANNEL_ID,
+        typeId: HEADLESS_TYPE_ID,
+        domains: [{ isExternalStorefront: true, languageId: LANGUAGE_ID, url: HEADLESS_DOMAIN }],
+    },
+    { id: HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID, typeId: HEADLESS_TYPE_ID, domains: [{ isExternalStorefront: false }] },
     { id: PRODUCT_COMPARISON_SALES_CHANNEL_ID, typeId: PRODUCT_COMPARISON_TYPE_ID },
     { id: AGENTIC_COMMERCE_SALES_CHANNEL_ID, typeId: AGENTIC_COMMERCE_TYPE_ID },
 ];
@@ -273,5 +281,63 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
 
         // headless templates may be relative (resolved against the sales channel domain), so no error
         expect(wrapper.vm.seoPathInfoError).toBeNull();
+    });
+
+    it('does not map the storefront fallback url for a storefront sales channel', async () => {
+        setSalesChannels();
+
+        await wrapper.setProps({
+            urls: [
+                seoUrl({
+                    pathInfo: `/navigation/${FK}`,
+                    routeName: 'frontend.navigation.page',
+                    salesChannelId: FK,
+                    seoPathInfo: 'Computers/',
+                }),
+            ],
+            salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
+        });
+        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.refreshCurrentSeoUrl();
+
+        expect(wrapper.vm.currentSeoUrl).toEqual(
+            expectedCurrentSeoUrl({
+                routeName: 'frontend.navigation.page',
+                pathInfo: `/navigation/${FK}`,
+                salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
+            }),
+        );
+    });
+
+    it('shows the external-storefront requirement help text and disables input for a headless channel without a matching domain', async () => {
+        setSalesChannels();
+
+        wrapper.vm.currentSalesChannelId = HEADLESS_NO_DOMAIN_SALES_CHANNEL_ID;
+
+        expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
+        expect(wrapper.vm.seoUrlHelptext).toBe('sw-seo-url-template-card.general.textExternalStorefrontRequired');
+        expect(wrapper.vm.allowInput).toBe(false);
+    });
+
+    it('exposes the external storefront domain with a trailing slash as prefix for a headless sales channel', async () => {
+        setSalesChannels();
+
+        wrapper.vm.currentSalesChannelId = HEADLESS_SALES_CHANNEL_ID;
+
+        expect(wrapper.vm.headlessExternalStorefrontUrl).toBe(`${HEADLESS_DOMAIN}/`);
+        expect(wrapper.vm.seoUrlHelptext).toBeNull();
+        expect(wrapper.vm.allowInput).toBe(true);
+    });
+
+    it('does not require an external storefront domain for a non-headless sales channel', async () => {
+        setSalesChannels();
+
+        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
+
+        expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
+        expect(wrapper.vm.seoUrlHelptext).toBeNull();
+        expect(wrapper.vm.allowInput).toBe(true);
     });
 });

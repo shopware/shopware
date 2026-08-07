@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
@@ -47,7 +48,6 @@ class SeoActionController extends AbstractController
      * @internal
      *
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
-     * @param iterable<EntitySeoUrlRouteInterface> $entitySeoUrlRoutes
      */
     public function __construct(
         private readonly SeoUrlGenerator $seoUrlGenerator,
@@ -59,7 +59,7 @@ class SeoActionController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly iterable $entitySeoUrlRoutes = []
+        private readonly EntityRouteResolver $entityRouteResolver,
     ) {
     }
 
@@ -125,7 +125,7 @@ class SeoActionController extends AbstractController
     {
         $routeName = $data->get('routeName');
         $fk = $data->get('foreignKey');
-        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName) ?? $this->findEntitySeoUrlRoute($routeName);
+        $seoUrlRoute = $this->getEntitySeoUrlRoute($routeName);
 
         if ($seoUrlRoute === null) {
             throw SeoException::seoUrlRouteNotFound((string) $routeName);
@@ -159,7 +159,7 @@ class SeoActionController extends AbstractController
         }
 
         $routeName = $seoUrl->get('routeName') ?? '';
-        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName) ?? $this->findEntitySeoUrlRoute($routeName);
+        $seoUrlRoute = $this->getEntitySeoUrlRoute($routeName);
         if (!$seoUrlRoute) {
             throw SeoException::seoUrlRouteNotFound($seoUrl->get('routeName'));
         }
@@ -181,6 +181,18 @@ class SeoActionController extends AbstractController
         if ($salesChannel === null) {
             throw SeoException::salesChannelNotFound($salesChannelId);
         }
+
+        // when updating a canonical url for a headless sales channel with the route of the storefront
+        // the route name should be corrected to use the equivalent store-api route using the entity name to match
+        $seoUrlData = [
+            ...$seoUrlData,
+            ...$this->entityRouteResolver->getSeoUrlRouteNameAndPathInfo(
+                $seoUrlRoute->getConfig()->getDefinition()->getEntityName(),
+                $seoUrlData['routeName'],
+                $seoUrlData['foreignKey'],
+                $salesChannel->getTypeId()
+            ),
+        ];
 
         $this->seoUrlPersister->forceUpdateSeoUrls(
             $context,
@@ -259,13 +271,19 @@ class SeoActionController extends AbstractController
     )]
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {
-        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName) ?? $this->findEntitySeoUrlRoute($routeName);
+        $seoUrlRoute = $this->getEntitySeoUrlRoute($routeName);
 
         if (!$seoUrlRoute) {
             throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
+    }
+
+    private function getEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
+    {
+        return $this->seoUrlRouteRegistry->findByRouteName($routeName)
+            ?? $this->entityRouteResolver->findEntitySeoUrlRoute($routeName);
     }
 
     private function validateSeoUrlTemplate(Request $request): void
@@ -298,7 +316,7 @@ class SeoActionController extends AbstractController
 
         // Registered storefront routes resolve directly; store-api routes (headless) resolve via the tagged
         // entity routes. Either way they are wrapped in ConfiguredSeoUrlRoute so the generator can render them.
-        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName) ?? $this->findEntitySeoUrlRoute($routeName);
+        $seoUrlRoute = $this->getEntitySeoUrlRoute($routeName);
 
         if ($seoUrlRoute === null) {
             throw SeoException::seoUrlRouteNotFound($routeName);
@@ -350,17 +368,6 @@ class SeoActionController extends AbstractController
             ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
                 && $domain->getLanguageId() === $context->getLanguageId())
             ?->getUrl();
-    }
-
-    private function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
-    {
-        foreach ($this->entitySeoUrlRoutes as $entitySeoUrlRoute) {
-            if ($entitySeoUrlRoute->getConfig()->getRouteName() === $routeName) {
-                return $entitySeoUrlRoute;
-            }
-        }
-
-        return null;
     }
 
     private function loadPreviewEntity(SeoUrlRouteConfig $config, ?string $foreignKey, Context $context): ?Entity

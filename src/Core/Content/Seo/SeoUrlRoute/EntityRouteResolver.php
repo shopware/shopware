@@ -52,6 +52,61 @@ class EntityRouteResolver
         return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
+    public function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
+    {
+        foreach ($this->storeApiSeoUrlRoutes as $entitySeoUrlRoute) {
+            if ($entitySeoUrlRoute->getConfig()->getRouteName() === $routeName) {
+                return $entitySeoUrlRoute;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{routeName?: string, pathInfo?: string}
+     */
+    public function getSeoUrlRouteNameAndPathInfo(
+        string $entityName,
+        string $routeName,
+        string $primaryKey,
+        string $salesChannelTypeId
+    ): array {
+        try {
+            $routeNameByEntity = $this->getRouteNameForEntityName(
+                $entityName,
+                $salesChannelTypeId
+            );
+        } catch (SeoUrlRouteConfigException) {
+            return [];
+        }
+
+        if ($routeNameByEntity === $routeName) {
+            return [];
+        }
+
+        return [
+            'routeName' => $routeNameByEntity,
+            'pathInfo' => $this->generatePathInfo(
+                $entityName,
+                $primaryKey,
+                $salesChannelTypeId
+            ),
+        ];
+    }
+
+    private function generatePathInfo(string $entityName, string $primaryKey, string $salesChannelTypeId): string
+    {
+        $url = $this->generateUrl($entityName, $primaryKey, $salesChannelTypeId);
+        $baseUrl = $this->router->getContext()->getBaseUrl();
+
+        if ($baseUrl !== '') {
+            $url = mb_substr($url, mb_strlen($baseUrl));
+        }
+
+        return $url;
+    }
+
     private function getRouteConfig(string $entityName, ?string $salesChannelTypeId = null): SeoUrlRouteConfig
     {
         if ($salesChannelTypeId === Defaults::SALES_CHANNEL_TYPE_API) {

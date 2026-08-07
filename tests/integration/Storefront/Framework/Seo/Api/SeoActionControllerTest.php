@@ -617,7 +617,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        static::assertCount(2, $seoUrls);
+        static::assertCount(1, $seoUrls);
 
         $productUpdate = [
             'id' => $id,
@@ -627,7 +627,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        static::assertCount(2, $seoUrls);
+        static::assertCount(1, $seoUrls);
     }
 
     public function testPreviewWithPrepareCriteriaMethodActiveProductFiltering(): void

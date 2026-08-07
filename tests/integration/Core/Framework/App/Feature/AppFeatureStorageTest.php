@@ -9,7 +9,8 @@ use Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry;
 use Shopware\Core\Framework\App\Feature\AppFeatureException;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
@@ -21,7 +22,8 @@ use Symfony\Component\Clock\MockClock;
 #[Package('framework')]
 class AppFeatureStorageTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

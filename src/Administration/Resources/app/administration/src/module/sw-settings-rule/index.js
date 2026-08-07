@@ -41,8 +41,8 @@ Module.register('sw-settings-rule', {
     name: 'settings-rule',
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-red-300)',
+    icon: 'regular-rule',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
 
@@ -51,7 +51,6 @@ Module.register('sw-settings-rule', {
             component: 'sw-settings-rule-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
                 privilege: 'rule.viewer',
             },
         },

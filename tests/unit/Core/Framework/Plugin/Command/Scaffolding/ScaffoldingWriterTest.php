@@ -76,4 +76,51 @@ class ScaffoldingWriterTest extends TestCase
             $filesystem->remove($directory);
         }
     }
+
+    public function testAppendsToMissingAndUnterminatedAggregateFiles(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
+        $existingFile = $directory . '/src/Resources/config/services.php';
+
+        try {
+            $filesystem->dumpFile($existingFile, "<?php\nexisting();\n");
+
+            (new ScaffoldingWriter($filesystem))->write(
+                new StubCollection([
+                    Stub::append('src/Resources/config/services.php', "\ngenerated();\n"),
+                    Stub::append('src/Resources/config/routes.php', "generatedRoute();\n"),
+                ]),
+                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+            );
+
+            $servicesContent = (string) file_get_contents($existingFile);
+            static::assertStringContainsString('existing();', $servicesContent);
+            static::assertStringContainsString('generated();', $servicesContent);
+            static::assertSame("generatedRoute();\n", file_get_contents($directory . '/src/Resources/config/routes.php'));
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
+
+    public function testDoesNotAppendDuplicateAggregateContent(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
+        $servicesFile = $directory . '/src/Resources/config/services.php';
+        $content = "<?php\nexisting();\ngenerated();\n";
+
+        try {
+            $filesystem->dumpFile($servicesFile, $content);
+
+            (new ScaffoldingWriter($filesystem))->write(
+                new StubCollection([Stub::append('src/Resources/config/services.php', "generated();\n")]),
+                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+            );
+
+            static::assertSame($content, file_get_contents($servicesFile));
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
 }

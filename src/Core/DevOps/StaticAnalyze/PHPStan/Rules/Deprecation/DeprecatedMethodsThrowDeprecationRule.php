@@ -81,7 +81,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isInternalConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -172,5 +172,11 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return false;
+    }
+
+    private function isInternalConstructor(ClassMethod $node, ClassReflection $class): bool
+    {
+        return $node->name->toString() === '__construct'
+            && ($class->isInternal() || str_contains($node->getDocComment()?->getText() ?? '', '@internal'));
     }
 }

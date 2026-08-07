@@ -138,7 +138,10 @@ class ProductSerializer extends EntitySerializer
         }
 
         if ($visibilities !== []) {
-            yield 'visibilities' => $this->findVisibilityIds($visibilities, $context);
+            // without a product id there is nothing to match existing visibilities against
+            yield 'visibilities' => $productId
+                ? $this->findVisibilityIds((string) $productId, $visibilities, $context)
+                : $visibilities;
         }
 
         try {
@@ -162,46 +165,34 @@ class ProductSerializer extends EntitySerializer
     }
 
     /**
+     * All visibilities of a record belong to the same product, so it is passed explicitly instead of being read
+     * back out of the entries.
+     *
      * @param array<array<string, mixed>> $visibilities
      *
      * @return array<array<string, mixed>>
      */
-    private function findVisibilityIds(array $visibilities, Context $context): array
+    private function findVisibilityIds(string $productId, array $visibilities, Context $context): array
     {
-        $productIds = [];
-        $salesChannelIds = [];
-        foreach ($visibilities as $visibility) {
-            if (!isset($visibility['productId'])) {
-                continue;
-            }
-
-            $productIds[$visibility['productId']] = true;
-            $salesChannelIds[$visibility['salesChannelId']] = true;
-        }
-
-        if ($productIds === []) {
+        if ($visibilities === []) {
             return $visibilities;
         }
 
         // Read the existing visibilities of the whole record in one query, loading only the sales channel next to
         // the id instead of the whole entity.
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('productId', array_keys($productIds)));
-        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_keys($salesChannelIds)));
-        $criteria->addFields(['productId', 'salesChannelId']);
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_column($visibilities, 'salesChannelId')));
+        $criteria->addFields(['salesChannelId']);
 
         $existing = [];
         foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $entity) {
             \assert($entity instanceof PartialEntity);
-            $existing[(string) $entity->get('productId')][(string) $entity->get('salesChannelId')] = (string) $entity->get('id');
+            $existing[(string) $entity->get('salesChannelId')] = (string) $entity->get('id');
         }
 
         foreach ($visibilities as $i => $visibility) {
-            if (!isset($visibility['productId'])) {
-                continue;
-            }
-
-            $id = $existing[$visibility['productId']][$visibility['salesChannelId']] ?? null;
+            $id = $existing[$visibility['salesChannelId']] ?? null;
 
             if ($id) {
                 $visibility['id'] = $id;

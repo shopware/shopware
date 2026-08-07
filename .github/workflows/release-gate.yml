@@ -18,8 +18,6 @@ concurrency:
   group: release-gate-${{ github.ref }}
   cancel-in-progress: true
 
-# Union of what the called workflows declare. A nested job requesting more than is
-# granted here fails the whole run at startup, even when its own `if` would skip it.
 permissions:
   actions: read
   contents: read

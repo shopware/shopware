@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute;
@@ -110,6 +111,7 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
+use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
@@ -370,6 +372,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(UrlEncodingTwigFilter::class)
+        ->tag('twig.extension');
+
+    $services->set(AnalyticsLineItemPriceExtension::class)
+        ->args([service(CashRounding::class)])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

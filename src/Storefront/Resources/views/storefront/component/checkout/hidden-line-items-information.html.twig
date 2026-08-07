@@ -1,4 +1,7 @@
 {% block component_hidden_line_items_information %}
+    {# Analytics reports the unit price after the discount, so the promotion line items have to be allocated back to the products. #}
+    {% set gaPrices = sw_analytics_line_item_prices(lineItems, context) %}
+
     <div class="d-none hidden-line-items-information"
          data-currency="{{ context.currency.translated.shortName }}"
          data-shipping="{{ cart.shippingCosts.totalPrice }}"
@@ -6,7 +9,7 @@
     >
         {% for lineItem in lineItems %}
             {% if lineItem.good %}
-                {% set gaPrice = lineItem.price.unitPrice %}
+                {% set gaItem = gaPrices[lineItem.id] is defined ? gaPrices[lineItem.id] : { price: lineItem.price.unitPrice, discount: 0 } %}
 
                 {% block component_hidden_line_item_information %}
                     {% set categories = lineItem.payload.categoryNames is defined ? lineItem.payload.categoryNames|slice(0, 5) : [] %}
@@ -21,7 +24,8 @@
                           data-sku="{{ lineItem.payload.productNumber ?? productId }}"
                           data-name="{{ lineItem.label }}"
                           data-quantity="{{ lineItem.quantity }}"
-                          data-price="{{ gaPrice }}"
+                          data-price="{{ gaItem.price }}"
+                          data-discount="{{ gaItem.discount ?: '' }}"
                           data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
                           data-variant="{{ variant }}"
                           {{ categoryAttributes|raw }}

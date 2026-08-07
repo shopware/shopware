@@ -51,6 +51,8 @@ class Migration1783944800AddGaranLabelTest extends TestCase
             }
         }
 
+        $this->migration->update($this->connection);
+
         foreach ($this->originalMailTranslations as $languageId => $translation) {
             $this->connection->update(
                 'mail_template_translation',

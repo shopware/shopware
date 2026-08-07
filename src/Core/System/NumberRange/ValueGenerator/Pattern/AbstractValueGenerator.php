@@ -12,7 +12,7 @@ abstract class AbstractValueGenerator
      * to modify the result in a pattern specific way. Returns only the part of the pattern it is responsible for and
      * don't even know the whole pattern
      *
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
      * @param ?array<int, string> $args
      */
     abstract public function generate(array $config, ?array $args = null, ?bool $preview = false): string;

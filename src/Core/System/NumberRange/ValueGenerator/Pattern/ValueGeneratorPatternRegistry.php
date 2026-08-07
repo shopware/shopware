@@ -27,7 +27,7 @@ class ValueGeneratorPatternRegistry
     }
 
     /**
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
      * @param array<int, string>|null $args
      */
     public function generatePattern(string $pattern, string $patternPart, array $config, ?array $args = null, ?bool $preview = false): string

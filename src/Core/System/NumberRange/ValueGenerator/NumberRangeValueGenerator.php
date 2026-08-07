@@ -109,16 +109,16 @@ class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implem
     }
 
     /**
-     * @return array{id: string, pattern: string, start: int}
+     * @return array{id: string, pattern: string, start: int, technical_name: string}
      */
     private function getConfiguration(string $definition, ?string $salesChannelId): array
     {
         // @deprecated tag:v6.8.0 - When getPreview is removed, this method will expect a sales channel id.
         // The else case can be removed then.
         if ($salesChannelId) {
-            /** @var array{id: string, pattern: string, start: int}|false $config */
+            /** @var array{id: string, pattern: string, start: int, technical_name: string}|false $config */
             $config = $this->connection->fetchAssociative('
-                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`, `number_range_type`.`technical_name`
                 FROM number_range
                 INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
                 LEFT JOIN number_range_sales_channel ON number_range.id = number_range_sales_channel.number_range_id
@@ -128,9 +128,9 @@ class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implem
                 ORDER BY number_range.global ASC, number_range_type.global ASC
             ', ['typeName' => $definition, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]);
         } else {
-            /** @var array{id: string, pattern: string, start: int}|false $config */
+            /** @var array{id: string, pattern: string, start: int, technical_name: string}|false $config */
             $config = $this->connection->fetchAssociative('
-                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`, `number_range_type`.`technical_name`
                 FROM number_range
                 INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
                 WHERE `number_range_type`.`technical_name` = :typeName AND (number_range_type.global = 1 OR number_range.global = 1)
@@ -169,7 +169,7 @@ class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implem
     }
 
     /**
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
      * @param array<string> $parsedPattern
      */
     private function generate(array $parsedPattern, array $config, ?bool $preview = false): string

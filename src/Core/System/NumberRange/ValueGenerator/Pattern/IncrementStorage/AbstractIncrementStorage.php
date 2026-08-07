@@ -10,14 +10,14 @@ abstract class AbstractIncrementStorage
     /**
      * Reserves and fetches the next increment atomically
      *
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
      */
     abstract public function reserve(array $config): int;
 
     /**
      * Fetches the next increment value without reserving it
      *
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param array{id: string, pattern: string, start: ?int, technical_name?: string} $config
      */
     abstract public function preview(array $config): int;
 

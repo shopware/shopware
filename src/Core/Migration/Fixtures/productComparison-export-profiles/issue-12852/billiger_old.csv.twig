@@ -5,9 +5,8 @@
 "{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ '...' : product.translated.name }}",{#- -#}
 "{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ '...' : product.translated.description|raw }}{#- -#}
 ",{#- -#}
-"{%- set productTypeCategory = product.seoCategory ?? product.categories.first -%}
-{%- if productTypeCategory -%}
-    {{ productTypeCategory.breadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+"{%- if product.categories.count > 0 -%}
+    {{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
 {%- endif -%}",{#- -#}
 {% set price = product.calculatedPrice %}
 {%- if product.calculatedPrices.count > 0 -%}

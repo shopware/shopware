@@ -1,5 +1,10 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+test.skip(
+    process.env.GITHUB_REPOSITORY === 'shopware/shopware-private',
+    'Lighthouse tests require the performance characteristics of the public repository runners.',
+);
+
 /**
  * These tests should only run against APP_ENV=Prod
  */

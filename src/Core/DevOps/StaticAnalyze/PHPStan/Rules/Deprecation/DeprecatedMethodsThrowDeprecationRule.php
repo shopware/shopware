@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -19,6 +20,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRule implements Rule
 {
+    public function __construct(private readonly ServiceMap $serviceMap)
+    {
+    }
+
     /**
      * There are some exceptions to this rule, where deprecated methods should not throw a deprecation notice.
      * This is mainly the reason if the deprecated code is still called from inside the core due to BC reasons.
@@ -81,7 +86,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isInternalConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -174,9 +179,9 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return false;
     }
 
-    private function isInternalConstructor(ClassMethod $node, ClassReflection $class): bool
+    private function isServiceConstructor(ClassMethod $node, ClassReflection $class): bool
     {
         return $node->name->toString() === '__construct'
-            && ($class->isInternal() || str_contains($node->getDocComment()?->getText() ?? '', '@internal'));
+            && $this->serviceMap->getService($class->getName()) !== null;
     }
 }

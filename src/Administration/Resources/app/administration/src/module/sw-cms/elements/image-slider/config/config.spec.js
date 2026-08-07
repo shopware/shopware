@@ -414,23 +414,6 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
     });
 
-    // KNOWN v6.8 DEFECT: this test and the next one fail under the v6.8 flag, and the failure is a
-    // genuine finding rather than a test problem. They never exercised the v6.8 branch before,
-    // because the removed local feature mock forced every test in this file down the legacy path.
-    //
-    // The two template branches bind the preview src differently. The v6.8 branch
-    // (`<template v-if="feature.isActive('v6.8.0.0')">`) uses the stored `sliderItem.mediaUrl`,
-    // while the legacy `v-else` branch resolves it via `getMediaItemById(sliderItem.mediaId).url`:
-    //   sw-cms-el-config-image-slider.html.twig:303  :src="sliderItem.mediaUrl"                      (v6.8, v-if)
-    //   sw-cms-el-config-image-slider.html.twig:673  :src="getMediaItemById(sliderItem.mediaId).url" (legacy, v-else)
-    //
-    // These tests assert the v6.8 contract (prefer the resolved url; hide the preview when the media
-    // cannot be resolved) and the v6.8 render path does not deliver it: it binds the stale stored
-    // `sliderItem.mediaUrl` and keeps the preview visible (`v-if="sliderItem.mediaUrl"`) even when the
-    // media id cannot be resolved. The branches are mutually exclusive (`v-if`/`v-else`), so only the
-    // v6.8 <img> renders here — the fix belongs in that branch's binding.
-    //
-    // Left failing deliberately: fixing it is a production change, out of scope for a test PR.
     it('should prefer the resolved media item url in the settings link preview', async () => {
         const wrapper = await createWrapper('settings', [
             {

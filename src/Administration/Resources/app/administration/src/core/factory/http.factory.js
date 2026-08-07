@@ -87,18 +87,23 @@ function createClient() {
      * Dispatcher function that routes requests to the appropriate axios version
      * based on the useAxiosV1 flag in the request config
      *
-     * @param {Object} config - Axios request config
+     * @param {Object|string} configOrUrl - Axios request config or URL
+     * @param {Object} config - Axios request config when a URL is passed
      * @returns {Promise} - Promise that resolves with the response
      */
-    const dispatcher = (config) => {
+    const dispatcher = (configOrUrl, config = {}) => {
+        const requestConfig = typeof configOrUrl === 'string'
+            ? { ...config, url: configOrUrl }
+            : configOrUrl;
+
         // Determine which axios version to use:
         // 1. If useAxiosV1 is explicitly set (true/false), use that
         // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
         // 3. Fall back to v0 for backward compatibility
-        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
+        const shouldUseV1 = requestConfig?.useAxiosV1 ?? isV68 ?? false;
         const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
 
-        return targetAdapter.runRequest(config);
+        return targetAdapter.runRequest(requestConfig);
     };
 
     // Add standard axios methods to the dispatcher

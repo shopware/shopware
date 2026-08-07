@@ -282,6 +282,30 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
+    it('should support the axios URL and config call form', async () => {
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
+        const axiosV0Request = jest.spyOn(axiosV0, 'request');
+        const axiosV1Request = jest.spyOn(axiosV1Client, 'request').mockResolvedValue({ data: { success: true } });
+
+        const response = await client('/test-callable', {
+            method: 'post',
+            headers: { 'x-shopware-test': 'value' },
+            data: { id: 'test-id' },
+            useAxiosV1: true,
+        });
+
+        expect(response.data).toEqual({ success: true });
+        expect(axiosV0Request).not.toHaveBeenCalled();
+        expect(axiosV1Request).toHaveBeenCalledWith({
+            method: 'post',
+            headers: { 'x-shopware-test': 'value' },
+            data: { id: 'test-id' },
+            useAxiosV1: true,
+            url: '/test-callable',
+        });
+    });
+
     it('should use axios v1 by default with v6.8', async () => {
         global.activeFeatureFlags = [
             ...new Set([

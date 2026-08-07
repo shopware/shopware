@@ -17,6 +17,7 @@ import {
     cleanupTempProject,
     syntheticEntitySchema,
     writeFile,
+    warningText,
     writePluginsConfig,
     writeZeroConfigPlugin,
 } from '../test-helpers';
@@ -111,7 +112,7 @@ describe('scripts/extensionTooling/setup root projections', () => {
         expect(stub).toContain(GENERATED_MARKER);
         expect(stub).toContain('interface Entities {}');
         // The vendor-layout fixture (admin under vendor/) resolves to the bin/console form.
-        expect(result.warnings.join('\n')).toContain('bin/console administration:generate-entity-schema-types');
+        expect(warningText(result)).toContain('bin/console administration:generate-entity-schema-types');
 
         // The real generated schema is never treated as a stub.
         writeFile(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'), syntheticEntitySchema);

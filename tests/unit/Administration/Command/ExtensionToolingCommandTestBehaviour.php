@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Command;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -17,6 +18,14 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('framework')]
 trait ExtensionToolingCommandTestBehaviour
 {
+    private function kernel(): KernelInterface
+    {
+        $kernel = static::createStub(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn('/shop');
+
+        return $kernel;
+    }
+
     private function createAdministrationRoot(bool $withToolingStub, int $stubExitCode = 0): string
     {
         $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-tooling-', true);

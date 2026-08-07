@@ -16,6 +16,7 @@ import {
     createSkeletonAdmin,
     createTempProject,
     syntheticEntitySchema,
+    warningText,
     writeFile,
     writePluginsConfig,
 } from '../test-helpers';
@@ -199,7 +200,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         expect(fs.readFileSync(path.join(projectRoot, 'custom/plugins/Shared/tsconfig.json'), 'utf8')).not.toContain(
             '@generated',
         );
-        expect(result.warnings.some((warning) => warning.includes('tsconfig.json already exists'))).toBe(true);
+        expect(warningText(result)).toContain('tsconfig.json already exists');
     });
 
     it('keeps one bridge per root for genuinely independent per-root configs', () => {
@@ -236,7 +237,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         expect(countBridges(path.join(projectRoot, 'custom/plugins/Ambiguous'))).toBe(2);
         expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupOne/.shopware'))).toBe(true);
         expect(fs.existsSync(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupTwo/.shopware'))).toBe(true);
-        expect(result.warnings.join('\n')).not.toContain('was not bridged');
+        expect(warningText(result)).not.toContain('was not bridged');
     });
 
     it('warns about a --root-config naming an unknown extension', () => {
@@ -251,6 +252,6 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
             rootConfig: { extension: 'Unknown', dir: '.' },
         });
 
-        expect(result.warnings.join('\n')).toContain('--root-config names the unknown extension Unknown');
+        expect(warningText(result)).toContain('--root-config names the unknown extension Unknown');
     });
 });

@@ -13,7 +13,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { record } from './setup-context';
+import { record, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { scaffoldExtensionConfigs } from './setup-configs';
 import { GENERATED_MARKER, SHIM_DIR_NAME, asRelativeSpecifier, isPlatformProject, writeManagedFile } from './shared';
@@ -245,9 +245,11 @@ export function createBridges(
                 scaffoldExtensionConfigs(context, project.name, dir, sourcePaths, project.vendor);
             }
         } catch (error) {
-            context.warnings.push(
+            warn(
+                context,
                 `Could not write the bridge for ${project.name} into ${project.basePath} ` +
                     `(${error instanceof Error ? error.message : String(error)}) — falling back to the root projection.`,
+                project.name,
             );
         }
     }

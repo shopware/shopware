@@ -368,7 +368,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     for (const warning of result.warnings) {
-        lines.push(colors.yellow(`  ⚠ ${warning}`));
+        lines.push(colors.yellow(`  ⚠ ${warning.message}`));
     }
 
     lines.push(

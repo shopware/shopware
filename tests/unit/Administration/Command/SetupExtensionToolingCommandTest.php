@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -37,13 +36,5 @@ class SetupExtensionToolingCommandTest extends TestCase
         $command = new SetupExtensionToolingCommand($this->kernel(), null);
 
         static::assertStringContainsString('[EXPERIMENTAL]', $command->getDescription());
-    }
-
-    private function kernel(): KernelInterface
-    {
-        $kernel = static::createStub(KernelInterface::class);
-        $kernel->method('getProjectDir')->willReturn('/shop');
-
-        return $kernel;
     }
 }

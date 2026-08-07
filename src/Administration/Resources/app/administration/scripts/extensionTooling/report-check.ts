@@ -67,7 +67,7 @@ function baselineNotes(run: ToolRunResult): string[] {
 
         notes.push(
             colors.dim(
-                `      ⚠ ${count} baseline entr${count === 1 ? 'y' : 'ies'} no longer match — ` +
+                `      ⚠ ${count} baseline ${count === 1 ? 'entry no longer matches' : 'entries no longer match'} — ` +
                     'prune with -- --update-baseline',
             ),
         );

@@ -36,6 +36,17 @@ export interface OwnedConfig {
     detail?: string;
 }
 
+/**
+ * A setup warning together with the extension it is about. `extension` is
+ * absent for project-global warnings (a missing entity schema, a missing host
+ * module, a user-owned root config); those stay visible under any selection,
+ * while an attributed one can be filtered to what a run actually checks.
+ */
+export interface SetupWarning {
+    message: string;
+    extension?: string;
+}
+
 export type ManagedFileState = 'created' | 'updated' | 'unchanged' | 'conflict' | 'skipped';
 
 /** File states as persisted in the manifest — free of run-specific detail so setup stays idempotent. */

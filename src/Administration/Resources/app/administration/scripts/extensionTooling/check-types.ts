@@ -119,7 +119,6 @@ export interface ExtensionCheckResult {
 export interface CheckExtensionsOptions {
     projectRoot: string;
     administrationRoot: string;
-    pluginsConfigPath?: string;
     only?: string | string[];
     maxWorkers?: number;
     /** Forward --fix to ESLint (never to vue-tsc). */

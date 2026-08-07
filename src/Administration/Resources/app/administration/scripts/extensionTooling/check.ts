@@ -25,7 +25,7 @@ import { setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
 import { readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
-import type { ExtensionToolingProject, ToolingCommands } from './shared';
+import type { ExtensionToolingProject, SetupWarning, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
 import { createLimiter, runPool } from './check-pipeline';
@@ -69,6 +69,30 @@ function collectSetupDiagnostics(setupResult: SetupExtensionToolingResult, comma
     return diagnostics;
 }
 
+/** Whether a --only entry names this project, by extension name or by one of its bundle technical names. */
+function matches(project: ExtensionToolingProject, name: string): boolean {
+    return project.name === name || project.technicalNames.includes(name);
+}
+
+/**
+ * Setup runs over every installed extension, so its per-extension warnings
+ * would report extensions this run does not check. Project-global warnings
+ * (a missing entity schema, a missing host module) carry no extension and
+ * always stay — they affect the selected run too.
+ */
+function selectedSetupWarnings(warnings: SetupWarning[], projects: ExtensionToolingProject[], selected: string[]): string[] {
+    return warnings
+        .filter(
+            (warning) =>
+                warning.extension === undefined ||
+                selected.length === 0 ||
+                projects.some(
+                    (project) => project.name === warning.extension && selected.some((name) => matches(project, name)),
+                ),
+        )
+        .map((warning) => warning.message);
+}
+
 /** Restricts the discovered projects to a --only selection; an unknown name is a fatal, run-blocking diagnostic. */
 function filterSelectedProjects(
     projects: ExtensionToolingProject[],
@@ -78,8 +102,6 @@ function filterSelectedProjects(
         return { projects };
     }
 
-    const matches = (project: ExtensionToolingProject, name: string): boolean =>
-        project.name === name || project.technicalNames.includes(name);
     // Resolve every requested name independently. A single unknown name fails
     // the whole run before any tool executes — a renamed/removed target must
     // never leave CI green while it is silently unchecked.
@@ -104,9 +126,10 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     // setup computes the bundle dump path (var/plugins.json) itself.
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const fatalDiagnostics = collectSetupDiagnostics(setupResult, commands);
-    const warnings: string[] = [...setupResult.warnings];
-    const selection = filterSelectedProjects(setupResult.manifest.projects, normalizeSelection(options.only));
+    const selected = normalizeSelection(options.only);
+    const selection = filterSelectedProjects(setupResult.manifest.projects, selected);
     const projects = selection.projects;
+    const warnings: string[] = selectedSetupWarnings(setupResult.warnings, setupResult.manifest.projects, selected);
 
     if (selection.fatalDiagnostic) {
         fatalDiagnostics.push(selection.fatalDiagnostic);
@@ -232,12 +255,6 @@ const CHECK_COMMAND: CommandSpec = {
             valueName: '<path>',
             description: 'Administration app root (defaults to the installed one running this script).',
         },
-        {
-            name: '--plugins-config',
-            value: 'required',
-            valueName: '<path>',
-            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
-        },
     ],
 };
 
@@ -289,14 +306,12 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         return 2;
     }
 
-    const pluginsConfigPath = parsed.values['--plugins-config'];
     const only = parsed.values['--only'];
     const selection = only === undefined ? undefined : normalizeSelection(only);
 
     const check = await checkExtensions({
         projectRoot,
         administrationRoot,
-        pluginsConfigPath,
         only: selection,
         maxWorkers,
         fix: parsed.flags.has('--fix'),

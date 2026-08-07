@@ -43,13 +43,36 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '99.99',
+            'value': 99.99,
             'items': [{
-                'id': 'product-123',
-                'name': 'Test Product',
-                'brand': 'Test Brand',
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'price': 99.99,
             }],
         });
+    });
+
+    test('reports the variant options of the product detail page', () => {
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L">
+                <span class="product-detail-ordernumber">SW10000.1</span>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'SW10000.1',
+                'item_variant': 'Red, L',
+            })],
+        }));
     });
 
     test('fires add_to_wishlist event with line item data on checkout pages', () => {
@@ -73,11 +96,12 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '49.99',
+            'value': 49.99,
             'items': [{
-                'id': 'product-456',
-                'name': 'Line Item Product',
-                'brand': 'Line Item Brand',
+                'item_id': 'product-456',
+                'item_name': 'Line Item Product',
+                'item_brand': 'Line Item Brand',
+                'price': 49.99,
                 'item_category': 'Category 1',
                 'item_category2': 'Category 2',
             }],
@@ -102,7 +126,7 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('fires event with undefined values when no product data available', () => {
+    test('omits unavailable optional values', () => {
         document.body.innerHTML = '';
 
         addToWishlistEvent._onProductAdded({
@@ -110,12 +134,8 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
-            'currency': undefined,
-            'value': undefined,
             'items': [{
-                'id': 'product-unknown',
-                'name': undefined,
-                'brand': undefined,
+                'item_id': 'product-unknown',
             }],
         });
     });
@@ -142,11 +162,12 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '79.99',
+            'value': 79.99,
             'items': [{
-                'id': 'product-789',
-                'name': 'Product Page Name',
-                'brand': 'Product Page Brand',
+                'item_id': 'product-789',
+                'item_name': 'Product Page Name',
+                'item_brand': 'Product Page Brand',
+                'price': 79.99,
             }],
         });
     });
@@ -170,11 +191,12 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'USD',
-            'value': '25.00',
+            'value': 25.00,
             'items': [{
-                'id': 'product-fallback',
-                'name': 'Fallback Name',
-                'brand': 'Fallback Brand',
+                'item_id': 'product-fallback',
+                'item_name': 'Fallback Name',
+                'item_brand': 'Fallback Brand',
+                'price': 25,
             }],
         });
     });

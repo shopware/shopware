@@ -80,12 +80,24 @@
                     },
                     "payload": {
                         "type": "object",
+                        "required": [
+                            "manufacturerName",
+                            "categoryNames"
+                        ],
                         "properties": {
                             "categoryIds": {
                                 "type": "array",
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "readOnly": true
+                            },
+                            "categoryNames": {
+                                "description": "The translated category path of the product, ordered from the top level down, starting below the sales channel navigation root. Empty when the product has no visible category. Resolved during cart enrichment, so it is present on every product line item of an order placed with Shopware 6.7.14.0 or newer, and absent on older orders and on line items that are not products.",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
                                 },
                                 "readOnly": true
                             },
@@ -109,6 +121,11 @@
                             "manufacturerId": {
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "manufacturerName": {
+                                "description": "The translated name of the product manufacturer, or null when the product has none. Resolved during cart enrichment, so it is present on every product line item of an order placed with Shopware 6.7.14.0 or newer, and absent on older orders and on line items that are not products.",
+                                "type": ["string", "null"],
+                                "readOnly": true
                             },
                             "markAsTopseller": {
                                 "type": "boolean"

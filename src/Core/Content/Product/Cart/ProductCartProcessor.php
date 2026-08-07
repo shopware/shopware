@@ -67,6 +67,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     final public const KEEP_INACTIVE_PRODUCT = CheckoutPermissions::KEEP_INACTIVE_PRODUCT;
 
     /**
+     * Not a constructor argument, because the resolver is stateless and has no dependencies of its
+     * own, while adding an argument would break every service definition that instantiates this
+     * processor, including those outside this repository.
+     */
+    private readonly ProductCategoryPathResolver $categoryPathResolver;
+
+    /**
      * @internal
      */
     public function __construct(
@@ -77,6 +84,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly EntityCacheKeyGenerator $generator,
         private readonly Connection $connection
     ) {
+        $this->categoryPathResolver = new ProductCategoryPathResolver();
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -123,7 +131,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
-                $this->enrich($match['item'], $data, $behavior);
+                $this->enrich($match['item'], $data, $context, $behavior);
 
                 // remove "parent" products which should never be displayed in storefront
                 $this->validateParents($match['item'], $data, $match['scope']);
@@ -306,7 +314,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -400,9 +408,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
+            'manufacturerName' => $product->getManufacturer()?->getTranslation('name'),
             'taxId' => $product->getTaxId(),
             'tagIds' => $product->getTagIds(),
             'categoryIds' => $product->getCategoryTree(),
+            'categoryNames' => $this->categoryPathResolver->getPath($product, $context),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $product->getVariation(),

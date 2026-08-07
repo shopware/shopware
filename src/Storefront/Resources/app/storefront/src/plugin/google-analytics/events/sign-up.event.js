@@ -36,6 +36,6 @@ export default class SignUpEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        gtag('event', 'sign_up', { method: 'mail'});
+        this.pushEvent('sign_up', { method: 'mail'}, { ecommerce: false });
     }
 }

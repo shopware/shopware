@@ -2112,6 +2112,12 @@ To extend or replace a schema in a plugin or theme, use `sw_extends` on the rele
 {% endblock %}
 ```
 
+## Removed the hidden `manufacturerName` and `categoryNames` inputs from the buy widget
+
+The hidden inputs `lineItems[<id>][payload][manufacturerName]` and `lineItems[<id>][payload][categoryNames][<i>]` have been removed from the block `buy_widget_buy_product_buy_info` in `@Storefront/storefront/component/buy-widget/buy-widget-form.html.twig`. The block itself is unchanged.
+
+Both values are resolved server side by `Shopware\Core\Content\Product\Cart\ProductCartProcessor` and are available as `payload.manufacturerName` and `payload.categoryNames` on every product line item, regardless of how the product was added to the cart. Read them from the line item payload instead of the form. If you posted these payload keys yourself, you can stop: they are overwritten during cart enrichment.
+
 ## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
 
 The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.

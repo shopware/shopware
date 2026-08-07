@@ -115,18 +115,21 @@
                                name="lineItems[{{ product.id }}][removable]"
                                value="1">
 
-                        <input type="hidden"
-                               name="lineItems[{{ product.id }}][payload][manufacturerName]"
-                               value="{{ product.manufacturer ? product.manufacturer.getName() : '' }}">
+                        {# @deprecated tag:v6.8.0 - The hidden `manufacturerName` and `categoryNames` inputs will be removed. Both values are resolved by `ProductCartProcessor` and are already part of the product line item payload. #}
+                        {% if not feature('v6.8.0.0') %}
+                            <input type="hidden"
+                                   name="lineItems[{{ product.id }}][payload][manufacturerName]"
+                                   value="{{ product.manufacturer ? product.manufacturer.getName() : '' }}">
 
-                        {# Google Analytics supports up to 5 category levels. We take the first 5 from the breadcrumb. #}
-                        {% if page is defined and page.product is defined and page.product.seoCategory %}
-                            {% set breadcrumb = sw_breadcrumb_full(page.product.seoCategory, context)|slice(0, 5) %}
-                            {% for i, category in breadcrumb %}
-                                <input type="hidden"
-                                       name="lineItems[{{ product.id }}][payload][categoryNames][{{ i }}]"
-                                       value="{{ category.name }}">
-                            {% endfor %}
+                            {# Google Analytics supports up to 5 category levels. We take the first 5 from the breadcrumb. #}
+                            {% if page is defined and page.product is defined and page.product.seoCategory %}
+                                {% set breadcrumb = sw_breadcrumb_full(page.product.seoCategory, context)|slice(0, 5) %}
+                                {% for i, category in breadcrumb %}
+                                    <input type="hidden"
+                                           name="lineItems[{{ product.id }}][payload][categoryNames][{{ i }}]"
+                                           value="{{ category.name }}">
+                                {% endfor %}
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 

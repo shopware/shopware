@@ -50,14 +50,13 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_cart', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
                 },
             ],
         });
@@ -97,14 +96,13 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_cart', {
             'currency': 'EUR',
-            'value': '99.99',
+            'value': 99.99,
             'items': [
                 {
-                    id: 'product-456',
-                    name: 'Another Product',
-                    quantity: '1',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-456',
+                    item_name: 'Another Product',
+                    quantity: 1,
+                    price: 99.99,
                 },
             ],
         });
@@ -223,17 +221,15 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'view_cart', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [
                 {
-                    id: 'product-456',
-                    name: 'Another Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-456',
+                    item_name: 'Another Product',
+                    quantity: 2,
+                    price: 99.99,
                 },
             ],
         });
     });
 });
-

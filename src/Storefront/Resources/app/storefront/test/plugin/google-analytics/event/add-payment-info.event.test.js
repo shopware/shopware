@@ -4,11 +4,34 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
         window.activeRoute = 'frontend.checkout.confirm.page';
+        window.sessionStorage.clear();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         jest.clearAllMocks();
+    });
+
+    test('fires only once per checkout when the auto-submit form reloads the page', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="49.99">
+                </span>
+            </div>
+        `;
+
+        // selecting a payment method auto-submits and reloads the confirm page,
+        // which runs the event again for the same checkout
+        new AddPaymentInfoEvent().execute();
+        new AddPaymentInfoEvent().execute();
+        new AddPaymentInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
     test('supports returns true on checkout confirm page', () => {
@@ -45,19 +68,46 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_payment_info', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'payment_type': 'Credit Card',
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: 'Test Brand',
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
+                    item_brand: 'Test Brand',
                     item_category: 'Category 1',
                 },
             ],
         });
+    });
+
+    test('reports the applied promotion codes as coupon', () => {
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="99.99">
+                </span>
+            </div>
+            <div class="payment-method-radio">
+                <input type="radio" class="payment-method-input" checked>
+                <div class="payment-method-description">
+                    <strong>Credit Card</strong>
+                </div>
+            </div>
+        `;
+
+        new AddPaymentInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_payment_info', expect.objectContaining({
+            'coupon': 'SAVE20',
+        }));
     });
 
     test('does not fire event when no line items exist', () => {
@@ -93,18 +143,15 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_payment_info', {
             'currency': 'EUR',
-            'value': '49.99',
-            'payment_type': '',
+            'value': 49.99,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '1',
-                    price: '49.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 1,
+                    price: 49.99,
                 },
             ],
         });
     });
 });
-

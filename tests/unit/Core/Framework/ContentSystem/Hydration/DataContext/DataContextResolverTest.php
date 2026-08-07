@@ -10,11 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResol
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataContextResolver::class)]
 class DataContextResolverTest extends TestCase
 {

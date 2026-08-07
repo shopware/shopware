@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Dto\StyleOptionSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\TypedStyleOption;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\TypedStyleOptionValidator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TypedStyleOptionValidator::class)]
 class TypedStyleOptionValidatorTest extends TestCase
 {

@@ -9,11 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NavigationLoaderConfigSerializer::class)]
 class NavigationLoaderConfigSerializerTest extends TestCase
 {

@@ -12,10 +12,12 @@ use Shopware\Core\Framework\App\Validation\Error\ContentSystemStyleOptionSchemaE
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemStyleOptionAppValidator::class)]
 class ContentSystemStyleOptionAppValidatorTest extends TestCase
 {

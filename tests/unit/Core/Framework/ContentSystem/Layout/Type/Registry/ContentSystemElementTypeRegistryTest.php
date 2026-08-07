@@ -10,11 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSyst
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemElementTypeRegistry::class)]
 class ContentSystemElementTypeRegistryTest extends TestCase
 {

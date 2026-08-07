@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_7\Migration1758018342ProductContentLayout;
@@ -20,6 +21,7 @@ use Shopware\Core\Migration\V6_7\Migration1758018346FooterContentLayout;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1758018342ProductContentLayout::class)]
 #[CoversClass(Migration1758018343CategoryContentLayout::class)]
 #[CoversClass(Migration1758018344LandingPageContentLayout::class)]

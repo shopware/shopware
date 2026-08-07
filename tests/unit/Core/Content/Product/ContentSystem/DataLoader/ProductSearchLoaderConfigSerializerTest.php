@@ -10,11 +10,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductSearchLoaderConfigSerializer::class)]
 class ProductSearchLoaderConfigSerializerTest extends TestCase
 {

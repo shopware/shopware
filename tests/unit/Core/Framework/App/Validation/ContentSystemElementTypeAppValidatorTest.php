@@ -12,10 +12,12 @@ use Shopware\Core\Framework\App\Validation\Error\ContentSystemElementTypeSchemaE
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemElementTypeAppValidator::class)]
 class ContentSystemElementTypeAppValidatorTest extends TestCase
 {

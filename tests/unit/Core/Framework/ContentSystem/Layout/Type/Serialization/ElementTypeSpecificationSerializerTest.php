@@ -11,11 +11,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpecificationDto;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElementTypeSpecificationSerializer::class)]
 class ElementTypeSpecificationSerializerTest extends TestCase
 {

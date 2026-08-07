@@ -16,11 +16,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecific
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecificationFixture;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemDataLoaderMap::class)]
 class ContentSystemDataLoaderMapTest extends TestCase
 {

@@ -9,11 +9,13 @@ use Shopware\Core\Framework\ContentSystem\Output\Format\SkeletonResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SkeletonResponseFactory::class)]
 class SkeletonResponseFactoryTest extends TestCase
 {

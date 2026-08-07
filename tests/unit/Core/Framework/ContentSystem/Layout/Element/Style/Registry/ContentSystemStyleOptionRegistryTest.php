@@ -10,11 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractCo
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemStyleOptionRegistry::class)]
 class ContentSystemStyleOptionRegistryTest extends TestCase
 {

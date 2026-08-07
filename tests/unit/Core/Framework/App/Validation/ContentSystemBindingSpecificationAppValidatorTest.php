@@ -13,10 +13,12 @@ use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificatio
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemBindingSpecificationAppValidator::class)]
 class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 {

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfig;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer;
 use Shopware\Core\System\Currency\CurrencyException;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CurrencyLoaderConfigSerializer::class)]
 class CurrencyLoaderConfigSerializerTest extends TestCase
 {

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\ContentSystem\ResolvedContentLayout;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Generator;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentRoute::class)]
 class ContentRouteTest extends TestCase
 {

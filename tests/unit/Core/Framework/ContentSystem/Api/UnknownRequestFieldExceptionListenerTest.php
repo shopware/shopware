@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UnknownRequestFieldExceptionListener::class)]
 class UnknownRequestFieldExceptionListenerTest extends TestCase
 {

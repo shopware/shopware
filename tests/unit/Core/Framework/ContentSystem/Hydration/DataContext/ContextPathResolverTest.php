@@ -9,12 +9,14 @@ use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContextPathResolver::class)]
 class ContextPathResolverTest extends TestCase
 {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoException;
@@ -40,7 +41,7 @@ class SeoUrlUpdaterTest extends TestCase
 
     private SeoUrlPersister&MockObject $seoUrlPersister;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
      * @var StaticEntityRepository<SalesChannelCollection>
@@ -51,7 +52,7 @@ class SeoUrlUpdaterTest extends TestCase
     {
         $this->seoUrlGenerator = $this->createMock(SeoUrlGenerator::class);
         $this->seoUrlPersister = $this->createMock(SeoUrlPersister::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
     }
 
     public function testUpdateWithoutDomain(): void

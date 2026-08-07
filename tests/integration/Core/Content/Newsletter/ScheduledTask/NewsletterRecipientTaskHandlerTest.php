@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\MockClock;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -96,9 +96,14 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
 
     public function testRun(): void
     {
-        $this->installTestData();
+        // pin the handler clock to the fixture timestamp: the 30-day fixture sits on the
+        // handler's LTE cutoff and only survives through its sub-second precision, so with
+        // a real clock the outcome flips whenever fixture install and task run straddle a
+        // second boundary
+        $now = new \DateTimeImmutable('2026-01-15 10:00:00.500');
+        $this->installTestData($now);
 
-        $taskHandler = $this->getTaskHandler();
+        $taskHandler = $this->getTaskHandler(new MockClock($now));
         $taskHandler->run();
 
         /** @var EntityRepository<NewsletterRecipientCollection> */
@@ -130,7 +135,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         }
     }
 
-    private function installTestData(): void
+    private function installTestData(\DateTimeImmutable $now): void
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         static::assertIsString($salutationSql);
@@ -138,17 +143,17 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
-        $recipientSql = str_replace(':now', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = str_replace(':now', $now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 
-    private function getTaskHandler(): NewsletterRecipientTaskHandler
+    private function getTaskHandler(ClockInterface $clock): NewsletterRecipientTaskHandler
     {
         return new NewsletterRecipientTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
             static::getContainer()->get('newsletter_recipient.repository'),
-            new NativeClock()
+            $clock
         );
     }
 }

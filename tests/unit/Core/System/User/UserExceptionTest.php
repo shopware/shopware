@@ -25,4 +25,17 @@ class UserExceptionTest extends TestCase
         static::assertSame('No sales channel found.', $exception->getMessage());
         static::assertEmpty($exception->getParameters());
     }
+
+    public function testMissingRequestParameter(): void
+    {
+        $exception = UserException::missingRequestParameter('email', 'user.email');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(UserException::MISSING_REQUEST_PARAMETER_CODE, $exception->getErrorCode());
+        static::assertSame('Parameter "email" is missing.', $exception->getMessage());
+        static::assertSame([
+            'parameterName' => 'email',
+            'path' => 'user.email',
+        ], $exception->getParameters());
+    }
 }

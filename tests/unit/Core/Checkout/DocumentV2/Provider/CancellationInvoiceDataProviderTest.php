@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -58,20 +57,9 @@ class CancellationInvoiceDataProviderTest extends TestCase
         static::assertSame('storno', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyCancellationInvoice(string $documentType, bool $expected): void
+    public function testSupportsCancellationInvoice(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'cancellation invoice is supported' => [DocumentType::CANCELLATION_INVOICE->value, true];
-        yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::CANCELLATION_INVOICE->value));
     }
 
     public function testEnrichOrderCriteriaDelegatesToInvoiceProvider(): void

@@ -58,6 +58,7 @@ class ContentRoute extends AbstractContentRoute
 
         $layoutEntity = $this->contentLayoutRepository
             ->search(new Criteria([$resolved->layoutId]), $context->getContext())
+            ->getEntities()
             ->first();
 
         if (!$layoutEntity instanceof ContentLayoutEntity) {

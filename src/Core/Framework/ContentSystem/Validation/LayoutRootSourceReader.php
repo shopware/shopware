@@ -87,7 +87,7 @@ class LayoutRootSourceReader
 
     private function fromStore(string $layoutId, Context $context): ?string
     {
-        $layout = $this->definitionRegistry->getRepository(ContentLayoutDefinition::ENTITY_NAME)->search(new Criteria([$layoutId]), $context)->first();
+        $layout = $this->definitionRegistry->getRepository(ContentLayoutDefinition::ENTITY_NAME)->search(new Criteria([$layoutId]), $context)->getEntities()->first();
 
         return $layout instanceof ContentLayoutEntity ? $layout->getRootSource() : null;
     }

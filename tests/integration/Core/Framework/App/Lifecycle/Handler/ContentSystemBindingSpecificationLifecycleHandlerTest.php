@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\A
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemBindingSpecificationLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ContentSystemElementTypeLifecycleHandler;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
@@ -48,7 +48,7 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
 
     private AppFixture $appFixture;
 
-    private AppStateService $appStateService;
+    private AppManager $appManager;
 
     /**
      * @var EntityRepository<AppContentSystemBindingSpecificationCollection>
@@ -69,9 +69,9 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
         static::assertInstanceOf(AppFixture::class, $appFixture);
         $this->appFixture = $appFixture;
 
-        $appStateService = static::getContainer()->get(AppStateService::class);
-        static::assertInstanceOf(AppStateService::class, $appStateService);
-        $this->appStateService = $appStateService;
+        $appManager = static::getContainer()->get(AppManager::class);
+        static::assertInstanceOf(AppManager::class, $appManager);
+        $this->appManager = $appManager;
     }
 
     #[TestDox('persists an inline binding as a canonical row: a {loader, config} resolves map and the derived required flag on the synthesized input')]
@@ -135,7 +135,7 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
 
         // DatabaseBindingSpecificationLoader only reads active apps (WHERE a.active = 1); an installed app is
         // not active until the lifecycle's activation step runs, so activate it before reading through the loader.
-        $this->appStateService->activateApp($app->getId(), Context::createDefaultContext());
+        $this->appManager->activate($app, Context::createDefaultContext());
 
         $loader = static::getContainer()->get(DatabaseBindingSpecificationLoader::class);
         static::assertInstanceOf(DatabaseBindingSpecificationLoader::class, $loader);

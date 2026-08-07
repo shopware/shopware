@@ -171,6 +171,6 @@ class EntityLoader extends AbstractContentDataLoader
             $result = $repository->search($criteria, $context->getContext());
         }
 
-        return $result->first();
+        return $result->getEntities()->first();
     }
 }

@@ -48,7 +48,7 @@ class PersistedLayoutMutator
         $lock->acquire(true);
 
         try {
-            $layout = $this->contentLayoutRepository->search(new Criteria([$layoutId]), $context)->first();
+            $layout = $this->contentLayoutRepository->search(new Criteria([$layoutId]), $context)->getEntities()->first();
 
             if (!$layout instanceof ContentLayoutEntity) {
                 throw ContentSystemException::contentLayoutNotFound($layoutId);

@@ -75,9 +75,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
         $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
 
-        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry = static::createStub(RootSourceRegistry::class);
         $registry->method('knownRootSources')->willReturn(['category', 'none']);
-        $registry->method('resolve')->with('category')->willReturn([]);
+        $registry->method('resolve')->willReturn([]);
 
         $reader = static::createStub(LayoutRootSourceReader::class);
         $reader->method('read')->willReturn('category');
@@ -98,9 +98,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $gate->method('resolvability')
             ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
 
-        $registry = $this->createMock(RootSourceRegistry::class);
+        $registry = static::createStub(RootSourceRegistry::class);
         $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->method('resolve')->with('product')->willReturn([]);
+        $registry->method('resolve')->willReturn([]);
 
         $validator = $this->validator($gate, $registry);
 

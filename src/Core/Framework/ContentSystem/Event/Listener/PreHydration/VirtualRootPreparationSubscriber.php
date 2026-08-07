@@ -16,8 +16,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  *
  * @final
  */
-#[AsEventListener(event: PreContentHydrationEvent::class, priority: 5000)]
 #[Package('framework')]
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 5000)]
 class VirtualRootPreparationSubscriber
 {
     public function __construct(

@@ -17,8 +17,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  *
  * @final
  */
-#[AsEventListener(event: PreContentHydrationEvent::class, priority: 1000)]
 #[Package('framework')]
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 1000)]
 class PartialRenderingPreparationSubscriber
 {
     public function __construct(

@@ -38,7 +38,7 @@ class EntityLayoutResolver
     ): ?string {
         $criteria = $this->buildAssignmentCriteria($entityIdField, $entityId, $context);
 
-        $entity = $repository->search($criteria, $context->getContext())->first();
+        $entity = $repository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$entity instanceof AbstractContentLayoutAssignmentEntity) {
             return null;

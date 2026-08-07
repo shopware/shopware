@@ -167,7 +167,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             new ConstraintViolation('This value should not be blank.', null, [], null, 'bindings[broken].type', ''),
         ]);
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')
             ->willReturnOnConsecutiveCalls(new ConstraintViolationList(), $violations);
 
@@ -194,7 +194,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ['name' => 'boom', 'schema' => json_encode($this->validSchema()), 'app_name' => 'Acme'],
         ]);
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')
             ->willReturnCallback(function (): ConstraintViolationList {
                 static $calls = 0;

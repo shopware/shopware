@@ -61,6 +61,6 @@ class DomainAwareLayoutResolver
         $criteria->setLimit(1);
         $criteria->addAssociation('contentLayout');
 
-        return $repository->search($criteria, $context->getContext())->first();
+        return $repository->search($criteria, $context->getContext())->getEntities()->first();
     }
 }

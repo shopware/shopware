@@ -16,8 +16,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  *
  * @final
  */
-#[AsEventListener(event: PreContentHydrationEvent::class, priority: 3000)]
 #[Package('framework')]
+#[AsEventListener(event: PreContentHydrationEvent::class, priority: 3000)]
 class PlaceholderResolutionSubscriber
 {
     public function __invoke(PreContentHydrationEvent $event): void

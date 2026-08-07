@@ -100,18 +100,22 @@ class YamlTypeLoaderTest extends TestCase
 
         foreach (['padding', 'margin'] as $spacingProperty) {
             static::assertSame(['string', 'object'], $containerProperties[$spacingProperty]['type']);
-            static::assertSame('box-spacing', $containerProperties[$spacingProperty]['adminUI']['component']);
-            static::assertTrue($containerProperties[$spacingProperty]['adminUI']['breakpointAware']);
+            $adminUi = self::adminUi($containerProperties[$spacingProperty]);
+            static::assertSame('box-spacing', $adminUi['component']);
+            static::assertTrue($adminUi['breakpointAware']);
+            static::assertIsArray($containerProperties[$spacingProperty]['properties']);
             static::assertSame(
                 ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
                 array_keys($containerProperties[$spacingProperty]['properties']),
             );
         }
 
+        static::assertIsArray($containerProperties['padding']['properties']);
         foreach ($containerProperties['padding']['properties'] as $breakpoint) {
             static::assertSame('0 20px 0 20px', $breakpoint['default']);
         }
 
+        static::assertIsArray($containerProperties['margin']['properties']);
         foreach ($containerProperties['margin']['properties'] as $breakpoint) {
             static::assertSame('0 0 24px 0', $breakpoint['default']);
         }
@@ -146,22 +150,24 @@ class YamlTypeLoaderTest extends TestCase
         ];
 
         foreach ($expectedPanels as $property => $panel) {
-            static::assertSame($panel, $containerProperties[$property]['adminUI']['panel']);
+            static::assertSame($panel, self::adminUi($containerProperties[$property])['panel']);
         }
 
-        static::assertSame('slider', $containerProperties['backgroundOpacity']['adminUI']['component']);
-        static::assertSame([0, 100, 1], array_values($containerProperties['backgroundOpacity']['adminUI']['props']));
+        $backgroundOpacityUi = self::adminUi($containerProperties['backgroundOpacity']);
+        static::assertSame('slider', $backgroundOpacityUi['component']);
+        static::assertIsArray($backgroundOpacityUi['props']);
+        static::assertSame([0, 100, 1], array_values($backgroundOpacityUi['props']));
         static::assertSame('auto', $containerProperties['backgroundImageMode']['default']);
         static::assertSame(['auto', 'cover', 'contain'], $containerProperties['backgroundImageMode']['enum']);
-        static::assertSame('select', $containerProperties['backgroundImageMode']['adminUI']['component']);
+        static::assertSame('select', self::adminUi($containerProperties['backgroundImageMode'])['component']);
         static::assertSame(['0', '4px', '8px', '16px', '50%'], $containerProperties['borderRadius']['enum']);
-        static::assertSame('radio-panel', $containerProperties['borderRadius']['adminUI']['component']);
+        static::assertSame('radio-panel', self::adminUi($containerProperties['borderRadius'])['component']);
 
         foreach (['shadowOffsetX', 'shadowOffsetY', 'shadowSpread', 'shadowBlur', 'shadowOpacity'] as $shadowProperty) {
-            static::assertSame('slider', $containerProperties[$shadowProperty]['adminUI']['component']);
+            static::assertSame('slider', self::adminUi($containerProperties[$shadowProperty])['component']);
         }
 
-        static::assertSame('color', $containerProperties['shadowColor']['adminUI']['component']);
+        static::assertSame('color', self::adminUi($containerProperties['shadowColor'])['component']);
         static::assertFalse($containerProperties['shadowInset']['default']);
     }
 
@@ -310,6 +316,18 @@ class YamlTypeLoaderTest extends TestCase
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessageMatches('/(?=.*types\[Sw:A:InvalidA\])(?=.*types\[Sw:B:InvalidB\])/s');
         $loader->load();
+    }
+
+    /**
+     * @param array<string, mixed> $property
+     *
+     * @return array<mixed>
+     */
+    private static function adminUi(array $property): array
+    {
+        static::assertIsArray($property['adminUI']);
+
+        return $property['adminUI'];
     }
 
     /**

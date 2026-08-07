@@ -188,8 +188,11 @@ class LayoutRootSourceReaderTest extends TestCase
      */
     private function searchResult(?ContentLayoutEntity $layout): EntitySearchResult
     {
+        /** @var EntityCollection<Entity> $entities */
+        $entities = new EntityCollection($layout === null ? [] : [$layout]);
+
         $result = static::createStub(EntitySearchResult::class);
-        $result->method('first')->willReturn($layout);
+        $result->method('getEntities')->willReturn($entities);
 
         return $result;
     }

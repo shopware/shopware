@@ -20,8 +20,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  *
  * @final
  */
-#[AsEventListener(event: EntityWrittenContainerEvent::class)]
 #[Package('framework')]
+#[AsEventListener(event: EntityWrittenContainerEvent::class)]
 class CacheInvalidationSubscriber
 {
     public function __construct(

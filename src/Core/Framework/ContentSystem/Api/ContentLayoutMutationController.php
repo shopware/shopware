@@ -33,8 +33,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  *
  * @final
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ContentLayoutMutationController
 {
     /**

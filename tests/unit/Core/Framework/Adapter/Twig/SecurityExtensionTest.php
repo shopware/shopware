@@ -5,8 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\CallbackOperatorSecurityNodeVisitor;
-use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\SecurityGuardedCallbackNode;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
@@ -16,8 +14,6 @@ use Twig\Loader\ArrayLoader;
  * @internal
  */
 #[CoversClass(SecurityExtension::class)]
-#[CoversClass(CallbackOperatorSecurityNodeVisitor::class)]
-#[CoversClass(SecurityGuardedCallbackNode::class)]
 class SecurityExtensionTest extends TestCase
 {
     #[DataProvider('notAllowedTemplates')]

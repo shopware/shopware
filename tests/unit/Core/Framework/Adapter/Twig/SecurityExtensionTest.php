@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\CallbackOperatorSecurityNodeVisitor;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\SecurityGuardedCallbackNode;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
@@ -14,6 +16,8 @@ use Twig\Loader\ArrayLoader;
  * @internal
  */
 #[CoversClass(SecurityExtension::class)]
+#[CoversClass(CallbackOperatorSecurityNodeVisitor::class)]
+#[CoversClass(SecurityGuardedCallbackNode::class)]
 class SecurityExtensionTest extends TestCase
 {
     #[DataProvider('notAllowedTemplates')]
@@ -60,6 +64,22 @@ class SecurityExtensionTest extends TestCase
         yield 'sort not allowed callback function array' => ['{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
         yield 'sort not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|sort(arrayCaller)|join }}'];
+
+        yield 'find not allowed function' => ['{{ ["a", "b", "c"]|find("strcmp") }}'];
+
+        yield 'find not allowed callback function string' => ['{{ ["a", "b", "c"]|find("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do") }}'];
+
+        yield 'find not allowed callback function array' => ['{{ ["a", "b", "c"]|find([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\']) }}'];
+
+        yield 'find not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|find(arrayCaller) }}'];
+
+        yield 'has some not allowed function' => ['{{ ["a", "b", "c"] has some "strcmp" }}'];
+
+        yield 'has some not allowed callback function array on variable' => ['{{ ["a", "b", "c"] has some arrayCaller }}'];
+
+        yield 'has every not allowed function' => ['{{ ["a", "b", "c"] has every "strcmp" }}'];
+
+        yield 'has every not allowed callback function array on variable' => ['{{ ["a", "b", "c"] has every arrayCaller }}'];
     }
 
     public function testMapWithAllowedFunction(): void
@@ -141,6 +161,42 @@ class SecurityExtensionTest extends TestCase
             '123',
             $this->runTwig('{{ test|sort|join }}', [], ['test' => ['2', '3', '1']])
         );
+    }
+
+    public function testFindClosure(): void
+    {
+        static::assertSame('b', $this->runTwig('{{ ["a", "b", "c"]|find(v => v == "b") }}'));
+    }
+
+    public function testFindWithAllowedFunction(): void
+    {
+        static::assertSame(
+            'TEST',
+            $this->runTwig(
+                '{{ ["", "TEST"]|find(\'Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGoodClass::upper\') }}',
+                ['Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\Twig\\SecurityExtensionGoodClass::upper'],
+            )
+        );
+    }
+
+    public function testFindWithNotCallableFunction(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ ["value"]|find(functionName) }}', ['not_callable'], ['functionName' => 'not_callable'])
+        );
+    }
+
+    public function testHasSomeClosure(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["a", "b", "c"] has some (v => v == "b")) ? 1 : 0 }}'));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b", "c"] has some (v => v == "z")) ? 1 : 0 }}'));
+    }
+
+    public function testHasEveryClosure(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["a", "a"] has every (v => v == "a")) ? 1 : 0 }}'));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b"] has every (v => v == "a")) ? 1 : 0 }}'));
     }
 
     public function testAcceptsNull(): void

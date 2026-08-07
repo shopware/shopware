@@ -2,6 +2,12 @@
 
 ## Critical Fixes
 
+### App Scripts can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables in App Scripts unless the function is listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. This closes a sandbox escape (`GHSA-6qhw-38wm-7g7h`) where a locally installed App could execute arbitrary PHP and OS commands. App Scripts that pass arrow functions (`v => ...`) are unaffected.
+
+## Features
+
 ### Media import URL checks apply to the address that is connected to
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.

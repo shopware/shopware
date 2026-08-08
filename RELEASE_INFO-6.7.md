@@ -4,6 +4,32 @@
 
 ## API
 
+### Order recalculation and conversion endpoints now require ACL privileges
+
+Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
+* `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
+
+Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+### User uniqueness validation endpoints now require user read access
+
+The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
+### Message queue admin endpoints now require ACL privileges
+
+Three admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/message-queue/consume` and `POST /api/_action/scheduled-task/run` require the new `system:queue:process` privilege.
+* `GET /api/_action/scheduled-task/min-run-interval` requires the existing `scheduled_task:read` privilege.
+
+Administration users are not affected: both privileges are granted to every authenticated Administration user at runtime, because these endpoints back the admin worker that processes the message queue in every admin session. Integrations and API clients calling these endpoints must have the respective privilege added to their ACL role — the runtime defaults apply to Administration users only. External workers should keep using the `bin/console messenger:consume` and `scheduled-task:run` CLI commands, which are unaffected.
+
+### Plugin filesystem metadata is read-only through the Admin API
+
+The `plugin.path` and `plugin.managedByComposer` fields can no longer be created or changed through generic Admin API writes. Plugin discovery and extension management continue to maintain these values automatically. Integrations must not write plugin filesystem metadata directly.
+
 ### SEO admin action endpoints now require ACL privileges
 
 Four admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -44,8 +70,41 @@ Four admin action endpoints that previously only required authentication now enf
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
+### `sw-expect-packages` is rejected on endpoints that do not require authentication
+
+The `sw-expect-packages` header is no longer evaluated on API endpoints that do not require authentication, because the failure messages disclose the installed versions of Shopware and its dependencies. Sending it to such an endpoint now returns `417` with the new error code `FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED` instead of evaluating the constraint. Affected endpoints include `GET /api/_info/health-check`, `POST /api/oauth/token`, `GET /api/app-system/shop/verify`, and the `POST /api/_action/user/user-recovery` routes.
+
+Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
+
 ## Core
 
+### GARAN commercial guarantee label and EU legal guarantee notice
+
+- Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).
+- New Store API route `GET /store-api/product/{productId}/garan-label` renders the EU-harmonised GARAN label as SVG (full and nested variants) for products with a manufacturer and complete label data.
+- New Twig filters `sw_garan_label`, `sw_garan_label_nested`, `sw_garan_label_data_uri`, `sw_garan_label_nested_uri`, `sw_garan_label_duration` render the label as inline SVG or as a base64 `data:` URI — the latter for mail clients, which strip inline `<svg>` markup.
+- Separately, new Store API route `GET /store-api/legal-guarantee-notice` renders the EU-harmonised statutory legal guarantee notice, translated into all 24 official EU languages, toggleable via the new `core.cart.showLegalGuaranteeNotice` system config, and exposed via `sw_legal_guarantee_notice` / `sw_legal_guarantee_notice_link` Twig filters.
+- Both labels/notices are wired into the storefront (checkout confirmation, buy-widget, cart line items) and into the Administration product detail page (new guarantee form).
+- The `order_confirmation_mail` template is updated to include both the GARAN label (as a data URI) and the legal guarantee notice link. **This update only applies to shops whose order confirmation mail template is still the unmodified system default** — i.e. new installations, and existing shops that never edited that template. Merchants who have customized their order confirmation mail template must add `{{ nestedItem.productId|sw_garan_label_nested_uri(context) }}` and `{{ context.languageId|sw_legal_guarantee_notice_link }}` to their template manually if they want these notices.
+### Deprecated XML configuration
+
+Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
+
+**Plugin authors:** migrate your `services.xml` to `services.php` using Symfony's `ContainerConfigurator` and your `routes.xml` to `routes.php` using the `RoutingConfigurator`; package configuration can move to YAML or PHP. PHP configuration has been fully supported by the plugin system for years, service ids and wiring stay identical, and both formats can coexist during the transition. YAML definitions remain supported. See the migration example in `UPGRADE-6.8.md`.
+
+### Document templates use the DocumentV2 VAT display condition behind the 6.8 feature flag
+
+The document templates now use the shipping-based `intraCommunityDelivery` condition for displaying VAT information when the `v6.8.0.0` feature flag is active, matching the DocumentV2 document generation path. With the feature flag disabled, the existing billing-address and configured delivery-country behavior remains unchanged. Extensions and themes that render or assert the legacy document templates should test their output with the feature flag enabled before upgrading to Shopware 6.8.
+
+### Line item rule conditions only evaluate product line items
+
+Product specific line item rule conditions (manufacturer, category, tags, properties, dimensions, stock, list price, and similar) now skip non-product goods such as custom product options. Those line items carry no product data, so evaluating them could produce false matches.
+
+### `EntitySearchResult` retains its entity name in v6.8.0
+
+`EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
+
+The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
@@ -89,6 +148,10 @@ Product export body templates now receive RFC 3986-encoded `MediaEntity::url` an
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
 
+### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
+
+Migration DDL now retries once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4 rejects a statement through MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151). The `MigrationStep` DDL helpers do this automatically; raw DDL statements in extension migrations should go through `MigrationStep::executeDdlStatement()`. The method is `@internal` only because it will be removed once MySQL fixes the bug; it is safe to call in the meantime.
+
 ### Polyfill packages are installed as declared dependencies
 
 The `shopware/core` and `shopware/platform` package manifests no longer replace Symfony polyfill packages or `paragonie/random_compat`. Composer now installs the polyfills required by the resolved dependency graph instead of treating them as supplied by Shopware. Extension projects that depend on these packages continue to work; their production dependency tree can gain the required polyfill packages. Projects that guarantee the required native PHP functionality can add relevant packages to their own root `replace` section to avoid installing them and reduce their vendor directory size; they must not replace `symfony/polyfill-mbstring`, which Core requires for `mb_ltrim()` on PHP 8.2 and 8.3.
@@ -110,6 +173,9 @@ See `UPGRADE-6.7.md` for concrete examples.
 
 The MCP server is now always enabled. The `MCP_SERVER` feature flag has been removed, so the `/api/_mcp` and `/store-api/_mcp` endpoints are available without setting any flag. The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change before then.
 
+### MCP entity tools validate association read privileges
+
+The experimental MCP tools `shopware-entity-read`, `shopware-entity-search`, and `shopware-entity-aggregate` now validate the supplied criteria with the same association ACL checks as the Admin API. Loading, filtering, sorting, or aggregating over an association now requires the `<association-entity>:read` privilege in addition to the top-level `<entity>:read` privilege — for example, reading `order` with the `orderCustomer` association requires both `order:read` and `order_customer:read`. Integrations that relied on the missing check must add the association read privileges to their ACL role; requests without such criteria are unaffected.
 ### MCP tools can be enabled per session through toolsets
 
 The experimental MCP server now advertises only its default meta-tools until a client enables additional toolsets for the current MCP session. Clients can call `shopware-toolsets-list` to inspect available toolsets and `shopware-toolset-enable` to enable one. Enabling a toolset emits `notifications/tools/list_changed` so clients that support MCP list-change notifications can refresh `tools/list`.
@@ -153,6 +219,21 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
+### `debug:mcp` lists Store API capabilities
+
+`bin/console debug:mcp` was wired to the Admin MCP server only, so no capability of the Store API MCP server (`/store-api/_mcp`) appeared in its output, and looking one up by name reported "No capability found". Store API tools registered with `shopware.store_api_mcp.tool` were therefore invisible to the standard debugging command.
+
+The command now inspects both MCP servers and groups the output per server, with every section heading naming the server it belongs to (`Store API: Tools (17)`). A new `--scope` option limits it to one of them:
+
+```bash
+bin/console debug:mcp                          # both servers
+bin/console debug:mcp --scope=store-api        # /store-api/_mcp only
+bin/console debug:mcp --scope=api              # /api/_mcp only
+bin/console debug:mcp shopware-store-api-context
+```
+
+Looking up a capability by name resolves across both servers and the detail view names the owning server. `--integration` still applies to the Admin server only, because integration allowlists are not evaluated for Store API requests; a note points this out when both servers are listed.
+
 ### Whole-phrase product-search matches rank higher
 
 Elasticsearch product search now adds an explicit phrase-proximity boost for multi-word searches, weighted above single-word matches. A product whose field contains the full search phrase in order now ranks above one that only contains the individual words scattered around. The same documents still match — this only re-ranks — but `_score` values and borderline orderings shift, which can affect a configured `core.search.minScore`. The per-match-type boosts are configurable via `elasticsearch.search.boost.*`.
@@ -170,6 +251,42 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 ## Administration
 
+### System config forms show validation errors for the selected sales channel scope
+
+Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
+### System config component exposes the selected sales channel scope
+
+The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
+
+The value is available on two surfaces, because they reach different consumers:
+
+* Slot props: the `card-element`, `beforeElements` and `afterElements` slots receive an additional `currentSalesChannelId` prop, and `card-element-last`, which had no slot props, now provides it too. A template override that replaces one of these slots keeps its own copy of the `v-bind` expression and will not see the new prop until it is re-synced against this version.
+* Injection: descendants of the component, in particular custom components rendered through a plugin's `config.xml` component elements, can inject the value. Use the defaulted forms below, so your component stays warning-free and crash-free when it renders outside a system config form. With the default in place, a component rendered outside the form reads the same value as the global scope:
+
+```js
+// Options API: the injected value is unwrapped, read it directly
+inject: {
+    swSystemConfigCurrentSalesChannelId: { default: null },
+},
+
+// Composition API: you receive the ref itself, read `.value`
+const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+```
+
+The provided value is a read-only computed ref. Note that the form body is torn down and rebuilt while the configuration of a not yet visited sales channel loads, so embedded components must not assume instance continuity across a switch.
+
+Existing slot usages keep working unchanged. Previously, following the switcher required traversing `$parent` into private component state or overriding `sw-system-config` itself, both of which break across Administration refactors. (shopware/shopware#18731)
+### Conditional visibility for app-registered tabs
+
+`sw.ui.tabs('<position>').addTabItem()` now accepts an optional `visible` boolean, so an app can show or hide its own registered tab depending on the current context (for example the currently opened entity). When omitted, the tab is shown as before, so existing extensions are unaffected.
+
+Re-calling `addTabItem()` for the same `componentSectionId` now updates the existing entry (label and visibility) instead of adding a duplicate, so an app can toggle a tab's visibility for the current context by re-registering it.
+
+```javascript
+sw.ui.tabs('sw-order-detail').addTabItem({
+    label: 'my-plugin.tabTitle',
+    componentSectionId: 'my-plugin-tab',
+    visible: order.stateMachineState.technicalName === 'open',
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -224,6 +341,33 @@ cacheService.invalidateCaches({
     cacheKey: ['custom-field-sets', 'product'],
 });
 ```
+
+### Plugins can use the global Meteor snackbar
+
+Administration plugins can now add and remove snackbars through `Shopware.Service('snackbarService')`. Use `addSnackbar()` with a Meteor snackbar configuration and `removeSnackbar(id)` to dismiss it. Composition API extensions can use the experimental `useSnackbar()` composable, which becomes stable with Shopware 6.8.
+### App action buttons in the Media Manager multiselect sidebar
+
+Apps can now surface a custom action button when multiple media are selected in the Media Manager. Registering an action button via the Admin SDK with `entity: 'media'` and `view: 'list'` renders it in the multiselect sidebar's quick-actions list. The button is only shown when **every** selected media item matches the configured `fileTypes` (case-insensitive; omit `fileTypes` to always show it), and the `callback` receives the full list of selected media entities (`{ id, url, fileName, mimeType, fileSize }`). This complements the existing single-item button (`view: 'item'`) and lets apps offer bulk operations — e.g. exporting or converting all selected files — without an extra API round-trip. No changes are required for existing single-item action buttons.
+### New media Quick info extension point and selected-item dataset
+
+The media "Quick info" sidebar now exposes an extension point so apps and plugins
+can render their own content next to a selected media file. A new
+`sw-extension-component-section` with the position identifier
+`sw-media-quickinfo-metadata` is rendered directly below the metadata list, and
+the currently selected media entity is published as the `sw-media-quickinfo__item`
+dataset (`Shopware.ExtensionAPI.publishData`).
+
+Extensions can register a component at the `sw-media-quickinfo-metadata` position
+and read the selected item through the data API. App (iframe) extensions must
+request the fields they need via `selectors`, for example:
+
+```js
+const { data: media } = useDataset('sw-media-quickinfo__item', {
+    selectors: ['id', 'fileName', 'fileExtension', 'mimeType'],
+});
+```
+
+The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
@@ -280,6 +424,52 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## App System
 
+### Apps can register custom fields on media folders
+
+Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.
+
+Relating a custom field set to `media_folder_configuration` is particularly useful because it inherits Shopware's existing folder configuration inheritance: folders that inherit their parent's configuration (`useParentConfiguration`) automatically share these custom field values.
+
+Define the fields in `Resources/config/custom-fields.xml` (the inline `<custom-fields>` element in `manifest.xml` is deprecated since 6.7.13.0):
+
+```xml
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>my_app_folder_settings</name>
+        <label>My App</label>
+        <related-entities>
+            <media_folder_configuration/>
+        </related-entities>
+        <fields>
+            <bool name="my_app_enabled">
+                <label>Enabled</label>
+            </bool>
+        </fields>
+    </custom-field-set>
+</custom-fields>
+```
+
+### Media folder settings modal publishes its data sets for app extensions
+
+The administration media folder settings modal (`sw-media-modal-folder-settings`) now publishes its `mediaFolder` and `configuration` entities as data sets. Meteor Admin SDK apps that add a tab or component section to the modal can read and modify them — for example to render folder-level settings and persist them (as custom fields on `media_folder_configuration`) through the modal's native save:
+
+* `sw-media-modal-folder-settings__mediaFolder`
+* `sw-media-modal-folder-settings__configuration`
+### Cookies can be bound to active payment methods
+
+Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
+
+```xml
+<cookie>
+    <snippet-name>myApp.cookie.wallet</snippet-name>
+    <cookie>my-app-wallet</cookie>
+    <active-payment-method>wallet</active-payment-method>
+</cookie>
+```
+
+The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout
@@ -325,6 +515,10 @@ Fallback sizes apply only in remote-thumbnail mode to media in known folders who
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
+
+### Admin Elasticsearch listings fall back to the database on deep pagination
+
+Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
 
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
@@ -705,6 +899,8 @@ JSON schema files are now the sole source of truth for any entity they define. P
 
 If you maintain a bundle that provides both a PHP `EntityDefinition` and a JSON schema file under `Resources/Schema/StoreApi/components/schemas/` for the same entity, ensure the JSON file is complete. The PHP `EntityDefinition` remains responsible for DAL and internal entity handling.
 
+All core Store API entity components are now JSON-owned. The unused PHP-generated `LanguageJsonApi`, `MainCategoryJsonApi`, `NewsletterRecipientJsonApi`, `PaymentMethodJsonApi`, `SalutationJsonApi`, and `ShippingMethodJsonApi` compatibility components are no longer emitted; use their flat component counterparts instead.
+
 See the [JSON as the Source of Truth for API Schema](https://github.com/shopware/shopware/discussions/15100) RFC for the full rationale and roadmap.
 
 ### Purchase prices removed from Store API order line item payloads
@@ -768,6 +964,13 @@ For Administration clients that need to decide whether to trigger a direct brows
 The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
 
 ## App System
+
+### App permissions restrict Extension SDK requests and Administration modules
+
+Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
+Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
+The Administration module response omits modules for apps the current user cannot access.
+Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

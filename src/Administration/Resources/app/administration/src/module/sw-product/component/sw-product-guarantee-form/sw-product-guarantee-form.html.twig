@@ -1,0 +1,71 @@
+{% block sw_product_guarantee_form %}
+<div class="sw-product-guarantee-form">
+    {% block sw_product_guarantee_form_description %}
+    <p>{{ $t('sw-product.settingsForm.labelGuaranteeDescription') }}</p>
+    {% endblock %}
+
+    {% block sw_product_guarantee_form_content %}
+    <sw-container
+        columns="1fr 2fr"
+        gap="0 var(--scale-size-30)"
+    >
+        {% block sw_product_guarantee_form_guarantee_months_field %}
+        <sw-inherit-wrapper
+            v-model:value="product.guaranteeMonths"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.guaranteeMonths"
+        >
+            <template #content="props">
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :min="30"
+                    :max="600"
+                    :step="6"
+                    :allow-empty="true"
+                    :error="productGuaranteeMonthsError"
+                    :label="$t('sw-product.settingsForm.labelGuaranteeMonths')"
+                    :help-text="$t('sw-product.settingsForm.helpTextGuaranteeMonths')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderGuaranteeMonths')"
+                    :disabled="props.isInherited || !allowEdit"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_guarantee_form_guarantee_confirmed_field %}
+        <div class="sw-product-guarantee-form__switches">
+            <sw-inherit-wrapper
+                v-model:value="product.guaranteeConfirmed"
+                :has-parent="!!parentProduct.id"
+                :inherited-value="parentProduct.guaranteeConfirmed"
+            >
+                <template #content="props">
+                    <mt-switch
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
+                        :error="productGuaranteeConfirmedError"
+                        :steps="6"
+                        :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
+                        :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
+                        :disabled="props.isInherited || !allowEdit"
+                        :model-value="props.currentValue"
+                        @update:model-value="props.updateCurrentValue"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
+                    />
+
+                </template>
+            </sw-inherit-wrapper>
+        </div>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</div>
+{% endblock %}

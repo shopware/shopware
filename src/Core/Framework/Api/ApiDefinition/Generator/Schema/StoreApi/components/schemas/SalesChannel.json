@@ -1,0 +1,194 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "SalesChannel": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "languageId",
+                    "customerGroupId",
+                    "currencyId",
+                    "paymentMethodId",
+                    "shippingMethodId",
+                    "countryId",
+                    "navigationCategoryId",
+                    "name",
+                    "homeEnabled"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of language used.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customerGroupId": {
+                        "description": "Unique identity of customer group.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "currencyId": {
+                        "description": "Unique identity of currency used.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "paymentMethodId": {
+                        "description": "Unique identity of payment method used.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shippingMethodId": {
+                        "description": "Unique identity of shipping method.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryId": {
+                        "description": "Unique identity of country.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "navigationCategoryId": {
+                        "description": "Unique identity of navigation category.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "navigationCategoryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "navigationCategoryDepth": {
+                        "description": "It determines the number of levels of subcategories in the storefront category menu.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "footerCategoryId": {
+                        "description": "Unique identity of footer category.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "footerCategoryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "serviceCategoryId": {
+                        "description": "Unique identity of service category.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "serviceCategoryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mailHeaderFooterId": {
+                        "description": "Unique identity of mail header and footer.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "hreflangDefaultDomainId": {
+                        "description": "Unique identity of hreflangDefaultDomain.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "measurementUnits": {
+                        "$ref": "#/components/schemas/MeasurementUnits"
+                    },
+                    "businessTimeZone": {
+                        "description": "Business timezone used for sales-channel-specific rendering. Added since version: 6.7.13.0.",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "shortName": {
+                        "description": "A short name for sales channel.",
+                        "type": "string"
+                    },
+                    "taxCalculationType": {
+                        "description": "Tax calculation types are `horizontal` and `vertical`.",
+                        "type": "string"
+                    },
+                    "configuration": {
+                        "type": "object"
+                    },
+                    "active": {
+                        "description": "When boolean value is `true`, the sales channel is enabled.",
+                        "type": "boolean"
+                    },
+                    "hreflangActive": {
+                        "description": "When set to true, the sales channel pages are available in different languages.",
+                        "type": "boolean"
+                    },
+                    "maintenance": {
+                        "description": "When `true`, it indicates that the sales channel is undergoing maintenance, and shopping is temporarily unavailable during this period.",
+                        "type": "boolean"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/Language",
+                        "description": "Default language for the sales channel"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency",
+                        "description": "Default currency for the sales channel"
+                    },
+                    "paymentMethod": {
+                        "$ref": "#/components/schemas/PaymentMethod",
+                        "description": "Default payment method for the sales channel"
+                    },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethod",
+                        "description": "Default shipping method for the sales channel"
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country",
+                        "description": "Default country for the sales channel"
+                    },
+                    "domains": {
+                        "description": "Domain URLs configured for the sales channel",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SalesChannelDomain"
+                        }
+                    },
+                    "navigationCategory": {
+                        "$ref": "#/components/schemas/Category",
+                        "description": "Root category for navigation menu"
+                    },
+                    "footerCategory": {
+                        "$ref": "#/components/schemas/Category",
+                        "description": "Root category for footer navigation"
+                    },
+                    "serviceCategory": {
+                        "$ref": "#/components/schemas/Category",
+                        "description": "Root category for service pages"
+                    },
+                    "hreflangDefaultDomain": {
+                        "$ref": "#/components/schemas/SalesChannelDomain"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

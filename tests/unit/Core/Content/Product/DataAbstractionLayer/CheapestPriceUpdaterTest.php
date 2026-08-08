@@ -9,7 +9,7 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\AbstractCheapestPriceQuantitySelector;
@@ -28,17 +28,17 @@ use Shopware\Core\Test\Assert\Serialization;
 #[CoversClass(CheapestPriceUpdater::class)]
 class CheapestPriceUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private QueryBuilder&MockObject $queryBuilder;
+    private QueryBuilder&Stub $queryBuilder;
 
-    private AbstractCheapestPriceQuantitySelector&MockObject $quantitySelector;
+    private AbstractCheapestPriceQuantitySelector&Stub $quantitySelector;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryBuilder = static::createStub(QueryBuilder::class);
         $this->queryBuilder->method('setParameter')->willReturnSelf();
         $this->queryBuilder->method('select')->willReturnSelf();
         $this->queryBuilder->method('from')->willReturnSelf();
@@ -46,10 +46,10 @@ class CheapestPriceUpdaterTest extends TestCase
         $this->queryBuilder->method('leftJoin')->willReturnSelf();
         $this->queryBuilder->method('andWhere')->willReturnSelf();
 
-        $this->quantitySelector = $this->createMock(AbstractCheapestPriceQuantitySelector::class);
+        $this->quantitySelector = static::createStub(AbstractCheapestPriceQuantitySelector::class);
         $this->quantitySelector->method('add')->willReturnSelf();
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('createQueryBuilder')->willReturn($this->queryBuilder);
     }
 

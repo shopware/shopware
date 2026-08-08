@@ -47,7 +47,7 @@ class ContentLayoutDefaultSeedingTest extends TestCase
             'layout' => [['id' => $this->ids->get('element'), 'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE, 'properties' => []]],
         ]], $context);
 
-        $layout = $this->repository()->search(new Criteria([$id]), $context)->first();
+        $layout = $this->repository()->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         $tree = $layout->getLayout();

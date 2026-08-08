@@ -103,7 +103,7 @@ class ElementStylePersistenceTest extends TestCase
 
     private function readElement(string $layoutId, Context $context): ContentElement
     {
-        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->first();
+        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         $elements = $layout->getLayout();

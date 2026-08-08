@@ -554,7 +554,7 @@ class ContentLayoutMutationControllerTest extends TestCase
 
     private function reload(string $layoutId): ContentLayoutEntity
     {
-        $layout = $this->repository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->first();
+        $layout = $this->repository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         return $layout;

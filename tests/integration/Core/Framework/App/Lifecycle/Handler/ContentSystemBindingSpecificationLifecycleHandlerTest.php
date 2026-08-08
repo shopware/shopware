@@ -85,7 +85,10 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
         static::assertSame('binding-specification-inline:MediaImage', $schema['type']);
 
         static::assertIsArray($schema['resolves']);
-        static::assertSame(
+        // assertEquals, not assertSame: the schema round-trips through a MySQL `JSON` column, which normalizes
+        // object member order (by key length, then bytewise) instead of preserving insertion order. Key order
+        // carries no meaning for these maps, so only the key set and the values are asserted.
+        static::assertEquals(
             ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             $schema['resolves']['media'],
         );
@@ -148,7 +151,9 @@ class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
         $resolves = $specification->resolves();
         static::assertArrayHasKey('media', $resolves);
         static::assertSame('entity', $resolves['media']->loader);
-        static::assertSame(['entity' => 'media', 'property' => 'mediaId'], $resolves['media']->config);
+        // See the note in testInstallPersistsCanonicalInlineBinding: the config map comes back through the same
+        // MySQL `JSON` column, so its key order is the storage engine's, not the authored one.
+        static::assertEquals(['entity' => 'media', 'property' => 'mediaId'], $resolves['media']->config);
     }
 
     /**

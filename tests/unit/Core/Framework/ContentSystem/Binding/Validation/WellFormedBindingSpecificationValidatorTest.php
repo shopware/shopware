@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\WellFormedBindingSpecificationValidator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WellFormedBindingSpecificationValidator::class)]
 class WellFormedBindingSpecificationValidatorTest extends TestCase
 {

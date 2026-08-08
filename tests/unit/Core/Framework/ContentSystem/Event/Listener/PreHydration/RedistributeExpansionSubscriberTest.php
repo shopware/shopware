@@ -9,12 +9,14 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\RedistributeExpansionSubscriber;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RedistributeExpansionSubscriber::class)]
 class RedistributeExpansionSubscriberTest extends TestCase
 {

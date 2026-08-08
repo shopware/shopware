@@ -9,12 +9,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NoneSpecificationSource::class)]
 class NoneSpecificationSourceTest extends TestCase
 {

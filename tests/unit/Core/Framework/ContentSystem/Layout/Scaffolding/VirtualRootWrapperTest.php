@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VirtualRootWrapper::class)]
 class VirtualRootWrapperTest extends TestCase
 {

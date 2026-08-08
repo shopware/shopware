@@ -9,12 +9,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseStyleOptionLoader::class)]
 class DatabaseStyleOptionLoaderTest extends TestCase
 {

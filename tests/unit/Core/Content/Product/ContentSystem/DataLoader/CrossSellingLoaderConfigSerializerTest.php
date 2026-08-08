@@ -10,11 +10,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(CrossSellingLoaderConfigSerializer::class)]
 class CrossSellingLoaderConfigSerializerTest extends TestCase
 {

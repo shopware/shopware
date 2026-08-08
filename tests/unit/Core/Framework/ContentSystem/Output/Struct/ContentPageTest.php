@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentPage::class)]
 class ContentPageTest extends TestCase
 {

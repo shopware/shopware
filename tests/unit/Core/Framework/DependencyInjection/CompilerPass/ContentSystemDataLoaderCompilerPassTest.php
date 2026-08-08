@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemDataLoaderCompilerPass::class)]
 class ContentSystemDataLoaderCompilerPassTest extends TestCase
 {

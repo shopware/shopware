@@ -14,11 +14,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RootSourceRegistry::class)]
 class RootSourceRegistryTest extends TestCase
 {

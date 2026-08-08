@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\StaticSpecificationSource;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RenderingSpecificationFactory::class)]
 class RenderingSpecificationFactoryTest extends TestCase
 {

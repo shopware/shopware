@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefault;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefaultValidator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TypedDefaultValidator::class)]
 class TypedDefaultValidatorTest extends TestCase
 {

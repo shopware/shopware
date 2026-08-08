@@ -11,10 +11,12 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DiagnoseResponse::class)]
 class DiagnoseResponseTest extends TestCase
 {

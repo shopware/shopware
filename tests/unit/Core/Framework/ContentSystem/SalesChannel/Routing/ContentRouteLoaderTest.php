@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteDefinition;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoader;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentRouteLoader::class)]
 class ContentRouteLoaderTest extends TestCase
 {

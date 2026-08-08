@@ -13,11 +13,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemBindingSpecific
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemBindingSpecificationLifecycleHandler::class)]
 class ContentSystemBindingSpecificationLifecycleHandlerTest extends TestCase
 {

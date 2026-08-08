@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ViolationConstraintMapper::class)]
 class ViolationConstraintMapperTest extends TestCase
 {

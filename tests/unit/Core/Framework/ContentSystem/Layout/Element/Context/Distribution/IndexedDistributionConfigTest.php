@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IndexedDistributionConfig::class)]
 class IndexedDistributionConfigTest extends TestCase
 {

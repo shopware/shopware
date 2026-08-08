@@ -9,10 +9,12 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LayoutGate::class)]
 class LayoutGateTest extends TestCase
 {

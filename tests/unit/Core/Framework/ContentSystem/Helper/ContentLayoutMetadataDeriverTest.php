@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentLayoutMetadataDeriver::class)]
 class ContentLayoutMetadataDeriverTest extends TestCase
 {

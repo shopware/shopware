@@ -12,11 +12,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LayoutDefaultSeeder::class)]
 class LayoutDefaultSeederTest extends TestCase
 {

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -30,6 +31,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentPreviewPageBuilder::class)]
 class ContentPreviewPageBuilderTest extends TestCase
 {

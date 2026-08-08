@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader;
 use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfig;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CurrencyDataLoader::class)]
 class CurrencyDataLoaderTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificatio
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemElementTypeCompilerPass::class)]
 class ContentSystemElementTypeCompilerPassTest extends TestCase
 {

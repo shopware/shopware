@@ -28,6 +28,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -36,6 +37,7 @@ use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecifi
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElementResolver::class)]
 class ElementResolverTest extends TestCase
 {

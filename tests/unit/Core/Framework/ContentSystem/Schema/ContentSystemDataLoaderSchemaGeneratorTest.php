@@ -18,10 +18,12 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemDataLoaderSchemaGenerator::class)]
 class ContentSystemDataLoaderSchemaGeneratorTest extends TestCase
 {

@@ -10,11 +10,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfig;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfigSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceMenuLoaderConfigSerializer::class)]
 class ServiceMenuLoaderConfigSerializerTest extends TestCase
 {

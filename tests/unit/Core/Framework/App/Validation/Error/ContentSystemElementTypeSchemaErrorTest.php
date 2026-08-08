@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemElementTypeSchemaError;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemElementTypeSchemaError::class)]
 class ContentSystemElementTypeSchemaErrorTest extends TestCase
 {

@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfig;
 use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PaymentMethodLoaderConfigSerializer::class)]
 class PaymentMethodLoaderConfigSerializerTest extends TestCase
 {

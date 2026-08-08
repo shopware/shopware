@@ -10,12 +10,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResol
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextResolutionVisitor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContextResolutionVisitor::class)]
 class ContextResolutionVisitorTest extends TestCase
 {

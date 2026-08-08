@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\CachedContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CachedContentSystemBindingSpecificationRegistry::class)]
 class CachedContentSystemBindingSpecificationRegistryTest extends TestCase
 {

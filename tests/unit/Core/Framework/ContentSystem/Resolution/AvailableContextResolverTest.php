@@ -30,10 +30,12 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {

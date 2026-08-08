@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayou
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -20,6 +21,7 @@ use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEnt
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DomainAwareLayoutResolver::class)]
 class DomainAwareLayoutResolverTest extends TestCase
 {

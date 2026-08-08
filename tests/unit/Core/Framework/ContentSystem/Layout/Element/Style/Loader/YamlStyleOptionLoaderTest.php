@@ -10,12 +10,14 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\StyleOptionSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(YamlStyleOptionLoader::class)]
 class YamlStyleOptionLoaderTest extends TestCase
 {

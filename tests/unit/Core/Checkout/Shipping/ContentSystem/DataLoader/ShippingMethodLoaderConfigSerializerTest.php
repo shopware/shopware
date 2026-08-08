@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer;
 use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShippingMethodLoaderConfigSerializer::class)]
 class ShippingMethodLoaderConfigSerializerTest extends TestCase
 {

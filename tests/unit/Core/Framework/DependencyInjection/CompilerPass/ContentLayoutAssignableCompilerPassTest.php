@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentL
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssignableCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -18,6 +19,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentLayoutAssignableCompilerPass::class)]
 class ContentLayoutAssignableCompilerPassTest extends TestCase
 {

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -18,6 +19,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PropertiesExtractionVisitor::class)]
 class PropertiesExtractionVisitorTest extends TestCase
 {

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\VirtualRootPreparationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\Stub\ContentSystem\EventFactory;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VirtualRootPreparationSubscriber::class)]
 class VirtualRootPreparationSubscriberTest extends TestCase
 {

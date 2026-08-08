@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\SpecificationData;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\StaticSpecificationSource;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RenderingSpecificationResolver::class)]
 class RenderingSpecificationResolverTest extends TestCase
 {

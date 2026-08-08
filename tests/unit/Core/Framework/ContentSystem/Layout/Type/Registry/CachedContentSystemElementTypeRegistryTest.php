@@ -10,11 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CachedContentSystemElementTypeRegistry::class)]
 class CachedContentSystemElementTypeRegistryTest extends TestCase
 {

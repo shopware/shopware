@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonElement;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSkeletonElement::class)]
 class ContentSkeletonElementTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Validation;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(YamlStyleOptionLoader::class)]
 class BuiltInStyleOptionDefinitionsTest extends TestCase
 {

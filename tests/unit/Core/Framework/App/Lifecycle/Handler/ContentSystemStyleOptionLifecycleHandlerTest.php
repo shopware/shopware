@@ -14,11 +14,13 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemStyleOptionPers
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemStyleOptionLifecycleHandler::class)]
 class ContentSystemStyleOptionLifecycleHandlerTest extends TestCase
 {

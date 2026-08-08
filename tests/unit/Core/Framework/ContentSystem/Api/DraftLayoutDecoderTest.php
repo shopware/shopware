@@ -11,12 +11,14 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DraftLayoutDecoder::class)]
 class DraftLayoutDecoderTest extends TestCase
 {

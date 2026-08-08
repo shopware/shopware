@@ -10,12 +10,14 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameReso
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(YamlTypeLoader::class)]
 class YamlTypeLoaderTest extends TestCase
 {

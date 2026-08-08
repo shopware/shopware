@@ -10,11 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemBindingSpecificationRegistry::class)]
 class ContentSystemBindingSpecificationRegistryTest extends TestCase
 {

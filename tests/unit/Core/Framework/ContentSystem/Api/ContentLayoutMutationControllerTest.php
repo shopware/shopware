@@ -36,11 +36,13 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentLayoutMutationController::class)]
 class ContentLayoutMutationControllerTest extends TestCase
 {

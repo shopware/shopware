@@ -9,10 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BindingSpecification::class)]
 class BindingSpecificationTest extends TestCase
 {

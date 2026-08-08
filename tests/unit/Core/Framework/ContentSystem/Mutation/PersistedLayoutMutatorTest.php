@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Lock\LockFactory;
@@ -35,6 +36,7 @@ use Symfony\Component\Lock\Store\InMemoryStore;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PersistedLayoutMutator::class)]
 class PersistedLayoutMutatorTest extends TestCase
 {

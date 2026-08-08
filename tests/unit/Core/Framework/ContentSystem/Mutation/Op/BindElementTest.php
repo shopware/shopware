@@ -16,11 +16,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BindElement::class)]
 class BindElementTest extends TestCase
 {

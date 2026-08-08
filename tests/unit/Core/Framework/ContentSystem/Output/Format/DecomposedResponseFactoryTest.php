@@ -10,12 +10,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DecomposedResponseFactory::class)]
 class DecomposedResponseFactoryTest extends TestCase
 {

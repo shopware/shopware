@@ -11,11 +11,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependen
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElementTreePruner::class)]
 class ElementTreePrunerTest extends TestCase
 {

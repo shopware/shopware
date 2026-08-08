@@ -10,12 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemStyleOptionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentSystemStyleOptionCompilerPass::class)]
 class ContentSystemStyleOptionCompilerPassTest extends TestCase
 {

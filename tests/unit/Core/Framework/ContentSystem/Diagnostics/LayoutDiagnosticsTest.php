@@ -37,6 +37,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -44,6 +45,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LayoutDiagnostics::class)]
 class LayoutDiagnosticsTest extends TestCase
 {

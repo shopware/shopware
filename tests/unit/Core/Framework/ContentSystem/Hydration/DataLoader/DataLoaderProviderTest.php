@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataLoaderProvider::class)]
 class DataLoaderProviderTest extends TestCase
 {

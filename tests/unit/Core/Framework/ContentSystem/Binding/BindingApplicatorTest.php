@@ -14,11 +14,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BindingApplicator::class)]
 class BindingApplicatorTest extends TestCase
 {

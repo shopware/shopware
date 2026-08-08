@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LanguageDataLoader::class)]
 class LanguageDataLoaderTest extends TestCase
 {

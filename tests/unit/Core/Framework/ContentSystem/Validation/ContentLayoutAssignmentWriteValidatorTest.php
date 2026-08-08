@@ -15,12 +15,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ContentLayoutAssignmentWriteValidator::class)]
 class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 {

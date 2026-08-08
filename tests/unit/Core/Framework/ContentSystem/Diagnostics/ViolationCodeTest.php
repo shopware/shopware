@@ -9,10 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationScope;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationSeverity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ViolationCode::class)]
 class ViolationCodeTest extends TestCase
 {

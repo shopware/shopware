@@ -8,12 +8,14 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ContentSystemBindingSpecificationAppValidator;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemBindingSpecificationSchemaError;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

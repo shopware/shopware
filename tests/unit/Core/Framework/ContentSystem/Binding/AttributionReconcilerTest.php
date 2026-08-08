@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubArrayLoaderConfig;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AttributionReconciler::class)]
 class AttributionReconcilerTest extends TestCase
 {

@@ -10,12 +10,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataLoaderConfigSerializerProvider::class)]
 class DataLoaderConfigSerializerProviderTest extends TestCase
 {

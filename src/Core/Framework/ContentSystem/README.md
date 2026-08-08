@@ -12,7 +12,7 @@ Three content sections with different resolution strategies:
 
 **Footer** (`/store-api/content-footer*`) — Same domain-aware resolution as header.
 
-Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core, but their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.xml`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
+Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core, but their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.php`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
 
 Each section supports four response formats: full, decomposed, skeleton, and data. See SalesChannel/ and Output/.
 

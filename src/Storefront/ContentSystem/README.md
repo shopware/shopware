@@ -15,4 +15,4 @@ Domain-aware three-tier fallback via `Core/Framework/ContentSystem/Adapter/Facto
 
 ## DI Config
 
-`Storefront/DependencyInjection/content-system.xml` — Registers entity definitions, extensions, specification sources (`content_system.specification_source` tag), section resolvers (`header`, `footer`), and the Validation service (`HeaderFooterAssignmentWriteValidator` with `kernel.event_subscriber`).
+`Storefront/DependencyInjection/content-system.php` — Registers entity definitions, extensions, specification sources (`content_system.specification_source` tag), section resolvers (`header`, `footer`), and the Validation service (`HeaderFooterAssignmentWriteValidator` with `kernel.event_subscriber`).

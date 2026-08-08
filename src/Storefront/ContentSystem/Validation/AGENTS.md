@@ -10,4 +10,4 @@
 - `SKIP_VALIDATION_STATE` suppresses assignment validation on both sections when added to the write `Context` via `Context::addState`; intended for trusted bulk importers (no in-repo path sets it); the Storefront validator checks the flag identically to the Core `ContentLayoutAssignmentWriteValidator`
 - It never decodes or resolves the layout tree: resolvability is already enforced at the `content_layout` write and `root_source` is immutable, so a pure type-match against the section id suffices. A `null` root source (layout not loadable) is left to the FK constraint
 - Reverse dependency direction: no Core → Storefront dependency; the Storefront validator depends on Core's `LayoutRootSourceReader`, with no callback into Storefront
-- DI config: `Storefront/DependencyInjection/content-system.xml`
+- DI config: `Storefront/DependencyInjection/content-system.php`

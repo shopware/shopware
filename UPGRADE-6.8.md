@@ -2060,7 +2060,9 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 `Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet. `supports()`, `shouldBreak()`, `getName()` and `getData()` are unchanged.
 
-Throughout 6.7 an overridden `isValid()`/`getViolations()` keeps being dispatched and triggers a deprecation; with the 6.8 flag active it throws, so you can find these captchas before upgrading. Implementing `validate()` marks a captcha as migrated and a left-over `isValid()` is then ignored — but until you do, never call `validate()` from `isValid()`, as the inherited implementation calls back into it and the two would recurse.
+Throughout 6.7 a captcha extending `AbstractCaptcha` that implements only `isValid()`/`getViolations()` keeps working, because the default `validate()` delegates to them. Overriding them does not emit a deprecation. A captcha extending one of the shipped captchas is different: they implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is no longer consulted and the check silently stops being applied — migrate those to `validate()` now.
+
+`isValid()` is no longer abstract and its default delegates to `validate()`, so a captcha implementing only `validate()` does not have to implement it. Because the two defaults delegate to each other, implement at least one of them; implementing neither recurses.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

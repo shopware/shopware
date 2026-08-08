@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Captcha;
 
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,16 +54,6 @@ class BasicCaptcha extends AbstractCaptcha
         return $this->createViolations();
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
-     */
-    public function isValid(Request $request, array $captchaConfig): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
-
-        return $this->validate($request, $captchaConfig)->count() === 0;
-    }
-
     public function shouldBreak(): bool
     {
         return false;
@@ -75,13 +64,8 @@ class BasicCaptcha extends AbstractCaptcha
         return self::CAPTCHA_NAME;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
-     */
     public function getViolations(): ConstraintViolationList
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
-
         return $this->createViolations();
     }
 

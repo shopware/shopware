@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('discovery')]
@@ -34,17 +34,26 @@ abstract class AbstractCaptcha
     /**
      * validate returns the violations describing the failure, an empty list means the captcha is valid.
      *
+     * The default implementation adapts captchas that still decide through the deprecated
+     * isValid()/getViolations() pair. It is removed in v6.8.0, where validate() becomes abstract.
+     *
      * @param array<string, mixed> $captchaConfig
      */
-    #[BecomesAbstract(version: 'v6.8.0', description: 'The default implementation that delegates to the deprecated isValid()/getViolations() will be removed.')]
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            \sprintf('Relying on the default implementation of %s::validate() is deprecated. Implement validate() in %s.', self::class, static::class)
-        );
+        if ($this->isValid($request, $captchaConfig)) {
+            return new ConstraintViolationList();
+        }
 
-        return DeprecatedCaptchaValidation::fromDeprecatedMethods($this, $request, $captchaConfig);
+        $violations = Feature::silent('v6.8.0.0', fn (): ConstraintViolationList => $this->getViolations());
+        if ($violations->count() > 0) {
+            return $violations;
+        }
+
+        // An empty list would read as valid, so a failure always needs a violation.
+        return new ConstraintViolationList([
+            new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR),
+        ]);
     }
 
     /**
@@ -54,7 +63,12 @@ abstract class AbstractCaptcha
      *
      * @param array<string, mixed> $captchaConfig
      */
-    abstract public function isValid(Request $request, array $captchaConfig): bool;
+    public function isValid(Request $request, array $captchaConfig): bool
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
+
+        return $this->validate($request, $captchaConfig)->count() === 0;
+    }
 
     /**
      * getName returns a unique technical name identifying this captcha.

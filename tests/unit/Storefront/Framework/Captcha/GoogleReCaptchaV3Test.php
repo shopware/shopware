@@ -12,17 +12,14 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
-use Shopware\Storefront\Framework\Captcha\DeprecatedCaptchaValidation;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -259,171 +256,6 @@ class GoogleReCaptchaV3Test extends TestCase
             self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
             $this->getCaptchaConfig()
         ));
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassOverridingDeprecatedIsValidIsStillDispatched(): void
-    {
-        // isValid() was the only hook before validate(), so it has to keep deciding until 6.8.
-        $mockHandler = new MockHandler([
-            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
-        ]);
-        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return $request->request->get('custom-check') === 'pass';
-            }
-        };
-
-        // Google accepts the token, but the subclass rejects the request.
-        static::assertCount(1, DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'custom-check' => 'fail']),
-            $this->getCaptchaConfig()
-        ));
-
-        // ... and the other way round: no token at all, which the native path would reject.
-        static::assertCount(0, DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest(['custom-check' => 'pass']),
-            $this->getCaptchaConfig()
-        ));
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated getViolations() method
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassOverridingDeprecatedGetViolationsIsStillDispatched(): void
-    {
-        $mockHandler = new MockHandler([
-            new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
-        ]);
-        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
-            public function getViolations(): ConstraintViolationList
-            {
-                return new ConstraintViolationList([
-                    new ConstraintViolation('', '', [], '', '', '', null, 'plugin-custom-code'),
-                ]);
-            }
-        };
-
-        $violations = DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
-            $this->getCaptchaConfig()
-        );
-
-        static::assertCount(1, $violations);
-        $violation = $violations->get(0);
-        static::assertInstanceOf(ConstraintViolation::class, $violation);
-        static::assertSame('plugin-custom-code', $violation->getCode());
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassImplementingValidateIsNotRoutedThroughTheDeprecatedMethods(): void
-    {
-        // Implementing validate() means migrated, so a left-over isValid() must be ignored.
-        $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
-            public function validate(Request $request, array $captchaConfig): ConstraintViolationList
-            {
-                return parent::validate($request, $captchaConfig);
-            }
-
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return true;
-            }
-        };
-
-        // The native check rejects the missing token; the left-over isValid() would have accepted it.
-        $violations = DeprecatedCaptchaValidation::validate($captcha, self::getRequest(), $this->getCaptchaConfig());
-
-        static::assertCount(1, $violations);
-        $violation = $violations->get(0);
-        static::assertInstanceOf(ConstraintViolation::class, $violation);
-        static::assertSame(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION, $violation->getCode());
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassCallingParentIsValidDoesNotRecurse(): void
-    {
-        // Must terminate: validate() must not dispatch back into the overriding isValid().
-        $mockHandler = new MockHandler([
-            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
-            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
-        ]);
-        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return parent::isValid($request, $captchaConfig) && $request->request->get('extra') === 'ok';
-            }
-        };
-
-        static::assertCount(1, DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
-            $this->getCaptchaConfig()
-        ));
-        static::assertCount(0, DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token', 'extra' => 'ok']),
-            $this->getCaptchaConfig()
-        ));
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassIsValidCallingValidateDoesNotRecurse(): void
-    {
-        // Must terminate: validate() must not dispatch back into the overriding isValid().
-        $mockHandler = new MockHandler([
-            new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR)),
-        ]);
-        $captcha = new class($this->getClient($mockHandler)) extends GoogleReCaptchaV3 {
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return $this->validate($request, $captchaConfig)->count() === 0;
-            }
-        };
-
-        static::assertCount(0, DeprecatedCaptchaValidation::validate(
-            $captcha,
-            self::getRequest([GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token']),
-            $this->getCaptchaConfig()
-        ));
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
-     */
-    public function testSubclassOverridingDeprecatedIsValidThrowsWhenFeatureIsActive(): void
-    {
-        // The pair is gone in 6.8, so relying on it has to fail loudly instead of being dropped.
-        $captcha = new class($this->getClient()) extends GoogleReCaptchaV3 {
-            public function isValid(Request $request, array $captchaConfig): bool
-            {
-                return false;
-            }
-        };
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Overriding %s::isValid() is deprecated, implement validate() instead.',
-            $captcha::class
-        )));
-
-        DeprecatedCaptchaValidation::validate($captcha, self::getRequest(), $this->getCaptchaConfig());
     }
 
     /**

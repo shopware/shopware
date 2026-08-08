@@ -375,7 +375,9 @@ The dataset updates reactively as the user selects a different media file.
 
 A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
 
-Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. `isValid()`/`getViolations()` are deprecated and removed in 6.8; until then they keep being dispatched, so existing captchas work unchanged but now trigger a deprecation naming the overriding class. Running with the 6.8 flag active turns that into an exception, which is how you find them before upgrading.
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. `isValid()`/`getViolations()` are deprecated and removed in 6.8. `isValid()` is no longer abstract, so a captcha implementing only `validate()` does not have to implement it, and a captcha extending `AbstractCaptcha` that implements only `isValid()`/`getViolations()` keeps working: the default `validate()` delegates to them.
+
+A captcha that extends one of the shipped captchas (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overrides only `isValid()` or `getViolations()` is no longer consulted, because those captchas now implement `validate()` themselves. Override `validate()` instead — a check that is not migrated stops being applied, without an error.
 
 ### `theme:create` gains `--full` and granular scaffold flags
 

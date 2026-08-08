@@ -2,10 +2,6 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -13,11 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaException;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
-use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -121,27 +115,33 @@ class CaptchaRouteListenerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSubclassOverridingDeprecatedIsValidIsDispatchedThroughTheListener(): void
+    public function testCaptchaImplementingOnlyTheDeprecatedIsValidIsDispatchedThroughTheListener(): void
     {
-        // End-to-end guard: a core captcha tightened through isValid() must still reject.
-        $captcha = new class(new Client(['handler' => HandlerStack::create(new MockHandler([new Response(200, [], json_encode(['success' => true, 'score' => '0.9'], \JSON_THROW_ON_ERROR))]))])) extends GoogleReCaptchaV3 {
+        // End-to-end guard: a captcha written before validate() existed must still reject.
+        $captcha = new class extends AbstractCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return false;
+            }
+
+            public function getName(): string
+            {
+                return 'legacyCaptcha';
+            }
+
+            public function shouldBreak(): bool
             {
                 return false;
             }
         };
 
         $event = $this->createControllerEvent(new Request(
-            request: [GoogleReCaptchaV3::CAPTCHA_REQUEST_PARAMETER => 'token'],
             attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
             server: ['REQUEST_METHOD' => 'POST']
         ));
 
         $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([
-            GoogleReCaptchaV3::CAPTCHA_NAME => ['isActive' => true, 'config' => ['secretKey' => 'secret']],
-        ]);
+        $systemConfigService->method('get')->willReturn(['legacyCaptcha' => ['isActive' => true]]);
 
         $originalController = $event->getController();
         (new CaptchaRouteListener([$captcha], $systemConfigService, static::createStub(ContainerInterface::class)))

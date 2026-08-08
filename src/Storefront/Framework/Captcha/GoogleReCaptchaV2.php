@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -35,16 +34,6 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
         }
 
         return new ConstraintViolationList([$this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR)]);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use validate() instead
-     */
-    public function isValid(Request $request, array $captchaConfig): bool
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'validate()'));
-
-        return $this->validate($request, $captchaConfig)->count() === 0;
     }
 
     /**

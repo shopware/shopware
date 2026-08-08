@@ -66,7 +66,7 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
                 continue;
             }
 
-            $violations = DeprecatedCaptchaValidation::validate($captcha, $request, $captchaConfig);
+            $violations = $captcha->validate($request, $captchaConfig);
             if ($violations->count() === 0) {
                 continue;
             }

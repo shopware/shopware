@@ -9,7 +9,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
-use Shopware\Storefront\Framework\Captcha\DeprecatedCaptchaValidation;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Pagelet\Captcha\AbstractBasicCaptchaPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -56,7 +55,7 @@ class CaptchaController extends StorefrontController
             throw RoutingException::missingRequestParameter('formId');
         }
 
-        if (DeprecatedCaptchaValidation::validate($this->basicCaptcha, $request, [])->count() === 0) {
+        if ($this->basicCaptcha->validate($request, [])->count() === 0) {
             $fakeSession = RequestParamHelper::get($request, BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 

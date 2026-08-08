@@ -20,21 +20,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(AbstractCaptcha::class)]
 class AbstractCaptchaTest extends TestCase
 {
-    public function testValidateThrowsWhenFeatureIsActive(): void
-    {
-        // validate() becomes abstract in 6.8, so relying on the delegating default must not stay silent.
-        $captcha = $this->createLegacyCaptcha(isValid: true, violations: new ConstraintViolationList());
-
-        $this->expectExceptionObject(FeatureException::error(\sprintf(
-            'Tried to access deprecated functionality: Relying on the default implementation of %s::validate() is deprecated. Implement validate() in %s.',
-            AbstractCaptcha::class,
-            $captcha::class
-        )));
-
-        $captcha->validate(new Request(), []);
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateReturnsEmptyListForValidLegacyCaptcha(): void
     {
         $captcha = $this->createLegacyCaptcha(isValid: true, violations: new ConstraintViolationList());
@@ -42,7 +27,6 @@ class AbstractCaptchaTest extends TestCase
         static::assertCount(0, $captcha->validate(new Request(), []));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateReturnsLegacyViolationsForInvalidLegacyCaptcha(): void
     {
         $violation = new ConstraintViolation('', '', [], '', '', '', null, 'custom-violation-code');
@@ -54,7 +38,6 @@ class AbstractCaptchaTest extends TestCase
         static::assertSame($violation, $violations->get(0));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsGenericViolationForInvalidLegacyCaptchaWithoutViolations(): void
     {
         // An empty list signals a valid captcha, so a failure always needs a violation.
@@ -68,10 +51,9 @@ class AbstractCaptchaTest extends TestCase
         static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testValidateSilencesInheritedDeprecatedGetViolations(): void
+    public function testValidateSilencesTheInheritedDeprecatedGetViolations(): void
     {
-        // The inherited getViolations() must be called silently so core never self-deprecates.
+        // The inherited getViolations() is called silently so core never self-deprecates.
         $captcha = new class extends AbstractCaptcha {
             public function isValid(Request $request, array $captchaConfig): bool
             {
@@ -90,6 +72,56 @@ class AbstractCaptchaTest extends TestCase
         $violation = $violations->get(0);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
         static::assertSame(CaptchaException::INVALID_CAPTCHA_ERROR, $violation->getCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testIsValidDelegatesToValidateForAMigratedCaptcha(): void
+    {
+        // A captcha implementing only validate() must not have to implement isValid() as well.
+        static::assertTrue($this->createMigratedCaptcha(new ConstraintViolationList())->isValid(new Request(), []));
+
+        $failing = $this->createMigratedCaptcha(new ConstraintViolationList([
+            new ConstraintViolation('', '', [], '', '', '', null, 'native-code'),
+        ]));
+        static::assertFalse($failing->isValid(new Request(), []));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    public function testInheritedIsValidThrowsWhenFeatureIsActive(): void
+    {
+        // Overriding isValid() stays notice-free; only the inherited default deprecates.
+        $captcha = $this->createMigratedCaptcha(new ConstraintViolationList());
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: Method "%s::isValid()" is deprecated and will be removed in v6.8.0.0. Use "validate()" instead.',
+            AbstractCaptcha::class
+        )));
+
+        $captcha->isValid(new Request(), []);
+    }
+
+    private function createMigratedCaptcha(ConstraintViolationList $violations): AbstractCaptcha
+    {
+        return new class($violations) extends AbstractCaptcha {
+            public function __construct(private readonly ConstraintViolationList $nativeViolations)
+            {
+            }
+
+            public function validate(Request $request, array $captchaConfig): ConstraintViolationList
+            {
+                return $this->nativeViolations;
+            }
+
+            public function getName(): string
+            {
+                return 'migratedCaptcha';
+            }
+        };
     }
 
     /**

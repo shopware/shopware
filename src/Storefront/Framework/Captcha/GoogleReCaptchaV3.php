@@ -37,9 +37,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
         return new ConstraintViolationList([$this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR)]);
     }
 
-    /**
-     * reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
-     */
+    // reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
     public function shouldBreak(): bool
     {
         return false;

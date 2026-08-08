@@ -375,9 +375,9 @@ The dataset updates reactively as the user selects a different media file.
 
 A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
 
-Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. `isValid()`/`getViolations()` are deprecated and removed in 6.8. `isValid()` is no longer abstract, so a captcha implementing only `validate()` does not have to implement it, and a captcha extending `AbstractCaptcha` that implements only `isValid()`/`getViolations()` keeps working: the default `validate()` delegates to them.
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. The deprecated `isValid()`/`getViolations()` are removed in 6.8; until then the default `validate()` delegates to them, so a captcha extending `AbstractCaptcha` keeps working.
 
-A captcha that extends one of the shipped captchas (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overrides only `isValid()` or `getViolations()` is no longer consulted, because those captchas now implement `validate()` themselves. Override `validate()` instead — a check that is not migrated stops being applied, without an error.
+One case does change: a captcha extending a shipped captcha (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overriding only `isValid()`/`getViolations()` is no longer consulted, because those implement `validate()` themselves. Migrate it to `validate()` — an unmigrated check stops being applied without an error.
 
 ### `theme:create` gains `--full` and granular scaffold flags
 

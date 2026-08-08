@@ -2058,11 +2058,9 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 ## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
 
-`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet. `supports()`, `shouldBreak()`, `getName()` and `getData()` are unchanged.
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet.
 
-Throughout 6.7 a captcha extending `AbstractCaptcha` that implements only `isValid()`/`getViolations()` keeps working, because the default `validate()` delegates to them. Overriding them does not emit a deprecation. A captcha extending one of the shipped captchas is different: they implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is no longer consulted and the check silently stops being applied — migrate those to `validate()` now.
-
-`isValid()` is no longer abstract and its default delegates to `validate()`, so a captcha implementing only `validate()` does not have to implement it. Because the two defaults delegate to each other, implement at least one of them; implementing neither recurses.
+Throughout 6.7 the default `validate()` delegates to the deprecated pair, so a captcha extending `AbstractCaptcha` keeps working. A captcha extending a shipped captcha does not: those implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is silently ignored — migrate it now. Implement at least one of `validate()`/`isValid()`; the two defaults delegate to each other, so implementing neither recurses.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

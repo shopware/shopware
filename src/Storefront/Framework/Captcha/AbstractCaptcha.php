@@ -34,9 +34,6 @@ abstract class AbstractCaptcha
     /**
      * validate returns the violations describing the failure, an empty list means the captcha is valid.
      *
-     * The default implementation adapts captchas that still decide through the deprecated
-     * isValid()/getViolations() pair. It is removed in v6.8.0, where validate() becomes abstract.
-     *
      * @param array<string, mixed> $captchaConfig
      */
     public function validate(Request $request, array $captchaConfig): ConstraintViolationList

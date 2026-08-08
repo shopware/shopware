@@ -125,8 +125,7 @@ class AbstractCaptchaTest extends TestCase
     }
 
     /**
-     * Mimics a captcha that only implements the deprecated isValid()/getViolations() pair,
-     * like third-party captchas that do not yet override validate().
+     * A third-party captcha that implements only the deprecated isValid()/getViolations() pair.
      */
     private function createLegacyCaptcha(bool $isValid, ConstraintViolationList $violations): AbstractCaptcha
     {

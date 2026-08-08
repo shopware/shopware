@@ -50,7 +50,7 @@ export default class Modal extends ShopwareComponent {
     }
 
     /**
-     * @experimental
+     * @experimental stableVersion:v6.8.0
      *
      * The ajax content can be a CMS page that can already contain a headline/title itself.
      * This duplicates the actual Modal title which is not part of the `modal-body` where the ajax content is rendered.

@@ -223,7 +223,7 @@ class BindingAttributionPersistenceTest extends TestCase
             static::assertStringContainsString('depth', $exception->getMessage());
         }
 
-        static::assertNull($this->repository()->search(new Criteria([$layoutId]), $context)->first());
+        static::assertNull($this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first());
     }
 
     #[TestDox('recurses into a slot and drops a nested bound element\'s stale attribution on a direct DAL write')]
@@ -312,7 +312,7 @@ class BindingAttributionPersistenceTest extends TestCase
 
     private function reload(string $layoutId): ContentLayoutEntity
     {
-        $layout = $this->repository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->first();
+        $layout = $this->repository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         return $layout;

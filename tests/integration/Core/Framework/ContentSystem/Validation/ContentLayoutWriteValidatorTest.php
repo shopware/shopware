@@ -147,7 +147,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
 
-        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->first();
+        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
         static::assertSame('renamed-layout', $layout->getName());
     }
@@ -170,7 +170,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
 
         // The gate aborts the batch pre-commit, so the stored value must still be the original.
-        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->first();
+        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
         static::assertSame('category', $persisted->getRootSource());
     }

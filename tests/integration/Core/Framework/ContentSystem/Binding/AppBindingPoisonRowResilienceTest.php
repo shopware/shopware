@@ -301,7 +301,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
     private function reload(string $layoutId): ContentLayoutEntity
     {
-        $layout = $this->contentLayoutRepository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->first();
+        $layout = $this->contentLayoutRepository()->search(new Criteria([$layoutId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);
 
         return $layout;

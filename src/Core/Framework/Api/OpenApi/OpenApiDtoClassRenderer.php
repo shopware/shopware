@@ -237,19 +237,14 @@ final class OpenApiDtoClassRenderer
      */
     private function renderDescription(?string $description): array
     {
-        if ($description === null) {
-            return [
-                '/**',
-                ' * @codeCoverageIgnore',
-                ' */',
-            ];
+        $lines = ['/**'];
+        if ($description !== null) {
+            foreach (explode("\n", $description) as $line) {
+                $lines[] = ' * ' . $this->escapePhpDoc($line);
+            }
+            $lines[] = ' *';
         }
 
-        $lines = ['/**'];
-        foreach (explode("\n", $description) as $line) {
-            $lines[] = ' * ' . $this->escapePhpDoc($line);
-        }
-        $lines[] = ' *';
         $lines[] = ' * @codeCoverageIgnore';
         $lines[] = ' */';
 

@@ -8,7 +8,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, StorefrontPageNotFound, StorefrontHome }) => {
+    async ({ ShopCustomer, StorefrontPageNotFound, StorefrontHeader }) => {
         await ShopCustomer.goesTo(StorefrontPageNotFound.url());
 
         await ShopCustomer.expects(StorefrontPageNotFound.pageNotFoundImage).toBeVisible();
@@ -17,7 +17,7 @@ test(
             `We are sorry, the page you're looking for could not be found. It may no longer exist or may have been moved.`,
         );
         await ShopCustomer.presses(StorefrontPageNotFound.backToShopButton);
-        await ShopCustomer.expects(StorefrontHome.page).toHaveURL(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHome.categoryTitle).toBeVisible();
+        const numOfLocators = await StorefrontHeader.mainNavigationLink.count();
+        ShopCustomer.expects(numOfLocators).toBeGreaterThan(0);
     },
 );

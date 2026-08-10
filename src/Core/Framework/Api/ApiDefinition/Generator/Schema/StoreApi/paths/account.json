@@ -9,8 +9,6 @@
                     "Newsletter",
                     "Endpoints supporting Criteria"
                 ],
-                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\NewsletterRecipient",
-                "x-dto-package": "checkout",
                 "summary": "Fetch newsletter recipients",
                 "description": "Perform a filtered search for newsletter recipients.",
                 "operationId": "readNewsletterRecipient",
@@ -71,6 +69,52 @@
                                 "1"
                             ],
                             "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            }
+        },
+        "/v2/account/newsletter-recipient": {
+            "post": {
+                "tags": [
+                    "Profile",
+                    "Newsletter",
+                    "Endpoints supporting Criteria"
+                ],
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\NewsletterRecipient",
+                "x-dto-package": "checkout",
+                "summary": "Fetch newsletter recipients",
+                "description": "Perform a filtered search for newsletter recipients.",
+                "operationId": "readNewsletterRecipient",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountNewsletterRecipient"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-context-token",
+                        "in": "header",
+                        "required": true,
+                        "description": "Standard Store API context token identifying the customer session. Needed to resolve customer entity.",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {

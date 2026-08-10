@@ -38,11 +38,14 @@ use Shopware\Core\Framework\Log\Package;
  * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
  * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
  * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
- * stub (`$this->dep->method(...)`) or forwards it into a constructor keeps it analysable; any other helper
- * use (an `->expects()`, an unresolvable call) skips the property wholesale (see
- * {@see self::helperUsageOfProperty()}). Helper-read properties are only ever reported as pure
- * stubs, never as mixed usage — mixed attribution would need to know which tests invoke which helper. The
- * reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is undefined).
+ * stub (`$this->dep->method(...)`), forwards it into a constructor, or `->expects()`-es it directly keeps it
+ * analysable; any other helper use (handing it to an unresolvable call, expecting it through an alias or a
+ * parameter) skips the property wholesale (see {@see self::helperUsageOfPropertyIsUnsafe()}). Which tests
+ * trigger the runtime notice is then decided over the class's own call graph: a test is covered when it,
+ * `setUp()`, or any own method one of them transitively calls configures a direct `->expects()` on the
+ * property (see {@see self::coversProperty()}); every uncovered test notices and is listed in the mixed-usage
+ * error. The reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is
+ * undefined).
  *
  * @implements Rule<InClassNode>
  *
@@ -53,7 +56,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 {
     public const ERROR_STUB = 'createMock(%s) is only used as a stub (no ->expects() is configured on it). Use createStub(%s) instead, the correct PHPUnit API for a test double without call expectations.';
 
-    public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in others, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
+    public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in %s, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
 
     /**
      * The domain-by-domain rollout is complete: every unit test suite is covered.
@@ -103,8 +106,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
         }
 
-        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message]) {
-            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message);
+        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message, $detail]) {
+            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message, $detail);
         }
 
         foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as $createMock) {
@@ -368,10 +371,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
         $harmless = array_fill_keys($extraHarmless, true);
 
-        // `$ref->method(...)` — stub configuration is fine, `$ref->expects(...)` is not, and a dynamic
-        // method name could be either.
+        // `$ref->method(...)` — stub configuration is fine, `$ref->expects(...)` is not (unless the caller
+        // sanctioned that occurrence via $extraHarmless), and a dynamic method name could be either.
         foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            if (!$isReference($call->var)) {
+            if (!$isReference($call->var) || isset($harmless[spl_object_id($call->var)])) {
                 continue;
             }
 
@@ -555,7 +558,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<ClassMethod> $methods
      * @param array<string, ClassMethod> $ownMethods
      *
-     * @return list<array{Assign, string}>
+     * @return list<array{Assign, string, ?string}> assignment, message template, mixed-usage detail
      */
     private function findPropertyMockIssues(array $methods, array $ownMethods): array
     {
@@ -572,6 +575,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             $methods,
             fn (ClassMethod $m): bool => !$this->isTestMethod($m) && mb_strtolower($m->name->name) !== 'setup'
         );
+        $callGraph = $this->buildOwnCallGraph($finder, $methods, $ownMethods);
 
         $errors = [];
         foreach ($assignments as $name => $propAssignments) {
@@ -579,11 +583,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
-            $expectsInSetUp = $setUp !== null && $this->methodExpectsProperty($finder, $setUp, $name);
+            // Every method with a direct `$this->$name->expects(...)`. A test reaching one of them through
+            // the own call graph is covered; a helper's expectation only counts for the tests that call it.
+            $expectors = [];
+            foreach ($methods as $method) {
+                if ($this->methodExpectsProperty($finder, $method, $name)) {
+                    $expectors[mb_strtolower($method->name->name)] = true;
+                }
+            }
+
+            $coveredBySetUp = $setUp !== null && $this->coversProperty('setup', $expectors, $callGraph);
             $createdInSetUp = $setUp !== null && $this->methodCreatesProperty($finder, $setUp, $name);
 
-            $noticing = false;
-            $hasExpects = $expectsInSetUp;
+            $bare = [];
             foreach ($testMethods as $test) {
                 // For a setUp-created (shared) mock every test owns an instance; otherwise only the tests
                 // that create it themselves are relevant.
@@ -591,35 +603,81 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                     continue;
                 }
 
-                if ($this->methodExpectsProperty($finder, $test, $name)) {
-                    $hasExpects = true;
-
+                if ($coveredBySetUp || $this->coversProperty(mb_strtolower($test->name->name), $expectors, $callGraph)) {
                     continue;
                 }
 
-                if (!$expectsInSetUp) {
-                    $noticing = true;
-                }
+                $bare[] = $test->name->name . '()';
             }
 
-            if (!$noticing) {
+            if ($bare === []) {
                 continue;
             }
 
-            // For a property that helpers read (transparently: stub configuration or SUT forwarding), only the
-            // provably-never-expected case is reported. Mixed usage would attribute "bare in test X" without
-            // knowing which tests invoke which helper — too weak a proof to block CI on.
-            if ($hasExpects && $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) !== 'untouched') {
-                continue;
-            }
-
-            $message = $hasExpects ? self::ERROR_MIXED : self::ERROR_STUB;
+            $message = $expectors === [] ? self::ERROR_STUB : self::ERROR_MIXED;
+            $detail = $expectors === [] ? null : implode(', ', $bare);
             foreach ($propAssignments as $assign) {
-                $errors[] = [$assign, $message];
+                $errors[] = [$assign, $message, $detail];
             }
         }
 
         return $errors;
+    }
+
+    /**
+     * The class-internal call graph: for every method, the own methods it calls via `$this->`/`self::`/
+     * `static::`, lowercased.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return array<string, list<string>>
+     */
+    private function buildOwnCallGraph(NodeFinder $finder, array $methods, array $ownMethods): array
+    {
+        $graph = [];
+        foreach ($methods as $method) {
+            $callees = [];
+            foreach ($this->findOwnCalls($finder, (array) $method->stmts) as $call) {
+                if ($call->name instanceof Identifier && isset($ownMethods[mb_strtolower($call->name->name)])) {
+                    $callees[mb_strtolower($call->name->name)] = true;
+                }
+            }
+
+            $graph[mb_strtolower($method->name->name)] = array_keys($callees);
+        }
+
+        return $graph;
+    }
+
+    /**
+     * True when $methodName — or any own method it transitively calls — is one of the $expectors, i.e. the
+     * property provably carries an expectation by the time a test that runs this method finishes.
+     *
+     * @param array<string, true> $expectors lowercased names of methods with a direct ->expects() on the property
+     * @param array<string, list<string>> $callGraph
+     */
+    private function coversProperty(string $methodName, array $expectors, array $callGraph): bool
+    {
+        $queue = [$methodName];
+        $visited = [];
+        while ($queue !== []) {
+            $current = array_pop($queue);
+            if (isset($visited[$current])) {
+                continue;
+            }
+            $visited[$current] = true;
+
+            if (isset($expectors[$current])) {
+                return true;
+            }
+
+            foreach ($callGraph[$current] ?? [] as $callee) {
+                $queue[] = $callee;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -640,37 +698,41 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             return true;
         }
 
-        return $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) === 'unsafe';
+        return $this->helperUsageOfPropertyIsUnsafe($finder, $helperMethods, $ownMethods, $name);
     }
 
     /**
-     * How the helper methods relate to `$this->$name`: `unsafe` when any helper uses it in a way that could
-     * configure an expectation out of view, `harmless` when helpers only stub-configure or forward it,
-     * `untouched` when no helper references it.
+     * True when some helper method uses `$this->$name` in a way that could configure an expectation out of
+     * view: anything that is neither stub configuration, forwarding, an inherited-assertion read, nor a
+     * direct `->expects()` on the property itself. The direct `->expects()` is not hidden — the per-test
+     * coverage walk ({@see self::coversProperty()}) attributes it to the tests that call the helper.
      *
      * @param array<ClassMethod> $helperMethods
      * @param array<string, ClassMethod> $ownMethods
-     *
-     * @return 'unsafe'|'harmless'|'untouched'
      */
-    private function helperUsageOfProperty(NodeFinder $finder, array $helperMethods, array $ownMethods, string $name): string
+    private function helperUsageOfPropertyIsUnsafe(NodeFinder $finder, array $helperMethods, array $ownMethods, string $name): bool
     {
         $isReference = fn (Node $node): bool => $this->propertyName($node) === $name;
 
-        $touched = false;
         foreach ($helperMethods as $helper) {
             $stmts = (array) $helper->stmts;
             if ($finder->findFirst($stmts, static fn (Node $node): bool => $isReference($node)) === null) {
                 continue;
             }
 
-            $touched = true;
-            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods)) {
-                return 'unsafe';
+            $sanctionedExpects = [];
+            foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+                if ($this->isExpectsCall($call) && $isReference($call->var)) {
+                    $sanctionedExpects[] = spl_object_id($call->var);
+                }
+            }
+
+            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods, $sanctionedExpects)) {
+                return true;
             }
         }
 
-        return $touched ? 'harmless' : 'untouched';
+        return false;
     }
 
     private function methodExpectsProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
@@ -1015,11 +1077,11 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         return null;
     }
 
-    private function buildError(Node $createMockCall, int $line, string $message): RuleError
+    private function buildError(Node $createMockCall, int $line, string $message, ?string $detail = null): RuleError
     {
         $label = $this->resolveMockedClass($createMockCall) ?? '...';
 
-        return RuleErrorBuilder::message(\sprintf($message, $label, $label))
+        return RuleErrorBuilder::message(\sprintf($message, $label, $detail ?? $label))
             ->identifier('shopware.createMockWithoutExpectations')
             ->line($line)
             ->build();

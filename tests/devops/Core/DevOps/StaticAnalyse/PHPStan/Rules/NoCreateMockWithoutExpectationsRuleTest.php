@@ -61,15 +61,24 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 23, // pure-stub property (never ->expects() in the class)
             ],
             [
-                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class'),
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class', 'testBare()'),
                 51, // mixed property (->expects() in one test, bare in another)
             ],
             [
-                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'PropertyDependency::class', 'PropertyDependency::class'),
-                132, // helper only stub-configures the property and forwards it into the SUT constructor
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class', 'testBare()'),
+                133, // ->expects()-ing helper reached by one test through a two-hop chain, bare in the other
             ],
-            // NOT flagged: 78 (expected in every test), 105 (->expects()-ed via a helper),
-            // 159 (a helper hands the property to a call the rule cannot resolve)
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'PropertyDependency::class', 'testBare()'),
+                196, // forwarding helper cannot cover a test: direct ->expects() in one test, bare in the other
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'PropertyDependency::class', 'PropertyDependency::class'),
+                228, // helper only stub-configures the property and forwards it into the SUT constructor
+            ],
+            // NOT flagged: 78 (expected in every test), 106 (->expects()-ed via a helper the test calls),
+            // 169 (setUp reaches the ->expects()-ing helper, covering every test),
+            // 255 (a helper hands the property to a call the rule cannot resolve)
         ]);
     }
 

@@ -1,0 +1,230 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/shop-settings": {
+            "get": {
+                "tags": [
+                    "System & Context"
+                ],
+                "summary": "Fetch shop settings",
+                "description": "Returns the sales-channel-resolved subset of the system configuration that headless frontends (e.g. Composable Frontends) need to render the shop consistently with the administration settings. Only UI- and validation-relevant, non-sensitive values are exposed.",
+                "operationId": "readShopSettings",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the shop settings of the current sales channel.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["apiAlias", "general", "loginRegistration", "cart", "listing", "newsletter"],
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["shop_settings"]
+                                        },
+                                        "general": {
+                                            "type": "object",
+                                            "description": "Shop identity and meta defaults (core.basicInformation)",
+                                            "required": [
+                                                "shopName",
+                                                "metaAuthor",
+                                                "metaRobots",
+                                                "familyFriendly",
+                                                "firstNameFieldRequired",
+                                                "lastNameFieldRequired",
+                                                "phoneNumberFieldRequired",
+                                                "showRevocationButton"
+                                            ],
+                                            "properties": {
+                                                "apiAlias": {
+                                                    "type": "string",
+                                                    "enum": ["shop_settings_general"]
+                                                },
+                                                "shopName": { "type": "string" },
+                                                "metaAuthor": { "type": "string" },
+                                                "metaRobots": {
+                                                    "type": "string",
+                                                    "description": "Default content of the robots meta tag, can be overridden per CMS page",
+                                                    "default": "index,follow"
+                                                },
+                                                "familyFriendly": { "type": "boolean" },
+                                                "firstNameFieldRequired": {
+                                                    "type": "boolean",
+                                                    "description": "Contact form: first name required"
+                                                },
+                                                "lastNameFieldRequired": {
+                                                    "type": "boolean",
+                                                    "description": "Contact form: last name required"
+                                                },
+                                                "phoneNumberFieldRequired": {
+                                                    "type": "boolean",
+                                                    "description": "Contact form: phone number required"
+                                                },
+                                                "showRevocationButton": { "type": "boolean" }
+                                            }
+                                        },
+                                        "loginRegistration": {
+                                            "type": "object",
+                                            "description": "Login, registration and address form settings (core.loginRegistration)",
+                                            "required": [
+                                                "passwordMinLength",
+                                                "createCustomerAccountDefault",
+                                                "showSalutation",
+                                                "showTitleField",
+                                                "requireEmailConfirmation",
+                                                "requirePasswordConfirmation",
+                                                "doubleOptInRegistration",
+                                                "doubleOptInGuestOrder",
+                                                "showPhoneNumberField",
+                                                "phoneNumberFieldRequired",
+                                                "showBirthdayField",
+                                                "birthdayFieldRequired",
+                                                "showAccountTypeSelection",
+                                                "showAdditionalAddressField1",
+                                                "additionalAddressField1Required",
+                                                "showAdditionalAddressField2",
+                                                "additionalAddressField2Required",
+                                                "addressInputFieldArrangement",
+                                                "allowCustomerDeletion",
+                                                "requireDataProtectionCheckbox"
+                                            ],
+                                            "properties": {
+                                                "apiAlias": {
+                                                    "type": "string",
+                                                    "enum": ["shop_settings_login_registration"]
+                                                },
+                                                "passwordMinLength": { "type": "integer" },
+                                                "createCustomerAccountDefault": { "type": "boolean" },
+                                                "showSalutation": { "type": "boolean" },
+                                                "showTitleField": { "type": "boolean" },
+                                                "requireEmailConfirmation": { "type": "boolean" },
+                                                "requirePasswordConfirmation": { "type": "boolean" },
+                                                "doubleOptInRegistration": { "type": "boolean" },
+                                                "doubleOptInGuestOrder": { "type": "boolean" },
+                                                "showPhoneNumberField": { "type": "boolean" },
+                                                "phoneNumberFieldRequired": { "type": "boolean" },
+                                                "showBirthdayField": { "type": "boolean" },
+                                                "birthdayFieldRequired": { "type": "boolean" },
+                                                "showAccountTypeSelection": { "type": "boolean" },
+                                                "showAdditionalAddressField1": { "type": "boolean" },
+                                                "additionalAddressField1Required": { "type": "boolean" },
+                                                "showAdditionalAddressField2": { "type": "boolean" },
+                                                "additionalAddressField2Required": { "type": "boolean" },
+                                                "addressInputFieldArrangement": {
+                                                    "type": "string",
+                                                    "enum": ["city-zip-state", "zip-city-state", "city-state-zip", ""]
+                                                },
+                                                "allowCustomerDeletion": { "type": "boolean" },
+                                                "requireDataProtectionCheckbox": { "type": "boolean" }
+                                            }
+                                        },
+                                        "cart": {
+                                            "type": "object",
+                                            "description": "Cart and checkout settings (core.cart)",
+                                            "required": [
+                                                "maxQuantity",
+                                                "lineItemAddLimit",
+                                                "showDeliveryTime",
+                                                "showSubtotal",
+                                                "columnTaxInsteadUnitPrice",
+                                                "showCustomerComment",
+                                                "showTosCheckbox",
+                                                "openOffcanvasAfterAddToCart",
+                                                "wishlistEnabled",
+                                                "logoutGuestAfterCheckout",
+                                                "enableOrderRefunds"
+                                            ],
+                                            "properties": {
+                                                "apiAlias": {
+                                                    "type": "string",
+                                                    "enum": ["shop_settings_cart"]
+                                                },
+                                                "maxQuantity": { "type": "integer" },
+                                                "lineItemAddLimit": { "type": "integer" },
+                                                "showDeliveryTime": { "type": "boolean" },
+                                                "showSubtotal": { "type": "boolean" },
+                                                "columnTaxInsteadUnitPrice": { "type": "boolean" },
+                                                "showCustomerComment": { "type": "boolean" },
+                                                "showTosCheckbox": { "type": "boolean" },
+                                                "openOffcanvasAfterAddToCart": { "type": "boolean" },
+                                                "wishlistEnabled": { "type": "boolean" },
+                                                "logoutGuestAfterCheckout": { "type": "boolean" },
+                                                "enableOrderRefunds": { "type": "boolean" }
+                                            }
+                                        },
+                                        "listing": {
+                                            "type": "object",
+                                            "description": "Product listing, search and review settings (core.listing)",
+                                            "required": [
+                                                "productsPerPage",
+                                                "allowBuyInListing",
+                                                "showReview",
+                                                "reviewsPerPage",
+                                                "disableEmptyFilterOptions",
+                                                "markAsNew",
+                                                "hideCloseoutProductsWhenOutOfStock",
+                                                "showVariantOptionInSearchSuggestionResult",
+                                                "findBestVariant",
+                                                "autoplayVideoInListing",
+                                                "beforeListPriceSnippetKey",
+                                                "afterListPriceSnippetKey"
+                                            ],
+                                            "properties": {
+                                                "apiAlias": {
+                                                    "type": "string",
+                                                    "enum": ["shop_settings_listing"]
+                                                },
+                                                "productsPerPage": { "type": "integer" },
+                                                "allowBuyInListing": { "type": "boolean" },
+                                                "showReview": { "type": "boolean" },
+                                                "reviewsPerPage": { "type": "integer" },
+                                                "disableEmptyFilterOptions": { "type": "boolean" },
+                                                "markAsNew": {
+                                                    "type": "integer",
+                                                    "description": "Number of days a product is marked as new"
+                                                },
+                                                "hideCloseoutProductsWhenOutOfStock": { "type": "boolean" },
+                                                "showVariantOptionInSearchSuggestionResult": { "type": "boolean" },
+                                                "findBestVariant": { "type": "boolean" },
+                                                "autoplayVideoInListing": { "type": "boolean" },
+                                                "beforeListPriceSnippetKey": { "type": "string" },
+                                                "afterListPriceSnippetKey": { "type": "string" }
+                                            }
+                                        },
+                                        "newsletter": {
+                                            "type": "object",
+                                            "description": "Newsletter settings (core.newsletter)",
+                                            "required": ["doubleOptIn", "doubleOptInRegistered"],
+                                            "properties": {
+                                                "apiAlias": {
+                                                    "type": "string",
+                                                    "enum": ["shop_settings_newsletter"]
+                                                },
+                                                "doubleOptIn": { "type": "boolean" },
+                                                "doubleOptInRegistered": {
+                                                    "type": "boolean",
+                                                    "description": "Double opt-in also required for logged-in customers"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

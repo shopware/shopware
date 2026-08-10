@@ -1,4 +1,5 @@
 import type { Extension } from '../../../store/extensions.store';
+import useTheme from '../../../composables/use-theme';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
 
@@ -39,6 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
         locationHeight: null | number;
         signedIframeSrc: null | string;
         isFirstLoad: boolean;
+        colorScheme: 'light' | 'dark';
     } {
         return {
             heightHandler: null,
@@ -46,6 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
             locationHeight: null,
             signedIframeSrc: null,
             isFirstLoad: true,
+            colorScheme: useTheme().resolvedTheme.value,
         };
     },
 
@@ -68,6 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
                     searchParams.filter(([key]) => {
                         return ![
                             'location-id',
+                            'color-scheme',
                             'privileges',
                             'shop-id',
                             'shop-url',
@@ -135,6 +139,7 @@ export default Shopware.Component.wrapComponentConfig({
         iFrameSrc(): string {
             const urlObject = new URL(this.src, this._getLocationOrigin());
             urlObject.searchParams.append('location-id', this.locationId);
+            urlObject.searchParams.append('color-scheme', this.colorScheme);
 
             return urlObject.toString();
         },

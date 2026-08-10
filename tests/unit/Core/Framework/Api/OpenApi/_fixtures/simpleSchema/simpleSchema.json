@@ -7,6 +7,7 @@
   "components": {
     "schemas": {
       "Cart": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "description": "Shopping cart",
         "required": ["token"],
@@ -41,6 +42,7 @@
         }
       },
       "CalculatedPrice": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "properties": {
           "unitPrice": {
@@ -52,6 +54,7 @@
         }
       },
       "LineItem": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["id", "quantity"],
         "properties": {
@@ -68,6 +71,7 @@
         }
       },
       "NavigationType": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "description": "Navigation entry type",
         "required": ["type", "routeName"],
@@ -94,9 +98,11 @@
         }
       },
       "EmptySchema": {
+        "x-dto-namespace": "App\\DTO",
         "type": "string"
       },
       "DefaultValues": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["query"],
         "properties": {
@@ -129,6 +135,7 @@
         }
       },
       "NullableUnion": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "properties": {
           "value": {
@@ -145,6 +152,7 @@
   "paths": {
     "/contact-form": {
       "post": {
+      "x-dto-namespace": "App\\DTO",
         "operationId": "sendContactMail",
         "summary": "Submit a contact form message",
         "description": "Used for submitting contact forms.",
@@ -205,6 +213,7 @@
     },
     "/checkout/cart": {
       "get": {
+      "x-dto-namespace": "App\\DTO",
         "operationId": "readCart",
         "summary": "Fetch or create a cart",
         "description": "Used to fetch the current cart.",
@@ -222,6 +231,7 @@
         }
       },
       "delete": {
+      "x-dto-namespace": "App\\DTO",
         "operationId": "deleteCart",
         "summary": "Delete a cart",
         "responses": {
@@ -233,6 +243,7 @@
     },
     "/product/{productId}": {
       "get": {
+      "x-dto-namespace": "App\\DTO",
         "operationId": "readProduct",
         "summary": "Get a single product",
         "parameters": [

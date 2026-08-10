@@ -57,6 +57,20 @@ class SecurityExtensionTest extends TestCase
         yield 'sort not allowed callback function array' => ['{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
         yield 'sort on array throws error' => ['{{ ["a", "b", "c"]|sort([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'find not allowed function' => ['{{ ["a", "b", "c"]|find("str_rot13") }}'];
+
+        yield 'find not allowed callback function string' => ['{{ ["a", "b", "c"]|find("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do") }}'];
+
+        yield 'find not allowed callback function array' => ['{{ ["a", "b", "c"]|find([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\']) }}'];
+
+        yield 'has some not allowed function' => ['{{ ["a", "b", "c"] has some "str_rot13" }}'];
+
+        yield 'has some not allowed callback function string' => ['{{ ["a", "b", "c"] has some "\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do" }}'];
+
+        yield 'has every not allowed function' => ['{{ ["a", "b", "c"] has every "str_rot13" }}'];
+
+        yield 'has every not allowed callback function string' => ['{{ ["a", "b", "c"] has every "\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do" }}'];
     }
 
     public function testMapWithAllowedFunction(): void
@@ -133,6 +147,61 @@ class SecurityExtensionTest extends TestCase
             '123',
             $this->runTwig('{{ test|sort|join }}', [], ['test' => ['2', '3', '1']])
         );
+    }
+
+    public function testFindClosure(): void
+    {
+        static::assertSame('b', $this->runTwig('{{ ["a", "b", "c"]|find(v => v == "b") }}'));
+    }
+
+    public function testFindWithAllowedFunction(): void
+    {
+        static::assertSame(
+            'TEST',
+            $this->runTwig(
+                '{{ ["", "TEST"]|find(\'Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGoodClass::upper\') }}',
+                ['Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\Twig\\SecurityExtensionGoodClass::upper'],
+            )
+        );
+    }
+
+    public function testFindWithAllowedSingleArgumentFunction(): void
+    {
+        // is_numeric() accepts exactly one argument, so this pins the single-argument calling convention
+        static::assertSame('1', $this->runTwig('{{ ["a", "1"]|find("is_numeric") }}', ['is_numeric']));
+    }
+
+    public function testFindWithNotCallableFunction(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ ["value"]|find(functionName) }}', ['not_callable'], ['functionName' => 'not_callable'])
+        );
+    }
+
+    public function testHasSomeClosure(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["a", "b", "c"] has some (v => v == "b")) ? 1 : 0 }}'));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b", "c"] has some (v => v == "z")) ? 1 : 0 }}'));
+    }
+
+    public function testHasEveryClosure(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["a", "a"] has every (v => v == "a")) ? 1 : 0 }}'));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b"] has every (v => v == "a")) ? 1 : 0 }}'));
+    }
+
+    public function testHasSomeWithAllowedFunction(): void
+    {
+        // is_numeric() accepts exactly one argument, so this also covers the single-argument calling convention
+        static::assertSame('1', $this->runTwig('{{ (["a", "1"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+    }
+
+    public function testHasEveryWithAllowedFunction(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["1", "2"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+        static::assertSame('0', $this->runTwig('{{ (["1", "b"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric']));
     }
 
     public function testAcceptsNull(): void

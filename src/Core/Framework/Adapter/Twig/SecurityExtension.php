@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\CallbackOperatorSecurityNodeVisitor;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\TwigFilter;
 
 /**
@@ -29,6 +31,17 @@ class SecurityExtension extends AbstractExtension
             new TwigFilter('reduce', $this->reduce(...)),
             new TwigFilter('filter', $this->filter(...)),
             new TwigFilter('sort', $this->sort(...)),
+            new TwigFilter('find', $this->find(...)),
+        ];
+    }
+
+    /**
+     * @return NodeVisitorInterface[]
+     */
+    public function getNodeVisitors(): array
+    {
+        return [
+            new CallbackOperatorSecurityNodeVisitor(),
         ];
     }
 
@@ -148,5 +161,73 @@ class SecurityExtension extends AbstractExtension
         }
 
         return $array;
+    }
+
+    /**
+     * @param iterable<mixed> $array
+     * @param string|callable(mixed): bool|\Closure $arrow
+     */
+    public function find(?iterable $array, string|callable|\Closure $arrow): mixed
+    {
+        if ($array === null) {
+            return null;
+        }
+
+        if (\is_array($arrow)) {
+            $arrow = implode('::', $arrow);
+        }
+
+        if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
+        }
+
+        if (!\is_callable($arrow)) {
+            return null;
+        }
+
+        foreach ($array as $key => $value) {
+            // mirror the map filter: custom string functions receive only the value
+            // @phpstan-ignore-next-line
+            $matches = \is_string($arrow) ? $arrow($value) : $arrow($value, $key);
+            if ($matches) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Guards callbacks passed to Twig core operators (e.g. "has some"/"has every") that Twig itself
+     * only restricts in sandbox mode. Applies the same allowed-function policy as the filters above.
+     *
+     * @param string|callable|\Closure $callback
+     */
+    public function guardCallback(mixed $callback): \Closure
+    {
+        if ($callback instanceof \Closure) {
+            return $callback;
+        }
+
+        if (\is_array($callback)) {
+            $callback = implode('::', $callback);
+        }
+
+        if (\is_string($callback) && !\in_array($callback, $this->allowedPHPFunctions, true)) {
+            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $callback));
+        }
+
+        if (!\is_callable($callback)) {
+            // mirror the filters: a non-callable arrow simply never matches
+            return static fn (): bool => false;
+        }
+
+        if (\is_string($callback)) {
+            // mirror the map filter: custom string functions receive only the value, never the key
+            // @phpstan-ignore-next-line
+            return static fn (mixed $value): mixed => $callback($value);
+        }
+
+        return \Closure::fromCallable($callback);
     }
 }

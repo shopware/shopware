@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +22,11 @@ class IncrementStorageNotFoundException extends NumberRangeException
         string $configuredStorage,
         array $availableStorages = []
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', NumberRangeException::class)
+        );
+
         parent::__construct(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INCREMENT_STORAGE_NOT_FOUND,

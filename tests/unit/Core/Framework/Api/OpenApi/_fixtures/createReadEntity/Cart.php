@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Full cart entity as returned by the API
+ *
+ * @codeCoverageIgnore
  */
 final readonly class Cart
 {

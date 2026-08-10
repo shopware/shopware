@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A single item in the cart
+ *
+ * @codeCoverageIgnore
  */
 final readonly class LineItem
 {

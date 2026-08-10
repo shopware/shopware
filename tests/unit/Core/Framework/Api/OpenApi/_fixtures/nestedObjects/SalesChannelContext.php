@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Sales channel context
+ *
+ * @codeCoverageIgnore
  */
 final readonly class SalesChannelContext
 {

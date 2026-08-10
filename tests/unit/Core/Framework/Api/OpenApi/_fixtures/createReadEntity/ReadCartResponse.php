@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Current cart
+ *
+ * @codeCoverageIgnore
  */
 final readonly class ReadCartResponse implements StoreApiDTOResponseInterface
 {

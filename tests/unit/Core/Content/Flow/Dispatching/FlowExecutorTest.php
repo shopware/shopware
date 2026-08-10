@@ -35,6 +35,8 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
+use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
+use Shopware\Core\Content\Flow\Telemetry\TriggerGroupResolver;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
@@ -47,6 +49,7 @@ use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -970,6 +973,7 @@ class FlowExecutorTest extends TestCase
             new ExtensionDispatcher($this->eventDispatcherMock),
             $this->loggerMock,
             $actions,
+            new FlowMetricsInstrumentor(static::createStub(Meter::class), new TriggerGroupResolver()),
         );
     }
 }

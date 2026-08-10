@@ -84,6 +84,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -1388,6 +1389,69 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertStringContainsString('en-GB', $csv);
         static::assertStringContainsString('Standard customer group', $csv);
         static::assertStringNotContainsString('password', $csv);
+    }
+
+    public function testCustomerImportSynchronizesNumberRangeState(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM `customer`');
+
+        $salesChannel = $this->createSalesChannel();
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        /** @var NumberRangeValueGeneratorInterface $numberRangeValueGenerator */
+        $numberRangeValueGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
+
+        $currentNumber = $numberRangeValueGenerator->getValue(CustomerDefinition::ENTITY_NAME, $context, $salesChannel['id']);
+        static::assertMatchesRegularExpression('/^\d+$/', $currentNumber);
+
+        $fixtureRows = file(__DIR__ . '/fixtures/customers.csv', \FILE_IGNORE_NEW_LINES);
+        static::assertIsArray($fixtureRows);
+        static::assertGreaterThanOrEqual(3, \count($fixtureRows));
+
+        $nextNumber = (int) $currentNumber + 1;
+        $afterNextNumber = $nextNumber + 1;
+
+        $firstRecord = str_getcsv($fixtureRows[1], ';');
+        $firstRecord[2] = (string) $nextNumber;
+
+        $secondRecord = str_getcsv($fixtureRows[2], ';');
+        $secondRecord[2] = (string) $afterNextNumber;
+
+        $importFile = tempnam(sys_get_temp_dir(), 'sw_customer_import_');
+        static::assertIsString($importFile);
+
+        try {
+            $bytesWritten = file_put_contents($importFile, implode("\n", [
+                $fixtureRows[0],
+                implode(';', $firstRecord),
+                implode(';', $secondRecord),
+            ]) . "\n");
+            static::assertNotFalse($bytesWritten);
+
+            $progress = $this->import(
+                $context,
+                CustomerDefinition::ENTITY_NAME,
+                $importFile,
+                'customers_number_range.csv',
+                null,
+                false,
+                true
+            );
+        } finally {
+            if (is_file($importFile)) {
+                unlink($importFile);
+            }
+        }
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        static::assertSame(
+            (string) ($afterNextNumber + 1),
+            $numberRangeValueGenerator->getValue(CustomerDefinition::ENTITY_NAME, Context::createDefaultContext(), $salesChannel['id'])
+        );
     }
 
     public function testImportWithCreateAndUpdateConfig(): void

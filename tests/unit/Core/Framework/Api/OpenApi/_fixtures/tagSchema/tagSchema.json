@@ -4,6 +4,7 @@
   "components": {
     "schemas": {
       "Product": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["id", "name"],
         "properties": {
@@ -20,6 +21,7 @@
         }
       },
       "Media": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "properties": {
           "url": { "type": "string" },
@@ -27,6 +29,7 @@
         }
       },
       "Cart": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["token"],
         "properties": {
@@ -38,6 +41,7 @@
         }
       },
       "LineItem": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["id", "quantity"],
         "properties": {
@@ -52,6 +56,7 @@
         }
       },
       "Category": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "properties": {
           "id": { "type": "string" },
@@ -63,6 +68,7 @@
   "paths": {
     "/product/{id}": {
       "get": {
+      "x-dto-namespace": "App\\DTO",
         "tags": ["Product"],
         "operationId": "readProduct",
         "parameters": [
@@ -92,6 +98,7 @@
     },
     "/cart": {
       "get": {
+      "x-dto-namespace": "App\\DTO",
         "tags": ["Cart"],
         "operationId": "readCart",
         "responses": {
@@ -106,6 +113,7 @@
         }
       },
       "post": {
+      "x-dto-namespace": "App\\DTO",
         "tags": ["Cart"],
         "operationId": "addLineItem",
         "requestBody": {
@@ -142,6 +150,7 @@
     },
     "/category": {
       "get": {
+      "x-dto-namespace": "App\\DTO",
         "tags": ["Navigation"],
         "operationId": "readCategories",
         "responses": {

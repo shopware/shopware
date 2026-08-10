@@ -4,11 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-22 14:54:21
+ * Last generated: 2026-08-10 11:16:52
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
 
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Perform a filtered search for newsletter recipients.
  */
 #[Package('checkout')]
-final readonly class ReadNewsletterRecipientResponse
+final readonly class ReadNewsletterRecipientResponse implements StoreApiDTOResponseInterface
 {
     public function __construct(
         /**

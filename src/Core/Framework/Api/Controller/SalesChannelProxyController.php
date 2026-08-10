@@ -165,7 +165,12 @@ class SalesChannelProxyController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/modify-shipping-costs',
+        name: 'api.proxy.modify-shipping-costs',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
+        methods: [Request::METHOD_PATCH]
+    )]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -185,7 +190,12 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse(['data' => $cart]);
     }
 
-    #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/disable-automatic-promotions',
+        name: 'api.proxy.disable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
+        methods: [Request::METHOD_PATCH]
+    )]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -201,7 +211,12 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/enable-automatic-promotions',
+        name: 'api.proxy.enable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
+        methods: [Request::METHOD_PATCH]
+    )]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {

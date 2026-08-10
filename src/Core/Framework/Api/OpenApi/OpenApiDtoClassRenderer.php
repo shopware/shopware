@@ -74,9 +74,7 @@ final class OpenApiDtoClassRenderer
             $lines[] = '';
         }
 
-        if ($definition->description !== null) {
-            $lines = [...$lines, ...$this->renderDescription($definition->description)];
-        }
+        $lines = [...$lines, ...$this->renderDescription($definition->description)];
 
         if ($definition->package !== null) {
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
@@ -111,9 +109,7 @@ final class OpenApiDtoClassRenderer
     {
         $lines[] = 'use ' . Package::class . ';';
         $lines[] = '';
-        if ($definition->description !== null) {
-            $lines = [...$lines, ...$this->renderDescription($definition->description)];
-        }
+        $lines = [...$lines, ...$this->renderDescription($definition->description)];
         if ($definition->package !== null) {
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
@@ -239,12 +235,22 @@ final class OpenApiDtoClassRenderer
     /**
      * @return list<string>
      */
-    private function renderDescription(string $description): array
+    private function renderDescription(?string $description): array
     {
+        if ($description === null) {
+            return [
+                '/**',
+                ' * @codeCoverageIgnore',
+                ' */',
+            ];
+        }
+
         $lines = ['/**'];
         foreach (explode("\n", $description) as $line) {
             $lines[] = ' * ' . $this->escapePhpDoc($line);
         }
+        $lines[] = ' *';
+        $lines[] = ' * @codeCoverageIgnore';
         $lines[] = ' */';
 
         return $lines;

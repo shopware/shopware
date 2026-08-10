@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User profile with various formatted fields
+ *
+ * @codeCoverageIgnore
  */
 final readonly class UserProfile
 {

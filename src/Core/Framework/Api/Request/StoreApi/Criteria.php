@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 11:22:29
+ * Last generated: 2026-08-10 15:01:45
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class Criteria

@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Category list
+ *
+ * @codeCoverageIgnore
  */
 final readonly class ReadCategoriesResponse implements StoreApiDTOResponseInterface
 {

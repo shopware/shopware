@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 
 /**
  * Product found
+ *
+ * @codeCoverageIgnore
  */
 final readonly class ReadProductResponse implements StoreApiDTOResponseInterface
 {

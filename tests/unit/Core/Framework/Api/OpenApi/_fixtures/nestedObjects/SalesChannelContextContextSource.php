@@ -11,6 +11,9 @@ namespace App\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @codeCoverageIgnore
+ */
 final readonly class SalesChannelContextContextSource
 {
     public function __construct(

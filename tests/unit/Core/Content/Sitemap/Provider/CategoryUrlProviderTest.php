@@ -68,12 +68,16 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         static::expectException(DecorationPatternException::class);
         $this->getCategoryUrlProvider()->getDecorated();
     }
 
     public function testGetName(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         $name = $this->getCategoryUrlProvider()->getName();
         static::assertSame('category', $name);
     }
@@ -135,6 +139,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
 
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
+
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
 
@@ -153,6 +159,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $this->configHandler->method('get')->willReturn([]);
         $context = Generator::generateSalesChannelContext();
+
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
 
         $provider = $this->getCategoryUrlProvider();
 

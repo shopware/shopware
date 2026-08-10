@@ -69,12 +69,20 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $this->expectException(DecorationPatternException::class);
         $this->getProcessor()->getDecorated();
     }
 
     public function testGetSource(): void
     {
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         static::assertSame('product_stream', $this->getProcessor()->getSource());
     }
 
@@ -86,6 +94,9 @@ class ProductStreamProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
 
         $this->config->add($config);
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
@@ -123,6 +134,10 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->config->add($config);
 
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
@@ -141,6 +156,9 @@ class ProductStreamProcessorTest extends TestCase
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
@@ -168,6 +186,8 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $exception = new EntityNotFoundException('product_stream', 'deleted-product-stream-id');
+
+        $this->productRepository->expects($this->never())->method('search');
 
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->productStreamBuilder->expects($this->once())
@@ -204,6 +224,10 @@ class ProductStreamProcessorTest extends TestCase
         // EntityNotFoundException catch around the stream enrichment.
         $exception = FeatureException::error('buildFilters() is removed in v6.8.0.0');
 
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $productStreamBuilder->expects($this->once())
             ->method('buildFilters')
@@ -231,6 +255,10 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->config->add($productsConfig);
         $this->config->add($sortingConfig);
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
@@ -260,6 +288,9 @@ class ProductStreamProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
 
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $this->productRepository->expects($this->once())
             ->method('search')->willReturn($searchResult);
 
@@ -276,6 +307,10 @@ class ProductStreamProcessorTest extends TestCase
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
         $data = new ElementDataCollection();
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
         static::assertNull($slot->getData());
@@ -295,6 +330,10 @@ class ProductStreamProcessorTest extends TestCase
             new Criteria(),
             Context::createDefaultContext()
         );
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $data->add('product-slider-entity-fallback_id', $result);
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
@@ -323,6 +362,8 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->productRepository->expects($this->never())
             ->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
@@ -357,6 +398,8 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->productRepository->expects($this->never())
             ->method('search');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
 

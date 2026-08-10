@@ -9,6 +9,9 @@
 
 namespace App\DTO;
 
+/**
+ * @codeCoverageIgnore
+ */
 final readonly class SimpleProduct
 {
     public function __construct(

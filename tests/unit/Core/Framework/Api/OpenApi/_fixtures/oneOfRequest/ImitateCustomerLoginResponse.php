@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 
 /**
  * Returns context token
+ *
+ * @codeCoverageIgnore
  */
 final readonly class ImitateCustomerLoginResponse implements StoreApiDTOResponseInterface
 {

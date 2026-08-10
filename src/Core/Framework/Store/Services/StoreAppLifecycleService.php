@@ -67,7 +67,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         }
 
         $this->validateExtensionCanBeRemoved($technicalName, $app->getId(), $context);
-        $this->appLifecycle->uninstall($technicalName, ['id' => $app->getId(), 'roleId' => $app->getAclRoleId()], $context, $keepUserData);
+        $this->appLifecycle->uninstall($technicalName, ['id' => $app->getId()], $context, $keepUserData);
     }
 
     public function removeExtensionAndCancelSubscription(int $licenseId, string $technicalName, string $id, bool $keepUserData, Context $context): void
@@ -79,7 +79,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         }
 
         $this->storeClient->cancelSubscription($licenseId, $context);
-        $this->appLifecycle->uninstall($technicalName, ['id' => $id, 'roleId' => $app->getAclRoleId()], $context);
+        $this->appLifecycle->uninstall($technicalName, ['id' => $id], $context);
         $this->deleteExtension($technicalName, $keepUserData, $context);
     }
 
@@ -127,11 +127,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $this->appLifecycle->update(
             $manifests[$technicalName],
             new AppUpdateParameters(),
-            [
-                'id' => $app->getId(),
-                'version' => $app->getVersion(),
-                'roleId' => $app->getAclRoleId(),
-            ],
+            ['id' => $app->getId()],
             $context
         );
     }

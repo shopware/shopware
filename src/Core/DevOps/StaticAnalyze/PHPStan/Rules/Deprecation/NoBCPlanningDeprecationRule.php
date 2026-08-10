@@ -30,6 +30,7 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:return-type-change' => 'Use the #[ReturnTypeNarrowing] or #[ReturnTypeWidening] attribute instead.',
         'reason:parameter-type-change' => 'Use the #[ParameterTypeNarrowing] attribute instead.',
         'reason:parameter-type-extension' => 'Use the #[ParameterTypeWidening] attribute instead.',
+        'reason:parameter-default-change' => 'Use the #[ParameterDefaultValueChange] attribute instead.',
         'reason:new-optional-parameter' => 'Use the #[NewOptionalParameter] attribute instead.',
         'reason:parameter-name-change' => 'Use the #[ParameterNameChange] attribute instead.',
         'reason:becomes-internal' => 'Use the #[BecomesInternal] attribute instead.',
@@ -38,31 +39,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:visibility-change' => 'Use the #[VisibilityChange] or #[BecomesAbstract] attribute instead.',
         'reason:exception-change' => 'Use the #[ExceptionChange] attribute instead.',
     ];
-
-    /**
-     * Reason tags that still exist in the codebase. They are removed from this list tag by
-     * tag as the existing annotations are migrated to the BC-change attributes; once a tag
-     * is removed, this rule prevents it from being reintroduced.
-     */
-    private const MIGRATION_PENDING = [
-        'reason:return-type-change',
-        'reason:parameter-type-change',
-        'reason:parameter-type-extension',
-        'reason:new-optional-parameter',
-        'reason:parameter-name-change',
-        'reason:becomes-internal',
-        'reason:becomes-final',
-        'reason:class-hierarchy-change',
-        'reason:visibility-change',
-        'reason:exception-change',
-    ];
-
-    /**
-     * @param list<string> $migrationPending overridable for tests
-     */
-    public function __construct(private readonly array $migrationPending = self::MIGRATION_PENDING)
-    {
-    }
 
     public function getNodeType(): string
     {
@@ -97,7 +73,7 @@ class NoBCPlanningDeprecationRule implements Rule
 
         $errors = [];
         foreach (self::REPLACEMENTS as $reason => $replacement) {
-            if (!\str_contains($doc, $reason) || \in_array($reason, $this->migrationPending, true)) {
+            if (!\str_contains($doc, $reason)) {
                 continue;
             }
 

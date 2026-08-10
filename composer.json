@@ -47,7 +47,7 @@
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
             "cweagans/composer-patches": true,
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
@@ -82,7 +82,7 @@
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~4.4.0",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "3.1.4",
+        "dompdf/dompdf": "~3.1.6",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
@@ -102,6 +102,7 @@
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.6.0",
         "pentatrion/vite-bundle": "^8.1",
+        "php-http/discovery": "^1.20",
         "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
@@ -201,11 +202,11 @@
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
-        "phpstan/phpstan": "2.1.43",
-        "phpstan/phpstan-deprecation-rules": "2.0.4",
-        "phpstan/phpstan-phpunit": "2.0.16",
-        "phpstan/phpstan-strict-rules": "2.0.10",
-        "phpstan/phpstan-symfony": "2.0.15",
+        "phpstan/phpstan": "2.2.8",
+        "phpstan/phpstan-deprecation-rules": "2.0.5",
+        "phpstan/phpstan-phpunit": "2.0.18",
+        "phpstan/phpstan-strict-rules": "2.0.12",
+        "phpstan/phpstan-symfony": "2.0.20",
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.1.4",
@@ -218,7 +219,7 @@
         "symfony/phpunit-bridge": "~7.4.0",
         "symfony/var-dumper": "~7.4.0",
         "symfony/web-profiler-bundle": "~7.4.12",
-        "symplify/phpstan-rules": "14.9.11"
+        "symplify/phpstan-rules": "14.10.0"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -255,6 +256,7 @@
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
@@ -288,7 +290,7 @@
         "init:js": " ",
         "init:testdb": "Initializes the test database",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
-        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint and checks their formatting with yamlfmt",
+        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
@@ -335,7 +337,8 @@
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
         "watch:admin": "Enables hot module reloading for the Admin",
-        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead."
+        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead.",
+        "zugferd:compliance": "Validates the generated ZUGFeRD snapshot documents against the EN16931 business rules using the KoSIT validator (requires Java)"
     },
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
@@ -355,6 +358,13 @@
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit"
+        ],
+        "admin:unit:major": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv FEATURE_ALL=major",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"
@@ -470,7 +480,7 @@
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
-        "dependency-analyzer":  "composer-dependency-analyser",
+        "dependency-analyzer": "composer-dependency-analyser",
         "ecs": [
             "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
             "php-cs-fixer fix --dry-run --diff"
@@ -582,7 +592,8 @@
             "@php bin/console feature:dump",
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"
-        ]
+        ],
+        "zugferd:compliance": "node ./.github/bin/js/zugferd-compliance.ts"
     },
     "autoload": {
         "files": [

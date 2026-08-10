@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -11,9 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @internal
@@ -23,7 +25,7 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 {
     public function __construct(
         private DataValidator $dataValidator,
-        private DocumentRendererRegistry $documentRendererRegistry,
+        private DocumentTypeRegistry $documentTypeRegistry,
     ) {
     }
 
@@ -38,29 +40,31 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         /** @var array{
          *     orderId: string,
-         *     orderVersionId: string,
          *     documentType: string,
          *     format?: mixed,
          *     formats?: mixed,
          *     documentComment?: mixed,
          *     documentDate?: mixed,
-         *     documentNumber?: mixed
+         *     documentNumber?: mixed,
+         *     deliveryDate?: mixed,
+         *     referencedDocumentId?: mixed
          * } $payload
          */
         $payload = $request->toArray();
         $this->validate($payload);
 
         $formats = $this->extractFormats($payload);
-        $this->documentRendererRegistry->validateFormats($payload['documentType'], $formats);
+        $this->documentTypeRegistry->validateFormats($payload['documentType'], $formats);
 
         yield new DocumentGenerationRequest(
             orderId: $payload['orderId'],
-            orderVersionId: $payload['orderVersionId'],
             documentType: $payload['documentType'],
             requestedFormats: $formats,
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
             documentComment: $this->extractOptionalString($payload, 'documentComment'),
             documentDate: $this->extractOptionalString($payload, 'documentDate'),
+            deliveryDate: $this->extractOptionalString($payload, 'deliveryDate'),
+            referencedDocumentId: $this->extractOptionalString($payload, 'referencedDocumentId'),
         );
     }
 
@@ -73,11 +77,12 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
 
         $definition
             ->add('orderId', new NotBlank(), new Type('string'), new Uuid())
-            ->add('orderVersionId', new NotBlank(), new Type('string'), new Uuid())
             ->add('documentType', new NotBlank(), new Type('string'))
             ->add('documentNumber', new Type('string'))
             ->add('documentComment', new Type('string'))
-            ->add('documentDate', new Type('string'));
+            ->add('documentDate', new Type('string'), self::parseableAsDateTime())
+            ->add('deliveryDate', new Type('string'), self::parseableAsDateTime())
+            ->add('referencedDocumentId', new Type('string'), new Uuid());
 
         if (\array_key_exists('formats', $payload)) {
             $definition->add('formats', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));
@@ -86,6 +91,23 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
         }
 
         $this->dataValidator->validate($payload, $definition);
+    }
+
+    private static function parseableAsDateTime(): Callback
+    {
+        return new Callback(static function (mixed $value, ExecutionContextInterface $context): void {
+            if (!\is_string($value) || $value === '') {
+                return;
+            }
+
+            try {
+                new \DateTimeImmutable($value);
+            } catch (\Exception) {
+                $context->buildViolation('The value "{{ value }}" is not a parseable date-time.')
+                    ->setParameter('{{ value }}', $value)
+                    ->addViolation();
+            }
+        });
     }
 
     /**

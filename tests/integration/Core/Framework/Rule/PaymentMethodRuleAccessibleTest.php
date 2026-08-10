@@ -47,9 +47,9 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $searchedRule = $this->ruleRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($searchedRule);
 
-        static::assertSame($ruleId ?? null, $searchedRule->getId());
+        static::assertSame($ruleId, $searchedRule->getId());
         static::assertSame(
-            $rule[0]['paymentMethods'][0]['id'] ?? null,
+            $rule[0]['paymentMethods'][0]['id'],
             $searchedRule->getPaymentMethods()?->first()?->getId()
         );
     }
@@ -107,7 +107,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         $criteria = new Criteria([$rule[0]['id']]);
         $searchResult = $this->ruleRepository->search($criteria, $defaultContext);
 
-        static::assertCount(0, $searchResult);
+        static::assertCount(0, $searchResult->getEntities());
     }
 
     public function testRulesCanBeAccessedFromPaymentMethod(): void
@@ -165,7 +165,18 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @return list<array{
+     *     id: string,
+     *     name: string,
+     *     priority: int,
+     *     paymentMethods: list<array{
+     *         id: string,
+     *         handlerIdentifier: class-string,
+     *         created_at: \DateTime,
+     *         name: string,
+     *         technicalName: string
+     *     }>
+     * }>
      */
     private function createSimpleRule(): array
     {

@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-const createWrapper = async () => {
+const createWrapper = async ({ routeName = 'sw.mail.template.index.templates', routerPush = jest.fn() } = {}) => {
     return mount(
         await wrapTestComponent('sw-mail-template-index', {
             sync: true,
@@ -13,13 +13,20 @@ const createWrapper = async () => {
             global: {
                 provide: {
                     searchRankingService: {},
+                    feature: {
+                        isActive: (feature) => global.activeFeatureFlags.includes(feature),
+                    },
                 },
                 mocks: {
                     $route: {
+                        name: routeName,
                         query: {
                             page: 1,
                             limit: 25,
                         },
+                    },
+                    $router: {
+                        push: routerPush,
                     },
                 },
                 stubs: {
@@ -47,6 +54,25 @@ const createWrapper = async () => {
                     'sw-mail-header-footer-list': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs"></div>',
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'router-view': true,
                     'sw-button-group': {
                         template: `
@@ -102,6 +128,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
         });
     });
 
@@ -117,13 +144,43 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             global.activeFeatureFlags = [];
         });
 
-        it('should render tabs with router-view instead of lists', async () => {
-            const wrapper = await createWrapper();
+        it('should render meteor tabs with router-view instead of lists', async () => {
+            const wrapper = await createWrapper({
+                routeName: 'sw.mail.template.index.header_footer',
+            });
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(tabs.props('positionIdentifier')).toBe('sw-mail-template-index');
+            expect(tabs.props('defaultItem')).toBe('sw.mail.template.index.header_footer');
+            expect(tabs.props('items')).toEqual([
+                expect.objectContaining({
+                    label: 'sw-mail-template.list.tabMailTemplates',
+                    name: 'sw.mail.template.index.templates',
+                    onClick: expect.any(Function),
+                }),
+                expect.objectContaining({
+                    label: 'sw-mail-template.list.tabHeaderFooter',
+                    name: 'sw.mail.template.index.header_footer',
+                    onClick: expect.any(Function),
+                }),
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
+        });
+
+        it('should navigate when a meteor tab item is clicked', async () => {
+            const routerPush = jest.fn();
+            const wrapper = await createWrapper({ routerPush });
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const headerFooterTab = tabs.props('items').find((item) => {
+                return item.name === 'sw.mail.template.index.header_footer';
+            });
+
+            headerFooterTab.onClick();
+
+            expect(routerPush).toHaveBeenCalledWith({ name: 'sw.mail.template.index.header_footer' });
         });
     });
 });

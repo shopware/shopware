@@ -170,6 +170,37 @@
         padding-bottom: 0;
     }
 
+    & .sw-meteor-card__header > .mt-tabs {
+        padding: 0 32px;
+        border-radius: $border-radius-default $border-radius-default 0 0;
+        box-shadow: none;
+        margin-bottom: 0;
+
+        @media screen and (max-width: 960px) {
+            padding: 0 15px;
+        }
+
+        .mt-tabs__item {
+            padding: 19px 0 15px;
+            margin-right: 14px;
+            font-weight: $font-weight-regular;
+            border-color: transparent;
+            font-size: $font-size-xs;
+
+            @media screen and (max-width: 960px) {
+                padding: 15px 0 10px;
+            }
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+
+            &.mt-tabs__item--active {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
+    }
+
     & .sw-meteor-card__header > .sw-tabs {
         padding: 0 32px;
         border-radius: $border-radius-default $border-radius-default 0 0;

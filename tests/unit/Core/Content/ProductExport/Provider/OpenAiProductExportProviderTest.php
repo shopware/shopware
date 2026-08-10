@@ -288,7 +288,6 @@ class OpenAiProductExportProviderTest extends TestCase
      */
     private function createSalesChannelRepository(array $searches = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<SalesChannelCollection> $repository */
         $repository = new StaticEntityRepository($searches);
 
         return $repository;

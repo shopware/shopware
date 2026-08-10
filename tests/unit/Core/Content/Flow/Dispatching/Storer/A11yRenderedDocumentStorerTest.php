@@ -45,7 +45,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = new StaticEntityRepository([[]]);
+        $this->repository = StaticEntityRepository::of(DocumentCollection::class, [[]]);
         $this->dispatcher = static::createStub(EventDispatcherInterface::class);
         $this->mailAttachmentsBuilder = static::createStub(MailAttachmentsBuilder::class);
         $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
@@ -109,7 +109,6 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $documentCollections->add($documentWithA11yMediaFile);
         $documentCollections->add($documentWithNoA11yMediaFile);
 
-        /** @var StaticEntityRepository<DocumentCollection> $repository */
         $repository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -247,7 +246,6 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $document->setDeepLinkCode('code1');
         $document->setDocumentA11yMediaFile($a11yDocument);
 
-        /** @var StaticEntityRepository<DocumentCollection> $repository */
         $repository = new StaticEntityRepository([
             new EntitySearchResult(
                 DocumentDefinition::ENTITY_NAME,

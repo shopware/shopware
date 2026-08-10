@@ -3,25 +3,16 @@
 namespace Shopware\Core\Framework\Api\Response\StoreApi;
 
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
  */
 #[Package('framework')]
-final class StoreApiDTOResponseSubscriber implements EventSubscriberInterface
+final class StoreApiDTOResponseListener
 {
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::VIEW => ['onView', 1000],
-        ];
-    }
-
-    public function onView(ViewEvent $event): void
+    public function __invoke(ViewEvent $event): void
     {
         $result = $event->getControllerResult();
 

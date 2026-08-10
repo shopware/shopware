@@ -20,7 +20,7 @@ Module.register('sw-settings', {
     title: 'sw-settings.general.mainMenuItemGeneral',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

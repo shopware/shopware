@@ -133,7 +133,6 @@ const missingTests = [
     'src/core/factory/locale.factory.ts',
     'src/core/factory/mixin.factory.ts',
     'src/core/factory/plugin-boot.factory.js',
-    'src/core/factory/router.factory.js',
     'src/core/factory/service.factory.ts',
     'src/core/factory/shortcut.factory.js',
     'src/core/factory/state-deprecated.factory.js',

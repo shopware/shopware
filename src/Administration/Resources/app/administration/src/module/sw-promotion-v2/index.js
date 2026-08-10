@@ -69,7 +69,7 @@ Module.register('sw-promotion-v2', {
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'regular-megaphone',
-    favicon: 'icon-module-marketing.png',
+    favicon: 'icon-module-marketing.svg',
     entity: 'promotion',
 
     routes: {

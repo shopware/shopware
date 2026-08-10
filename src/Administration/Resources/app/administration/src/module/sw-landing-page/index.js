@@ -14,7 +14,7 @@ Module.register('sw-landing-page', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    favicon: 'icon-module-products.svg',
     entity: 'landing_page',
 
     routes: {

@@ -54,7 +54,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
                 },
             },
             icon: 'regular-rule',
-            favicon: 'icon-module-settings.png',
+            favicon: 'icon-module-settings.svg',
             entity: 'rule',
             routes: expect.any(Object),
             navigation: [

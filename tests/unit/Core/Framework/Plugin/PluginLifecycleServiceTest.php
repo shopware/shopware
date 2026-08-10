@@ -76,7 +76,7 @@ class PluginLifecycleServiceTest extends TestCase
      */
     private Stub&EntityRepository $pluginRepoMock;
 
-    private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
+    private Stub&KernelPluginCollection $kernelPluginCollectionMock;
 
     private Container $container;
 
@@ -102,7 +102,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $this->pluginRepoMock = static::createStub(EntityRepository::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->kernelPluginCollectionMock = $this->createMock(KernelPluginCollection::class);
+        $this->kernelPluginCollectionMock = static::createStub(KernelPluginCollection::class);
         $this->container = new ContainerBuilder();
         $this->migrationLoaderMock = static::createStub(MigrationCollectionLoader::class);
         $this->requirementsValidatorMock = static::createStub(RequirementsValidator::class);
@@ -230,7 +230,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntityMock->setInstalledAt(new \DateTime());
         $context = Context::createDefaultContext();
 
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($this->pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $this->pluginMock]]);
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
@@ -898,7 +898,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntityMock->setVersion('1.0.0');
 
         $pluginMock = static::createStub(Plugin::class);
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $pluginMock]]);
         $context = Context::createDefaultContext();
 
         $pluginMock->method('getPath')->willReturn('/');
@@ -1098,7 +1098,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntity->setVersion('1.0.0');
         $pluginEntity->setManagedByComposer(false);
 
-        $this->kernelPluginCollectionMock->method('get')->with(Plugin::class)->willReturn($this->pluginMock);
+        $this->kernelPluginCollectionMock->method('get')->willReturnMap([[Plugin::class, $this->pluginMock]]);
 
         return $pluginEntity;
     }

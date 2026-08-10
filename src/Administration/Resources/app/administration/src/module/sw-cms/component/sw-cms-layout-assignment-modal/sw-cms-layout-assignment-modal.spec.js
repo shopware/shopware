@@ -99,7 +99,12 @@ async function createWrapper(
     layoutType = 'product_list',
     systemConfigApiServiceOverrides = {},
     { featureActive = false } = {},
+    products = mockProducts,
 ) {
+    const origin = {
+        categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
+    };
+
     return mount(
         await wrapTestComponent('sw-cms-layout-assignment-modal', {
             sync: true,
@@ -109,7 +114,7 @@ async function createWrapper(
             props: {
                 page: {
                     categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
-                    products: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockProducts),
+                    products: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), products),
                     landingPages: new EntityCollection(
                         null,
                         null,
@@ -119,6 +124,7 @@ async function createWrapper(
                     ),
                     type: layoutType,
                     id: 'uuid007',
+                    getOrigin: () => origin,
                 },
             },
             global: {
@@ -170,7 +176,10 @@ async function createWrapper(
                     },
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
-                    'sw-loader': true,
+                    'sw-loader': {
+                        name: 'sw-loader',
+                        template: '<div class="sw-loader"></div>',
+                    },
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -252,6 +261,67 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
+    });
+
+    it('should load inherited names for assigned variant products', async () => {
+        responses.addResponse({
+            method: 'Post',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [
+                    {
+                        id: 'variant-id',
+                        parentId: 'parent-id',
+                        attributes: {
+                            id: 'variant-id',
+                            parentId: 'parent-id',
+                            translated: {
+                                name: 'Parent product',
+                            },
+                        },
+                        relationships: [],
+                    },
+                ],
+            },
+        });
+
+        const wrapper = await createWrapper('product_detail', {}, {}, [
+            {
+                id: 'variant-id',
+                parentId: 'parent-id',
+                translated: {},
+            },
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.vm.page.products[0].translated.name).toBe('Parent product');
+    });
+
+    it('should allow variant products in the product assignment criteria', async () => {
+        const wrapper = await createWrapper('product_detail');
+
+        expect(wrapper.vm.productCriteria.filters).toEqual([]);
+    });
+
+    it.each([
+        [
+            'system configuration',
+            'isLoading',
+        ],
+        [
+            'assigned products',
+            'isLoadingProducts',
+        ],
+    ])('should report loading while loading %s', async (_label, loadingProperty) => {
+        const wrapper = await createWrapper('product_detail', {});
+
+        wrapper.vm[loadingProperty] = true;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isModalLoading).toBe(true);
+        expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
     it('should render tabs when type is shop page', async () => {
@@ -371,13 +441,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should store previous categories on component creation', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.previousCategories).toEqual(mockCategories);
-        expect(wrapper.vm.previousCategoryIds).toEqual(
-            expect.arrayContaining([
-                'uuid1',
-                'uuid2',
-            ]),
-        );
+        expect(wrapper.vm.previousCategoryIds).toEqual([
+            'uuid1',
+            'uuid2',
+            'uuid3',
+        ]);
     });
 
     it('should add categories', async () => {
@@ -1267,6 +1335,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
     it('should increment categoryIndex and update page.categories', async () => {
         const wrapper = await createWrapper();
+        const initialCategories = wrapper.vm.page.categories;
 
         expect(wrapper.vm.categoryIndex).toBe(1);
         expect(wrapper.vm.page.categories).toHaveLength(3);
@@ -1276,5 +1345,64 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         expect(wrapper.vm.categoryIndex).toBe(2);
         expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.categories).toBe(initialCategories);
+    });
+
+    it('should preserve paginated category assignments when removing a loaded category', async () => {
+        const wrapper = await createWrapper();
+        const extraCategories = Array.from({ length: 50 }, (_, index) => {
+            return {
+                id: `extra-category-${index}`,
+                cmsPageId: wrapper.vm.page.id,
+            };
+        });
+        const removedCategory = extraCategories.at(-1);
+
+        wrapper.vm.categoryRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce(extraCategories.slice(0, 25))
+            .mockResolvedValueOnce(extraCategories.slice(25));
+
+        await wrapper.vm.onExtraCategories();
+        await wrapper.vm.onExtraCategories();
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(53);
+        expect(wrapper.vm.page.categories).toHaveLength(52);
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+
+        await expect(wrapper.vm.validateCategories()).rejects.toBeUndefined();
+        expect(wrapper.vm.hasDeletedCategories).toBe(true);
+    });
+
+    it('should not re-add a removed category when loading another category page', async () => {
+        const wrapper = await createWrapper();
+        const removedCategory = {
+            id: 'uuid3',
+            cmsPageId: wrapper.vm.page.id,
+        };
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+        wrapper.vm.categoryRepository.search = jest.fn().mockResolvedValue([removedCategory]);
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+    });
+
+    it('should restore the complete category baseline when discarding changes', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
+
+        wrapper.vm.discardCategoryChanges();
+
+        expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
     });
 });

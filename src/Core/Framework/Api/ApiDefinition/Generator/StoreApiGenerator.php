@@ -124,6 +124,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
+        $this->filterUndefinedRequiredProperties($finalSpecs);
+        /** @var OpenApiSpec $finalSpecs */
         $this->resolveParameterGroups($finalSpecs);
         $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
@@ -266,6 +268,34 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return $specsFromStaticJsonDefinition;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function filterUndefinedRequiredProperties(array &$schema): void
+    {
+        foreach ($schema as &$value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $this->filterUndefinedRequiredProperties($value);
+        }
+
+        if (!isset($schema['required'], $schema['properties']) || !\is_array($schema['required']) || !\is_array($schema['properties'])) {
+            return;
+        }
+
+        $properties = array_flip(array_keys($schema['properties']));
+        $schema['required'] = array_values(array_filter(
+            $schema['required'],
+            static fn (mixed $property): bool => \is_string($property) && isset($properties[$property])
+        ));
+
+        if ($schema['required'] === []) {
+            unset($schema['required']);
+        }
     }
 
     /**

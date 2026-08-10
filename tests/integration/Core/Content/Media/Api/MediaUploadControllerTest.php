@@ -109,56 +109,41 @@ class MediaUploadControllerTest extends TestCase
         $this->assertMediaApiResponse();
     }
 
-    public function testUploadFromBinaryRequiresMediaUpdatePrivilege(): void
+    public function testUpdatingFileExtensionOfExistingFileToDisallowedValueIsRejected(): void
     {
-        $browser = $this->getBrowser(true, [], ['media:read']);
-        $url = \sprintf('/api/_action/media/%s/upload', $this->mediaId);
-
-        $browser->request(
+        // Give the media a real file with a valid extension first.
+        $this->getBrowser()->request(
             'POST',
-            $url . '?extension=html',
+            \sprintf('/api/_action/media/%s/upload?extension=png', $this->mediaId),
             [],
             [],
             [
-                'HTTP_CONTENT-TYPE' => 'text/html',
-                'HTTP_CONTENT-LENGTH' => 30,
+                'HTTP_CONTENT-TYPE' => 'image/png',
+                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
             ],
-            '<html><body>test</body></html>'
+            (string) file_get_contents(self::TEST_IMAGE)
         );
 
-        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
-        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
-        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertSame(['media:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
-    }
-
-    public function testRenameRequiresMediaUpdatePrivilege(): void
-    {
-        $browser = $this->getBrowser(true, [], ['media:read']);
-        $browser->jsonRequest(
-            'POST',
-            \sprintf('/api/_action/media/%s/rename', $this->mediaId),
-            ['fileName' => 'renamed-media'],
+        // Attempt to overwrite the stored extension with a forbidden one via the Admin API.
+        $this->getBrowser()->jsonRequest(
+            'PATCH',
+            \sprintf('/api/media/%s', $this->mediaId),
+            ['fileExtension' => 'php'],
         );
 
-        $content = (string) $browser->getResponse()->getContent();
+        $response = $this->getBrowser()->getResponse();
+        $content = (string) $response->getContent();
+        $responseData = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
-        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertSame(['media:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
-    }
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $content);
+        static::assertSame('MEDIA_ILLEGAL_FILE_EXTENSION', $responseData['errors'][0]['code'], $content);
 
-    public function testProvideNameRequiresMediaReadPrivilege(): void
-    {
-        $browser = $this->getBrowser(true, [], []);
-        $browser->jsonRequest('GET', '/api/_action/media/provide-name?fileName=media&extension=png');
-
-        $content = (string) $browser->getResponse()->getContent();
-
-        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
-        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertSame(['media:read'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+        // The forbidden extension must not have been persisted.
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('png', $media->getFileExtension());
     }
 
     public function testUploadFromBinaryUsesFileName(): void

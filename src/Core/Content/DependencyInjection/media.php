@@ -33,6 +33,7 @@ use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteValidator;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
@@ -471,6 +472,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(MediaFileExtensionListProvider::class),
         ]);
+
+    $services->set(MediaFileExtensionWriteValidator::class)
+        ->args([
+            service(MediaFileExtensionListProvider::class),
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(PresignedMediaUploadService::class)
         ->args([

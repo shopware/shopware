@@ -259,6 +259,20 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 The Admin API detail routes `/api/customer/{customerId}/default-billing-address`, `/api/customer/{customerId}/default-shipping-address`, and `/api/order/{orderId}/billing-address` now resolve their configured reference only.
 Previously, these routes could return unrelated records or fail because the underlying DAL associations were not modeled as one-to-one associations.
 
+## Removed the `availableStock` product field from the Admin API and Store API
+
+The read-only product field `availableStock` has been removed from every product response of both APIs, and can no longer be used in criteria — filtering, sorting or aggregating on it now returns `FRAMEWORK__INVALID_FILTER_QUERY` / `FRAMEWORK__INVALID_SORT_QUERY`.
+
+Read `stock` instead. It carried the same value before the removal, so no recalculation on the client side is needed.
+
+```json
+// Before
+{ "includes": { "product": ["id", "availableStock"] } }
+
+// After
+{ "includes": { "product": ["id", "stock"] } }
+```
+
 </details>
 
 # Core
@@ -1138,6 +1152,34 @@ If you referenced this constant, build your own field list or switch to `Criteri
 ## Removed `ProductExportResult::getTotal()`
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
+
+## Removal of the product's `availableStock` field in favor of `stock`
+
+The `availableStock` field of the `product` entity and the database column `product.available_stock` have been removed. Use `stock` instead.
+
+Since 6.6 the stock is decremented when an order is placed, so `stock` is the real-time available stock and `availableStock` was only maintained as a write-protected mirror of it. Both values were always identical, so replacing one with the other does not change any result.
+
+* `\Shopware\Core\Content\Product\ProductEntity`: `getAvailableStock()` / `setAvailableStock()` and the `$availableStock` property were removed. Use `getStock()` / `setStock()`.
+* DAL: `availableStock` is no longer a field of the product definition. Criteria, filters, sortings, aggregations and `Criteria::addFields()` calls referencing it now throw. Use `stock`.
+* `\Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber` and its service definition were removed. There is nothing left to mirror.
+* Dynamic product groups (`product_stream`) can no longer filter on `availableStock`. Groups still filtering on it stop matching; change the condition to `stock`.
+* Product comparison exports can no longer render `product.availableStock`. The shipped Google, Idealo and Billiger starter templates were migrated to `product.stock` in 6.7 for unmodified templates; templates you edited yourself have to be adjusted manually, otherwise the export fails to render.
+
+```php
+// Before
+$product->getAvailableStock();
+$criteria->addFilter(new RangeFilter('availableStock', [RangeFilter::GT => 0]));
+
+// After
+$product->getStock();
+$criteria->addFilter(new RangeFilter('stock', [RangeFilter::GT => 0]));
+```
+
+## Elasticsearch product index no longer contains `availableStock`
+
+The `availableStock` field was removed from the product Elasticsearch mapping and is no longer indexed. Queries, sortings and aggregations against that field must use `stock`.
+
+A full reindex (`bin/console es:index`) is required, as it is for every other mapping change in this major.
 
 # Administration
 
@@ -2045,6 +2087,17 @@ After:
 ```javascript
 const isInside = event.target instanceof Node && this.$el.contains(event.target);
 ```
+
+## Removed the "Available stock" field from the product module
+
+The read-only "Available stock" field on the product detail page (Deliverability) and the "Available" column in the product list and in the advanced product selection have been removed, because `product.availableStock` no longer exists.
+
+* `sw-product-deliverability-form`: the block `sw_product_deliverability_form_available_stock_field` was removed and the surrounding `sw-container` uses `columns="1fr 1fr"` instead of `"1fr 1fr 1fr"`.
+* `sw-product-deliverability-downloadable-form`: the "Available stock" field was removed and the surrounding `sw-container` uses `columns="1fr"` instead of `"1fr 1fr"`.
+* `sw-product-list` and `sw-advanced-selection-product`: the `availableStock` entry was removed from `getProductColumns()`. Overrides that index into the returned array by position have to be re-checked.
+* `productStreamConditionService`: `availableStock` was removed from the allowed product filter properties, so it can no longer be selected as a condition in dynamic product groups.
+
+Use `product.stock` and the "Stock" field / column instead.
 
 # Storefront
 

@@ -11,19 +11,19 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1780029093FixProductComparisonTemplateBreadcrumb;
+use Shopware\Core\Migration\V6_7\Migration1786383817MigrateProductComparisonAvailableStock;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(Migration1780029093FixProductComparisonTemplateBreadcrumb::class)]
-class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends TestCase
+#[CoversClass(Migration1786383817MigrateProductComparisonAvailableStock::class)]
+class Migration1786383817MigrateProductComparisonAvailableStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private const FIXTURES = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-12852/';
+    private const FIXTURES = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-7787/';
 
     private Connection $connection;
 
@@ -34,8 +34,8 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
 
     public function testGetCreationTimestamp(): void
     {
-        $migration = new Migration1780029093FixProductComparisonTemplateBreadcrumb();
-        static::assertSame(1780029093, $migration->getCreationTimestamp());
+        $migration = new Migration1786383817MigrateProductComparisonAvailableStock();
+        static::assertSame(1786383817, $migration->getCreationTimestamp());
     }
 
     /**
@@ -60,11 +60,12 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
             $pre = trim($pre);
             $post = trim($post);
         }
-        static::assertNotSame($pre, $post, 'fixture sanity: pre and post must differ for ' . $name);
+        static::assertStringContainsString('product.availableStock', $pre);
+        static::assertStringNotContainsString('product.availableStock', $post);
 
         $id = $this->prepareOldDatabaseEntry($pre);
 
-        (new Migration1780029093FixProductComparisonTemplateBreadcrumb())->update($this->connection);
+        (new Migration1786383817MigrateProductComparisonAvailableStock())->update($this->connection);
 
         $row = $this->getCurrentBodyAndUpdateTimestamp($id);
         static::assertNotFalse($row);
@@ -74,33 +75,33 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
 
     public function testMigrationLeavesCustomerModifiedTemplatesAlone(): void
     {
-        $customTemplate = "<item>{{ product.id }} -- customized</item>\n";
+        $customTemplate = "<item>{{ product.availableStock }} -- customized</item>\n";
         $id = $this->prepareOldDatabaseEntry($customTemplate);
 
-        (new Migration1780029093FixProductComparisonTemplateBreadcrumb())->update($this->connection);
+        (new Migration1786383817MigrateProductComparisonAvailableStock())->update($this->connection);
 
         $row = $this->getCurrentBodyAndUpdateTimestamp($id);
         static::assertNotFalse($row);
         static::assertSame($customTemplate, $row['body']);
     }
 
-    public function testPostFixFixturesMatchTheNextMigrationsPreFixFixtures(): void
+    public function testShippedAdminTemplatesMatchPostFixFixtures(): void
     {
-        // Guard: this migration's post-fix snapshot is the pre-fix snapshot of the
-        // migration that follows it. Drift between them silently turns the follow-up
-        // migration into a no-op. The last link of the chain is verified against the
-        // canonical admin starter templates in the newest migration's test.
-        $nextFixtures = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-7787/';
+        // Guard: ensure the snapshotted post-fix fixtures stay in sync with the
+        // canonical admin starter templates. Drift between them silently breaks
+        // future migrations.
+        $adminRoot = __DIR__ . '/../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/';
 
-        foreach (['google.xml', 'idealo.csv', 'billiger.csv'] as $name) {
+        foreach ([
+            'google.xml' => 'google-product-search-de/body.xml.twig',
+            'idealo.csv' => 'idealo/body.csv.twig',
+            'billiger.csv' => 'billiger-de/body.csv.twig',
+        ] as $name => $adminPath) {
             [$base, $ext] = explode('.', $name);
-            $next = file_get_contents($nextFixtures . $base . '_old.' . $ext . '.twig');
-            static::assertNotFalse($next);
-            static::assertSame(
-                $next,
-                $this->readFixture($base . '_new.' . $ext . '.twig'),
-                "issue-12852 post-fix fixture for $name has drifted from the issue-7787 pre-fix fixture"
-            );
+            $fixture = $this->readFixture($base . '_new.' . $ext . '.twig');
+            $admin = file_get_contents($adminRoot . $adminPath);
+            static::assertNotFalse($admin);
+            static::assertSame($admin, $fixture, "issue-7787 post-fix fixture for $name has drifted from the admin starter template at $adminPath");
         }
     }
 

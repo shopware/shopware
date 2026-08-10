@@ -129,4 +129,29 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
 
         expect(wrapper.findByLabel('sw-product.settingsForm.labelStock').element.value).toBe('0');
     });
+
+    // @deprecated tag:v6.8.0 - Remove, `product.availableStock` no longer exists
+    it('should show the available stock field while the v6.8.0.0 flag is inactive', async () => {
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'v6.8.0.0');
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('[name="sw-field--product-available-stock"]').exists()).toBe(true);
+        expect(wrapper.vm.stockColumns).toBe('1fr 1fr 1fr');
+    });
+
+    it('should not show the available stock field with the v6.8.0.0 flag', async () => {
+        global.activeFeatureFlags = [
+            ...global.activeFeatureFlags,
+            'v6.8.0.0',
+        ];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('[name="sw-field--product-available-stock"]').exists()).toBe(false);
+        expect(wrapper.find('[name="sw-field--product-stock"]').exists()).toBe(true);
+        expect(wrapper.vm.stockColumns).toBe('1fr 1fr');
+    });
 });

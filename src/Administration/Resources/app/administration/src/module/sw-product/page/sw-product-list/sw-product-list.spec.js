@@ -589,6 +589,21 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(productHasVariants).toBe(false);
     });
 
+    // @deprecated tag:v6.8.0 - Remove, `product.availableStock` no longer exists
+    it('should only list the availableStock column while the v6.8.0.0 flag is inactive', async () => {
+        const columnsOf = () => wrapper.vm.getProductColumns().map((column) => column.property);
+
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'v6.8.0.0');
+        expect(columnsOf()).toContain('availableStock');
+
+        global.activeFeatureFlags = [
+            ...global.activeFeatureFlags,
+            'v6.8.0.0',
+        ];
+        expect(columnsOf()).not.toContain('availableStock');
+        expect(columnsOf()).toContain('stock');
+    });
+
     it('should return true if product has variants', async () => {
         const [
             ,

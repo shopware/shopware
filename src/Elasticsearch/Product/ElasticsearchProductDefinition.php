@@ -142,9 +142,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ...$visibilities,
         ];
 
-        // @deprecated tag:v6.8.0 - `product.states` is removed in v6.8, so the field is dropped from the mapping
+        // @deprecated tag:v6.8.0 - `product.states` and `product.availableStock` are removed in v6.8, so the fields are dropped from the mapping
         if (Feature::isActive('v6.8.0.0')) {
-            unset($properties['states']);
+            unset($properties['states'], $properties['availableStock']);
         }
 
         $mapping = [
@@ -341,9 +341,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ...$visibilitiesFlatten,
             ];
 
-            // @deprecated tag:v6.8.0 - `product.states` is removed in v6.8, so it is not indexed
+            // @deprecated tag:v6.8.0 - `product.states` and `product.availableStock` are removed in v6.8, so they are not indexed
             if (Feature::isActive('v6.8.0.0')) {
-                unset($documents[$id]['states']);
+                unset($documents[$id]['states'], $documents[$id]['availableStock']);
             }
         }
 

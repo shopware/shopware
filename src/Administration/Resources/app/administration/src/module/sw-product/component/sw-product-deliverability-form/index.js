@@ -11,6 +11,10 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -38,6 +42,11 @@ export default {
 
         showModeSetting() {
             return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        // @deprecated tag:v6.8.0 - Will be removed, use `columns="1fr 1fr"` on the container instead
+        stockColumns() {
+            return this.feature.isActive('v6.8.0.0') ? '1fr 1fr' : '1fr 1fr 1fr';
         },
 
         ...mapPropertyErrors('product', [

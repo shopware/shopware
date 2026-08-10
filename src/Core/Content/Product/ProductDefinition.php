@@ -177,7 +177,6 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited())->setDescription('When boolean value is `true`, the products are available for selection in the storefront for purchase.'),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates weather the product is available or not.'),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited())->setDescription('When the value is set to true, the product is hidden when sold out.'),
-            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates the number of products still available. This value results from the stock minus the open orders.'),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required())->setDescription('Indicates the number of products available.'),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name']))->setDescription('Internal field.'),
@@ -308,6 +307,11 @@ class ProductDefinition extends EntityDefinition
             $fields->add(
                 (new ListField('states', 'states', StringField::class))
                     ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type'))->setDescription('Internal field.'),
+            );
+
+            $fields->add(
+                (new IntField('available_stock', 'availableStock'))
+                    ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.14.0', 'v6.8.0.0', 'stock'))->setDescription('Indicates the number of products still available. Since 6.6 this is a mirror of `stock`.'),
             );
         }
 

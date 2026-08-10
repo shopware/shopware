@@ -50,7 +50,6 @@ export default function conditionService() {
             'cheapestPrice',
             'productNumber',
             'stock',
-            'availableStock',
             'releaseDate',
             'tags',
             'weight',
@@ -78,6 +77,7 @@ export default function conditionService() {
 
     if (!Shopware.Feature.isActive('v6.8.0.0')) {
         entityAllowedProperties.product.push('states');
+        entityAllowedProperties.product.push('availableStock');
     }
 
     /**
@@ -89,6 +89,18 @@ export default function conditionService() {
         replacement: {
             field: 'type',
             label: 'sw-product-stream.filter.values.type',
+        },
+    };
+
+    /**
+     * @deprecated tag:v6.8.0 - remove from stream & deprecation list
+     */
+    const productAvailableStockDeprecation = {
+        version: 'v6.8.0',
+        label: 'sw-product-stream.filter.values.availableStock',
+        replacement: {
+            field: 'stock',
+            label: 'sw-product-stream.filter.values.stock',
         },
     };
 
@@ -112,6 +124,8 @@ export default function conditionService() {
     const deprecatedFields = {
         states: productStatesDeprecation,
         'product.states': productStatesDeprecation,
+        availableStock: productAvailableStockDeprecation,
+        'product.availableStock': productAvailableStockDeprecation,
     };
 
     const allowedJsonAccessors = {

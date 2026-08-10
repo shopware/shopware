@@ -193,7 +193,6 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $product->setId($productId);
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
-        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);

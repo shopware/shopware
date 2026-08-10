@@ -30,7 +30,7 @@
 
     <sw-container
         v-show="showStockSetting"
-        columns="1fr 1fr"
+        :columns="stockColumns"
         gap="0 var(--scale-size-30)"
     >
 
@@ -44,7 +44,9 @@
             :error="productStockError"
         />
 
+        {# @deprecated tag:v6.8.0 - Field will be removed, `product.availableStock` is replaced by `product.stock` #}
         <mt-number-field
+            v-if="!feature.isActive('v6.8.0.0')"
             v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"

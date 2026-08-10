@@ -1,7 +1,7 @@
 {% block sw_product_deliverability_form %}
 <div class="product-deliverability-form">
     <sw-container
-        columns="1fr 1fr 1fr"
+        :columns="stockColumns"
         gap="0 var(--scale-size-30)"
     >
         {% block sw_product_deliverability_form_stock_field %}
@@ -16,8 +16,10 @@
         />
         {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Block will be removed, `product.availableStock` is replaced by `product.stock` #}
         {% block sw_product_deliverability_form_available_stock_field %}
         <mt-number-field
+            v-if="!feature.isActive('v6.8.0.0')"
             v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"

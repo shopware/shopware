@@ -670,12 +670,11 @@ class RecalculationServiceTest extends TestCase
             ->merge($versionId, Context::createDefaultContext());
 
         $stocks = static::getContainer()->get(Connection::class)
-            ->fetchAssociative('SELECT stock, available_stock FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+            ->fetchAssociative('SELECT stock FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
 
         static::assertIsArray($stocks);
 
         static::assertSame(4, (int) $stocks['stock']);
-        static::assertSame(4, (int) $stocks['available_stock']);
     }
 
     public function testAddCustomLineItemToOrder(): void

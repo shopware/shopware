@@ -14,9 +14,9 @@
     {% if product.cover.media is defined %}<g:image_link>{{ product.cover.media.url }}</g:image_link>{% endif %}
     <g:condition>new</g:condition>
     <g:availability>
-        {%- if product.stock >= product.minPurchase and product.deliveryTime -%}
+        {%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
             in_stock
-        {%- elseif product.stock < product.minPurchase and product.deliveryTime and product.restockTime -%}
+        {%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}
             preorder
         {%- else -%}
             out_of_stock

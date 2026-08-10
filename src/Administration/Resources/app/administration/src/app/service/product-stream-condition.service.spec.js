@@ -18,6 +18,17 @@ const productStatesDeprecation = {
     field: 'product.states',
 };
 
+// @deprecated tag:v6.8.0 - Remove, `product.availableStock` no longer exists
+const availableStockDeprecation = {
+    field: 'availableStock',
+    label: 'sw-product-stream.filter.values.availableStock',
+    version: 'v6.8.0',
+    replacement: {
+        field: 'stock',
+        label: 'sw-product-stream.filter.values.stock',
+    },
+};
+
 describe('app/service/product-stream-condition.service.js', () => {
     const service = new ProductStreamConditionService();
 
@@ -133,5 +144,22 @@ describe('app/service/product-stream-condition.service.js', () => {
         ],
     ])('should resolve deprecations for %s', (_, filters, expected) => {
         expect(service.getDeprecationsInTree(filters)).toEqual(expected);
+    });
+
+    // @deprecated tag:v6.8.0 - Remove, `product.availableStock` no longer exists
+    it('should resolve the availableStock deprecation and point to stock', () => {
+        expect(service.getDeprecationsInTree([{ field: 'availableStock' }])).toEqual([availableStockDeprecation]);
+    });
+
+    it('should only allow availableStock as a product filter while the v6.8.0.0 flag is inactive', () => {
+        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'v6.8.0.0');
+        expect(new ProductStreamConditionService().isPropertyInAllowList('product', 'availableStock')).toBe(true);
+
+        global.activeFeatureFlags = [
+            ...global.activeFeatureFlags,
+            'v6.8.0.0',
+        ];
+        expect(new ProductStreamConditionService().isPropertyInAllowList('product', 'availableStock')).toBe(false);
+        expect(new ProductStreamConditionService().isPropertyInAllowList('product', 'stock')).toBe(true);
     });
 });

@@ -80,6 +80,12 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
+### Deprecated the `availableStock` product field in the Admin API and Store API
+
+The read-only product field `availableStock` is marked as deprecated in the OpenAPI schemas of both APIs and will be removed in 6.8. Read `stock` instead — it carries the same value.
+
+The field is still returned by every product response and can still be used in criteria, so no client change is required yet. Clients that read `availableStock`, or filter, sort or aggregate on it, should switch to `stock` before 6.8.
+
 ## Core
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
@@ -275,6 +281,20 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Deprecated `product.availableStock` in favour of `product.stock`
+
+The product field `availableStock` and the underlying database column `product.available_stock` are deprecated and will be removed in 6.8. Use `stock` instead.
+
+Since 6.6 stock is decremented the moment an order is placed, so `stock` already is the real-time available stock and `availableStock` is only kept as a write-protected mirror of it. Both values are always identical; replacing one with the other does not change any result.
+
+What to change now:
+
+- PHP: `\Shopware\Core\Content\Product\ProductEntity::getAvailableStock()` and `setAvailableStock()` are deprecated. Use `getStock()` / `setStock()`.
+- DAL: replace `availableStock` in criteria, filters, sortings, aggregations and `Criteria::addFields()` calls with `stock`.
+- Elasticsearch: the `availableStock` field of the product index is deprecated. Use `stock`.
+- Dynamic product groups: `availableStock` is deprecated as a filter field and shows a deprecation notice in the Administration. Existing groups filtering on it keep working; switch the condition to `stock`.
+- Product comparison exports: the shipped Google, Idealo and Billiger starter templates now use `product.stock`. A migration updates existing, unmodified export templates automatically; templates you have edited yourself have to be adjusted manually.
+
 ## Administration
 
 ### System config forms show validation errors for the selected sales channel scope
@@ -397,6 +417,16 @@ const { data: media } = useDataset('sw-media-quickinfo__item', {
 ```
 
 The dataset updates reactively as the user selects a different media file.
+
+### "Available stock" is removed from the product module with 6.8
+
+The read-only "Available stock" field on the product detail page (Deliverability) and the "Available" column in the product list and in the advanced product selection are deprecated, because they only ever repeat the "Stock" value. They are still shown by default; with the `v6.8.0.0` feature flag active they are gone.
+
+If you override the affected components, remove your usage of `product.availableStock` before 6.8:
+
+* `sw-product-deliverability-form`: the block `sw_product_deliverability_form_available_stock_field` will be removed, and the container drops from three to two columns.
+* `sw-product-deliverability-downloadable-form`: the "Available stock" field will be removed, and the container drops from two columns to one.
+* `sw-product-list` / `sw-advanced-selection-product`: the `availableStock` column will be removed from `getProductColumns()`.
 
 ## Storefront
 

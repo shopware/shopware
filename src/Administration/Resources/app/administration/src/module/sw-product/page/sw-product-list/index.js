@@ -19,6 +19,7 @@ export default {
         'numberRangeService',
         'acl',
         'filterFactory',
+        'feature',
     ],
 
     mixins: [
@@ -517,12 +518,17 @@ export default {
                     allowResize: true,
                     align: 'right',
                 },
-                {
-                    property: 'availableStock',
-                    label: this.$t('sw-product.list.columnAvailableStock'),
-                    allowResize: true,
-                    align: 'right',
-                },
+                // @deprecated tag:v6.8.0 - Column will be removed, `availableStock` is replaced by `stock`
+                ...(this.feature.isActive('v6.8.0.0')
+                    ? []
+                    : [
+                          {
+                              property: 'availableStock',
+                              label: this.$t('sw-product.list.columnAvailableStock'),
+                              allowResize: true,
+                              align: 'right',
+                          },
+                      ]),
                 {
                     property: 'createdAt',
                     label: this.$t('sw-product.list.columnCreatedAt'),

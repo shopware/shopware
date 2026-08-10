@@ -74,7 +74,8 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.active'])) {
             $entity->active = (bool) $row[$root . '.active'];
         }
-        if (isset($row[$root . '.availableStock'])) {
+        // @deprecated tag:v6.8.0 - `product.availableStock` is removed in v6.8, remove the whole block
+        if (!Feature::isActive('v6.8.0.0') && isset($row[$root . '.availableStock'])) {
             $entity->availableStock = (int) $row[$root . '.availableStock'];
         }
         if (isset($row[$root . '.available'])) {

@@ -888,7 +888,6 @@ class StockStorageTest extends TestCase
 
     private function assertStock(int $expectedStock, ProductEntity $product): void
     {
-        static::assertSame($expectedStock, $product->getAvailableStock());
         static::assertSame($expectedStock, $product->getStock());
     }
 

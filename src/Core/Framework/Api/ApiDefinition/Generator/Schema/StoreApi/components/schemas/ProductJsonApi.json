@@ -153,10 +153,11 @@
                                 "type": "boolean"
                             },
                             "availableStock": {
-                                "description": "Indicates the number of products still available. This value results from the stock minus the open orders.",
+                                "description": "Indicates the number of products still available. Since 6.6 this is a mirror of `stock`.",
                                 "type": "integer",
                                 "format": "int64",
-                                "readOnly": true
+                                "readOnly": true,
+                                "deprecated": true
                             },
                             "stock": {
                                 "description": "Indicates the number of products available.",

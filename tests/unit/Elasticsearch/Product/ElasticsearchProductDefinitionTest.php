@@ -534,7 +534,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ];
 
         if (Feature::isActive('v6.8.0.0')) {
-            unset($expectedMapping['properties']['states']);
+            unset($expectedMapping['properties']['states'], $expectedMapping['properties']['availableStock']);
         }
 
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));

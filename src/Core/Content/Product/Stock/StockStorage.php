@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -52,9 +53,18 @@ class StockStorage extends AbstractStockStorage
 
         $sql = <<<'SQL'
             UPDATE product
-            SET stock = stock + :quantity, sales = sales - :quantity, available_stock = stock, updated_at = NOW()
+            SET stock = stock + :quantity, sales = sales - :quantity, updated_at = NOW()
             WHERE id = :id AND version_id = :version
         SQL;
+
+        // @deprecated tag:v6.8.0 - `product.available_stock` is removed in v6.8, keep only the statement above
+        if (!Feature::isActive('v6.8.0.0')) {
+            $sql = <<<'SQL'
+                UPDATE product
+                SET stock = stock + :quantity, sales = sales - :quantity, available_stock = stock, updated_at = NOW()
+                WHERE id = :id AND version_id = :version
+            SQL;
+        }
 
         $query = new RetryableQuery(
             $this->connection,

@@ -15,15 +15,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+// @deprecated tag:v6.8.0 - Whole file can be removed together with AvailableStockMirrorSubscriber
 
 /**
  * @internal
  */
 #[Package('inventory')]
 #[CoversClass(AvailableStockMirrorSubscriber::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class AvailableStockMirrorSubscriberTest extends TestCase
 {
     private IdsCollection $ids;

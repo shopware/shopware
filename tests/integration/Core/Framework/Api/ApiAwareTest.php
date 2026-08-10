@@ -71,6 +71,7 @@ class ApiAwareTest extends TestCase
                 'user_recovery.createdAt',
                 'category.cmsPageIdSwitched',
                 'product.states',
+                'product.availableStock',
                 'order_address.vatId',
                 'order_line_item.states',
                 // the profile label translation is removed with v6.8 (#18097), dropping the runtime translated field

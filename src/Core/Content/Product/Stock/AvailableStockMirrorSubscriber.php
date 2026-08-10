@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,6 +19,11 @@ class AvailableStockMirrorSubscriber
 {
     public function __invoke(EntityWriteEvent $event): void
     {
+        // @deprecated tag:v6.8.0 - `product.available_stock` is removed in v6.8, delete this class and its DI definition
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
         if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }

@@ -167,8 +167,9 @@ class Criteria extends Struct implements \Stringable
 
     public function getNextPagesLimit(): int
     {
-        // Fetch the current page plus the next five pages. The additional row is a sentinel: its presence
-        // means there are results beyond this navigation window, so the exact last page is unknown.
+        // Fetch the current page and the next five pages so pagination can render a bounded six-page
+        // window without an exact COUNT query. The additional row is a sentinel: its presence means
+        // there are results beyond that window, so the exact last page is unknown.
         return (int) $this->limit * 6 + 1;
     }
 

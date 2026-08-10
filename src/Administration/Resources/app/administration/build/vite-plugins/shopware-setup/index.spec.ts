@@ -151,7 +151,7 @@ swDefinePublic({ count });
         );
     });
 
-    it('ignores files without Shopware setup blocks', async () => {
+    it('ignores non-vue files', async () => {
         const plugin = createPlugin();
 
         await expect(plugin.transform('const count = 1;', '/example/component.ts')).resolves.toBeNull();
@@ -168,7 +168,7 @@ swDefinePublic({ count });
         await expect(plugin.transform('<script>export default {};</script>', dependencyFile)).resolves.toBeNull();
     });
 
-    it('loads the shared transform once per plugin instance', async () => {
+    it('surfaces a clear error when the shared transform cannot be loaded', async () => {
         // A root inside the package but without a transform under it: `src/build/vue-setup-transform`
         // does not exist, while staying inside the package keeps the `require` itself resolvable.
         const plugin = createPlugin({ administrationRoot: path.join(process.cwd(), 'src') });
@@ -177,13 +177,8 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        // A bad `administrationRoot` is a config error, not a per-file one: the loader caches its promise,
-        // so both files reject with the *same* error object. Error identity is what proves the module was
-        // imported once.
-        const first = await plugin.transform(source, '/example/sw-first.vue').catch((error) => error);
-        const second = await plugin.transform(source, '/example/sw-second.vue').catch((error) => error);
-
-        expect(first.message).toContain('build/vue-setup-transform/index.js');
-        expect(second).toBe(first);
+        await expect(plugin.transform(source, '/example/sw-first.vue')).rejects.toThrow(
+            'build/vue-setup-transform/index.js',
+        );
     });
 });

@@ -62,7 +62,9 @@ class IntegrationDefinition extends EntityDefinition
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
-            (new BoolField('admin', 'admin'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            // The regular Admin API CRUD endpoint authorizes elevated admin changes in the controller; direct DAL writes remain write-protected.
+            // @see \Shopware\Core\Framework\Api\Controller\IntegrationController
+            (new BoolField('admin', 'admin'))->addFlags((new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi()),
             new CustomFields(),
             new DateTimeField('deleted_at', 'deletedAt'),
 

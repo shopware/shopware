@@ -42,6 +42,7 @@ class TriggerGroupResolver
         'newsletter.' => 'content',
         'contact_form.' => 'content',
         'review_form.' => 'content',
+        'revocation_request.' => 'content',
     ];
 
     /**

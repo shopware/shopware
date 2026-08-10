@@ -38,7 +38,7 @@ async function createWrapper({ featureActive = false } = {}, ruleId = null) {
         }),
         {
             props: {
-                ruleId: ruleId
+                ruleId: ruleId,
             },
             global: {
                 provide: {

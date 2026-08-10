@@ -4,6 +4,7 @@
   "paths": {
     "/items": {
       "post": {
+      "x-dto-namespace": "App\\DTO",
         "tags": ["Items"],
         "summary": "Create items",
         "operationId": "createItems",

@@ -7,6 +7,7 @@
   "components": {
     "schemas": {
       "UserProfile": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "description": "User profile with various formatted fields",
         "required": ["email", "id", "createdAt"],

@@ -4,16 +4,19 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-07 00:00:00
  */
 
+namespace App\DTO;
+
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * The newly created cart
  */
-final readonly class CreateCartResponse
+final readonly class CreateCartResponse implements StoreApiDTOResponseInterface
 {
     public function __construct(
         /**

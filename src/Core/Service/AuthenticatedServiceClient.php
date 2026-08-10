@@ -10,11 +10,14 @@ use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:factory-for-deprecation - Commercial license syncing now uses the `commercial_license.provided` webhook. Can be removed when all services migrated.
+ * @deprecated tag:v6.8.0 - Commercial license syncing now uses the `commercial_license.provided` webhook. Can be removed when all services migrated.
  */
 #[Package('framework')]
 class AuthenticatedServiceClient
 {
+    /**
+     * @phpstan-ignore shopware.deprecatedClass (not triggering deprecation to avoid polluting logs)
+     */
     public function __construct(
         public readonly Client $client,
         private readonly ServiceEntry $entry,
@@ -22,6 +25,9 @@ class AuthenticatedServiceClient
     ) {
     }
 
+    /**
+     * @phpstan-ignore shopware.deprecatedClass (not triggering deprecation to avoid polluting logs)
+     */
     public function syncLicense(string $licenseKey = '', string $licenseHost = ''): void
     {
         if ($this->entry->licenseSyncEndPoint === null) {

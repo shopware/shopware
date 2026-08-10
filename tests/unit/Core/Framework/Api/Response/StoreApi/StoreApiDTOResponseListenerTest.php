@@ -45,6 +45,33 @@ class StoreApiDTOResponseListenerTest extends TestCase
         static::assertNull($event->getResponse());
     }
 
+    public function testConvertsResponseDtoWithNestedObjectsToJsonResponse(): void
+    {
+        $nestedAddress = new class {
+            public string $city = 'Berlin';
+        };
+        $response = new class($nestedAddress) implements StoreApiDTOResponseInterface {
+            public function __construct(public object $address)
+            {
+            }
+
+            /**
+             * @var list<object>
+             */
+            public array $relatedAddresses = [];
+        };
+        $response->relatedAddresses = [$nestedAddress];
+
+        $event = $this->createViewEvent($response);
+
+        (new StoreApiDTOResponseListener())($event);
+
+        static::assertSame(
+            '{"address":{"city":"Berlin"},"relatedAddresses":[{"city":"Berlin"}]}',
+            $event->getResponse()?->getContent(),
+        );
+    }
+
     private function createViewEvent(object $result): ViewEvent
     {
         return new ViewEvent(

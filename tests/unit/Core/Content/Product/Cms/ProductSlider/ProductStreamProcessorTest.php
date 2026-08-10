@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
@@ -58,7 +59,6 @@ class ProductStreamProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->configureProductStreamBuilder();
 
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
@@ -95,6 +95,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->config->add($config);
 
+        $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
         $this->productRepository->expects($this->never())->method('search');
         $this->logger->expects($this->never())->method('warning');
 
@@ -128,7 +129,7 @@ class ProductStreamProcessorTest extends TestCase
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
 
-        $this->configureProductStreamBuilder(false);
+        $this->configureProductStreamBuilder(false, $this->once());
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
 
@@ -157,6 +158,7 @@ class ProductStreamProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
+        $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
         $this->productRepository->expects($this->never())->method('search');
         $this->logger->expects($this->never())->method('warning');
 
@@ -256,6 +258,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($productsConfig);
         $this->config->add($sortingConfig);
 
+        $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
         $this->productRepository->expects($this->never())->method('search');
         $this->eventDispatcher->expects($this->once())->method('dispatch');
         $this->logger->expects($this->never())->method('warning');
@@ -413,13 +416,14 @@ class ProductStreamProcessorTest extends TestCase
         return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher, $this->logger);
     }
 
-    private function configureProductStreamBuilder(bool $displayAsGroup = true): void
+    private function configureProductStreamBuilder(bool $displayAsGroup = true, ?InvocationOrder $enrichCriteriaCalls = null): void
     {
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
 
         $filter = $this->getFilter();
 
-        $this->productStreamBuilder->method('enrichCriteria')
+        $this->productStreamBuilder->expects($enrichCriteriaCalls ?? $this->never())
+            ->method('enrichCriteria')
             ->willReturnCallback(static function (Criteria $criteria, mixed ...$_) use ($displayAsGroup, $filter): void {
                 $criteria->addFilter($filter);
 

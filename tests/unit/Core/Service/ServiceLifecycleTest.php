@@ -64,7 +64,7 @@ class ServiceLifecycleTest extends TestCase
 
     private Client&Stub $registryClient;
 
-    private ServiceClient&MockObject $serviceClient;
+    private ServiceClient&Stub $serviceClient;
 
     private ServiceClientFactory&Stub $serviceClientFactory;
 
@@ -79,7 +79,7 @@ class ServiceLifecycleTest extends TestCase
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
         $this->registryClient = static::createStub(Client::class);
-        $this->serviceClient = $this->createMock(ServiceClient::class);
+        $this->serviceClient = static::createStub(ServiceClient::class);
         $this->serviceClientFactory = static::createStub(ServiceClientFactory::class);
     }
 

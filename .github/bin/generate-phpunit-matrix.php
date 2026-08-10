@@ -65,6 +65,14 @@ $matrix = [
                 'php' => '8.5',
                 'db' => 'mariadb:11',
                 'phpunit' => '12'
+            ],
+            // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
+            // skips without it.
+            [
+                'test' => ['testsuite' => 'devops'],
+                'php' => '8.3',
+                'db' => 'mysql:8.4',
+                'phpunit' => '12'
             ]
         ]
     ]

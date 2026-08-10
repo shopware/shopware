@@ -73,7 +73,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertIsArray($payload['documentTypes'] ?? null);
         static::assertArrayHasKey(DocumentType::INVOICE->value, $payload['documentTypes']);
         static::assertArrayHasKey(DocumentType::DELIVERY_NOTE->value, $payload['documentTypes']);
-        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value] ?? null);
+        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]);
         static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]['formats'] ?? null);
         static::assertEqualsCanonicalizing(
             [
@@ -218,8 +218,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertIsString($payload['documentId'] ?? null);
 
         $document = static::getContainer()->get('document.repository')
-            ->search(new Criteria([$payload['documentId']]), $this->context)
-            ->first();
+            ->search(new Criteria([$payload['documentId']]), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertSame($invoiceId, $document->getReferencedDocumentId());

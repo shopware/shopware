@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -455,6 +456,64 @@ class AppSecretRotationEndToEndTest extends TestCase
         // No committed secret to restore, and the pending record is retained for a retry or explicit discard.
         static::assertNull($reverted->getAppSecret());
         static::assertSame([$rejectedPendingSecret], $reverted->getUnconfirmedAppSecrets());
+    }
+
+    // §4 — Uninstall in the middle of a rotation: the app keeps a secret this shop never committed, so the
+    // reinstall has to offer the pending candidate.
+
+    public function testReinstallAfterUninstallingMidRotationRecoversTheApp(): void
+    {
+        $app = $this->installApp();
+        $committedSecret = $app->getAppSecret();
+        static::assertNotNull($committedSecret);
+
+        // The app adopted this secret but could not confirm it back: the shop stays on $committedSecret.
+        $adoptedSecret = 'adopted-but-unconfirmed';
+        $this->enqueueReRegistrationAttempt(minting: $adoptedSecret, confirmResponse: new Response(500));
+        $this->rotateExpectingAmbiguousFailure($app->getId());
+        static::assertSame([$adoptedSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
+
+        static::getContainer()->get(AppLifecycle::class)->uninstall(
+            self::FIXTURE_APP_NAME,
+            ['id' => $app->getId()],
+            $this->context
+        );
+
+        $deletedApps = static::getContainer()->get(DeletedAppsGateway::class);
+        static::assertSame($committedSecret, $deletedApps->getDeletedAppSecret(self::FIXTURE_APP_NAME));
+        static::assertSame([$adoptedSecret], $deletedApps->getDeletedAppUnconfirmedSecrets(self::FIXTURE_APP_NAME));
+
+        $command = new CommandTester($this->createInstallCommand());
+
+        try {
+            $recoveredSecret = 'recovered-after-reinstall';
+            $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+            $confirmsBeforeReinstall = $this->confirmCount();
+
+            static::assertSame(Command::SUCCESS, $command->execute(['name' => self::FIXTURE_APP_NAME, '-f' => true]));
+
+            static::assertSame(
+                $confirmsBeforeReinstall + 1,
+                $this->confirmCount(),
+                'the pending candidate is offered first, so no attempt is spent on the committed secret'
+            );
+
+            $recovered = $this->getInstalledApp();
+            static::assertSame($recoveredSecret, $recovered->getAppSecret());
+            static::assertNull($recovered->getUnconfirmedAppSecrets());
+            // The previous-signature proves the reinstall authenticated as the secret the app really holds.
+            $this->assertConfirmCarriesDualSignature(
+                $this->lastConfirm(),
+                newSecret: $recoveredSecret,
+                previousSecret: $adoptedSecret,
+            );
+            static::assertNull($deletedApps->getDeletedAppSecret(self::FIXTURE_APP_NAME));
+        } finally {
+            // Reinstalled through a standalone command, so the trait's #[After] cleanup does not track this row.
+            $connection = static::getContainer()->get(Connection::class);
+            $connection->executeStatement('DELETE FROM app WHERE name = :name', ['name' => self::FIXTURE_APP_NAME]);
+            $connection->executeStatement('DELETE FROM deleted_apps WHERE name = :name', ['name' => self::FIXTURE_APP_NAME]);
+        }
     }
 
     private function installApp(): AppEntity

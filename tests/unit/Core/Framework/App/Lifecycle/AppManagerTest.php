@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\Integration\IntegrationCollection;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
@@ -239,6 +240,53 @@ class AppManagerTest extends TestCase
 
         $this->createAppManager($appRepository)
             ->install($manifest, new AppInstallParameters(), $context);
+    }
+
+    public function testReinstallOfAnAppHoldingAnUncommittedSecretRecoversInOneRun(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+
+        // No app row: the app was uninstalled mid-rotation, so the carried candidates make this a recovery.
+        $appRepository = AppFixture::createAppRepository();
+        $reinstalledApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+        $reinstalledApp->setAppSecret('committed-secret');
+        $reinstalledApp->setUnconfirmedAppSecrets(['pending-secret']);
+        $recoveredApp = clone $reinstalledApp;
+        $recoveredApp->setAppSecret('recovered-secret');
+        $recoveredApp->setUnconfirmedAppSecrets(null);
+
+        $appRepository->addSearch(new AppCollection([$reinstalledApp]));
+        $appRepository->addSearch(new AppCollection([$reinstalledApp]));
+        $appRepository->addSearch(new AppCollection([$recoveredApp]));
+
+        $this->deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
+        $this->deletedAppsGateway->method('getDeletedAppSecret')->with('test')->willReturn('committed-secret');
+        $this->deletedAppsGateway->method('getDeletedAppUnconfirmedSecrets')
+            ->with('test')
+            ->willReturn(['pending-secret']);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with(static::isString(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
+        // A plain handshake would sign with the secret the app stopped trusting.
+        $this->registrationService->expects($this->never())->method('registerApp');
+
+        $handler = $this->createMock(AbstractLifecycleHandler::class);
+        $handler->expects($this->once())->method('install');
+
+        // Recovery re-creates the record, so the locale is resolved twice.
+        $languageRepository = AppFixture::createLanguageRepository();
+        $languageRepository->addSearch($languageRepository->searches[0]);
+
+        $this->createAppManager($appRepository, persisters: [$handler], languageRepository: $languageRepository)
+            ->install($manifest, new AppInstallParameters(), $context);
+
+        $upserts = $appRepository->getPayloads(StaticEntityRepository::UPSERT);
+        static::assertSame(['pending-secret'], $upserts[0]['unconfirmedAppSecrets']);
+        static::assertSame('committed-secret', $upserts[0]['appSecret']);
+        static::assertCount(1, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
     }
 
     public function testInstallRepairsCompletedAppWithoutReplayingLifecycleOrActivation(): void
@@ -853,11 +901,13 @@ XML,
     /**
      * @param StaticEntityRepository<AppCollection> $appRepository
      * @param list<AbstractLifecycleHandler> $persisters
+     * @param StaticEntityRepository<LanguageCollection>|null $languageRepository
      */
     private function createAppManager(
         StaticEntityRepository $appRepository,
         array $persisters = [],
         ?AclRoleEntity $aclRole = null,
+        ?StaticEntityRepository $languageRepository = null,
     ): AppManager {
         $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
@@ -870,7 +920,7 @@ XML,
             $this->appSecretRotationService,
             $this->manifestFactory,
             $this->activeAppsLoader,
-            AppFixture::createLanguageRepository(),
+            $languageRepository ?? AppFixture::createLanguageRepository(),
             $this->systemConfigService,
             static::createStub(ConfigValidator::class),
             $this->integrationRepository,

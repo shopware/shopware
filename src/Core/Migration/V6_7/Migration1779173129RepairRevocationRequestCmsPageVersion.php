@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * Affected systems can contain the shipped revocation page in a non-live
  * version. The page then exists in the database, but the administration cannot
  * use it as the configured shop page. This migration first ensures that the
- * fixed CMS page migration created a live-version page, then repairs only the
+ * fixed CMS page migration creates a live-version page, then repairs only the
  * global system config when it is missing or points to a non-live/missing page.
  *
  * Valid custom live-version assignments and sales-channel-specific assignments
@@ -57,7 +57,7 @@ class Migration1779173129RepairRevocationRequestCmsPageVersion extends Migration
             return;
         }
 
-        $configuredPageId = $this->extractCmsPageId($configuration['configuration_value'] ?? null);
+        $configuredPageId = $this->extractCmsPageId($configuration['configuration_value']);
         if ($configuredPageId !== null && $this->cmsPageExistsInLiveVersion($connection, $configuredPageId)) {
             return;
         }
@@ -109,7 +109,7 @@ SQL,
     }
 
     /**
-     * @return array{id: string, configuration_value: mixed}|null
+     * @return array{id: string, configuration_value: string}|null
      */
     private function getGlobalRevocationPageConfiguration(Connection $connection): ?array
     {
@@ -141,12 +141,8 @@ SQL,
         );
     }
 
-    private function extractCmsPageId(mixed $configurationValue): ?string
+    private function extractCmsPageId(string $configurationValue): ?string
     {
-        if (!\is_string($configurationValue)) {
-            return null;
-        }
-
         $decoded = json_decode($configurationValue, true);
         if (!\is_array($decoded)) {
             return null;
@@ -209,8 +205,8 @@ SQL,
 
     private function fixMigration(Connection $connection): void
     {
-        $deLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de');
-        $enLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de', true);
+        $deLanguageByteIds = $this->getLanguageIdsWithDePrefix($connection);
+        $enLanguageByteIds = $this->getLanguageIdsWithoutDePrefix($connection);
         $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
@@ -222,22 +218,43 @@ SQL,
     /**
      * @return list<string>
      */
-    private function getLanguageIdsByLocalePrefix(Connection $connection, string $localePrefix, bool $invert = false): array
+    private function getLanguageIdsWithDePrefix(Connection $connection): array
     {
-        $operator = $invert ? 'NOT LIKE' : 'LIKE';
-
         $languageIds = $connection->fetchFirstColumn(
-            \sprintf(
-                <<<'SQL'
+            <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE LOWER(`locale`.`code`) %s :localePrefix
+WHERE LOWER(`locale`.`code`) LIKE 'de-%'
 ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
-SQL,
-                $operator
-            ),
-            ['localePrefix' => $localePrefix . '-%']
+SQL
+        );
+
+        $languageByteIds = [];
+        foreach ($languageIds as $languageId) {
+            if (!\is_string($languageId)) {
+                continue;
+            }
+
+            $languageByteIds[] = $languageId;
+        }
+
+        return $languageByteIds;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageIdsWithoutDePrefix(Connection $connection): array
+    {
+        $languageIds = $connection->fetchFirstColumn(
+            <<<'SQL'
+SELECT `language`.`id`
+FROM `language`
+INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
+WHERE LOWER(`locale`.`code`) NOT LIKE 'de-%'
+ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
+SQL
         );
 
         $languageByteIds = [];

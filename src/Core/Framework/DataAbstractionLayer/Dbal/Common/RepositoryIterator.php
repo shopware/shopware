@@ -133,7 +133,7 @@ class RepositoryIterator
         $result = $this->repository->search($this->criteria, $this->context);
 
         $last = $result->getEntities()->last();
-        if ($last !== null && isset($last->autoIncrement)) {
+        if ($last !== null && $last->has('autoIncrement')) {
             $increment = $last->get('autoIncrement');
             if (\is_int($increment)) {
                 $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));

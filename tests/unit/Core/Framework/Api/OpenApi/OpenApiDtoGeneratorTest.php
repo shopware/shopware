@@ -75,6 +75,8 @@ class OpenApiDtoGeneratorTest extends TestCase
 
         $response = $this->renderDefinition($this->definitionByName($definitions, 'ReadNewsletterRecipientResponse'));
 
+        static::assertStringContainsString('use Shopware\\Core\\Framework\\Api\\Response\\StoreApi\\StoreApiDTOResponseInterface;', $response);
+        static::assertStringContainsString('final readonly class ReadNewsletterRecipientResponse implements StoreApiDTOResponseInterface', $response);
         static::assertStringContainsString('#[Assert\\Choice(choices: [\'notSet\', \'optIn\', \'optOut\', \'direct\', \'undefined\'])]', $response);
         static::assertStringContainsString('public string $status,', $response);
         static::assertStringContainsString('#[Assert\Choice(choices: [0, 10, 20])]', $response);
@@ -123,6 +125,7 @@ class OpenApiDtoGeneratorTest extends TestCase
 
         $request = $this->renderDefinition($this->definitionByName($definitions, 'ReadProductsRequest'));
 
+        static::assertStringNotContainsString('StoreApiDTOResponseInterface', $request);
         static::assertStringContainsString('Availability filter', $request);
         static::assertStringContainsString('#[Assert\\Choice(choices: [\'all\', \'available\'])]', $request);
         static::assertStringContainsString('public ?string $availability = null,', $request);

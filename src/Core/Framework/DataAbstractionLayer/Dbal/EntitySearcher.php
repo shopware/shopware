@@ -192,7 +192,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->setMaxResults((int) $criteria->getLimit() * 6 + 1);
+        $query->setMaxResults($criteria->getNextPagesLimit());
     }
 
     /**

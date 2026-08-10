@@ -165,6 +165,12 @@ class Criteria extends Struct implements \Stringable
         return $this->limit;
     }
 
+    public function getNextPagesLimit(): int
+    {
+        // Fetch six pages plus one sentinel row so the result can distinguish a full lookahead from the end.
+        return (int) $this->limit * 6 + 1;
+    }
+
     public function getTotalCountMode(): int
     {
         return $this->totalCountMode;

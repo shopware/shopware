@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,7 +13,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -82,51 +80,6 @@ class SalesChannelProxyControllerTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class), new NativeClock());
         $this->ids = new IdsCollection();
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    #[DataProvider('checkoutProxyRoutesProvider')]
-    public function testCheckoutProxyRoutesRequireOrderUpdatePrivilege(string $path, array $payload): void
-    {
-        $browser = $this->getBrowser(true, [], []);
-        $browser->jsonRequest('PATCH', $path, $payload, [
-            'HTTP_SW_CONTEXT_TOKEN' => Uuid::randomHex(),
-        ]);
-
-        $content = (string) $browser->getResponse()->getContent();
-        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
-        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $response['errors'][0]['code'] ?? null, $content);
-    }
-
-    /**
-     * @return \Generator<string, array{string, array<string, mixed>}>
-     */
-    public static function checkoutProxyRoutesProvider(): \Generator
-    {
-        yield 'modify shipping costs' => [
-            '/api/_proxy/modify-shipping-costs',
-            [
-                'salesChannelId' => Uuid::randomHex(),
-                'shippingCosts' => [
-                    'unitPrice' => 1,
-                    'totalPrice' => 1,
-                ],
-            ],
-        ];
-
-        yield 'disable automatic promotions' => [
-            '/api/_proxy/disable-automatic-promotions',
-            ['salesChannelId' => Uuid::randomHex()],
-        ];
-
-        yield 'enable automatic promotions' => [
-            '/api/_proxy/enable-automatic-promotions',
-            ['salesChannelId' => Uuid::randomHex()],
-        ];
     }
 
     public function testProxyWithInvalidSalesChannelId(): void

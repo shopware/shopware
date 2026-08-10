@@ -29,6 +29,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKe
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\CategoryCriteriaSubscriber;
+use Shopware\Core\Content\ImportExport\Event\Subscriber\CustomerNumberRangeSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\FileDeletedSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber;
@@ -57,6 +58,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -340,6 +342,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ProductCriteriaSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangeSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(AbstractIncrementStorage::class),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ProductVariantsSubscriber::class)

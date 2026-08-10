@@ -10,11 +10,14 @@ use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
+/**
+ * @phpstan-type SystemConfigLimit array{domain: string, interval: string}
+ */
 #[Package('framework')]
 class SystemConfigLimiter extends TimeBackoffLimiter
 {
     /**
-     * @param list<array{domain?: string, limit?: int, interval: string}> $limits
+     * @param list<SystemConfigLimit> $limits
      */
     public function __construct(
         SystemConfigService $systemConfigService,
@@ -25,17 +28,17 @@ class SystemConfigLimiter extends TimeBackoffLimiter
         ?LockInterface $lock = null,
         ?ClockInterface $clock = null,
     ) {
-        foreach ($limits as $idx => $limit) {
-            if (!isset($limit['domain'])) {
-                continue;
-            }
+        $convertedLimits = [];
+        foreach ($limits as $limit) {
+            $sysLimit = $systemConfigService->getInt($limit['domain'] ?? '');
+            $convertedLimit = [
+                'interval' => $limit['interval'],
+                'limit' => $sysLimit !== 0 ? $sysLimit : \PHP_INT_MAX,
+            ];
 
-            $sysLimit = $systemConfigService->get($limit['domain']);
-            $limits[$idx]['limit'] = $sysLimit && (int) $sysLimit !== 0 ? (int) $sysLimit : \PHP_INT_MAX;
-            unset($limits[$idx]['domain']);
+            $convertedLimits[] = $convertedLimit;
         }
 
-        /** @var list<array{limit: int, interval: string}> $limits */
-        parent::__construct($id, $limits, $reset, $storage, $clock ?? new NativeClock(), $lock ?? new NoLock());
+        parent::__construct($id, $convertedLimits, $reset, $storage, $clock ?? new NativeClock(), $lock ?? new NoLock());
     }
 }

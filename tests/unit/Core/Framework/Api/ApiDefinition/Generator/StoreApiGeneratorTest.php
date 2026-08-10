@@ -142,6 +142,49 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
+    public function testStoreApiLoadsJsonApiBaseSchemasFromJson(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+        $entities = $schema['components']['schemas'];
+
+        foreach ([
+            'success',
+            'failure',
+            'info',
+            'meta',
+            'data',
+            'resource',
+            'relationshipLinks',
+            'links',
+            'link',
+            'attributes',
+            'relationships',
+            'relationship',
+            'relationshipToOne',
+            'relationshipToMany',
+            'linkage',
+            'pagination',
+            'jsonapi',
+            'error',
+        ] as $schemaName) {
+            static::assertArrayHasKey($schemaName, $entities);
+        }
+
+        static::assertSame(
+            ['$ref' => '#/components/schemas/relationship'],
+            $entities['relationships']['additionalProperties']
+        );
+        static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($entities['relationship']['properties']));
+        static::assertSame(1, $entities['relationship']['minProperties']);
+        static::assertFalse($entities['relationship']['additionalProperties']);
+        static::assertArrayNotHasKey('anyOf', $entities['relationship']);
+    }
+
     public function testOnlyPhpGeneratedSchemaRetainsJsonApiComponent(): void
     {
         $definitionRegistry = new StaticDefinitionInstanceRegistry(
@@ -208,6 +251,16 @@ class StoreApiGeneratorTest extends TestCase
         static::assertCount(1, $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
         static::assertNotContains('requiredField', $entities['Simple']['required']);
+    }
+
+    public function testUndefinedRequiredPropertiesAreRemovedFromJsonSchemas(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        $invalidRequiredSchema = $schema['components']['schemas']['SchemaWithInvalidRequiredProperty'];
+
+        static::assertSame(['existing'], $invalidRequiredSchema['required']);
+        static::assertSame(['existingNested'], $invalidRequiredSchema['properties']['nested']['required']);
     }
 
     public function testGroupsParametersParsing(): void

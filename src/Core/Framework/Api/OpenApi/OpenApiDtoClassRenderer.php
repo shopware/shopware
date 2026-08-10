@@ -61,6 +61,10 @@ final class OpenApiDtoClassRenderer
         $lines[] = 'namespace ' . trim($namespace, '\\') . ';';
         $lines[] = '';
 
+        if ($definition->enumValues !== []) {
+            return $this->renderEnum($definition, $lines);
+        }
+
         $useStatements = $this->collectUseStatements($definition, $namespace, $externalNamespaces);
         if ($useStatements !== []) {
             sort($useStatements);
@@ -94,6 +98,36 @@ final class OpenApiDtoClassRenderer
 
         $lines[] = '    ) {';
         $lines[] = '    }';
+        $lines[] = '}';
+        $lines[] = '';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * @param list<string> $lines
+     */
+    private function renderEnum(OpenApiDtoDefinition $definition, array $lines): string
+    {
+        $lines[] = 'use ' . Package::class . ';';
+        $lines[] = '';
+        if ($definition->description !== null) {
+            $lines = [...$lines, ...$this->renderDescription($definition->description)];
+        }
+        if ($definition->package !== null) {
+            $lines[] = '#[Package(\'' . $definition->package . '\')]';
+        }
+        $lines[] = 'enum ' . $definition->name . ': ' . ($definition->enumType ?? 'string');
+        $lines[] = '{';
+        foreach ($definition->enumValues as $value) {
+            $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
+            $caseName = (string) preg_replace('/[^A-Z0-9_]/', '_', $caseName);
+            if (preg_match('/^[0-9]/', $caseName) === 1) {
+                $caseName = '_' . $caseName;
+            }
+            $formattedValue = \is_int($value) ? (string) $value : '\'' . $value . '\'';
+            $lines[] = '    case ' . $caseName . ' = ' . $formattedValue . ';';
+        }
         $lines[] = '}';
         $lines[] = '';
 
@@ -287,6 +321,10 @@ final class OpenApiDtoClassRenderer
 
     private function needsValidConstraint(OpenApiDtoProperty $property): bool
     {
+        if ($property->nativeEnum) {
+            return false;
+        }
+
         if ($property->phpType === OpenApiDtoSchemaParser::PHP_TYPE_ARRAY && $property->arrayMapValueType !== null) {
             return $this->containsDtoType($property->arrayMapValueType);
         }

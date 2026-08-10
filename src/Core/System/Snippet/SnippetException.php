@@ -46,6 +46,8 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS = 'SYSTEM__SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS';
 
+    final public const SNIPPET_TRANSLATIONS_UNAVAILABLE = 'SYSTEM__TRANSLATIONS_UNAVAILABLE';
+
     public static function invalidFilterName(): self
     {
         return new self(
@@ -232,6 +234,19 @@ class SnippetException extends HttpException
                 'message' => $previous->getMessage(),
             ],
             $previous
+        );
+    }
+
+    /**
+     * @param list<string> $locales
+     */
+    public static function translationsUnavailable(array $locales): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_TRANSLATIONS_UNAVAILABLE,
+            'No translations are available for the requested locale(s): "{{ locales }}".',
+            ['locales' => implode(', ', $locales)],
         );
     }
 

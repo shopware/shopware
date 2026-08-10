@@ -76,6 +76,10 @@
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "403": {
                         "description": "Forbidden."
                     },
@@ -164,6 +168,10 @@
                     },
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "403": {
                         "description": "Forbidden."

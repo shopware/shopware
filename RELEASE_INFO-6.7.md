@@ -127,11 +127,16 @@ shopware:
     translation:
         repository_url: 'https://example.com/translations'
         metadata_url: 'https://example.com/crowdin-metadata.json'
+        community_translations_url: 'https://translate.shopware.com'
+        documentation_url_snippet_key: 'sw-settings-language.addModal.docsUrl'
+        completeness_threshold: 90
         plugins:
             - 'MyPlugin'
         excluded_locales:
             - 'de-DE'
             - 'en-GB'
+        pseudo_locales:
+            - 'ach-UG'
         plugin_mapping:
             - plugin: 'MyPlugin'
               name: 'MySnippetName'
@@ -140,13 +145,21 @@ shopware:
               locale: 'de-DE'
 ```
 
-List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+List options (`plugins`, `excluded_locales`, `pseudo_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
 ### Product export body media URLs are RFC 3986 encoded
 
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
+### Community translations auto-update can be configured per language
+
+The `translation.update` scheduled task (`UpdateTranslationsTaskHandler`) refreshes the community translations of installed languages. It can now be controlled per language via the new `translationAutoUpdate` flag.
+
+* The `language` entity gains a boolean `translationAutoUpdate` field (API-aware, **enabled by default**). A migration adds the `language.translation_auto_update` column automatically, defaulting to on, so existing languages keep being updated as before.
+* Only linked languages are considered: a language flagged for auto-update whose translation is not installed, or whose locale is not part of the translation set (for example built-in or custom languages), is ignored and never triggers a request.
+* The flag can be toggled per language on the Administration language detail page ("Snippet updates" card), letting shops opt individual languages out of automatic updates.
 
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 
@@ -935,12 +948,13 @@ If a listener intentionally needs private media access, wrap that specific read 
 
 Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
 
-- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `GET /api/_action/translation/list` — lists every configured locale, merging its local install state with the remote metadata (`{ total, items: [{ locale, name, lastUpdate, progress, updateAvailable, isPseudoLanguage }] }`). `lastUpdate` is the local install timestamp (`null` when not installed), while `progress` comes from the remote metadata (`null` when the remote source is unavailable).
+- `GET /api/_action/translation/meta` — returns configuration metadata for the translation UI (`{ builtInLocales, communityTranslationsUrl, documentationUrlSnippetKey, completenessThreshold }`).
 - `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
 - `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped, unavailable }`.
 - `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
 
-The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing and metadata, `create` for install, `update` for update, `delete` for uninstall).
 
 `install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
 

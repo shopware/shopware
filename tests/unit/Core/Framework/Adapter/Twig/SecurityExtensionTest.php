@@ -195,6 +195,19 @@ class SecurityExtensionTest extends TestCase
         static::assertSame('0', $this->runTwig('{{ (["a", "b"] has every (v => v == "a")) ? 1 : 0 }}'));
     }
 
+    public function testHasSomeWithAllowedFunction(): void
+    {
+        // is_numeric() accepts exactly one argument, so this also covers the single-argument calling convention
+        static::assertSame('1', $this->runTwig('{{ (["a", "1"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+        static::assertSame('0', $this->runTwig('{{ (["a", "b"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+    }
+
+    public function testHasEveryWithAllowedFunction(): void
+    {
+        static::assertSame('1', $this->runTwig('{{ (["1", "2"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+        static::assertSame('0', $this->runTwig('{{ (["1", "b"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric']));
+    }
+
     public function testAcceptsNull(): void
     {
         static::assertSame(

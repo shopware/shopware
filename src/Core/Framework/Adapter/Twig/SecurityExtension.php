@@ -229,6 +229,11 @@ class SecurityExtension extends AbstractExtension
             return static fn (): bool => false;
         }
 
+        if (\is_string($callback)) {
+            // mirror the map filter: custom string functions receive only the value, never the key
+            return static fn (mixed $value): mixed => $callback($value);
+        }
+
         return \Closure::fromCallable($callback);
     }
 }

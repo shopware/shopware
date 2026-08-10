@@ -2,9 +2,9 @@
 
 ## Critical Fixes
 
-### App Scripts can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
 
-The Twig `find` filter and the `has some` / `has every` operators now reject string callables in App Scripts unless the function is listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. This closes a sandbox escape (`GHSA-6qhw-38wm-7g7h`) where a locally installed App could execute arbitrary PHP and OS commands. App Scripts that pass arrow functions (`v => ...`) are unaffected.
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables unless the function is listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. This closes a sandbox escape (`GHSA-6qhw-38wm-7g7h`) where a locally installed App could execute arbitrary PHP and OS commands through App Scripts. The policy applies to every Shopware Twig environment — storefront and theme templates and SEO URL templates as well as App Scripts. Templates passing arrow functions (`v => ...`) are unaffected; string callables a template legitimately needs must be added to `shopware.twig.allowed_php_functions`. The guard is applied when a template is compiled, so it only takes effect once the Twig cache is rebuilt (`bin/console cache:clear`, part of the standard update process).
 
 ## Features
 

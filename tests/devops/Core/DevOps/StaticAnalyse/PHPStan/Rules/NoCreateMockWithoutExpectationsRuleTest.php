@@ -7,6 +7,10 @@ use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule;
 use Shopware\Core\Framework\Log\Package;
 
+// the abstract-base fixtures are not autoloadable (their namespace deliberately sits in the rule's
+// enabled unit-test namespaces); loading them lets reflection resolve the subclass -> ancestor walk
+require_once __DIR__ . '/data/NoCreateMockWithoutExpectationsRule/AbstractBaseCases.php';
+
 /**
  * @internal
  *
@@ -82,6 +86,26 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testAbstractBaseFixtures(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/AbstractBaseCases.php'], [
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'BaseDependency::class', 'testBare()'),
+                24, // inherited property, covered via the inherited helper in one subclass test, bare in the other
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
+                39, // local stub in a base helper, reported when MixedChildCases is analysed
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
+                39, // ... and again when CoveredChildCases is analysed
+            ],
+            // NOT flagged: line 24 for CoveredChildCases (its only test reaches the inherited
+            // ->expects()-ing helper), the abstract class itself (skipped, no runnable instances)
+        ]);
+    }
+
     public function testHelperReturnedMocks(): void
     {
         $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/HelperReturnCases.php'], [
@@ -105,6 +129,6 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoCreateMockWithoutExpectationsRule();
+        return new NoCreateMockWithoutExpectationsRule(self::getContainer()->getService('defaultAnalysisParser'));
     }
 }

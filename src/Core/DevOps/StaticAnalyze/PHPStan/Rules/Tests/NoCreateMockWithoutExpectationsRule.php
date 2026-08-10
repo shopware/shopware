@@ -16,12 +16,15 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Parser\Parser;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -47,6 +50,11 @@ use Shopware\Core\Framework\Log\Package;
  * error. The reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is
  * undefined).
  *
+ * Abstract test classes are analysed through their concrete subclasses instead of on their own: the notice
+ * fires per concrete class run, and only there are all call sites of the base fixtures visible. The inherited
+ * methods of unit-test ancestors are parsed from their files and merged under the subclass (overrides win, see
+ * {@see self::inheritedMethods()}); findings inside an ancestor are reported at that ancestor's file and line.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -70,6 +78,15 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'Shopware\\Tests\\Unit\\Elasticsearch\\',
     ];
 
+    /**
+     * ClassMethod attribute carrying the ancestor file an inherited method was parsed from.
+     */
+    private const SOURCE_FILE = 'noCreateMockRuleSourceFile';
+
+    public function __construct(private readonly Parser $parser)
+    {
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -87,9 +104,15 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             return [];
         }
 
+        // the notice fires per concrete class run; the subclasses analyse the inherited fixtures with all
+        // call sites in view
+        if ($classReflection->isAbstract()) {
+            return [];
+        }
+
         $class = $node->getOriginalNode();
-        $methods = $class->getMethods();
-        $ownMethods = $this->indexByName($methods);
+        $ownMethods = array_merge($this->inheritedMethods($classReflection), $this->indexByName($class->getMethods()));
+        $methods = array_values($ownMethods);
 
         $errors = [];
         foreach ($methods as $method) {
@@ -97,24 +120,84 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
+            $file = $this->sourceFile($method);
             foreach ($this->findLocalStubMocks($method->stmts, $ownMethods) as $assign) {
-                $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), self::ERROR_STUB);
+                $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), self::ERROR_STUB, null, $file);
             }
 
             foreach ($this->findInlineStubMocks($method->stmts, $ownMethods) as $call) {
-                $errors[] = $this->buildError($call, $call->getStartLine(), self::ERROR_STUB);
+                $errors[] = $this->buildError($call, $call->getStartLine(), self::ERROR_STUB, null, $file);
             }
         }
 
-        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message, $detail]) {
-            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message, $detail);
+        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message, $detail, $file]) {
+            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message, $detail, $file);
         }
 
-        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as $createMock) {
-            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB);
+        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as [$createMock, $file]) {
+            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB, null, $file);
         }
 
         return $errors;
+    }
+
+    /**
+     * The methods this class inherits from its unit-test ancestors, parsed from the ancestor files and keyed
+     * by lowercased name, nearest ancestor last so closer definitions override. Each carries its origin in the
+     * {@see self::SOURCE_FILE} attribute for error reporting. Ancestors outside the enabled unit-test
+     * namespaces (the framework's TestCase and other vendor bases) contribute nothing.
+     *
+     * @return array<string, ClassMethod>
+     */
+    private function inheritedMethods(ClassReflection $classReflection): array
+    {
+        $methods = [];
+        foreach (array_reverse($classReflection->getParents()) as $parent) {
+            if (!TestRuleHelper::isUnitTestClass($parent) || !$this->isEnabledNamespace($parent->getName())) {
+                continue;
+            }
+
+            $file = $parent->getFileName();
+            if ($file === null) {
+                continue;
+            }
+
+            $classNode = $this->classNodeIn($file, $parent->getName());
+            if ($classNode === null) {
+                continue;
+            }
+
+            foreach ($classNode->getMethods() as $method) {
+                $method->setAttribute(self::SOURCE_FILE, $file);
+                $methods[mb_strtolower($method->name->name)] = $method;
+            }
+        }
+
+        return $methods;
+    }
+
+    private function classNodeIn(string $file, string $className): ?Class_
+    {
+        try {
+            $stmts = $this->parser->parseFile($file);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        foreach ((new NodeFinder())->findInstanceOf($stmts, Class_::class) as $class) {
+            if ($class->namespacedName !== null && $class->namespacedName->toString() === $className) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    private function sourceFile(ClassMethod $method): ?string
+    {
+        $file = $method->getAttribute(self::SOURCE_FILE);
+
+        return \is_string($file) ? $file : null;
     }
 
     /**
@@ -126,7 +209,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<ClassMethod> $methods
      * @param array<string, ClassMethod> $ownMethods
      *
-     * @return list<MethodCall|StaticCall>
+     * @return list<array{MethodCall|StaticCall, ?string}> createMock call and the ancestor file it lives in
      */
     private function findHelperReturnedStubMocks(array $methods, array $ownMethods): array
     {
@@ -148,7 +231,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
 
             foreach ($returned as $createMock) {
-                $result[] = $createMock;
+                $result[] = [$createMock, $this->sourceFile($helper)];
             }
         }
 
@@ -537,7 +620,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     /**
      * @param array<ClassMethod> $methods
      *
-     * @return array<string, list<Assign>> createMock property assignments, keyed by property name
+     * @return array<string, list<array{Assign, ?string}>> createMock property assignments with the ancestor
+     *                                                     file they live in, keyed by property name
      */
     private function collectPropertyMockAssignments(NodeFinder $finder, array $methods): array
     {
@@ -546,7 +630,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
                 $name = $this->propertyName($assign->var);
                 if ($name !== null && $this->isCreateMockCall($assign->expr)) {
-                    $assignments[$name][] = $assign;
+                    $assignments[$name][] = [$assign, $this->sourceFile($method)];
                 }
             }
         }
@@ -558,7 +642,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<ClassMethod> $methods
      * @param array<string, ClassMethod> $ownMethods
      *
-     * @return list<array{Assign, string, ?string}> assignment, message template, mixed-usage detail
+     * @return list<array{Assign, string, ?string, ?string}> assignment, message template, mixed-usage detail,
+     *                                                       ancestor file the assignment lives in
      */
     private function findPropertyMockIssues(array $methods, array $ownMethods): array
     {
@@ -616,8 +701,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
             $message = $expectors === [] ? self::ERROR_STUB : self::ERROR_MIXED;
             $detail = $expectors === [] ? null : implode(', ', $bare);
-            foreach ($propAssignments as $assign) {
-                $errors[] = [$assign, $message, $detail];
+            foreach ($propAssignments as [$assign, $file]) {
+                $errors[] = [$assign, $message, $detail, $file];
             }
         }
 
@@ -1077,14 +1162,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         return null;
     }
 
-    private function buildError(Node $createMockCall, int $line, string $message, ?string $detail = null): RuleError
+    private function buildError(Node $createMockCall, int $line, string $message, ?string $detail = null, ?string $file = null): RuleError
     {
         $label = $this->resolveMockedClass($createMockCall) ?? '...';
 
-        return RuleErrorBuilder::message(\sprintf($message, $label, $detail ?? $label))
+        $builder = RuleErrorBuilder::message(\sprintf($message, $label, $detail ?? $label))
             ->identifier('shopware.createMockWithoutExpectations')
-            ->line($line)
-            ->build();
+            ->line($line);
+
+        if ($file !== null) {
+            $builder->file($file);
+        }
+
+        return $builder->build();
     }
 
     private function isEnabledNamespace(string $className): bool

@@ -9,6 +9,9 @@ Store API criteria that load product reviews through a nested association now ap
 ### Sales channel criteria are restricted over their whole depth
 
 `SalesChannelRepository` applied the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — only to the first 99 criteria nodes it walked. A criteria with more nested associations than that silently kept the remaining nodes unrestricted. The restrictions are now applied to every node of the criteria. Integrations that send large criteria to the Store API can receive fewer entities in deeply nested associations than before.
+### Media import URL checks apply to the address that is connected to
+
+Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
 
 # 6.7.13.0
 

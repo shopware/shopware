@@ -6,11 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGeneratedFile;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationCheckResult;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
-use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
@@ -21,15 +17,8 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(OpenApiDtoGenerator::class)]
-#[CoversClass(OpenApiDtoSchemaParser::class)]
 #[CoversClass(OpenApiDtoClassRenderer::class)]
-#[CoversClass(OpenApiDtoDefinition::class)]
-#[CoversClass(OpenApiDtoProperty::class)]
-#[CoversClass(OpenApiDtoGeneratedFile::class)]
-#[CoversClass(OpenApiDtoGenerationResult::class)]
-#[CoversClass(OpenApiDtoGenerationCheckResult::class)]
-class OpenApiDtoGeneratorTest extends TestCase
+class OpenApiDtoClassRendererTest extends TestCase
 {
     public function testOpenApiFixturesMatchGeneratedDtos(): void
     {
@@ -57,12 +46,7 @@ class OpenApiDtoGeneratorTest extends TestCase
                     $generated = $renderer->renderClass($definition, 'App\\DTO');
 
                     $generatedFile = $fixtureDirectory->getPathname() . '/' . $definition->name . '.php';
-                    static::assertFileExists($generatedFile);
-                    static::assertSame(
-                        $filesystem->readFile($generatedFile),
-                        $generated,
-                        $generatedFile,
-                    );
+                    static::assertSame($filesystem->readFile($generatedFile), $generated);
                 }
             }
         }

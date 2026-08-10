@@ -12,6 +12,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
@@ -176,5 +180,59 @@ class ProductSearchScoringTest extends TestCase
         static::assertSame(2170.0, round($productResults[$productMultipleMatchId]['score']));
         static::assertSame(1120.0, round($productResults[$productFirstWordMatchId]['score']));
         static::assertSame(770.0, round($productResults[$productSecondWordMatchId]['score']));
+    }
+
+    public function testGroupedVariantsScoreLikeAComparableSingleProduct(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $singleProductId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $optionIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+
+        $this->repository->create([
+            [
+                'id' => $singleProductId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => 'Arbeitshandschuhe',
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            ],
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => 'Arbeitshandschuhe',
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'children' => array_map(static fn (string $optionId) => [
+                    'id' => Uuid::randomHex(),
+                    'productNumber' => Uuid::randomHex(),
+                    'stock' => 10,
+                    'options' => [
+                        ['id' => $optionId, 'name' => $optionId, 'group' => ['id' => $optionIds[0], 'name' => 'color']],
+                    ],
+                ], $optionIds),
+            ],
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('searchKeywords.keyword', 'arbeitshandschuhe'), 500, 'searchKeywords.ranking'));
+        // the same grouping the product listing applies to display variants as one product
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
+
+        $result = $this->repository->searchIds($criteria, $context);
+
+        $scores = [];
+        foreach ($result->getIds() as $id) {
+            static::assertIsString($id);
+            $scores[] = round((float) $result->getDataFieldOfId($id, '_score'));
+        }
+
+        // one score for the single product, one for the group of three variants
+        static::assertCount(2, $scores);
+        static::assertSame($scores[0], $scores[1], 'The variant group must not be scored higher than a comparable single product');
     }
 }

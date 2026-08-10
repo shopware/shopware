@@ -200,10 +200,22 @@ class CriteriaQueryBuilder
             $distincts[$scoreQuery->getScoreField()] = \sprintf('COUNT(DISTINCT %s)', $field);
         }
 
-        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s.%s)', $definition->getEntityName(), $primary->getStorageName());
+        $primaryKeyAccessor = \sprintf('%s.%s', $definition->getEntityName(), $primary->getStorageName());
+
+        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s)', $primaryKeyAccessor);
 
         if ($distincts !== []) {
             $select .= ' * (' . implode(' + ', $distincts) . ')';
+
+            if ($criteria->getGroupFields() !== []) {
+                // The distinct counts above scale the averaged score back up by the number of matching association
+                // rows. When the result is grouped by a field other than the primary key - product variants grouped
+                // by `displayGroup` for example - those rows belong to multiple entities, so the score of a group is
+                // multiplied by the number of matching entities: a product with three variants would score three
+                // times as high as a comparable single product. Normalizing by the number of matching entities of
+                // the group keeps the score within the range defined by the configured score queries.
+                $select .= ' / ' . \sprintf('COUNT(DISTINCT %s)', $primaryKeyAccessor);
+            }
         }
 
         $query->addSelect($select . ' as _score');

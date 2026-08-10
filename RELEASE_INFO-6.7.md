@@ -895,6 +895,11 @@ With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` 
 ### Admin Elasticsearch listings fall back to the database on deep pagination
 
 Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
+### Search score of grouped variants no longer multiplied by the variant count
+
+The `_score` of a search result that is grouped by a field other than the primary key — product variants grouped by `displayGroup`, as the product listing and the product search do — was summed up over all matching entities of a group. A product with three variants therefore scored three times as high as a comparable single product, exceeding the range defined by the configured search ranking scores. The score is now normalized by the number of matching entities of the group.
+
+Search results of products with variants get lower scores than before and can rank differently against single products. Extensions that assert on absolute `_score` values, or that use a score threshold, should re-check their expectations.
 
 ## Administration
 

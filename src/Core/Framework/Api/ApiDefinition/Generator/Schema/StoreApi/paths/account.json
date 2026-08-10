@@ -28,7 +28,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccountNewsletterRecipient"
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "$ref": "#/components/schemas/NewsletterStatus"
+                                        },
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "const": "account_newsletter_recipient"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "apiAlias"
+                                    ]
                                 }
                             }
                         }
@@ -74,7 +87,7 @@
             }
         },
         "/v2/account/newsletter-recipient": {
-            "post": {
+            "get": {
                 "tags": [
                     "Profile",
                     "Newsletter",
@@ -91,7 +104,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccountNewsletterRecipient"
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "$ref": "#/components/schemas/NewsletterStatus"
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
                                 }
                             }
                         }
@@ -112,9 +133,6 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

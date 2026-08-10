@@ -20,6 +20,27 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
+    public function testNativeEnumDefinitionIsRenderedAsBackedEnum(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'components' => [
+                'schemas' => [
+                    'NewsletterStatus' => [
+                        'x-dto-namespace' => 'App\\DTO',
+                        'type' => 'string',
+                        'enum' => ['notSet', 'optIn'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $rendered = $this->renderDefinition($this->definitionByName($definitions, 'NewsletterStatus'));
+
+        static::assertStringContainsString('enum NewsletterStatus', $rendered);
+        static::assertStringContainsString('case NOT_SET = \'notSet\';', $rendered);
+        static::assertStringContainsString('case OPT_IN = \'optIn\';', $rendered);
+    }
+
     public function testOpenApiFixturesMatchGeneratedDtos(): void
     {
         $parser = new OpenApiDtoSchemaParser();
@@ -86,13 +107,9 @@ class OpenApiDtoClassRendererTest extends TestCase
             ],
             'components' => [
                 'schemas' => [
-                    'NewsletterStatus' => [
-                        'type' => 'string',
-                        'enum' => ['notSet', 'optIn', 'optOut', 'direct', 'undefined'],
-                    ],
                     'Priority' => [
-                        'type' => 'integer',
-                        'enum' => [0, 10, 20],
+                        'type' => 'number',
+                        'enum' => [0.5, 10.5, 20.5],
                     ],
                 ],
             ],
@@ -102,60 +119,11 @@ class OpenApiDtoClassRendererTest extends TestCase
 
         static::assertStringContainsString('use Shopware\\Core\\Framework\\Api\\Response\\StoreApi\\StoreApiDTOResponseInterface;', $response);
         static::assertStringContainsString('final readonly class ReadNewsletterRecipientResponse implements StoreApiDTOResponseInterface', $response);
-        static::assertStringContainsString('#[Assert\\Choice(choices: [\'notSet\', \'optIn\', \'optOut\', \'direct\', \'undefined\'])]', $response);
-        static::assertStringContainsString('public string $status,', $response);
-        static::assertStringContainsString('#[Assert\Choice(choices: [0, 10, 20])]', $response);
-        static::assertStringContainsString('public int $priority,', $response);
+        static::assertStringContainsString('#[Assert\Choice(choices: [0.5, 10.5, 20.5])]', $response);
+        static::assertStringContainsString('public float $priority,', $response);
         static::assertStringNotContainsString('public NewsletterStatus $status,', $response);
         static::assertStringNotContainsString('public Priority $priority,', $response);
         static::assertStringNotContainsString('#[Assert\Valid]', $response);
-    }
-
-    public function testReferencedScalarEnumParametersAreRenderedAsNativeTypesWithChoiceConstraint(): void
-    {
-        $definitions = (new OpenApiDtoSchemaParser())->parse([
-            'openapi' => '3.1.0',
-            'info' => [],
-            'paths' => [
-                '/products' => [
-                    'get' => [
-                        'operationId' => 'readProducts',
-                        'parameters' => [
-                            [
-                                'name' => 'availability',
-                                'in' => 'query',
-                                'description' => 'Availability filter',
-                                'schema' => [
-                                    '$ref' => '#/components/schemas/Availability',
-                                ],
-                            ],
-                        ],
-                        'responses' => [
-                            '200' => [
-                                'description' => 'Products',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'components' => [
-                'schemas' => [
-                    'Availability' => [
-                        'type' => 'string',
-                        'enum' => ['all', 'available'],
-                    ],
-                ],
-            ],
-        ]);
-
-        $request = $this->renderDefinition($this->definitionByName($definitions, 'ReadProductsRequest'));
-
-        static::assertStringNotContainsString('StoreApiDTOResponseInterface', $request);
-        static::assertStringContainsString('Availability filter', $request);
-        static::assertStringContainsString('#[Assert\\Choice(choices: [\'all\', \'available\'])]', $request);
-        static::assertStringContainsString('public ?string $availability = null,', $request);
-        static::assertStringNotContainsString('public ?Availability $availability = null,', $request);
-        static::assertStringNotContainsString('#[Assert\Valid]', $request);
     }
 
     public function testStringConstIsRenderedAsPropertyDefault(): void

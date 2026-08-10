@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 11:22:29
+ * Last generated: 2026-08-10 15:01:45
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -12,6 +12,9 @@ namespace Shopware\Core\Framework\Api\Request\StoreApi;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 final readonly class AggregationMetrics
 {

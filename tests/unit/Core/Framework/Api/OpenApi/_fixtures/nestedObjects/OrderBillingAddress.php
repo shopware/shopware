@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * The billing address
+ *
+ * @codeCoverageIgnore
  */
 final readonly class OrderBillingAddress
 {

@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Imitate the log in as a customer given a generated token.
+ *
+ * @codeCoverageIgnore
  */
 final readonly class LegacyImpersonationPayload
 {

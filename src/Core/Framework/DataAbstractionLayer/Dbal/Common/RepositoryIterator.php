@@ -134,7 +134,7 @@ class RepositoryIterator
 
         $last = $result->getEntities()->last();
         if ($last !== null) {
-            $increment = $last->get('autoIncrement');
+            $increment = $last->getVars()['autoIncrement'] ?? null;
             if (\is_int($increment)) {
                 $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
             }

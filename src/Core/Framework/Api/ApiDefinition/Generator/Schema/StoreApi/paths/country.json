@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/country": {
@@ -9,7 +9,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch countries",
-                "description": "Perform a filtered search for countries",
+                "description": "Perform a filtered search for countries\n\n**Available Associations:**\n- `states` - States/provinces/regions within the country",
                 "operationId": "readCountry",
                 "parameters": [
                     {
@@ -25,6 +25,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -44,6 +47,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CountryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -58,7 +69,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch countries",
-                "description": "Perform a filtered search for countries",
+                "description": "Perform a filtered search for countries\n\n**Available Associations:**\n- `states` - States/provinces/regions within the country",
                 "operationId": "readCountryGet",
                 "parameters": [
                     {
@@ -68,6 +79,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CountryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

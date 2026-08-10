@@ -6,8 +6,10 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -18,6 +20,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExpectationSubscriber::class)]
 class ExpectationSubscriberTest extends TestCase
 {
@@ -52,7 +55,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -70,7 +73,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -85,7 +88,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -105,7 +108,7 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST
@@ -122,7 +125,115 @@ class ExpectationSubscriberTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.3.0.0,swag/paypal:*');
 
         $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        static::expectException(ExpectationFailedException::class);
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    public function testExpectationsAreRejectedOnRoutesWithoutAuthentication(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectExceptionObject(ApiException::expectationNotSupported());
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    public function testRejectionOnRoutesWithoutAuthenticationDoesNotRevealUnavailablePackages(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'swag/not-installed:*');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectExceptionObject(ApiException::expectationNotSupported());
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testRoutesWithoutAuthenticationPassWhenNoHeaderIsSent(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testRoutesWithoutAuthenticationPassWhenHeaderIsEmpty(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', false);
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, '');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    /**
+     * Routes bound to `%shopware.api.api_browser.auth_required_str%` receive the flag as "0"/"1".
+     */
+    public function testExpectationsAreRejectedWhenAuthenticationIsDisabledAsString(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', '0');
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
+            $this->setUp(...),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+
+        $this->expectExceptionObject(ApiException::expectationNotSupported());
+
+        $this->expectationSubscriber->checkExpectations($event);
+    }
+
+    public function testExpectationsAreCheckedWhenAuthenticationIsEnabledAsString(): void
+    {
+        $request = $this->makeRequest();
+        $request->attributes->set('auth_required', '1');
+        $request->headers->set(PlatformRequest::HEADER_EXPECT_PACKAGES, 'shopware/core:~6.4');
+
+        $event = new ControllerEvent(
+            static::createStub(Kernel::class),
             $this->setUp(...),
             $request,
             HttpKernelInterface::MAIN_REQUEST

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -30,34 +30,34 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CustomerGroupRegistrationActionController::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerGroupRegistrationActionController::class)]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;
 
     /**
-     * @var MockObject&EntityRepository<CustomerCollection>
+     * @var Stub&EntityRepository<CustomerCollection>
      */
-    private MockObject&EntityRepository $customerRepositoryMock;
+    private Stub&EntityRepository $customerRepositoryMock;
 
     /**
-     * @var MockObject&EntityRepository<CustomerGroupCollection>
+     * @var Stub&EntityRepository<CustomerGroupCollection>
      */
-    private MockObject&EntityRepository $customerGroupRepositoryMock;
+    private Stub&EntityRepository $customerGroupRepositoryMock;
 
-    private MockObject&EventDispatcher $eventDispatcherMock;
+    private Stub&EventDispatcher $eventDispatcherMock;
 
-    private MockObject&SalesChannelContextRestorer $restorerMock;
+    private Stub&SalesChannelContextRestorer $restorerMock;
 
     protected function setUp(): void
     {
-        $this->customerRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->customerGroupRepositoryMock = $this->createMock(EntityRepository::class);
-        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $this->restorerMock = $this->createMock(SalesChannelContextRestorer::class);
+        $this->customerRepositoryMock = static::createStub(EntityRepository::class);
+        $this->customerGroupRepositoryMock = static::createStub(EntityRepository::class);
+        $this->eventDispatcherMock = static::createStub(EventDispatcher::class);
+        $this->restorerMock = static::createStub(SalesChannelContextRestorer::class);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $this->restorerMock->method('restoreByCustomer')->willReturn($salesChannelContext);
 
@@ -224,10 +224,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         }
         $criteria = new Criteria(array_values($collection->getIds()));
 
-        $this->customerRepositoryMock->method('search')->with(
-            $criteria,
-            $context,
-        )
+        $this->customerRepositoryMock->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult(
                     CustomerDefinition::ENTITY_NAME,

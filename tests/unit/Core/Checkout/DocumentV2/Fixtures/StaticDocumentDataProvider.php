@@ -3,9 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -20,16 +19,18 @@ readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
 
     /**
      * @param list<string> $documentTypes
+     * @param \ArrayObject<int, ProviderInput>|null $receivedInputs
      */
     public function __construct(
         private array $documentTypes = [DocumentType::INVOICE->value],
         private string $key = self::KEY,
+        private ?\ArrayObject $receivedInputs = null,
     ) {
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return $this->documentTypes;
+        return \in_array($documentType, $this->documentTypes, true);
     }
 
     public function getKey(): string
@@ -43,10 +44,11 @@ readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): StaticRenderData {
+        $this->receivedInputs?->append($input);
+
         return new StaticRenderData();
     }
 }

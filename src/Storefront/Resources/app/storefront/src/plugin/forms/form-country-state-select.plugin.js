@@ -16,6 +16,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         vatIdFieldInput: '#vatIds',
         zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
         vatIdRequired: 'data-vat-id-required',
+        vatIdPattern: 'data-vat-id-pattern',
+        checkVatIdPattern: 'data-check-vat-id-pattern',
         stateRequired: 'data-state-required',
         stateDisplayed: 'data-display-state-in-registration',
         zipcodeRequired: 'data-zipcode-required',
@@ -55,6 +57,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         const initialCountryStateId = countryStateSelect.getAttribute(initialCountryStateAttribute);
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
         const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
+        const vatIdPattern = countrySelectCurrentOption.getAttribute(this.options.vatIdPattern);
+        const checkVatIdPattern = countrySelectCurrentOption.getAttribute(this.options.checkVatIdPattern) === '1';
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
         const stateRequired = !!countrySelectCurrentOption.getAttribute(this.options.stateRequired);
         const stateDisplayed = this._getStateDisplayed(countrySelectCurrentOption, stateRequired);
@@ -77,7 +81,7 @@ export default class CountryStateSelectPlugin extends Plugin {
             return;
         }
 
-        this._updateVatIdField(vatIdInput, vatIdRequired);
+        this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
     }
 
     onChangeCountry(event) {
@@ -88,6 +92,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         const stateDisplayed = this._getStateDisplayed(countrySelect, stateRequired);
         this.requestStateData(countryId, null, stateRequired, stateDisplayed);
         const vatIdRequired = !!countrySelect.getAttribute(this.options.vatIdRequired);
+        const vatIdPattern = countrySelect.getAttribute(this.options.vatIdPattern);
+        const checkVatIdPattern = countrySelect.getAttribute(this.options.checkVatIdPattern) === '1';
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
@@ -96,7 +102,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
 
         if (vatIdInput) {
-            this._updateVatIdField(vatIdInput, vatIdRequired);
+            this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
         }
     }
 
@@ -112,13 +118,15 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     /**
-     * Updates the required state of the VAT id field.
+     * Updates the required state and pattern validation of the VAT id field.
      *
      * @param {HTMLElement} vatIdFieldInput
      * @param {boolean} vatIdRequired
+     * @param {string|null} vatIdPattern
+     * @param {boolean} checkVatIdPattern
      * @private
      */
-    _updateVatIdField(vatIdFieldInput, vatIdRequired) {
+    _updateVatIdField(vatIdFieldInput, vatIdRequired, vatIdPattern = null, checkVatIdPattern = false) {
         if (this._differentShippingCheckbox && this.options.prefix === 'billingAddress') {
             return;
         }
@@ -127,6 +135,16 @@ export default class CountryStateSelectPlugin extends Plugin {
             window.formValidation.setFieldRequired(vatIdFieldInput);
         } else {
             window.formValidation.setFieldNotRequired(vatIdFieldInput);
+        }
+
+        if (checkVatIdPattern && vatIdPattern) {
+            vatIdFieldInput.setAttribute('pattern', vatIdPattern);
+        } else {
+            vatIdFieldInput.removeAttribute('pattern');
+        }
+
+        if (vatIdFieldInput.value.trim().length > 0) {
+            window.formValidation.validateField(vatIdFieldInput);
         }
     }
 
@@ -232,13 +250,15 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
 
         const vatIdRequired = !!countrySelectCurrentOption.getAttribute(this.options.vatIdRequired);
+        const vatIdPattern = countrySelectCurrentOption.getAttribute(this.options.vatIdPattern);
+        const checkVatIdPattern = countrySelectCurrentOption.getAttribute(this.options.checkVatIdPattern) === '1';
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         if (!vatIdInput) {
             return;
         }
 
-        this._updateVatIdField(vatIdInput, vatIdRequired);
+        this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
     }
 
     _getStateDisplayed(countrySelectOption, stateRequired) {

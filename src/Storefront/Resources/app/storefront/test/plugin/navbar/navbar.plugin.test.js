@@ -70,13 +70,30 @@ describe('NavbarPlugin', () => {
         expect(addedEvents['click']).toBeUndefined();
     });
 
-    test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
+    test('_navigateToLinkOnClick should open in new window when target blank is set on a dropdown link', () => {
         const mockEventClick = { type: 'click', pageX: 99 };
-        const mockLink = { href: 'https://example.com', target: '_blank' };
+        const mockLink = {
+            href: 'https://example.com',
+            target: '_blank',
+            classList: { contains: jest.fn().mockReturnValue(true) },
+        };
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
         expect(window.open).toHaveBeenCalledWith(mockLink.href, '_blank', 'noopener, noreferrer');
+    });
+
+    test('_navigateToLinkOnClick should not open a new window for a plain target blank link (native navigation handles it)', () => {
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = {
+            href: 'https://example.com',
+            target: '_blank',
+            classList: { contains: jest.fn().mockReturnValue(false) },
+        };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(window.open).not.toHaveBeenCalled();
     });
 
     test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {

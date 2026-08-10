@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -50,7 +48,6 @@ class WebhookManager implements ResetInterface
 
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -98,9 +95,6 @@ class WebhookManager implements ResetInterface
         if ($webhooksForEvent === []) {
             return;
         }
-
-        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatchEvent($webhooksForEvent));
-        $webhooksForEvent = $e->webhooks;
 
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
@@ -266,6 +260,7 @@ class WebhookManager implements ResetInterface
             $userLocale,
             $webhookHeaders,
             $partitionKey,
+            $webhook->appName,
         );
     }
 

@@ -1,11 +1,9 @@
-@import "~scss/variables";
-
 .sw-settings-price-rounding {
     .sw-settings-price-rounding__headline {
-        font-size: $font-size-s;
+        font-size: var(--font-size-s);
         color: var(--color-text-secondary-default);
         margin: 0 0 10px;
-        font-weight: $font-weight-bold;
+        font-weight: var(--font-weight-bold);
     }
 
     .sw-settings-price-rounding__info-text {
@@ -16,6 +14,6 @@
         margin: 0 0 20px;
         border: none;
         height: 1px;
-        background-color: var(--color-border-primary-default);
+        background-color: var(--color-border-secondary-default);
     }
 }

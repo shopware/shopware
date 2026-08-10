@@ -9,10 +9,12 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @private
  * @sw-package fundamentals@after-sales
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
+        'feature',
         'ruleConditionDataProviderService',
         'ruleConditionsConfigApiService',
         'repositoryFactory',
@@ -125,6 +127,19 @@ export default {
                     cssClassSuffix: 'assignments',
                 },
             ];
+        },
+
+        ruleDetailTabs() {
+            return this.tabItems.map((tab) => {
+                return {
+                    label: tab.title,
+                    name: tab.route.name,
+                    hasError: this.tabHasError(tab),
+                    onClick: () => {
+                        void this.$router.push(tab.route);
+                    },
+                };
+            });
         },
 
         conditionTreeFlat() {
@@ -352,7 +367,7 @@ export default {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(this.createConditionCriteria(1), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -362,7 +377,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
+            const criteria = this.createConditionCriteria(conditions.criteria.page + 1);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -455,10 +470,21 @@ export default {
         },
 
         validateDateRange() {
+            return this.invalidDateRangeConditions().length === 0;
+        },
+
+        invalidDateRangeConditions() {
             return this.conditionTreeFlat
                 .filter((condition) => condition.type === 'dateRange')
-                .every(({ value: { fromDate, toDate } }) => {
-                    return fromDate && toDate && new Date(fromDate) <= new Date(toDate);
+                .filter(({ value }) => {
+                    const fromDate = value?.fromDate;
+                    const toDate = value?.toDate;
+
+                    if (!fromDate || !toDate) {
+                        return false;
+                    }
+
+                    return new Date(fromDate) > new Date(toDate);
                 });
         },
 
@@ -471,13 +497,19 @@ export default {
                 return Promise.resolve(false);
             }
 
-            if (!this.validateDateRange()) {
-                Shopware.Store.get('error').addApiError({
-                    expression: `rule_condition.${this.rule.id}.value`,
-                    error: new Shopware.Classes.ShopwareError({
-                        detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
-                        code: 'INVALID_DATE_RANGE',
-                    }),
+            const reversedRanges = this.invalidDateRangeConditions();
+
+            if (reversedRanges.length > 0) {
+                const errorStore = Shopware.Store.get('error');
+
+                reversedRanges.forEach((condition) => {
+                    errorStore.addApiError({
+                        expression: `rule_condition.${condition.id}.value.toDate`,
+                        error: new Shopware.Classes.ShopwareError({
+                            detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
+                            code: 'INVALID_DATE_RANGE',
+                        }),
+                    });
                 });
 
                 this.showErrorNotification();
@@ -622,6 +654,16 @@ export default {
                         return false;
                     });
             });
+        },
+
+        createConditionCriteria(page) {
+            const criteria = new Criteria(page);
+
+            criteria.addSorting(Criteria.sort('parentId'));
+            criteria.addSorting(Criteria.sort('position'));
+            criteria.addSorting(Criteria.sort('id'));
+
+            return criteria;
         },
     },
 };

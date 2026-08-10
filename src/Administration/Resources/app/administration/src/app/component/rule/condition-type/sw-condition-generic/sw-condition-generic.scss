@@ -1,14 +1,14 @@
-.sw-condition-generic {
-    .sw-condition__condition-value {
-        display: flex;
+.sw-condition .sw-condition-generic.sw-condition__condition-value {
+    display: flex;
 
-        .sw-condition-operator-select,
-        .is--max-content {
-            max-width: max-content;
-            min-width: var(--scale-size-128);
-        }
+    .sw-condition-operator-select,
+    .is--max-content {
+        max-width: max-content;
+        min-width: var(--scale-size-128);
     }
+}
 
+.sw-condition-generic {
     &__input-wrapper {
         position: relative;
         z-index: 10;

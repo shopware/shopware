@@ -24,7 +24,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $t('sw-sales-channel.detail.buttonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -50,75 +50,117 @@
             />
             {% endblock %}
 
-            {% block sw_sales_channel_detail_content_tabs %}
-            <sw-tabs
-                class="sw-sales-channel-detail-__tabs"
-                position-identifier="sw-sales-channel-detail"
+            {% block sw_sales_channel_detail_agentic_commerce_deprecation_banner %}
+            {# @deprecated tag:v6.8.0 - Will be removed #}
+            <mt-banner
+                v-if="showAgenticCommerceDeprecationBanner"
+                class="sw-sales-channel-detail__agentic-commerce-deprecation-banner"
+                variant="attention"
+                :title="$t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.title')"
             >
-                {%  block sw_sales_channel_detail_content_tab_general %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.tabBase')"
-                >
-                    {{ $t('sw-sales-channel.detail.tabBase') }}
-                </sw-tabs-item>
-                {% endblock %}
+                <div>{{ $t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.message') }}</div>
 
-                {% block sw_sales_channel_detail_content_tab_product_export_insights %}
-                <sw-tabs-item
-                    v-if="isAgenticCommerce && !isLoading"
-                    :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.productExport.tabInsights')"
+                <mt-button
+                    variant="secondary"
+                    size="small"
+                    @click="onClickInstallAgenticCommercePlugin"
                 >
-                    {{ $t('sw-sales-channel.detail.productExport.tabInsights') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.deprecationBanner.installPlugin') }}
+                </mt-button>
+            </mt-banner>
+            {% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_products %}
-                <sw-tabs-item
-                    v-if="isHeadless || isStorefront"
-                    :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.tabProducts')"
+            {% block sw_sales_channel_detail_content_tabs %}
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_sales_channel_detail_content_mt_tabs %}
+                <mt-tabs
+                    class="sw-sales-channel-detail-__tabs"
+                    position-identifier="sw-sales-channel-detail"
+                    :default-item="$route.name"
+                    :items="salesChannelDetailTabs"
+                    :small="true"
+                />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    class="sw-sales-channel-detail-__tabs"
+                    position-identifier="sw-sales-channel-detail"
                 >
-                    {{ $t('sw-sales-channel.detail.tabProducts') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {%  block sw_sales_channel_detail_content_tab_general %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.tabBase')"
+                    >
+                        {{ $t('sw-sales-channel.detail.tabBase') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
+                    {% block sw_sales_channel_detail_content_tab_product_export_insights %}
+                    <sw-tabs-item
+                        v-if="isAgenticCommerce && !isLoading"
+                        :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.productExport.tabInsights')"
+                    >
+                        {{ $t('sw-sales-channel.detail.productExport.tabInsights') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_agentic_commerce_integration %}
-                <sw-tabs-item
-                    v-if="isAgenticCommerce && !isLoading"
-                    :route="{ name: 'sw.sales.channel.detail.agenticCommerceIntegration', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
-                >
-                    {{ $t('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_sales_channel_detail_content_tab_products %}
+                    <sw-tabs-item
+                        v-if="isHeadless || isStorefront"
+                        :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.tabProducts')"
+                    >
+                        {{ $t('sw-sales-channel.detail.tabProducts') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_export_template %}
-                {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_sales_channel_detail_content_tab_export_template` instead. #}
-                {%  block sw_sales_channel_detail_content_tab_product_comparison %}
-                <sw-tabs-item
-                    v-if="isProductExportChannel && !isLoading"
-                    :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.tabProductComparison')"
-                >
-                    {{ $t('sw-sales-channel.detail.tabProductComparison') }}
-                </sw-tabs-item>
-                {% endblock %}
-                {% endblock %}
+                    {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
 
-                {%  block sw_sales_channel_detail_content_tab_analytics %}
-                <sw-tabs-item
-                    v-if="isStorefront"
-                    :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
-                    :title="$t('sw-sales-channel.detail.tabAnalytics')"
-                >
-                    {{ $t('sw-sales-channel.detail.tabAnalytics') }}
-                </sw-tabs-item>
-                {% endblock %}
-            </sw-tabs>
+                    {% block sw_sales_channel_detail_content_tab_agentic_commerce_integration %}
+                    <sw-tabs-item
+                        v-if="isAgenticCommerce && !isLoading"
+                        :route="{ name: 'sw.sales.channel.detail.agenticCommerceIntegration', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
+                    >
+                        {{ $t('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_content_tab_export_template %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_sales_channel_detail_content_tab_export_template` instead. #}
+                    {%  block sw_sales_channel_detail_content_tab_product_comparison %}
+                    <sw-tabs-item
+                        v-if="isProductExportChannel && !isLoading"
+                        :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.tabProductComparison')"
+                    >
+                        {{ $t('sw-sales-channel.detail.tabProductComparison') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                    {% endblock %}
+
+                    {%  block sw_sales_channel_detail_content_tab_analytics %}
+                    <sw-tabs-item
+                        v-if="isStorefront"
+                        :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.tabAnalytics')"
+                    >
+                        {{ $t('sw-sales-channel.detail.tabAnalytics') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    <sw-tabs-item
+                        v-if="isHeadless || isStorefront"
+                        :route="{ name: 'sw.sales.channel.detail.agenticFiles', params: { id: $route.params.id } }"
+                        :title="$t('sw-sales-channel.detail.tabAgenticFiles')"
+                    >
+                        {{ $t('sw-sales-channel.detail.tabAgenticFiles') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_sales_channel_detail_content_view %}

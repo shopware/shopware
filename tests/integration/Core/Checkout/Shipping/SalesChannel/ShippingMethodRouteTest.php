@@ -18,8 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -65,7 +65,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('shipping2'), $ids);
         static::assertEmpty($response['elements'][0]['availabilityRule']);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 

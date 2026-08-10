@@ -3,10 +3,11 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -24,25 +25,20 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StoreApiResponseListener::class)]
 class StoreApiResponseListenerTest extends TestCase
 {
-    private StructEncoder&MockObject $encoder;
+    private MediaUrlPlaceholderHandlerInterface&Stub $mediaUrlPlaceholderHandler;
 
-    private MediaUrlPlaceholderHandlerInterface&MockObject $mediaUrlPlaceholderHandler;
-
-    private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlPlaceholderHandler;
-
-    private StoreApiResponseListener $listener;
+    private SeoUrlPlaceholderHandlerInterface&Stub $seoUrlPlaceholderHandler;
 
     protected function setUp(): void
     {
-        $this->encoder = $this->createMock(StructEncoder::class);
-        $this->mediaUrlPlaceholderHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $this->mediaUrlPlaceholderHandler = static::createStub(MediaUrlPlaceholderHandlerInterface::class);
         $this->mediaUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
-        $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $this->seoUrlPlaceholderHandler = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
-        $this->listener = new StoreApiResponseListener($this->encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
     }
 
     public function testEncodeEvent(): void
@@ -57,14 +53,14 @@ class StoreApiResponseListenerTest extends TestCase
         $dispatcher->addListener('store-api.my-route.encode', $listener);
 
         $instance = new StoreApiResponseListener(
-            $this->createMock(StructEncoder::class),
+            static::createStub(StructEncoder::class),
             $dispatcher,
             $this->seoUrlPlaceholderHandler,
             $this->mediaUrlPlaceholderHandler
         );
 
         $instance->encodeResponse(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             new GenericStoreApiResponse(200, new ArrayStruct())
@@ -73,20 +69,21 @@ class StoreApiResponseListenerTest extends TestCase
 
     public function testEncodeResponseWithDifferentStatusCode(): void
     {
-        $this->encoder->expects($this->once())
+        $encoder = $this->createMock(StructEncoder::class);
+        $encoder->expects($this->once())
             ->method('encode')
             ->willReturn(['encoded' => 'data']);
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')
             ->willReturn(404);
         $response->headers = new ResponseHeaderBag();
 
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = static::createStub(HttpKernelInterface::class);
 
         $event = new ResponseEvent(
             $kernel,
@@ -95,7 +92,8 @@ class StoreApiResponseListenerTest extends TestCase
             $response
         );
 
-        $this->listener->encodeResponse($event);
+        $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $listener->encodeResponse($event);
 
         $response = $event->getResponse();
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -109,13 +107,14 @@ class StoreApiResponseListenerTest extends TestCase
 
     public function testEncodeResponsePreservesHeaders(): void
     {
-        $this->encoder->expects($this->once())
+        $encoder = $this->createMock(StructEncoder::class);
+        $encoder->expects($this->once())
             ->method('encode')
             ->willReturn(['encoded' => 'data']);
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')
@@ -123,7 +122,7 @@ class StoreApiResponseListenerTest extends TestCase
         $response->headers = new ResponseHeaderBag();
         $response->headers->set('X-Custom-Header', 'value');
 
-        $kernel = $this->createMock(HttpKernelInterface::class);
+        $kernel = static::createStub(HttpKernelInterface::class);
 
         $event = new ResponseEvent(
             $kernel,
@@ -132,7 +131,8 @@ class StoreApiResponseListenerTest extends TestCase
             $response
         );
 
-        $this->listener->encodeResponse($event);
+        $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $listener->encodeResponse($event);
 
         $response = $event->getResponse();
         static::assertInstanceOf(JsonResponse::class, $response);

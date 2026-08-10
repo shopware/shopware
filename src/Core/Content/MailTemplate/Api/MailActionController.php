@@ -27,8 +27,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class MailActionController extends AbstractController
 {
     /**
@@ -139,7 +139,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/simulate',
         name: 'api.action.mail_template.simulate',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function simulate(

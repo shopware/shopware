@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-sales-channel-modal-detail {
     margin: -20px -30px;
     padding: 20px 30px;
@@ -28,14 +26,14 @@
     }
 
     .sw-sales-channel-modal-detail__header-name {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         color: var(--color-text-primary-default);
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         margin: 6px 0;
     }
 
     .sw-sales-channel-modal-detail__header-manufacturer {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-secondary-default);
     }
 
@@ -45,7 +43,7 @@
 
     .sw-sales-channel-modal-detail__description-title {
         margin-bottom: 20px;
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         color: var(--color-text-primary-default);
     }
 

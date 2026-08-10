@@ -28,6 +28,8 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type SetsArray from HtmlSanitizer
  */
 #[Package('framework')]
 #[CoversClass(LongTextFieldSerializer::class)]
@@ -37,7 +39,7 @@ class LongTextFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $sanitizer = new HtmlSanitizer(null, true, $this->getHtmlSanitizerSets(), $this->getHtmlSanitizerFieldSets());
         $this->serializer = new LongTextFieldSerializer(Validation::createValidator(), $definitionRegistry, $sanitizer);
@@ -194,13 +196,13 @@ class LongTextFieldSerializerTest extends TestCase
     {
         return [
             'product_translation.description' => [
-                'set' => ['basic', 'media', 'HTML5'],
+                'sets' => ['basic', 'media', 'HTML5'],
             ],
         ];
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return SetsArray
      */
     private function getHtmlSanitizerSets(): array
     {

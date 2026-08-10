@@ -346,6 +346,10 @@ export default {
 
         newElementId(newId) {
             this.currentEditElement = newId;
+
+            if (newId === this.item.data.id) {
+                this.editElementName();
+            }
         },
 
         activeParentIds: {
@@ -542,11 +546,12 @@ export default {
         },
 
         editElementName() {
+            // The naming field is rendered too late to be focused from here, v-autofocus does that.
             this.$nextTick(() => {
-                const elementNameField = this.$el.querySelector('.sw-tree-detail__edit-tree-item input');
-                if (elementNameField) {
-                    elementNameField.focus();
-                }
+                this.$el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
             });
         },
 

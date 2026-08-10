@@ -12,7 +12,7 @@
 
     .sw-tree__search {
         padding: var(--scale-size-10) var(--scale-size-20);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-tree-actions__headline {
@@ -37,13 +37,11 @@
 
         .tree-items {
             padding: var(--scale-size-8);
-            width: max-content;
-            min-width: 100%;
+            width: 100%;
         }
 
         .sw-tree-item {
-            width: max-content;
-            min-width: 100%;
+            width: 100%;
         }
 
         .sw-tree-item__children {
@@ -52,7 +50,7 @@
 
             &::before {
                 content: "";
-                background: var(--color-border-primary-default);
+                background: var(--color-border-secondary-default);
                 position: absolute;
                 left: 15.5px;
                 top: 50%;
@@ -72,7 +70,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             padding-right: var(--scale-size-8);
-            max-width: 21.25rem;
+            min-width: 0;
+            max-width: 100%;
         }
     }
 }

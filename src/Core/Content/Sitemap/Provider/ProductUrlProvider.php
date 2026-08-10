@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class ProductUrlProvider extends AbstractUrlProvider
@@ -41,7 +41,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly ProductDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router,
+        private readonly EntityRouteResolver $entityRouteResolver,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
@@ -72,8 +72,8 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $keys = FetchModeHelper::keyPair($products);
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(ProductDefinition::ENTITY_NAME);
+        $seoUrls = $this->getSeoUrls(array_values($keys), $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -91,8 +91,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']]));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(ProductDefinition::ENTITY_NAME, $product['id']));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ListDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
@@ -25,6 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SqlQueryParser::class)]
 class SqlQueryParserTest extends TestCase
 {
@@ -32,7 +34,7 @@ class SqlQueryParserTest extends TestCase
     {
         $this->expectException(DataAbstractionLayerException::class);
 
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $parser->parse(
             new ScoreQuery(new ContainsFilter('description', 'test'), 250),
@@ -43,7 +45,7 @@ class SqlQueryParserTest extends TestCase
 
     public function testParseNegatedEqualsAnyFilterKeepsNullableRows(): void
     {
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $result = $parser->parse(
             new NotFilter(NotFilter::CONNECTION_AND, [
@@ -65,7 +67,7 @@ class SqlQueryParserTest extends TestCase
 
     public function testParseEmptyEqualsAnyFilterOnListFieldMatchesNothing(): void
     {
-        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), $this->createMock(Connection::class));
+        $parser = new SqlQueryParser(new EntityDefinitionQueryHelper(), static::createStub(Connection::class));
 
         $result = $parser->parse(
             new EqualsAnyFilter('data', []),
@@ -84,8 +86,8 @@ class SqlQueryParserTest extends TestCase
     {
         return new StaticDefinitionInstanceRegistry(
             $definitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

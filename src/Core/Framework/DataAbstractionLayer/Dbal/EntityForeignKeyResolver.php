@@ -247,10 +247,10 @@ class EntityForeignKeyResolver implements ResetInterface
                 }
 
                 $query->addSelect(\sprintf(
-                    '%s.%s as _%s',
+                    '%s.%s as %s',
                     EntityDefinitionQueryHelper::escape($root->getEntityName()),
                     EntityDefinitionQueryHelper::escape($field->getStorageName()),
-                    $field->getPropertyName()
+                    EntityDefinitionQueryHelper::escape('_' . $field->getPropertyName())
                 ));
             }
         }

@@ -59,6 +59,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -94,6 +96,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -234,8 +237,6 @@ class ElasticsearchProductTest extends TestCase
                     ->build(),
             ], $context);
 
-            $this->refreshIndex();
-
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
@@ -247,7 +248,6 @@ class ElasticsearchProductTest extends TestCase
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
 
-            $this->refreshIndex();
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
@@ -2314,7 +2314,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $context)->first();
+        $dalProduct = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
@@ -2329,7 +2329,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
@@ -2344,7 +2344,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
@@ -2364,7 +2364,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.1')];
 
         $criteria = new Criteria([$ids->get('dal-2.1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2383,7 +2383,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2402,7 +2402,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
@@ -2449,7 +2449,12 @@ class ElasticsearchProductTest extends TestCase
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
-        $categoryIds = \array_column($product['categoriesRo'], 'id');
+        if (Feature::isActive('v6.8.0.0')) {
+            // categoriesRo is removed from the documents with v6.8.0.0, categoryTree holds the ids
+            $categoryIds = $product['categoryTree'];
+        } else {
+            $categoryIds = \array_column($product['categoriesRo'], 'id');
+        }
 
         static::assertContains($ids->get('c1'), $categoryIds);
         static::assertContains($ids->get('c2'), $categoryIds);
@@ -2735,6 +2740,8 @@ class ElasticsearchProductTest extends TestCase
 
     public function testFilterByStates(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $ids = self::$indexedIds;
 
         $context = $this->context;
@@ -2966,7 +2973,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @param array{ids: string[]} $case
+     * @param array{ids: list<string>, rules: list<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {
@@ -2976,7 +2983,10 @@ class ElasticsearchProductTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
-        $criteria->addSorting(new FieldSorting('product.productNumber', $direction));
+        // autoIncrement is the tie-breaker for equal prices: productNumber cannot break ties between
+        // sibling variants, as it is indexed multi-valued ([own, parent]) and an ascending sort uses
+        // the minimum, which is the shared parent product number
+        $criteria->addSorting(new FieldSorting('product.autoIncrement', $direction));
 
         $criteria->addFilter(
             new OrFilter([

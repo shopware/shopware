@@ -111,7 +111,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onOptionEdit(item)"
                 >
-                    {{ $t('sw-property.list.contextMenuView') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -124,7 +124,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onSingleOptionDelete(item.id)"
                 >
-                    {{ $t('sw-property.list.contextMenuDelete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}

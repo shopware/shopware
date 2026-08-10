@@ -132,7 +132,7 @@
                     {% block component_offcanvas_cart_actions_checkout %}
                         <div class="d-grid">
                             <a href="{{ path('frontend.checkout.confirm.page') }}"
-                               class="btn begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
+                               class="btn begin-checkout-btn mb-2{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
                                title="{{ 'checkout.proceedToCheckout'|trans|striptags }}">
                                 {{ 'checkout.proceedToCheckout'|trans|sw_sanitize }}
                             </a>

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,6 +48,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -326,7 +328,7 @@ class ThemeTest extends TestCase
             }
         }
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     /**
@@ -374,7 +376,7 @@ class ThemeTest extends TestCase
             }
         }
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     public function testInheritedSecondLevelThemeConfig(): void
@@ -437,7 +439,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
-        static::assertEquals($themeInheritedConfig, $theme);
+        static::assertEquals(ThemeFixtures::stripLabelsAndHelpTexts($themeInheritedConfig), $theme);
     }
 
     public function testThemeConfigWithMultiSelect(): void
@@ -875,7 +877,6 @@ class ThemeTest extends TestCase
                     'baseConfig' => array_merge($parentTheme->getBaseConfig() ?? [], $config->getThemeConfig() ?? []),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
@@ -910,7 +911,6 @@ class ThemeTest extends TestCase
                     'baseConfig' => array_merge_recursive($parentTheme->getBaseConfig() ?? [], $customConfig),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
@@ -938,7 +938,6 @@ class ThemeTest extends TestCase
                     'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
-                    'labels' => $parentTheme->getLabels(),
                     'active' => true,
                 ],
             ],

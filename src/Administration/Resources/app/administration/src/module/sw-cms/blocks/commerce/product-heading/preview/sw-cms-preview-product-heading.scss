@@ -11,8 +11,8 @@
         @include flex-centering-vertical;
 
         color: var(--color-text-primary-default);
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
     }
 
     &__logo {

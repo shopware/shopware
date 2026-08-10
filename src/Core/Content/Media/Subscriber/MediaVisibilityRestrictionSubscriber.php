@@ -45,7 +45,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
 
     public function securePrivateFolders(EntitySearchedEvent $event): void
     {
-        if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+        if ($this->isExplicitSystemScope($event->getContext())) {
             return;
         }
 
@@ -58,7 +58,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
 
     public function securePrivateMediaAggregation(BeforeEntityAggregationEvent $event): void
     {
-        if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+        if ($this->isExplicitSystemScope($event->getContext())) {
             return;
         }
 
@@ -146,6 +146,12 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface, 
             new EqualsFilter('media_folder.configuration.private', false),
             new EqualsFilter('media_folder.configuration.private', null),
         ]);
+    }
+
+    private function isExplicitSystemScope(Context $context): bool
+    {
+        return $context->getScope() === Context::SYSTEM_SCOPE
+            && !$context->hasState(Context::SYSTEM_SCOPE_DAL_WRITE_EVENT);
     }
 
     private function getProductDownloadMediaFolderId(): string

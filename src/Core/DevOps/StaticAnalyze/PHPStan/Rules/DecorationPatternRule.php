@@ -12,10 +12,13 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeMarkers;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
-use Shopware\Core\Framework\App\ShopIdChangeResolver\AbstractShopIdChangeStrategy;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
@@ -42,7 +45,6 @@ class DecorationPatternRule implements Rule
         RefreshableAppDryRun::class,
         RefreshableAppDryRun::class,
         AbstractAppLifecycle::class,
-        AbstractShopIdChangeStrategy::class,
     ];
 
     public function getNodeType(): string
@@ -102,7 +104,7 @@ class DecorationPatternRule implements Rule
         $errors = [];
 
         $doc = $node->getDocComment()?->getText() ?? '';
-        if ($this->isInternal($doc)) {
+        if ($this->isInternal($doc, $class)) {
             $errors[] = RuleErrorBuilder::message('Decoration error: Concrete class is marked as @internal. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation')
                 ->identifier('shopware.decorationPattern')
                 ->build();
@@ -136,14 +138,17 @@ class DecorationPatternRule implements Rule
         return $errors;
     }
 
-    private function isInternal(string $doc): bool
+    private function isInternal(string $doc, ClassReflection $class): bool
     {
-        return str_contains($doc, '@internal') || str_contains($doc, 'reason:becomes-internal');
+        return str_contains($doc, '@internal')
+            || BCChangeMarkers::has(BecomesInternal::class, $class);
     }
 
     private function isFinal(ClassReflection $class, string $doc): bool
     {
-        return str_contains($doc, '@final') || str_contains($doc, 'reason:becomes-final') || $class->isFinal();
+        return str_contains($doc, '@final')
+            || $class->isFinal()
+            || BCChangeMarkers::has(BecomesFinal::class, $class);
     }
 
     private function hasDecorationPattern(ClassReflection $class, Scope $scope): bool
@@ -166,7 +171,7 @@ class DecorationPatternRule implements Rule
     {
         $doc = $node->getDocComment()?->getText() ?? '';
 
-        if ($this->isInternal($doc)) {
+        if ($this->isInternal($doc, $class)) {
             return [
                 RuleErrorBuilder::message('Decoration error: Abstract class is marked as @internal, but has a decoration pattern. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation')
                     ->identifier('shopware.decorationPattern')
@@ -191,9 +196,7 @@ class DecorationPatternRule implements Rule
             return false;
         }
 
-        $doc = $method->getDocComment() ?? '';
-
-        return !\str_contains((string) $doc, 'reason:visibility-change');
+        return !BCChangeMarkers::has(VisibilityChange::class, $method);
     }
 
     private function isBaseImplementation(InClassNode $node): bool

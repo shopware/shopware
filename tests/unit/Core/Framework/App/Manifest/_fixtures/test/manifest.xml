@@ -93,6 +93,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
                     <label>Test</label>
                     <allow-customer-write>true</allow-customer-write>
                     <allow-cart-expose>true</allow-cart-expose>
+                    <include-in-search>true</include-in-search>
                 </bool>
             </fields>
         </custom-field-set>
@@ -120,6 +121,8 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
                 <cookie>
                     <snippet-name>Lorem ipsum</snippet-name>
                     <cookie>swag.app.lorem-ipsum</cookie>
+                    <active-payment-method>myPaymentMethod</active-payment-method>
+                    <active-payment-method>myOtherPaymentMethod</active-payment-method>
                 </cookie>
             </entries>
         </group>

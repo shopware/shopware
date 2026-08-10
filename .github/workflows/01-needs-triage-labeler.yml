@@ -13,7 +13,7 @@ jobs:
       - name: Wait 5 minutes
         if: ${{ github.event_name == 'issues' || (github.event_name == 'pull_request_target' && !github.event.action != 'ready_for_review') }}
         run: sleep 5m
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             console.debug(context.payload);

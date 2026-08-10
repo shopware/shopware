@@ -61,10 +61,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                         return privileges.includes(identifier);
                     },
                 },
-
-                feature: {
-                    isActive: (flag) => flag === 'MCP_SERVER',
-                },
             },
 
             stubs: {
@@ -143,7 +139,7 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -308,8 +304,10 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
-        expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
+        const deleteButton = deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete');
+        expect(deleteButton.text()).toBe('global.default.delete');
         await deleteButton.trigger('click');
         await flushPromises();
 

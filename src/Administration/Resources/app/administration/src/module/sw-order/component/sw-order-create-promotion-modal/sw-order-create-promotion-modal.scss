@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-order-create-promotion-modal {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     color: var(--color-text-secondary-default);
 
     &.sw-modal--default .sw-modal__dialog {

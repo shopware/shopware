@@ -96,6 +96,15 @@ async function createWrapper() {
         {
             global: {
                 renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
+                    },
+                },
                 stubs: {
                     'sw-container': true,
                     'sw-field-error': true,
@@ -236,8 +245,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
             liveSearchResults: mockResults.nothing.result,
         });
         await flushPromises();
-        const resultText = wrapper.find('.sw-settings-search-live-search__no-result');
-        expect(resultText.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
+        const resultHeadline = wrapper.find('.sw-settings-search-live-search__no-result .mt-empty-state__headline');
+        expect(resultHeadline.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
@@ -269,32 +278,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         // The score should be round up
         expect(scoreCell.text()).toBe(Math.round(parseFloat(scoreOrigin)).toString());
 
-        wrapper.vm.liveSearchService.search.mockReset();
-    });
-
-    it('should able to click on search glass to search', async () => {
-        const salesChannelSwitch = wrapper.find(
-            '.sw-settings-search-live-search__sales-channel-select .sw-select__selection',
-        );
-        await salesChannelSwitch.trigger('click');
-        await flushPromises();
-        await wrapper.find('.sw-select-option--0').trigger('click');
-        await flushPromises();
-        const searchBox = wrapper.find('.sw-settings-search-live-search__search_box input');
-        await searchBox.setValue(mockResults.oneResult.terms);
-        await flushPromises();
-
-        const searchIcon = wrapper.find('.sw-settings-search-live-search__search-icon');
-        await searchIcon.trigger('click');
-        await flushPromises();
-
-        await wrapper.setData({
-            liveSearchResults: mockResults.oneResult.result,
-        });
-        await flushPromises();
-
-        const firstRow = wrapper.find('.sw-data-grid__row--0');
-        expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
         wrapper.vm.liveSearchService.search.mockReset();
     });
 

@@ -3,7 +3,11 @@ import { formatPrice, test } from '@fixtures/AcceptanceTest';
 test(
     'Customer gets a special product price depending on the amount of products bought.',
     {
-        tag: ['@Product', '@Checkout', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Checkout',
+            '@Storefront',
+        ],
     },
     async ({
         ShopCustomer,
@@ -14,39 +18,41 @@ test(
         AddProductToCart,
         ChangeProductQuantity,
     }) => {
+        // 6.8 defaults the cart to the tax column; force the unit-price column so we can assert per-quantity unit prices
+        await TestDataService.setSystemConfig({ 'core.cart.columnTaxInsteadUnitPrice': false });
         const product = await TestDataService.createProductWithPriceRange();
         await test.step('Testing price ranges are available on product detail page @product', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(0)
-            ).toContainText('Quantity');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(1)
-            ).toContainText('Unit price');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(2)
-            ).toContainText('To 10');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('td').nth(0)
-            ).toContainText(formatPrice(100.0));
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(3)
-            ).toContainText('To 20');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('td').nth(1)
-            ).toContainText(formatPrice(90.0));
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(4)
-            ).toContainText('To 50');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('td').nth(2)
-            ).toContainText(formatPrice(80.0));
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('th').nth(5)
-            ).toContainText('From 51');
-            await ShopCustomer.expects(
-                StorefrontProductDetail.productPriceRangesRow.locator('td').nth(3)
-            ).toContainText(formatPrice(70.0));
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(0)).toContainText(
+                'Quantity',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(1)).toContainText(
+                'Unit price',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(2)).toContainText(
+                'To 10',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('td').nth(0)).toContainText(
+                formatPrice(100.0),
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(3)).toContainText(
+                'To 20',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('td').nth(1)).toContainText(
+                formatPrice(90.0),
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(4)).toContainText(
+                'To 50',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('td').nth(2)).toContainText(
+                formatPrice(80.0),
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('th').nth(5)).toContainText(
+                'From 51',
+            );
+            await ShopCustomer.expects(StorefrontProductDetail.productPriceRangesRow.locator('td').nth(3)).toContainText(
+                formatPrice(70.0),
+            );
         });
 
         await test.step('Testing product with price range (1-10) @product', async () => {
@@ -74,15 +80,18 @@ test(
             await ShopCustomer.expects(async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
                 await ShopCustomer.expects(
-                    StorefrontHome.productListItems.filter({ hasText: product.name }).locator('.product-price-wrapper')
+                    StorefrontHome.productListItems.filter({ hasText: product.name }).locator('.product-price-wrapper'),
                 ).toContainText(formatPrice(70.0));
             }).toPass({
-                intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+                intervals: [
+                    1_000,
+                    2_500,
+                ], // retry after 1 seconds, then every 2.5 seconds
             });
 
             await ShopCustomer.expects(
-                StorefrontHome.productListItems.filter({ hasText: product.name }).getByText('Details')
+                StorefrontHome.productListItems.filter({ hasText: product.name }).getByText('Details'),
             ).toBeVisible();
         });
-    }
+    },
 );

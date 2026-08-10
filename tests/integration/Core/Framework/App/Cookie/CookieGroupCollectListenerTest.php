@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 class CookieGroupCollectListenerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -31,7 +33,31 @@ class CookieGroupCollectListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener = new AppCookieCollectListener(static::getContainer()->get('app.repository'));
+        $this->listener = new AppCookieCollectListener(
+            static::getContainer()->get('app.repository'),
+            static::getContainer()->get('payment_method.repository'),
+        );
+    }
+
+    public function testItFiltersCookiesOfInactivePaymentMethods(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/conditionalCookie');
+
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+        ($this->listener)($event);
+
+        $firstGroup = $event->cookieGroupCollection->first();
+        static::assertNotNull($firstGroup);
+        $entries = $firstGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertNotNull($entries->get('swag-app-always'));
+        static::assertNull($entries->get('swag-app-payment'));
+        static::assertNull($entries->get('swag-app-any-payment'));
     }
 
     public function testSingleCookie(): void

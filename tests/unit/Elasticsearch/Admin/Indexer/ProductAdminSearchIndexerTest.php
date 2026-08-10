@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
@@ -27,6 +28,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductAdminSearchIndexer::class)]
 class ProductAdminSearchIndexerTest extends TestCase
 {
@@ -35,10 +37,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -62,7 +64,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $product = new ProductEntity();
         $product->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -77,10 +79,10 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -102,9 +104,9 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -139,10 +141,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -164,10 +166,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGlobalCriteria(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -213,10 +215,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGlobalCriteriaDoesNotAddIdentifierPrefixes(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -231,7 +233,7 @@ class ProductAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(

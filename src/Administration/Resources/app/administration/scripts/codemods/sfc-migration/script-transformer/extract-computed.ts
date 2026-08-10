@@ -1,16 +1,20 @@
 import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
 import { extractInlineFunctionHandler } from './extract-function-handler';
+import { isSimpleParameter } from './helpers';
 import type { ComputedProp, ExtractComputedPropsResult } from './types';
 
 export function extractComputedProps(optionsObj: ObjectLiteralExpression): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
-    // TODO: Silent ignore: shorthand/non-property `computed` declarations are
-    // treated as absent instead of being reported as unsupported.
-    if (!computedProp?.isKind(SyntaxKind.PropertyAssignment)) return { computedProps: [], unsupportedEntries: [] };
+    if (!computedProp) return { computedProps: [], unsupportedEntries: [] };
+    // Shorthand or non-property `computed` cannot be read as an object literal.
+    if (!computedProp.isKind(SyntaxKind.PropertyAssignment)) {
+        return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
+    }
 
     const computedObj = computedProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
+        // Example: `{ computed: { productName() { return this.product.name; } } }`
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (!computedObj) {
         return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
@@ -20,6 +24,7 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
     const unsupportedEntries: string[] = [];
 
     for (const prop of computedObj.getProperties()) {
+        // Example: `{ computed: { productName() { return this.product.name; } } }`
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
             const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
             result.push({ name: method.getName(), kind: 'getter', bodyText: method.getBodyText() ?? '' });
@@ -30,12 +35,14 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
             const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const initializer = pa.getInitializer();
 
+            // Examples: `{ computed: { productName: function () {} } }` and `{ productName: () => '' }`
             if (initializer?.isKind(SyntaxKind.FunctionExpression) || initializer?.isKind(SyntaxKind.ArrowFunction)) {
                 const { bodyText } = extractInlineFunctionHandler(initializer);
                 result.push({ name: pa.getName(), kind: 'getter', bodyText });
                 continue;
             }
 
+            // Example: `{ computed: { productName: { get() {}, set(value) {} } } }`
             const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
             if (!innerObj) {
                 unsupportedEntries.push(`${pa.getName()}: unsupported computed definition`);
@@ -45,17 +52,25 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
             const getterProp = innerObj.getProperty('get');
             const setterProp = innerObj.getProperty('set');
 
+            // Example: `{ computed: { productName: { get() {}, set(value) {} } } }`
             if (getterProp?.isKind(SyntaxKind.MethodDeclaration) && setterProp?.isKind(SyntaxKind.MethodDeclaration)) {
                 const getter = getterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
                 const setter = setterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+                const setterParam = setter.getParameters()[0];
+
+                // getName() drops default values, rest syntax, and destructuring
+                // from the setter parameter, so those shapes must be migrated by
+                // hand instead of emitting a parameter list that changes meaning.
+                if (setterParam && !isSimpleParameter(setterParam)) {
+                    unsupportedEntries.push(`${pa.getName()}: computed setter parameter must be migrated manually`);
+                    continue;
+                }
 
                 result.push({
                     name: pa.getName(),
                     kind: 'getter-setter',
                     getterBodyText: getter.getBodyText() ?? '',
-                    // TODO: Silent ignore: getName() drops default/rest/
-                    // destructuring syntax from computed setter parameters.
-                    setterParam: setter.getParameters()[0]?.getName() ?? 'val',
+                    setterParam: setterParam?.getName() ?? 'val',
                     setterBodyText: setter.getBodyText() ?? '',
                 });
             } else if (getterProp?.isKind(SyntaxKind.MethodDeclaration)) {

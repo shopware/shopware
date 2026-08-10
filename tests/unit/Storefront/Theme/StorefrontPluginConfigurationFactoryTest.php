@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -16,13 +17,14 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontPluginConfigurationFactory::class)]
 class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     public function testGetDecoratedThrows(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver([]),
             new SymfonyFilesystem(),
         );
@@ -34,7 +36,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfiguration(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver([]),
             new SymfonyFilesystem(),
         );
@@ -76,7 +78,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAdditionalBundles(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver([]),
             new SymfonyFilesystem(),
         );
@@ -91,7 +93,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAppSource(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver(['test' => new Filesystem(__DIR__ . '/fixtures/Apps/test')]),
             new SymfonyFilesystem(),
         );
@@ -104,7 +106,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testFactorySetsConfigurationWithAppSourceAsTheme(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
+            static::createStub(KernelPluginLoader::class),
             new StaticSourceResolver(['SwagTheme' => new Filesystem(__DIR__ . '/fixtures/Apps/theme')]),
             new SymfonyFilesystem(),
         );

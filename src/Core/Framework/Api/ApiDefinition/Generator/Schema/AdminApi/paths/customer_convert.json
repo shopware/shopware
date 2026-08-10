@@ -1,0 +1,69 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/customer-convert/{customerId}": {
+            "post": {
+                "tags": [
+                    "Customer convert"
+                ],
+                "summary": "Convert guest customer to registered customer",
+                "description": "Converts an existing guest customer into a registered customer. If a password is provided, the customer can immediately log in using that password. If no password is provided, a password recovery email will be sent to the customer so they can set their password.",
+                "operationId": "convertGuestCustomer",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "path",
+                        "description": "The id of the customer that should be converted.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "description": "Optional data for the conversion process.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "description": "Optional password for the customer. If provided, the customer can log in immediately using this password. If omitted, a password recovery email will be sent."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Customer successfully converted to a registered customer."
+                    },
+                    "401": {
+                        "description": "The customer with the specified ID could not be found.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The customer is not a guest, or the sales channel domain could not be found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -8,7 +8,9 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -18,8 +20,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 #[Package('after-sales')]
+#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -59,14 +61,27 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 
         $dateTime = $this->clock->now()->modify('-30 days');
 
-        $criteria->addFilter(new RangeFilter(
-            'createdAt',
-            [
-                RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
-            ]
-        ));
+        $notSetRecipientFilter = new AndFilter([
+            new EqualsFilter('status', 'notSet'),
+            new RangeFilter(
+                'createdAt',
+                [
+                    RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
+                ]
+            ),
+        ]);
 
-        $criteria->addFilter(new EqualsFilter('status', 'notSet'));
+        $optOutRecipientFilter = new AndFilter([
+            new EqualsFilter('status', 'optOut'),
+            new RangeFilter(
+                'updatedAt',
+                [
+                    RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
+                ]
+            ),
+        ]);
+
+        $criteria->addFilter(new OrFilter([$notSetRecipientFilter, $optOutRecipientFilter]));
 
         $criteria->setLimit(999);
 

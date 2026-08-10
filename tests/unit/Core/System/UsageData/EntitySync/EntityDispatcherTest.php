@@ -512,7 +512,7 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             new StaticSystemConfigService(),
             $this->clock,
             'dev',
@@ -537,7 +537,7 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',

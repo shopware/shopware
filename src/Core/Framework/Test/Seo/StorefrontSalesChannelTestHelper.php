@@ -117,7 +117,7 @@ trait StorefrontSalesChannelTestHelper
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
         return $this->createNewContext($salesChannel);
     }
@@ -165,7 +165,7 @@ trait StorefrontSalesChannelTestHelper
         $customerRepository = $container->get('customer.repository');
         $customerRepository->upsert([$customer], Context::createDefaultContext());
 
-        $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 

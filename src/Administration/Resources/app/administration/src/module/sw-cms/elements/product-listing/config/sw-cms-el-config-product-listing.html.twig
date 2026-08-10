@@ -1,359 +1,711 @@
 {% block sw_cms_element_product_listing_config %}
 <div class="sw-cms-el-config-product-listing">
 
-    <sw-tabs
-        position-identifier="sw-cms-element-config-product-listing"
-        default-item="content"
-    >
-        <template #default="{ active }">
-            <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-content"
-                name="content"
-                :active-tab="active"
-            >
-                {{ $t('sw-cms.elements.general.config.tab.content') }}
-            </sw-tabs-item>
+    {% block sw_cms_element_product_listing_config_tabs %}
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_cms_element_product_listing_config_mt_tabs %}
+        <mt-tabs
+            position-identifier="sw-cms-element-config-product-listing"
+            :default-item="activeTab"
+            :items="tabs"
+            :small="true"
+            @new-item-active="activeTab = $event"
+        />
+        {% endblock %}
 
-            <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-sorting"
-                name="sorting"
-                :active-tab="active"
+        {% block sw_cms_element_product_listing_config_mt_tab_content %}
+        <template v-if="activeTab === 'content'">
+            {% block sw_cms_element_product_listing_config_mt_layout_select %}
+            <sw-cms-inherit-wrapper
+                field="boxLayout"
+                :element="element"
+                :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
             >
-                {{ $t('sw-cms.elements.productListing.config.tab.sorting') }}
-            </sw-tabs-item>
 
-            <sw-tabs-item
-                class="sw-cms-el-config-product-listing__tab-filter"
-                name="filter"
-                :active-tab="active"
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model="element.config.boxLayout.value"
+                        :options="boxLayoutOptions"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+
+            <sw-cms-inherit-wrapper
+                field="boxHeadlineLevel"
+                :element="element"
+                :label="$t('sw-cms.elements.productBox.config.label.headlineLevel')"
             >
-                {{ $t('sw-cms.elements.productListing.config.tab.filter') }}
-            </sw-tabs-item>
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model="element.config.boxHeadlineLevel.value"
+                        :help-text="$t('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
+                        :options="boxHeadlineLevel"
+                        :hide-clearable-button="true"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+
+            {% block sw_cms_element_product_listing_config_mt_info %}
+            <mt-banner
+                class="sw-cms-el-config-product-listing__content-info"
+                variant="info"
+            >
+                {{ $t('sw-cms.elements.general.config.infoText.listingElement') }}
+            </mt-banner>
+            {% endblock %}
         </template>
+        {% endblock %}
 
-        <template
-            #content="{ active }"
+        {% block sw_cms_element_product_listing_config_mt_tab_sorting %}
+        <template v-if="activeTab === 'sorting'">
+            {% block sw_cms_element_product_listing_config_mt_show_sorting %}
+            <sw-cms-inherit-wrapper
+                field="showSorting"
+                :element="element"
+            >
+                <template #default="{ isInherited }">
+                    <mt-switch
+                        v-model="element.config.showSorting.value"
+                        :label="$t('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_cms_element_product_listing_config_mt_use_default_sorting %}
+            <sw-cms-inherit-wrapper
+                field="useCustomSorting"
+                :element="element"
+            >
+                <template #default="{ isInherited }">
+                    <mt-switch
+                        v-model="element.config.useCustomSorting.value"
+                        class="sw-cms-el-config-product-listing-custom-sortings"
+                        :label="$t('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
+                        :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_cms_element_product_listing_config_mt_default_sorting %}
+            <sw-cms-inherit-wrapper
+                v-if="showSortingGrid"
+                field="defaultSorting"
+                :element="element"
+                :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                @inheritance:restore="restoreDefaultSorting"
+            >
+                <template #default="{ isInherited }">
+                    <sw-entity-single-select
+                        v-model:value="defaultSortingId"
+                        class="sw-cms-element-config-product-listing__sorting-default-select"
+                        entity="product_sorting"
+                        label-property="label"
+                        show-clearable-button
+                        :value="defaultSorting.id"
+                        :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
+                        :criteria="allProductSortingsCriteria"
+                        :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeholderDefaultProductSorting')"
+                        :disabled="isInherited"
+                        @option-select="onDefaultSortingChange"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+
+            <sw-cms-inherit-wrapper
+                v-if="showSortingGrid"
+                field="availableSortings"
+                :element="element"
+                :label="$t('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
+                @inheritance:restore="initProductSorting"
+            >
+                <template #default="{ isInherited }">
+                    {% block sw_cms_element_product_listing_config_mt_available_sortings %}
+                    <sw-entity-multi-select
+                        v-model:entity-collection="productSortings"
+                        class="sw-cms-el-config-product-listing-config-sorting-grid__select"
+                        label-property="label"
+                        :criteria="allProductSortingsCriteria"
+                        :hide-labels="true"
+                        :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeHolderProductSortings')"
+                        :disabled="isInherited"
+                    >
+                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                            <slot
+                                name="result-item"
+                                v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+                            >
+                                <sw-select-result
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $t('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
+                                        disabled: !isDefaultSorting(item)
+                                    }"
+                                    :selected="isSelected(item)"
+                                    :disabled="isDefaultSorting(item)"
+                                    v-bind="{ item, index }"
+                                    @item-select="addItem"
+                                >
+                                    {% block sw_cms_element_product_listing_config_mt_available_sortings_result_label %}
+                                    <slot
+                                        name="result-label-property"
+                                        v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                                    >
+                                        <sw-highlight-text
+                                            v-if="highlightSearchTerm"
+                                            :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                            :search-term="searchTerm"
+                                        />
+                                        <template v-else>
+                                            {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                        </template>
+                                    </slot>
+                                    {% endblock %}
+                                </sw-select-result>
+                            </slot>
+                        </template>
+                    </sw-entity-multi-select>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_mt_sorting_grid %}
+                    <sw-cms-el-config-product-listing-config-sorting-grid
+                        v-if="showProductSortingsSelection"
+                        v-model="productSortings"
+                        :default-sorting="defaultSorting"
+                        :disabled="isInherited"
+                        @inline-edit-save="onSortingPrioritySave"
+                        @inline-edit-cancel="onSortingPriorityCancel"
+                    />
+                    {% endblock %}
+                </template>
+            </sw-cms-inherit-wrapper>
+        </template>
+        {% endblock %}
+
+        {% block sw_cms_element_product_listing_config_mt_tab_filter %}
+        <template v-if="activeTab === 'filter'">
+            <sw-cms-inherit-wrapper
+                field="filters"
+                :element="element"
+                :label="$t('sw-cms.elements.productListing.config.tab.filter')"
+                class="sw-cms-el-config-product-listing__config-filter"
+            >
+                <template #default="{ isInherited }">
+                    {% block sw_cms_element_product_listing_config_mt_filter_info %}
+                    <mt-banner variant="info">
+                        {{ $t('sw-cms.elements.productListing.config.filter.infoText') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_mt_filter_by_wrapper %}
+                    <sw-container
+                        class="sw-cms-el-config-product-listing__config-filter-switch-container"
+                        columns="1fr 1fr"
+                        gap="0px 30px"
+                    >
+                        {% block sw_cms_element_product_listing_config_mt_filter_by_manufacturer %}
+                        <mt-switch
+                            v-model="filterByManufacturer"
+                            :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
+                            :disabled="isInherited"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_by_rating %}
+                        <mt-switch
+                            v-model="filterByRating"
+                            :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
+                            :disabled="isInherited"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_by_price %}
+                        <mt-switch
+                            v-model="filterByPrice"
+                            :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
+                            :disabled="isInherited"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_for_free_shipping %}
+                        <mt-switch
+                            v-model="filterByFreeShipping"
+                            :label="$t('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
+                            :disabled="isInherited"
+                            bordered
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_mt_filter_properties_wrapper %}
+                    <div>
+                        {% block sw_cms_element_product_listing_config_mt_filter_spacer %}
+                        <hr class="spacer">
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_properties_as_filter %}
+                        {% block sw_cms_element_product_listing_config_mt_filter_properties_as_filter_switch %}
+                        <mt-switch
+                            v-model="filterByProperties"
+                            :label="$t('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
+                            :help-text="$t('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
+                            :disabled="isInherited"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_properties_as_filter_info_text %}
+                        <div
+                            class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
+                            v-html="$t('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')"
+                        ></div>
+                        {% endblock %}
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_property_search %}
+                        <sw-simple-search-field
+                            v-model:value="filterPropertiesTerm"
+                            class="sw-cms-element-product-listing-config-filter-property-search"
+                            variant="form"
+                            :disabled="showFilterGrid"
+                            @search-term-change="onFilterProperties"
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_property_grid %}
+                        <div
+                            v-if="showPropertySelection"
+                            class="sw-cms-el-config-product-listing__property-grid"
+                            :class="gridClasses"
+                        >
+                            <sw-data-grid
+                                :data-source="properties"
+                                :columns="gridColumns"
+                                :compact-mode="true"
+                                :allow-inline-edit="false"
+                                :show-actions="false"
+                                :show-selection="false"
+                                plain-appearance
+                            >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_cms_element_product_listing_config_mt_filter_property_grid_columns %}
+                                <template #column-status="{ item, column }">
+                                    {% block sw_cms_element_product_listing_config_mt_filter_property_grid_column_status %}
+                                    <mt-switch
+                                        class="sw-cms-el-config-product-listing__property-grid-switch"
+                                        :disabled="column.disabled"
+                                        :model-value="item.active"
+                                        @update:model-value="propertyStatusChanged($event, item.id)"
+                                    />
+                                    {% endblock %}
+                                </template>
+                                {% endblock %}
+
+                                <template #pagination>
+                                    {% block sw_cms_element_product_listing_config_mt_filter_property_grid_pagination %}
+                                    <sw-pagination
+                                        v-if="!disabled"
+                                        :page="propertiesPage"
+                                        :limit="propertiesLimit"
+                                        :total="propertiesTotal"
+                                        :auto-hide="false"
+                                        :steps="[]"
+                                        @page-change="onPropertiesPageChange"
+                                    />
+                                    {% endblock %}
+                                </template>
+                            </sw-data-grid>
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_listing_config_mt_filter_empty_state %}
+                        <mt-empty-state
+                            v-else
+                            icon="solid-products"
+                            :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
+                            :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </template>
+            </sw-cms-inherit-wrapper>
+        </template>
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            position-identifier="sw-cms-element-config-product-listing"
+            default-item="content"
         >
-            <template v-if="active === 'content'">
-                {% block sw_cms_element_product_listing_config_layout_select %}
-                <sw-cms-inherit-wrapper
-                    field="boxLayout"
-                    :element="element"
-                    :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
+            <template #default="{ active }">
+                <sw-tabs-item
+                    class="sw-cms-el-config-product-listing__tab-content"
+                    name="content"
+                    :active-tab="active"
                 >
+                    {{ $t('sw-cms.elements.general.config.tab.content') }}
+                </sw-tabs-item>
 
-                    <template #default="{ isInherited }">
-                        <mt-select
-                            v-model="element.config.boxLayout.value"
-                            :options="boxLayoutOptions"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
-                {% endblock %}
-
-                <sw-cms-inherit-wrapper
-                    field="boxHeadlineLevel"
-                    :element="element"
-                    :label="$t('sw-cms.elements.productBox.config.label.headlineLevel')"
+                <sw-tabs-item
+                    class="sw-cms-el-config-product-listing__tab-sorting"
+                    name="sorting"
+                    :active-tab="active"
                 >
-                    <template #default="{ isInherited }">
-                        <mt-select
-                            v-model="element.config.boxHeadlineLevel.value"
-                            :help-text="$t('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
-                            :options="boxHeadlineLevel"
-                            :hide-clearable-button="true"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    {{ $t('sw-cms.elements.productListing.config.tab.sorting') }}
+                </sw-tabs-item>
 
-                {% block sw_cms_element_product_listing_config_info %}
-                <mt-banner
-                    class="sw-cms-el-config-product-listing__content-info"
-                    variant="info"
+                <sw-tabs-item
+                    class="sw-cms-el-config-product-listing__tab-filter"
+                    name="filter"
+                    :active-tab="active"
                 >
-                    {{ $t('sw-cms.elements.general.config.infoText.listingElement') }}
-                </mt-banner>
-                {% endblock %}
+                    {{ $t('sw-cms.elements.productListing.config.tab.filter') }}
+                </sw-tabs-item>
             </template>
 
-            <template v-if="active === 'sorting'">
+            <template
+                #content="{ active }"
+            >
+                <template v-if="active === 'content'">
+                {% block sw_cms_element_product_listing_config_layout_select %}
+                    <sw-cms-inherit-wrapper
+                        field="boxLayout"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
+                    >
+
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.boxLayout.value"
+                                :options="boxLayoutOptions"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                {% endblock %}
+
+                    <sw-cms-inherit-wrapper
+                        field="boxHeadlineLevel"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productBox.config.label.headlineLevel')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.boxHeadlineLevel.value"
+                                :help-text="$t('sw-cms.elements.productBox.config.label.headlineLevelHelp')"
+                                :options="boxHeadlineLevel"
+                                :hide-clearable-button="true"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                {% block sw_cms_element_product_listing_config_info %}
+                    <mt-banner
+                        class="sw-cms-el-config-product-listing__content-info"
+                        variant="info"
+                    >
+                        {{ $t('sw-cms.elements.general.config.infoText.listingElement') }}
+                    </mt-banner>
+                {% endblock %}
+                </template>
+
+                <template v-if="active === 'sorting'">
                 {% block sw_cms_element_product_listing_config_show_sorting %}
-                <sw-cms-inherit-wrapper
-                    field="showSorting"
-                    :element="element"
-                >
-                    <template #default="{ isInherited }">
-                        <mt-switch
-                            v-model="element.config.showSorting.value"
-                            :label="$t('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    <sw-cms-inherit-wrapper
+                        field="showSorting"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.showSorting.value"
+                                :label="$t('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
-                <sw-cms-inherit-wrapper
-                    field="useCustomSorting"
-                    :element="element"
-                >
-                    <template #default="{ isInherited }">
-                        <mt-switch
-                            v-model="element.config.useCustomSorting.value"
-                            class="sw-cms-el-config-product-listing-custom-sortings"
-                            :label="$t('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
-                            :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    <sw-cms-inherit-wrapper
+                        field="useCustomSorting"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.useCustomSorting.value"
+                                class="sw-cms-el-config-product-listing-custom-sortings"
+                                :label="$t('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
+                                :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_default_sorting %}
-                <sw-cms-inherit-wrapper
-                    v-if="showSortingGrid"
-                    field="defaultSorting"
-                    :element="element"
-                    :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
-                >
-                    <template #default="{ isInherited }">
-                        <sw-entity-single-select
-                            class="sw-cms-element-config-product-listing__sorting-default-select"
-                            entity="product_sorting"
-                            label-property="label"
-                            show-clearable-button
-                            :value="defaultSorting.id"
-                            :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
-                            :criteria="allProductSortingsCriteria"
-                            :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeholderDefaultProductSorting')"
-                            :disabled="isInherited"
-                            @option-select="onDefaultSortingChange"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    <sw-cms-inherit-wrapper
+                        v-if="showSortingGrid"
+                        field="defaultSorting"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                        @inheritance:restore="restoreDefaultSorting"
+                    >
+                        <template #default="{ isInherited }">
+                            <sw-entity-single-select
+                                v-model:value="defaultSortingId"
+                                class="sw-cms-element-config-product-listing__sorting-default-select"
+                                entity="product_sorting"
+                                label-property="label"
+                                show-clearable-button
+                                :value="defaultSorting.id"
+                                :help-text="$t('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
+                                :criteria="allProductSortingsCriteria"
+                                :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeholderDefaultProductSorting')"
+                                :disabled="isInherited"
+                                @option-select="onDefaultSortingChange"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                 {% endblock %}
 
-                <sw-cms-inherit-wrapper
-                    v-if="showSortingGrid"
-                    field="availableSortings"
-                    :element="element"
-                    :label="$t('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
-                    @inheritance:restore="initProductSorting"
-                >
-                    <template #default="{ isInherited }">
+                    <sw-cms-inherit-wrapper
+                        v-if="showSortingGrid"
+                        field="availableSortings"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
+                        @inheritance:restore="initProductSorting"
+                    >
+                        <template #default="{ isInherited }">
                         {% block sw_cms_element_product_listing_config_available_sortings %}
-                        <sw-entity-multi-select
-                            v-model:entity-collection="productSortings"
-                            class="sw-cms-el-config-product-listing-config-sorting-grid__select"
-                            label-property="label"
-                            :criteria="allProductSortingsCriteria"
-                            :hide-labels="true"
-                            :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeHolderProductSortings')"
-                            :disabled="isInherited"
-                        >
-                            <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                <slot
-                                    name="result-item"
-                                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
-                                >
-                                    <sw-select-result
-                                        v-tooltip="{
-                                            showDelay: 300,
-                                            message: $t('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
-                                            disabled: !isDefaultSorting(item)
-                                        }"
-                                        :selected="isSelected(item)"
-                                        :disabled="isDefaultSorting(item)"
-                                        v-bind="{ item, index }"
-                                        @item-select="addItem"
+                            <sw-entity-multi-select
+                                v-model:entity-collection="productSortings"
+                                class="sw-cms-el-config-product-listing-config-sorting-grid__select"
+                                label-property="label"
+                                :criteria="allProductSortingsCriteria"
+                                :hide-labels="true"
+                                :placeholder="$t('sw-cms.elements.productListing.config.sorting.placeHolderProductSortings')"
+                                :disabled="isInherited"
+                            >
+                                <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                    <slot
+                                        name="result-item"
+                                        v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                                     >
-                                        {% block sw_entity_multi_select_base_results_list_result_label %}
-                                        <slot
-                                            name="result-label-property"
-                                            v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                                        <sw-select-result
+                                            v-tooltip="{
+                                                showDelay: 300,
+                                                message: $t('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
+                                                disabled: !isDefaultSorting(item)
+                                            }"
+                                            :selected="isSelected(item)"
+                                            :disabled="isDefaultSorting(item)"
+                                            v-bind="{ item, index }"
+                                            @item-select="addItem"
                                         >
-                                            <sw-highlight-text
-                                                v-if="highlightSearchTerm"
-                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                :search-term="searchTerm"
-                                            />
-                                            <template v-else>
-                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                            </template>
-                                        </slot>
+                                        {% block sw_entity_multi_select_base_results_list_result_label %}
+                                            <slot
+                                                name="result-label-property"
+                                                v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                                            >
+                                                <sw-highlight-text
+                                                    v-if="highlightSearchTerm"
+                                                    :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                    :search-term="searchTerm"
+                                                />
+                                                <template v-else>
+                                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                </template>
+                                            </slot>
                                         {% endblock %}
-                                    </sw-select-result>
-                                </slot>
-                            </template>
-                        </sw-entity-multi-select>
+                                        </sw-select-result>
+                                    </slot>
+                                </template>
+                            </sw-entity-multi-select>
                         {% endblock %}
 
                         {% block sw_cms_element_product_listing_config_sorting_grid %}
-                        <sw-cms-el-config-product-listing-config-sorting-grid
-                            :product-sortings="productSortings"
-                            :default-sorting="defaultSorting"
-                            :disabled="isInherited"
-                        />
+                            <sw-cms-el-config-product-listing-config-sorting-grid
+                                v-if="showProductSortingsSelection"
+                                v-model="productSortings"
+                                :default-sorting="defaultSorting"
+                                :disabled="isInherited"
+                                @inline-edit-save="onSortingPrioritySave"
+                                @inline-edit-cancel="onSortingPriorityCancel"
+                            />
                         {% endblock %}
-                    </template>
-                </sw-cms-inherit-wrapper>
-            </template>
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                </template>
 
-            <template v-if="active === 'filter'">
-                <sw-cms-inherit-wrapper
-                    field="filters"
-                    :element="element"
-                    :label="$t('sw-cms.elements.productListing.config.tab.filter')"
-                    class="sw-cms-el-config-product-listing__config-filter"
-                >
-                    <template #default="{ isInherited }">
+                <template v-if="active === 'filter'">
+                    <sw-cms-inherit-wrapper
+                        field="filters"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productListing.config.tab.filter')"
+                        class="sw-cms-el-config-product-listing__config-filter"
+                    >
+                        <template #default="{ isInherited }">
                         {% block sw_cms_element_product_listing_config_filter_info %}
-                        <mt-banner variant="info">
-                            {{ $t('sw-cms.elements.productListing.config.filter.infoText') }}
-                        </mt-banner>
+                            <mt-banner variant="info">
+                                {{ $t('sw-cms.elements.productListing.config.filter.infoText') }}
+                            </mt-banner>
                         {% endblock %}
 
                         {% block sw_cms_element_product_listing_config_filter_by_wrapper %}
-                        <sw-container
-                            class="sw-cms-el-config-product-listing__config-filter-switch-container"
-                            columns="1fr 1fr"
-                            gap="0px 30px"
-                        >
+                            <sw-container
+                                class="sw-cms-el-config-product-listing__config-filter-switch-container"
+                                columns="1fr 1fr"
+                                gap="0px 30px"
+                            >
                                 {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
-                            <mt-switch
-                                v-model="filterByManufacturer"
-                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
-                                :disabled="isInherited"
-                                bordered
-                            />
+                                <mt-switch
+                                    v-model="filterByManufacturer"
+                                    :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_by_rating %}
-                            <mt-switch
-                                v-model="filterByRating"
-                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
-                                :disabled="isInherited"
-                                bordered
-                            />
+                                <mt-switch
+                                    v-model="filterByRating"
+                                    :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_by_price %}
-                            <mt-switch
-                                v-model="filterByPrice"
-                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
-                                :disabled="isInherited"
-                                bordered
-                            />
+                                <mt-switch
+                                    v-model="filterByPrice"
+                                    :label="$t('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
-                            <mt-switch
-                                v-model="filterByFreeShipping"
-                                :label="$t('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
-                                :disabled="isInherited"
-                                bordered
-                            />
+                                <mt-switch
+                                    v-model="filterByFreeShipping"
+                                    :label="$t('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
                                 {% endblock %}
-                        </sw-container>
+                            </sw-container>
                         {% endblock %}
 
                         {% block sw_cms_element_product_listing_config_filter_properties_wrapper %}
-                        <div>
+                            <div>
                                 {% block sw_cms_element_product_listing_config_filter_spacer %}
-                            <hr class="spacer">
+                                <hr class="spacer">
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
                                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
-                            <mt-switch
-                                v-model="filterByProperties"
-                                :label="$t('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
-                                :help-text="$t('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
-                                :disabled="isInherited"
-                                bordered
-                            />
+                                <mt-switch
+                                    v-model="filterByProperties"
+                                    :label="$t('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
+                                    :help-text="$t('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
                                     {% endblock %}
 
                                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_info_text %}
-                            <div
-                                class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
-                                v-html="$t('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')"
-                            ></div>
+                                <div
+                                    class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
+                                    v-html="$t('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')"
+                                ></div>
                                     {% endblock %}
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_property_search %}
-                            <sw-simple-search-field
-                                v-model:value="filterPropertiesTerm"
-                                class="sw-cms-element-product-listing-config-filter-property-search"
-                                variant="form"
-                                :disabled="showFilterGrid"
-                                @search-term-change="onFilterProperties"
-                            />
+                                <sw-simple-search-field
+                                    v-model:value="filterPropertiesTerm"
+                                    class="sw-cms-element-product-listing-config-filter-property-search"
+                                    variant="form"
+                                    :disabled="showFilterGrid"
+                                    @search-term-change="onFilterProperties"
+                                />
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_property_grid %}
-                            <div
-                                v-if="showPropertySelection"
-                                class="sw-cms-el-config-product-listing__property-grid"
-                                :class="gridClasses"
-                            >
-                                <sw-data-grid
-                                    :data-source="properties"
-                                    :columns="gridColumns"
-                                    :compact-mode="true"
-                                    :allow-inline-edit="false"
-                                    :show-actions="false"
-                                    :show-selection="false"
-                                    plain-appearance
+                                <div
+                                    v-if="showPropertySelection"
+                                    class="sw-cms-el-config-product-listing__property-grid"
+                                    :class="gridClasses"
                                 >
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    <sw-data-grid
+                                        :data-source="properties"
+                                        :columns="gridColumns"
+                                        :compact-mode="true"
+                                        :allow-inline-edit="false"
+                                        :show-actions="false"
+                                        :show-selection="false"
+                                        plain-appearance
+                                    >
+                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                             {% block sw_cms_element_product_listing_config_filter_property_grid_columns %}
-                                    <template #column-status="{ item, column }">
+                                        <template #column-status="{ item, column }">
                                                     {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
-                                        <mt-switch
-                                            class="sw-cms-el-config-product-listing__property-grid-switch"
-                                            :disabled="column.disabled"
-                                            :model-value="item.active"
-                                            @update:model-value="propertyStatusChanged($event, item.id)"
-                                        />
+                                            <mt-switch
+                                                class="sw-cms-el-config-product-listing__property-grid-switch"
+                                                :disabled="column.disabled"
+                                                :model-value="item.active"
+                                                @update:model-value="propertyStatusChanged($event, item.id)"
+                                            />
                                                     {% endblock %}
-                                    </template>
+                                        </template>
                                             {% endblock %}
 
-                                    <template #pagination>
+                                        <template #pagination>
                                                 {% block sw_cms_element_product_listing_config_filter_property_grid_pagination %}
-                                        <sw-pagination
-                                            v-if="!disabled"
-                                            :page="propertiesPage"
-                                            :limit="propertiesLimit"
-                                            :total="propertiesTotal"
-                                            :auto-hide="false"
-                                            :steps="[]"
-                                            @page-change="onPropertiesPageChange"
-                                        />
+                                            <sw-pagination
+                                                v-if="!disabled"
+                                                :page="propertiesPage"
+                                                :limit="propertiesLimit"
+                                                :total="propertiesTotal"
+                                                :auto-hide="false"
+                                                :steps="[]"
+                                                @page-change="onPropertiesPageChange"
+                                            />
                                                 {% endblock %}
-                                    </template>
-                                </sw-data-grid>
-                            </div>
+                                        </template>
+                                    </sw-data-grid>
+                                </div>
                                 {% endblock %}
 
                                 {% block sw_cms_element_product_listing_config_filter_empty_state %}
-                            <mt-empty-state
-                                v-else
-                                icon="solid-products"
-                                :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
-                                :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
-                            />
+                                <mt-empty-state
+                                    v-else
+                                    icon="regular-products"
+                                    :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
+                                    :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
+                                />
                                 {% endblock %}
-                        </div>
+                            </div>
                         {% endblock %}
-                    </template>
-                </sw-cms-inherit-wrapper>
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                </template>
             </template>
-        </template>
-    </sw-tabs>
+        </sw-tabs>
+    </template>
+    {% endblock %}
 </div>
 {% endblock %}

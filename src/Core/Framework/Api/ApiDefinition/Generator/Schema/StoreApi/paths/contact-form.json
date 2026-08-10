@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/contact-form": {
@@ -10,7 +10,11 @@
                 "summary": "Submit a contact form message",
                 "description": "Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendContactMail",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -78,6 +82,14 @@
                 "responses": {
                     "200": {
                         "description": "Message sent successful."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted contact form data failed validation, e.g. a missing email address, subject or message."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

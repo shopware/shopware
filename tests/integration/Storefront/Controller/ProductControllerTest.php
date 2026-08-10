@@ -16,6 +16,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -40,6 +41,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -322,7 +324,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
@@ -346,6 +348,74 @@ class ProductControllerTest extends TestCase
         static::assertStringContainsString('<meta itemprop="depth"', $content);
         static::assertStringContainsString('content="12 mm"', $content);
         static::assertStringNotContainsString('itemprop="length"', $content);
+    }
+
+    public function testSeparateProductGalleryCmsElementRendersImageMicrodata(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $cmsPageId = Uuid::randomHex();
+
+        static::getContainer()->get('cms_page.repository')->create([
+            [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
+                        'position' => 0,
+                        'blocks' => [
+                            [
+                                'id' => Uuid::randomHex(),
+                                'type' => 'image-gallery',
+                                'position' => 0,
+                                'sectionPosition' => 'main',
+                                'slots' => [
+                                    [
+                                        'id' => Uuid::randomHex(),
+                                        'type' => 'image-gallery',
+                                        'slot' => 'imageGallery',
+                                        'config' => [
+                                            'sliderItems' => ['source' => 'mapped', 'value' => 'product.media'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'cmsPageId' => $cmsPageId,
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'gallery-image',
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filter('img.gallery-slider-image[itemprop="image"]'));
     }
 
     public function testReferencePriceIsRenderedWithSingleCalculatedPrice(): void
@@ -420,9 +490,47 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testProductQuickViewManufacturerIsNotLinkedWithoutUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'no-link-manufacturer']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(0, $manufacturerLink);
+
+        $manufacturer = $crawler->filter('span.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturer);
+        static::assertStringContainsString('no-link-manufacturer', $manufacturer->text());
+    }
+
+    public function testProductQuickViewManufacturerIsLinkedWithUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => 'shopware.com']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturerLink);
+        static::assertSame('https://shopware.com', $manufacturerLink->attr('href'));
+        static::assertStringContainsString('linked-manufacturer', $manufacturerLink->text());
+
+        static::assertCount(0, $crawler->filter('span.quickview-minimal-product-manufacturer'));
     }
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void
@@ -437,7 +545,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
 
@@ -534,19 +642,19 @@ class ProductControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'testuser@example.com',
+            'email' => $customerId . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

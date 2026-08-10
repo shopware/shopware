@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DbalKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

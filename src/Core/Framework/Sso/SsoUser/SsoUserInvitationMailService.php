@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -58,24 +57,26 @@ class SsoUserInvitationMailService
         }
 
         $user = $this->getUserById($apiSource->getUserId(), $context);
-        $shopName = $this->systemConfigService->get('core.basicInformation.shopName');
+        $shopName = $this->systemConfigService->getString('core.basicInformation.shopName');
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
-        $mailData = new DataBag();
-        $mailData->set('templateId', $mailTemplate?->getId());
-        $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
-        $mailData->set('senderName', $shopName);
-        $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
-        $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
-        $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
+        $mailDataArray = [
+            'templateId' => $mailTemplate?->getId(),
+            'recipients' => [$recipientEmail => $recipientEmail],
+            'senderName' => $shopName,
+            'subject' => $mailTemplate?->getTranslation('subject'),
+            'contentPlain' => $mailTemplate?->getTranslation('contentPlain'),
+            'contentHtml' => $mailTemplate?->getTranslation('contentHtml'),
+        ];
 
-        $templateVariables = new DataBag();
-        $templateVariables->set('nameOfInviter', $this->createInviterName($user));
-        $templateVariables->set('storeName', $shopName);
-        $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSignUpUrl());
+        $templateVariablesArray = [
+            'nameOfInviter' => $this->createInviterName($user),
+            'storeName' => $shopName,
+            'invitedEmailAddress' => $recipientEmail,
+            'signupUrl' => $this->createSignUpUrl(),
+        ];
 
-        $this->mailService->send($mailData->all(), $context, $templateVariables->all());
+        $this->mailService->send($mailDataArray, $context, $templateVariablesArray);
     }
 
     private function createSignUpUrl(): string
@@ -109,7 +110,7 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
-        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
+        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->getEntities()->first();
         if (!$result instanceof MailTemplateTypeEntity) {
             throw SsoException::mailTemplateNotFound();
         }
@@ -125,7 +126,7 @@ class SsoUserInvitationMailService
             )
         );
 
-        return $this->mailTemplateRepository->search($criteria, $newContext)->first();
+        return $this->mailTemplateRepository->search($criteria, $newContext)->getEntities()->first();
     }
 
     private function createInviterName(?UserEntity $user): string
@@ -151,7 +152,7 @@ class SsoUserInvitationMailService
             return null;
         }
 
-        return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        return $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
     }
 
     private function getLanguageForLocale(string $localeId, Context $context): ?LanguageEntity
@@ -159,6 +160,6 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('localeId', $localeId));
 
-        return $this->languageRepository->search($criteria, $context)->first();
+        return $this->languageRepository->search($criteria, $context)->getEntities()->first();
     }
 }

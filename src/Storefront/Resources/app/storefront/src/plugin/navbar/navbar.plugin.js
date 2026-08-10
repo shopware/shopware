@@ -104,14 +104,17 @@ export default class NavbarPlugin extends Plugin {
      */
     _navigateToLinkOnClick(topLevelLink, event) {
         if (event.type === 'click' && event.pageX !== 0) {
+            // Only dropdown links lose their native navigation; plain links are handled by the browser.
+            if (!topLevelLink.classList.contains('dropdown-toggle')) {
+                return;
+            }
+
             if (topLevelLink.target === '_blank') {
                 window.open(topLevelLink.href, '_blank', 'noopener, noreferrer');
                 return;
             }
 
-            if (topLevelLink.classList.contains('dropdown-toggle')) {
-                this._navigateTo(topLevelLink.href);
-            }
+            this._navigateTo(topLevelLink.href);
         }
     }
 

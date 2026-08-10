@@ -95,7 +95,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		    'ids': [ hook.productId ]
 		} %}
 		
-		{% set product = services.repository.search('product', criteria).first %}
+		{% set product = services.repository.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
@@ -111,7 +111,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		    ]
 		} %}
 		
-		{% set product = services.repository.search('product', criteria).first %}
+		{% set product = services.repository.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
@@ -128,7 +128,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		    }
 		} %}
 		
-		{% set product = services.repository.search('product', criteria).first %}
+		{% set product = services.repository.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
 		{% do page.addExtension('myManufacturer', product.manufacturer) %}
@@ -225,7 +225,7 @@ this means that e.g. product prices are already calculated based on the current 
 		    'ids': [ hook.productId ]
 		} %}
 		
-		{% set product = services.store.search('product', criteria).first %}
+		{% set product = services.store.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
@@ -241,7 +241,7 @@ this means that e.g. product prices are already calculated based on the current 
 		    ]
 		} %}
 		
-		{% set product = services.store.search('product', criteria).first %}
+		{% set product = services.store.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
         ```
@@ -258,7 +258,7 @@ this means that e.g. product prices are already calculated based on the current 
 		    }
 		} %}
 		
-		{% set product = services.store.search('product', criteria).first %}
+		{% set product = services.store.search('product', criteria).getEntities().first %}
 		
 		{% do page.addExtension('myProduct', product) %}
 		{% do page.addExtension('myManufacturer', product.manufacturer) %}

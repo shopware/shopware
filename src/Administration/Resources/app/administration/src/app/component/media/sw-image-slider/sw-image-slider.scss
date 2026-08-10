@@ -28,11 +28,11 @@
         }
 
         &.is--bordered {
-            border: 1px solid #ccc;
+            border: 1px solid var(--color-border-secondary-default);
         }
 
         &.is--active {
-            border: 1px solid $color-shopware-brand-500;
+            border: 1px solid var(--color-border-brand-default);
             border-radius: $border-radius-default;
         }
     }
@@ -78,14 +78,14 @@
             margin: 12px 6px;
             border: 0 none;
             border-radius: 100%;
-            background: $color-gray-500;
+            background: var(--color-icon-secondary-default);
             transition: background 0.3s ease-out;
             outline: none;
             cursor: pointer;
             text-indent: -9999px;
 
             &.is--active {
-                background: $color-darkgray-100;
+                background: var(--color-icon-primary-default);
             }
         }
     }

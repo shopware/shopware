@@ -65,7 +65,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -118,7 +118,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -146,7 +146,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -188,7 +188,7 @@ class LineItemActualStockRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertFalse($this->rule->match($scope));
@@ -197,7 +197,7 @@ class LineItemActualStockRuleTest extends TestCase
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $goodsCountRule = new LineItemActualStockRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($goodsCountRule->match($wrongScope));
     }
@@ -207,7 +207,7 @@ class LineItemActualStockRuleTest extends TestCase
         $goodsCountRule = new LineItemActualStockRule();
         $scope = new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         if (!Feature::isActive('v6.8.0.0')) {
@@ -240,9 +240,35 @@ class LineItemActualStockRuleTest extends TestCase
         (new LineItemActualStockRule())->match(
             new LineItemScope(
                 new LineItem(Uuid::randomHex(), 'product'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
+    }
+
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemActualStockRule(Rule::OPERATOR_NEQ, 5);
+
+        $lineItem = self::createLineItem($type)->setPayloadValue('stock', 10);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     private function createLineItemWithStock(int $stock): LineItem

@@ -5,33 +5,40 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\AbstractCheapestPriceQuantitySelector;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Assert\Serialization;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CheapestPriceUpdater::class)]
 class CheapestPriceUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private QueryBuilder&MockObject $queryBuilder;
+    private QueryBuilder&Stub $queryBuilder;
 
-    private AbstractCheapestPriceQuantitySelector&MockObject $quantitySelector;
+    private AbstractCheapestPriceQuantitySelector&Stub $quantitySelector;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryBuilder = static::createStub(QueryBuilder::class);
         $this->queryBuilder->method('setParameter')->willReturnSelf();
         $this->queryBuilder->method('select')->willReturnSelf();
         $this->queryBuilder->method('from')->willReturnSelf();
@@ -39,10 +46,10 @@ class CheapestPriceUpdaterTest extends TestCase
         $this->queryBuilder->method('leftJoin')->willReturnSelf();
         $this->queryBuilder->method('andWhere')->willReturnSelf();
 
-        $this->quantitySelector = $this->createMock(AbstractCheapestPriceQuantitySelector::class);
+        $this->quantitySelector = static::createStub(AbstractCheapestPriceQuantitySelector::class);
         $this->quantitySelector->method('add')->willReturnSelf();
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->connection->method('createQueryBuilder')->willReturn($this->queryBuilder);
     }
 
@@ -62,7 +69,7 @@ class CheapestPriceUpdaterTest extends TestCase
         ];
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $updater = $this->createMockedUpdater($mockedData, [], [], $dispatcher);
+        $updater = $this->createMockedUpdater($mockedData, [], $dispatcher);
 
         $parentIds = [Uuid::randomHex()];
         $context = Context::createDefaultContext();
@@ -76,61 +83,75 @@ class CheapestPriceUpdaterTest extends TestCase
         $updater->update($parentIds, $context);
     }
 
-    public function testFetchPricesWithSalesChannelData(): void
+    /**
+     * The fetched sales channel visibility only surfaces as the container serialized into the
+     * `cheapest_price` UPDATE, so the test captures that written value (see "Asserting writes
+     * when there is no other seam" in coding-guidelines/core/unit-tests.md).
+     *
+     * @param list<string> $salesChannelIds
+     */
+    #[TestDox('The written cheapest_price container carries the variant sales channel ids')]
+    #[DataProvider('salesChannelVisibilityProvider')]
+    public function testUpdateWritesSalesChannelIdsIntoCheapestPriceContainer(array $salesChannelIds): void
     {
         $parentId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
-        $salesChannelId1 = Uuid::randomHex();
-        $salesChannelId2 = Uuid::randomHex();
 
         $mockedData = [
-            $this->createPriceRow($parentId, $variantId, 'default', '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true}}'),
+            // currencyId is required: the full update() run builds the price accessor from it
+            $this->createPriceRow($parentId, $variantId, 'default', '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca"}}'),
         ];
 
-        $mockedVisibility = [
-            [
-                'product_id' => $variantId,
-                'sales_channel_id' => $salesChannelId1,
-            ],
-            [
-                'product_id' => $variantId,
-                'sales_channel_id' => $salesChannelId2,
-            ],
-        ];
+        $mockedVisibility = array_map(
+            static fn (string $salesChannelId): array => ['product_id' => $variantId, 'sales_channel_id' => $salesChannelId],
+            $salesChannelIds
+        );
 
-        $updater = $this->createMockedUpdater($mockedData, [], $mockedVisibility);
-        $prices = $this->invokeFetchPrices($updater, [$parentId], Context::createDefaultContext());
+        $updater = $this->createMockedUpdater($mockedData, $mockedVisibility);
 
-        $this->assertSalesChannelIds($prices, $parentId, $variantId, [$salesChannelId1, $salesChannelId2]);
+        $writtenPrices = [];
+        $cheapestPriceStatement = $this->createMock(Statement::class);
+        $cheapestPriceStatement->method('bindValue')->willReturnCallback(
+            static function (string $param, mixed $value) use (&$writtenPrices): void {
+                if ($param === 'price') {
+                    $writtenPrices[] = (string) $value;
+                }
+            }
+        );
+        $cheapestPriceStatement->expects($this->once())->method('executeStatement')->willReturn(1);
+
+        $accessorStatement = static::createStub(Statement::class);
+        $this->connection->method('prepare')->willReturnCallback(
+            static fn (string $sql): Statement => str_contains($sql, 'cheapest_price_accessor') ? $accessorStatement : $cheapestPriceStatement
+        );
+
+        $updater->update([$parentId], Context::createDefaultContext());
+
+        static::assertCount(1, $writtenPrices);
+        $container = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $writtenPrices[0]);
+
+        $rulePrices = $container->getPricesForVariant($variantId);
+        static::assertArrayHasKey('default', $rulePrices);
+        static::assertSame($salesChannelIds, $rulePrices['default']['sales_channel_ids']);
     }
 
-    public function testFetchPricesWithEmptySalesChannelData(): void
+    public static function salesChannelVisibilityProvider(): \Generator
     {
-        $parentId = Uuid::randomHex();
-        $variantId = Uuid::randomHex();
-
-        $mockedData = [
-            $this->createPriceRow($parentId, $variantId, 'default', '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":16.806722689076,"gross":20,"linked":true}}'),
-        ];
-
-        $updater = $this->createMockedUpdater($mockedData, [], []);
-        $prices = $this->invokeFetchPrices($updater, [$parentId], Context::createDefaultContext());
-
-        $this->assertSalesChannelIds($prices, $parentId, $variantId, []);
+        yield 'variant visible in two sales channels' => [[Uuid::randomHex(), Uuid::randomHex()]];
+        yield 'variant without visibility rows' => [[]];
     }
 
     /**
      * @param array<int, array<string, mixed>> $dataResults
-     * @param array<int, array<string, mixed>> $defaultsResults
      * @param array<int, array<string, mixed>> $visibilityResults
      */
-    private function createMockedUpdater(array $dataResults, array $defaultsResults, array $visibilityResults, ?EventDispatcherInterface $dispatcher = null): CheapestPriceUpdater
+    private function createMockedUpdater(array $dataResults, array $visibilityResults, ?EventDispatcherInterface $dispatcher = null): CheapestPriceUpdater
     {
-        $result1 = $this->createMock(Result::class);
+        $result1 = static::createStub(Result::class);
         $result1->method('fetchAllAssociative')->willReturn($dataResults);
 
-        $result2 = $this->createMock(Result::class);
-        $result2->method('fetchAllAssociative')->willReturn($defaultsResults);
+        $result2 = static::createStub(Result::class);
+        $result2->method('fetchAllAssociative')->willReturn([]);
 
         $this->queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls($result1, $result2);
 
@@ -140,7 +161,7 @@ class CheapestPriceUpdaterTest extends TestCase
         return new CheapestPriceUpdater(
             $this->connection,
             $this->quantitySelector,
-            $dispatcher ?? $this->createMock(EventDispatcherInterface::class)
+            $dispatcher ?? static::createStub(EventDispatcherInterface::class)
         );
     }
 
@@ -161,40 +182,5 @@ class CheapestPriceUpdaterTest extends TestCase
             'reference_unit' => null,
             'child_count' => null,
         ];
-    }
-
-    /**
-     * @param array<string> $parentIds
-     *
-     * @return array<string, array<string, array<string, mixed>>>
-     */
-    private function invokeFetchPrices(CheapestPriceUpdater $updater, array $parentIds, Context $context): array
-    {
-        $reflection = new \ReflectionClass($updater);
-        $method = $reflection->getMethod('fetchPrices');
-        $method->setAccessible(true);
-
-        return $method->invoke($updater, $parentIds, $context);
-    }
-
-    /**
-     * @param array<string, array<string, array<string, mixed>>> $prices
-     * @param array<string> $expectedSalesChannelIds
-     */
-    private function assertSalesChannelIds(array $prices, string $parentId, string $variantId, array $expectedSalesChannelIds): void
-    {
-        static::assertArrayHasKey($parentId, $prices);
-        static::assertArrayHasKey($variantId, $prices[$parentId], 'Variant should exist in prices');
-
-        $variantPrices = $prices[$parentId][$variantId];
-        foreach ($variantPrices as $ruleData) {
-            if (\is_array($ruleData) && isset($ruleData['sales_channel_ids'])) {
-                static::assertEquals($expectedSalesChannelIds, $ruleData['sales_channel_ids']);
-
-                return;
-            }
-        }
-
-        static::fail('Should have variant entry with sales_channel_ids');
     }
 }

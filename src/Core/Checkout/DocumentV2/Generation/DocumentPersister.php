@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Content\Media\MediaService;
@@ -56,6 +57,7 @@ final readonly class DocumentPersister
         RenderInput $input,
         RenderState $state,
         array $requestedFormats,
+        ?ReferencedDocument $resolvedReference,
         Context $context,
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
@@ -73,8 +75,9 @@ final readonly class DocumentPersister
             [
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
-                'orderVersionId' => $generationRequest->orderVersionId,
+                'orderVersionId' => $input->order->getVersionId(),
                 'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
+                'referencedDocumentId' => $resolvedReference?->id,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
@@ -98,7 +101,7 @@ final readonly class DocumentPersister
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
             $context,
-        )->first();
+        )->getEntities()->first();
 
         if (!$document instanceof DocumentEntity) {
             throw DocumentV2Exception::documentNotPersisted($input->documentNumber);
@@ -169,7 +172,7 @@ final readonly class DocumentPersister
 
         $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null || $documentTypeId === '') {
+        if ($documentTypeId === null) {
             throw DocumentV2Exception::documentTypeNotFound($documentType);
         }
 

@@ -42,7 +42,7 @@ class SalesChannelRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField(
                 'salesChannelIds',
                 SalesChannelDefinition::ENTITY_NAME,

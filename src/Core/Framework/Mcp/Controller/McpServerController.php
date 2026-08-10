@@ -5,65 +5,73 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Schema\Request\CallToolRequest;
 use Mcp\Schema\Request\GetPromptRequest;
 use Mcp\Schema\Request\InitializeRequest;
-use Mcp\Schema\Request\ListPromptsRequest;
-use Mcp\Schema\Request\ListResourcesRequest;
-use Mcp\Schema\Request\ListToolsRequest;
 use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
-use Mcp\Server\Transport\StreamableHttpTransport;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
-use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
+use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
+use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
-use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Shopware-aware entry point for the MCP protocol over HTTP.
  * Applies Shopware's Admin API authentication and route scoping, then delegates
  * the actual protocol handling to the Symfony MCP Server.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class McpServerController
 {
     public const ATTRIBUTE_JSONRPC_BODY = 'mcp._jsonrpc_body';
+    private const TOOL_SEARCH = 'shopware-tool-search';
+
+    /**
+     * Server-owned discovery meta-tools. A tools/call for one of these is never rejected by the
+     * per-integration allowlist, so a restricted integration can always reach the guaranteed
+     * discovery path (toolsets-list -> toolset-enable -> listChanged).
+     */
+    private const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH,
+        McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+        McpToolsetRegistry::ENABLE_TOOLSET_TOOL,
+    ];
 
     /**
      * @internal
      *
-     * The five PhpMcp bundle params below are nullable because they are injected via
-     * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
-     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
+     * $server is nullable because it is injected via nullOnInvalid(): when the MCP bundle is absent
+     * it resolves to null (as do the HTTP factories the transport factory wraps). Once MCP is stable
+     * (v6.8.0) the nullable type and the null guard in handle() can be removed.
      */
     public function __construct(
         private readonly ?Server $server,
-        private readonly ?HttpMessageFactoryInterface $httpMessageFactory,
-        private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
-        private readonly ?ResponseFactoryInterface $responseFactory,
-        private readonly ?StreamFactoryInterface $streamFactory,
-        private readonly RateLimiter $rateLimiter,
+        private readonly McpHttpTransportFactory $transportFactory,
+        private readonly McpRateLimiter $rateLimiter,
+        private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
+        private readonly ?McpSessionRegistry $sessionRegistry = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -75,17 +83,12 @@ class McpServerController
     )]
     public function handle(Request $request): Response
     {
-        if (!Feature::isActive('MCP_SERVER')
-            || $this->server === null
-            || $this->httpMessageFactory === null
-            || $this->httpFoundationFactory === null
-            || $this->responseFactory === null
-            || $this->streamFactory === null
-        ) {
+        if ($this->server === null || !$this->transportFactory->isAvailable()) {
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
-        $this->rateLimit($request);
+        $this->sessionIdValidator->validate($request);
+        $this->rateLimiter->enforceForAdminApi($request);
 
         $this->logger?->debug('MCP request', [
             'method' => $request->getMethod(),
@@ -108,32 +111,59 @@ class McpServerController
             }
         }
 
-        $transport = new StreamableHttpTransport(
-            $this->httpMessageFactory->createRequest($request),
-            $this->responseFactory,
-            $this->streamFactory,
-            logger: $this->logger,
-        );
-
-        $psrResponse = $this->server->run($transport);
-
-        if ($allowlist !== null && $request->getMethod() === 'POST') {
-            $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
-        }
+        $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
+        $this->registerSession($psrResponse);
+        $this->flushPendingToolsListChanged($request);
 
         if ($request->getMethod() === 'POST') {
             $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
         }
 
-        $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
-
-        return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+        return $this->transportFactory->createResponse($psrResponse);
     }
 
     /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
+     * Emits a tools/listChanged for the current session when a tool asked for it (e.g.
+     * shopware-toolset-enable). This runs after {@see Server::run()} has persisted the SDK's
+     * in-memory session, so the queued notification survives instead of being overwritten by the
+     * SDK's own session save; the client drains it on its next poll.
      */
-    private function checkAllowlistEarlyReject(Request $request, array $allowlist): ?Response
+    private function flushPendingToolsListChanged(Request $request): void
+    {
+        if ($this->listChangedNotifier === null) {
+            return;
+        }
+
+        if (!$request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE)) {
+            return;
+        }
+
+        $sessionId = $request->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->listChangedNotifier->notifySession(
+            $sessionId,
+            new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
+        );
+    }
+
+    private function registerSession(PsrResponseInterface $psrResponse): void
+    {
+        if ($this->sessionRegistry === null) {
+            return;
+        }
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId === '') {
+            return;
+        }
+
+        $this->sessionRegistry->register($sessionId);
+    }
+
+    private function checkAllowlistEarlyReject(Request $request, McpAllowlist $allowlist): ?Response
     {
         $body = $this->decodeJson($request->getContent());
 
@@ -143,9 +173,13 @@ class McpServerController
 
         $method = $body['method'] ?? null;
 
-        if ($method === CallToolRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
+        if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
-            if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist[McpAllowlistProvider::TOOLS])) {
+            if (\in_array($toolName, self::DISCOVERY_META_TOOLS, true)) {
+                return null;
+            }
+
+            if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist->tools)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $toolName !== ''
@@ -155,9 +189,9 @@ class McpServerController
             }
         }
 
-        if ($method === ReadResourceRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+        if ($method === ReadResourceRequest::getMethod() && $allowlist->resources !== null) {
             $resourceUri = $body['params']['uri'] ?? '';
-            if ($this->allowlistFilter->isResourceReadDenied($resourceUri, $allowlist[McpAllowlistProvider::RESOURCES])) {
+            if ($this->allowlistFilter->isResourceReadDenied($resourceUri, $allowlist->resources)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $resourceUri !== ''
@@ -167,9 +201,9 @@ class McpServerController
             }
         }
 
-        if ($method === GetPromptRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+        if ($method === GetPromptRequest::getMethod() && $allowlist->prompts !== null) {
             $promptName = $body['params']['name'] ?? '';
-            if ($this->allowlistFilter->isPromptGetDenied($promptName, $allowlist[McpAllowlistProvider::PROMPTS])) {
+            if ($this->allowlistFilter->isPromptGetDenied($promptName, $allowlist->prompts)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $promptName !== ''
@@ -182,69 +216,8 @@ class McpServerController
         return null;
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, array $allowlist): PsrResponseInterface
-    {
-        \assert($this->streamFactory !== null);
-
-        $body = $this->decodeJson($request->getContent());
-
-        if (!\is_array($body)) {
-            return $psrResponse;
-        }
-
-        $method = \is_string($body['method'] ?? null) ? $body['method'] : null;
-
-        if (!$this->hasListFilter($method, $allowlist)) {
-            return $psrResponse;
-        }
-
-        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
-
-        if ($response === null) {
-            return $psrResponse;
-        }
-
-        $this->applyAllowlistFilter($response, $method, $allowlist);
-
-        $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
-
-        return $psrResponse
-            ->withBody($newStream)
-            ->withHeader('Content-Length', (string) \strlen($newBody));
-    }
-
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function hasListFilter(?string $method, array $allowlist): bool
-    {
-        return ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null)
-            || ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null);
-    }
-
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, array $allowlist): void
-    {
-        if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
-            $response->filterTools($allowlist[McpAllowlistProvider::TOOLS]);
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
-            $response->filterResources($allowlist[McpAllowlistProvider::RESOURCES]);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
-            $response->filterPrompts($allowlist[McpAllowlistProvider::PROMPTS]);
-        }
-    }
-
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface
     {
-        \assert($this->streamFactory !== null);
-
         $body = $this->decodeJson($request->getContent());
 
         if (!\is_array($body) || ($body['method'] ?? null) !== InitializeRequest::getMethod()) {
@@ -272,7 +245,7 @@ class McpServerController
         }
 
         $newBody = Json::encode($response);
-        $newStream = $this->streamFactory->createStream($newBody);
+        $newStream = $this->transportFactory->createStream($newBody);
 
         return $psrResponse
             ->withBody($newStream)
@@ -299,19 +272,6 @@ class McpServerController
             return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
-        }
-    }
-
-    private function rateLimit(Request $request): void
-    {
-        $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
-            ?: $request->getClientIp()
-            ?: 'unknown';
-
-        try {
-            $this->rateLimiter->ensureAccepted(RateLimiter::MCP, $key);
-        } catch (RateLimitExceededException $e) {
-            throw McpException::throttled($e->getWaitTime(), $e);
         }
     }
 }

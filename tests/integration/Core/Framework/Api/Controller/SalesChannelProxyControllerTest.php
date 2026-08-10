@@ -84,6 +84,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     #[DataProvider('checkoutProxyRoutesProvider')]
     public function testCheckoutProxyRoutesRequireOrderUpdatePrivilege(string $path, array $payload): void
     {

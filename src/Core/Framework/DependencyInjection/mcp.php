@@ -333,6 +333,9 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.registry')->nullOnInvalid(),
             service(McpAllowlistProvider::class),
             service(McpCapabilityCatalog::class),
+            service('mcp.store_api.server.builder')->nullOnInvalid(),
+            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.store_api.capability_catalog')->nullOnInvalid(),
         ])
         ->tag('console.command');
 

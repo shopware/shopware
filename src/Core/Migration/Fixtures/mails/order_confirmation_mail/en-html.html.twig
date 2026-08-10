@@ -78,6 +78,15 @@
                     <td>{{ nestedItem.totalPrice|currency(currencyIsoCode) }}</td>
                 </tr>
 
+                {% if nestedItem.productId is defined and nestedItem.productId %}
+                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
+                    {% if garanLabelDataUri %}
+                        <tr>
+                            <td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+
                 {% if nestedItem.children.count > 0 %}
                     {% set nestingLevel = nestingLevel + 1 %}
                     {% for lineItem in nestedItem.children %}
@@ -174,6 +183,11 @@
             </ul>
             For data protection reasons the HTML version requires a login. <br><br>
             In case of a guest order, you can use your email address and postal code of the billing address.<br>
+        {% endif %}
+
+        {% if config('core.cart.showLegalGuaranteeNotice') %}
+            <br>
+            Notice on your legal guarantee rights: <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}" target="_blank">{{ context.languageId|sw_legal_guarantee_notice_link }}</a><br>
         {% endif %}
     </p>
     <br>

@@ -86,6 +86,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DocumentConfigLoader::class),
+            service(DocumentTypeRegistry::class),
             service('validator'),
         ])
         ->tag('shopware.document_v2.provider');

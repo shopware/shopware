@@ -850,6 +850,49 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(mockProductStore.$reset).toHaveBeenCalledTimes(1);
     });
 
+    it('detects removed CMS sections as unsaved changes', async () => {
+        const wrapper = await createWrapper();
+        const pageOriginSections = new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+            {
+                id: 'section-id',
+                blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, []),
+            },
+        ]);
+
+        const page = {
+            _isDirty: false,
+            sections: new EntityCollection(null, 'cms_section', Shopware.Context.api, null, []),
+        };
+
+        expect(
+            wrapper.vm.$options.methods.hasUnsavedChanges.call({ page, pageOrigin: { sections: pageOriginSections } }),
+        ).toBeTruthy();
+    });
+
+    it('detects removed CMS blocks as unsaved changes', async () => {
+        const wrapper = await createWrapper();
+        const pageOriginSections = new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+            {
+                id: 'section-id',
+                blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, [{ id: 'block-id', slots: [] }]),
+            },
+        ]);
+
+        const page = {
+            _isDirty: false,
+            sections: new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+                {
+                    id: 'section-id',
+                    blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, []),
+                },
+            ]),
+        };
+
+        expect(
+            wrapper.vm.$options.methods.hasUnsavedChanges.call({ page, pageOrigin: { sections: pageOriginSections } }),
+        ).toBeTruthy();
+    });
+
     it('should handle stores that are not registered', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -68,7 +68,7 @@ jobs:
       major: exclude
   visual-tests:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
-    uses: ./.github/workflows/visual-tests.yml
+    uses: ./.github/workflows/visual-tests-docker.yml
     secrets: inherit
     with:
       currents: ${{ github.event_name == 'schedule' }}

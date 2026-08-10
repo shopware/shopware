@@ -12,11 +12,15 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerationResult;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoProperty;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApiDtoGenerator::class)]
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 #[CoversClass(OpenApiDtoClassRenderer::class)]
@@ -27,6 +31,43 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(OpenApiDtoGenerationCheckResult::class)]
 class OpenApiDtoGeneratorTest extends TestCase
 {
+    public function testOpenApiFixturesMatchGeneratedDtos(): void
+    {
+        $parser = new OpenApiDtoSchemaParser();
+        $renderer = new OpenApiDtoClassRenderer(new MockClock('2026-07-07 00:00:00'));
+        $filesystem = new Filesystem();
+        $fixtureDirectories = Finder::create()
+            ->directories()
+            ->depth(0)
+            ->sortByName()
+            ->in(__DIR__ . '/_fixtures');
+
+        foreach ($fixtureDirectories as $fixtureDirectory) {
+            $schemaFiles = Finder::create()
+                ->files()
+                ->name('*.json')
+                ->sortByName()
+                ->in($fixtureDirectory->getPathname());
+
+            foreach ($schemaFiles as $schemaFile) {
+                $schema = json_decode($filesystem->readFile($schemaFile->getPathname()), true, flags: \JSON_THROW_ON_ERROR);
+                static::assertIsArray($schema);
+
+                foreach ($parser->parse($schema) as $definition) {
+                    $generated = $renderer->renderClass($definition, 'App\\DTO');
+
+                    $generatedFile = $fixtureDirectory->getPathname() . '/' . $definition->name . '.php';
+                    static::assertFileExists($generatedFile);
+                    static::assertSame(
+                        $filesystem->readFile($generatedFile),
+                        $generated,
+                        $generatedFile,
+                    );
+                }
+            }
+        }
+    }
+
     public function testReferencedScalarEnumPropertiesAreRenderedAsNativeTypesWithChoiceConstraint(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([

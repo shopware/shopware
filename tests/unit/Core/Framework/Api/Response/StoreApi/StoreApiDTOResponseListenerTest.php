@@ -5,29 +5,20 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Response\StoreApi;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseSubscriber;
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseListener;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(StoreApiDTOResponseSubscriber::class)]
-class StoreApiDTOResponseSubscriberTest extends TestCase
+#[CoversClass(StoreApiDTOResponseListener::class)]
+class StoreApiDTOResponseListenerTest extends TestCase
 {
-    public function testSubscribesToViewEvent(): void
-    {
-        static::assertSame(
-            [KernelEvents::VIEW => ['onView', 1000]],
-            StoreApiDTOResponseSubscriber::getSubscribedEvents(),
-        );
-    }
-
     public function testConvertsResponseDtoToJsonResponse(): void
     {
         $event = $this->createViewEvent(new class implements StoreApiDTOResponseInterface {
@@ -36,7 +27,7 @@ class StoreApiDTOResponseSubscriberTest extends TestCase
             public string $apiAlias = 'account_newsletter_recipient';
         });
 
-        (new StoreApiDTOResponseSubscriber())->onView($event);
+        (new StoreApiDTOResponseListener())($event);
 
         static::assertInstanceOf(JsonResponse::class, $event->getResponse());
         static::assertSame(
@@ -49,7 +40,7 @@ class StoreApiDTOResponseSubscriberTest extends TestCase
     {
         $event = $this->createViewEvent(new \stdClass());
 
-        (new StoreApiDTOResponseSubscriber())->onView($event);
+        (new StoreApiDTOResponseListener())($event);
 
         static::assertNull($event->getResponse());
     }

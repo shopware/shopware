@@ -71,7 +71,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseSubscriber;
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseListener;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -139,8 +139,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');
 
-    $services->set(StoreApiDTOResponseSubscriber::class)
-        ->tag('kernel.event_subscriber');
+    $services->set(StoreApiDTOResponseListener::class)
+        ->tag('kernel.event_listener', ['event' => 'kernel.view', 'priority' => 1000]);
 
     $services->set(ContextValueResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);

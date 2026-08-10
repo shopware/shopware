@@ -12,7 +12,7 @@
       "SHOPWARE_INVALID_IP_CIDR": "Bitte gib eine gültige IP-Adresse oder eine IP-Adresse mit CIDR-Maske ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
-      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warte {seconds} Sekunden, bevor Du es erneut versuchst.",
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",

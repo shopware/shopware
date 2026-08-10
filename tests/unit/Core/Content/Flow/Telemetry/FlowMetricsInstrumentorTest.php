@@ -29,6 +29,7 @@ class FlowMetricsInstrumentorTest extends TestCase
         $this->createInstrumentor()->measureExecution($this->createFlow('checkout.order.placed'), fn () => null);
 
         $duration = $this->getMetric('flow.execution.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0, $duration->value);
         static::assertSame(['trigger_group' => 'trigger_group_label:checkout.order.placed', 'result' => 'success'], $duration->labels);
@@ -61,11 +62,12 @@ class FlowMetricsInstrumentorTest extends TestCase
         static::assertSame('boom', $thrown->getMessage());
 
         $duration = $this->getMetric('flow.execution.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertSame('failed', $duration->labels['result']);
         static::assertSame('trigger_group_label:checkout.order.placed', $duration->labels['trigger_group']);
     }
 
-    private function getMetric(string $name): ConfiguredMetric
+    private function getMetric(string $name): ?ConfiguredMetric
     {
         foreach ($this->emitted as $metric) {
             if ($metric->name === $name) {
@@ -73,7 +75,7 @@ class FlowMetricsInstrumentorTest extends TestCase
             }
         }
 
-        static::fail(\sprintf('Metric "%s" was not emitted', $name));
+        return null;
     }
 
     private function createInstrumentor(): FlowMetricsInstrumentor

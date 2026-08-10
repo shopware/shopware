@@ -1,0 +1,54 @@
+.sw-whats-new-modal {
+    &__media {
+        aspect-ratio: 16 / 9;
+        background: var(--color-elevation-surface-sunken);
+        overflow: hidden;
+    }
+
+    &__media-video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__media-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--color-icon-primary-default);
+    }
+
+    &__text {
+        padding: var(--scale-size-24);
+    }
+
+    &__headline {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__description {
+        margin-bottom: 0;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &__footer-left,
+    &__footer-right {
+        display: flex;
+        min-width: 80px;
+    }
+
+    &__footer-right {
+        justify-content: flex-end;
+    }
+}

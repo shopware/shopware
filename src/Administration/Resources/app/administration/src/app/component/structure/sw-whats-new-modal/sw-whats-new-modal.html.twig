@@ -1,0 +1,110 @@
+<mt-modal-root
+    :is-open="isOpen"
+    @change="onModalChange"
+>
+    <mt-modal
+        class="sw-whats-new-modal"
+        width="m"
+        :title="$t('sw-whats-new-modal.title')"
+        inset
+    >
+        <div class="sw-whats-new-modal__content">
+            <div class="sw-whats-new-modal__media">
+                <video
+                    v-if="showActiveVideo"
+                    :key="activePage.id"
+                    class="sw-whats-new-modal__media-video"
+                    :src="activePage.videoSrc"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    @error="onVideoError"
+                ></video>
+
+                <div
+                    v-else
+                    class="sw-whats-new-modal__media-placeholder"
+                >
+                    <mt-icon
+                        :name="activePage.placeholderIcon"
+                        size="48px"
+                    />
+                </div>
+            </div>
+
+            <div class="sw-whats-new-modal__text">
+                <mt-text
+                    as="h3"
+                    size="l"
+                    weight="bold"
+                    class="sw-whats-new-modal__headline"
+                >
+                    {{ activePage.headline }}
+
+                    <mt-badge
+                        v-if="activePage.badge"
+                        variant="attention"
+                    >
+                        {{ activePage.badge }}
+                    </mt-badge>
+                </mt-text>
+
+                <mt-text
+                    as="p"
+                    size="s"
+                    color="color-text-secondary-default"
+                    class="sw-whats-new-modal__description"
+                >
+                    <i18n-t :keypath="activePage.descriptionKey">
+                        <template #profileSettingsLink>
+                            <mt-link
+                                :to="{ name: 'sw.profile.index.general' }"
+                                @click="onFinish"
+                            >
+                                {{ $t('sw-whats-new-modal.pages.darkMode.profileSettingsLink') }}
+                            </mt-link>
+                        </template>
+                    </i18n-t>
+                </mt-text>
+            </div>
+        </div>
+
+        <template #footer>
+            <div class="sw-whats-new-modal__footer">
+                <div class="sw-whats-new-modal__footer-left">
+                    <mt-button
+                        v-if="!isFirstPage"
+                        variant="secondary"
+                        @click="onPreviousPage"
+                    >
+                        {{ $t('global.default.back') }}
+                    </mt-button>
+                </div>
+
+                <sw-wizard-dot-navigation
+                    :pages="pages"
+                    :active-page="currentPage"
+                />
+
+                <div class="sw-whats-new-modal__footer-right">
+                    <mt-button
+                        v-if="!isLastPage"
+                        variant="primary"
+                        @click="onNextPage"
+                    >
+                        {{ $t('sw-whats-new-modal.nextButton') }}
+                    </mt-button>
+
+                    <mt-button
+                        v-else
+                        variant="primary"
+                        @click="onFinish"
+                    >
+                        {{ $t('sw-whats-new-modal.finishButton') }}
+                    </mt-button>
+                </div>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

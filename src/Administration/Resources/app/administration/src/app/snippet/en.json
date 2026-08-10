@@ -1801,5 +1801,22 @@
     "acceptButton": "Accept",
     "declineButton": "Decline",
     "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
+  },
+  "sw-whats-new-modal": {
+    "title": "A new look for your Admin",
+    "nextButton": "Next",
+    "finishButton": "Got it",
+    "pages": {
+      "adminNavigation": {
+        "headline": "A redesigned navigation",
+        "description": "The main menu has been rebuilt from the ground up: a cleaner look, smoother flyouts, improved keyboard support and a layout that adapts to smaller screens."
+      },
+      "darkMode": {
+        "headline": "Dark mode",
+        "badge": "Experimental",
+        "description": "The Administration now supports color themes, including dark mode. Try it out and adjust it anytime in your {profileSettingsLink}.",
+        "profileSettingsLink": "profile settings"
+      }
+    }
   }
 }

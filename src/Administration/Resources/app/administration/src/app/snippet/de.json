@@ -1801,5 +1801,22 @@
     "acceptButton": "Zustimmen",
     "declineButton": "Ablehnen",
     "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird Deine vorherige Entscheidung, falls vorhanden, beibehalten."
+  },
+  "sw-whats-new-modal": {
+    "title": "Ein neuer Look für Deine Administration",
+    "nextButton": "Weiter",
+    "finishButton": "Verstanden",
+    "pages": {
+      "adminNavigation": {
+        "headline": "Eine überarbeitete Navigation",
+        "description": "Das Hauptmenü wurde von Grund auf überarbeitet: klareres Design, flüssigere Flyouts, bessere Tastaturbedienung und ein Layout, das sich an kleinere Bildschirme anpasst."
+      },
+      "darkMode": {
+        "headline": "Dark Mode",
+        "badge": "Experimentell",
+        "description": "Die Administration unterstützt jetzt Farbthemes, inklusive eines Dark Modes. Probiere ihn aus und passe ihn jederzeit in {profileSettingsLink} an.",
+        "profileSettingsLink": "Deinen Profileinstellungen"
+      }
+    }
   }
 }

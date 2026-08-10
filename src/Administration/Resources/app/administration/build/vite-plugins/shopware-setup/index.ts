@@ -67,6 +67,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // Component name -> the base file claiming it. Only bases: overrides reuse the base name by design.
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
+    // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {

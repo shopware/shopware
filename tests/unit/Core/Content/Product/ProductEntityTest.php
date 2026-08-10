@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,5 +31,15 @@ class ProductEntityTest extends TestCase
         ]);
 
         static::assertSame('translated foo', (string) $entity);
+    }
+
+    public function testProductDocumentsAccessors(): void
+    {
+        $productDocuments = new ProductDocumentCollection();
+
+        $entity = new ProductEntity();
+        $entity->setProductDocuments($productDocuments);
+
+        static::assertSame($productDocuments, $entity->getProductDocuments());
     }
 }

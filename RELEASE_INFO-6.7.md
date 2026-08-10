@@ -2,6 +2,21 @@
 
 ## Features
 
+### Product documents
+
+Products can now carry downloadable documents such as datasheets, manuals, or certificates. A new `product_document` entity links a product to a media file, with an optional `position` for ordering. The association `product.productDocuments` is inherited: a variant without its own documents automatically exposes the documents of its parent product.
+
+Documents are stored in the new default media folder "Product documents". Media in this folder can be private; private product-document media is still readable in sales channel scope — analogous to product download files — so shops can offer documents without exposing them through the public media index.
+
+For headless storefronts and integrations:
+
+- Store API: `GET /store-api/product/{productId}/document/{documentId}/download` streams a document. The route enforces the sales channel visibility and active state of the product and returns `PRODUCT__DOCUMENT_NOT_FOUND` (HTTP 404) when the document does not belong to the requested product. No customer login is required. Like the product detail route, a parent product id is resolved to the displayed variant, whose own documents replace the inherited ones — build download URLs from the `productId` and `documentId` of the same product detail response instead of combining ids from different sources.
+- Admin API: the `product_document` entity is manageable through the generic entity CRUD endpoints.
+
+For themes and Storefront plugins, the product detail page now loads `page.product.productDocuments` (including the media association, sorted by `position`), so templates can render download links pointing to the new route `frontend.product.document.download` (`GET /product/{productId}/document/{documentId}/download`). The default theme does not render the documents yet.
+
+Plugins can decorate `Shopware\Core\Content\Product\SalesChannel\Document\AbstractProductDocumentDownloadRoute` to customize the download behaviour.
+
 ## API
 
 ### Order recalculation and conversion endpoints now require ACL privileges

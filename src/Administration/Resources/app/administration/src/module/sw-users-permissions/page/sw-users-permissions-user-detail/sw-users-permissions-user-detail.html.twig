@@ -42,7 +42,7 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_user_detail_content_inner %}
-            <div>
+            <div class="sw-settings-user-detail__cards">
                 {% block sw_setting_user_detail_card_basic_information %}
                 <mt-card
                     position-identifier="sw-users-permissions-user-detail"
@@ -127,6 +127,27 @@
                             :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
                         />
                         {% endblock %}
+
+                        {% block sw_settings_user_detail_content_media_upload %}
+                        <sw-upload-listener
+                            :upload-tag="user.id"
+                            auto-upload
+                            @media-upload-finish="setMediaItem"
+                        />
+                        <sw-media-upload-v2
+                            class="sw-settings-user-detail__grid-profile-picture"
+                            :source="avatarMedia"
+                            :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
+                            :upload-tag="user.id"
+                            :allow-multi-select="false"
+                            :source-context="user"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                            default-folder="user"
+                            @media-drop="onDropMedia"
+                            @media-upload-sidebar-open="onOpenMedia"
+                            @media-upload-remove-image="onUnlinkLogo"
+                        />
+                        {% endblock %}
                     </div>
                     {% endblock %}
                 </mt-card>
@@ -153,6 +174,7 @@
                             :error="userLocaleIdError"
                             :options="localeOptions"
                             required
+                            hide-clearable-button
                             :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                         />
                         {% endblock %}
@@ -170,24 +192,13 @@
                         />
                         {% endblock %}
 
-                        {% block sw_settings_user_detail_content_media_upload %}
-                        <sw-upload-listener
-                            :upload-tag="user.id"
-                            auto-upload
-                            @media-upload-finish="setMediaItem"
-                        />
-                        <sw-media-upload-v2
-                            class="sw-settings-user-detail__grid-profile-picture"
-                            :source="avatarMedia"
-                            :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
-                            :upload-tag="user.id"
-                            :allow-multi-select="false"
-                            :source-context="user"
-                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                            default-folder="user"
-                            @media-drop="onDropMedia"
-                            @media-upload-sidebar-open="onOpenMedia"
-                            @media-upload-remove-image="onUnlinkLogo"
+                        {% block sw_settings_user_detail_grid_content_theme %}
+                        <mt-theme-select
+                            v-if="isCurrentUser"
+                            v-model="userTheme"
+                            name="sw-field--user-theme"
+                            class="sw-settings-user-detail__grid-theme"
+                            :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
                         />
                         {% endblock %}
                     </div>
@@ -245,14 +256,6 @@
                     </div>
                     {% endblock %}
                 </mt-card>
-                {% endblock %}
-
-                {% block sw_settings_user_detail_content_confirm_password_modal %}
-                <sw-verify-user-modal
-                    v-if="confirmPasswordModal"
-                    @verified="saveUser"
-                    @close="onCloseConfirmPasswordModal"
-                />
                 {% endblock %}
 
                 {%  block sw_setting_user_detail_card_integrations %}
@@ -340,6 +343,15 @@
                 </mt-card>
                 {% endblock %}
             </div>
+
+            <!-- Outside the cards container: its layout containment would trap the fixed-position modal. -->
+            {% block sw_settings_user_detail_content_confirm_password_modal %}
+            <sw-verify-user-modal
+                v-if="confirmPasswordModal"
+                @verified="saveUser"
+                @close="onCloseConfirmPasswordModal"
+            />
+            {% endblock %}
             {% endblock %}
         </sw-card-view>
 

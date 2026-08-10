@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\TestBootstrapper;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -28,7 +30,7 @@ class FileFetcherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService());
+        $this->fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(), HttpClient::create());
 
         $projectDir = (new TestBootstrapper())->getProjectDir();
         if (!\is_dir($projectDir . '/public/media')) {
@@ -147,7 +149,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(null, false), HttpClient::create(), true, false);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -169,7 +171,7 @@ class FileFetcherTest extends TestCase
 
     public function testCleanUpFileAfterFetching(): void
     {
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(null, false), HttpClient::create(), true, false);
         $mediaFile = $fileFetcher->fetchBlob('myBlob', 'png', 'image/png');
         static::assertFileExists($mediaFile->getFileName());
 
@@ -285,7 +287,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 0);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(null, false), HttpClient::create(), true, false, 0);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -318,7 +320,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 100000);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(null, false), HttpClient::create(), true, false, 100000);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -351,7 +353,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 1);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(null, false), HttpClient::create(), true, false, 1);
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Source file exceeds maximum file size limit.');
@@ -375,7 +377,7 @@ class FileFetcherTest extends TestCase
         $request->headers = new HeaderBag();
         $request->headers->set('content-length', (string) $fileSize);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, true, 10);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), new TrustedUrlResolver(), HttpClient::create(), true, true, 10);
         $fileFetcher->fetchRequestData($request, $tempFile);
 
         static::assertFileExists($tempFile);

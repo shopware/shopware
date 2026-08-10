@@ -14,12 +14,15 @@ final readonly class OpenApiDtoDefinition
 {
     /**
      * @param list<OpenApiDtoProperty> $properties
+     * @param list<string|int|float|bool> $enumValues
      */
     public function __construct(
         public string $name,
         public array $properties,
         public ?string $description = null,
         public ?string $package = null,
+        public array $enumValues = [],
+        public ?string $enumType = null,
     ) {
     }
 }

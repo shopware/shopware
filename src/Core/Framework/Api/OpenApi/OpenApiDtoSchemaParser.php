@@ -462,13 +462,14 @@ final class OpenApiDtoSchemaParser
                 description: $this->stringOrNull($parameter['description'] ?? null),
                 format: $this->stringOrNull($constraintSchema['format'] ?? null),
                 pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
-                enum: $this->scalarEnum($constraintSchema['enum'] ?? null),
+                enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
                 defaultValue: $this->defaultValue($constraintSchema),
                 hasDefaultValue: $this->hasDefaultValue($constraintSchema),
                 minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
                 minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
                 arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
+                nativeEnum: $this->isNativeEnumReference($schema, $registry),
             );
         }
 
@@ -483,6 +484,18 @@ final class OpenApiDtoSchemaParser
      */
     private function extractDtoFromSchema(string $name, array $schema, array $registry): array
     {
+        $enumType = $this->nativeEnumType($schema);
+        if ($enumType !== null) {
+            return [new OpenApiDtoDefinition(
+                $name,
+                [],
+                $this->stringOrNull($schema['description'] ?? null),
+                $this->packageFromSchema($schema),
+                $this->scalarEnum($schema['enum'] ?? null) ?? [],
+                $enumType,
+            )];
+        }
+
         $variants = $this->variants($schema);
         if ($variants !== null && \count($variants) > 1) {
             $definitions = [];
@@ -635,7 +648,7 @@ final class OpenApiDtoSchemaParser
             description: $this->stringOrNull($schema['description'] ?? null) ?? $this->stringOrNull($constraintSchema['description'] ?? null),
             format: $this->stringOrNull($constraintSchema['format'] ?? null),
             pattern: $this->stringOrNull($constraintSchema['pattern'] ?? null),
-            enum: $this->scalarEnum($constraintSchema['enum'] ?? null),
+            enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
             defaultValue: $this->defaultValue($constraintSchema),
             hasDefaultValue: $this->hasDefaultValue($constraintSchema),
             minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
@@ -643,7 +656,19 @@ final class OpenApiDtoSchemaParser
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
             unresolvedReference: $unresolvedReference,
             arrayMapValueType: $phpType === self::PHP_TYPE_ARRAY ? $this->arrayMapValueType($constraintSchema, $registry) : null,
+            nativeEnum: $this->isNativeEnumReference($schema, $registry),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     * @param array<string, array<string, mixed>> $registry
+     */
+    private function isNativeEnumReference(array $schema, array $registry): bool
+    {
+        $ref = $this->refFromSchema($schema);
+
+        return $ref !== null && $this->nativeEnumType($registry[$this->resolveRefName($ref)] ?? []) !== null;
     }
 
     /**
@@ -769,6 +794,15 @@ final class OpenApiDtoSchemaParser
             $resolvable = isset($registry[$refName]);
             $referencedSchema = $registry[$refName] ?? null;
             if ($referencedSchema !== null && !$this->hasDtoShape($referencedSchema)) {
+                if ($this->nativeEnumType($referencedSchema) !== null) {
+                    return [
+                        'phpType' => $this->toPascalCase($refName),
+                        'arrayItemType' => null,
+                        'nullable' => false,
+                        'unresolved' => false,
+                    ];
+                }
+
                 return $this->mapOpenApiTypeToPhp($referencedSchema, $registry);
             }
 
@@ -1151,6 +1185,32 @@ final class OpenApiDtoSchemaParser
     private function defaultScalarValue(mixed $value): string|int|float|bool|null
     {
         return \is_string($value) || \is_int($value) || \is_float($value) || \is_bool($value) ? $value : null;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function nativeEnumType(array $schema): ?string
+    {
+        if (!\is_string($schema[OpenApiDtoGenerator::NAMESPACE_EXTENSION] ?? null) || $schema[OpenApiDtoGenerator::NAMESPACE_EXTENSION] === '') {
+            return null;
+        }
+
+        $values = $this->scalarEnum($schema['enum'] ?? null);
+        $type = $this->schemaType($schema);
+
+        if ($values === null || !\in_array($type, ['string', 'integer'], true)) {
+            return null;
+        }
+
+        $valueType = $type === 'string' ? 'string' : 'integer';
+        foreach ($values as $value) {
+            if (\gettype($value) !== $valueType) {
+                return null;
+            }
+        }
+
+        return $type === 'integer' ? 'int' : 'string';
     }
 
     /**

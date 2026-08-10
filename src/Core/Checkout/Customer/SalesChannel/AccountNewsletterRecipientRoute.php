@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Extension\AccountNewsletterRecipientRouteExtension;
+use Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient\NewsletterStatus;
 use Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient\ReadNewsletterRecipientResponse;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
@@ -85,6 +86,6 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
 
         $status = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first()?->get('status') ?? self::UNDEFINED;
 
-        return new ReadNewsletterRecipientResponse($status);
+        return new ReadNewsletterRecipientResponse(NewsletterStatus::from($status));
     }
 }

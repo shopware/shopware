@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,6 +14,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class OpenApiDtoClassRenderer
 {
+    /**
+     * Class name suffix that marks a generated DTO as a response. Response DTOs implement
+     * {@see StoreApiDTOResponseInterface} so they can be identified in later processing steps.
+     */
+    private const RESPONSE_CLASS_SUFFIX = 'Response';
+
     /**
      * @var array<string, string>
      */
@@ -71,7 +78,8 @@ final class OpenApiDtoClassRenderer
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
 
-        $lines[] = 'final readonly class ' . $definition->name;
+        $lines[] = 'final readonly class ' . $definition->name
+            . ($this->isResponse($definition) ? ' implements ' . $this->shortClassName(StoreApiDTOResponseInterface::class) : '');
         $lines[] = '{';
         $lines[] = '    public function __construct(';
 
@@ -362,6 +370,10 @@ final class OpenApiDtoClassRenderer
         $current = $namespace !== null ? trim($namespace, '\\') : '';
 
         $imports = [];
+        $responseInterfaceNamespace = substr(StoreApiDTOResponseInterface::class, 0, (int) strrpos(StoreApiDTOResponseInterface::class, '\\'));
+        if ($this->isResponse($definition) && $responseInterfaceNamespace !== $current) {
+            $imports[StoreApiDTOResponseInterface::class] = true;
+        }
         if ($this->needsDateTimeFormatAssertion($definition)) {
             $imports[Defaults::class] = true;
         }
@@ -421,6 +433,18 @@ final class OpenApiDtoClassRenderer
         }
 
         return false;
+    }
+
+    private function isResponse(OpenApiDtoDefinition $definition): bool
+    {
+        return str_ends_with($definition->name, self::RESPONSE_CLASS_SUFFIX);
+    }
+
+    private function shortClassName(string $fqcn): string
+    {
+        $parts = explode('\\', $fqcn);
+
+        return (string) end($parts);
     }
 
     private function isPrimitive(string $type): bool

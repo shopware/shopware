@@ -30,9 +30,9 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationS
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
-use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
 use Shopware\Core\Framework\Api\Command\OpenApiDtoGenerationCommand;
 use Shopware\Core\Framework\Api\Command\OpenApiValidationCommand;
+use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
 use Shopware\Core\Framework\Api\Context\ContextValueResolver;
 use Shopware\Core\Framework\Api\Controller\AccessKeyController;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -71,6 +71,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterfaceValueResolver;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
+use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseSubscriber;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -136,6 +137,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(ResponseHeaderListener::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(StoreApiDTOResponseSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(ContextValueResolver::class)

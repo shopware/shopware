@@ -31,12 +31,15 @@ const conditionRepositoryMock = {
     search: jest.fn(),
 };
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper({ featureActive = false } = {}, ruleId = null) {
     return mount(
         await wrapTestComponent('sw-flow-rule-modal', {
             sync: true,
         }),
         {
+            props: {
+                ruleId: ruleId
+            },
             global: {
                 provide: {
                     repositoryFactory: {
@@ -159,8 +162,7 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
                 ),
             );
 
-        const wrapper = await createWrapper();
-        await wrapper.vm.loadRule('1');
+        const wrapper = await createWrapper({}, '1');
         await flushPromises();
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);

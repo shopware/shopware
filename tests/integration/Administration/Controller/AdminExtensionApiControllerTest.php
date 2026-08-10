@@ -206,6 +206,7 @@ class AdminExtensionApiControllerTest extends TestCase
                     'name' => self::EXISTING_APP_NAME,
                     'privileges' => [],
                 ],
+                'allowedHosts' => ['app.infra'],
             ],
         ], $this->context);
 

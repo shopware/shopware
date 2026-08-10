@@ -872,6 +872,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(EntitySearcherInterface::class),
             service(RequestCriteriaBuilder::class),
+            service(AclCriteriaValidator::class),
             service(SyncFkResolver::class),
             service(SyncMetricsInstrumentor::class),
         ]);

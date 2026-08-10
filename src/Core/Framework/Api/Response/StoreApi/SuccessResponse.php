@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-15 11:22:29
+ * Last generated: 2026-08-10 11:16:52
  */
 
 namespace Shopware\Core\Framework\Api\Response\StoreApi;
@@ -12,7 +12,7 @@ namespace Shopware\Core\Framework\Api\Response\StoreApi;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-final readonly class SuccessResponse
+final readonly class SuccessResponse implements StoreApiDTOResponseInterface
 {
     public function __construct(
         public ?bool $success = null,

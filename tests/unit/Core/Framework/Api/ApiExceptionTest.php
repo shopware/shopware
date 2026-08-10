@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssocia
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -133,6 +134,19 @@ class ApiExceptionTest extends TestCase
         static::assertEquals('API Expectations failed', $exception->getMessage());
     }
 
+    public function testExpectationNotSupported(): void
+    {
+        $exception = ApiException::expectationNotSupported();
+
+        static::assertSame(Response::HTTP_EXPECTATION_FAILED, $exception->getStatusCode());
+        static::assertSame(ApiException::API_EXPECTATION_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame(
+            'The "sw-expect-packages" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+            $exception->getMessage()
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidSyncOperation(): void
     {
         $exception = ApiException::invalidSyncOperation('Message');

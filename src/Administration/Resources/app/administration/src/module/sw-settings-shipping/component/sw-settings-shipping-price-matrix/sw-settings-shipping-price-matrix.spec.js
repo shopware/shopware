@@ -130,6 +130,21 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(wrapper.vm.prices).toHaveLength(2);
     });
 
+    it('should update the price group calculation immediately when changed', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.priceGroup.calculation).toBe(1);
+        expect(wrapper.vm.showDataGrid).toBeTruthy();
+
+        wrapper.vm.onCalculationChange(3);
+
+        expect(wrapper.vm.priceGroup.calculation).toBe(3);
+        expect(wrapper.vm.showDataGrid).toBeTruthy();
+        wrapper.vm.priceGroup.prices.forEach((shippingPrice) => {
+            expect(shippingPrice.calculation).toBe(3);
+        });
+    });
+
     it('should add new price', async () => {
         const wrapper = await createWrapper();
 

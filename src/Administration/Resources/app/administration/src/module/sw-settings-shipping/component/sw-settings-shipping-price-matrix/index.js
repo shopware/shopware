@@ -362,6 +362,8 @@ export default {
         },
 
         onCalculationChange(calculation) {
+            this.priceGroup.calculation = Number(calculation);
+
             this.priceGroup.prices.forEach((shippingPrice) => {
                 shippingPrice.calculation = Number(calculation);
                 shippingPrice.ruleId = this.priceGroup.ruleId;

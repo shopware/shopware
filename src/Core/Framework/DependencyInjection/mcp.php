@@ -7,6 +7,7 @@ use Mcp\Server\Builder as McpServerBuilder;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
@@ -332,6 +333,9 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.registry')->nullOnInvalid(),
             service(McpAllowlistProvider::class),
             service(McpCapabilityCatalog::class),
+            service('mcp.store_api.server.builder')->nullOnInvalid(),
+            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.store_api.capability_catalog')->nullOnInvalid(),
         ])
         ->tag('console.command');
 
@@ -387,6 +391,7 @@ return static function (ContainerConfigurator $container): void {
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
             service(JsonEntityEncoder::class),
+            service(AclCriteriaValidator::class),
         ])
         ->tag('mcp.tool');
 
@@ -395,6 +400,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
+            service(AclCriteriaValidator::class),
         ])
         ->tag('mcp.tool');
 
@@ -404,6 +410,7 @@ return static function (ContainerConfigurator $container): void {
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
             service(JsonEntityEncoder::class),
+            service(AclCriteriaValidator::class),
         ])
         ->tag('mcp.tool');
 

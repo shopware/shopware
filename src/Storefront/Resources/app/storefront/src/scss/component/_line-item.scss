@@ -226,7 +226,7 @@ $infoItemRemoveMdSpace: 1;
     }
 }
 
-.line-item.is-order {
+.order-detail-content-list > .line-item.is-order {
     margin-left: 20px;
     margin-right: 20px;
 }
@@ -586,6 +586,15 @@ $infoItemRemoveMdSpace: 1;
 
 .line-item-delivery-date {
     font-size: $font-size-sm;
+}
+
+.line-item-garan-label {
+    margin-top: $spacer-sm;
+
+    svg {
+        max-width: 200px;
+        height: auto;
+    }
 }
 
 .line-item-label {

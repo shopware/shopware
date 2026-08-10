@@ -19,7 +19,14 @@ Tests should read like executable examples.
 - Keep test helpers smaller than the code they replace.
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
-- Do not invoke private or protected methods of Shopware classes via reflection (`->invoke()`, `->invokeArgs()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. Fix legacy usages when touching such a test. Reflecting into a third-party class stays acceptable when a vendor API leaves no other option, and reading metadata from a reflection object is always fine, for example asserting a declaring class, a signature, or an attribute. A Danger rule fails the pull request when the reflected target is a proven private or protected method of a Shopware class, and warns when it cannot resolve the target from the diff; resolve the warning thread when the target is third-party or public.
+- Do not invoke private or protected methods of Shopware classes via reflection (`->invoke()`, `->invokeArgs()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. Fix legacy usages when touching such a test. Reflecting into a third-party class stays acceptable when a vendor API leaves no other option, and reading metadata from a reflection object is always fine, for example asserting a declaring class, a signature, or an attribute. The PHPStan rule `shopware.reflectionOnNonPublicMethod` enforces this.
+
+## Never Terminate The Test Process
+
+- A test must never let production or framework code call `exit()`, `die()`, or `posix_kill()`. PHPUnit is gone before it can report anything, so the remaining tests silently do not run and no JUnit or coverage report is written. See [issue #18661](https://github.com/shopware/shopware/issues/18661).
+- `Shopware\Core\Test\PHPUnit\CompletionGuard` (registered from `TestBootstrapper::bootstrap()`) now turns this into a loud failure instead of a green run. `PHPUnit terminated before the test runner finished the suite` on `STDERR` with exit code `1` and no failure summary means a test killed the process — find the last test that started, not a failing assertion.
+- When testing a Symfony console `Application`, always call `$application->setAutoExit(false)` before running it. `Application::run()` ends in `exit($code)` otherwise. `CommandTester` is unaffected — it invokes the command directly — so prefer it over `ApplicationTester` unless the scenario genuinely needs the application layer (command resolution, aliases, global options).
+- The same applies to any code path that reaches `exit()`: kernel shutdown handlers, `Process` wrappers configured to exit, and CLI entry-point scripts included in a test. Cover the callable underneath instead of the script.
 
 ## Assertions And Fixtures
 
@@ -44,13 +51,15 @@ Tests should read like executable examples.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
+- Declare exactly one `#[CoversClass]` per test file: the covered class decides which domain owns the test. When a second class needs tests, create a second test file. A Danger rule fails new test files covering more than one class.
 
-## Package Attribute
+## Meta-information of test classes
 
 - Give every test class a `#[Package('…')]` attribute (import `Shopware\Core\Framework\Log\Package`) so failing CI jobs — especially the nightlies — can be routed to the owning domain team. A Danger rule fails PRs that add test classes without it.
 - In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`.
 - Integration tests carry no `#[CoversClass]`; use the dominant `#[Package]` value of the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`).
 - When a change moves the covered class to another package, update the test's attribute in the same change so the two stay in sync.
+- Every test class needs to be marked as internal with `@internal` PHPDoc class annotation.
 
 ## Data Providers
 

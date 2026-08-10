@@ -49,6 +49,11 @@ class SalesChannelRepository
     ) {
     }
 
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->definition;
+    }
+
     /**
      * @throws InconsistentCriteriaIdsException
      *

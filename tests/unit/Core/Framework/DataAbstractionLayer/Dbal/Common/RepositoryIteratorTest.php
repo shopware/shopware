@@ -82,6 +82,18 @@ class RepositoryIteratorTest extends TestCase
         static::assertSame(5, $criteria->getOffset());
     }
 
+    public function testFetchAddsAutoIncrementCursorToPartialFields(): void
+    {
+        $criteria = (new Criteria())->setLimit(2);
+        $criteria->addFields(['name']);
+
+        $repository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
+
+        new RepositoryIterator($repository, Context::createDefaultContext(), $criteria);
+
+        static::assertSame(['name', 'autoIncrement'], $criteria->getFields());
+    }
+
     public function testFetchIdsKeepsOffsetPaginationForCriteriaWithSorting(): void
     {
         $context = Context::createDefaultContext();

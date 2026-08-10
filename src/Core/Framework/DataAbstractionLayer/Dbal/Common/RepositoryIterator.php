@@ -47,6 +47,11 @@ class RepositoryIterator
         }
 
         if ($criteria->getSorting() === [] && $repository->getDefinition()->hasAutoIncrement()) {
+            if ($criteria->getFields() !== []) {
+                // Partial loading omits the keyset cursor by default, so include it to advance past each batch.
+                $criteria->addFields(['autoIncrement']);
+            }
+
             $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
             $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
             $this->autoIncrement = true;

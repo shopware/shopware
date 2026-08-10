@@ -26,18 +26,18 @@ The validation model is:
 - Enforce HTTPS-only targets by default. Operators may explicitly allow unencrypted webhook traffic through `shopware.yaml`, with the default set to disallow HTTP.
 - Require a syntactically valid URL with an existing host.
 - Reject direct IP-literal hosts by default. Operators may explicitly allow required internal IP literals through an allow-list in `shopware.yaml`.
-- Reject localhost and reserved hostnames by default, including `localhost`, `.localhost`, `.local`, `.test`, `.example`, `.invalid`, `.onion`, `.home.arpa`, and exact reserved names such as `example.com`, `example.net`, `example.org`, `home.arpa`, and `localdomain`.
+- Reuse and centralize Shopware's outbound URL validation policy instead of introducing webhook-specific security logic. The existing upload-by-URL validation is the starting point and must be extended where it does not yet cover the webhook requirements.
 - Resolve both A and AAAA records for the host. Every resolved address must be public unless it matches the configured internal IP allow-list. If any record resolves to a private, loopback, link-local, reserved, or otherwise non-public IP range that is not allow-listed, the target is invalid.
 - Provide an operator-controlled `shopware.yaml` configuration for webhook network policy. The exact configuration names are decided during implementation, but the defaults must disallow unencrypted traffic and internal network targets.
 - Configure Guzzle redirects explicitly for webhook requests instead of relying on defaults.
-- Use Guzzle's `allow_redirects.on_redirect` callback to validate each redirect target URI before Guzzle follows it.
-- Throw a `GuzzleHttp\Exception\TransferException` from the redirect callback when the target is invalid. `WebhookClient` already treats `TransferException` as a failed delivery result.
+- Validate each redirect target before the redirected request is sent. The redirect handling must preserve the DNS result used during validation for the actual redirected request as well.
+- Throw a `GuzzleHttp\Exception\TransferException` from redirect validation when the target is invalid. `WebhookClient` already treats `TransferException` as a failed delivery result.
 - Restrict redirect protocols to the same scheme policy as the initial target. If unencrypted webhook traffic is disabled, redirects are HTTPS-only as well.
 - Preserve the webhook request method during redirects by enabling Guzzle's strict redirect handling.
 - Keep a bounded redirect limit.
-- If the active Guzzle handler supports cURL options, pin the validated host and port to a resolved public IP with `CURLOPT_RESOLVE` for the request. This reduces DNS rebinding risk between validation and connection. The request must keep TLS peer and host verification enabled.
+- If the active Guzzle handler supports cURL options, pin each validated host and port to the resolved public IP used during validation with `CURLOPT_RESOLVE` for the corresponding request. This reduces DNS rebinding risk between validation and connection. The request must keep TLS peer and host verification enabled.
 
-The effective Guzzle redirect policy for webhook delivery is:
+If Guzzle's redirect middleware is used, the redirect policy for webhook delivery must be configured explicitly:
 
 ```php
 'allow_redirects' => [
@@ -56,6 +56,8 @@ The effective Guzzle redirect policy for webhook delivery is:
 ]
 ```
 
+The exact redirect implementation is decided during implementation. Guzzle's `allow_redirects.on_redirect` callback can reject an invalid redirect target before Guzzle follows it, but the implementation must also guarantee that the DNS result validated for each redirect target is the IP used for that redirected request. If that cannot be done with Guzzle's redirect middleware alone, Shopware must handle redirects through a custom middleware or explicit redirect loop.
+
 When cURL options are available, the delivery request options include a resolve pin for the exact hostname and effective port:
 
 ```php
@@ -66,7 +68,7 @@ When cURL options are available, the delivery request options include a resolve 
 ]
 ```
 
-The URL validator must evaluate the complete target URL, not only the host. It must enforce the allowed scheme and port policy, apply the configured internal IP allow-list, resolve both A and AAAA records, and reject any record resolving to private, loopback, link-local, reserved, or otherwise non-public IP ranges that are not explicitly allow-listed.
+The URL validator must evaluate the complete target URL, not only the host. It must enforce the allowed scheme and port policy, apply the configured internal IP allow-list, resolve both A and AAAA records, and reject any record resolving to private, loopback, link-local, reserved, or otherwise non-public IP ranges that are not explicitly allow-listed. The validation logic should be shared with other server-side outbound URL features such as media upload by URL, so SSRF protections are implemented once and reused consistently.
 
 Delivery-time validation remains mandatory even with write-time validation. Webhook rows may predate the validation change, and DNS can change after a webhook was saved.
 
@@ -109,6 +111,7 @@ Direct IP webhooks could be allowed if the IP itself passes range validation. Th
 - DNS can still change between validation and connection if cURL resolve pinning is unavailable for the active Guzzle handler.
 - Pinning one resolved IP can reduce CDN/load-balancer flexibility for a single delivery attempt.
 - Each redirect hop performs validation and DNS resolution, adding a small amount of latency to redirected deliveries.
+- Centralizing the validator may require adapting the existing upload-by-URL validator before webhooks can reuse it safely.
 
 ### Operational impact
 

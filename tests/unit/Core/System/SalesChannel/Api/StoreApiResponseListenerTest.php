@@ -76,7 +76,7 @@ class StoreApiResponseListenerTest extends TestCase
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')
@@ -114,7 +114,7 @@ class StoreApiResponseListenerTest extends TestCase
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')

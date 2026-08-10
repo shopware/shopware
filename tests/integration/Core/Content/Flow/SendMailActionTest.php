@@ -1302,6 +1302,11 @@ class TestEmailService extends MailService
         $this->data = $data;
         ++$this->calls;
 
+        TestCase::assertArrayHasKey('subject', $data);
+        TestCase::assertIsString($data['subject']);
+        TestCase::assertArrayHasKey('recipients', $data);
+        TestCase::assertIsArray($data['recipients']);
+
         if ($this->mailFactory && $this->decorator) {
             $mail = $this->mailFactory->create(
                 $data['subject'],

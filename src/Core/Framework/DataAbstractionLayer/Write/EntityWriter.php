@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalWriteInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -47,7 +48,8 @@ class EntityWriter implements EntityWriterInterface
         private readonly EntityWriteGatewayInterface $gateway,
         private readonly LanguageLoaderInterface $languageLoader,
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly EntityWriteResultFactory $factory
+        private readonly EntityWriteResultFactory $factory,
+        private readonly DalWriteInstrumentor $writeInstrumentor,
     ) {
     }
 
@@ -121,23 +123,31 @@ class EntityWriter implements EntityWriterInterface
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        return $this->write($definition, $rawData, $writeContext);
+        return $this->writeInstrumentor->measure(DalWriteInstrumentor::OPERATION_WRITE, $definition, fn (): array => $this->write($definition, $rawData, $writeContext));
     }
 
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        return $this->write($definition, $rawData, $writeContext, InsertCommand::class);
+        return $this->writeInstrumentor->measure(DalWriteInstrumentor::OPERATION_WRITE, $definition, fn (): array => $this->write($definition, $rawData, $writeContext, InsertCommand::class));
     }
 
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        return $this->write($definition, $rawData, $writeContext, UpdateCommand::class);
+        return $this->writeInstrumentor->measure(DalWriteInstrumentor::OPERATION_WRITE, $definition, fn (): array => $this->write($definition, $rawData, $writeContext, UpdateCommand::class));
     }
 
     /**
      * @throws RestrictDeleteViolationException
      */
     public function delete(EntityDefinition $definition, array $rawData, WriteContext $writeContext): WriteResult
+    {
+        return $this->writeInstrumentor->measure(DalWriteInstrumentor::OPERATION_DELETE, $definition, fn (): WriteResult => $this->doDelete($definition, $rawData, $writeContext));
+    }
+
+    /**
+     * @param array<array<string, mixed>> $rawData
+     */
+    private function doDelete(EntityDefinition $definition, array $rawData, WriteContext $writeContext): WriteResult
     {
         WriteInputValidator::validate($rawData);
 

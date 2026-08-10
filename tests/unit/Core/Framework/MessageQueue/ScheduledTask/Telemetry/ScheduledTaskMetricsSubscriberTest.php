@@ -54,7 +54,8 @@ class ScheduledTaskMetricsSubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'async'));
 
-        $duration = $this->getMetric('scheduled_task.run.duration');
+        $duration = $this->findMetric('scheduled_task.run.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertSame(
             ['task_name' => 'task_name_label:shopware.invalidate_cache', 'result' => 'success'],
             $duration->labels
@@ -71,7 +72,8 @@ class ScheduledTaskMetricsSubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'async'));
 
-        $duration = $this->getMetric('scheduled_task.run.duration');
+        $duration = $this->findMetric('scheduled_task.run.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertSame(
             ['task_name' => 'task_name_label:my_plugin.custom_task', 'result' => 'success'],
             $duration->labels
@@ -88,7 +90,8 @@ class ScheduledTaskMetricsSubscriberTest extends TestCase
         $subscriber->onMessageReceived(new WorkerMessageReceivedEvent($envelope, 'async'));
         $subscriber->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'async', new \RuntimeException()));
 
-        $duration = $this->getMetric('scheduled_task.run.duration');
+        $duration = $this->findMetric('scheduled_task.run.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertSame(
             ['task_name' => 'task_name_label:shopware.invalidate_cache', 'result' => 'failed'],
             $duration->labels
@@ -146,11 +149,6 @@ class ScheduledTaskMetricsSubscriberTest extends TestCase
             $taskNameResolver,
             new WorkerMessageTimingHelper()
         );
-    }
-
-    private function getMetric(string $name): ConfiguredMetric
-    {
-        return $this->findMetric($name) ?? static::fail(\sprintf('Metric "%s" was not emitted', $name));
     }
 
     private function findMetric(string $name): ?ConfiguredMetric

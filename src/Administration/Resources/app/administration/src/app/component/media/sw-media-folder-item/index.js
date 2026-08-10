@@ -66,20 +66,7 @@ export default {
         },
 
         iconName() {
-            switch (this.iconConfig.name) {
-                case 'regular-box':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-products':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-database':
-                    return 'multicolor-folder-thumbnail--grey';
-                case 'regular-image-text':
-                    return 'multicolor-folder-thumbnail--pink';
-                case 'regular-cog':
-                    return 'multicolor-folder-thumbnail--grey';
-                default:
-                    return 'multicolor-folder-thumbnail';
-            }
+            return 'folder-thumbnail';
         },
 
         assetFilter() {

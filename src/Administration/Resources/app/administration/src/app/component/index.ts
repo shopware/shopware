@@ -487,6 +487,10 @@ export default () => {
     Shopware.Component.register('sw-media-folder-content', () => import('src/app/component/media/sw-media-folder-content'));
     Shopware.Component.register('sw-media-folder-item', () => import('src/app/component/media/sw-media-folder-item'));
     Shopware.Component.register(
+        'sw-media-folder-thumbnail',
+        () => import('src/app/component/media/sw-media-folder-thumbnail'),
+    );
+    Shopware.Component.register(
         'sw-media-list-selection-item-v2',
         () => import('src/app/component/media/sw-media-list-selection-item-v2'),
     );

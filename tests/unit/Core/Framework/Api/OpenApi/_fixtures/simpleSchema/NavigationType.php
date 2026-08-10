@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Navigation entry type
+ *
+ * @codeCoverageIgnore
  */
 final readonly class NavigationType
 {

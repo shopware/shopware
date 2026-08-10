@@ -11,6 +11,8 @@ namespace App\DTO;
 
 /**
  * Customer group of the current user
+ *
+ * @codeCoverageIgnore
  */
 final readonly class SalesChannelContextCurrentCustomerGroup
 {

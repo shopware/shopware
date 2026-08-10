@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Used for submitting contact forms.
+ *
+ * @codeCoverageIgnore
  */
 final readonly class SendContactMailRequest
 {

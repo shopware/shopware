@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Payload for creating a new cart
+ *
+ * @codeCoverageIgnore
  */
 final readonly class CreateCartRequest
 {

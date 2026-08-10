@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-10 14:33:27
+ * Last generated: 2026-08-10 15:01:45
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 enum NewsletterStatus: string

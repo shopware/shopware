@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 
 /**
  * API info
+ *
+ * @codeCoverageIgnore
  */
 final readonly class ApiInfoResponse implements StoreApiDTOResponseInterface
 {

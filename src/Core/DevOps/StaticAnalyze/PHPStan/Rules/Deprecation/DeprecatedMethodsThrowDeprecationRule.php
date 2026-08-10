@@ -20,10 +20,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRule implements Rule
 {
-    public function __construct(private readonly ServiceMap $serviceMap)
-    {
-    }
-
     /**
      * There are some exceptions to this rule, where deprecated methods should not throw a deprecation notice.
      * This is mainly the reason if the deprecated code is still called from inside the core due to BC reasons.
@@ -58,6 +54,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];
+
+    public function __construct(private readonly ServiceMap $serviceMap)
+    {
+    }
 
     public function getNodeType(): string
     {

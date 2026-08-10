@@ -9,8 +9,6 @@ use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.8.0 - Commercial license syncing now uses the `commercial_license.provided` webhook. Can be removed when all services migrated.
  */
 #[Package('framework')]
 class AuthenticatedServiceClient
@@ -22,9 +20,7 @@ class AuthenticatedServiceClient
     ) {
     }
 
-    /**
-     * @phpstan-ignore shopware.deprecatedClass (not triggering deprecation to avoid polluting logs)
-     */
+    // @deprecated tag:v6.8.0 - Remove with the legacy commercial license sync endpoint support. Use the `commercial_license.provided` webhook instead.
     public function syncLicense(string $licenseKey = '', string $licenseHost = ''): void
     {
         if ($this->entry->licenseSyncEndPoint === null) {

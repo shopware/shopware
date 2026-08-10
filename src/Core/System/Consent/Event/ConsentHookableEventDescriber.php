@@ -7,7 +7,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
-use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
+use Shopware\Core\System\Consent\Service\ConsentService;
 
 #[Package('data-services')]
 class ConsentHookableEventDescriber implements HookableEventDescriber
@@ -15,7 +15,7 @@ class ConsentHookableEventDescriber implements HookableEventDescriber
     /**
      * @internal
      */
-    public function __construct(private readonly ConsentDefinitionRegistry $consentDefinitionRegistry)
+    public function __construct(private readonly ConsentService $consentService)
     {
     }
 
@@ -39,7 +39,7 @@ class ConsentHookableEventDescriber implements HookableEventDescriber
     {
         $events = [];
 
-        foreach ($this->consentDefinitionRegistry->all() as $consentDefinition) {
+        foreach ($this->consentService->definitions() as $consentDefinition) {
             $consentName = $consentDefinition->getName();
             $privilege = \sprintf('consent:%s:%s', $consentName, AclRoleDefinition::PRIVILEGE_READ);
 

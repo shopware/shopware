@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
-use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
+use Shopware\Core\System\Consent\ConsentDefinitionProvider;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -20,6 +20,7 @@ use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 use Shopware\Core\System\Consent\Service\ConsentService;
+use Shopware\Core\System\Consent\TaggedConsentDefinitionProvider;
 use Shopware\Core\Test\Stub\EventDispatcher\AssertingEventDispatcher;
 use Shopware\Tests\Unit\Core\System\Consent\TestDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -36,6 +37,40 @@ class ConsentServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->consentRepository = $this->createMock(ConsentRepository::class);
+    }
+
+    public function testDefinitionsAreCollectedFromAllProvidersAndALaterOneWins(): void
+    {
+        $appConsent = new TestDefinition('MyApp-data_sharing', 'system');
+        $backendData = new TestDefinition('backend_data', 'system');
+
+        $service = $this->createServiceFromProviders([
+            new TaggedConsentDefinitionProvider([$appConsent, new TestDefinition('backend_data', 'admin_user')]),
+            new TaggedConsentDefinitionProvider([$backendData]),
+        ]);
+
+        static::assertSame([
+            'MyApp-data_sharing' => $appConsent,
+            'backend_data' => $backendData,
+        ], $service->definitions());
+    }
+
+    public function testResetCollectsDefinitionsFromTheProvidersAgain(): void
+    {
+        $first = new TestDefinition('MyApp-first', 'system');
+        $second = new TestDefinition('MyApp-second', 'system');
+
+        $provider = static::createStub(ConsentDefinitionProvider::class);
+        $provider->method('getConsentDefinitions')->willReturnOnConsecutiveCalls([$first], [$second]);
+
+        $service = $this->createServiceFromProviders([$provider]);
+
+        static::assertSame(['MyApp-first' => $first], $service->definitions());
+        static::assertSame(['MyApp-first' => $first], $service->definitions());
+
+        $service->reset();
+
+        static::assertSame(['MyApp-second' => $second], $service->definitions());
     }
 
     public function testList(): void
@@ -578,12 +613,20 @@ class ConsentServiceTest extends TestCase
      */
     private function createService(?EventDispatcher $eventDispatcher = null, array $definitions = []): ConsentService
     {
+        return $this->createServiceFromProviders([new TaggedConsentDefinitionProvider($definitions)], $eventDispatcher);
+    }
+
+    /**
+     * @param list<ConsentDefinitionProvider> $providers
+     */
+    private function createServiceFromProviders(array $providers, ?EventDispatcher $eventDispatcher = null): ConsentService
+    {
         return new ConsentService(
             [
                 new ConsentScope\System(),
                 new AdminUser(),
             ],
-            new ConsentDefinitionRegistry($definitions),
+            $providers,
             $this->consentRepository,
             $eventDispatcher ?? new EventDispatcher()
         );

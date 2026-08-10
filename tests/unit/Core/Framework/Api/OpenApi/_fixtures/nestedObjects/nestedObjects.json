@@ -7,6 +7,7 @@
   "components": {
     "schemas": {
       "SalesChannelContext": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "description": "Sales channel context",
         "required": ["salesChannel", "itemRounding"],
@@ -113,6 +114,7 @@
         }
       },
       "SalesChannel": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "required": ["id", "name"],
         "properties": {
@@ -126,6 +128,7 @@
         }
       },
       "Order": {
+        "x-dto-namespace": "App\\DTO",
         "type": "object",
         "description": "An order entity",
         "required": ["id", "billingAddress"],

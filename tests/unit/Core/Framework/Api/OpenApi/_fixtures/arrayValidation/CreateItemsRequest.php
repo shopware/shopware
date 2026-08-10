@@ -4,8 +4,10 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-07 00:00:00
  */
+
+namespace App\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -45,6 +47,8 @@ final readonly class CreateItemsRequest
         public ?array $vatIds = null,
         /**
          * Untyped array
+         *
+         * @var array<string, mixed>
          */
         public ?array $untyped = null,
     ) {

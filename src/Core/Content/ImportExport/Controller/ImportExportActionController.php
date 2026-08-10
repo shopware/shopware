@@ -83,6 +83,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 $file,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config'),
                 $request->request->has('dryRun')
             );
@@ -96,6 +97,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 null,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config')
             );
         }

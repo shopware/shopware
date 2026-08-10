@@ -43,7 +43,6 @@ export default function assetPathPlugin(bundleName = 'administration'): Plugin {
             // Admin Worker when the Administration is hosted under a base path / subdirectory.
             // Prefix them the same way assetsURL() is prefixed above. This runs on the final,
             // minified output because that is the only place the literal reliably matches.
-            // Escape the bundle name so any regex metacharacters in it are matched literally.
             const workerUrlRegex = new RegExp(
                 `(new\\s+(?:Shared)?Worker\\(\\s*)"(\\/bundles\\/${escapeBundleName(bundleName)}\\/administration\\/[^"]*)"`,
                 'g',

@@ -4,8 +4,10 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-07 00:00:00
  */
+
+namespace App\DTO;
 
 use Shopware\Core\Defaults;
 use Symfony\Component\Validator\Constraints as Assert;

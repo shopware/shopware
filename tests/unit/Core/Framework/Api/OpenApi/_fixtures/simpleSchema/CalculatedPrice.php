@@ -4,8 +4,11 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-07-07
+ * Last generated: 2026-07-07 00:00:00
  */
+
+namespace App\DTO;
+
 final readonly class CalculatedPrice
 {
     public function __construct(

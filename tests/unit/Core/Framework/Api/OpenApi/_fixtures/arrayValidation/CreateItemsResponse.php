@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
 
 /**
  * Success
+ *
+ * @codeCoverageIgnore
  */
 final readonly class CreateItemsResponse implements StoreApiDTOResponseInterface
 {

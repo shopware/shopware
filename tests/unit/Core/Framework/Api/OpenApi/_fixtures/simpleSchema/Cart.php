@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Shopping cart
+ *
+ * @codeCoverageIgnore
  */
 final readonly class Cart
 {

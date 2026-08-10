@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * An order entity
+ *
+ * @codeCoverageIgnore
  */
 final readonly class Order
 {

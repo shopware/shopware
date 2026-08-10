@@ -11,6 +11,8 @@ namespace App\DTO;
 
 /**
  * Country details
+ *
+ * @codeCoverageIgnore
  */
 final readonly class OrderBillingAddressCountry
 {

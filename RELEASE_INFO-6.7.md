@@ -10,9 +10,9 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 ### Order recalculation and conversion endpoints now require ACL privileges
 
-Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+Thirteen admin checkout endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
 
-* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions`, plus `PATCH /api/_proxy/modify-shipping-costs`, `/api/_proxy/disable-automatic-promotions` and `/api/_proxy/enable-automatic-promotions`, require `order:update`.
 * `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
 * `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
 

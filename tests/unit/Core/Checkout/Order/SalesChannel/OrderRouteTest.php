@@ -120,7 +120,7 @@ class OrderRouteTest extends TestCase
      * @param ?class-string<\Throwable> $exception
      */
     #[DataProvider('customerDataProvider')]
-    public function testValidateGuestCustomer(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login = false): void
+    public function testValidateGuestCustomer(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
     {
         if ($exception !== null) {
             $this->expectException($exception);
@@ -198,8 +198,9 @@ class OrderRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('deepLinkCode', 'deepLinkCode'));
 
         $request = new Request();
-        $request->request->set('email', $mail);
-        $request->request->set('zipcode', $postalCode);
+        $credentials = $credentialsInQuery ? $request->query : $request->request;
+        $credentials->set('email', $mail);
+        $credentials->set('zipcode', $postalCode);
         $request->request->set('login', $login);
 
         $response = $route->load($request, $context, $criteria);
@@ -211,7 +212,7 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>, 4?: bool}>
+     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
      */
     public static function customerDataProvider(): iterable
     {
@@ -225,6 +226,9 @@ class OrderRouteTest extends TestCase
         yield 'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null];
         yield 'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null];
         yield 'valid guest with login' => [true, 'Test@Example.Com', 'aa-345', null, true];
+        yield 'valid guest with credentials in query' => [true, 'test@example.com', 'AA-345', null, false, true];
+        yield 'wrong e-mail in query' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class, false, true];
+        yield 'no request e-mail in query' => [true, null, 'AA-345', GuestNotAuthenticatedException::class, false, true];
     }
 
     #[DataProvider('deeplinkFilterProvider')]

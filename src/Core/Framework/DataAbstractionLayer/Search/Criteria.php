@@ -30,6 +30,9 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
 
+    /**
+     * Score ranked grouping is applied to every grouped score query, this state has no effect anymore.
+     */
     final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
 
     final public const SCORE_FIELD = '_score';

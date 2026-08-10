@@ -75,7 +75,7 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->hasState(Criteria::STATE_SCORE_RANKED_GROUPING) && $criteria->getGroupFields() !== []) {
+        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
             $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
@@ -152,6 +152,10 @@ class EntitySearcher implements EntitySearcherInterface
     /**
      * Wraps a scored query with ROW_NUMBER() OVER(PARTITION BY ... ORDER BY _score DESC)
      * to guarantee the highest-scoring row is selected for each group.
+     *
+     * Grouping the scored query directly would aggregate the score over all entities of a group instead, so that
+     * a group would score higher the more entities it contains - product variants grouped by `displayGroup` for
+     * example, where a product with three variants scored three times as high as a comparable single product.
      */
     private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table): QueryBuilder
     {

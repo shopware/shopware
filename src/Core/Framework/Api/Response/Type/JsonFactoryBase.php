@@ -79,11 +79,12 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
             case Criteria::TOTAL_COUNT_MODE_NEXT_PAGES:
                 $remaining = $searchResult->getTotal();
-                $maxFetchCount = $limit * 5 + 1;
+                /** @see \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher::addTotalCountMode() */
+                $maxLastPageCount = $limit * 6 + 1;
                 if ($remaining && $remaining > $limit) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
-                if ($remaining > 0 && $remaining < $maxFetchCount) {
+                if ($remaining > 0 && $remaining < $maxLastPageCount) {
                     $lastPage = $currentPage - 1 + (int) ceil($remaining / $limit);
                     $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
                 }

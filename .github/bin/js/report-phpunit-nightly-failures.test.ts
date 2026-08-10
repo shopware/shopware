@@ -8,6 +8,8 @@ import {
   ISSUE_MARKER,
   buildIssuePayload,
   groupByDomain,
+  jestAppRoot,
+  parseJestJUnitReport,
   parseJUnitReport,
   resolvePackageKey,
 } from './report-phpunit-nightly-failures.ts';
@@ -173,5 +175,89 @@ describe('groupByDomain / buildIssuePayload', () => {
 
     assert.ok(payload.parent.issueBody.includes('No junit reports were produced'));
     assert.equal(payload.domains.length, 0);
+  });
+});
+const JEST_JUNIT_FIXTURE = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Shopware 6 Unit Tests" tests="3" failures="1" errors="0">
+  <testsuite name="src/app/component/form/sw-field" errors="0" failures="1" skipped="0" tests="3">
+    <testcase classname="src/app/component/form/sw-field renders the label" name="src/app/component/form/sw-field renders the label" time="0.1">
+    </testcase>
+    <testcase classname="src/app/component/form/sw-field emits the change event" name="src/app/component/form/sw-field emits the change event" time="0.2">
+      <failure>TypeError: wrapper.vm.emit is not a function
+    at Object.&lt;anonymous&gt; (/home/runner/work/shopware/shopware/src/Administration/Resources/app/administration/src/app/component/form/sw-field.spec.js:42:5)</failure>
+    </testcase>
+    <testcase classname="src/app/component/form/sw-field is accessible" name="src/app/component/form/sw-field is accessible" time="0.1">
+    </testcase>
+  </testsuite>
+</testsuites>
+`;
+
+describe('parseJestJUnitReport', () => {
+  it('extracts only failing testcases and strips the suite prefix from the name', () => {
+    const failures = parseJestJUnitReport(JEST_JUNIT_FIXTURE, 'src/Administration/Resources/app/administration');
+
+    assert.equal(failures.length, 1);
+    assert.equal(failures[0].className, 'src/app/component/form/sw-field');
+    assert.equal(failures[0].testName, 'emits the change event');
+    assert.equal(failures[0].message, 'TypeError: wrapper.vm.emit is not a function');
+  });
+
+  it('recovers the spec file from the failure stack trace', () => {
+    const failures = parseJestJUnitReport(JEST_JUNIT_FIXTURE, 'src/Administration/Resources/app/administration');
+
+    assert.equal(failures[0].file, 'src/Administration/Resources/app/administration/src/app/component/form/sw-field.spec.js');
+  });
+
+  it('falls back to the component directory when no stack trace names the spec', () => {
+    const fixture = `<testsuites><testsuite name="src/app/component/form/sw-field" tests="1" failures="1">
+      <testcase name="src/app/component/form/sw-field breaks" classname="src/app/component/form/sw-field breaks">
+        <failure>Expected true, received false</failure>
+      </testcase>
+    </testsuite></testsuites>`;
+    const failures = parseJestJUnitReport(fixture, 'src/Administration/Resources/app/administration');
+
+    assert.equal(failures[0].file, 'src/Administration/Resources/app/administration/src/app/component/form/sw-field');
+  });
+});
+
+describe('jestAppRoot', () => {
+  it('maps jest artifacts to their app and leaves phpunit reports alone', () => {
+    assert.equal(jestAppRoot('/tmp/junit-reports/jest-admin-major-results/administration.junit.xml'), 'src/Administration/Resources/app/administration');
+    assert.equal(jestAppRoot('/tmp/junit-reports/jest-storefront-results/storefront.junit.xml'), 'src/Storefront/Resources/app/storefront');
+    assert.equal(jestAppRoot('/tmp/junit-reports/junit-phpunit-unit/junit.xml'), null);
+  });
+});
+
+describe('resolvePackageKey for jest component directories', () => {
+  let repoRoot: string;
+
+  before(() => {
+    repoRoot = mkdtempSync(join(tmpdir(), 'nightly-report-jest-'));
+
+    const component = 'src/Administration/Resources/app/administration/src/app/component/form/sw-field';
+    mkdirSync(join(repoRoot, component), { recursive: true });
+    writeFileSync(join(repoRoot, component, 'index.js'), '/**\n * @sw-package framework\n */\nexport default {};\n');
+    writeFileSync(join(repoRoot, component, 'sw-field.spec.js'), '/**\n * @sw-package framework\n */\ndescribe(\'sw-field\', () => {});\n');
+  });
+
+  after(() => {
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  it('reads the dominant @sw-package marker of the component directory', () => {
+    assert.equal(
+      resolvePackageKey('src/Administration/Resources/app/administration/src/app/component/form/sw-field', repoRoot),
+      'framework'
+    );
+  });
+
+  it('routes a marker-less suite to manual routing', () => {
+    const groups = groupByDomain(
+      [{ className: 'eslint-rules/foo', testName: 'fails', file: '', message: 'boom' }],
+      repoRoot
+    );
+
+    assert.equal(groups.length, 1);
+    assert.equal(groups[0].label, 'needs manual routing');
   });
 });

@@ -152,8 +152,10 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 
@@ -204,8 +206,10 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 
@@ -288,8 +292,10 @@ class OrderServiceTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertNotNull($innerEvent);
-        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $innerEvent->getContents()['text/html']);
-        static::assertStringContainsString($url, $innerEvent->getContents()['text/html']);
+        $textHtml = $innerEvent->getContents()['text/html'];
+        static::assertIsString($textHtml);
+        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $textHtml);
+        static::assertStringContainsString($url, $textHtml);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
         $this->salesChannelContext = $previousContext;
@@ -358,8 +364,10 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 
@@ -409,8 +417,10 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 
@@ -555,8 +565,10 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 
@@ -604,8 +616,10 @@ class OrderServiceTest extends TestCase
 
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $firstDomain, $secondDomain): void {
-            static::assertStringContainsString($firstDomain, $event->getContents()['text/html']);
-            static::assertThat($event->getContents()['text/html'], $this->logicalNot($this->stringContains($secondDomain)));
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString($firstDomain, $htmlText);
+            static::assertThat($htmlText, $this->logicalNot($this->stringContains($secondDomain)));
             $eventDidRun = true;
         };
 
@@ -637,7 +651,9 @@ class OrderServiceTest extends TestCase
         $url = $domain . '/account/order';
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            static::assertStringContainsString($url, $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString($url, $htmlText);
             $eventDidRun = true;
         };
 

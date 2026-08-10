@@ -72,8 +72,8 @@ Module.register('sw-flow', {
     description: 'sw-flow.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-red-300)',
+    icon: 'regular-rule',
     favicon: 'icon-module-settings.png',
     entity: 'flow',
 
@@ -82,7 +82,6 @@ Module.register('sw-flow', {
             component: 'sw-flow-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
                 privilege: 'flow.viewer',
             },
             redirect: {
@@ -93,7 +92,6 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list',
                     path: 'flows',
                     meta: {
-                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -101,7 +99,6 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list-flow-templates',
                     path: 'templates',
                     meta: {
-                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -173,6 +170,19 @@ Module.register('sw-flow', {
             },
         },
     },
+
+    navigation: [
+        {
+            id: 'sw-flow',
+            label: 'sw-flow.general.mainMenuItemGeneral',
+            path: 'sw.flow.index',
+            icon: 'regular-flow',
+            color: 'var(--color-red-300)',
+            parent: 'sw-automation',
+            privilege: 'flow.viewer',
+            position: 20,
+        },
+    ],
 
     settingsItem: {
         group: 'automation',

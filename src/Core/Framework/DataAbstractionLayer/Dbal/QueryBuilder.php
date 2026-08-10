@@ -92,10 +92,21 @@ class QueryBuilder extends DBALQueryBuilder
         $sql = $query->getUnmodifiedSQL();
 
         if ($this->title) {
-            $sql = '-- ' . $this->title . \PHP_EOL . $sql;
+            $sql = '-- ' . self::sanitizeSqlComment($this->title) . \PHP_EOL . $sql;
         }
 
         return $sql;
+    }
+
+    /**
+     * SQL has no built-in escaping for comments. Line breaks terminate a `--` comment, and other control characters
+     * can be interpreted differently by SQL parsers. Replacing Unicode control characters prevents titles from
+     * changing the query grammar.
+     */
+    private static function sanitizeSqlComment(string $comment): string
+    {
+        // https://www.php.net/manual/en/regexp.reference.unicode.php
+        return preg_replace('/\p{Cc}/u', ' ', $comment) ?? '';
     }
 
     /**

@@ -187,52 +187,107 @@ class ProductSearchScoringTest extends TestCase
         $context = Context::createDefaultContext();
 
         $singleProductId = Uuid::randomHex();
-        $parentId = Uuid::randomHex();
-        $optionIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+        $variantIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $this->repository->create([
-            [
-                'id' => $singleProductId,
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 10,
-                'name' => 'Arbeitshandschuhe',
-                'tax' => ['name' => 'test', 'taxRate' => 5],
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            ],
-            [
-                'id' => $parentId,
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 10,
-                'name' => 'Arbeitshandschuhe',
-                'tax' => ['name' => 'test', 'taxRate' => 5],
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'children' => array_map(static fn (string $optionId) => [
-                    'id' => Uuid::randomHex(),
-                    'productNumber' => Uuid::randomHex(),
-                    'stock' => 10,
-                    'options' => [
-                        ['id' => $optionId, 'name' => $optionId, 'group' => ['id' => $optionIds[0], 'name' => 'color']],
-                    ],
-                ], $optionIds),
-            ],
+            $this->buildProduct($singleProductId, 'Arbeitshandschuhe'),
+            $this->buildVariantProduct(Uuid::randomHex(), 'Arbeitshandschuhe', $variantIds),
         ], $context);
 
+        $result = $this->repository->searchIds($this->buildGroupedScoreCriteria(['arbeitshandschuhe']), $context);
+
+        $ids = $result->getIds();
+
+        // one entry for the single product, one for the group of three variants
+        static::assertCount(2, $ids);
+
+        $singleProductScore = round((float) $result->getDataFieldOfId($singleProductId, '_score'));
+        static::assertSame(700000.0, $singleProductScore);
+
+        $groupId = $result->getIds()[0] === $singleProductId ? $result->getIds()[1] : $result->getIds()[0];
+        static::assertIsString($groupId);
+        static::assertContains($groupId, $variantIds);
+        static::assertSame(
+            $singleProductScore,
+            round((float) $result->getDataFieldOfId($groupId, '_score')),
+            'The variant group must not be scored higher than a comparable single product'
+        );
+    }
+
+    public function testGroupedVariantsAreScoredByTheirBestMatchingVariant(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $bestVariantId = Uuid::randomHex();
+        $variantIds = [$bestVariantId, Uuid::randomHex(), Uuid::randomHex()];
+
+        $product = $this->buildVariantProduct(Uuid::randomHex(), 'Arbeitshandschuhe', $variantIds);
+        // only this variant matches the second score query, so it is the best match of the group
+        $product['children'][0]['name'] = 'Arbeitshandschuhe Leder';
+
+        $this->repository->create([$product], $context);
+
+        $criteria = $this->buildGroupedScoreCriteria(['arbeitshandschuhe', 'leder']);
+
+        $result = $this->repository->searchIds($criteria, $context);
+
+        static::assertSame([$bestVariantId], $result->getIds());
+        // the group scores like its best variant, not like the average of its variants
+        static::assertSame(1400000.0, round((float) $result->getDataFieldOfId($bestVariantId, '_score')));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildProduct(string $id, string $name): array
+    {
+        return [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => $name,
+            'tax' => ['name' => 'test', 'taxRate' => 5],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+        ];
+    }
+
+    /**
+     * @param array<string> $variantIds
+     *
+     * @return array<string, mixed>
+     */
+    private function buildVariantProduct(string $parentId, string $name, array $variantIds): array
+    {
+        $groupId = Uuid::randomHex();
+
+        $product = $this->buildProduct($parentId, $name);
+        $product['children'] = array_map(static fn (string $variantId) => [
+            'id' => $variantId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'options' => [
+                ['id' => Uuid::randomHex(), 'name' => $variantId, 'group' => ['id' => $groupId, 'name' => 'color']],
+            ],
+        ], $variantIds);
+
+        return $product;
+    }
+
+    /**
+     * @param array<string> $keywords
+     */
+    private function buildGroupedScoreCriteria(array $keywords): Criteria
+    {
         $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(new EqualsFilter('searchKeywords.keyword', 'arbeitshandschuhe'), 500, 'searchKeywords.ranking'));
+
+        foreach ($keywords as $keyword) {
+            $criteria->addQuery(new ScoreQuery(new EqualsFilter('searchKeywords.keyword', $keyword), 500, 'searchKeywords.ranking'));
+        }
+
         // the same grouping the product listing applies to display variants as one product
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
 
-        $result = $this->repository->searchIds($criteria, $context);
-
-        $scores = [];
-        foreach ($result->getIds() as $id) {
-            static::assertIsString($id);
-            $scores[] = round((float) $result->getDataFieldOfId($id, '_score'));
-        }
-
-        // one score for the single product, one for the group of three variants
-        static::assertCount(2, $scores);
-        static::assertSame($scores[0], $scores[1], 'The variant group must not be scored higher than a comparable single product');
+        return $criteria;
     }
 }

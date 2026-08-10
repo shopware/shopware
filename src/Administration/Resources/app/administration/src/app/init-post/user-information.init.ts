@@ -3,12 +3,17 @@
  */
 
 import { initializeUserNotifications } from 'src/app/store/notification.store';
+import useTheme from 'src/app/composables/use-theme';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
     return new Promise<void>((resolve) => {
         const loginService = Shopware.Service('loginService');
         const userService = Shopware.Service('userService');
+
+        loginService.addOnLoginListener(() => {
+            void useTheme().loadUserTheme();
+        });
 
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {
@@ -17,6 +22,8 @@ export default function initializeUserContext() {
             resolve();
             return;
         }
+
+        void useTheme().loadUserTheme();
 
         userService
             .getUser()

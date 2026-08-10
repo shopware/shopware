@@ -6,6 +6,7 @@ import { watch } from 'vue';
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
+import useTheme from '../composables/use-theme';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -37,6 +38,10 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextShopwareVersion', () => {
         return Shopware.Context.app.config.version ?? '';
+    });
+
+    Shopware.ExtensionAPI.handle('contextTheme', () => {
+        return useTheme().resolvedTheme.value;
     });
 
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
@@ -188,6 +193,10 @@ export default function initializeContext(): void {
             locale: locale ?? '',
             fallbackLocale: contextStore.app.fallbackLocale ?? '',
         });
+    });
+
+    watch(useTheme().resolvedTheme, (resolvedTheme) => {
+        void publish('contextTheme', resolvedTheme);
     });
 
     Shopware.ExtensionAPI.handle('windowGetId', () => {

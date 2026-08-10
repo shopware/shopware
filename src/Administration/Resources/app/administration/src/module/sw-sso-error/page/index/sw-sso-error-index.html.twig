@@ -1,58 +1,67 @@
 {% block sw_sso_error %}
 <div class="sw-sso-error">
     <div class="sw-sso-error__container">
-        <div class="sw-sso-error__image-container">
-            <img
-                width="200"
-                :src="assetFilter('administration/administration/static/img/shopware_logo_blue.svg')"
-                :alt="$t('global.sw-sso-error.error-card.logoAltText')"
-            >
-        </div>
-
-        <mt-card
-            position-identifier="sw-sso-error-card"
-            class="sw-sso-error-card"
+        <img
+            class="sw-sso-error__logo"
+            :src="assetFilter('administration/administration/static/img/shopware_logo_blue.svg')"
+            :alt="$t('global.sw-sso-error.error-card.logoAltText')"
         >
-            <div class="lock-icon">
-                <mt-icon
-                    class="block"
-                    name="solid-lock"
-                    size="24px"
-                />
-            </div>
 
-            <h1 class="sw-sso-error__title">
-                {{ $t('global.sw-sso-error.error-card.title') }}
-            </h1>
-            <p class="sw-sso-error__description">
-                {{ $t('global.sw-sso-error.error-card.text') }}
-            </p>
+        <!-- Keeps the injection points of the former mt-card available -->
+        <sw-extension-component-section position-identifier="sw-sso-error-card__before" />
+        <sw-extension-component-section position-identifier="sw-sso-error-card" />
 
-            <div class="sw-sso-error-card__button-container">
-                <div
-                    v-if="isLoading"
-                    class="sw-sso-error__loading-indicator"
-                >
-                    <mt-loader />
+        <div class="sw-sso-error__card">
+            <div class="sw-sso-error__status">
+                <span class="sw-sso-error__status-icon">
+                    <mt-icon
+                        name="solid-lock"
+                        size="24px"
+                        decorative
+                    />
+                </span>
+
+                <h1 class="sw-sso-error__title">
+                    {{ $t('global.sw-sso-error.error-card.title') }}
+                </h1>
+
+                <p class="sw-sso-error__description">
+                    {{ $t('global.sw-sso-error.error-card.text') }}
+                </p>
+
+                <div class="sw-sso-error__button-container">
+                    <div
+                        v-if="isLoading"
+                        class="sw-sso-error__loading-indicator"
+                        role="status"
+                        :aria-label="$t('global.sw-sso-error.error-card.loadingLabel')"
+                    >
+                        <mt-loader size="24px" />
+                    </div>
+
+                    <mt-button
+                        is="a"
+                        v-else
+                        variant="primary"
+                        size="default"
+                        :href="url"
+                        target="_self"
+                    >
+                        {{ $t('global.sw-sso-error.error-card.button') }}
+                    </mt-button>
                 </div>
 
-                <a
-                    v-else
-                    :href="url"
-                    class="sw-button sw-button--primary"
+                <p
+                    v-if="email"
+                    class="sw-sso-error__logged-in-as"
                 >
-                    {{ $t('global.sw-sso-error.error-card.button') }}
-                </a>
+                    <span class="sw-sso-error__logged-in-as-text">{{ $t('global.sw-sso-error.error-card.loggedInAsPrefix') }}</span>
+                    <span class="sw-sso-error__logged-in-as-email">{{ email }}</span>
+                </p>
             </div>
+        </div>
 
-            <span class="sw-sso-error-card__small-text">{{ $t('global.sw-sso-error.error-card.loggedInAsPrefix') }}</span>
-            <span
-                v-if="email"
-                class="sw-sso-error-card__small-text-email"
-            >
-                {{ email }}
-            </span>
-        </mt-card>
+        <sw-extension-component-section position-identifier="sw-sso-error-card__after" />
     </div>
 </div>
 {% endblock %}

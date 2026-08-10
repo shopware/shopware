@@ -44,7 +44,7 @@ describe('build/vite-plugins/override-component-register', () => {
         expect(plugin).toHaveProperty('transform');
     });
 
-    it('returns null until configResolved has discovered override files', () => {
+    it('returns null for non-entry ids and before any overrides are discovered', () => {
         const plugin = createPlugin({
             root: 'root',
             pluginEntryFile: 'plugin',

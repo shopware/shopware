@@ -188,7 +188,8 @@ class SyncServiceTest extends TestCase
             $searcher,
             $criteriaBuilder,
             $criteriaValidator,
-            static::createStub(SyncFkResolver::class)
+            static::createStub(SyncFkResolver::class),
+            $this->createSyncMetricsStub(),
         );
 
         $this->expectExceptionObject(ApiException::missingPrivileges(['product:read']));

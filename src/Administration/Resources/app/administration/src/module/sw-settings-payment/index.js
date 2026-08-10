@@ -31,7 +31,7 @@ Module.register('sw-settings-payment', {
     description: 'Payment section in the settings module',
     color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'payment_method',
 
     routes: {

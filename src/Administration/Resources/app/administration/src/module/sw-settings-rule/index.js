@@ -43,7 +43,7 @@ Module.register('sw-settings-rule', {
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'rule',
 
     routes: {

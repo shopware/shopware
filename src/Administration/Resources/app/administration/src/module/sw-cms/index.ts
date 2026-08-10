@@ -43,7 +43,7 @@ Shopware.Module.register('sw-cms', {
     description: 'The module for creating content.',
     color: 'var(--color-pink-500)',
     icon: 'regular-image-text',
-    favicon: 'icon-module-content.png',
+    favicon: 'icon-module-content.svg',
     entity: 'cms_page',
 
     routes: {

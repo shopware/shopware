@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class AppFeatureDefinitionRegistry
 {
     /**
-     * @var array<class-string<AppFeatureConfig>, AppFeatureDefinition<AppFeatureConfig>>
+     * @var array<class-string<AppFeatureConfig>, AppFeatureDefinition<covariant AppFeatureConfig>>
      */
     private array $definitions = [];
 
@@ -30,6 +30,7 @@ class AppFeatureDefinitionRegistry
      */
     public function all(): array
     {
+        /** @var list<AppFeatureDefinition<AppFeatureConfig>> */
         return array_values($this->definitions);
     }
 

@@ -645,6 +645,30 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame($expectedLimit, $criteria->getLimit());
     }
 
+    public function testPageOffsetUsesFallbackLimitWhenRequestHasNoLimit(): void
+    {
+        $aggregationParser = new AggregationParser();
+        $maxLimit = 500;
+
+        $builder = new RequestCriteriaBuilder(
+            $aggregationParser,
+            new ApiCriteriaValidator($this->staticDefinitionRegistry),
+            new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
+            $maxLimit
+        );
+
+        $criteria = $builder->fromArray(
+            ['page' => 2],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($maxLimit, $criteria->getLimit());
+        static::assertSame($maxLimit, $criteria->getOffset());
+    }
+
     public static function providerPaging(): \Generator
     {
         yield 'offset correctly calculated' => [

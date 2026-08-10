@@ -33,6 +33,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         static::assertSame(42, $result);
 
         $duration = $this->getMetric('number_range.allocation.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
         static::assertSame(
@@ -55,7 +56,9 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $this->createDecorator($decorated, 'mysql')->reserve($config);
 
-        static::assertSame('number_range_type_label:', $this->getMetric('number_range.allocation.duration')->labels['number_range_type']);
+        $duration = $this->getMetric('number_range.allocation.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
+        static::assertSame('number_range_type_label:', $duration->labels['number_range_type']);
     }
 
     public function testFailingReserveIsRethrownAndDurationRecordedAsFailed(): void
@@ -76,6 +79,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         static::assertSame($exception, $thrown);
 
         $duration = $this->getMetric('number_range.allocation.duration');
+        static::assertInstanceOf(ConfiguredMetric::class, $duration);
         static::assertSame('failed', $duration->labels['result']);
         static::assertSame('number_range_type_label:order', $duration->labels['number_range_type']);
         static::assertSame('mysql', $duration->labels['storage']);
@@ -159,7 +163,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         return $config;
     }
 
-    private function getMetric(string $name): ConfiguredMetric
+    private function getMetric(string $name): ?ConfiguredMetric
     {
         foreach ($this->emitted as $metric) {
             if ($metric->name === $name) {
@@ -167,6 +171,6 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
             }
         }
 
-        static::fail(\sprintf('Metric "%s" was not emitted', $name));
+        return null;
     }
 }

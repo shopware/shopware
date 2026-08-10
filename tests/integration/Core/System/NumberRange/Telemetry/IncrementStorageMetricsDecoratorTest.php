@@ -17,7 +17,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
 
 /**
  * Proves the two things the unit test cannot: that the metrics decorator is actually wired around the
- * configured increment storage, and that a real allocation through {@see NumberRangeValueGenerator} emits
+ * configured increment storage, and that a real allocation through {@see \Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator} emits
  * number_range.allocation.duration` all the way to a transport with the real resolver output.
  *
  * @internal

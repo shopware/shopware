@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-10 11:16:52
+ * Last generated: 2026-08-10 14:34:34
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -23,11 +23,8 @@ final readonly class ReadNewsletterRecipientResponse implements StoreApiDTORespo
         /**
          * The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined.
          */
-        #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['notSet', 'optIn', 'optOut', 'direct', 'undefined'])]
-        public string $status,
-        #[Assert\NotBlank]
-        public string $apiAlias = 'account_newsletter_recipient',
+        #[Assert\NotNull]
+        public NewsletterStatus $status,
     ) {
     }
 }

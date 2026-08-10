@@ -175,6 +175,12 @@ class SecurityExtensionTest extends TestCase
         );
     }
 
+    public function testFindWithAllowedSingleArgumentFunction(): void
+    {
+        // is_numeric() accepts exactly one argument, so this pins the single-argument calling convention
+        static::assertSame('1', $this->runTwig('{{ ["a", "1"]|find("is_numeric") }}', ['is_numeric']));
+    }
+
     public function testFindWithNotCallableFunction(): void
     {
         static::assertSame(

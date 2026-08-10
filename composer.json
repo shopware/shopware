@@ -202,11 +202,11 @@
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
-        "phpstan/phpstan": "2.1.43",
-        "phpstan/phpstan-deprecation-rules": "2.0.4",
-        "phpstan/phpstan-phpunit": "2.0.16",
-        "phpstan/phpstan-strict-rules": "2.0.10",
-        "phpstan/phpstan-symfony": "2.0.15",
+        "phpstan/phpstan": "2.2.8",
+        "phpstan/phpstan-deprecation-rules": "2.0.5",
+        "phpstan/phpstan-phpunit": "2.0.18",
+        "phpstan/phpstan-strict-rules": "2.0.12",
+        "phpstan/phpstan-symfony": "2.0.20",
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.1.4",
@@ -219,7 +219,7 @@
         "symfony/phpunit-bridge": "~7.4.0",
         "symfony/var-dumper": "~7.4.0",
         "symfony/web-profiler-bundle": "~7.4.12",
-        "symplify/phpstan-rules": "14.9.11"
+        "symplify/phpstan-rules": "14.10.0"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -290,7 +290,7 @@
         "init:js": " ",
         "init:testdb": "Initializes the test database",
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'cs' and 'translation:lint'",
-        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint and checks their formatting with yamlfmt",
+        "lint:actions": "Lints GitHub Actions workflows/actions with actionlint, checks their formatting with yamlfmt, and audits them with zizmor",
         "lint:actions:fix": "Formats GitHub Actions workflows/actions with yamlfmt",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
@@ -480,7 +480,7 @@
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "phpbench": "phpbench run --report=compressed",
-        "dependency-analyzer":  "composer-dependency-analyser",
+        "dependency-analyzer": "composer-dependency-analyser",
         "ecs": [
             "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
             "php-cs-fixer fix --dry-run --diff"

@@ -2,8 +2,21 @@
 
 ## Features
 
+### New "Automation" administration menu entry
+
+Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
+
 ## API
 
+### Order recalculation and conversion endpoints now require ACL privileges
+
+Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
+* `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
+
+Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
 ### User uniqueness validation endpoints now require user read access
 
 The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
@@ -61,6 +74,12 @@ Four admin action endpoints that previously only required authentication now enf
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
+### `sw-expect-packages` is rejected on endpoints that do not require authentication
+
+The `sw-expect-packages` header is no longer evaluated on API endpoints that do not require authentication, because the failure messages disclose the installed versions of Shopware and its dependencies. Sending it to such an endpoint now returns `417` with the new error code `FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED` instead of evaluating the constraint. Affected endpoints include `GET /api/_info/health-check`, `POST /api/oauth/token`, `GET /api/app-system/shop/verify`, and the `POST /api/_action/user/user-recovery` routes.
+
+Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
+
 ## Core
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
@@ -90,7 +109,6 @@ Product specific line item rule conditions (manufacturer, category, tags, proper
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
-
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.
@@ -113,11 +131,16 @@ shopware:
     translation:
         repository_url: 'https://example.com/translations'
         metadata_url: 'https://example.com/crowdin-metadata.json'
+        community_translations_url: 'https://translate.shopware.com'
+        documentation_url_snippet_key: 'sw-settings-language.addModal.docsUrl'
+        completeness_threshold: 90
         plugins:
             - 'MyPlugin'
         excluded_locales:
             - 'de-DE'
             - 'en-GB'
+        pseudo_locales:
+            - 'ach-UG'
         plugin_mapping:
             - plugin: 'MyPlugin'
               name: 'MySnippetName'
@@ -126,13 +149,21 @@ shopware:
               locale: 'de-DE'
 ```
 
-List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+List options (`plugins`, `excluded_locales`, `pseudo_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
 ### Product export body media URLs are RFC 3986 encoded
 
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
+### Community translations auto-update can be configured per language
+
+The `translation.update` scheduled task (`UpdateTranslationsTaskHandler`) refreshes the community translations of installed languages. It can now be controlled per language via the new `translationAutoUpdate` flag.
+
+* The `language` entity gains a boolean `translationAutoUpdate` field (API-aware, **enabled by default**). A migration adds the `language.translation_auto_update` column automatically, defaulting to on, so existing languages keep being updated as before.
+* Only linked languages are considered: a language flagged for auto-update whose translation is not installed, or whose locale is not part of the translation set (for example built-in or custom languages), is ignored and never triggers a request.
+* The flag can be toggled per language on the Administration language detail page ("Snippet updates" card), letting shops opt individual languages out of automatic updates.
 
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 
@@ -237,6 +268,9 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 ## Administration
 
+### System config forms show validation errors for the selected sales channel scope
+
+Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
 ### System config component exposes the selected sales channel scope
 
 The `sw-system-config` component now exposes which sales channel is selected in its scope switcher. The value is seeded from the `salesChannelId` prop and afterwards follows the switcher; later changes to the prop are ignored. It is `null` while the global scope is selected.
@@ -918,12 +952,13 @@ If a listener intentionally needs private media access, wrap that specific read 
 
 Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
 
-- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `GET /api/_action/translation/list` — lists every configured locale, merging its local install state with the remote metadata (`{ total, items: [{ locale, name, lastUpdate, progress, updateAvailable, isPseudoLanguage }] }`). `lastUpdate` is the local install timestamp (`null` when not installed), while `progress` comes from the remote metadata (`null` when the remote source is unavailable).
+- `GET /api/_action/translation/meta` — returns configuration metadata for the translation UI (`{ builtInLocales, communityTranslationsUrl, documentationUrlSnippetKey, completenessThreshold }`).
 - `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
 - `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped, unavailable }`.
 - `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
 
-The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing and metadata, `create` for install, `update` for update, `delete` for uninstall).
 
 `install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
 

@@ -100,6 +100,14 @@ class SecurityExtensionTest extends TestCase
         static::assertSame('3', $this->runTwig('{{ test|reduce((a, b) => a + b)|json_encode|raw }}', [], ['test' => new \ArrayIterator([1, 2])]));
     }
 
+    public function testReduceWithNotCallableFunction(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ ["value"]|reduce(functionName)|join }}', ['not_callable'], ['functionName' => 'not_callable'])
+        );
+    }
+
     public function testFilterClosure(): void
     {
         static::assertSame('a', $this->runTwig('{{ ["a", "b", "c"]|filter(v => v == "a")|join }}'));
@@ -110,6 +118,14 @@ class SecurityExtensionTest extends TestCase
         static::assertSame(
             'a',
             $this->runTwig('{{ test|filter(v => v == "a")|join }}', [], ['test' => new \ArrayIterator(['a', 'b', 'c'])])
+        );
+    }
+
+    public function testFilterWithNotCallableFunction(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ ["value"]|filter(functionName)|join }}', ['not_callable'], ['functionName' => 'not_callable'])
         );
     }
 

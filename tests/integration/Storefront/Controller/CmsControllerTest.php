@@ -34,7 +34,7 @@ class CmsControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -44,7 +44,7 @@ class CmsControllerTest extends TestCase
         $response = $this->request('GET', '/page/cms/' . $this->ids->get('page'), []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -54,7 +54,7 @@ class CmsControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }

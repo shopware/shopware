@@ -46,6 +46,7 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_FILE_MISSING_FILE_NAME = 'FRAMEWORK__SALES_CHANNEL_FILE_MISSING_FILE_NAME';
     final public const SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES';
     final public const SALES_CHANNEL_FILE_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_FILE_NOT_FOUND';
+    final public const SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY = 'FRAMEWORK__SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -356,6 +357,16 @@ class SalesChannelException extends HttpException
             self::SALES_CHANNEL_FILE_NOT_FOUND,
             'Could not find sales channel file "{{ fileFamily }}/{{ fileName }}".',
             ['fileFamily' => $fileFamily, 'fileName' => $fileName]
+        );
+    }
+
+    public static function unexpectedCombinedPrimaryKey(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY,
+            'Expected a single field primary key for entity "{{ entityName }}", but got a combined primary key.',
+            ['entityName' => $entityName]
         );
     }
 }

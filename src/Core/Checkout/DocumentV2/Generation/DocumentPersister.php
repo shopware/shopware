@@ -6,10 +6,12 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollectio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,6 +46,7 @@ final readonly class DocumentPersister
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
+        private DocumentTypeRegistry $documentTypeRegistry,
     ) {
     }
 
@@ -62,8 +65,10 @@ final readonly class DocumentPersister
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
 
+        $documentTypeId = $this->resolveDocumentTypeId($generationRequest, $context);
+
         // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
-        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
+        $this->assertDocumentNumberIsUnique($generationRequest, $documentTypeId, $input->documentNumber, $context);
 
         $persistedFiles = $this->writeMediaFiles(
             $state,
@@ -76,11 +81,12 @@ final readonly class DocumentPersister
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
+                'documentTypeId' => $documentTypeId,
                 'referencedDocumentId' => $resolvedReference?->id,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
+                    'documentType' => $generationRequest->documentType,
                 ],
             ],
         ], $context);
@@ -143,12 +149,20 @@ final readonly class DocumentPersister
      */
     private function assertDocumentNumberIsUnique(
         DocumentGenerationRequest $generationRequest,
+        string $documentTypeId,
         string $documentNumber,
         Context $context,
     ): void {
+        // Core types own a dedicated document_type row, so the FK alone disambiguates them. App
+        // types all share the `app_provided` sentinel row, so the real identifier stored in the
+        // config snapshot is used to keep uniqueness scoped per app document type instead.
+        $typeFilter = DocumentType::tryFrom($generationRequest->documentType) !== null
+            ? new EqualsFilter('documentTypeId', $documentTypeId)
+            : new EqualsFilter('config.documentType', $generationRequest->documentType);
+
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
+            ->addFilter($typeFilter)
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
@@ -161,21 +175,32 @@ final readonly class DocumentPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function resolveDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
         // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
-        $documentType = $generationRequest->documentType;
-
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('technicalName', $documentType))
+            ->addFilter(new EqualsFilter('technicalName', $generationRequest->documentType))
             ->setLimit(1);
 
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
+        $id = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
+        if ($id !== null) {
+            return $id;
         }
 
-        return $documentTypeId;
+        if (!$this->documentTypeRegistry->supports($generationRequest->documentType)) {
+            throw DocumentV2Exception::invalidDocumentType($generationRequest->documentType);
+        }
+
+        $sentinelId = $this->documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'app_provided'))->setLimit(1),
+            $context,
+        )->firstId();
+
+        if ($sentinelId === null) {
+            throw DocumentV2Exception::invalidDocumentType($generationRequest->documentType);
+        }
+
+        return $sentinelId;
     }
 }

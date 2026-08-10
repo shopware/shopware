@@ -65,6 +65,10 @@ export default {
             return this.repositoryFactory.create('document_type');
         },
 
+        documentTypeCriteria() {
+            return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+        },
+
         isNewMail() {
             return !this.sequence?.id;
         },

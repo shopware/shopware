@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\ReferencesDocument;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 
 /**
  * @internal
@@ -41,6 +43,7 @@ final readonly class DocumentGenerator
         private DocumentDependencyResolver $dependencyResolver,
         private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
+        private ScriptExecutor $scriptExecutor,
     ) {
     }
 
@@ -160,6 +163,16 @@ final readonly class DocumentGenerator
         );
 
         $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
+
+        $this->scriptExecutor->execute(new DocumentGenerationHook(
+            $order->getId(),
+            $orderVersionId,
+            $order->getSalesChannelId(),
+            $generationRequest->documentType,
+            $documentNumber,
+            $requestedFormats,
+            $languageAwareContext,
+        ));
 
         $providerData = $this->collectProviderData(
             $providers,

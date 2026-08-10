@@ -29,6 +29,7 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
         },

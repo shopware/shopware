@@ -6,7 +6,7 @@ $sw-media-base-item-border-radius: $border-radius-default;
 $sw-media-base-item-color-border: var(--color-border-secondary-default);
 $sw-media-base-item-color-context-button: var(--color-elevation-surface-raised);
 $sw-media-base-item-color-loading-indicator: var(--color-text-primary-default);
-$sw-media-base-item-color-hover: var(--color-background-brand-default);
+$sw-media-base-item-color-hover: var(--color-interaction-secondary-hover);
 $sw-media-base-item-color-metadata: var(--color-text-secondary-default);
 $sw-media-base-item-pseudo-padding: 33px;
 $sw-media-base-item-color-input-border: var(--color-border-primary-default);
@@ -18,6 +18,7 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
     position: relative;
     padding: 16px;
     color: $sw-media-base-item-color;
+    border-radius: var(--border-radius-m);
 
     &:hover {
         background-color: $sw-media-base-item-color-hover;
@@ -239,7 +240,9 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
         }
     }
 
-    &.is--selected {
+    // In list mode the selection border on the whole item is enough — keep
+    // the preview container borderless there.
+    &.is--selected:not(.is--list) {
         .sw-media-base-item__preview-container {
             border: 1px solid $sw-media-base-item-color-selected;
         }

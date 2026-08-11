@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
@@ -112,7 +113,8 @@ class ConfigurationServiceTest extends TestCase
      */
     private function createConfigurationService(array $plugins): ConfigurationService
     {
-        return new ConfigurationService(
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigDefinitionService = new SystemConfigDefinitionService(
             [
                 new System(),
                 ...$plugins,
@@ -120,8 +122,13 @@ class ConfigurationServiceTest extends TestCase
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class),
+            $systemConfigService,
             static::getContainer()->get(LoggerInterface::class)
+        );
+
+        return new ConfigurationService(
+            $systemConfigService,
+            $systemConfigDefinitionService
         );
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -40,13 +41,18 @@ class ConfigurationServiceTest extends TestCase
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
         $appRepository = new StaticEntityRepository([]);
-        $configService = new ConfigurationService(
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
             [],
             new ConfigReader(),
             static::createStub(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([]),
+            $systemConfigService,
             new NullLogger()
+        );
+        $configService = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
@@ -58,13 +64,18 @@ class ConfigurationServiceTest extends TestCase
     public function testMissingConfig(): void
     {
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
-        $configService = new ConfigurationService(
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
             [],
             new ConfigReader(),
             static::createStub(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([]),
+            $systemConfigService,
             new NullLogger()
+        );
+        $configService = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         $this->expectExceptionObject(SystemConfigException::configurationNotFound('missing'));
@@ -86,9 +97,9 @@ class ConfigurationServiceTest extends TestCase
 
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
-        static::assertSame($expectedConfigWithoutValues, $actualConfig);
-        static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
-        static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
+        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+        static::assertEquals($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
+        static::assertEquals($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -254,15 +265,20 @@ class ConfigurationServiceTest extends TestCase
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
         $appRepository = new StaticEntityRepository([new AppCollection()]);
-        $service = new ConfigurationService(
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
             [
                 new SwagExampleTestDeprecated(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([]),
+            $systemConfigService,
             new NullLogger()
+        );
+        $service = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         $actualConfig = $service->getConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext());
@@ -312,15 +328,20 @@ class ConfigurationServiceTest extends TestCase
 
         $repository = new StaticEntityRepository([new AppCollection()]);
 
-        $service = new ConfigurationService(
+        $systemConfigService = new StaticSystemConfigService(['SwagExampleTestDeprecated.email' => 'foo']);
+        $configDefinitionService = new SystemConfigDefinitionService(
             [
                 new SwagExampleTestDeprecated(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
             $repository,
-            new StaticSystemConfigService(['SwagExampleTestDeprecated.email' => 'foo']),
+            $systemConfigService,
             new NullLogger()
+        );
+        $service = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         $actualConfig = $service->getResolvedConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext());
@@ -340,13 +361,20 @@ class ConfigurationServiceTest extends TestCase
         );
 
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
-        $configService = new ConfigurationService(
-            [new SwagExampleTestDeprecated(true, '')],
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
+            [
+                new SwagExampleTestDeprecated(true, ''),
+            ],
             $configReader,
             static::createStub(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([]),
+            $systemConfigService,
             new NullLogger()
+        );
+        $configService = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         // checkConfiguration should return false instead of throwing the exception
@@ -369,13 +397,18 @@ class ConfigurationServiceTest extends TestCase
             new AppCollection([$app]),
             new AppCollection([$app]),
         ]);
-        $configService = new ConfigurationService(
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
             [],
             new ConfigReader(),
             $appConfigReader,
             $appRepository,
-            new StaticSystemConfigService([]),
+            $systemConfigService,
             new NullLogger()
+        );
+        $configService = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
         );
 
         if ($config !== []) {
@@ -412,11 +445,13 @@ class ConfigurationServiceTest extends TestCase
                                 'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
                             ],
                         ],
+                        'value' => null,
                     ],
                     [
                         'name' => 'SwagExampleTestDeprecated.withoutAnyConfig',
                         'type' => 'int',
                         'config' => [],
+                        'value' => null,
                     ],
                     [
                         'name' => 'SwagExampleTestDeprecated.mailMethod',
@@ -446,9 +481,9 @@ class ConfigurationServiceTest extends TestCase
                             ],
                             'flag' => 'FEATURE_NEXT_102',
                         ],
+                        'value' => null,
                     ],
                 ],
-                'flag' => 'FEATURE_NEXT_101',
             ],
         ];
     }

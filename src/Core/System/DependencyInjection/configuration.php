@@ -54,12 +54,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ConfigurationService::class)
         ->args([
-            service('kernel.bundles'),
-            service(ConfigReader::class),
-            service(AppConfigReader::class),
-            service('app.repository'),
             service(SystemConfigService::class),
-            service('logger'),
+            service(SystemConfigDefinitionService::class),
         ]);
 
     $services->set(SystemConfigDefinitionService::class)

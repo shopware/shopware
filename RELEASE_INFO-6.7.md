@@ -14,6 +14,17 @@ Store API criteria that load product reviews through a nested association now ap
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
 
+## Administration
+
+### `integrationService.updateAdmin()` is deprecated
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
 # 6.7.13.0
 
 ## Critical Fixes

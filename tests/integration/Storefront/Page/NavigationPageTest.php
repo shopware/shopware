@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -74,6 +75,39 @@ class NavigationPageTest extends TestCase
         $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
 
         static::assertSame('/', $seoUrl);
+    }
+
+    /**
+     * The canonical is the single source of truth for the pagination parameter: it is only
+     * appended above the first page. The storefront template must render it verbatim, so this
+     * pins the loader contract that prevents the duplicated `?p=N?p=N` regression from #19094.
+     */
+    #[DataProvider('canonicalPaginationProvider')]
+    public function testCanonicalContainsPaginationParameterOnlyAboveFirstPage(?string $page, string $expectedSeoUrl): void
+    {
+        $request = new Request($page === null ? [] : ['p' => $page]);
+        $context = $this->createSalesChannelContextWithNavigation();
+        $seoUrlHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+
+        $metaInformation = $this->getPageLoader()->load($request, $context)->getMetaInformation();
+        static::assertNotNull($metaInformation);
+
+        $canonical = $metaInformation->getCanonical();
+        static::assertNotNull($canonical);
+
+        $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
+
+        static::assertSame($expectedSeoUrl, $seoUrl);
+    }
+
+    /**
+     * @return iterable<string, array{0: ?string, 1: string}>
+     */
+    public static function canonicalPaginationProvider(): iterable
+    {
+        yield 'no pagination parameter yields the clean canonical' => [null, '/'];
+        yield 'first page yields the clean canonical without ?p=1' => ['1', '/'];
+        yield 'second page appends ?p=2 exactly once' => ['2', '/?p=2'];
     }
 
     protected function getPageLoader(): NavigationPageLoader

@@ -121,16 +121,16 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             array_map(
                 static function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
                     $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
-                    /** @var Field|null $field */
                     $field = $definition->getFields()->getByStorageName($pkFieldStorageName);
-                    if (!$field) {
+
+                    if (!$field instanceof Field) {
                         return $pkFieldValue;
                     }
 
                     return $field->getSerializer()->encode(
                         $field,
                         $existence,
-                        new KeyValuePair($field->getPropertyName(), $pkFieldValue, true),
+                        new KeyValuePair(key: $field->getPropertyName(), value: $pkFieldValue, isRaw: true),
                         $parameters,
                     )->current();
                 },
@@ -140,12 +140,12 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         foreach ($data as $storageName => $attributes) {
             $jsonUpdateCommand = new JsonUpdateCommand(
-                $definition,
-                $storageName,
-                $attributes,
-                $pks,
-                $existence,
-                $parameters->getPath()
+                definition: $definition,
+                storageName: $storageName,
+                payload: $attributes,
+                primaryKey: $pks,
+                existence: $existence,
+                path: $parameters->getPath()
             );
 
             $identifier = WriteCommandQueue::hashedPrimary(

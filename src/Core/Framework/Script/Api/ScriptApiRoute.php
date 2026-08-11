@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -64,14 +63,12 @@ class ScriptApiRoute
         $source = $context->getSource();
         $isAllowedForAllApps = $context->isAllowed('app.all');
 
-        /** @var Script $script */
         foreach ($scripts as $script) {
-            if (!$script->isAppScript()) {
+            $appInfo = $script->getScriptAppInformation();
+
+            if (!$appInfo instanceof ScriptAppInformation) {
                 throw new PermissionDeniedException();
             }
-
-            /** @var ScriptAppInformation $appInfo */
-            $appInfo = $script->getScriptAppInformation();
 
             if ($source instanceof AdminApiSource && $source->getIntegrationId() === $appInfo->getIntegrationId()) {
                 // allow access to app endpoints from the integration of the same app

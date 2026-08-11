@@ -373,7 +373,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.createNotificationError({
-                    message: message,
+                    message,
                 });
             } else {
                 messageSnippets.forEach((snippet) => {

@@ -544,7 +544,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         });
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'global.default.error',
             message: 'SVG files with active content are not allowed.',
         });
     });
@@ -559,7 +558,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         });
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'global.default.error',
             message: 'Error while uploading file.',
         });
     });

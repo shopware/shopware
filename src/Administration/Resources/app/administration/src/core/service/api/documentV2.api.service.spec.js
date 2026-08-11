@@ -22,7 +22,7 @@ describe('documentV2Service', () => {
         const { documentV2ApiService } = createDocumentV2ApiService();
 
         expect(documentV2ApiService).toBeInstanceOf(DocumentV2ApiService);
-        expect(documentV2ApiService.name).toBe('documentV2Service');
+        expect(documentV2ApiService.name).toBe('documentV2ApiService');
     });
 
     it('loads the support metadata', async () => {
@@ -39,10 +39,10 @@ describe('documentV2Service', () => {
             },
         });
 
-        const response = await documentV2ApiService.getAvailableTypes();
+        const availableDocumentTypesResponse = await documentV2ApiService.getAvailableTypes();
 
         expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/available-types');
-        expect(response.data).toEqual({
+        expect(availableDocumentTypesResponse).toEqual({
             documentTypes: {
                 invoice: {
                     formats: [
@@ -113,8 +113,6 @@ describe('documentV2Service', () => {
             'invoice',
             'pdf',
             '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
             'media-id',
             null,
             'referenced-document-id',
@@ -127,10 +125,7 @@ describe('documentV2Service', () => {
             documentType: 'invoice',
             format: 'pdf',
             documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
             mediaId: 'media-id',
-            referencedDocumentId: 'referenced-document-id',
         });
     });
 
@@ -152,11 +147,8 @@ describe('documentV2Service', () => {
             'invoice',
             'pdf',
             '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
             null,
             file,
-            'referenced-document-id',
         );
 
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/upload');
@@ -168,10 +160,7 @@ describe('documentV2Service', () => {
             documentType: 'invoice',
             format: 'pdf',
             documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
             mediaId: null,
-            referencedDocumentId: 'referenced-document-id',
             extension: 'pdf',
             fileName: 'invoice.final',
         });

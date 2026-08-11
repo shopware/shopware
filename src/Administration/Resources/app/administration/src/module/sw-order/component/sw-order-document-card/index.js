@@ -567,7 +567,11 @@ export default {
                     if (formats.length > 1) {
                         await this.downloadDocumentArchive(documentId);
                     } else {
-                        this.downloadDocument(documentId, null, this.documentV2Service.getPreferredFileFormat(formats, FILE_FORMATS.PDF));
+                        this.downloadDocument(
+                            documentId,
+                            null,
+                            this.documentV2Service.getPreferredFileFormat(formats, FILE_FORMATS.PDF),
+                        );
                     }
                 } else if (additionalAction === 'send') {
                     await this.sendDocument(documentId);

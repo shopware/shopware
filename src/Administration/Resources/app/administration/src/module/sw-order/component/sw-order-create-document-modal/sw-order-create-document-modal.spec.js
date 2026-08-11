@@ -97,9 +97,7 @@ async function createWrapper(props = {}) {
                 documentV2ApiService: {
                     getAvailableTypes: () => {
                         return {
-                            data: {
-                                documentTypes: supportedDocumentTypes,
-                            },
+                            documentTypes: supportedDocumentTypes,
                         };
                     },
                 },

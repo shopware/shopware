@@ -212,15 +212,23 @@ export default {
         // already loaded has to be fetched again to stay in sync with the server ordering.
         async reloadLandingPages() {
             const loadedPages = this.page;
-
-            this.loadedLandingPages = {};
+            const reloaded = {};
+            let total = 0;
 
             for (let page = 1; page <= loadedPages; page += 1) {
                 this.page = page;
 
-                // eslint-disable-next-line no-await-in-loop
-                await this.loadLandingPages();
+                const result = await this.landingPageRepository.search(this.cmsLandingPageCriteria);
+
+                total = result.total ?? result.length;
+                result.forEach((landingPage) => {
+                    reloaded[landingPage.id] = landingPage;
+                });
             }
+
+            // Swapped in one go: emptying the map first would flash an empty tree on every mutation.
+            this.total = total;
+            this.loadedLandingPages = reloaded;
         },
 
         checkedElementsCount(count) {
@@ -229,7 +237,8 @@ export default {
 
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
-            this.landingPageRepository.syncDeleted(ids).then(() => {
+
+            return this.landingPageRepository.syncDeleted(ids).then(() => {
                 ids.forEach((id) => this.removeFromStore(id));
 
                 return this.reloadLandingPages();

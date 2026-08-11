@@ -423,6 +423,31 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         expect(wrapper.vm.hasMoreLandingPages).toBe(false);
     });
 
+    it('should never expose an empty tree while reloading', async () => {
+        let resolveReload;
+        const search = jest
+            .fn()
+            .mockResolvedValueOnce(createSearchResult(createLandingPages(500), 500))
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolveReload = resolve;
+                }),
+            );
+
+        const wrapper = await createWrapper(search);
+        await flushPromises();
+
+        const reload = wrapper.vm.reloadLandingPages();
+        await flushPromises();
+
+        expect(wrapper.vm.landingPages).toHaveLength(500);
+
+        resolveReload(createSearchResult(createLandingPages(499), 499));
+        await reload;
+
+        expect(wrapper.vm.landingPages).toHaveLength(499);
+    });
+
     it('should reload every page that was loaded before the mutation', async () => {
         const search = jest.fn((criteria) =>
             Promise.resolve(createSearchResult(createLandingPages(500, (criteria.page - 1) * 500), 1000)),

@@ -151,7 +151,9 @@ describe('scripts/extensionTooling/setup root projections', () => {
         // straight into an existing settings object.
         expect(entries.slice(0, -1).every((line) => line.endsWith(','))).toBe(true);
         expect(entries[entries.length - 1]).not.toMatch(/,$/);
-        expect(() => JSON.parse(`{${entries.join('\n')}}`)).not.toThrow();
+        expect(() => {
+            JSON.parse(`{${entries.join('\n')}}`);
+        }).not.toThrow();
     });
 
     it('rewrites marker-owned files when their content is outdated', () => {

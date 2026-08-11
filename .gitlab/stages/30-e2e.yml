@@ -47,7 +47,7 @@ acceptance:
     - cd tests/acceptance
     - npm ci
   script:
-    - npx playwright test --workers=1 --project=${ACCEPTANCE_PROJECT}
+    - npx playwright test --workers=2 --project=${ACCEPTANCE_PROJECT}
   after_script:
     - |
       echo "Link to HTML report"

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -20,6 +21,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,6 +30,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -79,6 +82,22 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
+    }
+
+    public function testExportEncodesMediaUrls(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.cover.media.url }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString('product%20image.jpg', $exportResult->getContent());
     }
 
     public function testProductExportGenerationEvents(): void
@@ -143,7 +162,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -210,7 +230,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         try {
@@ -276,6 +297,31 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertInstanceOf(ProductExportResult::class, $result);
         static::assertStringContainsString($code, $result->getContent());
+    }
+
+    public function testExportWithEmptyProductStreamIncludesVariants(): void
+    {
+        $variantId = $this->createVariantProduct();
+        $productStreamId = $this->createEmptyProductStream();
+
+        static::getContainer()->get(ProductStreamIndexer::class)->handle(new EntityIndexingMessage([$productStreamId]));
+
+        $productExportId = $this->createProductExportForProductStream($productStreamId, [
+            'includeVariants' => true,
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.id }};',
+            'footerTemplate' => '',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $result = $this->service->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertInstanceOf(ProductExportResult::class, $result);
+        static::assertStringContainsString($variantId, $result->getContent());
     }
 
     public static function isoCodeProvider(): \Generator
@@ -373,12 +419,20 @@ class ProductExportGeneratorTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $override
+     * @param array<string, mixed> $override
      */
     private function createTestEntity(array $override = []): string
     {
         $this->createProductStream();
 
+        return $this->createProductExportForProductStream('137b079935714281ba80b40f83f8d7eb', $override);
+    }
+
+    /**
+     * @param array<string, mixed> $override
+     */
+    private function createProductExportForProductStream(string $productStreamId, array $override = []): string
+    {
         $id = Uuid::randomHex();
         $this->repository->upsert([
             array_merge([
@@ -390,7 +444,7 @@ class ProductExportGeneratorTest extends TestCase
                 'interval' => 0,
                 'headerTemplate' => 'name,stock,category',
                 'bodyTemplate' => '{{ product.name }},{{ product.stock }},{%- if product.categories.count > 0 -%}{{ product.categories.first.name }}{%- endif -%}',
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'productStreamId' => $productStreamId,
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
@@ -400,6 +454,33 @@ class ProductExportGeneratorTest extends TestCase
         ], $this->context);
 
         return $id;
+    }
+
+    private function createEmptyProductStream(): string
+    {
+        $productStreamId = Uuid::randomHex();
+        $connection = static::getContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
+                VALUES (UNHEX(:productStreamId), NULL, 1, '2019-08-16 08:43:57.488', NULL)
+            SQL,
+            ['productStreamId' => $productStreamId]
+        );
+
+        $connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO `product_stream_filter`
+                    (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
+                VALUES
+                    (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX(:productStreamId), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
+                    (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX(:productStreamId), UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), 'equalsAny', 'id', NULL, '', NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL)
+            SQL,
+            ['productStreamId' => $productStreamId]
+        );
+
+        return $productStreamId;
     }
 
     private function createProductStream(): void
@@ -436,6 +517,8 @@ class ProductExportGeneratorTest extends TestCase
 
         for ($i = 0; $i < 10; ++$i) {
             $groupId = Uuid::randomHex();
+            $productMediaId = Uuid::randomHex();
+            $mediaId = Uuid::randomHex();
 
             $products[] = [
                 'id' => Uuid::randomHex(),
@@ -447,6 +530,20 @@ class ProductExportGeneratorTest extends TestCase
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'coverId' => $productMediaId,
+                'media' => [
+                    [
+                        'id' => $productMediaId,
+                        'position' => 1,
+                        'media' => [
+                            'id' => $mediaId,
+                            'fileName' => 'product image',
+                            'fileExtension' => 'jpg',
+                            'mimeType' => 'image/jpeg',
+                            'path' => 'media/product image.jpg',
+                        ],
+                    ],
                 ],
                 'options' => [
                     [
@@ -543,5 +640,47 @@ class ProductExportGeneratorTest extends TestCase
         $productRepository->create($products, Context::createDefaultContext());
 
         return $ids;
+    }
+
+    private function createVariantProduct(): string
+    {
+        $productRepository = static::getContainer()->get('product.repository');
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+
+        $productRepository->create([
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'active' => true,
+                'stock' => 10,
+                'name' => 'Empty Stream Parent',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $taxId, 'taxRate' => 19, 'name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+            [
+                'id' => $variantId,
+                'parentId' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'active' => true,
+                'stock' => 10,
+                'name' => 'Empty Stream Variant',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 11, 'net' => 10, 'linked' => false]],
+                'manufacturerId' => $manufacturerId,
+                'taxId' => $taxId,
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], $this->context);
+
+        return $variantId;
     }
 }

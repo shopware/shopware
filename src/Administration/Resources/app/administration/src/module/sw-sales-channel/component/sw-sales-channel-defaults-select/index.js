@@ -127,7 +127,7 @@ export default {
         },
 
         singleSelectClass() {
-            return `sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
+            return `sw-sales-channel-detail__assign sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
         },
 
         defaultsValueError() {

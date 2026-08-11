@@ -125,6 +125,18 @@
         {% endif %}
     {% endif %}
 
+    {% set revocationPageId = config('core.basicInformation.revocationPage') %}
+    {% if revocationPageId %}
+        {% set returnPolicyUrl = url('frontend.cms.page.full', { id: revocationPageId }) %}
+
+        {% set offersData = offersData|merge({
+            hasMerchantReturnPolicy: {
+                '@type': 'MerchantReturnPolicy',
+                url: returnPolicyUrl
+            }
+        }) %}
+    {% endif %}
+
     {# Build main product data structure #}
     {% set productData = {
         '@context': 'https://schema.org',

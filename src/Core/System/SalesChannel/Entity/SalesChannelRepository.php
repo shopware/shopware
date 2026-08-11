@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Profiling\Profiler;
@@ -33,6 +34,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('discovery')]
 class SalesChannelRepository
 {
+    /**
+     * A criteria that needs more nested criteria than this is not a shape any storefront produces;
+     * it is reported now and rejected from v6.7.0.0.
+     */
+    private const CRITERIA_LIMIT = 100;
+
     /**
      * @internal
      */
@@ -207,17 +214,22 @@ class SalesChannelRepository
             ['definition' => $this->definition, 'criteria' => $topCriteria, 'path' => ''],
         ];
 
-        // A criteria that is not processed keeps none of the restrictions its definition adds,
-        // so stopping early returns unfiltered data instead of less data. The bound is therefore
-        // derived from the incoming criteria and only guards against a processCriteria
-        // implementation that keeps adding associations: a many-to-many association queues two
-        // entries per criteria, and the root criteria may gain a few default associations.
-        $maxCount = $this->countCriteria($topCriteria) * 2 + 100;
-
         $processed = [];
 
+        // A criteria that is not processed keeps none of the restrictions its definition adds, so
+        // the whole tree is walked instead of stopping at the limit, which would return unfiltered
+        // data instead of less data. Exceeding the limit is reported once and will be rejected.
+        $count = 0;
+
         // process all associations breadth-first
-        while (!empty($queue) && --$maxCount > 0) {
+        while (!empty($queue)) {
+            if (++$count === self::CRITERIA_LIMIT + 1) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.7.0.0',
+                    \sprintf('A criteria with more than %d nested criteria will be rejected from v6.7.0.0.', self::CRITERIA_LIMIT)
+                );
+            }
+
             $cur = array_shift($queue);
 
             $definition = $cur['definition'];
@@ -258,16 +270,5 @@ class SalesChannelRepository
                 $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
             }
         }
-    }
-
-    private function countCriteria(Criteria $criteria): int
-    {
-        $count = 1;
-
-        foreach ($criteria->getAssociations() as $association) {
-            $count += $this->countCriteria($association);
-        }
-
-        return $count;
     }
 }

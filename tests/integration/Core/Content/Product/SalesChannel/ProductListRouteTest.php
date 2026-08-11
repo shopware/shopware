@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -224,11 +225,15 @@ class ProductListRouteTest extends TestCase
         static::assertSame('test hidden own review', $reviews[1]['title']);
     }
 
-    public function testListingProductsIncludesOnlyPublicReviewsForNestedAssociations(): void
+    #[DataProvider('nestedReviewOwnerProvider')]
+    public function testListingProductsAppliesReviewVisibilityToNestedAssociations(bool $pendingReviewBelongsToTheCaller, bool $pendingReviewIsVisible): void
     {
-        $foreignCustomerId = $this->login($this->browser);
-        // the second login switches the browser to another customer, the hidden review stays owned by the first one
-        $this->login($this->browser);
+        $otherCustomerId = $this->login($this->browser);
+        // the second login switches the browser to another customer, so the pending review below
+        // either belongs to the caller or to the customer created first
+        $callerId = $this->login($this->browser);
+
+        $reviewOwnerId = $pendingReviewBelongsToTheCaller ? $callerId : $otherCustomerId;
 
         $product = (new ProductBuilder($this->ids, 'nested-review-parent'))
             ->visibility($this->ids->get('sales-channel'))
@@ -237,8 +242,20 @@ class ProductListRouteTest extends TestCase
                 (new ProductBuilder($this->ids, 'nested-review-child'))
                     ->visibility($this->ids->get('sales-channel'))
                     ->price(10)
-                    ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
-                    ->review('test hidden foreign review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $foreignCustomerId)
+                    ->review(
+                        title: 'test approved review',
+                        content: 'this is an approved review',
+                        points: 3,
+                        salesChannelId: $this->ids->get('sales-channel'),
+                    )
+                    ->review(
+                        title: 'test pending review',
+                        content: 'this is a pending review',
+                        points: 0,
+                        salesChannelId: $this->ids->get('sales-channel'),
+                        status: false,
+                        customerId: $reviewOwnerId,
+                    )
                     ->build()
             )
             ->build();
@@ -251,53 +268,6 @@ class ProductListRouteTest extends TestCase
             '/store-api/product',
             [
                 'ids' => [$this->ids->get('nested-review-parent')],
-                'associations' => [
-                    'children' => [
-                        'associations' => [
-                            'productReviews' => [],
-                        ],
-                    ],
-                ],
-            ],
-        );
-
-        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(1, $response['total']);
-        static::assertArrayHasKey('children', $response['elements'][0]);
-        static::assertCount(1, $response['elements'][0]['children']);
-        static::assertArrayHasKey('productReviews', $response['elements'][0]['children'][0]);
-
-        $reviews = $response['elements'][0]['children'][0]['productReviews'];
-        static::assertCount(1, $reviews);
-        static::assertSame('test public review', $reviews[0]['title']);
-    }
-
-    public function testListingProductsIncludesOwnInactiveReviewsForNestedAssociations(): void
-    {
-        $customerId = $this->login($this->browser);
-
-        $product = (new ProductBuilder($this->ids, 'nested-own-review-parent'))
-            ->visibility($this->ids->get('sales-channel'))
-            ->price(10)
-            ->variant(
-                (new ProductBuilder($this->ids, 'nested-own-review-child'))
-                    ->visibility($this->ids->get('sales-channel'))
-                    ->price(10)
-                    ->review('test public review', 'this is a public review', 3, $this->ids->get('sales-channel'))
-                    ->review('test hidden own review', 'this is a hidden review', 0, $this->ids->get('sales-channel'), Defaults::LANGUAGE_SYSTEM, false, $customerId)
-                    ->build()
-            )
-            ->build();
-
-        static::getContainer()->get('product.repository')
-            ->create([$product], Context::createDefaultContext());
-
-        $this->browser->request(
-            'POST',
-            '/store-api/product',
-            [
-                'ids' => [$this->ids->get('nested-own-review-parent')],
                 'associations' => [
                     'children' => [
                         'associations' => [
@@ -317,10 +287,22 @@ class ProductListRouteTest extends TestCase
         static::assertCount(1, $response['elements'][0]['children']);
         static::assertArrayHasKey('productReviews', $response['elements'][0]['children'][0]);
 
-        $reviews = $response['elements'][0]['children'][0]['productReviews'];
-        static::assertCount(2, $reviews);
-        static::assertSame('test public review', $reviews[0]['title']);
-        static::assertSame('test hidden own review', $reviews[1]['title']);
+        $titles = \array_column($response['elements'][0]['children'][0]['productReviews'], 'title');
+
+        $expected = $pendingReviewIsVisible
+            ? ['test approved review', 'test pending review']
+            : ['test approved review'];
+
+        static::assertSame($expected, $titles);
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function nestedReviewOwnerProvider(): iterable
+    {
+        yield 'pending review of the calling customer is visible' => [true, true];
+        yield 'pending review of another customer is hidden' => [false, false];
     }
 
     private function createData(): void

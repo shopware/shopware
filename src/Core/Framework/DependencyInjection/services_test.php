@@ -172,6 +172,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             [
                 service('cache.object'),
                 service('cache.http'),
+                service('cache.rate_limiter'),
             ],
             service('cache_clearer'),
             param('kernel.cache_dir'),

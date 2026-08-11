@@ -8,7 +8,14 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontHome,
+        StorefrontProductDetail,
+        SalesChannelBaseConfig,
+        InstanceMeta,
+    }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {
@@ -58,7 +65,9 @@ test(
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for products to be visible on storefront.', async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();

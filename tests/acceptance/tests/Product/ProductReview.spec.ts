@@ -37,7 +37,7 @@ test(
             description: 'https://github.com/shopware/shopware/issues/13219',
         },
     },
-    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, LoginViaReviewsTab, Logout }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, LoginViaReviewsTab, Logout, InstanceMeta }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
 
@@ -60,7 +60,9 @@ test(
             await ShopCustomer.expects(StorefrontProductDetail.reviewLoginForm).toBeVisible();
             await ShopCustomer.expects(StorefrontProductDetail.forgottenPasswordLink).toBeVisible();
             await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
-            await TestDataService.clearCaches();
+            if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                await TestDataService.clearCaches();
+            }
 
             // collapse depend on page-level initialization (JS event listeners, aria-expanded, etc.) which don’t re-fire after DOM patching.
             await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);

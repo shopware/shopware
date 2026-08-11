@@ -797,5 +797,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AdminSearchRegistry::class),
             service(AdminElasticsearchHelper::class),
             service(AdminSearcher::class),
+            param('elasticsearch.administration.index_settings.max_result_window'),
         ]);
 };

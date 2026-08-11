@@ -28,6 +28,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
 use Shopware\Core\System\Snippet\SnippetValidatorInterface;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber;
+use Shopware\Core\System\Snippet\Subscriber\LanguageDeletionSubscriber;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -107,7 +108,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set('shopware.translation.client', Client::class);
+    $services->set('shopware.translation.client', Client::class)
+        ->args([
+            [
+                'timeout' => 30,
+                'connect_timeout' => 5,
+            ],
+        ]);
 
     $services->set(TranslationConfigLoader::class)
         ->args([
@@ -138,6 +145,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service('shopware.translation.client'),
             service('shopware.filesystem.private'),
+            service('cache.object'),
         ]);
 
     $services->set(TranslationUpdater::class)
@@ -162,6 +170,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(TranslationUpdater::class),
+            service('language.repository'),
         ])
         ->tag('messenger.message_handler');
 
@@ -174,6 +183,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(LanguageDeletionSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(TranslationMetadataStore::class),
         ])
         ->tag('kernel.event_subscriber');
 };

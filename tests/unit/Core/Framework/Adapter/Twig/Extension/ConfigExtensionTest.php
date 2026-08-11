@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -17,6 +18,7 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConfigExtension::class)]
 class ConfigExtensionTest extends TestCase
 {

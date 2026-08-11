@@ -80,6 +80,10 @@ class LineItemInCategoryRule extends Rule
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         return RuleComparison::uuids($lineItem->getPayloadValue('categoryIds'), $this->categoryIds, $this->operator);
     }
 }

@@ -11,12 +11,14 @@ use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UninstallAppCommand::class)]
 class UninstallAppCommandTest extends TestCase
 {

@@ -86,6 +86,7 @@ use Shopware\Storefront\Framework\Media\Validator\StorefrontMediaImageValidator;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
 use Shopware\Storefront\Framework\Routing\CanonicalLinkListener;
+use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -259,7 +260,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CachedDomainLoader::class . '.inner'),
             service('cache.object'),
             service('logger'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(CachedDomainLoaderInvalidator::class)
         ->args([
@@ -735,6 +737,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement');
 
     $services->set(ResponseHeaderListener::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ClearSiteDataListener::class)
+        ->args([
+            param('storefront.security.clear_site_data_on_logout'),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(CartMergedSubscriber::class)

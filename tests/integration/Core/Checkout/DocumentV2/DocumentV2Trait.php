@@ -92,12 +92,43 @@ trait DocumentV2Trait
         ];
     }
 
-    protected function seedDemoInvoiceBaseConfig(): void
+    protected function seedDemoBaseConfig(string $documentType): void
     {
         $config = $this->getDemoInvoiceLegacyConfig();
         $config['companyCountryId'] = $this->loadCompanyCountry()->getId();
 
-        $this->upsertBaseConfig($config, 'invoice');
+        $this->upsertBaseConfig($config, $documentType);
+    }
+
+    protected function seedReferenceInvoice(
+        string $orderId,
+        ?string $documentNumber = self::DOCUMENT_NUMBER,
+        ?string $orderVersionId = null,
+    ): string {
+        $documentTypeId = static::getContainer()->get('document_type.repository')->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice')),
+            $this->context,
+        )->firstId();
+
+        static::assertIsString($documentTypeId);
+
+        $documentId = Uuid::randomHex();
+
+        static::getContainer()->get('document.repository')->create([
+            [
+                'id' => $documentId,
+                'documentTypeId' => $documentTypeId,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId
+                    ?? static::getContainer()->get('order.repository')->createVersion($orderId, $this->context),
+                'config' => $documentNumber === null ? [] : ['documentNumber' => $documentNumber],
+                'deepLinkCode' => Uuid::randomHex(),
+                'static' => false,
+                'sent' => false,
+            ],
+        ], $this->context);
+
+        return $documentId;
     }
 
     protected function applyTenPercentPromotion(Cart $cart): Cart

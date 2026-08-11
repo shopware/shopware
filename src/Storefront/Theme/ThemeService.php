@@ -30,7 +30,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
@@ -88,7 +88,9 @@ class ThemeService implements ResetInterface
             $context
         );
 
-        // refresh the runtime config only if not using the StaticFileConfigLoader (no database)
+        // Refresh the runtime config values when the static file loader is used.
+        // The static file loader is only used for the compiled theme configuration;
+        // the resolved values are still stored in the runtime config table.
         if (!$this->configLoader instanceof StaticFileConfigLoader) {
             $importMap = null;
             if ($this->themeCompiler instanceof ThemeCompiler) {
@@ -107,6 +109,8 @@ class ThemeService implements ResetInterface
                 $configurationCollection,
                 $importMap,
             );
+        } else {
+            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
         }
     }
 

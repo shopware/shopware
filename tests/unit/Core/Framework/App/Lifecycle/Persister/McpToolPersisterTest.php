@@ -26,9 +26,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolPersister::class)]
 #[CoversClass(AbstractMcpCapabilityPersister::class)]
-#[Package('framework')]
 class McpToolPersisterTest extends TestCase
 {
     /**

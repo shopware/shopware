@@ -9,37 +9,30 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Checkout
-      if: ${{ github.event_name == 'pull_request' }}
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+    # Changed files come from the pulls.listFiles API (calling job needs
+    # `pull-requests: read`), so no full-history checkout is needed. Guards
+    # only ever err towards docs_only=false: the changed_files bound covers
+    # the API's silent 3000-file truncation, continue-on-error keeps an API
+    # failure from failing this job (which would skip all dependent jobs).
+    - name: Detect non-markdown changes
+      id: filter
+      if: github.event_name == 'pull_request' && github.event.pull_request.changed_files > 0 && github.event.pull_request.changed_files < 3000
+      continue-on-error: true
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
-        fetch-depth: 0
+        # paths-filter can only answer "does any changed file match?", so ask
+        # the complement: did the PR touch anything that is not markdown?
+        # (`every` = a file only counts when it matches both negated patterns)
+        predicate-quantifier: 'every'
+        filters: |
+          non_markdown:
+            - '!**/*.md'
+            - '!**/*.MD'
 
-    - name: Detect markdown-only pull requests
+    # docs_only = files changed and none of them were non-markdown. A skipped
+    # or failed filter step leaves the output empty, and '' == 'false' is
+    # false — do not simplify, this is the fail-open path.
+    - name: Report markdown-only result
       id: check
       shell: bash
-      run: |
-        if [ "${{ github.event_name }}" != "pull_request" ]; then
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        base_sha="${{ github.event.pull_request.base.sha }}"
-        head_sha="${{ github.event.pull_request.head.sha }}"
-
-        if [ -z "$base_sha" ] || [ -z "$head_sha" ]; then
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        if ! changed_files="$(git diff --name-only "$base_sha" "$head_sha")"; then
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        if [ -z "$changed_files" ] || printf '%s\n' "$changed_files" | grep -Eivq '\.md$'; then
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        echo "docs_only=true" >> "$GITHUB_OUTPUT"
+      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' }}" >> "$GITHUB_OUTPUT"

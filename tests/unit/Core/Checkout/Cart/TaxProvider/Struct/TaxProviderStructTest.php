@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(TaxProviderResult::class)]
 #[Package('checkout')]
+#[CoversClass(TaxProviderResult::class)]
 class TaxProviderStructTest extends TestCase
 {
     public function testEmpty(): void

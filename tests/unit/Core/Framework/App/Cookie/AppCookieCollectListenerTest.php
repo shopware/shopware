@@ -6,6 +6,9 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cookie;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -13,8 +16,10 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -25,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-import-type Cookie from AppEntity
  */
+#[Package('framework')]
 #[CoversClass(AppCookieCollectListener::class)]
 class AppCookieCollectListenerTest extends TestCase
 {
@@ -44,7 +50,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'swag.analytics.name',
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener([$appEntity])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -83,7 +89,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_description' => 'app.cookies.group.description',
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener([$appEntity])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -140,7 +146,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
             ],
         ]);
-        $this->createListener($appEntity)->__invoke($event);
+        $this->createListener([$appEntity])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -202,7 +208,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookie.group.name',
             ],
         ]);
-        $this->createListener($firstAppEntity, $secondAppEntity)->__invoke($event);
+        $this->createListener([$firstAppEntity, $secondAppEntity])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -244,6 +250,150 @@ class AppCookieCollectListenerTest extends TestCase
         static::assertEmpty($groups);
     }
 
+    public function testItFiltersEntriesOfInactivePaymentMethods(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'entries' => [
+                    [
+                        'cookie' => 'swag-app-something',
+                        'snippet_name' => 'first.something',
+                    ],
+                    [
+                        'cookie' => 'swag-app-payment',
+                        'snippet_name' => 'second.payment',
+                        'active_payment_methods' => ['myPaymentMethod'],
+                    ],
+                ],
+                'snippet_name' => 'app.cookies.group',
+            ],
+        ]);
+        $this->createListener([$appEntity])->__invoke($event);
+
+        $firstGroup = $event->cookieGroupCollection->first();
+        static::assertNotNull($firstGroup);
+        $entries = $firstGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertNotNull($entries->get('swag-app-something'));
+        static::assertNull($entries->get('swag-app-payment'));
+    }
+
+    public function testItKeepsEntriesOfActivePaymentMethods(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'entries' => [
+                    [
+                        'cookie' => 'swag-app-payment',
+                        'snippet_name' => 'first.payment',
+                        'active_payment_methods' => ['inactivePaymentMethod', 'myPaymentMethod'],
+                    ],
+                ],
+                'snippet_name' => 'app.cookies.group',
+            ],
+        ]);
+        $this->createListener([$appEntity], ['app\\TestApp_myPaymentMethod'])->__invoke($event);
+
+        $firstGroup = $event->cookieGroupCollection->first();
+        static::assertNotNull($firstGroup);
+        $entries = $firstGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertNotNull($entries->get('swag-app-payment'));
+    }
+
+    public function testItKeepsWildcardEntriesWhenAnyAppPaymentMethodIsActive(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'entries' => [
+                    [
+                        'cookie' => 'swag-app-payment',
+                        'snippet_name' => 'first.payment',
+                        'active_payment_methods' => ['*'],
+                    ],
+                ],
+                'snippet_name' => 'app.cookies.group',
+            ],
+        ]);
+        $this->createListener([$appEntity], ['app\\TestApp_anyOfItsMethods'])->__invoke($event);
+
+        $firstGroup = $event->cookieGroupCollection->first();
+        static::assertNotNull($firstGroup);
+        $entries = $firstGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(1, $entries);
+        static::assertNotNull($entries->get('swag-app-payment'));
+    }
+
+    public function testItFiltersWildcardEntriesWhenOnlyOtherAppsPaymentMethodsAreActive(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'entries' => [
+                    [
+                        'cookie' => 'swag-app-payment',
+                        'snippet_name' => 'first.payment',
+                        'active_payment_methods' => ['*'],
+                    ],
+                ],
+                'snippet_name' => 'app.cookies.group',
+            ],
+        ]);
+        $this->createListener([$appEntity], ['app\\OtherApp_someMethod'])->__invoke($event);
+
+        $firstGroup = $event->cookieGroupCollection->first();
+        static::assertNotNull($firstGroup);
+        $entries = $firstGroup->getEntries();
+        static::assertNotNull($entries);
+        static::assertCount(0, $entries);
+    }
+
+    public function testItFiltersTopLevelCookiesOfInactivePaymentMethods(): void
+    {
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection(),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
+
+        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+            [
+                'cookie' => 'swag-analytics',
+                'snippet_name' => 'swag.analytics.name',
+                'active_payment_methods' => ['myPaymentMethod'],
+            ],
+        ]);
+        $this->createListener([$appEntity])->__invoke($event);
+
+        static::assertEmpty($event->cookieGroupCollection);
+    }
+
     /**
      * @param list<Cookie> $cookies
      */
@@ -252,17 +402,35 @@ class AppCookieCollectListenerTest extends TestCase
         return (new AppEntity())->assign([
             'id' => $appId,
             '_uniqueIdentifier' => $appId,
+            'name' => 'TestApp',
             'cookies' => $cookies,
         ]);
     }
 
-    private function createListener(AppEntity ...$appEntity): AppCookieCollectListener
+    /**
+     * @param list<AppEntity> $appEntities
+     * @param list<string> $activePaymentMethodHandlers
+     */
+    private function createListener(array $appEntities = [], array $activePaymentMethodHandlers = []): AppCookieCollectListener
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
-            new AppCollection([...$appEntity]),
-        ]);
+            new AppCollection($appEntities),
+        ], new AppDefinition());
 
-        return new AppCookieCollectListener($appRepo);
+        $paymentMethods = [];
+        foreach ($activePaymentMethodHandlers as $handlerIdentifier) {
+            $id = Uuid::randomHex();
+            $paymentMethods[] = (new PaymentMethodEntity())->assign([
+                'id' => $id,
+                '_uniqueIdentifier' => $id,
+                'handlerIdentifier' => $handlerIdentifier,
+            ]);
+        }
+
+        $paymentMethodRepo = new StaticEntityRepository([
+            new PaymentMethodCollection($paymentMethods),
+        ], new PaymentMethodDefinition());
+
+        return new AppCookieCollectListener($appRepo, $paymentMethodRepo);
     }
 }

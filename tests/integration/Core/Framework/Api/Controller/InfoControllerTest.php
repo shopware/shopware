@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -40,6 +41,7 @@ use Symfony\Component\Messenger\Envelope;
 /**
  * @internal
  */
+#[Package('framework')]
 class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

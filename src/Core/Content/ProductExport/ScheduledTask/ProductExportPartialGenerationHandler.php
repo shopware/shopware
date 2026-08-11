@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -32,8 +31,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('inventory')]
+#[AsMessageHandler]
 final readonly class ProductExportPartialGenerationHandler
 {
     /**
@@ -52,7 +51,6 @@ final readonly class ProductExportPartialGenerationHandler
         private SalesChannelContextServiceInterface $salesChannelContextService,
         private SalesChannelContextPersister $contextPersister,
         private Connection $connection,
-        private int $readBufferSize,
         private LanguageLocaleCodeProvider $languageLocaleProvider,
         private ClockInterface $clock,
     ) {
@@ -67,7 +65,8 @@ final readonly class ProductExportPartialGenerationHandler
             return;
         }
 
-        $exportResult = $this->runExport($productExport, $productExportPartialGeneration->getOffset(), $context);
+        $offset = $productExportPartialGeneration->getOffset();
+        $exportResult = $this->runExport($productExport, $offset, $context);
 
         $filePath = $this->productExportFileHandler->getFilePath($productExport, true);
 
@@ -80,15 +79,15 @@ final readonly class ProductExportPartialGenerationHandler
         $this->productExportFileHandler->writeProductExportContent(
             $exportResult->getContent(),
             $filePath,
-            $productExportPartialGeneration->getOffset() > 0
+            $offset > 0
         );
 
-        if ($productExportPartialGeneration->getOffset() + $this->readBufferSize < $exportResult->getTotal()) {
+        if ($exportResult->hasNextBatch()) {
             $this->messageBus->dispatch(
                 new ProductExportPartialGeneration(
-                    $productExportPartialGeneration->getProductExportId(),
-                    $productExportPartialGeneration->getSalesChannelId(),
-                    $productExportPartialGeneration->getOffset() + $this->readBufferSize
+                    productExportId: $productExportPartialGeneration->getProductExportId(),
+                    salesChannelId: $productExportPartialGeneration->getSalesChannelId(),
+                    offset: $exportResult->getOffset()
                 )
             );
 
@@ -106,7 +105,7 @@ final readonly class ProductExportPartialGenerationHandler
         );
 
         if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
-            throw new SalesChannelNotFoundException();
+            throw ProductExportException::salesChannelNotFound();
         }
 
         return $context->getContext();
@@ -132,20 +131,28 @@ final readonly class ProductExportPartialGenerationHandler
         int $offset,
         Context $context
     ): ?ProductExportResult {
-        $this->productExportRepository->update([[
+        // Mark running on every batch: this refreshes product_export.updated_at, which
+        // ProductExportGenerateTaskHandler::isStale() relies on as a heartbeat to detect a
+        // stuck export. Skipping it for later batches would make long exports look stale and
+        // get re-dispatched while still running.
+        $update = [
             'id' => $productExport->getId(),
             'isRunning' => true,
-        ]], $context);
+        ];
+
+        if ($offset === 0) {
+            $update['nextGenerationAt'] = $this->clock->now()->modify(\sprintf('+%d seconds', $productExport->getInterval()));
+        }
+
+        $this->productExportRepository->update([$update], $context);
 
         return $this->productExportGenerator->generate(
             $productExport,
             new ExportBehavior(
-                false,
-                false,
-                true,
-                false,
-                false,
-                $offset
+                batchMode: true,
+                generateHeader: false,
+                generateFooter: false,
+                offset: $offset
             )
         );
     }

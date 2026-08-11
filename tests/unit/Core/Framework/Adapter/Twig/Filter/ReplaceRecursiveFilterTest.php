@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Filter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReplaceRecursiveFilter::class)]
 class ReplaceRecursiveFilterTest extends TestCase
 {

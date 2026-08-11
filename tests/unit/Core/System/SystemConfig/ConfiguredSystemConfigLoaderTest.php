@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\ConfiguredSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ConfiguredSystemConfigLoader::class)]
 class ConfiguredSystemConfigLoaderTest extends TestCase
 {

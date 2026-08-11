@@ -123,7 +123,7 @@ class SalesChannelRepositoryTest extends TestCase
         $criteria1 = new Criteria([$salesChannelId]);
         $criteria1->addAssociation('type');
 
-        $salesChannel = $this->salesChannelRepository->search($criteria1, $context)->get($salesChannelId);
+        $salesChannel = $this->salesChannelRepository->search($criteria1, $context)->getEntities()->get($salesChannelId);
 
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
         static::assertSame($name, $salesChannel->getName());
@@ -140,27 +140,27 @@ class SalesChannelRepositoryTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('currency.salesChannels.id', $salesChannelId));
-        $currency = $this->currencyRepository->search($criteria, $context);
+        $currency = $this->currencyRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $currency);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.salesChannels.id', $salesChannelId));
-        $language = $this->languageRepository->search($criteria, $context);
+        $language = $this->languageRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $language);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('payment_method.salesChannels.id', $salesChannelId));
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context);
+        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $paymentMethod);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $salesChannelId));
-        $country = $this->countryRepository->search($criteria, $context);
+        $country = $this->countryRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $country);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
-        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context);
+        $shippingMethod = $this->shippingMethodRepository->search($criteria, $context)->getEntities();
         static::assertCount(1, $shippingMethod);
     }
 
@@ -185,7 +185,7 @@ class SalesChannelRepositoryTest extends TestCase
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository
-            ->search(new Criteria([$id]), Context::createDefaultContext())
+            ->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()
             ->first();
 
         static::assertSame(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL, $salesChannel->getTaxCalculationType());

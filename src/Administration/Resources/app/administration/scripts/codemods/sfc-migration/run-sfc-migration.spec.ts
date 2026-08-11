@@ -811,6 +811,29 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: false });
         expect(stats.deletedOriginals).toBe(0);
     });
+
+    it('does not replace originals when the registered component name differs from the directory name', () => {
+        const mismatchedDir = makeComponent(
+            tmpDir,
+            'sw-directory-card',
+            `Shopware.Component.register('sw-registered-card', {
+                data() {
+                    return {
+                        title: 'Title',
+                    };
+                },
+            });`,
+            '<div class="sw-directory-card">{{ title }}</div>',
+        );
+
+        const { stats, report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        expect(existsSync(join(mismatchedDir, 'index.js'))).toBe(true);
+        expect(readFileSync(join(mismatchedDir, 'index.js'), 'utf-8')).toContain('sw-registered-card');
+        expect(existsSync(join(mismatchedDir, 'sw-directory-card.html.twig'))).toBe(true);
+        expect(stats.deletedOriginals).toBe(1);
+        expect(report.join('\n')).toContain('component name');
+    });
 });
 
 describe('runMigration — delete-originals (partially-migrated)', () => {
@@ -862,9 +885,9 @@ describe('runMigration — $el warning', () => {
         tmpDir = createTempDir();
         makeComponent(
             tmpDir,
-            'sw-composables',
-            readFixture('composables-component.index.js'),
-            readFixture('composables-component.html.twig'),
+            'sw-instance-api',
+            readFixture('instance-api-component.index.js'),
+            readFixture('instance-api-component.html.twig'),
         );
     });
 
@@ -897,9 +920,9 @@ describe('runMigration — $el warning', () => {
         expect(warnLine).toContain('$el usage detected');
     });
 
-    it('warning line appears after the fully-migrated line in the report', () => {
+    it('warning line appears after the partially-migrated line in the report', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
-        const migratedIdx = report.findIndex((l) => l.includes('fully-migrated'));
+        const migratedIdx = report.findIndex((l) => l.includes('partially-migrated'));
         const warnIdx = report.findIndex((l) => l.includes('⚠'));
         expect(migratedIdx).toBeGreaterThanOrEqual(0);
         expect(warnIdx).toBeGreaterThan(migratedIdx);

@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/_mcp": {
@@ -9,7 +9,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP JSON-RPC endpoint (Store API)",
-                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Streaming responses are delivered as a `text/event-stream` body on this POST operation; a standalone GET SSE stream is not supported. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Streaming responses are delivered as a `text/event-stream` body on this POST operation; a standalone GET SSE stream is not supported. Browser clients are supported: the CORS preflight is answered before routing with the `Access-Control-Allow-*` headers, including `mcp-session-id` and `mcp-protocol-version` in the allowed and exposed headers. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPost",
                 "parameters": [
                     {
@@ -656,6 +656,64 @@
                                 }
                             },
                             "text/event-stream": {
+                                "itemSchema": {
+                                    "type": "object",
+                                    "description": "Parsed Server-Sent Events message. The `data` field contains a serialized JSON-RPC response object.",
+                                    "properties": {
+                                        "event": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "retry": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "contentMediaType": "application/json",
+                                            "contentSchema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "jsonrpc": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "2.0"
+                                                        ]
+                                                    },
+                                                    "id": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "integer"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "result": {
+                                                        "type": "object",
+                                                        "additionalProperties": true
+                                                    },
+                                                    "error": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "code": {
+                                                                "type": "integer"
+                                                            },
+                                                            "message": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
                                 "schema": {
                                     "type": "string",
                                     "description": "Server-Sent Events stream. Each `message` event carries a JSON-RPC response object as defined for `application/json`."
@@ -788,20 +846,6 @@
                         "ApiKey": []
                     }
                 ]
-            },
-            "options": {
-                "tags": [
-                    "MCP",
-                    "Experimental"
-                ],
-                "summary": "MCP CORS preflight (Store API)",
-                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Answered before routing; the response carries the `Access-Control-Allow-*` headers including `mcp-session-id` and `mcp-protocol-version`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
-                "operationId": "storeApiMcpOptions",
-                "responses": {
-                    "200": {
-                        "description": "CORS preflight accepted."
-                    }
-                }
             }
         }
     }

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -50,6 +51,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDetailRoute::class)]
 class ProductDetailRouteTest extends TestCase
 {
@@ -311,6 +313,72 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
+    }
+
+    public function testLoadFallsBackToBestVariantWhenConfiguredMainVariantIsNotAvailable(): void
+    {
+        $productId = Uuid::randomHex();
+        $mainVariantId = Uuid::randomHex();
+        $bestVariantId = Uuid::randomHex();
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
+                'parentId' => null,
+            ]);
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($bestVariantId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('best-variant');
+        $productEntity->setAvailable(true);
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(
+                1,
+                [
+                    $bestVariantId => [
+                        'primaryKey' => $bestVariantId,
+                        'data' => [],
+                    ],
+                ],
+                new Criteria(),
+                $this->context->getContext()
+            ));
+        $searchCall = 0;
+        $productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->with(static::callback(function (Criteria $criteria) use (&$searchCall, $mainVariantId, $bestVariantId): bool {
+                ++$searchCall;
+                static::assertSame($searchCall === 1 ? [$mainVariantId] : [$bestVariantId], $criteria->getIds());
+
+                return true;
+            }))
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'product',
+                    0,
+                    new ProductCollection(),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                ),
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $result = $this->buildRoute($productRepository, $connection)->load($productId, new Request(), $this->context, new Criteria());
+
+        static::assertSame('best-variant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testResolveVariantIdFromEvent(): void
@@ -600,8 +668,8 @@ class ProductDetailRouteTest extends TestCase
         SalesChannelProductEntity $product,
         bool $buildBreadcrumbByReferrerCategory,
         ?string $referrerCategoryId,
+        InvokedCount $getProductCategoryByReferrerCount,
         InvokedCount $getProductSeoCategoryCount,
-        InvokedCount $loadCategoryCount,
         ?CategoryEntity $breadcrumbCategory
     ): void {
         $productRepository = $this->createMock(SalesChannelRepository::class);
@@ -619,11 +687,11 @@ class ProductDetailRouteTest extends TestCase
             );
         $this->systemConfig->method('getBool')->willReturn($buildBreadcrumbByReferrerCategory);
         $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($getProductCategoryByReferrerCount)
+            ->method('getProductCategoryByReferrer')
+            ->willReturn($breadcrumbCategory);
         $breadcrumbBuilder->expects($getProductSeoCategoryCount)
             ->method('getProductSeoCategory')
-            ->willReturn($breadcrumbCategory);
-        $breadcrumbBuilder->expects($loadCategoryCount)
-            ->method('loadCategory')
             ->willReturn($breadcrumbCategory);
 
         $request = new Request();
@@ -641,6 +709,8 @@ class ProductDetailRouteTest extends TestCase
     {
         $defaultBreadcrumbCategory = new CategoryEntity();
         $defaultBreadcrumbCategory->setId(Uuid::randomHex());
+        $parentCategory = new CategoryEntity();
+        $parentCategory->setId(Uuid::randomHex());
         $secondCategory = new CategoryEntity();
         $secondCategory->setId(Uuid::randomHex());
         $thirdCategory = new CategoryEntity();
@@ -657,8 +727,8 @@ class ProductDetailRouteTest extends TestCase
             $product,
             false,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             $defaultBreadcrumbCategory,
         ];
 
@@ -666,8 +736,8 @@ class ProductDetailRouteTest extends TestCase
             $productWithoutCategories,
             false,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             null,
         ];
 
@@ -675,8 +745,8 @@ class ProductDetailRouteTest extends TestCase
             $product,
             true,
             null,
-            new InvokedCount(1),
             new InvokedCount(0),
+            new InvokedCount(1),
             $defaultBreadcrumbCategory,
         ];
 
@@ -684,9 +754,18 @@ class ProductDetailRouteTest extends TestCase
             $product,
             true,
             $secondCategory->getId(),
-            new InvokedCount(0),
             new InvokedCount(1),
+            new InvokedCount(0),
             $secondCategory,
+        ];
+
+        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature and referrerCategoryId being a parent of a category assigned to the product' => [
+            $product,
+            true,
+            $parentCategory->getId(),
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $parentCategory,
         ];
 
         yield 'Load default breadcrumb category with enabled referrer feature and unassigned referrerCategoryId' => [

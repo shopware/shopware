@@ -195,8 +195,8 @@ class CartRestorer
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to cart restoration synchronizing request session state.) */
-        if (!$request->hasSession()) {
+        // Only synchronize an initialized storefront session. Store API requests must remain stateless.
+        if (!$request->hasSession(true)) {
             return;
         }
 

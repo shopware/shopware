@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -24,6 +25,7 @@ use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SalesChannelAdminSearchIndexer::class)]
 class SalesChannelAdminSearchIndexerTest extends TestCase
 {

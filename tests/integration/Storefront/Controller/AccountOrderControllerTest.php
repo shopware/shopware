@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -60,9 +59,11 @@ class AccountOrderControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAjaxOrderDetail(): void
     {
+        // the route throws under the flag (triggerDeprecationOrThrow), leaving the render-event assertions unreached
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
         $browser = $this->login($customer->getEmail());
@@ -300,7 +301,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -328,7 +329,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -445,7 +446,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderDetailPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -484,7 +485,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $url . $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountEditOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -570,7 +571,7 @@ class AccountOrderControllerTest extends TestCase
         $repo->create([$customer], $context);
 
         /** @var CustomerEntity|null $customer */
-        $customer = $repo->search(new Criteria([$customerId]), $context)->first();
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
 
         static::assertNotNull($customer);
 

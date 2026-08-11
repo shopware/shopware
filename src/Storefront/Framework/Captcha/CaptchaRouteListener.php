@@ -17,7 +17,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**

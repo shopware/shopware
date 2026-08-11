@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -18,6 +19,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

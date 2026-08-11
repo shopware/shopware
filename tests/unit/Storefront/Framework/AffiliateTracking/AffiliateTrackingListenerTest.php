@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(AffiliateTrackingListener::class)]
 class AffiliateTrackingListenerTest extends TestCase
 {

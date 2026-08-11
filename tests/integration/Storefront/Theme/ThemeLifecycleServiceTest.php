@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -42,6 +43,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWi
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -445,7 +447,7 @@ class ThemeLifecycleServiceTest extends TestCase
         // check whether the theme is no longer in the table and the associated media have been deleted
         static::assertFalse($this->hasTheme($bundle));
         static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
-        static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context));
+        static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->getEntities());
     }
 
     private function getThemeConfig(): StorefrontPluginConfiguration
@@ -492,7 +494,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $media);
 
         return $media;
@@ -503,7 +505,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNull($media);
     }
 

@@ -61,6 +61,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
         $cacheInvalidator = static::createStub(CacheInvalidator::class);
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
@@ -101,7 +103,8 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
         $subscriber = $this->createSubscriber();
-        $this->connection->method('fetchAllAssociative')
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
         $this->cacheInvalidator->expects($this->once())
@@ -125,7 +128,8 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
         $subscriber = $this->createSubscriber();
-        $this->connection->method('fetchAllAssociative')
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
             ->willReturn([
                 ['product_id' => $productId, 'variant_id' => $variants[0]],
                 ['product_id' => $productId, 'variant_id' => $variants[1]],
@@ -152,6 +156,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when sales channel navigation settings change
         $event = new EntityWrittenContainerEvent(
@@ -190,6 +195,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when category structural data changes (parentId, visible, active, afterCategoryId)
         $event = new EntityWrittenContainerEvent(
@@ -229,6 +235,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when categories are deleted
         $event = new EntityWrittenContainerEvent(
@@ -264,6 +271,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when category translation name changes
         $event = new EntityWrittenContainerEvent(
@@ -302,6 +310,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when both sales channel settings and category data change
         $event = new EntityWrittenContainerEvent(
@@ -354,6 +363,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         // Test when category data changes that don't affect navigation (e.g., description)
         $event = new EntityWrittenContainerEvent(
@@ -389,6 +399,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidateConfigKeyClearsObjectCache(): void
     {
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
@@ -402,6 +413,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         $expects = $this->exactly(2);
         $this->cacheInvalidator->expects($expects)
@@ -422,6 +434,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $streamId = Uuid::randomHex();
         $deletedStreamId = Uuid::randomHex();
         $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')

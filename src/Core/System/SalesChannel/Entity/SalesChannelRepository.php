@@ -263,8 +263,6 @@ class SalesChannelRepository
         }
 
         if (!empty($queue)) {
-            // whatever is left would keep none of the restrictions its definition adds, so the
-            // request is rejected rather than answered with partially restricted data
             throw SalesChannelException::tooManyNestedCriteria(self::CRITERIA_LIMIT);
         }
     }

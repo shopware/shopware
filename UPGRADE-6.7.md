@@ -3,10 +3,6 @@
 
 # Notable Changes
 
-## Sales channel criteria are limited to 100 nested criteria
-
-A criteria passed to a `SalesChannelRepository` may contain at most 100 nested criteria. A larger criteria is now rejected; on 6.6 it only triggered a deprecation notice and was still executed. No storefront request builds a criteria of that size — split such a request into several smaller ones.
-
 # Webpack to vite migration for the administration
 We are switching the build system for our administration from webpack to vite. 
 This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.

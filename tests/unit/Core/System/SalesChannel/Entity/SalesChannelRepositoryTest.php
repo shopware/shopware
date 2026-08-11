@@ -21,11 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,19 +42,12 @@ class SalesChannelRepositoryTest extends TestCase
         static::assertSame($depth + 1, $this->countProcessedCriteria($depth));
     }
 
-    public function testACriteriaAboveTheLimitKeepsTheCurrentBehaviour(): void
+    public function testACriteriaAboveTheLimitIsRejected(): void
     {
-        // until the next major the walk still stops at the limit, it is only reported now
-        $processed = Feature::fake([], fn (): int => $this->countProcessedCriteria(250));
+        // answering it would mean returning data the remaining criteria never restricted
+        $this->expectExceptionObject(SalesChannelException::tooManyNestedCriteria(100));
 
-        static::assertSame(99, $processed);
-    }
-
-    public function testACriteriaAboveTheLimitIsRejectedWithTheNextMajor(): void
-    {
-        $this->expectException(FeatureException::class);
-
-        Feature::fake(['v6.7.0.0'], fn (): int => $this->countProcessedCriteria(250));
+        $this->countProcessedCriteria(250);
     }
 
     /**

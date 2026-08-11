@@ -32,12 +32,12 @@
         border: 0 none;
 
         &-primary {
-            background-color: #0042a0;
+            background-color: var(--color-storefront-brand-primary);
             color: var(--color-static-white);
         }
 
         &-secondary {
-            background-color: #474a57;
+            background-color: var(--color-storefront-brand-secondary);
             color: var(--color-static-white);
         }
 

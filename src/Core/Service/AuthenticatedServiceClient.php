@@ -15,6 +15,9 @@ use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 #[Package('framework')]
 class AuthenticatedServiceClient
 {
+    /**
+     * @phpstan-ignore shopware.deprecatedClass (not triggering deprecation to avoid polluting logs)
+     */
     public function __construct(
         public readonly Client $client,
         private readonly ServiceEntry $entry,

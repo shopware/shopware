@@ -112,7 +112,7 @@ class DownloadServiceTest extends TestCase
             static::assertIsResource($stream);
             fwrite($stream, 'test');
             rewind($stream);
-            $fileSystem->method('readStream')->willReturn($stream);
+            $fileSystem->expects($this->once())->method('readStream')->willReturn($stream);
             $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
         } else {
             $fileSystem->expects($this->never())->method('readStream');

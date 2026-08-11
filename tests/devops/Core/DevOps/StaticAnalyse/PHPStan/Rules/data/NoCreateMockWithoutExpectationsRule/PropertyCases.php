@@ -94,7 +94,8 @@ class AllExpectedPropertyCases extends TestCase
 /**
  * @internal
  *
- * The property is configured by a helper the rule cannot see into. NOT flagged (conservative bail).
+ * The property is ->expects()-ed by a helper the calling test reaches through the own call graph, so the
+ * expectation is attributed to that test. NOT flagged.
  */
 class HelperConfiguredPropertyCases extends TestCase
 {
@@ -114,6 +115,101 @@ class HelperConfiguredPropertyCases extends TestCase
     private function configureExpectations(): void
     {
         $this->dependency->expects($this->once())->method('value')->willReturn('a');
+    }
+}
+
+/**
+ * @internal
+ *
+ * One test reaches the ->expects()-ing helper through a two-hop call chain, the other never does — the
+ * bare test notices at runtime. FLAGGED as mixed, naming testBare().
+ */
+class InitHelperExpectsPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testCovered(): void
+    {
+        $this->prepareScenario();
+        static::assertSame('a', $this->dependency->value());
+    }
+
+    public function testBare(): void
+    {
+        static::assertSame('', $this->dependency->value());
+    }
+
+    private function prepareScenario(): void
+    {
+        $this->initDependency();
+    }
+
+    private function initDependency(): void
+    {
+        $this->dependency->expects($this->once())->method('value')->willReturn('a');
+    }
+}
+
+/**
+ * @internal
+ *
+ * setUp() reaches the ->expects()-ing helper, so every test is covered. NOT flagged.
+ */
+class SetUpHelperExpectsPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+        $this->initDependency();
+    }
+
+    public function testOne(): void
+    {
+        static::assertSame('a', $this->dependency->value());
+    }
+
+    private function initDependency(): void
+    {
+        $this->dependency->expects($this->once())->method('value')->willReturn('a');
+    }
+}
+
+/**
+ * @internal
+ *
+ * The helper only forwards the property into the SUT constructor, so it cannot cover a test: the test
+ * without a direct ->expects() notices at runtime. FLAGGED as mixed, naming testBare().
+ */
+class HelperForwardedMixedPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testCovered(): void
+    {
+        $this->dependency->expects($this->once())->method('value')->willReturn('a');
+        static::assertSame('a', $this->createSut()->run());
+    }
+
+    public function testBare(): void
+    {
+        static::assertSame('', $this->createSut()->run());
+    }
+
+    private function createSut(): PropertySut
+    {
+        return new PropertySut($this->dependency);
     }
 }
 

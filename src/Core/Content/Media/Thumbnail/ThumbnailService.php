@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -142,8 +143,12 @@ class ThumbnailService
     /**
      * @throws MediaException
      */
-    public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'force', parameterType: 'bool', defaultValue: false, description: 'Regenerates thumbnails for all configured sizes even when a thumbnail already exists.')]
+    public function updateThumbnails(MediaEntity $media, Context $context, bool $strict/* , bool $force = false */): int
     {
+        /** @deprecated tag:v6.8.0 - Remove next line as $force will become part of the method signature */
+        $force = (bool) (\func_get_args()[3] ?? false);
+
         if ($this->remoteThumbnailsEnable) {
             throw MediaException::thumbnailGenerationDisabled();
         }
@@ -178,20 +183,22 @@ class ThumbnailService
         $toBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
-        foreach ($toBeCreatedSizes as $thumbnailSize) {
-            foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
-                    continue;
+        if (!$force) {
+            foreach ($toBeCreatedSizes as $thumbnailSize) {
+                foreach ($toBeDeletedThumbnails as $thumbnail) {
+                    if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
+                        continue;
+                    }
+
+                    if ($strict === true && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
+                        continue;
+                    }
+
+                    $toBeDeletedThumbnails->remove($thumbnail->getId());
+                    $toBeCreatedSizes->remove($thumbnailSize->getId());
+
+                    continue 2;
                 }
-
-                if ($strict === true && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
-                    continue;
-                }
-
-                $toBeDeletedThumbnails->remove($thumbnail->getId());
-                $toBeCreatedSizes->remove($thumbnailSize->getId());
-
-                continue 2;
             }
         }
 

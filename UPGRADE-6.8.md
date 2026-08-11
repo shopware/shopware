@@ -339,6 +339,22 @@ return static function (RoutingConfigurator $routes): void {
 
 XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
 
+## `ThumbnailService::updateThumbnails()` received a new optional `$force` parameter
+
+`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()` received a new optional parameter `bool $force = false` that regenerates thumbnails for all configured sizes even when a thumbnail already exists. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
+```
+
+After:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict, bool $force = false): int
+```
+
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.

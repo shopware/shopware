@@ -50,6 +50,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunWithSuccessfulTranslation(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB', 'de-DE']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -73,6 +75,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunResponseStructure(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -94,6 +98,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunSessionHandling(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB', 'de-DE', 'fr-FR']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -109,6 +115,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunWithEmptyLocales(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', []);
         $request = Request::create('/installer/translation/run', 'POST');

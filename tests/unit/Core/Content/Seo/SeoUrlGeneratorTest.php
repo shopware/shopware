@@ -63,17 +63,17 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection(),
         ], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
 
         $twig = $this->createTwigEnvironment();
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/base/path-info');
 
         $request = Request::create('/base/path-info');
         $request->server->set('SCRIPT_NAME', '/base/index.php');
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn($request);
 
         $config = new SeoUrlRouteConfig($this->createTestDefinition(), ProductPageSeoUrlRoute::ROUTE_NAME, '  seo-path  ', true);
@@ -111,12 +111,12 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection(),
         ], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
 
         $twig = $this->createTwigEnvironment();
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/path-info');
 
         $route = static::createStub(SeoUrlRouteInterface::class);
@@ -142,7 +142,7 @@ class SeoUrlGeneratorTest extends TestCase
     {
         $entityRepository = new StaticEntityRepository([], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $twig = $this->createTwigEnvironment();
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -168,7 +168,7 @@ class SeoUrlGeneratorTest extends TestCase
     {
         $entityRepository = new StaticEntityRepository([], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $twig = $this->createTwigEnvironment();
 
         $route = static::createStub(SeoUrlRouteInterface::class);
@@ -193,7 +193,7 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection(),
         ], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
 
         $twig = $this->createTwigEnvironment(strict: true);
@@ -201,7 +201,7 @@ class SeoUrlGeneratorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('warning');
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/path-info');
 
         $route = static::createStub(SeoUrlRouteInterface::class);
@@ -230,12 +230,12 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection(),
         ], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
 
         $twig = $this->createTwigEnvironment(strict: true);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/path-info');
 
         $route = static::createStub(SeoUrlRouteInterface::class);
@@ -261,10 +261,10 @@ class SeoUrlGeneratorTest extends TestCase
         $entityRepository = new StaticEntityRepository([
             new EntityCollection([$entity]),
         ], $this->createTestDefinition());
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willThrowException(new \Exception('broken parser'));
         $twig = $this->createTwigEnvironment(true);
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $requestStack = new RequestStack();
         $generator = $this->createGenerator([self::TEST_ENTITY_NAME => $entityRepository], $twig, $parser, null, $router, $requestStack);
         $this->expectException(InvalidTemplateException::class);
@@ -278,10 +278,10 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection([$entity]),
             new EntityCollection(),
         ], $this->createTestDefinition());
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = static::createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn(['testRuntime']);
         $twig = $this->createTwigEnvironment();
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $requestStack = new RequestStack();
         $generator = $this->createGenerator([self::TEST_ENTITY_NAME => $entityRepository], $twig, $parser, null, $router, $requestStack);
         $route = static::createStub(SeoUrlRouteInterface::class);

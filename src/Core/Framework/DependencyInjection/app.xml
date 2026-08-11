@@ -102,6 +102,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">

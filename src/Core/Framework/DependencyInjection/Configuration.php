@@ -54,6 +54,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
                 ->append($this->createProductSection())
+                ->append($this->createWebhookSection())
             ->end();
 
         return $treeBuilder;
@@ -1311,6 +1312,31 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createWebhookSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('webhook');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
+                ->arrayNode('allowed_ip_addresses')
+                    ->performNoDeepMerging()
+                    ->defaultValue([])
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
+                            ->thenInvalid('"%s" is not a valid IP address.')
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

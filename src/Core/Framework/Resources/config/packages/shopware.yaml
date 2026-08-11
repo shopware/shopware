@@ -598,3 +598,6 @@ shopware:
     product:
         search_keyword:
             relevant_keyword_count: 8
+    webhook:
+        allow_unencrypted_traffic: false
+        allowed_ip_addresses: []

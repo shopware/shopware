@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogEntity;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookException;
+use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
@@ -87,19 +88,17 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
+        $this->appendNewResponse(new Response(302, ['Location' => '/redirect']));
         $this->appendNewResponse(new Response(200));
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        $timestamp = time();
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body['body'], 'payload');
-        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
+        static::assertEquals('GET', $request->getMethod());
+        static::assertSame('', $payload);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
@@ -118,6 +117,114 @@ class WebhookEventMessageHandlerTest extends TestCase
         // validate headers
         static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
         static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
+
+        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        static::assertCount(2, $history);
+        static::assertSame('http://test.com/redirect', (string) $history[1]['request']->getUri());
+        static::assertFalse($history[0]['options']['allow_redirects']);
+        static::assertSame(['test.com:80:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
+    }
+
+    public function testFollowsPermanentRedirectWithPostPayload(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+
+        $this->appendNewResponse(new Response(307, ['Location' => '/redirect']));
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('POST', $request->getMethod());
+        static::assertSame('payload', json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR)['body']);
+    }
+
+    public function testSeeOtherRedirectUsesBodyLessGet(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+
+        $this->appendNewResponse(new Response(303, ['Location' => '/redirect']));
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('GET', $request->getMethod());
+        static::assertSame('', $request->getBody()->getContents());
+        static::assertSame('application/json', $request->getHeaderLine('Content-Type'));
+    }
+
+    public function testValidatesAndPinsCrossHostAndPortRedirectTarget(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+
+        $this->appendNewResponse(new Response(308, ['Location' => 'http://redirect.test.com:8080/target']));
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        static::assertCount(2, $history);
+        static::assertSame('http://redirect.test.com:8080/target', (string) $history[1]['request']->getUri());
+        static::assertSame('POST', $history[1]['request']->getMethod());
+        static::assertSame(['test.com:80:93.184.216.34', 'redirect.test.com:8080:93.184.216.34'], $history[1]['options']['curl'][\CURLOPT_RESOLVE]);
+    }
+
+    public function testDoesNotForwardMixedCaseCredentialHeadersCrossHost(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage([
+            'authorization' => 'Bearer secret',
+            'cOoKiE' => 'session=secret',
+        ]);
+
+        $this->appendNewResponse(new Response(308, ['Location' => 'http://redirect.test.com/target']));
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertFalse($request->hasHeader('Authorization'));
+        static::assertFalse($request->hasHeader('Cookie'));
+    }
+
+    public function testRejectsUnsafeRedirectTarget(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+        $this->appendNewResponse(new Response(302, ['Location' => 'http://10.0.0.10/target']));
+
+        try {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+            static::fail('Expected webhook delivery to fail.');
+        } catch (WebhookException $exception) {
+            static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
+            static::assertSame(WebhookException::REDIRECT_TARGET_NOT_ALLOWED, $exception->getPrevious()?->getErrorCode());
+        }
+
+        static::assertSame(1, $this->getRequestCount());
+    }
+
+    public function testFailsAfterFiveRedirects(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+        foreach ([301, 302, 303, 307, 308, 302] as $statusCode) {
+            $this->appendNewResponse(new Response($statusCode, ['Location' => '/redirect']));
+        }
+
+        try {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+            static::fail('Expected webhook delivery to fail.');
+        } catch (WebhookException $exception) {
+            static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
+            static::assertSame(WebhookException::MAXIMUM_REDIRECTS_EXCEEDED, $exception->getPrevious()?->getErrorCode());
+        }
+
+        static::assertSame(6, $this->getRequestCount());
+        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        static::assertSame('GET', $history[1]['request']->getMethod());
+        static::assertSame('', $history[1]['request']->getBody()->getContents());
     }
 
     /**
@@ -350,5 +457,27 @@ class WebhookEventMessageHandlerTest extends TestCase
             'headers' => [],
             'body' => '<h1>not json</h1>',
         ]);
+    }
+
+    /**
+     * @param array<string, string> $headers
+     */
+    private function createWebhookEventMessage(array $headers = []): WebhookEventMessage
+    {
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], null, Uuid::randomHex(), '6.4', 'http://test.com', null, null, null, $headers);
+
+        static::getContainer()->get('webhook_event_log.repository')->create([[
+            'id' => $webhookEventId,
+            'appName' => 'test',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'http://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        return $webhookEventMessage;
     }
 }

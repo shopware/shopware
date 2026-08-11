@@ -26,7 +26,7 @@ The validation model is:
 - Enforce HTTPS-only targets by default. Operators may explicitly allow unencrypted webhook traffic through `shopware.yaml`, with the default set to disallow HTTP.
 - Require a syntactically valid URL with an existing host.
 - Reject direct IP-literal hosts by default. Operators may explicitly allow required internal IP literals through an allow-list in `shopware.yaml`.
-- Reuse and centralize Shopware's outbound URL validation policy instead of introducing webhook-specific security logic. The existing upload-by-URL validation is the starting point and must be extended where it does not yet cover the webhook requirements.
+- Follow Shopware's existing outbound URL validation principles without changing media upload-by-URL behavior in this webhook security release. Media upload-by-URL transport hardening remains a separate follow-up.
 - Resolve both A and AAAA records for the host. Every resolved address must be public unless it matches the configured internal IP allow-list. If any record resolves to a private, loopback, link-local, reserved, or otherwise non-public IP range that is not allow-listed, the target is invalid.
 - Provide an operator-controlled `shopware.yaml` configuration for webhook network policy. The exact configuration names are decided during implementation, but the defaults must disallow unencrypted traffic and internal network targets.
 - Configure Guzzle redirects explicitly for webhook requests instead of relying on defaults.
@@ -68,7 +68,7 @@ When cURL options are available, the delivery request options include a resolve 
 ]
 ```
 
-The URL validator must evaluate the complete target URL, not only the host. It must enforce the allowed scheme and port policy, apply the configured internal IP allow-list, resolve both A and AAAA records, and reject any record resolving to private, loopback, link-local, reserved, or otherwise non-public IP ranges that are not explicitly allow-listed. The validation logic should be shared with other server-side outbound URL features such as media upload by URL, so SSRF protections are implemented once and reused consistently.
+The webhook URL validator must evaluate the complete target URL, not only the host. It must enforce the allowed scheme and port policy, apply the configured internal IP allow-list, resolve both A and AAAA records, and reject any record resolving to private, loopback, link-local, reserved, or otherwise non-public IP ranges that are not explicitly allow-listed.
 
 Delivery-time validation remains mandatory even with write-time validation. Webhook rows may predate the validation change, and DNS can change after a webhook was saved.
 
@@ -111,7 +111,7 @@ Direct IP webhooks could be allowed if the IP itself passes range validation. Th
 - DNS can still change between validation and connection if cURL resolve pinning is unavailable for the active Guzzle handler.
 - Pinning one resolved IP can reduce CDN/load-balancer flexibility for a single delivery attempt.
 - Each redirect hop performs validation and DNS resolution, adding a small amount of latency to redirected deliveries.
-- Centralizing the validator may require adapting the existing upload-by-URL validator before webhooks can reuse it safely.
+- Media upload-by-URL uses a different transport and is not hardened by this webhook-specific change.
 
 ### Operational impact
 

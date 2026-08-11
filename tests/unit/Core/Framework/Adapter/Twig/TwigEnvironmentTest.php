@@ -99,7 +99,7 @@ TWIG;
             ->setConstructorArgs([new ArrayLoader(['test' => ''])])
             ->onlyMethods(['render'])
             ->getMock();
-        $twig->method('render')->willThrowException($exception);
+        $twig->expects($this->once())->method('render')->willThrowException($exception);
         $this->getCoreExtension($twig)->setTimezone('UTC');
 
         static::expectExceptionObject($exception);
@@ -186,7 +186,7 @@ TWIG;
             ->setConstructorArgs([new ArrayLoader()])
             ->onlyMethods(['hasExtension'])
             ->getMock();
-        $twig->method('hasExtension')->willReturn(false);
+        $twig->expects($this->atLeastOnce())->method('hasExtension')->willReturn(false);
         $this->getCoreExtension($twig)->setTimezone('UTC');
 
         $twig->overrideTimezone('Europe/Berlin');

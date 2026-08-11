@@ -259,6 +259,21 @@ shopware:
                         indexing_behavior:
                             allowed_values: ['use-queue-indexing', 'disable-indexing', 'default']
                         # failed requests are timed too, kept out of the healthy distribution
+
+                flow.execution.duration:
+                    # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.
+                    # heavy actions that offload to queue (mail, webhooks) are not included in the flow engine wall time
+                    # and are covered by the queue metrics.
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Flow execution wall time per matched flow, per trigger group and outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000]
+                    labels:
+                        # see TriggerGroupResolver
+                        trigger_group:
+                            policy: open
                         result:
                             allowed_values: [success, failed]
 

@@ -100,7 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service('parameter_bag'),
             service('shopware.filesystem.asset'),
-            env('SERVICE_REGISTRY_URL'),
+            param('shopware.service_registry.url'),
             service('language.repository'),
             service(SymfonyBearerTokenValidator::class),
             env('PRODUCT_ANALYTICS_GATEWAY_URL'),

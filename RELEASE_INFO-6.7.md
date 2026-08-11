@@ -388,6 +388,13 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
+### Theme CLI commands clean up unused theme directories
+
+Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
+
+`bin/console theme:compile` and `bin/console theme:change` now run the same cleanup once after compilation, deleting unused theme directories whose files are older than 24 hours (recent directories are kept so cached responses still referencing them keep working). Pass `--no-cleanup` to skip this step and preserve the previous behaviour.
+
+The cleanup logic is now provided by the reusable `Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter` service, which the commands and the scheduled task all use. The scheduled task remains unchanged as a fallback.
 ### `theme:create` gains `--full` and granular scaffold flags
 
 `bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
@@ -521,6 +528,12 @@ shopware:
 ```
 
 Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
+
+### `SERVICE_REGISTRY_URL` is limited to Shopware domains in production
+
+The service registry decides which Shopware Services a shop installs and where their code is downloaded from. With `APP_ENV=prod`, `SERVICE_REGISTRY_URL` is now only used when its host is `shopware.io` or a subdomain of it. Any other value is ignored and `https://registry.services.shopware.io` is used instead, so a mistyped registry URL no longer breaks service installation on a live shop.
+
+Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
 # 6.7.13.0
 

@@ -57,17 +57,17 @@ class AppManagerTest extends TestCase
 {
     private CollectingEventDispatcher $eventDispatcher;
 
-    private PermissionLifecycleService $permissionLifecycle;
+    private PermissionLifecycleService&MockObject $permissionLifecycle;
 
     private AppRegistrationService&MockObject $registrationService;
 
-    private AppSecretRotationService $appSecretRotationService;
+    private AppSecretRotationService&MockObject $appSecretRotationService;
 
-    private ManifestFactory $manifestFactory;
+    private ManifestFactory&MockObject $manifestFactory;
 
     private ActiveAppsLoader&MockObject $activeAppsLoader;
 
-    private SystemConfigService $systemConfigService;
+    private SystemConfigService&MockObject $systemConfigService;
 
     /**
      * @var StaticEntityRepository<IntegrationCollection>
@@ -82,7 +82,7 @@ class AppManagerTest extends TestCase
 
     private SourceResolver $sourceResolver;
 
-    private ConfigReader $configReader;
+    private ConfigReader&MockObject $configReader;
 
     private AppRequirementsValidator $requirementsValidator;
 
@@ -112,6 +112,8 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty();
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
+        $this->expectNoLifecycleCollaboratorCalls();
+
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
         $this->createAppManager(AppFixture::createAppRepository())
@@ -122,6 +124,8 @@ class AppManagerTest extends TestCase
     {
         $manifest = ManifestFixture::empty();
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $this->expectNoLifecycleCollaboratorCalls();
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
@@ -143,6 +147,7 @@ class AppManagerTest extends TestCase
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
         $this->requirementsValidator = $requirementsValidator;
+        $this->expectNoLifecycleCollaboratorCalls();
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
@@ -162,6 +167,7 @@ class AppManagerTest extends TestCase
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
         $this->requirementsValidator = $requirementsValidator;
+        $this->expectNoLifecycleCollaboratorCalls();
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
@@ -173,8 +179,7 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($existingApp);
 
         // an installed app without a pending secret is rejected outright, never sent into recovery
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
-        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->expectNoLifecycleCollaboratorCalls();
 
         $this->expectExceptionObject(AppException::alreadyInstalled('test'));
 
@@ -193,14 +198,20 @@ class AppManagerTest extends TestCase
         // registration failure) it removes the app data.
         $appRepository->addSearch(new AppCollection([$installedApp]));
 
-        $this->registrationService = $this->createMock(AppRegistrationService::class);
         $this->registrationService->expects($this->once())
             ->method('registerApp')
             ->willThrowException(AppException::registrationFailed('test', 'registration failed'));
 
         $this->integrationRepository = new StaticEntityRepository([]);
-        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         $this->permissionLifecycle->expects($this->once())->method('removeRole');
+
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->once())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         try {
             $this->createAppManager($appRepository)
@@ -226,15 +237,21 @@ class AppManagerTest extends TestCase
         $pendingApp->setUnconfirmedAppSecrets(['left-over-pending']);
         $appRepository->addSearch(new AppCollection([$pendingApp]));
 
-        $this->registrationService = $this->createMock(AppRegistrationService::class);
         $this->registrationService->expects($this->once())
             ->method('registerApp')
             ->willThrowException(AppException::registrationFailed('test', 'ambiguous confirm'));
 
         $this->integrationRepository = new StaticEntityRepository([]);
-        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         // removeAppData removes the ACL role; it must NOT run, because the app is kept for recovery.
         $this->permissionLifecycle->expects($this->never())->method('removeRole');
+
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->expectExceptionObject(AppException::registrationFailed('test', 'ambiguous confirm'));
 
@@ -261,17 +278,30 @@ class AppManagerTest extends TestCase
         $appRepository->addSearch(new AppCollection([$recoveredApp]));
 
         $this->deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
-        $this->deletedAppsGateway->method('getDeletedAppSecret')->with('test')->willReturn('committed-secret');
-        $this->deletedAppsGateway->method('getDeletedAppUnconfirmedSecrets')
+        $this->deletedAppsGateway->expects($this->exactly(2))
+            ->method('getDeletedAppSecret')
+            ->with('test')
+            ->willReturn('committed-secret');
+        $this->deletedAppsGateway->expects($this->exactly(2))
+            ->method('getDeletedAppUnconfirmedSecrets')
             ->with('test')
             ->willReturn(['pending-secret']);
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with(static::isString(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
         // A plain handshake would sign with the secret the app stopped trusting.
         $this->registrationService->expects($this->never())->method('registerApp');
+
+        // the row is re-created from the manifest, which re-applies the app's permissions
+        $this->permissionLifecycle->expects($this->once())->method('updatePrivileges');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
+        // the installed hook and the activated hook — installation resumes with activation on by default
+        $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $handler = $this->createMock(AbstractLifecycleHandler::class);
         $handler->expects($this->once())->method('install');
@@ -300,7 +330,6 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($app);
         $appRepository->addSearch(new AppCollection([$app]));
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
@@ -312,6 +341,10 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor->expects($this->never())->method('execute');
         $this->activeAppsLoader->expects($this->never())->method('reset');
         $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->configReader->expects($this->never())->method('read');
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
         $this->requirementsValidator = $this->createMock(AppRequirementsValidator::class);
         $this->requirementsValidator->expects($this->never())->method('validate');
 
@@ -338,8 +371,16 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($pendingApp);
         $appRepository->addSearch(new AppCollection([$pendingApp]));
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->expectExceptionObject(AppException::notCompatible('test'));
 
@@ -374,8 +415,16 @@ class AppManagerTest extends TestCase
             ->with($manifest)
             ->willReturn([$violation]);
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->expectExceptionObject(AppException::requirementsNotMet($violation));
 
@@ -399,7 +448,6 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($pendingApp);
         $appRepository->addSearch(new AppCollection([$pendingApp]), new AppCollection([$recoveredApp]));
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($pendingApp->getId(), $context, AppSecretRotationService::TRIGGER_RECOVERY);
@@ -413,6 +461,10 @@ class AppManagerTest extends TestCase
         $this->assetService->expects($this->once())
             ->method('copyAssetsFromApp')
             ->with('test', 'test');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->configReader->expects($this->never())->method('read');
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
@@ -445,7 +497,6 @@ class AppManagerTest extends TestCase
             ->with('test')
             ->willReturn('deleted-app-secret');
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow');
         $this->registrationService->expects($this->never())->method('registerApp');
@@ -454,6 +505,12 @@ class AppManagerTest extends TestCase
         $handler->expects($this->once())->method('install');
         $handler->expects($this->never())->method('activate');
         $this->scriptExecutor->expects($this->once())->method('execute');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->once())->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
@@ -475,11 +532,17 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($app);
         $appRepository->addSearch(new AppCollection([$app]));
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->willThrowException(AppException::appSecretRecoveryFailed('test'));
         $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $this->expectExceptionObject(AppException::appSecretRecoveryFailed('test'));
 
@@ -500,11 +563,17 @@ class AppManagerTest extends TestCase
         $appRepository->addSearch(new AppCollection([$app]));
         $failure = AppException::registrationFailed('test', 'confirm timed out');
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->willThrowException($failure);
         $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->configReader->expects($this->never())->method('read');
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $this->expectExceptionObject($failure);
 
@@ -521,19 +590,23 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
             ->method('createFromApp')
             ->with($app)
             ->willReturn($manifest);
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
 
@@ -547,17 +620,21 @@ class AppManagerTest extends TestCase
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
             ->method('createFromApp')
             ->with($app)
             ->willReturn(ManifestFixture::empty());
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
     }
@@ -568,13 +645,21 @@ class AppManagerTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
         $app->setUnconfirmedAppSecrets(['pending-secret']);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
-        $this->manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->willReturn(ManifestFixture::empty()->withSetup());
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
     }
@@ -588,19 +673,23 @@ class AppManagerTest extends TestCase
         $aclRole->setId($app->getAclRoleId());
         $aclRole->setPrivileges(['customer:read', 'order:read', 'product:read']);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
             ->method('createFromApp')
             ->with($app)
             ->willReturn($manifest);
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app), aclRole: $aclRole);
 
@@ -631,19 +720,23 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
             ->method('createFromApp')
             ->with($app)
             ->willReturn($manifest);
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
             ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
 
@@ -661,17 +754,21 @@ class AppManagerTest extends TestCase
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
 
-        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->manifestFactory->expects($this->once())
             ->method('createFromApp')
             ->with($app)
             ->willReturn(ManifestFixture::empty());
 
-        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
@@ -685,8 +782,16 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($app);
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->never())->method('activate');
-        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->never())->method('reset');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -706,11 +811,17 @@ class AppManagerTest extends TestCase
         $persister->expects($this->once())
             ->method('activate');
 
-        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -730,8 +841,16 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($app);
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->never())->method('deactivate');
-        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->never())->method('reset');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -751,11 +870,17 @@ class AppManagerTest extends TestCase
         $persister->expects($this->once())
             ->method('deactivate');
 
-        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -772,6 +897,8 @@ class AppManagerTest extends TestCase
     public function testDeactivateThrowsIfDisableIsNotAllowed(): void
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: true, allowDisable: false);
+
+        $this->expectNoLifecycleCollaboratorCalls();
 
         $this->expectException(AppException::class);
 
@@ -801,11 +928,17 @@ class AppManagerTest extends TestCase
             ->with($app, $context, true);
 
         $this->integrationRepository = new StaticEntityRepository([]);
-        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         $this->permissionLifecycle->expects($this->once())->method('softDeleteRole')->with($app->getAclRoleId());
 
-        $this->assetService = $this->createMock(AssetService::class);
         $this->assetService->expects($this->once())->method('removeAssets')->with($app->getName());
+
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -837,14 +970,18 @@ class AppManagerTest extends TestCase
         $persister->expects($this->never())->method('deactivate');
 
         $this->integrationRepository = new StaticEntityRepository([]);
-        $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         $this->permissionLifecycle->expects($this->once())->method('softDeleteRole')->with($app->getAclRoleId());
 
-        $this->assetService = $this->createMock(AssetService::class);
         $this->assetService->expects($this->once())->method('removeAssets')->with($app->getName());
 
-        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
         $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->configReader->expects($this->never())->method('read');
 
         $this->createAppManager(
             $appRepository,
@@ -882,20 +1019,38 @@ XML,
             ]),
         ]);
         $config = [['name' => 'email']];
-        $this->configReader = $this->createMock(ConfigReader::class);
         $this->configReader->expects($this->once())->method('read')->willReturn($config);
 
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->systemConfigService->expects($this->once())
             ->method('deleteExtensionConfiguration')
             ->with('test', $config);
 
+        $this->permissionLifecycle->expects($this->exactly(2))->method('softDeleteRole');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->assetService->expects($this->exactly(2))->method('removeAssets');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
         $this->createAppManager($appRepository)->delete($app, $context);
 
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
 
         $this->createAppManager(AppFixture::createAppRepository())->delete($app, $context, true);
+    }
+
+    private function expectNoLifecycleCollaboratorCalls(): void
+    {
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->activeAppsLoader->expects($this->never())->method('reset');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('copyAssetsFromApp');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->configReader->expects($this->never())->method('read');
     }
 
     /**

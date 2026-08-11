@@ -81,6 +81,7 @@ class AppSecretRotationServiceTest extends TestCase
 
         $this->appRepository->expects($this->never())
             ->method('search');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -118,6 +119,7 @@ class AppSecretRotationServiceTest extends TestCase
         $this->appRepository->expects($this->once())
             ->method('search')
             ->willReturn($searchResult);
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $this->expectException(AppException::class);
 
@@ -430,7 +432,8 @@ class AppSecretRotationServiceTest extends TestCase
         $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('getEntities')->willReturn(new AppCollection($app ? [$app] : []));
 
-        $this->appRepository->method('search')->willReturn($searchResult);
+        // an attempt re-reads the app to see what it left behind, so the lookup count is scenario-specific
+        $this->appRepository->expects($this->atLeastOnce())->method('search')->willReturn($searchResult);
     }
 
     /**
@@ -440,6 +443,6 @@ class AppSecretRotationServiceTest extends TestCase
     {
         $manifest = static::createStub(Manifest::class);
 
-        $this->manifestFactory->method('createFromApp')->willReturn($manifest);
+        $this->manifestFactory->expects($this->once())->method('createFromApp')->willReturn($manifest);
     }
 }

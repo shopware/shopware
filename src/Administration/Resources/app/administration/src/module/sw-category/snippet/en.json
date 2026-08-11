@@ -192,6 +192,7 @@
       "placeholderSearchBar": "Search landing pages...",
       "treeHeadSelected": "{count} selected",
       "buttonCreate": "Add landing page",
+      "buttonLoadMore": "Load more",
       "treeHeadline": "Landing pages",
       "actions": {
         "actionsDisabledInLanguage": "Landing pages can only be created in the system default language."

@@ -35,8 +35,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class SalesChannelRepository
 {
     /**
-     * A criteria that needs more nested criteria than this is not a shape any storefront produces;
-     * it is reported now and rejected from v6.7.0.0.
+     * The criteria nodes the walk restricts. A criteria that needs more than this is not a shape any
+     * storefront produces; the rest stays unprocessed as before, is reported, and is rejected from
+     * v6.7.0.0.
      */
     private const CRITERIA_LIMIT = 100;
 
@@ -216,20 +217,10 @@ class SalesChannelRepository
 
         $processed = [];
 
-        // A criteria that is not processed keeps none of the restrictions its definition adds, so
-        // the whole tree is walked instead of stopping at the limit, which would return unfiltered
-        // data instead of less data. Exceeding the limit is reported once and will be rejected.
-        $count = 0;
+        $maxCount = self::CRITERIA_LIMIT;
 
         // process all associations breadth-first
-        while (!empty($queue)) {
-            if (++$count === self::CRITERIA_LIMIT + 1) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.7.0.0',
-                    \sprintf('A criteria with more than %d nested criteria will be rejected from v6.7.0.0.', self::CRITERIA_LIMIT)
-                );
-            }
-
+        while (!empty($queue) && --$maxCount > 0) {
             $cur = array_shift($queue);
 
             $definition = $cur['definition'];
@@ -269,6 +260,15 @@ class SalesChannelRepository
                 $referenceDefinition = $field->getToManyReferenceDefinition();
                 $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
             }
+        }
+
+        if (!empty($queue)) {
+            // whatever is left keeps none of the restrictions its definition adds, so the criteria
+            // is reported instead of being silently truncated, and rejected from the next major
+            Feature::triggerDeprecationOrThrow(
+                'v6.7.0.0',
+                \sprintf('A criteria with more than %d nested criteria will be rejected from v6.7.0.0.', self::CRITERIA_LIMIT)
+            );
         }
     }
 }

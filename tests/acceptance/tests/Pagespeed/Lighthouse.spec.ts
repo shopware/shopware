@@ -1,5 +1,10 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+test.skip(
+    process.env.GITHUB_REPOSITORY === 'shopware/shopware-private',
+    'Lighthouse tests require the performance characteristics of the public repository runners.',
+);
+
 /**
  * These tests should only run against APP_ENV=Prod
  */
@@ -36,7 +41,7 @@ test('Category Lighthouse Report', async ({
     await ShopCustomer.goesTo(StorefrontCategory.url(category.name));
 
     await ShopCustomer.expects(async () => {
-        if (InstanceMeta.isSaaS) {
+        if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
             await TestDataService.clearCaches();
         }
         await ShopCustomer.goesTo(`${StorefrontCategory.url(category.name)}?a=${Date.now()}`);

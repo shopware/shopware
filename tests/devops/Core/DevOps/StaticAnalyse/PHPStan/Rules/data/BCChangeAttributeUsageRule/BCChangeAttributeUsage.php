@@ -7,13 +7,16 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
 final class AlreadyFinalClass
@@ -123,6 +126,47 @@ class RuntimeDetectableViolations
     public function becomesAbstractWithoutTrigger(): void
     {
     }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options')]
+    public function removalWithoutTrigger(?array $options = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function removalWithTrigger(?array $legacy = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $legacy is deprecated');
+        }
+    }
+}
+
+class NewRequiredParameterCases
+{
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'existing', parameterType: 'string')]
+    public function requiredAlreadyExists(string $existing): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'shim');
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithoutTrigger(): void
+    {
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithTrigger(): void
+    {
+        if (\func_num_args() < 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $context missing');
+        }
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'criteria', parameterType: 'string')]
+    #[Route(path: '/store-api/fake', name: 'store-api.fake')]
+    public function requiredOnRouteNeedsNoTrigger(): void
+    {
+    }
 }
 
 class ExceptionChangeCases
@@ -222,5 +266,34 @@ class ParameterDefaultValueChangeCases
     #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'scopes', newDefaultValue: ['system', 'crud'])]
     public function defaultChangesToArray(array $scopes = ['system']): void
     {
+    }
+}
+
+class ParameterRemovalCases
+{
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'required')]
+    public function requiredParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
+    public function optionalParameter(string $required, ?string $optional = null): void
+    {
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $optional is deprecated');
+        }
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]
+    public function leadingDollar(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function optionalParameterBeforeLaterParameter(?string $legacy = null, ?string $following = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
+        }
     }
 }

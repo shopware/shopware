@@ -41,7 +41,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -52,7 +52,7 @@ class NavigationControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -62,7 +62,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/menu/offcanvas', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }

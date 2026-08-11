@@ -116,9 +116,9 @@ class HreflangLoader implements HreflangLoaderInterface
     }
 
     /**
-     * @param list<array{languageId: string, id: string, url: string, locale: string}> $domains
+     * @param list<array{languageId: string, id: string, url: string, locale: string, onlyLocale: bool}> $domains
      *
-     * @return array<string, list<array{languageId: string, id: string, url: string, locale: string}>>
+     * @return array<string, list<array{languageId: string, id: string, url: string, locale: string, onlyLocale: bool}>>
      */
     private function getLanguageToDomainMapping(array $domains): array
     {

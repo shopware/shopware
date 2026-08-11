@@ -111,6 +111,17 @@ export default {
 
     methods: {
         async createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-modal-folder-settings__mediaFolder',
+                path: 'mediaFolder',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-modal-folder-settings__configuration',
+                path: 'configuration',
+                scope: this,
+            });
+
             this.mediaFolder = await this.loadMediaFolder();
 
             await this.getUnusedThumbnailSizes();

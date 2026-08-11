@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
@@ -72,7 +73,7 @@ class FlowExecutorTest extends TestCase
 
     private MockObject&AbstractRuleLoader $ruleLoaderMock;
 
-    private MockObject&FlowRuleScopeBuilder $scopeBuilderMock;
+    private Stub&FlowRuleScopeBuilder $scopeBuilderMock;
 
     private MockObject&Connection $connectionMock;
 
@@ -83,7 +84,7 @@ class FlowExecutorTest extends TestCase
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->appFlowActionProviderMock = $this->createMock(AppFlowActionProvider::class);
         $this->ruleLoaderMock = $this->createMock(AbstractRuleLoader::class);
-        $this->scopeBuilderMock = $this->createMock(FlowRuleScopeBuilder::class);
+        $this->scopeBuilderMock = static::createStub(FlowRuleScopeBuilder::class);
         $this->connectionMock = $this->createMock(Connection::class);
         $this->connectionMock->method('transactional')
             ->willReturnCallback(static fn (\Closure $func) => $func());
@@ -95,6 +96,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteFlowsSingleActionExecuted(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'seq-add-order';
@@ -122,6 +129,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteFlowsMultipleActionsExecuted(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
         $a1 = new ActionSequence();
         $a1->sequenceId = 'seq-a1';
@@ -159,6 +172,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteFlowsActionExecutedWithTrueCase(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
         $condition = new IfSequence();
         $condition->sequenceId = 'true_case';
@@ -195,6 +214,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteFlowsActionExecutedWithFalseCase(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
         $condition = new IfSequence();
         $condition->sequenceId = 'false_case';
@@ -228,6 +253,10 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteFlowsActionExecutedFromApp(): void
     {
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
         $appActionSequence = new ActionSequence();
         $appActionSequence->appFlowActionId = 'AppActionId';
@@ -269,6 +298,10 @@ class FlowExecutorTest extends TestCase
 
     public function testCallAppReturnsEarlyWhenAppFlowActionIdNotSet(): void
     {
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'no-app-sequence';
         $actionSequence->action = 'app.action';
@@ -293,7 +326,12 @@ class FlowExecutorTest extends TestCase
         $flow = new Flow('flowId', $actionSequences);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
-        $this->eventDispatcherMock->method('dispatch')
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+
+        $this->eventDispatcherMock->expects($this->once())
+            ->method('dispatch')
             ->willThrowException($exception);
 
         $expected = 'Could not execute flow with error message:' . "\n"
@@ -334,6 +372,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteSingleActionExecuted(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
 
         $actionSequence = new ActionSequence();
@@ -360,6 +404,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteMultipleActionsExecuted(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
 
         $a1 = new ActionSequence();
@@ -393,6 +443,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteActionExecutedWithTrueCase(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
 
         $condition = new IfSequence();
@@ -428,6 +484,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteActionExecutedWithFalseCase(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
 
         $condition = new IfSequence();
@@ -460,6 +522,10 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteActionExecutedFromApp(): void
     {
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequences = [];
 
         $appActionSequence = new ActionSequence();
@@ -499,6 +565,11 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteIfWithRuleEvaluation(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $trueCaseSequence = new Sequence();
         $trueCaseSequence->assign(['sequenceId' => 'foobar']);
         $ruleId = Uuid::randomHex();
@@ -524,7 +595,7 @@ class FlowExecutorTest extends TestCase
         $ruleEntity->setId($ruleId);
         $ruleEntity->setPayload($rule);
         $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
-        $this->ruleLoaderMock->method('load')->willReturn(new RuleCollection([$ruleEntity]));
+        $this->ruleLoaderMock->expects($this->once())->method('load')->willReturn(new RuleCollection([$ruleEntity]));
 
         $this->flowExecutor->executeIf($ifSequence, $flow);
 
@@ -533,6 +604,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteIfWithNonEntityOrderFallsBackToContextRuleIds(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $ifSequence = new IfSequence();
         $ifSequence->assign(['ruleId' => 'ruleId']);
 
@@ -563,6 +640,11 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteIfWhenRuleMissingFallsBackToContextRuleIds(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $ruleId = 'ruleId';
 
         $ifSequence = new IfSequence();
@@ -585,7 +667,7 @@ class FlowExecutorTest extends TestCase
         $storableFlow->setData(OrderAware::ORDER, $order);
 
         // Simulate ruleLoader returning no rule for the given id
-        $this->ruleLoaderMock->method('load')->willReturn(new RuleCollection([]));
+        $this->ruleLoaderMock->expects($this->once())->method('load')->willReturn(new RuleCollection([]));
 
         $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
         $addOrderTagAction->expects($this->once())->method('handleFlow')->with($storableFlow);
@@ -596,6 +678,11 @@ class FlowExecutorTest extends TestCase
 
     public function testActionExecutedInTransactionWhenItImplementsTransactional(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->action = StubFlowAction::class;
@@ -620,6 +707,11 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionCommitFailureExceptionIsWrapped(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $action = new StubFlowAction();
 
         $actionSequence = new ActionSequence();
@@ -649,6 +741,11 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionAbortExceptionIsWrapped(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $exception = TransactionFailedException::because(new \Exception('broken'));
         $action = new StubFlowAction($exception);
 
@@ -673,6 +770,12 @@ class FlowExecutorTest extends TestCase
 
     public function testTransactionWithUncaughtExceptionIsWrapped(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->once())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $exception = new \Exception('broken');
         $action = new StubFlowAction($exception);
 
@@ -693,6 +796,11 @@ class FlowExecutorTest extends TestCase
 
     public function testExtensionIsDispatched(): void
     {
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $flow = new Flow('test', []);
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
@@ -730,6 +838,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExitActionExecutionIfSequenceActionIsNotSet(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->config = ['test' => 'value'];
@@ -745,6 +859,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExitActionExecutionIfFlowStopIsSet(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->config = ['test' => 'value'];
@@ -761,6 +881,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExitActionExecutionIfFlowIsDelayed(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->config = ['test' => 'value'];
@@ -789,6 +915,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExitActionExecutionIfNextActionIsNull(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->config = ['test' => 'value'];
@@ -815,6 +947,12 @@ class FlowExecutorTest extends TestCase
 
     public function testSetCurrentSequenceInFlowStateForActionExecution(): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'first-sequence';
         $actionSequence->config = ['first' => 'value'];
@@ -865,6 +1003,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteStopsOnFlowStateReachesStop(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $storableFlow = new StorableFlow('', Context::createCLIContext());
 
         $actionSequence = new ActionSequence();
@@ -884,6 +1028,12 @@ class FlowExecutorTest extends TestCase
 
     public function testExecuteWrapsSequenceException(): void
     {
+        $this->eventDispatcherMock->expects($this->atLeastOnce())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->ruleLoaderMock->expects($this->never())->method('load');
+        $this->connectionMock->expects($this->once())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'throwing-sequence';
         $actionSequence->flowId = 'flowId';
@@ -911,6 +1061,11 @@ class FlowExecutorTest extends TestCase
     #[DataProvider('salesChannelContextCustomerDataProvider')]
     public function testExecuteIfWithCustomerRuleScopeEvaluation(?CustomerEntity $contextCustomer): void
     {
+        $this->eventDispatcherMock->expects($this->never())->method('dispatch');
+        $this->appFlowActionProviderMock->expects($this->never())->method('getWebhookPayloadAndHeaders');
+        $this->connectionMock->expects($this->never())->method('transactional');
+        $this->loggerMock->expects($this->never())->method('error');
+
         $trueCaseSequence = new Sequence();
         $trueCaseSequence->assign(['sequenceId' => 'foobar']);
         $ruleId = Uuid::randomHex();

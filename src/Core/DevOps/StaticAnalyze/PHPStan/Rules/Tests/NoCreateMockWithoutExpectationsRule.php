@@ -431,6 +431,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<Node> $stmts
      * @param array<string, ClassMethod> $ownMethods
      * @param list<int> $extraHarmless spl_object_ids of Variable nodes to accept
+     * @param array<string, true> $visited guards against recursive helpers and alias chains
      */
     private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = [], array $visited = []): bool
     {

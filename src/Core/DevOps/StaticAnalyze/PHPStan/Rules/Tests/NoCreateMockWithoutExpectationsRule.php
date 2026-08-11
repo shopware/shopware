@@ -34,34 +34,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Static guard for the PHPUnit 12+ "no expectations configured for mock … use a test stub" notice: flags a
- * `createMock()` double that is never `->expects()`-ed (local var, inline argument, or property) and points it
- * to `createStub()`. A property `->expects()`-ed in only some tests is flagged as mixed usage instead (fix it
- * per-method, not with `createStub()`).
- *
- * Only flags what it can prove, to never block CI on a legitimate mock: a double handed to a `$this->`/
- * `self::`/`static::` call is skipped unless the callee is a method of the same class whose matching parameter
- * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
- * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
- * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
- * stub (`$this->dep->method(...)`), forwards it into a constructor, or `->expects()`-es it directly keeps it
- * analysable; any other helper use (handing it to an unresolvable call, expecting it through an alias or a
- * parameter) skips the property wholesale (see {@see self::helperUsageOfPropertyIsUnsafe()}). Which tests
- * trigger the runtime notice is then decided over the class's own call graph: a test is covered when it,
- * `setUp()`, or any own method one of them transitively calls configures a direct `->expects()` on the
- * property (see {@see self::coversProperty()}); every uncovered test notices and is listed in the mixed-usage
- * error. The reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is
- * undefined).
- *
- * A property created in `setUp()` and re-created via `$this->dep = $this->createMock(...)` inside a test is a
- * separate trap: the re-assignment replaces the setUp instance before the SUT (built per test) uses it, so the
- * setUp instance is orphaned and notices with no expectation, regardless of how the re-created instance is
- * configured. This is reported on the setUp assignment (see {@see self::ERROR_ORPHANED}); the fix is to
- * configure the setUp instance in place rather than re-create it.
- *
- * Abstract test classes are analysed through their concrete subclasses instead of on their own: the notice
- * fires per concrete class run, and only there are all call sites of the base fixtures visible. The inherited
- * methods of unit-test ancestors are parsed from their files and merged under the subclass (overrides win, see
- * {@see self::inheritedMethods()}); findings inside an ancestor are reported at that ancestor's file and line.
+ * `createMock()` double that will trigger it, with the fix stated in the message ({@see self::ERROR_STUB},
+ * {@see self::ERROR_MIXED}, {@see self::ERROR_ORPHANED}). It only flags what it can prove; anything it cannot
+ * resolve is skipped.
  *
  * @implements Rule<InClassNode>
  *
@@ -746,9 +721,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         $errors = [];
         foreach ($assignments as $name => $propAssignments) {
             // A property created in setUp() and re-created inside a test replaces the setUp instance
-            // before it is used, orphaning it (it never receives an expectation). Independent of the
-            // property's other usage, so checked before the off-limits bail. Reported on the setUp
-            // assignment, since that is the instance the notice fires on.
+            // before it is used, orphaning it.
             $setUpAssign = $setUp !== null && !$this->methodExpectsProperty($finder, $setUp, $name)
                 ? $this->propertyCreationAssign($finder, $setUp, $name)
                 : null;

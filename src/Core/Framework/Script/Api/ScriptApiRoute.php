@@ -61,6 +61,8 @@ class ScriptApiRoute
     {
         $scripts = $this->loader->get($hook->getName());
 
+        $source = $context->getSource();
+
         /** @var Script $script */
         foreach ($scripts as $script) {
             if (!$script->isAppScript()) {
@@ -70,7 +72,6 @@ class ScriptApiRoute
             /** @var ScriptAppInformation $appInfo */
             $appInfo = $script->getScriptAppInformation();
 
-            $source = $context->getSource();
             if ($source instanceof AdminApiSource && $source->getIntegrationId() === $appInfo->getIntegrationId()) {
                 // allow access to app endpoints from the integration of the same app
                 continue;

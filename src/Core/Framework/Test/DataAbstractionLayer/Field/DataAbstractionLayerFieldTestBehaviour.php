@@ -177,10 +177,11 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function removeDefinitions(string ...$definitionClasses): void
     {
+        $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
+
         foreach ($definitionClasses as $definitionClass) {
             $definition = new $definitionClass();
 
-            $registry = static::getContainer()->get(DefinitionInstanceRegistry::class);
             \Closure::bind(function () use ($definition): void {
                 unset(
                     $this->definitions[$definition->getEntityName()],
@@ -200,10 +201,11 @@ trait DataAbstractionLayerFieldTestBehaviour
      */
     private function removeSalesChannelDefinitions(string ...$definitionClasses): void
     {
+        $registry = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
+
         foreach ($definitionClasses as $definitionClass) {
             $definition = new $definitionClass();
 
-            $registry = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class);
             \Closure::bind(function () use ($definition): void {
                 unset(
                     $this->definitions[$definition->getEntityName()],

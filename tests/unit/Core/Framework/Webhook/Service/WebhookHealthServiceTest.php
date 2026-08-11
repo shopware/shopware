@@ -5,10 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
@@ -26,11 +24,10 @@ class WebhookHealthServiceTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->never())
-            ->method('updateRelated');
+        $connection->expects($this->never())
+            ->method('update');
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
@@ -41,11 +38,10 @@ class WebhookHealthServiceTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['active' => 0, 'error_count' => 3]);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->never())
-            ->method('updateRelated');
+        $connection->expects($this->never())
+            ->method('update');
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
@@ -58,16 +54,11 @@ class WebhookHealthServiceTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['active' => 1, 'error_count' => 2]);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->once())
-            ->method('updateRelated')
-            ->with(
-                $webhookId,
-                ['error_count' => 3],
-                static::isInstanceOf(Context::class)
-            );
+        $connection->expects($this->once())
+            ->method('update')
+            ->with('webhook', ['error_count' => 3], ['id' => Uuid::fromHexToBytes($webhookId)]);
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
@@ -80,16 +71,11 @@ class WebhookHealthServiceTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['active' => 1, 'error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT - 1]);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->once())
-            ->method('updateRelated')
-            ->with(
-                $webhookId,
-                ['error_count' => 0, 'active' => 0],
-                static::isInstanceOf(Context::class)
-            );
+        $connection->expects($this->once())
+            ->method('update')
+            ->with('webhook', ['error_count' => 0, 'active' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
@@ -102,16 +88,15 @@ class WebhookHealthServiceTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['active' => 1, 'error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT + 5]);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->once())
-            ->method('updateRelated')
+        $connection->expects($this->once())
+            ->method('update')
             ->with(
-                $webhookId,
+                'webhook',
                 ['error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT + 6],
-                static::isInstanceOf(Context::class)
+                ['id' => Uuid::fromHexToBytes($webhookId)]
             );
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->recordFailure($webhookId, WebhookFailureStrategy::Ignore);
     }
 
@@ -119,18 +104,12 @@ class WebhookHealthServiceTest extends TestCase
     {
         $webhookId = Uuid::randomHex();
 
-        $connection = static::createStub(Connection::class);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('update')
+            ->with('webhook', ['error_count' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
 
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->once())
-            ->method('updateRelated')
-            ->with(
-                $webhookId,
-                ['error_count' => 0],
-                static::isInstanceOf(Context::class)
-            );
-
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service = new WebhookHealthService($connection);
         $service->resetErrorCount($webhookId);
     }
 }

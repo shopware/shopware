@@ -24,7 +24,7 @@ import type { OwnedConfig } from './shared';
 const MAX_EXTENDS_DEPTH = 3;
 
 /** Own path aliases are the one legitimate reason to declare `paths` — point at the file the bridge merges. */
-const ALIASES_NOTE = ' Own path aliases? Declare them in tsconfig.aliases.json next to the config.';
+const ALIASES_NOTE = ' Own path aliases? Declare them in tsconfig.aliases.json next to your config.';
 
 function isPresetPath(configPath: string): boolean {
     const posixPath = toPosix(configPath);
@@ -99,7 +99,12 @@ export function tsconfigVerdict(absolutePath: string, relativePath: string): Own
     const { config, error } = parseTsconfig(absolutePath);
 
     if (error || !config) {
-        return { path: relativePath, composes: false, detail: error ?? 'the tsconfig does not resolve.' };
+        return {
+            path: relativePath,
+            composes: false,
+            detail: error ?? 'the tsconfig does not resolve.',
+            reason: 'unreadable',
+        };
     }
 
     const aliasesNote = (config.compilerOptions as { paths?: unknown } | undefined)?.paths ? ALIASES_NOTE : '';
@@ -111,6 +116,7 @@ export function tsconfigVerdict(absolutePath: string, relativePath: string): Own
             detail:
                 'the extends chain does not reach the Shopware preset or a generated ' +
                 `${SHIM_DIR_NAME}/ bridge.${aliasesNote}`,
+            reason: 'extends-missing',
         };
     }
 
@@ -121,6 +127,7 @@ export function tsconfigVerdict(absolutePath: string, relativePath: string): Own
             detail:
                 'the tsconfig declares its own "files" array, which replaces the bridge\'s ' +
                 `(tsconfig extends semantics) — admin-types.d.ts never enters the program.${aliasesNote}`,
+            reason: 'files-override',
         };
     }
 
@@ -145,5 +152,6 @@ export function eslintConfigVerdict(absolutePath: string, relativePath: string):
         path: relativePath,
         composes: false,
         detail: 'the config does not compose the Shopware factory, so the preset rules never apply.',
+        reason: 'factory-missing',
     };
 }

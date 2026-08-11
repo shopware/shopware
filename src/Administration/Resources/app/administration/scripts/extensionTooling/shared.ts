@@ -34,7 +34,27 @@ export interface OwnedConfig {
     composes: boolean;
     /** Why it does not compose, rendered under `why:`. Absent when it composes. */
     detail?: string;
+    /**
+     * Which defect `detail` describes. Remediation is derived from this rather
+     * than from the state alone, so a config that already has its `extends` is
+     * never told to add one.
+     */
+    reason?: ConfigDefect;
 }
+
+/**
+ * The distinct ways an extension-owned config fails to compose. Each maps to
+ * exactly one remediation step — see `describeConfigFix`.
+ */
+export type ConfigDefect =
+    /** The config does not parse (or cannot be read) at all. */
+    | 'unreadable'
+    /** No `extends` chain reaches the preset or the generated bridge. */
+    | 'extends-missing'
+    /** The extends chain is fine, but an own `files` array replaces the bridge's type surface. */
+    | 'files-override'
+    /** An ESLint config that never composes the Shopware factory. */
+    | 'factory-missing';
 
 /**
  * A setup warning together with the extension it is about. `extension` is

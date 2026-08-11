@@ -54,6 +54,7 @@ describe('scripts/extensionTooling/probe-static', () => {
 
             expect(verdict.composes).toBe(false);
             expect(verdict.detail).toContain('does not reach the Shopware preset');
+            expect(verdict.reason).toBe('extends-missing');
         });
 
         it('explains the files-override trap and points path declarers at tsconfig.aliases.json', () => {
@@ -70,6 +71,9 @@ describe('scripts/extensionTooling/probe-static', () => {
             expect(verdict.composes).toBe(false);
             expect(verdict.detail).toContain('"files"');
             expect(verdict.detail).toContain('tsconfig.aliases.json');
+            // Distinct from a missing extends: this config has one, so the
+            // remediation derived from the reason must not ask for it again.
+            expect(verdict.reason).toBe('files-override');
         });
 
         it('surfaces a parse error as the reason', () => {

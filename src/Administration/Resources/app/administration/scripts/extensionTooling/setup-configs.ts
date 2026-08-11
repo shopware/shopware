@@ -11,6 +11,7 @@ import path from 'path';
 import { record, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
+import { describeConfigFix } from './report-guidance';
 import {
     BRIDGE_ESLINT_SPECIFIER,
     BRIDGE_TSCONFIG_EXTENDS,
@@ -42,6 +43,11 @@ const SPEC_FILE_SUFFIXES = [
     'spec.tsx',
     'spec.js',
 ];
+
+/** Collapses a multi-line fix into one warning sentence — the indentation only reads in the report's tree. */
+function flattenFix(fix: string[]): string {
+    return fix.map((line) => line.trim()).join(' ');
+}
 
 /** Expands dotted setting keys into the nested objects Zed expects. */
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
@@ -340,7 +346,7 @@ export function scaffoldExtensionConfigs(
             warn(
                 context,
                 `${tsconfigPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware preset.'} ` +
-                    `Fix: add \`"extends": "${BRIDGE_TSCONFIG_EXTENDS}"\` so ${name} composes the Shopware preset.`,
+                    `Fix: ${flattenFix(describeConfigFix('TypeScript', verdict))}`,
                 name,
             );
         }
@@ -353,8 +359,7 @@ export function scaffoldExtensionConfigs(
             warn(
                 context,
                 `${eslintPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware factory.'} ` +
-                    `Fix: compose the bridge in it: import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; ` +
-                    'export default [ ...shopware /* , your rules */ ];',
+                    `Fix: ${flattenFix(describeConfigFix('ESLint', verdict))}`,
                 name,
             );
         }

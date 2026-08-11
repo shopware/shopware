@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo\SeoUrlTemplate;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
@@ -18,10 +19,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * for / trigger the SEO indexer manually.
  *
  * Update commands request a change set so re-submitting an identical template
- * (for example an idempotent Sync API call) does not trigger a reindex. The
- * actual regeneration is dispatched to the message bus after a successful write,
- * so iterating every product/category of the affected route does not block the
- * admin save.
+ * (for example an idempotent Sync API call) does not trigger a reindex. Deletes
+ * request one too, because removing a sales channel override changes the
+ * effective template for that channel and the row is already gone once the write
+ * succeeded. The actual regeneration is dispatched to the message bus after a
+ * successful write, so iterating every product/category of the affected route
+ * does not block the admin save.
  *
  * @internal
  */
@@ -56,7 +59,19 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
 
         $insertedRoutes = [];
         $updateCommands = [];
+        $deleteCommands = [];
         foreach ($commands as $command) {
+            if ($command instanceof DeleteCommand) {
+                // Removing a sales channel override changes the effective template for
+                // that channel, so the URLs have to be regenerated as well. The row is
+                // gone by the time the success callback runs, hence the change set: it
+                // carries the deleted state we need to resolve the route.
+                $command->requestChangeSet();
+                $deleteCommands[] = $command;
+
+                continue;
+            }
+
             // Only re-index when the template itself is written; other field changes
             // (for example custom fields) must not trigger expensive reindexing.
             if (!$command->hasField('template')) {
@@ -65,6 +80,14 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
 
             if ($command instanceof InsertCommand) {
                 $payload = $command->getPayload();
+                $template = $payload['template'] ?? null;
+                if (!\is_string($template) || $template === '') {
+                    // An override without a template falls back to the default one, so
+                    // there is nothing new to generate. This is what the admin sends for
+                    // the per-sales-channel placeholder rows.
+                    continue;
+                }
+
                 $insertedRoutes[] = [
                     'routeName' => (string) ($payload['route_name'] ?? ''),
                     'entityName' => (string) ($payload['entity_name'] ?? ''),
@@ -79,20 +102,21 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
             }
         }
 
-        if ($insertedRoutes === [] && $updateCommands === []) {
+        if ($insertedRoutes === [] && $updateCommands === [] && $deleteCommands === []) {
             return;
         }
 
-        $event->addSuccess(function () use ($insertedRoutes, $updateCommands): void {
-            $this->dispatchIndexingMessages($insertedRoutes, $updateCommands);
+        $event->addSuccess(function () use ($insertedRoutes, $updateCommands, $deleteCommands): void {
+            $this->dispatchIndexingMessages($insertedRoutes, $updateCommands, $deleteCommands);
         });
     }
 
     /**
      * @param list<array{routeName: string, entityName: string}> $insertedRoutes
      * @param list<UpdateCommand> $updateCommands
+     * @param list<DeleteCommand> $deleteCommands
      */
-    private function dispatchIndexingMessages(array $insertedRoutes, array $updateCommands): void
+    private function dispatchIndexingMessages(array $insertedRoutes, array $updateCommands, array $deleteCommands): void
     {
         $changedIds = [];
         foreach ($updateCommands as $command) {
@@ -109,7 +133,7 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
             }
         }
 
-        $routes = $insertedRoutes;
+        $routes = [...$insertedRoutes, ...$this->resolveDeletedRoutes($deleteCommands)];
         if ($changedIds !== []) {
             $routes = [...$routes, ...$this->loadRoutesForTemplates($changedIds)];
         }
@@ -130,6 +154,35 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
                 new SeoUrlTemplateIndexingMessage($route['routeName'], $route['entityName'])
             );
         }
+    }
+
+    /**
+     * @param list<DeleteCommand> $deleteCommands
+     *
+     * @return list<array{routeName: string, entityName: string}>
+     */
+    private function resolveDeletedRoutes(array $deleteCommands): array
+    {
+        $routes = [];
+        foreach ($deleteCommands as $command) {
+            $changeSet = $command->getChangeSet();
+            if ($changeSet === null) {
+                continue;
+            }
+
+            if ($changeSet->getBefore('sales_channel_id') === null) {
+                // The route lost its default template, so there is nothing left to
+                // generate from; SeoUrlUpdater would only fail on the missing default.
+                continue;
+            }
+
+            $routes[] = [
+                'routeName' => (string) $changeSet->getBefore('route_name'),
+                'entityName' => (string) $changeSet->getBefore('entity_name'),
+            ];
+        }
+
+        return $routes;
     }
 
     /**

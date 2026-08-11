@@ -69,15 +69,18 @@ final class SeoUrlTemplateIndexingHandler
             return;
         }
 
-        $this->seoUrlUpdater->update($routeName, $hexIds);
-
-        if (\count($hexIds) < self::ITERATE_BATCH_SIZE) {
-            // Partial batch: the entity set is exhausted, no follow-up needed.
-            return;
+        // A partial batch means the entity set is exhausted, so no follow-up is needed.
+        // Otherwise the follow-up is dispatched *before* the batch is processed: a batch
+        // that keeps failing ends up in the failed transport, and dispatching afterwards
+        // would let that single batch abort the rest of the chain, silently leaving the
+        // remaining entities on the old template. Regeneration is idempotent, so the
+        // duplicate follow-up of a retried batch only costs a repeated pass.
+        if (\count($hexIds) === self::ITERATE_BATCH_SIZE) {
+            $this->messageBus->dispatch(
+                new SeoUrlTemplateIndexingMessage($routeName, $entityName, $iterator->getOffset())
+            );
         }
 
-        $this->messageBus->dispatch(
-            new SeoUrlTemplateIndexingMessage($routeName, $entityName, $iterator->getOffset())
-        );
+        $this->seoUrlUpdater->update($routeName, $hexIds);
     }
 }

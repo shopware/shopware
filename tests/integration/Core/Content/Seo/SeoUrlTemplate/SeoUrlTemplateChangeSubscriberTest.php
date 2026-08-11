@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Seo\SeoUrlTemplate;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -35,7 +34,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
  * @internal
  */
 #[Package('inventory')]
-#[Group('slow')]
 class SeoUrlTemplateChangeSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -92,11 +90,15 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         // Act: change the SEO URL template under Settings > Shop > SEO. The
         // subscriber must automatically reindex every category for this route
         // so existing URLs are regenerated without a manual indexer run.
+        // The override is bound to the test's own sales channel: a second row for
+        // `salesChannelId = null` would collide with the default template seeded by
+        // Migration1595492054SeoUrlTemplateData, which SeoUrlUpdater::loadUrlTemplate()
+        // collapses into one unordered key so either row could win.
         $customTemplate = 'custom-prefix/{{ category.name }}';
         $this->seoUrlTemplateRepository->create([
             [
                 'id' => $ids->create('template'),
-                'salesChannelId' => null,
+                'salesChannelId' => $ids->get('sales-channel'),
                 'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
                 'entityName' => CategoryDefinition::ENTITY_NAME,
                 'template' => $customTemplate,
@@ -252,10 +254,12 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             ],
         ], $context);
 
+        // Bound to this test's sales channel, so the seeded default template cannot
+        // win the unordered lookup in SeoUrlUpdater::loadUrlTemplate().
         $this->seoUrlTemplateRepository->create([
             [
                 'id' => $ids->create('template'),
-                'salesChannelId' => null,
+                'salesChannelId' => $ids->get('sales-channel'),
                 'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
                 'entityName' => CategoryDefinition::ENTITY_NAME,
                 'template' => 'v3/{{ category.name }}',

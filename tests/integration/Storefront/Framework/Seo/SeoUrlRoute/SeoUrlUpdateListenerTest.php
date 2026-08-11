@@ -321,20 +321,11 @@ class SeoUrlUpdateListenerTest extends TestCase
         static::assertSame($seoUrl->getId(), $canonicalUrls->first()->getId());
 
         static::assertCount(1, $canonicalUrls);
+        static::assertCount(1, $nonCanonicals);
+        static::assertCount(2, $seoUrls);
 
-        // Since #4116 the template update itself triggers an asynchronous
-        // regeneration pass via `SeoUrlTemplateIndexingHandler`, on top of the
-        // existing non-canonical retained by the second product upsert. The
-        // messenger transport in tests runs synchronously, so both passes land
-        // by the time we assert: exactly one canonical + one unique historical
-        // non-canonical, giving two distinct `seoPathInfo` values overall.
-        $seoPathInfos = array_values(array_unique($nonCanonicals->map(
-            static fn (SeoUrlEntity $url): string => $url->getSeoPathInfo()
-        )));
-        static::assertSame(['foo/awesome-product/bar'], $seoPathInfos);
-        static::assertCount(2, array_unique($seoUrls->map(
-            static fn (SeoUrlEntity $url): string => $url->getSeoPathInfo()
-        )));
+        static::assertNotNull($nonCanonicals->first());
+        static::assertSame('foo/awesome-product/bar', $nonCanonicals->first()->getSeoPathInfo());
     }
 
     public function testIsMarkedAsDeleted(): void

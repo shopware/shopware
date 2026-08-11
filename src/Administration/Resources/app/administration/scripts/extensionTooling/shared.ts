@@ -262,6 +262,43 @@ export function canonicalizePath(filePath: string): string {
     return path.join(fs.realpathSync(existingPath), path.relative(existingPath, filePath));
 }
 
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Strips the project root from a tool's output so every stream reports
+ * project-relative paths — ESLint prints absolute ones, and vue-tsc does too
+ * once its `--project` argument is canonicalized away from the cwd. Both the
+ * given root and its canonicalized form are removed, since macOS resolves
+ * /tmp to /private/tmp.
+ *
+ * Roots are tried longest-first and matched only where a path actually begins
+ * (start of line, or after a character that cannot occur inside a path). A
+ * plain substring strip cut the root out of the *middle* of the other form of
+ * itself: with cwd `/tmp/shop` and canonical `/private/tmp/shop`, removing
+ * `/tmp/shop/` from `/private/tmp/shop/custom/a.ts` yielded
+ * `/privatecustom/a.ts`.
+ */
+export function relativizeToolOutput(output: string, projectRoot: string): string {
+    const roots = [
+        ...new Set([
+            projectRoot,
+            canonicalizePath(projectRoot),
+        ]),
+    ].sort((left, right) => right.length - left.length);
+
+    let relativized = output;
+
+    for (const root of roots) {
+        const prefix = escapeRegExp(`${root}${path.sep}`);
+
+        relativized = relativized.replace(new RegExp(`(^|[^\\w.\\-/\\\\])${prefix}`, 'gm'), '$1');
+    }
+
+    return relativized;
+}
+
 export function findNearestConfig(startPath: string, boundaryPath: string, fileNames: string[]): string | null {
     let currentPath = startPath;
 

@@ -12,7 +12,8 @@ import {
     parseTypeScriptFindings,
 } from '../check-parsing';
 import { createLimiter, runPool } from '../check-pipeline';
-import { appendFixHint, buildEslintArguments, relativizeToolOutput } from '../check-run';
+import { appendFixHint, buildEslintArguments } from '../check-run';
+import { relativizeToolOutput } from '../shared';
 import { buildVueTscArguments } from '../check-typescript-program';
 import { cleanupTempProject, createTempProject, writeFile } from '../test-helpers';
 
@@ -118,9 +119,33 @@ describe('scripts/extensionTooling/check units', () => {
 
         const relativized = relativizeToolOutput(output, projectRoot);
 
-        expect(relativized).toContain('custom/plugins/X/src/main.ts');
-        expect(relativized).toContain('custom/plugins/X/src/other.ts');
+        // Asserting the whole line: a `toContain` on the tail alone also passes
+        // when the head is mangled into `/privatecustom/plugins/…`.
+        expect(relativized.split('\n')).toEqual([
+            'custom/plugins/X/src/main.ts  1:1  error  nope',
+            'custom/plugins/X/src/other.ts  2:2  error  nope',
+        ]);
         expect(relativized).not.toContain(canonicalRoot);
+    });
+
+    /**
+     * The reported failure: a shop reached through /tmp/shop whose real location
+     * is /private/tmp/shop. The root then also occurs in the MIDDLE of the path
+     * ESLint prints, and an unanchored strip cut it there — leaving
+     * `/privatecustom/plugins/Foo/main.ts`. Expressed OS-independently here as
+     * the invariant that was violated: a root is only stripped where a path
+     * actually starts.
+     */
+    it('only strips the root where a path starts, never mid-string', () => {
+        const output = [
+            `${projectRoot}/custom/plugins/X/src/main.ts`,
+            `/anything${projectRoot}/custom/plugins/X/src/main.ts`,
+        ].join('\n');
+
+        const relativized = relativizeToolOutput(output, projectRoot).split('\n');
+
+        expect(relativized[0]).toBe('custom/plugins/X/src/main.ts');
+        expect(relativized[1]).toBe(`/anything${projectRoot}/custom/plugins/X/src/main.ts`);
     });
 
     it('counts findings from native tool output without altering it', () => {

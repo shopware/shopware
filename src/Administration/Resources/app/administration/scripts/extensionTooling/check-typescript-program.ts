@@ -12,7 +12,7 @@ import path from 'path';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { diffTypeScript } from './baseline';
 import type { BaselineTsEntry, TypeScriptFinding } from './baseline';
-import { canonicalizePath, relativePosix, toPosix } from './shared';
+import { canonicalizePath, relativePosix, relativizeToolOutput, toPosix } from './shared';
 import type { AdministrationTarget } from './shared';
 import { countTypeScriptFindings, deduplicateByMaximumMultiplicity, parseTypeScriptFindings } from './check-parsing';
 import { formatCommand } from './check-pipeline';
@@ -44,14 +44,19 @@ async function runTypeScriptProgram(
     const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
     const command = formatCommand(projectRoot, vueTscArguments);
     const run = await runCommand(process.execPath, vueTscArguments, projectRoot);
-    const findings = countTypeScriptFindings(run.output);
+    // vue-tsc prints cwd-relative paths only while its --project argument shares
+    // the cwd's form. The runner canonicalizes that path, so under a symlinked
+    // root the diagnostics come back absolute — relativize them like the ESLint
+    // stream, or the in-root/surface split below misreads every finding.
+    const output = relativizeToolOutput(run.output, projectRoot);
+    const findings = countTypeScriptFindings(output);
 
     if (run.timedOut) {
         return {
             command,
             result: {
                 status: 'tooling-error',
-                output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${run.output}`,
+                output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${output}`,
                 durationMs: run.durationMs,
                 findings,
             },
@@ -64,7 +69,7 @@ async function runTypeScriptProgram(
     // crash-with-output run fall through to the baseline and report `passed`.
     // Mirrors the ESLint stream's predicate in check-run.ts.
     if (run.status !== 0 && findings === 0) {
-        const detail = run.output.trim();
+        const detail = output.trim();
 
         return {
             command,
@@ -80,14 +85,14 @@ async function runTypeScriptProgram(
         };
     }
 
-    const parsedFindings = parseTypeScriptFindings(run.output);
+    const parsedFindings = parseTypeScriptFindings(output);
 
     return {
         command,
         result: {
             status: findings > 0 ? 'failed' : 'passed',
             findings,
-            output: run.output,
+            output,
             durationMs: run.durationMs,
             typeScriptFindings: parsedFindings,
             // The structured parse must account for every finding the regex

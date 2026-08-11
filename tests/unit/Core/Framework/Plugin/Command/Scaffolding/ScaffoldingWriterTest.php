@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Shopware\Core\Test\Stub\Framework\Util\InMemoryUtilFilesystem;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -52,75 +53,64 @@ class ScaffoldingWriterTest extends TestCase
 
     public function testDoesNotOverwriteExistingFilesAndAppendsAggregateFiles(): void
     {
-        $filesystem = new Filesystem();
-        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
+        $directory = 'custom/plugins/TestPlugin';
         $servicesFile = $directory . '/src/Resources/config/services.php';
         $composerFile = $directory . '/composer.json';
 
-        try {
-            $filesystem->dumpFile($servicesFile, "<?php\n\nreturn static function (): void {\n    existing();\n};\n");
-            $filesystem->dumpFile($composerFile, '{"version":"custom"}');
+        $filesystem = new InMemoryUtilFilesystem([
+            $servicesFile => "<?php\n\nreturn static function (): void {\n    existing();\n};\n",
+            $composerFile => '{"version":"custom"}',
+        ]);
 
-            (new ScaffoldingWriter($filesystem))->write(
-                new StubCollection([
-                    Stub::append('src/Resources/config/services.php', "\n    generated();\n"),
-                    Stub::raw('composer.json', '{"version":"generated"}'),
-                ]),
-                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
-            );
+        (new ScaffoldingWriter($filesystem))->write(
+            new StubCollection([
+                Stub::append('src/Resources/config/services.php', "\n    generated();\n"),
+                Stub::raw('composer.json', '{"version":"generated"}'),
+            ]),
+            new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+        );
 
-            static::assertStringContainsString('existing();', (string) file_get_contents($servicesFile));
-            static::assertStringContainsString('generated();', (string) file_get_contents($servicesFile));
-            static::assertSame('{"version":"custom"}', file_get_contents($composerFile));
-        } finally {
-            $filesystem->remove($directory);
-        }
+        $files = $filesystem->dumpedFiles();
+        static::assertStringContainsString('existing();', $files[$servicesFile]);
+        static::assertStringContainsString('generated();', $files[$servicesFile]);
+        static::assertSame('{"version":"custom"}', $files[$composerFile]);
     }
 
     public function testAppendsToMissingAndUnterminatedAggregateFiles(): void
     {
-        $filesystem = new Filesystem();
-        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
-        $existingFile = $directory . '/src/Resources/config/services.php';
+        $directory = 'custom/plugins/TestPlugin';
+        $servicesFile = $directory . '/src/Resources/config/services.php';
+        $routesFile = $directory . '/src/Resources/config/routes.php';
 
-        try {
-            $filesystem->dumpFile($existingFile, "<?php\nexisting();\n");
+        $filesystem = new InMemoryUtilFilesystem([$servicesFile => "<?php\nexisting();\n"]);
 
-            (new ScaffoldingWriter($filesystem))->write(
-                new StubCollection([
-                    Stub::append('src/Resources/config/services.php', "\ngenerated();\n"),
-                    Stub::append('src/Resources/config/routes.php', "generatedRoute();\n"),
-                ]),
-                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
-            );
+        (new ScaffoldingWriter($filesystem))->write(
+            new StubCollection([
+                Stub::append('src/Resources/config/services.php', "\ngenerated();\n"),
+                Stub::append('src/Resources/config/routes.php', "generatedRoute();\n"),
+            ]),
+            new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+        );
 
-            $servicesContent = (string) file_get_contents($existingFile);
-            static::assertStringContainsString('existing();', $servicesContent);
-            static::assertStringContainsString('generated();', $servicesContent);
-            static::assertSame("generatedRoute();\n", file_get_contents($directory . '/src/Resources/config/routes.php'));
-        } finally {
-            $filesystem->remove($directory);
-        }
+        $files = $filesystem->dumpedFiles();
+        static::assertStringContainsString('existing();', $files[$servicesFile]);
+        static::assertStringContainsString('generated();', $files[$servicesFile]);
+        static::assertSame("generatedRoute();\n", $files[$routesFile]);
     }
 
     public function testDoesNotAppendDuplicateAggregateContent(): void
     {
-        $filesystem = new Filesystem();
-        $directory = sys_get_temp_dir() . '/shopware-scaffolding-' . uniqid('', true);
+        $directory = 'custom/plugins/TestPlugin';
         $servicesFile = $directory . '/src/Resources/config/services.php';
         $content = "<?php\nexisting();\ngenerated();\n";
 
-        try {
-            $filesystem->dumpFile($servicesFile, $content);
+        $filesystem = new InMemoryUtilFilesystem([$servicesFile => $content]);
 
-            (new ScaffoldingWriter($filesystem))->write(
-                new StubCollection([Stub::append('src/Resources/config/services.php', "generated();\n")]),
-                new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
-            );
+        (new ScaffoldingWriter($filesystem))->write(
+            new StubCollection([Stub::append('src/Resources/config/services.php', "generated();\n")]),
+            new PluginScaffoldConfiguration('TestPlugin', 'Test', $directory),
+        );
 
-            static::assertSame($content, file_get_contents($servicesFile));
-        } finally {
-            $filesystem->remove($directory);
-        }
+        static::assertSame($content, $filesystem->dumpedFiles()[$servicesFile]);
     }
 }

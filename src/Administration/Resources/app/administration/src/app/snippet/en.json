@@ -168,7 +168,8 @@
         "label": "Main navigation",
         "mainMenuItemCatalogue": "Catalogues",
         "mainMenuItemContent": "Content",
-        "mainMenuItemMarketing": "Marketing"
+        "mainMenuItemMarketing": "Marketing",
+        "mainMenuItemAutomation": "Automation"
       }
     },
     "entity-components": {

@@ -284,13 +284,23 @@ export default Component.wrapComponentConfig({
             return number;
         },
 
-        async onUploadDocument(additionalAction = false): Promise<void> {
+        async onUploadDocument(additionalAction = ''): Promise<void> {
             if (this.invalidInput || !this.currentDocumentType) {
                 return;
             }
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                const documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
+                let documentNumber;
+
+                try {
+                    documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
+                } catch (_) {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
+
+                    return;
+                }
 
                 if (documentNumber !== this.documentConfig.documentNumber) {
                     this.createNotificationInfo({
@@ -333,11 +343,18 @@ export default Component.wrapComponentConfig({
         },
 
         successfulUploadFromUrl(res: { targetId: string }): void {
-            void this.mediaRepository.get(res.targetId).then((response) => {
-                if (response) {
-                    this.validateFile(response);
-                }
-            });
+            this.mediaRepository
+                .get(res.targetId)
+                .then((response) => {
+                    if (response) {
+                        this.validateFile(response);
+                    }
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
+                });
         },
 
         validateFile(response: Entity<'media'>): void {

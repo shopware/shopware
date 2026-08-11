@@ -158,6 +158,7 @@ export default Component.wrapComponentConfig({
                 !this.documentConfig.documentNumber ||
                 !this.documentConfig.documentDate ||
                 this.documentConfig.requestedFileFormats.length === 0 ||
+                (this.isReferencingOtherDocument && !this.referencedDocumentNumber) ||
                 (this.isCreditNoteDocument && this.creditItems.length === 0)
             );
         },
@@ -311,13 +312,23 @@ export default Component.wrapComponentConfig({
             return number;
         },
 
-        async onCreateDocument(additionalAction = false): Promise<void> {
+        async onCreateDocument(additionalAction = ''): Promise<void> {
             if (this.invalidInput || !this.currentDocumentType) {
                 return;
             }
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                const documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
+                let documentNumber;
+
+                try {
+                    documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
+                } catch (_) {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
+
+                    return;
+                }
 
                 if (documentNumber !== this.documentConfig.documentNumber) {
                     this.createNotificationInfo({

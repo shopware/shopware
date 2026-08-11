@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
  * @private
@@ -39,7 +39,26 @@ export default {
                 return this.element.data.media;
             }
 
-            return this.element.config.media.value;
+            const elemConfig = this.element.config.media;
+
+            /**
+             * A default source holds an asset path instead of a media id. Returning it as a URL
+             * lets the media preview render it directly instead of querying the media API with it.
+             */
+            if (elemConfig.source === 'default' && elemConfig.value) {
+                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+
+                return new URL(
+                    this.assetFilter(`administration/administration/static/img/cms/${fileName}`),
+                    window.location.origin,
+                );
+            }
+
+            return elemConfig.value;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
 
         displayModeOptions() {

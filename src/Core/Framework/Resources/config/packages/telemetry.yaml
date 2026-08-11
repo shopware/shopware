@@ -229,3 +229,29 @@ shopware:
                             policy: open
                         operation:
                             allowed_values: [read, write, delete, none]
+
+                mail.send.count:
+                    # result=sent means the mail was handed off (default delivery is async), not delivered;
+                    # actual delivery is covered by messenger.message.handled.count (message_group=mail)
+                    description: 'Mail send handoffs, per mail group and outcome'
+                    type: 'counter'
+                    labels:
+                        # see MailGroupResolver (uses the triggering event name; mails sent outside a flow resolve to other)
+                        mail_group:
+                            policy: open
+                        result:
+                            allowed_values: [sent, failed]
+
+                mail.send.duration:
+                    # AbstractMailSender::send() enqueues the mail and returns before the transport runs, so this is
+                    # the handoff time, not the SMTP round-trip (that runs in a worker: messenger.message.handling.duration,
+                    # message_group=mail). Only a synchronous mailer transport (uncommon in prod) makes this the full send.
+                    description: 'Mail send handoff duration (AbstractMailSender::send)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [10, 50, 100, 500, 1000, 5000, 30000]
+                    labels:
+                        # failures are timed too, but kept out of the healthy distribution
+                        result:
+                            allowed_values: [sent, failed]

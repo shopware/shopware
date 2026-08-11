@@ -107,10 +107,21 @@
             seller: sellerData
         } %}
 
-        {% if page.product.deliveryTime %}
-            {% set offersData = offersData|merge({
-                shippingDetails: {
-                    '@type': 'OfferShippingDetails',
+        {% if page.product.deliveryTime or page.product.shippingFree %}
+            {% set shippingDetails = {'@type': 'OfferShippingDetails'} %}
+
+            {% if page.product.shippingFree %}
+                {% set shippingDetails = shippingDetails|merge({
+                    shippingRate: {
+                        '@type': 'MonetaryAmount',
+                        value: 0,
+                        currency: context.currency.isoCode
+                    }
+                }) %}
+            {% endif %}
+
+            {% if page.product.deliveryTime %}
+                {% set shippingDetails = shippingDetails|merge({
                     deliveryTime: {
                         '@type': 'ShippingDeliveryTime',
                         handlingTime: {
@@ -120,8 +131,10 @@
                             unitCode: 'DAY'
                         }
                     }
-                }
-            }) %}
+                }) %}
+            {% endif %}
+
+            {% set offersData = offersData|merge({shippingDetails}) %}
         {% endif %}
     {% endif %}
 

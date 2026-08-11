@@ -84,7 +84,7 @@ class UserRecoveryService
 
         if (Request::getTrustedHosts() === []) {
             // The router takes the host from the incoming request, which Symfony only validates against
-            // configured trusted hosts. Without them the host is attacker controlled.
+            // configured trusted hosts. Without them the host can't be trusted, because it's client provided, therefore we fall back to use the APP_URL
             $url = $this->buildAdministrationUrlFromAppUrl();
         } else {
             try {

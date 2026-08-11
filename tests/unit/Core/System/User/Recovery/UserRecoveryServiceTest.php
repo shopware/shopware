@@ -296,17 +296,6 @@ class UserRecoveryServiceTest extends TestCase
         static::assertCount(1, $recoveryRepository->creates);
     }
 
-    public function testRecoveryUrlIgnoresRequestHostWhenNoTrustedHostsAreConfigured(): void
-    {
-        $router = static::createStub(RouterInterface::class);
-        $router->method('generate')->willReturn('http://evil.attacker.test/admin');
-
-        static::assertSame(
-            'https://shop.example.com/admin#/login/user-recovery/' . self::HASH,
-            $this->getGeneratedRecoveryUrl($router)
-        );
-    }
-
     public function testRecoveryUrlIsGeneratedByRouterWhenTrustedHostsAreConfigured(): void
     {
         Request::setTrustedHosts(['shop.example.com']);

@@ -52,6 +52,12 @@ use Shopware\Core\Framework\Log\Package;
  * error. The reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is
  * undefined).
  *
+ * A property created in `setUp()` and re-created via `$this->dep = $this->createMock(...)` inside a test is a
+ * separate trap: the re-assignment replaces the setUp instance before the SUT (built per test) uses it, so the
+ * setUp instance is orphaned and notices with no expectation, regardless of how the re-created instance is
+ * configured. This is reported on the setUp assignment (see {@see self::ERROR_ORPHANED}); the fix is to
+ * configure the setUp instance in place rather than re-create it.
+ *
  * Abstract test classes are analysed through their concrete subclasses instead of on their own: the notice
  * fires per concrete class run, and only there are all call sites of the base fixtures visible. The inherited
  * methods of unit-test ancestors are parsed from their files and merged under the subclass (overrides win, see
@@ -67,6 +73,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_STUB = 'createMock(%s) is only used as a stub (no ->expects() is configured on it). Use createStub(%s) instead, the correct PHPUnit API for a test double without call expectations.';
 
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in %s, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
+
+    public const ERROR_ORPHANED = 'createMock(%s) is created in setUp() and re-created via `$this->... = $this->createMock(...)` in %s. Re-assigning the property replaces this instance before it is used, so it never receives an expectation and triggers the PHPUnit "no expectations" notice. Configure the setUp instance directly in those tests instead of re-creating it (or move the creation out of setUp).';
 
     /**
      * The domain-by-domain rollout is complete: every unit test suite is covered.
@@ -737,6 +745,28 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
         $errors = [];
         foreach ($assignments as $name => $propAssignments) {
+            // A property created in setUp() and re-created inside a test replaces the setUp instance
+            // before it is used, orphaning it (it never receives an expectation). Independent of the
+            // property's other usage, so checked before the off-limits bail. Reported on the setUp
+            // assignment, since that is the instance the notice fires on.
+            $setUpAssign = $setUp !== null && !$this->methodExpectsProperty($finder, $setUp, $name)
+                ? $this->propertyCreationAssign($finder, $setUp, $name)
+                : null;
+            if ($setUpAssign !== null) {
+                $reassigners = [];
+                foreach ($testMethods as $test) {
+                    if ($this->propertyCreationAssign($finder, $test, $name) !== null) {
+                        $reassigners[] = $test->name->name . '()';
+                    }
+                }
+
+                if ($reassigners !== []) {
+                    $errors[] = [$setUpAssign, self::ERROR_ORPHANED, implode(', ', $reassigners), $this->sourceFile($setUp)];
+
+                    continue;
+                }
+            }
+
             if ($this->isPropertyOffLimits($finder, $methods, $helperMethods, $ownMethods, $name)) {
                 continue;
             }
@@ -919,13 +949,21 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function methodCreatesProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
     {
+        return $this->propertyCreationAssign($finder, $method, $name) !== null;
+    }
+
+    /**
+     * The first `$this->$name = $this->createMock(...)` assignment in $method, or null if there is none.
+     */
+    private function propertyCreationAssign(NodeFinder $finder, ClassMethod $method, string $name): ?Assign
+    {
         foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
             if ($this->propertyName($assign->var) === $name && $this->isCreateMockCall($assign->expr)) {
-                return true;
+                return $assign;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

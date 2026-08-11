@@ -62,6 +62,7 @@ class ScriptApiRoute
         $scripts = $this->loader->get($hook->getName());
 
         $source = $context->getSource();
+        $isAllowedForAllApps = $context->isAllowed('app.all');
 
         /** @var Script $script */
         foreach ($scripts as $script) {
@@ -77,7 +78,7 @@ class ScriptApiRoute
                 continue;
             }
 
-            if ($context->isAllowed('app.all')) {
+            if ($isAllowedForAllApps) {
                 continue;
             }
 

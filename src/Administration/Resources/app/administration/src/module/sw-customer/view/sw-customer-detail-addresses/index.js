@@ -223,7 +223,15 @@ export default {
                 return;
             }
 
-            this.customerAddressRepository.save(this.currentAddress).then(() => {
+            let address = this.getLoadedAddress(this.currentAddress.id);
+
+            if (typeof address === 'undefined' || address === null) {
+                address = this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
+            }
+
+            Object.assign(address, this.currentAddress);
+
+            this.customerAddressRepository.save(address).then(() => {
                 this.currentAddress = null;
 
                 this.refreshList();
@@ -269,10 +277,24 @@ export default {
             this.currentAddress = null;
         },
 
-        async onEditAddress(id) {
-            // The grid pages server side, so the address is not necessarily part of the
-            // pre-loaded customer.addresses collection. Always load it by id instead.
-            this.currentAddress = await this.customerAddressRepository.get(id);
+        /**
+         * The grid loads its records page by page, while customer.addresses only ever holds the
+         * first page that was loaded with the customer. Resolve the address from the records the
+         * grid currently shows, so addresses on later pages are found as well.
+         */
+        getLoadedAddress(id) {
+            return this.$refs.addressGrid?.records?.get(id) ?? this.activeCustomer.addresses.get(id);
+        },
+
+        onEditAddress(id) {
+            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
+            // Otherwise repository save will do a POST call instead of PATCH
+            currentAddress._isNew = false;
+
+            // assign values and id to new address
+            Object.assign(currentAddress, this.getLoadedAddress(id));
+
+            this.currentAddress = currentAddress;
             this.showEditAddressModal = id;
         },
 

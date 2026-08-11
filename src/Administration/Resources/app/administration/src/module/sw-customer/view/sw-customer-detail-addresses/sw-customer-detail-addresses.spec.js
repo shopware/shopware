@@ -7,6 +7,19 @@ import { mount } from '@vue/test-utils';
 const { ShopwareError } = Shopware.Classes;
 
 async function createWrapper() {
+    // The grid pages server side, so it keeps its own records. This address sits on a later page
+    // and is therefore not part of the pre-loaded customer.addresses collection.
+    const addressOnLaterPage = {
+        id: 'address-on-later-page',
+        customerId: '1',
+        countryId: 'country-id',
+        lastName: 'Mustermann',
+        firstName: 'Max',
+        city: 'Schoeppingen',
+        street: 'Ebbinghoff 10',
+        zipcode: '48624',
+    };
+
     return mount(
         await wrapTestComponent('sw-customer-detail-addresses', {
             sync: true,
@@ -30,6 +43,19 @@ async function createWrapper() {
                     },
                     'sw-one-to-many-grid': {
                         props: ['collection'],
+                        data() {
+                            return {
+                                records: {
+                                    get: (id) => {
+                                        if (id === addressOnLaterPage.id) {
+                                            return addressOnLaterPage;
+                                        }
+
+                                        return this.collection.find((address) => address.id === id);
+                                    },
+                                },
+                            };
+                        },
                         methods: {
                             load() {},
                         },
@@ -67,7 +93,7 @@ async function createWrapper() {
                         create: () => {
                             return {
                                 search: () => Promise.resolve([]),
-                                create: () => Promise.resolve({ id: '' }),
+                                create: () => ({ id: '' }),
                                 clone: jest.fn(() =>
                                     Promise.resolve({
                                         id: 'clone-address-id',
@@ -83,21 +109,6 @@ async function createWrapper() {
                                             city: 'Berlin',
                                             street: 'Legiendamm',
                                             zipcode: '550000',
-                                        });
-                                    }
-
-                                    // Not part of the pre-loaded customer.addresses collection,
-                                    // e.g. an address on the second page of the address grid.
-                                    if (id === 'address-on-second-page') {
-                                        return Promise.resolve({
-                                            id: 'address-on-second-page',
-                                            customerId: '1',
-                                            countryId: 'country-id',
-                                            lastName: 'Mustermann',
-                                            firstName: 'Max',
-                                            city: 'Schoeppingen',
-                                            street: 'Ebbinghoff 10',
-                                            zipcode: '48624',
                                         });
                                     }
 
@@ -217,21 +228,20 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(lines.at(1).text()).toContain('Thu');
     });
 
-    it('should load the address by id when it is not part of the pre-loaded collection', async () => {
+    it('should edit an address that the grid loaded on a later page', async () => {
         await wrapper.setProps({
             customerEditMode: true,
         });
 
         expect(
-            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-second-page'),
+            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
         ).toBeUndefined();
 
-        await wrapper.vm.onEditAddress('address-on-second-page');
-        await flushPromises();
+        wrapper.vm.onEditAddress('address-on-later-page');
 
         expect(wrapper.vm.currentAddress).toEqual(
             expect.objectContaining({
-                id: 'address-on-second-page',
+                id: 'address-on-later-page',
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 street: 'Ebbinghoff 10',
@@ -239,21 +249,20 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         );
     });
 
-    it('should save the address that is currently being edited', async () => {
+    it('should save an address that the grid loaded on a later page', async () => {
         await wrapper.setProps({
             customerEditMode: true,
         });
 
-        await wrapper.vm.onEditAddress('address-on-second-page');
-        await flushPromises();
-
+        wrapper.vm.onEditAddress('address-on-later-page');
         wrapper.vm.currentAddress.city = 'Berlin';
-        await wrapper.vm.onSaveAddress();
+
+        wrapper.vm.onSaveAddress();
         await flushPromises();
 
         expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
             expect.objectContaining({
-                id: 'address-on-second-page',
+                id: 'address-on-later-page',
                 city: 'Berlin',
             }),
         );

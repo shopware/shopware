@@ -39,7 +39,9 @@
         :key="sectionIndex"
         class="sw-settings-search-live-search__explain-section"
     >
-        <h5 class="sw-settings-search-live-search__explain-section-title">{{ section.label }}</h5>
+        <h5 class="sw-settings-search-live-search__explain-section-title">
+            {{ section.label }}
+        </h5>
 
         <div
             v-for="(row, rowIndex) in section.rows"

@@ -26,7 +26,3 @@ export const SEARCH_CONFIG_FIELD_SNIPPETS = Object.freeze({
     'properties.name': 'propertiesValue',
     'options.name': 'variantValue',
 });
-
-export default {
-    SEARCH_CONFIG_FIELD_SNIPPETS,
-};

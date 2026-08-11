@@ -69,6 +69,16 @@ const documentBaseConfigRepositoryMock = {
             });
         }
 
+        if (id === 'documentConfigWithFormats') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId1',
+                config: {},
+                documentType: { id: 'documentTypeId1', technicalName: 'invoice' },
+                filenameInfixes: {},
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
@@ -106,6 +116,25 @@ const documentBaseConfigSalesChannelsRepositoryMock = {
     search: () => {
         return Promise.resolve([]);
     },
+};
+
+const documentV2ServiceMock = {
+    getAvailableTypes: jest.fn(() =>
+        Promise.resolve({
+            data: {
+                documentTypes: {
+                    invoice: {
+                        formats: [
+                            'html',
+                            'pdf',
+                            'zugferd_xml',
+                            'zugferd_embedded_pdf',
+                        ],
+                    },
+                },
+            },
+        }),
+    ),
 };
 
 const repositoryMockFactory = (entity) => {
@@ -205,6 +234,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
                     },
+                    documentV2Service: documentV2ServiceMock,
                 },
             },
             ...customOptions,
@@ -217,6 +247,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
         documentBaseConfigRepositoryMock.save.mockReset();
         documentBaseConfigRepositoryMock.save.mockResolvedValue();
+        documentV2ServiceMock.getAvailableTypes.mockClear();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
@@ -635,5 +666,72 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(
             config.displayCompanyAddress || config.displayReturnAddress,
         );
+    });
+
+    it('should render the filename settings card with the prefix and suffix fields', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        const filenameCard = wrapper.find('.sw-settings-document-detail__filename_card');
+
+        expect(filenameCard.exists()).toBe(true);
+        expect(filenameCard.attributes()['position-identifier']).toBe('sw-settings-document-detail-filename');
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_prefix').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_suffix').exists()).toBe(true);
+    });
+
+    it('should not render filename infix fields when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithFormats' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
+        expect(documentV2ServiceMock.getAvailableTypes).not.toHaveBeenCalled();
+    });
+
+    it('should render a filename infix field per supported format when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithFormats' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(documentV2ServiceMock.getAvailableTypes).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.supportedFormats).toEqual([
+            'html',
+            'pdf',
+            'zugferd_xml',
+            'zugferd_embedded_pdf',
+        ]);
+
+        const infixFields = wrapper.findAll('.sw-settings-document-detail__field_file_name_infix');
+
+        expect(infixFields).toHaveLength(4);
+
+        const infixBanner = wrapper.find('.sw-settings-document-detail__filename_infix_banner');
+
+        expect(infixBanner.exists()).toBe(true);
+        expect(infixBanner.attributes('title')).toBe('sw-settings-document.detail.filenameInfixHeadline');
+        expect(infixBanner.find('.sw-settings-document-detail__filename_infix_description').text()).toBe(
+            'sw-settings-document.detail.filenameInfixDescription',
+        );
+        expect(infixBanner.find('.sw-settings-document-detail__filename_infix_example').text()).toBe(
+            'sw-settings-document.detail.filenameInfixExample',
+        );
+    });
+
+    it('should not render the filename infix banner when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithFormats' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__filename_infix_banner').exists()).toBe(false);
     });
 });

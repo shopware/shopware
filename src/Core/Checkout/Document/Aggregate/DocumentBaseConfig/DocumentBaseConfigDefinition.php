@@ -73,6 +73,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required())->setDescription('Name of the document.'),
             (new StringField('filename_prefix', 'filenamePrefix'))->addFlags(new ApiAware())->setDescription('A prefix name added to the file name separated by an underscore.'),
             (new StringField('filename_suffix', 'filenameSuffix'))->addFlags(new ApiAware())->setDescription('A suffix name added to the file name separated by an underscore.'),
+            (new JsonField('filename_infixes', 'filenameInfixes'))->addFlags(new ApiAware())->setDescription('A map of document format to an infix added to the file name for that format, separated by an underscore.'),
             (new BoolField('global', 'global'))->addFlags(new ApiAware(), new Required())->setDescription('When set to `true`, the document can be used across all sales channels.'),
             (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware())->setDescription('Unique number associated with every document.'),
             (new StringField('page_size', 'pageSize', 32))->setDescription('The page size of the document.'),

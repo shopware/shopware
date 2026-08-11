@@ -20,6 +20,17 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
  */
 export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
 
+/**
+ * TODO: Get this from shared service
+ * @private
+ */
+export const DOCUMENT_FORMAT_LABELS = {
+    pdf: 'PDF',
+    html: 'HTML',
+    zugferd_xml: 'ZUGFeRD XML',
+    zugferd_embedded_pdf: 'ZUGFeRD embedded PDF',
+};
+
 const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';
 
 /**
@@ -364,6 +375,7 @@ export default {
         'acl',
         'feature',
         'customFieldDataProviderService',
+        'documentV2Service',
     ],
 
     mixins: [
@@ -402,6 +414,7 @@ export default {
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
+            availableDocumentTypes: null,
             showCompanySettingsMovedBanner: localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY) !== 'true',
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
@@ -436,6 +449,14 @@ export default {
 
         companyFormFields() {
             return DOCUMENT_SETTINGS_COMPANY(this.$t);
+        },
+
+        formatLabels() {
+            return DOCUMENT_FORMAT_LABELS;
+        },
+
+        supportedFormats() {
+            return this.availableDocumentTypes?.[this.documentConfig.documentType?.technicalName]?.formats ?? [];
         },
 
         documentBaseConfigRepository() {
@@ -539,10 +560,16 @@ export default {
             this.isLoading = true;
 
             try {
-                const [salesChannels] = await Promise.all([
+                const promises = [
                     this.salesChannelRepository.search(new Criteria(1, 500)),
                     this.loadCustomFieldSets(),
-                ]);
+                ];
+
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                    promises.push(this.loadAvailableDocumentTypes());
+                }
+
+                const [salesChannels] = await Promise.all(promises);
 
                 this.salesChannels = salesChannels;
 
@@ -552,6 +579,7 @@ export default {
                     this.documentConfig = this.documentBaseConfigRepository.create();
                     this.documentConfig.global = false;
                     this.documentConfig.config = { ...DOCUMENT_CONFIG_DEFAULTS };
+                    this.documentConfig.filenameInfixes = {};
                 }
             } catch (error) {
                 this.createNotificationError({
@@ -586,6 +614,8 @@ export default {
                 ...this.documentConfig.config,
             };
 
+            this.documentConfig.filenameInfixes = { ...this.documentConfig.filenameInfixes };
+
             await this.onChangeType(this.documentConfig.documentType);
 
             this.documentConfigSalesChannels = (this.documentConfig.salesChannels || []).map(
@@ -597,6 +627,12 @@ export default {
 
         async loadCustomFieldSets() {
             this.customFieldSets = await this.customFieldDataProviderService.getCustomFieldSets('document_base_config');
+        },
+
+        async loadAvailableDocumentTypes() {
+            const response = await this.documentV2Service.getAvailableTypes();
+
+            this.availableDocumentTypes = response.data.documentTypes;
         },
 
         async onChangeType(documentType) {

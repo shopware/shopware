@@ -91,6 +91,22 @@ describe('scripts/extensionTooling/report describeToolGuidance', () => {
         expect(guidance?.fix.join('\n')).not.toContain('add "extends"');
     });
 
+    it('gives a paste-ready include for a tsconfig that names no sources', () => {
+        const guidance = describeToolGuidance(
+            unwired(),
+            'TypeScript',
+            owned(
+                'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+                'the tsconfig declares no "include".',
+                'include-missing',
+            ),
+        );
+
+        expect(guidance?.fix.join('\n')).toContain('"include": ["src/**/*.ts", "src/**/*.vue"]');
+        // Same reasoning as the files-override case: the extends is already there.
+        expect(guidance?.fix.join('\n')).not.toContain('add "extends"');
+    });
+
     it('gives the concrete eslint compose snippet for an unwired bridge', () => {
         const guidance = describeToolGuidance(
             unwired(),

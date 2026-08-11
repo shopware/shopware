@@ -127,7 +127,10 @@ async function verifyVueTscCoverage(
     let files: string[];
 
     try {
-        const config = JSON.parse(resolved.output) as { files?: string[] };
+        // stdout alone, never the merged output: a Node deprecation notice on
+        // stderr would otherwise be glued onto the JSON and fail the parse,
+        // turning a healthy config into a whole-extension tooling error.
+        const config = JSON.parse(resolved.stdout) as { files?: string[] };
 
         files = (config.files ?? []).map((file) => canonicalizePath(path.resolve(path.dirname(group.configPath), file)));
     } catch {

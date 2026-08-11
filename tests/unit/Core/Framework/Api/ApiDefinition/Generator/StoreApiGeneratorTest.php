@@ -894,6 +894,33 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
     }
 
+    public function testSchemaIsGeneratedWhenNoDefinitionContributesAPhpSchema(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [DefinitionWithJsonOverride::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        set_error_handler(static function (int $errorNumber, string $message): bool {
+            throw new \ErrorException($message, 0, $errorNumber);
+        }, \E_WARNING);
+
+        try {
+            $schema = $this->generator->generate(
+                $definitionRegistry->getDefinitions(),
+                DefinitionService::STORE_API,
+                DefinitionService::TYPE_JSON_API,
+                null
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertArrayHasKey('JsonOverrideEntity', $schema['components']['schemas']);
+        static::assertArrayHasKey('jsonOnlyField', $schema['components']['schemas']['JsonOverrideEntity']['properties']);
+    }
+
     public function testPhpSchemaIsKeptWhenNoJsonSchemaExists(): void
     {
         $schema = $this->generateSchema($this->generator, null);

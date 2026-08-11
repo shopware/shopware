@@ -119,6 +119,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
+        $data['components']['schemas'] ??= [];
 
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
@@ -257,7 +258,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
     {
-        foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
+        foreach ($specsFromDefinition['components']['schemas'] ?? [] as $key => $value) {
             if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required']) && isset($specsFromDefinition['components']['schemas'][$key]['required'])) {
                 $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
                     = array_merge_recursive(

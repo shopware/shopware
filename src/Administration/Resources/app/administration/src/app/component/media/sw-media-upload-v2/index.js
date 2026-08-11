@@ -587,6 +587,19 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
+         */
+        getUploadFailureMessage(task) {
+            const detail = task?.error?.response?.data?.errors?.[0]?.detail;
+
+            if (typeof detail === 'string' && detail.length > 0) {
+                return detail;
+            }
+
+            return this.$t('global.sw-media-upload-v2.notification.failure.message');
+        },
+
         checkFileSize(file) {
             if (this.maxFileSize === null || file.size <= this.maxFileSize || file.fileSize <= this.maxFileSize) {
                 return true;

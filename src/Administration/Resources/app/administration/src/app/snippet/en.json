@@ -497,7 +497,7 @@
           "message": "Upload from local URLs not allowed."
         },
         "illegalFileType": {
-          "message": "The file \"{fileName}\" could not be uploaded. This file type is not supported."
+          "message": "The file \"{name}\" could not be uploaded. This file type is not supported."
         },
         "requestCanceled": {
           "message": "The upload has been cancelled."

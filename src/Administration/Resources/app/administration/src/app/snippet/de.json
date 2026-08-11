@@ -497,7 +497,7 @@
           "message": "Hochladen über lokale URLs nicht erlaubt."
         },
         "illegalFileType": {
-          "message": "Die Datei \"{fileName}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
+          "message": "Die Datei \"{name}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
         },
         "requestCanceled": {
           "message": "Das Hochladen wurde abgebrochen."

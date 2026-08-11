@@ -373,13 +373,12 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.createNotificationError({
-                    title: this.$t('global.default.error'),
                     message: message,
                 });
             } else {
                 messageSnippets.forEach((snippet) => {
                     this.createNotificationError({
-                        message: this.$t(snippet, { fileName: payload.fileName }),
+                        message: this.$t(snippet, { fileName: payload.fileName, name: payload.fileName }),
                     });
                 });
             }

@@ -1803,8 +1803,8 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
 
-The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term.
-The custom analyzers are sent to OpenSearch as inline `_analyze` requests with their tokenizer, char filters and filters resolved from `elasticsearch.analysis.filter`, so the command does not require an existing index that has the analyzer installed.
+The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, followed by the admin analyzers from `elasticsearch.administration.analysis.analyzer`.
+The custom analyzers are sent to OpenSearch as inline `_analyze` requests, with their tokenizer, char filters and filters resolved from the matching `elasticsearch.analysis.tokenizer`, `.char_filter` and `.filter` sections, so the command does not require an existing index that has the analyzer installed. The chains reflect `SHOPWARE_ES_DIMENSION_NORMALIZE`, so the reported tokens match the ones the live index produces. Analyzers that are not of type `custom` cannot be expressed as an inline `_analyze` body and are listed as not testable instead.
 By default only the custom analyzers are printed; pass `--all` (`-a`) to additionally run the built-in default and language analyzers (`standard`, `whitespace`, ..., `english`, `german`, ...) for comparison.
 
 ### Backward compatible invalid locales

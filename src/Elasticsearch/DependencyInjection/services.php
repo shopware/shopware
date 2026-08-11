@@ -245,8 +245,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ElasticsearchTestAnalyzerCommand::class)
         ->args([
             service(Client::class),
-            param('elasticsearch.analysis.analyzer'),
-            param('elasticsearch.analysis.filter'),
+            param('elasticsearch.analysis'),
+            param('elasticsearch.administration.analysis'),
+            param('elasticsearch.dimension_normalize'),
         ])
         ->tag('console.command');
 

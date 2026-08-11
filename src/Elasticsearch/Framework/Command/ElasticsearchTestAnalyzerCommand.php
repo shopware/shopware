@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,13 +25,14 @@ class ElasticsearchTestAnalyzerCommand extends Command
     /**
      * @internal
      *
-     * @param array<string, array<string, mixed>> $customAnalyzers analyzer definitions from elasticsearch.analysis.analyzer
-     * @param array<string, array<string, mixed>> $customFilters filter definitions from elasticsearch.analysis.filter
+     * @param array<string, mixed> $analysis the `elasticsearch.analysis` section (analyzer, tokenizer, char_filter, filter)
+     * @param array<string, mixed> $adminAnalysis the `elasticsearch.administration.analysis` section
      */
     public function __construct(
         private readonly Client $client,
-        private readonly array $customAnalyzers = [],
-        private readonly array $customFilters = [],
+        private readonly array $analysis = [],
+        private readonly array $adminAnalysis = [],
+        private readonly bool $dimensionNormalize = false,
     ) {
         parent::__construct();
     }
@@ -59,14 +61,9 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $name => $body) {
-                $body['text'] = $term;
-
-                /** @var array{'tokens': array{token: string}[]} $analyzed */
-                $analyzed = $this->client->indices()->analyze(['body' => $body]);
-
                 $rows[] = [
                     'Analyzer' => $name,
-                    'Tokens' => implode(' ', array_column($analyzed['tokens'], 'token')),
+                    'Tokens' => \is_string($body) ? $body : $this->analyze($body, $term),
                 ];
             }
 
@@ -80,8 +77,6 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - No longer used by the command. The analyzer list is now built from `elasticsearch.analysis.analyzer` (custom) and the built-in default/language analyzers via internal helpers. Will be removed.
-     *
      * @return array<string, array<string>>
      */
     protected function getAnalyzers(): array
@@ -137,44 +132,55 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
-     * Builds the table sections, each entry being an _analyze request body keyed by display name.
+     * A single unusable analyzer must not abort the whole report, so failures are rendered
+     * in place of the tokens.
      *
-     * @return array<string, array<string, array<string, mixed>>>
+     * @param array<string, mixed> $body
+     */
+    private function analyze(array $body, mixed $term): string
+    {
+        $body['text'] = $term;
+
+        try {
+            /** @var array{'tokens': array{token: string}[]} $analyzed */
+            $analyzed = $this->client->indices()->analyze(['body' => $body]);
+        } catch (\Throwable $e) {
+            return \sprintf('<error: %s>', $e->getMessage());
+        }
+
+        return implode(' ', array_column($analyzed['tokens'], 'token'));
+    }
+
+    /**
+     * Builds the table sections. Each entry is either an _analyze request body or a string
+     * explaining why the analyzer cannot be tested, keyed by display name.
+     *
+     * @return array<string, array<string, array<string, mixed>|string>>
      */
     private function getSections(bool $includeBuiltIn): array
     {
         $sections = [
-            'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies(),
+            'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies($this->analysis, $this->dimensionNormalize),
+            'Custom admin analyzers (elasticsearch.yaml)' => $this->buildCustomBodies($this->adminAnalysis, false),
         ];
 
         if (!$includeBuiltIn) {
             return $sections;
         }
 
-        $sections['Default analyzers'] = $this->buildBuiltInBodies([
-            'standard',
-            'simple',
-            'whitespace',
-            'stop',
-            'keyword',
-            'pattern',
-            'fingerprint',
-        ]);
+        foreach ($this->getAnalyzers() as $headline => $analyzers) {
+            if ($analyzers === []) {
+                continue;
+            }
 
-        $sections['Default language analyzers'] = $this->buildBuiltInBodies([
-            'arabic', 'armenian', 'basque', 'bengali', 'brazilian', 'bulgarian',
-            'catalan', 'cjk', 'czech', 'danish', 'dutch', 'english', 'finnish',
-            'french', 'galician', 'german', 'greek', 'hindi', 'hungarian',
-            'indonesian', 'irish', 'italian', 'latvian', 'lithuanian', 'norwegian',
-            'persian', 'portuguese', 'romanian', 'russian', 'sorani', 'spanish',
-            'swedish', 'turkish', 'thai',
-        ]);
+            $sections[$headline] = $this->buildBuiltInBodies($analyzers);
+        }
 
         return $sections;
     }
 
     /**
-     * @param list<string> $names
+     * @param array<string> $names
      *
      * @return array<string, array<string, mixed>>
      */
@@ -192,30 +198,49 @@ class ElasticsearchTestAnalyzerCommand extends Command
      * Resolves each configured analyzer to an inline _analyze body so it can be tested without
      * requiring a live index that has the custom analyzer installed.
      *
-     * @return array<string, array<string, mixed>>
+     * @param array<string, mixed> $analysis
+     *
+     * @return array<string, array<string, mixed>|string>
      */
-    private function buildCustomBodies(): array
+    private function buildCustomBodies(array $analysis, bool $dimensionNormalize): array
     {
+        $analyzers = $analysis['analyzer'] ?? [];
+
+        if (!\is_array($analyzers)) {
+            return [];
+        }
+
+        if ($dimensionNormalize) {
+            // Mirror what IndexCreator does when creating the index, otherwise the reported
+            // tokens differ from the ones the live index actually produces.
+            $analyzers = IndexCreator::withDimensionNormalize($analyzers);
+        }
+
         $bodies = [];
-        foreach ($this->customAnalyzers as $name => $config) {
+        foreach ($analyzers as $name => $config) {
+            if (!\is_array($config)) {
+                continue;
+            }
+
             $type = $config['type'] ?? 'custom';
 
             if ($type !== 'custom') {
-                // Built-in analyzer types (e.g. 'standard') configured with extra options — pass through.
-                $bodies[$name] = $config;
+                // _analyze accepts no `type` parameter, so a built-in analyzer type configured
+                // with extra options can only be tested against an index that has it installed.
+                $bodies[$name] = \sprintf('<not testable inline: analyzer type "%s">', \is_string($type) ? $type : \get_debug_type($type));
 
                 continue;
             }
 
             $body = [];
             if (isset($config['tokenizer'])) {
-                $body['tokenizer'] = $config['tokenizer'];
+                $body['tokenizer'] = $this->resolveReference($config['tokenizer'], $analysis['tokenizer'] ?? []);
             }
             if (isset($config['char_filter']) && \is_array($config['char_filter'])) {
-                $body['char_filter'] = $this->resolveFilters($config['char_filter']);
+                $body['char_filter'] = $this->resolveReferences($config['char_filter'], $analysis['char_filter'] ?? []);
             }
             if (isset($config['filter']) && \is_array($config['filter'])) {
-                $body['filter'] = $this->resolveFilters($config['filter']);
+                $body['filter'] = $this->resolveReferences($config['filter'], $analysis['filter'] ?? []);
             }
 
             $bodies[$name] = $body;
@@ -225,26 +250,31 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
-     * Replaces filter name references with their inline definition from elasticsearch.analysis.filter
-     * so _analyze can resolve them without hitting a real index.
-     *
      * @param array<mixed> $references
      *
      * @return list<mixed>
      */
-    private function resolveFilters(array $references): array
+    private function resolveReferences(array $references, mixed $definitions): array
     {
         $resolved = [];
         foreach ($references as $reference) {
-            if (\is_string($reference) && isset($this->customFilters[$reference])) {
-                $resolved[] = $this->customFilters[$reference];
-
-                continue;
-            }
-
-            $resolved[] = $reference;
+            $resolved[] = $this->resolveReference($reference, $definitions);
         }
 
         return $resolved;
+    }
+
+    /**
+     * Replaces a name reference with its inline definition from the matching `analysis`
+     * section (tokenizer, char_filter, filter) so _analyze can resolve it without hitting
+     * a real index. Built-in names are passed through untouched.
+     */
+    private function resolveReference(mixed $reference, mixed $definitions): mixed
+    {
+        if (\is_string($reference) && \is_array($definitions) && isset($definitions[$reference])) {
+            return $definitions[$reference];
+        }
+
+        return $reference;
     }
 }

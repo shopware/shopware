@@ -37,7 +37,7 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
 
         $commandTester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client));
 
-        static::assertSame(Command::SUCCESS, $commandTester->execute(['term' => 'Shopware Test']));
+        static::assertSame(Command::SUCCESS, $commandTester->execute(['term' => 'Shopware Test', '--all' => true]));
 
         $display = $commandTester->getDisplay();
         static::assertStringContainsString('Default analyzers', $display);
@@ -47,80 +47,179 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
 
     public function testCustomAnalyzersAreSentInlineWithResolvedFilters(): void
     {
-        $analyzers = [
-            'sw_ngram_analyzer' => [
-                'type' => 'custom',
-                'tokenizer' => 'whitespace',
-                'filter' => ['lowercase', 'sw_ngram_filter'],
+        $analysis = [
+            'analyzer' => [
+                'sw_ngram_analyzer' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'whitespace',
+                    'filter' => ['lowercase', 'sw_ngram_filter'],
+                ],
+            ],
+            'filter' => [
+                'sw_ngram_filter' => ['type' => 'ngram', 'min_gram' => 4, 'max_gram' => 5],
             ],
         ];
 
-        $filters = [
-            'sw_ngram_filter' => ['type' => 'ngram', 'min_gram' => 4, 'max_gram' => 5],
-        ];
-
-        $indices = $this->createMock(IndicesNamespace::class);
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
-
         $sentBodies = [];
-        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$sentBodies): array {
-            $sentBodies[] = $params['body'];
-
-            return ['tokens' => [['token' => 'foo']]];
-        });
-
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, $analyzers, $filters));
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $analysis));
         $tester->execute(['term' => 'foobar']);
 
-        $customBody = null;
-        foreach ($sentBodies as $body) {
-            if (($body['tokenizer'] ?? null) === 'whitespace') {
-                $customBody = $body;
-
-                break;
-            }
-        }
-
-        static::assertNotNull($customBody, 'expected custom analyzer body to be sent');
-        static::assertSame('foobar', $customBody['text']);
+        static::assertCount(1, $sentBodies);
+        static::assertSame('foobar', $sentBodies[0]['text']);
+        static::assertSame('whitespace', $sentBodies[0]['tokenizer']);
         static::assertSame(
             ['lowercase', ['type' => 'ngram', 'min_gram' => 4, 'max_gram' => 5]],
-            $customBody['filter'],
+            $sentBodies[0]['filter'],
         );
         static::assertStringContainsString('sw_ngram_analyzer', $tester->getDisplay());
     }
 
-    public function testBuiltInAnalyzersAreSkippedByDefault(): void
+    public function testCharFiltersAndTokenizersAreResolvedFromTheirOwnSections(): void
     {
-        $analyzers = [
-            'sw_whitespace_analyzer' => [
-                'type' => 'custom',
-                'tokenizer' => 'whitespace',
-                'filter' => ['lowercase'],
+        $analysis = [
+            'analyzer' => [
+                'sw_technical_term_analyzer' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'sw_edge',
+                    'char_filter' => ['sw_unit_glue', 'html_strip'],
+                    'filter' => ['lowercase'],
+                ],
+            ],
+            'tokenizer' => [
+                'sw_edge' => ['type' => 'edge_ngram', 'min_gram' => 2],
+            ],
+            'char_filter' => [
+                'sw_unit_glue' => ['type' => 'pattern_replace', 'pattern' => '(\d)\s+(\D)', 'replacement' => '$1$2'],
             ],
         ];
 
-        $indices = $this->createMock(IndicesNamespace::class);
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
-
-        $analyzedNames = [];
         $sentBodies = [];
-        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames, &$sentBodies): array {
-            $sentBodies[] = $params['body'];
-            if (isset($params['body']['analyzer'])) {
-                $analyzedNames[] = $params['body']['analyzer'];
-            }
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $analysis));
+        $tester->execute(['term' => '100 ml']);
 
-            return ['tokens' => []];
-        });
+        static::assertCount(1, $sentBodies);
+        static::assertSame(['type' => 'edge_ngram', 'min_gram' => 2], $sentBodies[0]['tokenizer']);
+        static::assertSame(
+            [
+                ['type' => 'pattern_replace', 'pattern' => '(\d)\s+(\D)', 'replacement' => '$1$2'],
+                'html_strip',
+            ],
+            $sentBodies[0]['char_filter'],
+        );
+    }
 
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, $analyzers, []));
+    #[TestDox('The reported chains match the live index when dimension normalization is enabled')]
+    public function testDimensionNormalizeIsMirroredFromIndexCreator(): void
+    {
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $this->dimensionAnalysis(), [], true));
+        $tester->execute(['term' => '5 x 70']);
+
+        static::assertCount(1, $sentBodies);
+        static::assertSame(
+            [
+                ['type' => 'pattern_replace', 'pattern' => 'dimension'],
+                ['type' => 'pattern_replace', 'pattern' => 'unit'],
+            ],
+            $sentBodies[0]['char_filter'],
+            'sw_dimension_normalize must be prepended exactly as IndexCreator does it',
+        );
+    }
+
+    public function testDimensionNormalizeIsNotAppliedWhenDisabled(): void
+    {
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $this->dimensionAnalysis()));
+        $tester->execute(['term' => '5 x 70']);
+
+        static::assertCount(1, $sentBodies);
+        static::assertSame(
+            [['type' => 'pattern_replace', 'pattern' => 'unit']],
+            $sentBodies[0]['char_filter'],
+        );
+    }
+
+    public function testAdminAnalyzersAreListedInTheirOwnSection(): void
+    {
+        $adminAnalysis = [
+            'analyzer' => [
+                'sw_admin_completion_index_analyzer' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'whitespace',
+                    'filter' => ['lowercase'],
+                ],
+            ],
+        ];
+
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), [], $adminAnalysis));
         $tester->execute(['term' => 'foo']);
 
-        static::assertNotContains('standard', $analyzedNames);
-        static::assertNotContains('german', $analyzedNames);
+        static::assertCount(1, $sentBodies);
+        static::assertStringContainsString('Custom admin analyzers', $tester->getDisplay());
+        static::assertStringContainsString('sw_admin_completion_index_analyzer', $tester->getDisplay());
+    }
+
+    public function testNonCustomAnalyzerTypesAreNotSentAsInlineBody(): void
+    {
+        $analysis = [
+            'analyzer' => [
+                'my_analyzer' => ['type' => 'standard', 'stopwords' => '_english_'],
+            ],
+        ];
+
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $analysis));
+        $tester->execute(['term' => 'foo']);
+
+        static::assertSame([], $sentBodies);
+        static::assertStringContainsString('my_analyzer', $tester->getDisplay());
+        static::assertStringContainsString('not testable inline', $tester->getDisplay());
+    }
+
+    public function testAFailingAnalyzerDoesNotAbortTheReport(): void
+    {
+        $analysis = [
+            'analyzer' => [
+                'broken_analyzer' => ['type' => 'custom', 'tokenizer' => 'nope'],
+                'sw_whitespace_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace'],
+            ],
+        ];
+
+        $indices = static::createStub(IndicesNamespace::class);
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indices);
+        $indices->method('analyze')->willReturnCallback(function (array $params): array {
+            if ($params['body']['tokenizer'] === 'nope') {
+                throw new \RuntimeException('failed to find global tokenizer under [nope]');
+            }
+
+            return ['tokens' => [['token' => 'foo']]];
+        });
+
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, $analysis));
+        $tester->execute(['term' => 'foo']);
+
+        static::assertStringContainsString('failed to find global tokenizer under [nope]', $tester->getDisplay());
+        static::assertStringContainsString('sw_whitespace_analyzer', $tester->getDisplay());
+    }
+
+    public function testBuiltInAnalyzersAreSkippedByDefault(): void
+    {
+        $analysis = [
+            'analyzer' => [
+                'sw_whitespace_analyzer' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'whitespace',
+                    'filter' => ['lowercase'],
+                ],
+            ],
+        ];
+
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $analysis));
+        $tester->execute(['term' => 'foo']);
+
         static::assertCount(1, $sentBodies, 'only the configured custom analyzer should run by default');
         static::assertStringContainsString('Custom analyzers', $tester->getDisplay());
         static::assertStringNotContainsString('Default analyzers', $tester->getDisplay());
@@ -129,26 +228,76 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
 
     public function testBuiltInAnalyzersIncludedWithAllFlag(): void
     {
-        $indices = $this->createMock(IndicesNamespace::class);
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
-
-        $analyzedNames = [];
-        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames): array {
-            if (isset($params['body']['analyzer'])) {
-                $analyzedNames[] = $params['body']['analyzer'];
-            }
-
-            return ['tokens' => []];
-        });
-
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
+        $sentBodies = [];
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), [], []));
         $tester->execute(['term' => 'foo', '--all' => true]);
+
+        $analyzedNames = array_column($sentBodies, 'analyzer');
 
         static::assertContains('standard', $analyzedNames);
         static::assertContains('german', $analyzedNames);
         static::assertContains('english', $analyzedNames);
         static::assertStringContainsString('Default analyzers', $tester->getDisplay());
         static::assertStringContainsString('Default language analyzers', $tester->getDisplay());
+    }
+
+    public function testBuiltInSectionsStillHonourGetAnalyzersOverride(): void
+    {
+        $sentBodies = [];
+        $command = new class($this->createClient($sentBodies)) extends ElasticsearchTestAnalyzerCommand {
+            /**
+             * @return array<string, array<string>>
+             */
+            protected function getAnalyzers(): array
+            {
+                return ['My analyzers' => ['my_plugin_analyzer']];
+            }
+        };
+
+        $tester = new CommandTester($command);
+        $tester->execute(['term' => 'foo', '--all' => true]);
+
+        static::assertSame([['analyzer' => 'my_plugin_analyzer', 'text' => 'foo']], $sentBodies);
+        static::assertStringContainsString('My analyzers', $tester->getDisplay());
+    }
+
+    /**
+     * One of the analyzers `IndexCreator` injects `sw_dimension_normalize` into.
+     *
+     * @return array<string, mixed>
+     */
+    private function dimensionAnalysis(): array
+    {
+        return [
+            'analyzer' => [
+                'sw_german_technical_term_index_analyzer' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'whitespace',
+                    'char_filter' => ['sw_unit_glue'],
+                ],
+            ],
+            'char_filter' => [
+                'sw_dimension_normalize' => ['type' => 'pattern_replace', 'pattern' => 'dimension'],
+                'sw_unit_glue' => ['type' => 'pattern_replace', 'pattern' => 'unit'],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $sentBodies
+     */
+    private function createClient(array &$sentBodies): Client
+    {
+        $indices = static::createStub(IndicesNamespace::class);
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$sentBodies): array {
+            $sentBodies[] = $params['body'];
+
+            return ['tokens' => [['token' => 'foo']]];
+        });
+
+        return $client;
     }
 }

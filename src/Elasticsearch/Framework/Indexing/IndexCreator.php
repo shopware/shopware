@@ -104,6 +104,47 @@ class IndexCreator
         return $this->client->indices()->existsAlias(['name' => $alias]);
     }
 
+    /**
+     * The analyzer-level part of {@see enableDimensionNormalize()}. Shared so diagnostics such as
+     * `es:test:analyzer` can reproduce the chains the live index actually uses instead of the raw
+     * `elasticsearch.yaml` ones.
+     *
+     * @internal
+     *
+     * @param array<mixed> $analyzers
+     *
+     * @return array<mixed>
+     */
+    public static function withDimensionNormalize(array $analyzers): array
+    {
+        foreach (self::TECHNICAL_TERM_ANALYZERS as $name) {
+            $analyzer = $analyzers[$name] ?? null;
+
+            if (!\is_array($analyzer)) {
+                continue;
+            }
+
+            $charFilters = $analyzer['char_filter'] ?? [];
+            \assert(\is_array($charFilters));
+
+            if (\in_array('sw_dimension_normalize', $charFilters, true)) {
+                continue;
+            }
+
+            // Prepend so the dimension regex runs before locale-scoped
+            // char_filters (e.g. sw_decimal_normalize on German) and before
+            // the universal sw_unit_glue. Order is immaterial for the
+            // canonical patterns but keeping the most-specific filter first
+            // matches the "analysis pipeline" mental model: pre-normalize
+            // specific notational variants, then bridge generic numeric
+            // boundaries.
+            $analyzer['char_filter'] = array_merge(['sw_dimension_normalize'], $charFilters);
+            $analyzers[$name] = $analyzer;
+        }
+
+        return $analyzers;
+    }
+
     private function indexExists(string $index): bool
     {
         return $this->client->indices()->exists(['index' => $index]);
@@ -127,30 +168,7 @@ class IndexCreator
             return $config;
         }
 
-        foreach (self::TECHNICAL_TERM_ANALYZERS as $analyzer) {
-            if (!isset($config['settings']['analysis']['analyzer'][$analyzer])) {
-                continue;
-            }
-
-            $charFilters = $config['settings']['analysis']['analyzer'][$analyzer]['char_filter'] ?? [];
-            \assert(\is_array($charFilters));
-
-            if (\in_array('sw_dimension_normalize', $charFilters, true)) {
-                continue;
-            }
-
-            // Prepend so the dimension regex runs before locale-scoped
-            // char_filters (e.g. sw_decimal_normalize on German) and before
-            // the universal sw_unit_glue. Order is immaterial for the
-            // canonical patterns but keeping the most-specific filter first
-            // matches the "analysis pipeline" mental model: pre-normalize
-            // specific notational variants, then bridge generic numeric
-            // boundaries.
-            $config['settings']['analysis']['analyzer'][$analyzer]['char_filter'] = array_merge(
-                ['sw_dimension_normalize'],
-                $charFilters,
-            );
-        }
+        $config['settings']['analysis']['analyzer'] = self::withDimensionNormalize($config['settings']['analysis']['analyzer']);
 
         return $config;
     }

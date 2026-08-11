@@ -165,6 +165,13 @@ route through the selector so scripted price reads respect the basis.
   changes.
 - A future exact-net mode (Alternative B) could be introduced as a third basis value without conflicting
   with this design.
+- **The `NULL` state is transitional.** At the next major (v6.8), a migration backfills `price_basis`
+  from `display_gross` (`'gross'` where the display is gross, `'net'` otherwise), the column becomes
+  `NOT NULL`, and the two fields become fully orthogonal: toggling the display mode then never changes the
+  calculation basis again. This requires an UPGRADE entry (the display toggle changes meaning) and has the
+  `'gross'` basis implementation as a prerequisite — after the backfill, switching a gross-display group
+  to net display yields the gross-basis/net-display combination. Doing this backfill already in a 6.7
+  minor was rejected, see Alternative D.
 
 ### Backwards compatibility assessment
 
@@ -214,6 +221,29 @@ with net display, both on a fixed net basis — which this design supports natur
 group is where the existing display toggle lives; keeping both toggles on one entity keeps the mental
 model coherent.
 
+### D) Backfill `price_basis` from `display_gross` immediately instead of a nullable legacy state
+
+Ship the new column `NOT NULL` and migrate every customer group to an explicit basis
+(`display_gross ? 'gross' : 'net'`) right away, avoiding the tri-state.
+
+Rejected for a 6.7 minor because the backfill turns the **live coupling** into a **snapshot** and thereby
+destroys information that cannot be reconstructed later — "this group never made an explicit choice, keep
+following the display toggle":
+
+- Toggling `display_gross` becomes a silent, money-affecting behavior change: flipping a backfilled group
+  from net to gross display produces gross display on a net basis — derived gross prices instead of the
+  stored (possibly hand-maintained) gross values — without the merchant ever opting into fixed-net
+  semantics.
+- The reverse flip (gross display → net display on a backfilled `'gross'` basis) lands in exactly the
+  combination this ADR defers, forcing the `NetPriceCalculator` conversion into scope immediately.
+- Blue-green deployment undermines `NOT NULL` anyway: field-unaware writers (old core during the rollout
+  window, plugins, ERP syncs, Admin API clients) keep inserting customer groups without the field, so the
+  column needs a single static DB default — which is necessarily wrong for half of those rows. `NULL` as
+  "coupled" is self-healing for every field-unaware writer.
+
+The backfill is the right move **at the next major**, where the semantics change is announced instead of
+silent — see Extendability.
+
 ## Consequences
 
 - Merchants can opt into fixed net proceeds with gross display per customer group. Their realized net
@@ -236,6 +266,10 @@ model coherent.
   copies of the same `if`.
 - Follow-ups enabled but not included: charm-price rounding of derived gross prices, the symmetric fixed
   gross basis, and an exact-net mode as a third basis value.
+- The `NULL` legacy state is scheduled to end with the next major: v6.8 backfills `price_basis` from
+  `display_gross`, makes the column `NOT NULL`, and decouples the two fields for good (UPGRADE entry
+  required; `'gross'` basis support is a prerequisite). Until then, `NULL` preserves the old coupling for
+  every writer that does not know the field.
 - Release documentation: RELEASE_INFO feature entry and changelog required; no UPGRADE entry (no
   third-party action needed).
 

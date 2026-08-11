@@ -223,15 +223,7 @@ export default {
                 return;
             }
 
-            let address = this.activeCustomer.addresses.get(this.currentAddress.id);
-
-            if (typeof address === 'undefined' || address === null) {
-                address = this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
-            }
-
-            Object.assign(address, this.currentAddress);
-
-            this.customerAddressRepository.save(address).then(() => {
+            this.customerAddressRepository.save(this.currentAddress).then(() => {
                 this.currentAddress = null;
 
                 this.refreshList();
@@ -277,15 +269,10 @@ export default {
             this.currentAddress = null;
         },
 
-        onEditAddress(id) {
-            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
-            // Otherwise repository save will do a POST call instead of PATCH
-            currentAddress._isNew = false;
-
-            // assign values and id to new address
-            Object.assign(currentAddress, this.activeCustomer.addresses.get(id));
-
-            this.currentAddress = currentAddress;
+        async onEditAddress(id) {
+            // The grid pages server side, so the address is not necessarily part of the
+            // pre-loaded customer.addresses collection. Always load it by id instead.
+            this.currentAddress = await this.customerAddressRepository.get(id);
             this.showEditAddressModal = id;
         },
 

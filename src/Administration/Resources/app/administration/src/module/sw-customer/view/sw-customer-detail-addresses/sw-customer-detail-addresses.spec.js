@@ -30,6 +30,9 @@ async function createWrapper() {
                     },
                     'sw-one-to-many-grid': {
                         props: ['collection'],
+                        methods: {
+                            load() {},
+                        },
                         template: `
                     <table>
                         <tbody>
@@ -70,6 +73,7 @@ async function createWrapper() {
                                         id: 'clone-address-id',
                                     }),
                                 ),
+                                save: jest.fn(() => Promise.resolve()),
                                 get: (id) => {
                                     if (id === 'clone-address-id') {
                                         return Promise.resolve({
@@ -79,6 +83,21 @@ async function createWrapper() {
                                             city: 'Berlin',
                                             street: 'Legiendamm',
                                             zipcode: '550000',
+                                        });
+                                    }
+
+                                    // Not part of the pre-loaded customer.addresses collection,
+                                    // e.g. an address on the second page of the address grid.
+                                    if (id === 'address-on-second-page') {
+                                        return Promise.resolve({
+                                            id: 'address-on-second-page',
+                                            customerId: '1',
+                                            countryId: 'country-id',
+                                            lastName: 'Mustermann',
+                                            firstName: 'Max',
+                                            city: 'Schoeppingen',
+                                            street: 'Ebbinghoff 10',
+                                            zipcode: '48624',
                                         });
                                     }
 
@@ -196,6 +215,49 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(lines.at(1).find('a').exists()).toBeTruthy();
         expect(lines.at(1).text()).toContain('Thu');
+    });
+
+    it('should load the address by id when it is not part of the pre-loaded collection', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        expect(
+            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-second-page'),
+        ).toBeUndefined();
+
+        await wrapper.vm.onEditAddress('address-on-second-page');
+        await flushPromises();
+
+        expect(wrapper.vm.currentAddress).toEqual(
+            expect.objectContaining({
+                id: 'address-on-second-page',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                street: 'Ebbinghoff 10',
+            }),
+        );
+    });
+
+    it('should save the address that is currently being edited', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        await wrapper.vm.onEditAddress('address-on-second-page');
+        await flushPromises();
+
+        wrapper.vm.currentAddress.city = 'Berlin';
+        await wrapper.vm.onSaveAddress();
+        await flushPromises();
+
+        expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'address-on-second-page',
+                city: 'Berlin',
+            }),
+        );
+        expect(wrapper.vm.currentAddress).toBeNull();
     });
 
     it('should disable address form options when edit mode is off', async () => {

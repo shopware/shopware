@@ -30,8 +30,10 @@ export const WaitForFlowValidationSideEffects = base.extend<{ WaitForFlowValidat
                     const { data: orders } = await orderResponse.json();
                     ShopAdmin.expects(orders).toHaveLength(1);
 
-                    const expectTechnicalName = (technicalName: string) => ShopAdmin.expects.objectContaining({ technicalName });
-                    const expectEntityInState = (technicalName: string) => ShopAdmin.expects.objectContaining({
+                    const expectTechnicalName = (technicalName: string) =>
+                        ShopAdmin.expects.objectContaining({ technicalName });
+                    const expectEntityInState = (technicalName: string) =>
+                        ShopAdmin.expects.objectContaining({
                             stateMachineState: expectTechnicalName(technicalName),
                         });
 

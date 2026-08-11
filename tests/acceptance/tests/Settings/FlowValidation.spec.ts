@@ -36,7 +36,6 @@ test(
 
         const order = await TestDataService.createOrder([{ product, quantity: 1 }], customer);
         TestDataService.addCreatedRecord('order', order.id);
-
         const ruleConfig = { ruleId: IdProvider.getIdPair().uuid, countryId: countryId };
         await ShopAdmin.attemptsTo(CreateRuleBillingCountry(ruleConfig));
 

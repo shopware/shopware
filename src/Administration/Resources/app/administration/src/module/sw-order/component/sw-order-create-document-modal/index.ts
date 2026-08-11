@@ -324,7 +324,7 @@ export default Component.wrapComponentConfig({
                     documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
                 } catch (_) {
                     this.createNotificationError({
-                        message: 'Error',
+                        message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
                     });
 
                     return;

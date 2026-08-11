@@ -495,7 +495,7 @@ export default {
                 });
         },
 
-        async sendDocument(documentId) {
+        async sendDocumentAction(documentId) {
             try {
                 const documentData = await this.documentRepository.get(
                     documentId,
@@ -574,7 +574,7 @@ export default {
                         );
                     }
                 } else if (additionalAction === 'send') {
-                    await this.sendDocument(documentId);
+                    await this.sendDocumentAction(documentId);
                 }
 
                 await this.finishDocumentCreation();
@@ -673,7 +673,7 @@ export default {
             }
 
             if (additionalAction === 'send') {
-                await this.sendDocument(documentId);
+                await this.sendDocumentAction(documentId);
             }
 
             await this.finishDocumentCreation();

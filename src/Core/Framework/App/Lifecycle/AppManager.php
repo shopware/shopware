@@ -102,7 +102,8 @@ class AppManager
 
         // A pending secret marks a registration that never confirmed. Recover before validation so a
         // completed app's credential repair isn't blocked by a later compatibility change.
-        if ($app?->getUnconfirmedAppSecrets() !== null) {
+        if ($app?->getUnconfirmedAppSecrets() !== null
+            || $this->deletedAppsGateway->getDeletedAppUnconfirmedSecrets($appName) !== null) {
             $this->recoverInstallation($manifest, $parameters, $app, $context);
 
             return;
@@ -282,11 +283,27 @@ class AppManager
     private function recoverInstallation(
         Manifest $manifest,
         AppInstallParameters $parameters,
-        AppEntity $app,
+        ?AppEntity $app,
         Context $context
     ): void {
-        // Re-read: another installation may have completed recovery in the meantime.
-        $app = $this->loadApp($app->getId(), $context);
+        if ($app === null) {
+            // Nothing survived the uninstall but the pending candidates, so re-create the row for the recovery
+            // below. The integration credentials minted here are throwaway: the rotation issues its own.
+            $defaultLocale = $this->getDefaultLocale($context);
+            $metadata = $this->enrichInstallMetadata($manifest, $manifest->getMetadata()->toArray($defaultLocale), Uuid::randomHex());
+
+            $app = $this->persistAppMetadata(
+                $manifest,
+                new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
+                $metadata,
+                Uuid::randomHex(),
+                $context
+            );
+        } else {
+            // Re-read: another installation may have completed recovery in the meantime.
+            $app = $this->loadApp($app->getId(), $context);
+        }
+
         if ($app->getUnconfirmedAppSecrets() === null) {
             throw AppException::alreadyInstalled($app->getName());
         }
@@ -398,6 +415,42 @@ class AppManager
     ): AppEntity {
         // accessToken is not set on update, but in that case we don't run registration, so we won't need it
         $secretAccessKey = $metadata['accessToken'] ?? '';
+
+        $app = $this->persistAppMetadata($manifest, $parameters, $metadata, $id, $context);
+
+        // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
+        // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
+        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
+        // in that case we still need to run the registration to rotate that secret
+        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
+            try {
+                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
+            } catch (AppRegistrationException $e) {
+                // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting
+                // the app would lose it — keep the half-installed app for a later installation repair.
+                if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
+                    $this->removeAppData($app, $context);
+                }
+
+                throw $e;
+            }
+        }
+
+        return $this->persistAppAfterRegistration($manifest, $id, $defaultLocale, $context, $install);
+    }
+
+    /**
+     * Writes the parts of the app that do not depend on the registration handshake — everything but the secret.
+     *
+     * @param array<string, mixed> $metadata
+     */
+    private function persistAppMetadata(
+        Manifest $manifest,
+        AppUpdateParameters $parameters,
+        array $metadata,
+        string $id,
+        Context $context
+    ): AppEntity {
         unset($metadata['accessToken'], $metadata['icon']);
         $metadata['path'] = str_replace($this->projectDir . '/', '', $manifest->getPath());
         $metadata['id'] = $id;
@@ -426,25 +479,7 @@ class AppManager
             $context
         );
 
-        // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
-        // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
-        // additionally during install it might happen that we still have an old secret stored for the app from a previous installation
-        // in that case we still need to run the registration to rotate that secret
-        if ((!$app->getAppSecret() || $install) && $manifest->getSetup()) {
-            try {
-                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
-            } catch (AppRegistrationException $e) {
-                // An ambiguous failure leaves an unconfirmed secret the app may already hold, so deleting
-                // the app would lose it — keep the half-installed app for a later installation repair.
-                if ($this->loadApp($id, $context)->getUnconfirmedAppSecrets() === null) {
-                    $this->removeAppData($app, $context);
-                }
-
-                throw $e;
-            }
-        }
-
-        return $this->persistAppAfterRegistration($manifest, $id, $defaultLocale, $context, $install);
+        return $app;
     }
 
     private function persistAppAfterRegistration(
@@ -584,6 +619,9 @@ class AppManager
         $oldSecret = $this->deletedAppsGateway->getDeletedAppSecret($appName);
         if ($oldSecret !== null) {
             $metadata['appSecret'] = $oldSecret;
+            // The candidates on the row are what mark the install unfinished for the recovery guard, the
+            // cleanup guard in persistApp, and app:refresh, which would otherwise uninstall and drop them.
+            $metadata['unconfirmedAppSecrets'] = $this->deletedAppsGateway->getDeletedAppUnconfirmedSecrets($appName);
         }
 
         return $metadata;

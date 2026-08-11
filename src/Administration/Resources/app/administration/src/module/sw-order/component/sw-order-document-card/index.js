@@ -481,15 +481,12 @@ export default {
         downloadDocumentArchive(documentId) {
             return this.documentV2ApiService
                 .getDocumentArchive(documentId)
-                .then((response) => {
-                    if (response.data) {
-                        const filename = fileReaderUtils.getFilenameFromResponse(response);
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(response.data);
-                        link.download = filename;
-                        link.dispatchEvent(new MouseEvent('click'));
-                        link.remove();
-                    }
+                .then((documentFileResponse) => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(documentFileResponse.file);
+                    link.download = documentFileResponse.fileName;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -565,8 +562,13 @@ export default {
                 const documentId = documentCreateResponse.documentId;
 
                 if (additionalAction === 'download') {
-                    const fileType = this.isXmlDocument ? FILE_FORMATS.ZUGFERD_XML : FILE_FORMATS.PDF;
-                    this.downloadDocument(documentId, null, fileType);
+                    const formats = documentCreateResponse.formats ?? params.requestedFileFormats ?? [];
+
+                    if (formats.length > 1) {
+                        await this.downloadDocumentArchive(documentId);
+                    } else {
+                        this.downloadDocument(documentId, null, this.documentV2Service.getPreferredFileFormat(formats, FILE_FORMATS.PDF));
+                    }
                 } else if (additionalAction === 'send') {
                     await this.sendDocument(documentId);
                 }

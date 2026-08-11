@@ -146,6 +146,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.admin_worker.enable_admin_worker'),
             service(WebhookDeliveryService::class),
             service(WebhookOutboxStore::class),
+            tagged_iterator('shopware.webhook.authorizer'),
         ]);
 
     $services->set(WebhookCacheClearer::class)

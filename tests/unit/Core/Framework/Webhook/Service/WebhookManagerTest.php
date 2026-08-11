@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\Framework\Webhook\HookableAuthorizer;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -245,6 +246,58 @@ class WebhookManagerTest extends TestCase
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
         static::assertEmpty($messages);
+    }
+
+    public function testAnAuthorizerCanAllowAnEventTheAppHasNoPrivilegeFor(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, []);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        $this->getWebhookManager(false, [$this->authorizer(true)])->dispatch($event);
+
+        static::assertCount(1, $this->bus->getMessages());
+    }
+
+    public function testAnAuthorizerCanDenyAnEventTheAppHasThePrivilegeFor(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, ['product:read']);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        $this->getWebhookManager(false, [$this->authorizer(false)])->dispatch($event);
+
+        static::assertEmpty($this->bus->getMessages());
+    }
+
+    public function testAnAuthorizerThatDoesNotSupportTheEventLeavesThePrivilegeCheckInPlace(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, []);
+
+        $unsupporting = static::createStub(HookableAuthorizer::class);
+        $unsupporting->method('supports')->willReturn(false);
+        $unsupporting->method('isAllowed')->willReturn(true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        $this->getWebhookManager(false, [$unsupporting])->dispatch($event);
+
+        static::assertEmpty($this->bus->getMessages());
+    }
+
+    public function testTheFirstSupportingAuthorizerDecides(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, ['product:read']);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        $this->getWebhookManager(false, [$this->authorizer(false), $this->authorizer(true)])->dispatch($event);
+
+        static::assertEmpty($this->bus->getMessages());
     }
 
     public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
@@ -547,7 +600,19 @@ class WebhookManagerTest extends TestCase
         return $webhook;
     }
 
-    private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
+    private function authorizer(bool $allows): HookableAuthorizer
+    {
+        $authorizer = static::createStub(HookableAuthorizer::class);
+        $authorizer->method('supports')->willReturn(true);
+        $authorizer->method('isAllowed')->willReturn($allows);
+
+        return $authorizer;
+    }
+
+    /**
+     * @param list<HookableAuthorizer> $hookableAuthorizers
+     */
+    private function getWebhookManager(bool $isAdminWorkerEnabled, array $hookableAuthorizers = []): WebhookManager
     {
         $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
@@ -570,6 +635,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
+            $hookableAuthorizers,
         );
     }
 

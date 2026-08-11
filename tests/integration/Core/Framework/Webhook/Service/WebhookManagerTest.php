@@ -1610,6 +1610,7 @@ class WebhookManagerTest extends TestCase
             $adminWorkerEnabled,
             static::getContainer()->get(WebhookDeliveryService::class),
             static::getContainer()->get(WebhookOutboxStore::class),
+            [],
         );
     }
 

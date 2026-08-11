@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -73,7 +74,7 @@ class UserDefinition extends EntityDefinition
 
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection
@@ -88,7 +89,9 @@ class UserDefinition extends EntityDefinition
             (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
-            new BoolField('admin', 'admin'),
+            // The regular Admin API CRUD endpoint authorizes elevated admin changes in the controller; direct DAL writes remain write-protected.
+            // @see \Shopware\Core\Framework\Api\Controller\UserController
+            (new BoolField('admin', 'admin'))->addFlags((new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi()),
             new DateTimeField('last_updated_password_at', 'lastUpdatedPasswordAt'),
             (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required()),
             new CustomFields(),

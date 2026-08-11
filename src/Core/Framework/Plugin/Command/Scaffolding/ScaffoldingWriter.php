@@ -49,9 +49,9 @@ class ScaffoldingWriter
             return;
         }
 
-        $existing = file_get_contents($file);
+        $existing = $this->filesystem->readFile($file);
 
-        if ($existing === false || str_contains($existing, $content)) {
+        if (str_contains($existing, $content)) {
             return;
         }
 

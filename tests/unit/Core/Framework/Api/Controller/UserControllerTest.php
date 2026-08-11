@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
@@ -109,6 +110,7 @@ class UserControllerTest extends TestCase
             static::createStub(EntityRepository::class),
             $userDefinition ?? static::createStub(UserDefinition::class),
             $ssoService ?? static::createStub(SsoService::class),
+            static::createStub(Connection::class),
         );
     }
 }

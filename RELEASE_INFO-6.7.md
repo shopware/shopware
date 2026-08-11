@@ -867,6 +867,17 @@ The service registry decides which Shopware Services a shop installs and where t
 
 Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
+## Administration
+
+### `integrationService.updateAdmin()` is deprecated
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
 # 6.7.13.0
 
 ## Critical Fixes

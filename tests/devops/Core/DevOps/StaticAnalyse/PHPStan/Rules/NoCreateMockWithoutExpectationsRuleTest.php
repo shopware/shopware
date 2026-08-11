@@ -80,6 +80,14 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'PropertyDependency::class', 'PropertyDependency::class'),
                 228, // helper only stub-configures the property and forwards it into the SUT constructor
             ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_ORPHANED, 'PropertyDependency::class', 'testReCreates()'),
+                282, // setUp instance orphaned by a test re-creating the property
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_ORPHANED, 'PropertyDependency::class', 'testReCreates()'),
+                306, // orphaned only in the re-creating test; the other configures the setUp instance
+            ],
             // NOT flagged: 78 (expected in every test), 106 (->expects()-ed via a helper the test calls),
             // 169 (setUp reaches the ->expects()-ing helper, covering every test),
             // 255 (a helper hands the property to a call the rule cannot resolve)

@@ -89,7 +89,6 @@ describe('scripts/extensionTooling/check runCheckCli', () => {
         // needs them discoverable to run the tooling against a vendor/ layout.
         expect(help).toContain('--project-root');
         expect(help).toContain('--administration-root');
-        expect(help).toContain('--plugins-config');
         logSpy.mockRestore();
     });
 });

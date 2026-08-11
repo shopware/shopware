@@ -79,12 +79,16 @@ describe('scripts/extensionTooling/report describeToolGuidance', () => {
             owned(
                 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
                 'own "files" replaces the bridge — see tsconfig.aliases.json.',
+                'files-override',
             ),
         );
 
         expect(guidance?.why).toContain('"files"');
         expect(guidance?.why).toContain('tsconfig.aliases.json');
-        expect(guidance?.fix.join('\n')).toContain('remove own "files"');
+        expect(guidance?.fix.join('\n')).toContain('remove the own "files" array');
+        // The reported bug: the config already has its "extends", so telling the
+        // reader to add one contradicts the "why" printed right above.
+        expect(guidance?.fix.join('\n')).not.toContain('add "extends"');
     });
 
     it('gives the concrete eslint compose snippet for an unwired bridge', () => {

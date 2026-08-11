@@ -29,9 +29,33 @@ const BRIDGE_ESLINT_LINES = [
 ];
 
 /**
+ * The concrete step that fixes this config's defect. Derived from the verdict's
+ * `reason` rather than from the extension's state, so a tsconfig that already
+ * carries its `extends` is told to drop its `files` array instead of being sent
+ * to add an `extends` it has.
+ */
+export function describeConfigFix(tool: 'TypeScript' | 'ESLint', config: OwnedConfig): string[] {
+    if (tool === 'ESLint') {
+        return [
+            'compose the bridge in the eslint config:',
+            ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`),
+        ];
+    }
+
+    switch (config.reason) {
+        case 'files-override':
+            return ['remove the own "files" array from the tsconfig — the bridge provides the type surface.'];
+        case 'unreadable':
+            return ['repair the tsconfig so it parses, then re-run setup.'];
+        default:
+            return [`add ${BRIDGE_TSCONFIG_LINE} to the tsconfig.`];
+    }
+}
+
+/**
  * One `why:` and one `fix:` for a skipped tool. The human "why" comes from the
- * config's own drift detail; the "fix" is state-specific, never suggesting a
- * step the project's facts prove was already done.
+ * config's own drift detail; the "fix" is defect-specific, never suggesting a
+ * step the config's own facts prove was already done.
  */
 export function describeToolGuidance(
     project: ExtensionToolingProject,
@@ -55,20 +79,7 @@ export function describeToolGuidance(
         return { why, fix: [] };
     }
 
-    if (tool === 'TypeScript') {
-        return {
-            why,
-            fix: [`add ${BRIDGE_TSCONFIG_LINE} to the plugin tsconfig and remove own "files" / "types" overrides.`],
-        };
-    }
-
-    return {
-        why,
-        fix: [
-            'compose the bridge in the config:',
-            ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`),
-        ],
-    };
+    return { why, fix: describeConfigFix(tool, config) };
 }
 
 /**

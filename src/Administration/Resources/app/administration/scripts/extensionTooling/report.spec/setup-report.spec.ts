@@ -23,10 +23,30 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         tsconfig: owned('custom/plugins/Bridged/src/Resources/app/administration/tsconfig.json'),
         eslintConfig: owned('custom/plugins/Bridged/src/Resources/app/administration/eslint.config.mjs'),
     });
+    // Its tsconfig already extends the bridge; an own "files" array is what
+    // breaks composition, so its remediation must not mention "extends".
     const unwired = project('Unwired', {
         bridgePresent: true,
-        tsconfig: owned('custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json', 'own "files" array'),
+        tsconfig: owned(
+            'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json',
+            'own "files" array',
+            'files-override',
+        ),
         eslintConfig: owned('custom/plugins/Unwired/src/Resources/app/administration/eslint.config.mjs'),
+    });
+    // Same bucket, the opposite defect: no extends at all, and an eslint config
+    // that never composes the factory.
+    const unwiredNoExtends = project('UnwiredBare', {
+        bridgePresent: true,
+        tsconfig: owned(
+            'custom/plugins/UnwiredBare/src/Resources/app/administration/tsconfig.json',
+            'the extends chain does not reach the preset',
+        ),
+        eslintConfig: owned(
+            'custom/plugins/UnwiredBare/src/Resources/app/administration/eslint.config.mjs',
+            'the config does not compose the factory',
+            'factory-missing',
+        ),
     });
 
     it('classifies every bucket and gives each uncovered one its action', () => {
@@ -36,6 +56,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
                 needsBridge,
                 bridged,
                 unwired,
+                unwiredNoExtends,
             ]),
         );
 
@@ -50,6 +71,27 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
         // The per-config drift detail names the trap the bucket note cannot.
         expect(output).toContain('Unwired: own "files" array');
         expect(output).not.toContain('--shim');
+    });
+
+    // The reported bug: one bucket-wide "add extends" action was printed for
+    // every unwired extension, including the ones whose extends was already
+    // there and whose real problem was an own "files" array.
+    it('gives each unwired config the fix for its own defect', () => {
+        const output = setupReport(
+            setupResult([
+                unwired,
+                unwiredNoExtends,
+            ]),
+        );
+        const unwiredBlock = output.slice(output.indexOf('Unwired: own "files" array'), output.indexOf('UnwiredBare:'));
+
+        expect(unwiredBlock).toContain('remove the own "files" array');
+        expect(unwiredBlock).not.toContain('add "extends"');
+
+        const bareBlock = output.slice(output.indexOf('UnwiredBare:'));
+
+        expect(bareBlock).toContain('add "extends": "./.shopware/tsconfig.json"');
+        expect(bareBlock).toContain("import shopware from './.shopware/eslint.mjs'");
     });
 
     it('gives a fully composing extension no action lines', () => {

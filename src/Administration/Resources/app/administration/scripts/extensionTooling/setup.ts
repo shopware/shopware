@@ -44,8 +44,8 @@ import {
     resolveToolingCommands,
     writeStateFile,
 } from './shared';
-import type { ExtensionToolingManifest, WriteResult } from './shared';
-import { record, toManifestState } from './setup-context';
+import type { ExtensionToolingManifest, SetupWarning, WriteResult } from './shared';
+import { record, toManifestState, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
 import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
@@ -76,7 +76,7 @@ export interface SetupExtensionToolingResult {
     writes: WriteResult[];
     /** Files of removed extensions that were (or would be) deleted. */
     staleFiles: string[];
-    warnings: string[];
+    warnings: SetupWarning[];
     /** Human instructions for user-owned files and IDEs we never write to. */
     instructions: string[];
     /** True when anything was (or would be) created, updated, or deleted. */
@@ -94,7 +94,8 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
         modulePath,
     ] of Object.entries(hostModules)) {
         if (!fs.existsSync(path.join(context.administrationRoot, modulePath))) {
-            context.warnings.push(
+            warn(
+                context,
                 `Host module "${moduleName}" is declared in host-modules.json but ${modulePath} does not exist ` +
                     'in the installed Administration.',
             );
@@ -133,7 +134,8 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         if (known) {
             rootConfigDirs[options.rootConfig.extension] = options.rootConfig.dir;
         } else {
-            context.warnings.push(
+            warn(
+                context,
                 `--root-config names the unknown extension ${options.rootConfig.extension}. ` +
                     `Discovered extensions: ${
                         discovered
@@ -164,7 +166,8 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     );
 
     if (!entitySchemaAvailable) {
-        context.warnings.push(
+        warn(
+            context,
             'Entity schema types are not available — entity names cannot be type-checked. ' +
                 `Run \`${context.commands.generateSchema}\`.`,
         );

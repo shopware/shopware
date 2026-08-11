@@ -46,28 +46,49 @@ function modeLabel(resolution: OwnedConfig | null): string {
     return resolution.composes ? 'bridged' : 'unmanaged';
 }
 
+/** How many new findings are listed by identity before the rest collapse into a count. */
+const MAX_LISTED_NEW_FINDINGS = 10;
+
 /**
- * Baseline annotations for a tool run: the new findings are pointed at by
- * identity so they can be found among the verbatim baselined ones, and a stale
- * count nudges toward a re-baseline. Empty unless a baseline is in play.
+ * The findings that actually fail the run, listed one per line under their own
+ * heading. The raw tool output below carries new and baselined findings mixed
+ * together in the tool's own order, so without this block the reader cannot tell
+ * which of them has to be fixed to get back to green.
+ */
+function newFindingBlock(run: ToolRunResult): string[] {
+    const refs = run.newFindingRefs ?? [];
+
+    if (run.status !== 'failed' || refs.length === 0) {
+        return [];
+    }
+
+    const shown = refs.slice(0, MAX_LISTED_NEW_FINDINGS);
+    const overflow = refs.length - shown.length;
+    const lines = [
+        colors.red(`      new — must fix to pass (${refs.length}):`),
+        ...shown.map((ref) => colors.dim(`        ${ref.file} · ${ref.code}`)),
+    ];
+
+    if (overflow > 0) {
+        lines.push(colors.dim(`        … and ${overflow} more`));
+    }
+
+    return lines;
+}
+
+/**
+ * Baseline annotations for a tool run: a stale count nudges toward a
+ * re-baseline. Empty unless a baseline is in play.
  */
 function baselineNotes(run: ToolRunResult): string[] {
     const notes: string[] = [];
-    const refs = run.newFindingRefs ?? [];
-
-    if (run.status === 'failed' && (run.baselinedFindings ?? 0) > 0 && refs.length > 0) {
-        const shown = refs.slice(0, 10).map((ref) => `${ref.file} · ${ref.code}`);
-        const overflow = refs.length > shown.length ? `, … (+${refs.length - shown.length})` : '';
-
-        notes.push(colors.dim(`      new (not baselined): ${shown.join(', ')}${overflow}`));
-    }
 
     if ((run.staleBaseline ?? 0) > 0) {
         const count = run.staleBaseline ?? 0;
 
         notes.push(
             colors.dim(
-                `      ⚠ ${count} baseline entr${count === 1 ? 'y' : 'ies'} no longer match — ` +
+                `      ⚠ ${count} baseline ${count === 1 ? 'entry no longer matches' : 'entries no longer match'} — ` +
                     'prune with -- --update-baseline',
             ),
         );
@@ -200,11 +221,17 @@ function renderToolRow(
         return { lines, unmanaged };
     }
 
-    lines.push(...baselineNotes(run));
+    lines.push(...baselineNotes(run), ...newFindingBlock(run));
 
     const showOutput = run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
     if (showOutput && run.output.trim() !== '') {
+        // Naming what the dump contains keeps it from being read as the fix
+        // list: with a baseline in play most of these lines are suppressed.
+        if ((run.baselinedFindings ?? 0) > 0) {
+            lines.push(colors.dim(`      full ${tool} output (new + ${run.baselinedFindings} baselined):`));
+        }
+
         lines.push(indent(run.output.trim(), '      '));
     }
 

@@ -248,6 +248,48 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         ]);
     });
 
+    it('scopes setup warnings to the selection but keeps the project-global ones', async () => {
+        // Setup always runs over every installed extension, so without scoping
+        // a --only run would report extensions it never checks.
+        fs.rmSync(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'));
+
+        for (const name of [
+            'Selected',
+            'Unwired',
+        ]) {
+            writeFile(path.join(projectRoot, `custom/plugins/${name}/composer.json`), '{}\n');
+            writeFile(path.join(projectRoot, `custom/plugins/${name}/src/Resources/app/administration/src/main.ts`), [
+                'export {};',
+            ]);
+        }
+
+        writeFile(path.join(projectRoot, 'custom/plugins/Unwired/src/Resources/app/administration/tsconfig.json'), [
+            '{ "compilerOptions": { "strict": true } }',
+        ]);
+        writePluginsConfig(
+            projectRoot,
+            [
+                'Selected',
+                'Unwired',
+            ].map((name) => ({
+                technicalName: name,
+                basePath: `custom/plugins/${name}/src`,
+                administrationPath: 'Resources/app/administration/src',
+            })),
+        );
+
+        const all = await checkExtensions({ projectRoot, administrationRoot });
+
+        expect(all.warnings.join('\n')).toContain('Unwired');
+
+        const scoped = await checkExtensions({ projectRoot, administrationRoot, only: 'Selected' });
+
+        expect(scoped.warnings.join('\n')).not.toContain('Unwired');
+        // A missing entity schema is not one extension's problem — it affects
+        // the selected run too, so it must survive the filter.
+        expect(scoped.warnings.join('\n')).toContain('Entity schema types are not available');
+    });
+
     it('visibly skips custom configs that do not compose the Shopware preset', async () => {
         linkRealToolchain(administrationRoot);
         writeFile(path.join(projectRoot, 'custom/plugins/Probe/composer.json'), '{}\n');

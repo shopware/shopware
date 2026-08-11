@@ -16,7 +16,16 @@ const MAX_BUFFER = 100 * 1024 * 1024;
 
 export interface CommandResult {
     status: number;
+    /** Both streams merged — what a human reads. Never parse machine-readable output from this. */
     output: string;
+    /**
+     * stdout alone. A tool's machine-readable surface (`--showConfig` JSON,
+     * `--print-config` JSON) must be read from here: a child process is free to
+     * print an unrelated warning to stderr, and the merged `output` would then
+     * no longer parse.
+     */
+    stdout: string;
+    stderr: string;
     durationMs: number;
     timedOut: boolean;
 }
@@ -39,6 +48,8 @@ export async function runCommand(command: string, args: string[], cwd: string): 
         return {
             status: 0,
             output: joinCommandOutput(stdout, stderr),
+            stdout: stdout ?? '',
+            stderr: stderr ?? '',
             durationMs: Date.now() - startedAt,
             timedOut: false,
         };
@@ -53,6 +64,8 @@ export async function runCommand(command: string, args: string[], cwd: string): 
         return {
             status: typeof failure.code === 'number' ? failure.code : 1,
             output: joinCommandOutput(failure.stdout, failure.stderr) || failure.message,
+            stdout: failure.stdout ?? '',
+            stderr: failure.stderr ?? '',
             durationMs: Date.now() - startedAt,
             timedOut: failure.killed === true,
         };

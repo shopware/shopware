@@ -10,7 +10,7 @@
 
 import path from 'path';
 import { relativePosix } from './shared';
-import type { ManagedFileState, ManifestFileState, ToolingCommands, WriteResult } from './shared';
+import type { ManagedFileState, ManifestFileState, SetupWarning, ToolingCommands, WriteResult } from './shared';
 
 export interface GeneratorContext {
     projectRoot: string;
@@ -21,8 +21,13 @@ export interface GeneratorContext {
     commands: ToolingCommands;
     writes: WriteResult[];
     staleFiles: string[];
-    warnings: string[];
+    warnings: SetupWarning[];
     instructions: string[];
+}
+
+/** Books a warning; pass `extension` whenever the warning is about one extension rather than the project. */
+export function warn(context: GeneratorContext, message: string, extension?: string): void {
+    context.warnings.push(extension === undefined ? { message } : { message, extension });
 }
 
 export function record(context: GeneratorContext, result: WriteResult): ManagedFileState {

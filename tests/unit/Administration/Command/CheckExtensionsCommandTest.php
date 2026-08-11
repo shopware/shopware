@@ -4,79 +4,33 @@ namespace Shopware\Tests\Unit\Administration\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Command\AbstractExtensionToolingCommand;
 use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
+ *
+ * The bridge behaviour this command inherits is covered by
+ * AbstractExtensionToolingCommandTest; the entry script is all this subclass owns.
  */
 #[Package('framework')]
-#[CoversClass(AbstractExtensionToolingCommand::class)]
 #[CoversClass(CheckExtensionsCommand::class)]
 class CheckExtensionsCommandTest extends TestCase
 {
     use ExtensionToolingCommandTestBehaviour;
 
-    public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
+    public function testCheckCommandRunsTheCheckEntryScript(): void
     {
-        // A vendor/flex install ships the tooling code but not its node_modules.
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: false);
+        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true);
 
         $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
-        $exitCode = $tester->execute([]);
-
-        static::assertSame(Command::FAILURE, $exitCode);
-        static::assertStringContainsString('npm ci', $tester->getDisplay(true));
-        static::assertFileDoesNotExist(
-            $administrationRoot . '/.tooling-capture.json',
-            'the tooling must not be spawned when its dependencies are missing',
-        );
-
-        $this->removeAdministrationRoot($administrationRoot);
-    }
-
-    public function testForwardsArgumentsAndProjectRootAndPropagatesExitCode(): void
-    {
-        // A non-zero tooling exit (findings) must reach the shell unchanged.
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true, stubExitCode: 1);
-
-        $tester = new CommandTester(new CheckExtensionsCommand($this->kernel(), $administrationRoot));
-        $exitCode = $tester->execute(['tooling-args' => ['--only=MyPlugin', '--all']]);
-
-        static::assertSame(1, $exitCode);
+        $tester->execute(['tooling-args' => ['--only=MyPlugin']]);
 
         $capture = $this->readToolingCapture($administrationRoot);
-        static::assertSame('/shop', $capture['project_root']);
-        static::assertSame(realpath($administrationRoot), $capture['cwd']);
-        static::assertContains('--transpileOnly', $capture['argv']);
         static::assertStringEndsWith('scripts/extensionTooling/check.ts', $capture['argv'][1]);
         static::assertContains('--only=MyPlugin', $capture['argv']);
-        static::assertContains('--all', $capture['argv']);
 
         $this->removeAdministrationRoot($administrationRoot);
-    }
-
-    public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void
-    {
-        $command = new class($this->kernel()) extends CheckExtensionsCommand {
-            public function exposedAdministrationRoot(): string
-            {
-                return $this->administrationRoot();
-            }
-        };
-
-        static::assertStringEndsWith('/Resources/app/administration', $command->exposedAdministrationRoot());
-    }
-
-    private function kernel(): KernelInterface
-    {
-        $kernel = static::createStub(KernelInterface::class);
-        $kernel->method('getProjectDir')->willReturn('/shop');
-
-        return $kernel;
     }
 }

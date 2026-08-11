@@ -10,7 +10,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { canonicalizePath, firstDrift, relativePosix, SHIM_DIR_NAME, toPosix } from './shared';
+import { firstDrift, relativePosix, relativizeToolOutput, SHIM_DIR_NAME, toPosix } from './shared';
 import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig, ToolingCommands } from './shared';
 import { DEFAULT_TOOLING_COMMANDS } from './shared';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
@@ -57,24 +57,6 @@ export function specTsconfigPath(target: AdministrationTarget): string {
     const bridgeParent = target.tsconfig?.composes ? path.posix.dirname(target.tsconfig.path) : target.adminFolder;
 
     return path.posix.join(bridgeParent, SHIM_DIR_NAME, 'tsconfig.specs.json');
-}
-
-/**
- * ESLint prints absolute paths (vue-tsc already prints project-relative ones
- * because of its cwd). Strip the project root — including its canonicalized
- * form, macOS resolves /var to /private/var — so both tools read the same.
- */
-export function relativizeToolOutput(output: string, projectRoot: string): string {
-    let relativized = output;
-
-    for (const root of new Set([
-        projectRoot,
-        canonicalizePath(projectRoot),
-    ])) {
-        relativized = relativized.split(`${root}${path.sep}`).join('');
-    }
-
-    return relativized;
 }
 
 export function buildEslintArguments(

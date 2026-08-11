@@ -9,8 +9,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import { record } from './setup-context';
+import { record, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
+import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
+import { describeConfigFix } from './report-guidance';
 import {
     BRIDGE_ESLINT_SPECIFIER,
     BRIDGE_TSCONFIG_EXTENDS,
@@ -18,6 +20,7 @@ import {
     SHIM_DIR_NAME,
     asRelativeSpecifier,
     isGeneratedContent,
+    relativePosix,
     toPosix,
     writeManagedFile,
     writeScaffoldFile,
@@ -41,6 +44,31 @@ export const SPEC_FILE_SUFFIXES = [
     'spec.tsx',
     'spec.js',
 ];
+
+/** Collapses a multi-line fix into one warning sentence — the indentation only reads in the report's tree. */
+function flattenFix(fix: string[]): string {
+    return fix.map((line) => line.trim()).join(' ');
+}
+
+/**
+ * The settings as a paste-ready JSON fragment: one `"key": value,` per line,
+ * indented to sit inside an existing object. The trailing comma is dropped on
+ * the last entry, so the block is valid wherever it is pasted — appended to a
+ * settings object that already has entries, or as the whole body.
+ */
+function settingsFragment(settings: Record<string, unknown>): string[] {
+    const entries = Object.entries(settings);
+
+    return entries.map(
+        (
+            [
+                name,
+                value,
+            ],
+            index,
+        ) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
+    );
+}
 
 /** Expands dotted setting keys into the nested objects Zed expects. */
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
@@ -85,7 +113,8 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     ].join('\n');
 
     record(context, writeManagedFile(entitySchemaPath, stubContent, context.dryRun));
-    context.warnings.push(
+    warn(
+        context,
         'The generated entity schema types are missing; a stub with an empty entity list was created. ' +
             `Run \`${context.commands.generateSchema}\` to get installation-specific entity types.`,
     );
@@ -203,7 +232,8 @@ export function createIdeBootstraps(
             key: '.vscode/settings.json',
             nested: false,
             settings: {
-                'typescript.tsdk': tsdk,
+                // `typescript.tsdk` is deprecated in favour of this key.
+                'js/ts.tsdk.path': tsdk,
                 'eslint.nodePath': nodePath,
                 ...(flags.length > 0 ? { 'eslint.options': { flags } } : {}),
                 'eslint.validate': [
@@ -235,12 +265,9 @@ export function createIdeBootstraps(
             context.instructions.push(
                 [
                     `${file} is user-owned and was not touched. For IDE support add:`,
-                    ...Object.entries(settings).map(
-                        ([
-                            name,
-                            value,
-                        ]) => `    "${name}": ${JSON.stringify(value)}`,
-                    ),
+                    // Comma-separated and in the shape the file itself uses, so
+                    // the block pastes straight into the existing object.
+                    ...settingsFragment(nested ? nestKeys(settings) : settings),
                 ].join('\n'),
             );
 
@@ -326,18 +353,35 @@ export function scaffoldExtensionConfigs(
     const tsconfigResult = record(context, writeScaffoldFile(tsconfigPath, tsconfigContent, context.dryRun));
     const eslintResult = record(context, writeScaffoldFile(eslintPath, eslintContent, context.dryRun));
 
+    // A pre-existing config is only worth warning about when it does not
+    // actually compose the preset — warning on mere existence nags a correctly
+    // wired extension at every run. The static verdict is safe here: it matches
+    // the bridge on the resolved path before reading it, so it is right even on
+    // the first run, where the bridge is not on disk yet (or never will be,
+    // under --check).
     if (tsconfigResult === 'skipped') {
-        context.warnings.push(
-            `${tsconfigPath} already exists and was not touched — add \`"extends": "${BRIDGE_TSCONFIG_EXTENDS}"\` ` +
-                `so ${name} composes the Shopware preset. Own "files" array? Remove it — the bridge provides the ` +
-                'type surface. Own paths? Declare them in tsconfig.aliases.json.',
-        );
+        const verdict = tsconfigVerdict(tsconfigPath, relativePosix(context.projectRoot, tsconfigPath));
+
+        if (!verdict.composes) {
+            warn(
+                context,
+                `${tsconfigPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware preset.'} ` +
+                    `Fix: ${flattenFix(describeConfigFix('TypeScript', verdict))}`,
+                name,
+            );
+        }
     }
 
     if (eslintResult === 'skipped') {
-        context.warnings.push(
-            `${eslintPath} already exists and was not touched — compose the bridge in it: ` +
-                `import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; export default [ ...shopware /* , your rules */ ];`,
-        );
+        const verdict = eslintConfigVerdict(eslintPath, relativePosix(context.projectRoot, eslintPath));
+
+        if (!verdict.composes) {
+            warn(
+                context,
+                `${eslintPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware factory.'} ` +
+                    `Fix: ${flattenFix(describeConfigFix('ESLint', verdict))}`,
+                name,
+            );
+        }
     }
 }

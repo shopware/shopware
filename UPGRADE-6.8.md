@@ -265,6 +265,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Removal of deprecated `ConfigurationService` class
+
+The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
 ## XML configuration is no longer supported
 
 Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
@@ -326,13 +330,6 @@ return static function (RoutingConfigurator $routes): void {
 ```
 
 XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
-
-## Landing page slot config must not be null
-
-`LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
-## Removal of deprecated `ConfigurationService` methods
-
-The deprecated methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class were removed. Please use the methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
 
 ## Landing page slot config must not be null
 

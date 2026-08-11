@@ -6,6 +6,50 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### System configuration tabs
+
+With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
+
+**Example usage:**
+```xml
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <tab>
+        <name>product</name>
+        <title>Product</title>
+        <title lang="de-DE">Produkt</title>
+
+        <card>
+            <title>Listing settings</title>
+            <title lang="de-DE">Listing-Einstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInListing</name>
+                <label>Display buy buttons in listings</label>
+                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+
+    <tab>
+        <name>cart</name>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <card>
+            <title>Cart settings</title>
+            <title lang="de-DE">Warenkorbeinstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInCart</name>
+                <label>Display buy buttons in cart</label>
+                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+</config>
+```
+
 ## API
 
 ### Order recalculation and conversion endpoints now require ACL privileges
@@ -74,71 +118,6 @@ Four admin action endpoints that previously only required authentication now enf
 
 The new privileges are part of the existing "Plugin maintain" (`system:app:change`) and "Flow editor" (`flow:dispatch`) permissions in the Administration role editor, and a migration grants them to roles that already hold those permissions — existing admin users keep access without manual changes. Integrations calling these endpoints must have the respective privilege added to their ACL role.
 
-## Features
-
-### System configuration tabs
-
-With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
-
-To enable this feature, set the `SYSTEM_CONFIG_TABS` feature flag to `true`.
-
-**Example usage:**
-```xml
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
-    <tab>
-        <name>product</name>
-        <title>Product</title>
-        <title lang="de-DE">Produkt</title>
-
-        <card>
-            <title>Listing</title>
-            <title lang="de-DE">Listing</title>
-
-            <input-field type="bool">
-                <name>allowBuyInListing</name>
-                <label>Display buy buttons in listings</label>
-                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
-            </input-field>
-        </card>
-
-        <card>
-            <title>Detail page</title>
-            <title lang="de-DE">Detailseite</title>
-
-            <input-field type="bool">
-                <name>allowBuyInDetail</name>
-                <label>Display buy buttons in product detail page</label>
-                <label lang="de-DE">Kaufen-Buttons in Produktdetailseite anzeigen</label>
-            </input-field>
-        </card>
-    </tab>
-
-    <tab>
-        <name>cart</name>
-        <title>Cart</title>
-        <title lang="de-DE">Warenkorb</title>
-
-        <card>
-            <title>Cart settings</title>
-            <title lang="de-DE">Warenkorbeinstellungen</title>
-
-            <input-field type="bool">
-                <name>allowBuyInCart</name>
-                <label>Display buy buttons in cart</label>
-                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
-            </input-field>
-        </card>
-    </tab>
-</config>
-```
-
-## Core
-
-### Deprecation of `ConfigurationService` methods
-
-Due to structural data changes coming along with the new system configuration tabs feature, the methods `getConfiguration`, `getResolvedConfiguration` and `checkConfiguration` of the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class are deprecated and will be removed in Shopware 6.8. Please use the new methods `getSystemConfiguration`, `getResolvedSystemConfiguration` and `checkSystemConfiguration` instead.
-
 ### `sw-expect-packages` is rejected on endpoints that do not require authentication
 
 The `sw-expect-packages` header is no longer evaluated on API endpoints that do not require authentication, because the failure messages disclose the installed versions of Shopware and its dependencies. Sending it to such an endpoint now returns `417` with the new error code `FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED` instead of evaluating the constraint. Affected endpoints include `GET /api/_info/health-check`, `POST /api/oauth/token`, `GET /api/app-system/shop/verify`, and the `POST /api/_action/user/user-recovery` routes.
@@ -146,6 +125,10 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
 ## Core
+
+### Deprecation of `ConfigurationService` class
+
+Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 

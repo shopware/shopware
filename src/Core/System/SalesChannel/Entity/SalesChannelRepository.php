@@ -18,12 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,8 +36,8 @@ class SalesChannelRepository
 {
     /**
      * The criteria nodes the walk restricts. A criteria that needs more than this is not a shape any
-     * storefront produces; the rest stays unprocessed as before, is reported, and is rejected from
-     * v6.8.0.0.
+     * storefront produces, and answering it would mean returning data the remaining criteria never
+     * restricted, so it is rejected.
      */
     private const CRITERIA_LIMIT = 100;
 
@@ -266,12 +266,9 @@ class SalesChannelRepository
         }
 
         if ($queue !== []) {
-            // whatever is left keeps none of the restrictions its definition adds, so the criteria
-            // is reported instead of being silently truncated, and rejected from the next major
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                \sprintf('A criteria with more than %d nested criteria will be rejected from v6.8.0.0.', self::CRITERIA_LIMIT)
-            );
+            // whatever is left would keep none of the restrictions its definition adds, so the
+            // request is rejected rather than answered with partially restricted data
+            throw SalesChannelException::tooManyNestedCriteria(self::CRITERIA_LIMIT);
         }
     }
 }

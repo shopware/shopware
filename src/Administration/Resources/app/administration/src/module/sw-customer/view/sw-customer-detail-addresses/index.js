@@ -277,11 +277,7 @@ export default {
             this.currentAddress = null;
         },
 
-        /**
-         * The grid loads its records page by page, while customer.addresses only ever holds the
-         * first page that was loaded with the customer. Resolve the address from the records the
-         * grid currently shows, so addresses on later pages are found as well.
-         */
+        // customer.addresses only holds the first page, so prefer the records the grid currently shows
         getLoadedAddress(id) {
             return this.$refs.addressGrid?.records?.get(id) ?? this.activeCustomer.addresses.get(id);
         },

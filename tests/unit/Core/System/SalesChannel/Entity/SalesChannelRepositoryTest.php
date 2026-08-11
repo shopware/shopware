@@ -43,12 +43,12 @@ class SalesChannelRepositoryTest extends TestCase
         static::assertSame($depth + 1, $this->countProcessedCriteria($depth));
     }
 
-    public function testACriteriaAboveTheLimitIsStillProcessedCompletely(): void
+    public function testACriteriaAboveTheLimitKeepsTheCurrentBehaviour(): void
     {
-        // until the next major the criteria is only reported, never left half processed
+        // until the next major the walk still stops at the limit, it is only reported now
         $processed = Feature::fake([], fn (): int => $this->countProcessedCriteria(250));
 
-        static::assertSame(251, $processed);
+        static::assertSame(99, $processed);
     }
 
     public function testACriteriaAboveTheLimitIsRejectedWithTheNextMajor(): void
@@ -65,7 +65,7 @@ class SalesChannelRepositoryTest extends TestCase
     {
         yield 'a single criteria' => [0];
         yield 'below the limit' => [10];
-        yield 'at the limit' => [99];
+        yield 'at the limit' => [98];
     }
 
     /**

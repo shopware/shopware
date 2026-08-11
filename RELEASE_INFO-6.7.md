@@ -6,11 +6,9 @@
 
 Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
 
-### Sales channel criteria are restricted over their whole depth
+### An oversized sales channel criteria is reported instead of silently truncated
 
-`SalesChannelRepository` applied the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — only to the first 99 criteria nodes it walked. A criteria with more nested associations than that silently kept the remaining nodes unrestricted. The restrictions are now applied to every node of the criteria. Integrations that send large criteria to the Store API can receive fewer entities in deeply nested associations than before.
-
-A criteria with more than 100 nested criteria now triggers a deprecation notice and will be rejected from 6.8.0.0. No storefront request produces a criteria of that size; integrations that build one should split it into several requests.
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — to the first 99 criteria nodes it walks. A criteria with more nested associations than that kept the remaining nodes unrestricted without any notice. That limit is unchanged, but such a criteria now triggers a deprecation notice and is rejected from 6.8.0.0. No storefront request produces a criteria of that size; integrations that build one should split it into several requests.
 
 ### Media import URL checks apply to the address that is connected to
 

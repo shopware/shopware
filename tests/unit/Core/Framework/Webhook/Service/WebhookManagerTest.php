@@ -93,6 +93,9 @@ class WebhookManagerTest extends TestCase
             ->method('createHookablesFor')
             ->willReturn([$event1], [$event2]);
 
+        // only the second dispatch matches a webhook and is delivered synchronously
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess');
+
         $webhookManager = $this->getWebhookManager(true);
         $webhookManager->dispatch($event1);
         $request = $this->clientMock->getLastRequest();
@@ -159,6 +162,8 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -198,6 +203,8 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $this->prepareWebhook($event->getName(), true);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -213,6 +220,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -230,6 +239,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true, []);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
@@ -263,6 +274,8 @@ class WebhookManagerTest extends TestCase
                 return $privileges;
             });
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $webhookManager = $this->getWebhookManager(false);
 
         $webhookManager->dispatch($event);
@@ -286,6 +299,8 @@ class WebhookManagerTest extends TestCase
         ]);
 
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -311,6 +326,8 @@ class WebhookManagerTest extends TestCase
 
         $this->prepareWebhook('customer.written', true, ['customer:read']);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -326,6 +343,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -355,6 +374,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -390,6 +411,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 

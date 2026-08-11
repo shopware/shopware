@@ -324,7 +324,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
@@ -490,7 +490,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -545,7 +545,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
 

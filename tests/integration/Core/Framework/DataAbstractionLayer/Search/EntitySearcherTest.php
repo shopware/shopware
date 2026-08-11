@@ -216,6 +216,32 @@ class EntitySearcherTest extends TestCase
         static::assertSame(1, $result->getPage());
     }
 
+    public function testNextPagesCountIsBoundedByTheLookaheadWindow(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, 8) as $number) {
+            $productNumber = 'next-pages-' . $number;
+            $products[] = (new ProductBuilder($ids, $productNumber))->price(100)->build();
+        }
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria(array_values($ids->getList(array_map(
+            static fn (int $number): string => 'next-pages-' . $number,
+            range(1, 8)
+        ))));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertCount(1, $result->getEntities());
+        static::assertSame(7, $result->getTotal());
+    }
+
     public function testSortingAndTotalCountWithManyAssociation(): void
     {
         $redId = Uuid::randomHex();

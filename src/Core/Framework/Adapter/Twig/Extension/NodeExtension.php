@@ -18,10 +18,11 @@ class NodeExtension extends AbstractExtension
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0  - replace TemplateFinder with TemplateFinderInterface
      */
     public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - Replace TemplateFinder with TemplateFinderInterface
+         */
         private readonly TemplateFinder $finder,
         private readonly TemplateScopeDetector $templateScopeDetector,
     ) {

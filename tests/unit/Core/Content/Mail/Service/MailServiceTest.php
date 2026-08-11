@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -504,6 +505,11 @@ class MailServiceTest extends TestCase
         ?LoggerInterface $logger = null,
         ?LanguageLocaleCodeProvider $languageLocaleCodeProvider = null,
     ): MailService {
+        $mailMetrics = static::createStub(MailMetricsInstrumentor::class);
+        $mailMetrics->method('measureSend')->willReturnCallback(
+            static fn (?string $eventName, \Closure $send) => $send()
+        );
+
         return new MailService(
             static::createStub(DataValidator::class),
             $templateRenderer ?? $this->templateRenderer,
@@ -516,6 +522,7 @@ class MailServiceTest extends TestCase
             $logger ?? $this->logger,
             $languageLocaleCodeProvider ?? $this->languageLocaleCodeProvider,
             new MailTemplateContentBuilder(),
+            $mailMetrics,
         );
     }
 }

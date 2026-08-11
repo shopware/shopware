@@ -549,7 +549,7 @@ class WebhookManagerTest extends TestCase
 
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 

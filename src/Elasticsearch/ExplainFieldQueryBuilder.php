@@ -46,7 +46,7 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             return $query;
         }
 
-        if ($query->hasParameter('_name')) {
+        if (method_exists($query, 'hasParameter') && $query->hasParameter('_name')) {
             return $query;
         }
 

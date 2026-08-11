@@ -4,6 +4,10 @@
 
 <details>
 
+## Sales channel criteria are limited to 100 nested criteria
+
+A criteria passed to a `SalesChannelRepository` may contain at most 100 nested criteria. A larger criteria is now rejected; on 6.7 it only triggered a deprecation notice and was still executed. No storefront request builds a criteria of that size — split such a request into several smaller ones.
+
 ## Webhook Messenger transport — explicit receiver configuration required
 
 Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.

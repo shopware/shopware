@@ -17,7 +17,10 @@ test(
             name: `Bowl ${productNameSuffix1}`,
         });
 
-        await Promise.all([createBottle, createBowl]);
+        await Promise.all([
+            createBottle,
+            createBowl,
+        ]);
 
         await TestDataService.clearCaches();
 

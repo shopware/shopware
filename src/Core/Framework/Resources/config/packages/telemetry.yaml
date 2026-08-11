@@ -230,6 +230,23 @@ shopware:
                         operation:
                             allowed_values: [read, write, delete, none]
 
+                flow.execution.duration:
+                    # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.
+                    # heavy actions that offload to queue (mail, webhooks) are not included in the flow engine wall time
+                    # and are covered by the queue metrics.
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Flow execution wall time per matched flow, per trigger group and outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000]
+                    labels:
+                        # see TriggerGroupResolver
+                        trigger_group:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
                 mail.send.count:
                     # result=sent means the mail was handed off (default delivery is async), not delivered;
                     # actual delivery is covered by messenger.message.handled.count (message_group=mail)

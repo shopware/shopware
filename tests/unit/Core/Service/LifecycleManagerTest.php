@@ -80,6 +80,8 @@ class LifecycleManagerTest extends TestCase
             ->method('revoke');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository());
 
@@ -106,6 +108,8 @@ class LifecycleManagerTest extends TestCase
             ->method('reconcile');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $this->createManager($this->createAppRepository())->disable($this->context);
     }
@@ -124,6 +128,8 @@ class LifecycleManagerTest extends TestCase
             ->method('revoke');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository());
 
@@ -294,6 +300,8 @@ class LifecycleManagerTest extends TestCase
             ->method('reconcile');
         $this->permissionsService->expects($this->never())
             ->method('revoke');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository($services));
 
@@ -319,6 +327,8 @@ class LifecycleManagerTest extends TestCase
             ->method('set');
         $this->permissionsService->expects($this->never())
             ->method('revoke');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository());
 
@@ -339,6 +349,8 @@ class LifecycleManagerTest extends TestCase
             ->method('revoke');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
 
@@ -364,6 +376,8 @@ class LifecycleManagerTest extends TestCase
             ->method('revoke');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = new LifecycleManager(
             $envEnabled,

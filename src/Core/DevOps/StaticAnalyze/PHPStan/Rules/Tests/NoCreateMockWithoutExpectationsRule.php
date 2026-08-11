@@ -5,7 +5,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp\Coalesce as CoalesceAssign;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\MethodCall;
@@ -82,6 +84,22 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * ClassMethod attribute carrying the ancestor file an inherited method was parsed from.
      */
     private const SOURCE_FILE = 'noCreateMockRuleSourceFile';
+
+    /**
+     * Methods of PHPUnit's double-configuration chain whose arguments are consumed as data (method names,
+     * matchers, return values) — they can never configure an expectation on a double passed into them.
+     *
+     * @var list<string>
+     */
+    private const DOUBLE_CONFIGURATION_METHODS = [
+        'method',
+        'with',
+        'willReturn',
+        'willReturnMap',
+        'willReturnOnConsecutiveCalls',
+        'willReturnArgument',
+        'willThrowException',
+    ];
 
     public function __construct(private readonly Parser $parser)
     {
@@ -413,14 +431,16 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<Node> $stmts
      * @param array<string, ClassMethod> $ownMethods
      * @param list<int> $extraHarmless spl_object_ids of Variable nodes to accept
+     * @param array<string, true> $visited guards against recursive helpers and alias chains
      */
-    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = []): bool
+    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = [], array $visited = []): bool
     {
         return $this->referenceIsNeverExpected(
             $stmts,
             static fn (Node $node): bool => $node instanceof Variable && $node->name === $name,
             $ownMethods,
             $extraHarmless,
+            $visited,
         );
     }
 
@@ -478,6 +498,59 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 foreach ($this->passedThrough($arg->value, $isReference) as $occurrence) {
                     $harmless[spl_object_id($occurrence)] = true;
                 }
+            }
+        }
+
+        // arguments of PHPUnit's double-configuration chain — `$other->method(...)`, `->with($ref)`,
+        // `->willReturnMap([[..., $ref]])` — are consumed as data; the stubbing machinery never
+        // configures an expectation on a double passed there.
+        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if (!$call->name instanceof Identifier || !\in_array($call->name->name, self::DOUBLE_CONFIGURATION_METHODS, true)) {
+                continue;
+            }
+
+            foreach ($call->getArgs() as $arg) {
+                foreach ($this->passedThrough($arg->value, $isReference) as $occurrence) {
+                    $harmless[spl_object_id($occurrence)] = true;
+                }
+            }
+        }
+
+        // `$ref = $ref ?? <default>` / `$ref ??= <default>` self-defaulting keeps the double flowing
+        // through the same reference, whose other uses this analysis already tracks. `$alias = $ref`
+        // (incl. behind `??`/ternary defaulting) is followed into the alias, which must itself stay clean.
+        foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+            if ($isReference($assign->var)) {
+                if ($assign->expr instanceof Coalesce && $isReference($assign->expr->left)) {
+                    $harmless[spl_object_id($assign->var)] = true;
+                    $harmless[spl_object_id($assign->expr->left)] = true;
+                }
+
+                continue; // any other re-assignment of the reference stays unclassified
+            }
+
+            if (!$assign->var instanceof Variable || !\is_string($assign->var->name)) {
+                continue;
+            }
+
+            $occurrences = $this->passedThrough($assign->expr, $isReference);
+            $aliasKey = 'alias$' . $assign->var->name;
+            if ($occurrences === [] || isset($visited[$aliasKey])) {
+                continue;
+            }
+
+            if (!$this->variableIsNeverExpected($stmts, $assign->var->name, $ownMethods, [spl_object_id($assign->var)], [...$visited, $aliasKey => true])) {
+                continue;
+            }
+
+            foreach ($occurrences as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, CoalesceAssign::class) as $assign) {
+            if ($isReference($assign->var)) {
+                $harmless[spl_object_id($assign->var)] = true;
             }
         }
 
@@ -677,14 +750,21 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 }
             }
 
+            // Every method assigning `$this->$name = createMock(...)`. A test owns an instance — and can
+            // trigger the notice — when setUp, the test itself, or a fixture helper it calls creates one.
+            $creators = [];
+            foreach ($methods as $method) {
+                if ($this->methodCreatesProperty($finder, $method, $name)) {
+                    $creators[mb_strtolower($method->name->name)] = true;
+                }
+            }
+
             $coveredBySetUp = $setUp !== null && $this->coversProperty('setup', $expectors, $callGraph);
-            $createdInSetUp = $setUp !== null && $this->methodCreatesProperty($finder, $setUp, $name);
+            $createdInSetUp = $setUp !== null && $this->coversProperty('setup', $creators, $callGraph);
 
             $bare = [];
             foreach ($testMethods as $test) {
-                // For a setUp-created (shared) mock every test owns an instance; otherwise only the tests
-                // that create it themselves are relevant.
-                if (!$createdInSetUp && !$this->methodCreatesProperty($finder, $test, $name)) {
+                if (!$createdInSetUp && !$this->coversProperty(mb_strtolower($test->name->name), $creators, $callGraph)) {
                     continue;
                 }
 
@@ -736,13 +816,13 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     }
 
     /**
-     * True when $methodName — or any own method it transitively calls — is one of the $expectors, i.e. the
-     * property provably carries an expectation by the time a test that runs this method finishes.
+     * True when $methodName — or any own method it transitively calls — is one of the $targets: the methods
+     * that directly `->expects()` the property (coverage walk), or the ones that create it (ownership walk).
      *
-     * @param array<string, true> $expectors lowercased names of methods with a direct ->expects() on the property
+     * @param array<string, true> $targets lowercased method names
      * @param array<string, list<string>> $callGraph
      */
-    private function coversProperty(string $methodName, array $expectors, array $callGraph): bool
+    private function coversProperty(string $methodName, array $targets, array $callGraph): bool
     {
         $queue = [$methodName];
         $visited = [];
@@ -753,7 +833,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
             $visited[$current] = true;
 
-            if (isset($expectors[$current])) {
+            if (isset($targets[$current])) {
                 return true;
             }
 
@@ -788,9 +868,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     /**
      * True when some helper method uses `$this->$name` in a way that could configure an expectation out of
-     * view: anything that is neither stub configuration, forwarding, an inherited-assertion read, nor a
-     * direct `->expects()` on the property itself. The direct `->expects()` is not hidden — the per-test
-     * coverage walk ({@see self::coversProperty()}) attributes it to the tests that call the helper.
+     * view: anything that is neither stub configuration, forwarding, an inherited-assertion read, a direct
+     * `->expects()` on the property, nor its creating assignment. The direct `->expects()` and the creation
+     * are not hidden — the per-test coverage and ownership walks ({@see self::coversProperty()}) attribute
+     * them to the tests that call the helper.
      *
      * @param array<ClassMethod> $helperMethods
      * @param array<string, ClassMethod> $ownMethods
@@ -805,14 +886,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
-            $sanctionedExpects = [];
+            $sanctioned = [];
             foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
                 if ($this->isExpectsCall($call) && $isReference($call->var)) {
-                    $sanctionedExpects[] = spl_object_id($call->var);
+                    $sanctioned[] = spl_object_id($call->var);
+                }
+            }
+            foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+                if ($isReference($assign->var) && $this->isCreateMockCall($assign->expr)) {
+                    $sanctioned[] = spl_object_id($assign->var);
                 }
             }
 
-            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods, $sanctionedExpects)) {
+            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods, $sanctioned)) {
                 return true;
             }
         }
@@ -1061,8 +1147,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     }
 
     /**
-     * The reference occurrences that $expr passes on unchanged — the bare reference, or one behind the
-     * defaulting wrappers fixture helpers use (`$param ?? $this->shared`, `$param ?: $fallback`). Occurrences
+     * The reference occurrences that $expr passes on unchanged — the bare reference, one behind the
+     * defaulting wrappers fixture helpers use (`$param ?? $this->shared`, `$param ?: $fallback`), or one
+     * wrapped in an array literal (`[$ref]`, `['key' => $ref]`; a receiver can only get at the element
+     * through an access this analysis leaves unclassified, so wrapping loses no soundness). Occurrences
      * anywhere else in $expr are not passed on unchanged and are left for the caller to reject.
      *
      * @param callable(Node): bool $isReference
@@ -1084,6 +1172,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 ...$this->passedThrough($expr->if ?? $expr->cond, $isReference),
                 ...$this->passedThrough($expr->else, $isReference),
             ];
+        }
+
+        if ($expr instanceof Array_) {
+            $occurrences = [];
+            foreach ($expr->items as $item) {
+                if ($item->byRef || $item->unpack) {
+                    continue;
+                }
+
+                $occurrences = [...$occurrences, ...$this->passedThrough($item->value, $isReference)];
+            }
+
+            return $occurrences;
         }
 
         return [];

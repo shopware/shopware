@@ -106,6 +106,38 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testOpaqueUses(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/OpaqueUseCases.php'], [
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'OpaqueDependency::class', 'testBare()'),
+                31, // embedded in another double's willReturnMap() by the helper: data, not a hidden expectation
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'OpaqueLocator::class', 'OpaqueLocator::class'),
+                32, // the locator double itself is only ever stub-configured
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'OpaqueDependency::class', 'testBare()'),
+                83, // created inside the fixture helper: the tests reaching it own an instance
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'OpaqueDependency::class', 'testBare()'),
+                100, // forwarded into the SUT constructor wrapped in an array literal
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'OpaqueDependency::class', 'OpaqueDependency::class'),
+                130, // helper re-binds its parameter with `$dep = $dep ?? <stub>` before the SUT constructor
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'OpaqueDependency::class', 'OpaqueDependency::class'),
+                155, // aliased into a clean local that only forwards into the SUT constructor
+            ],
+            // NOT flagged: 182 (the alias itself is ->expects()-ed — conservative skip),
+            // and testNotOwning() at 83 (it never reaches the creating helper)
+        ]);
+    }
+
     public function testHelperReturnedMocks(): void
     {
         $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/HelperReturnCases.php'], [

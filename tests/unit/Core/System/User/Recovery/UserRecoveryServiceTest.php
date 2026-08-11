@@ -425,20 +425,29 @@ class UserRecoveryServiceTest extends TestCase
                 return $event;
             });
 
+        /** @var StaticEntityRepository<UserRecoveryCollection> $recoveryRepository */
+        $recoveryRepository = new StaticEntityRepository([
+            new UserRecoveryCollection([]),
+            new UserRecoveryCollection([$recoveryEntity]),
+        ], new UserRecoveryDefinition());
+
+        /** @var StaticEntityRepository<UserCollection> $userRepository */
+        $userRepository = new StaticEntityRepository([
+            new UserCollection([$user]),
+        ], new UserDefinition());
+
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = new StaticEntityRepository([
+            new SalesChannelCollection([$salesChannelEntity]),
+        ], new SalesChannelDefinition());
+
         $service = new UserRecoveryService(
-            new StaticEntityRepository([
-                new UserRecoveryCollection([]),
-                new UserRecoveryCollection([$recoveryEntity]),
-            ], new UserRecoveryDefinition()),
-            new StaticEntityRepository([
-                new UserCollection([$user]),
-            ], new UserDefinition()),
+            $recoveryRepository,
+            $userRepository,
             $router,
             $this->dispatcher,
             $salesChannelContextService,
-            new StaticEntityRepository([
-                new SalesChannelCollection([$salesChannelEntity]),
-            ], new SalesChannelDefinition()),
+            $salesChannelRepository,
             new NativeClock()
         );
 

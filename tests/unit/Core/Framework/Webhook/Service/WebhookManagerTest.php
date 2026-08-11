@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -55,8 +54,6 @@ class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
-
     private MockHandler $clientMock;
 
     private WebhookClient $webhookClient;
@@ -70,7 +67,6 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
@@ -541,7 +537,6 @@ class WebhookManagerTest extends TestCase
 
         return new WebhookManager(
             $this->webhookLoader,
-            $this->eventDispatcher,
             $this->eventFactory,
             static::createStub(AppLocaleProvider::class),
             $appPayloadServiceHelper,

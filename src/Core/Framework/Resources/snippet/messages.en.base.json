@@ -39,6 +39,7 @@
         "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for Order %orderNumber%",
         "creditNoteNumber": "Credit note %creditNoteNumber%",
         "creditNoteHeadline": "Credit note %creditNoteNumber% for Invoice no. %invoiceNumber%",
+        "creditNotePaymentTerms": "The amount will be refunded.",
         "customerNumber": "Customer no. %customerNumber%",
         "date": "Date %date%",
         "comment": "Comment: %comment%",

@@ -1692,15 +1692,21 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             {},
             [
                 {
-                    name: 'probeCard',
-                    title: { 'en-GB': 'Probe card' },
-                    elements: [
+                    title: null,
+                    name: null,
+                    cards: [
                         {
-                            name: 'ConfigRenderer.config.probeField',
-                            config: {
-                                componentName: 'test-scope-setup-probe',
-                                label: { 'en-GB': 'probe field' },
-                            },
+                            name: 'probeCard',
+                            title: { 'en-GB': 'Probe card' },
+                            elements: [
+                                {
+                                    name: 'ConfigRenderer.config.probeField',
+                                    config: {
+                                        componentName: 'test-scope-setup-probe',
+                                        label: { 'en-GB': 'probe field' },
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },

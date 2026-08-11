@@ -24,10 +24,11 @@ class SystemConfigController extends AbstractController
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0 - $configurationService will be removed
      */
     public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - Parameter $configurationService will be removed
+         */
         private readonly ConfigurationService $configurationService,
         private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly SystemConfigService $systemConfig,

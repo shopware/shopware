@@ -1,0 +1,87 @@
+meta:
+  label: "YouTube Video"
+  description: "Embeds a YouTube video with playback, privacy and consent options."
+  icon: "regular-youtube"
+  category: "content"
+  copilot:
+    summary: "YouTube video element."
+    hints:
+      - "Requires the YouTube video id (the part after v= or youtu.be/)."
+      - "Enable advanced privacy mode and consent gating to avoid tracking before interaction."
+
+properties:
+  videoId:
+    type: string
+    required: true
+    title: "Video ID or URL"
+    description: "The YouTube video id (e.g. 'aqz-KE-bpKQ') or a full video URL (watch, youtu.be, embed or shorts) — the id is extracted automatically."
+
+  videoTitle:
+    type: string
+    required: false
+    title: "Video Title"
+    description: "Accessible title for the video iframe."
+
+  autoplay:
+    type: boolean
+    title: "Autoplay"
+    description: "Start playback automatically (muted, as required by browsers)."
+    default: false
+
+  loop:
+    type: boolean
+    title: "Loop"
+    description: "Restart the video when it ends."
+    default: false
+
+  showControls:
+    type: boolean
+    title: "Show Controls"
+    description: "Display the player controls."
+    default: true
+
+  advancedPrivacyMode:
+    type: boolean
+    title: "Advanced Privacy Mode"
+    description: "Use the youtube-nocookie host to prevent tracking until interaction."
+    default: false
+
+  needsConfirmation:
+    type: boolean
+    title: "Load After Confirmation"
+    description: "Load the video only after the visitor accepts the privacy notice (cookie consent)."
+    default: false
+
+  start:
+    type: integer
+    required: false
+    title: "Start Time"
+    description: "Start playback at this offset in seconds."
+    default: 0
+    adminUI:
+      component: "number"
+      props:
+        min: 0
+
+  end:
+    type: integer
+    required: false
+    title: "End Time"
+    description: "Stop playback at this offset in seconds."
+    default: 0
+    adminUI:
+      component: "number"
+      props:
+        min: 0
+
+  previewMedia:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: false
+    title: "Preview Image"
+    description: "Poster image shown on the consent placeholder before the video loads."
+    resolvedBy: previewMediaId
+    adminUI:
+      component: "media-field"
+      visibleWhen:
+        field: "needsConfirmation"
+        equals: true

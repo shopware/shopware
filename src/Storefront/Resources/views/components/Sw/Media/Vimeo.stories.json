@@ -1,0 +1,40 @@
+{
+    "title": "Sw/Media/Vimeo",
+    "parameters": {
+        "server": {
+            "id": "Sw:Media:Vimeo"
+        },
+        "template": "<twig:Sw:Media:Vimeo :videoId=\"videoId\" :videoTitle=\"videoTitle\" :autoplay=\"autoplay\" :loop=\"loop\" :showControls=\"showControls\" :doNotTrack=\"doNotTrack\" :needsConfirmation=\"needsConfirmation\" :showByline=\"showByline\" :showTitle=\"showTitle\" :showPortrait=\"showPortrait\" :color=\"color\" />"
+    },
+    "argTypes": {
+        "videoId": { "control": "text", "description": "The numeric Vimeo video id, e.g. '76979871'." },
+        "videoTitle": { "control": "text", "description": "Accessible title for the video iframe." },
+        "autoplay": { "control": "boolean", "description": "Autoplay the video (muted)." },
+        "loop": { "control": "boolean", "description": "Loop the video." },
+        "showControls": { "control": "boolean", "description": "Show the player controls." },
+        "doNotTrack": { "control": "boolean", "description": "Enable Vimeo's do-not-track mode." },
+        "needsConfirmation": { "control": "boolean", "description": "Load the video only after user confirmation (cookie consent)." },
+        "showByline": { "control": "boolean", "description": "Display the author's name on the video." },
+        "showTitle": { "control": "boolean", "description": "Display the video's title." },
+        "showPortrait": { "control": "boolean", "description": "Display the author's portrait on the video." },
+        "color": { "control": "color", "description": "Accent color of the player controls." }
+    },
+    "stories": [
+        {
+            "name": "Vimeo",
+            "args": {
+                "videoId": "76979871",
+                "videoTitle": "The New Vimeo Player",
+                "autoplay": false,
+                "loop": false,
+                "showControls": true,
+                "doNotTrack": false,
+                "needsConfirmation": false,
+                "showByline": true,
+                "showTitle": true,
+                "showPortrait": true,
+                "color": null
+            }
+        }
+    ]
+}

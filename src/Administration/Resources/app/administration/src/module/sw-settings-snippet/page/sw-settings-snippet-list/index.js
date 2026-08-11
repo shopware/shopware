@@ -92,10 +92,6 @@ export default {
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
-            if (this.term) {
-                criteria.setTerm(this.term);
-            }
-
             return criteria;
         },
 

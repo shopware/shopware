@@ -24,6 +24,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Plu
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SEOUrlDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -902,20 +903,14 @@ class StoreApiGeneratorTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        set_error_handler(static function (int $errorNumber, string $message): bool {
-            throw new \ErrorException($message, 0, $errorNumber);
-        }, \E_WARNING);
-
-        try {
-            $schema = $this->generator->generate(
-                $definitionRegistry->getDefinitions(),
-                DefinitionService::STORE_API,
-                DefinitionService::TYPE_JSON_API,
-                null
-            );
-        } finally {
-            restore_error_handler();
-        }
+        // ErrorHandler::call turns any PHP error into an exception, exactly like the dev error handler
+        // that makes the Store API endpoint answer 500 instead of the specification
+        $schema = ErrorHandler::call(fn (): array => $this->generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        ));
 
         static::assertArrayHasKey('JsonOverrideEntity', $schema['components']['schemas']);
         static::assertArrayHasKey('jsonOnlyField', $schema['components']['schemas']['JsonOverrideEntity']['properties']);

@@ -9,6 +9,16 @@ Media imports send the request to the address the URL check resolved, and check 
 ### Custom entity and field names are validated before the schema is built
 
 Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores and `$` — the characters that are valid in an unquoted SQL identifier. A manifest using any other character (whitespace, or punctuation such as `-`) is rejected with a clear error.
+## Administration
+
+### `integrationService.updateAdmin()` is deprecated
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
 
 # 6.7.13.0
 

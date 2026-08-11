@@ -903,8 +903,6 @@ class StoreApiGeneratorTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        // ErrorHandler::call turns any PHP error into an exception, exactly like the dev error handler
-        // that makes the Store API endpoint answer 500 instead of the specification
         $schema = ErrorHandler::call(fn (): array => $this->generator->generate(
             $definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,

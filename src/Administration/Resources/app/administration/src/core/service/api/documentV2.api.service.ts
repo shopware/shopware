@@ -2,7 +2,8 @@ import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 import { DocumentEvents } from './document.api.service';
-import { DOCUMENT_TYPES } from '../documentV2.service';
+import { DOCUMENT_TYPES } from '../../../module/sw-order/service/documentV2.service';
+import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 
 type DocumentTypeFormats = {
     formats: string[];
@@ -35,13 +36,13 @@ type DocumentRequestPayload = {
     orderId: string;
     documentType: string;
     documentNumber: string;
+};
+
+type CreateDocumentPayload = DocumentRequestPayload & {
     documentDate: string;
     documentComment: string;
     deliveryDate?: string;
     referencedDocumentId?: string;
-};
-
-type CreateDocumentPayload = DocumentRequestPayload & {
     formats: string[];
 };
 
@@ -52,11 +53,20 @@ type UploadDocumentPayload = DocumentRequestPayload & {
 };
 
 type PreviewDocumentPayload = DocumentRequestPayload & {
+    documentDate: string;
+    documentComment: string;
+    deliveryDate?: string;
+    referencedDocumentId?: string;
     format: string;
 };
 
 type DocumentErrorResponse = {
     errors?: DocumentError[];
+};
+
+type DocumentFileResponse = {
+    file: Blob;
+    fileName: string | null;
 };
 
 /**
@@ -73,23 +83,25 @@ export default class DocumentV2ApiService extends ApiService {
         this.name = 'documentV2ApiService';
     }
 
-    getAvailableTypes(): Promise<AxiosResponse<AvailableDocumentTypesResponse>> {
-        return this.httpClient.get<AvailableDocumentTypesResponse>('/_action/order/document-v2/available-types', {
-            headers: this.getBasicHeaders(),
-        });
+    public getAvailableTypes(): Promise<AvailableDocumentTypesResponse> {
+        return this.httpClient
+            .get<AvailableDocumentTypesResponse>('/_action/order/document-v2/available-types', {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => ApiService.handleResponse<AvailableDocumentTypesResponse>(response));
     }
 
-    createDocument(
+    public createDocument(
         orderId: string,
         documentTypeName: string,
         formats: string[],
         documentNumber: string,
         documentDate: string,
-        documentComment = '',
+        documentComment: string = '',
         deliveryDate: string | null = null,
         referencedDocumentId: string | null = null,
         additionalHeaders: Record<string, string> = {},
-    ): Promise<AxiosResponse<DocumentCreateResponse> | void> {
+    ): Promise<DocumentCreateResponse | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: CreateDocumentPayload = {
             orderId,
@@ -104,31 +116,28 @@ export default class DocumentV2ApiService extends ApiService {
             payload.deliveryDate = deliveryDate;
         }
 
-        if (documentTypeName === DOCUMENT_TYPES.CANCELLATION_INVOICE && referencedDocumentId) {
+        if (referencedDocumentId) {
             payload.referencedDocumentId = referencedDocumentId;
         }
 
         return this.httpClient
             .post<DocumentCreateResponse>('/_action/order/document-v2/create', payload, { headers })
+            .then((response) => ApiService.handleResponse<DocumentCreateResponse>(response))
             .catch((error: AxiosError<DocumentErrorResponse>) => {
                 this.emitDocumentFailed(error.response?.data.errors?.pop());
             });
     }
 
-    uploadDocument(
+    public uploadDocument(
         orderId: string,
         orderVersionId: string,
         documentTypeName: string,
         format: string,
         documentNumber: string,
-        documentDate: string,
-        documentComment = '',
-        deliveryDate: string | null = null,
-        referencedDocumentId: string | null = null,
         mediaId: string | null = null,
         file: File | null = null,
         additionalHeaders: Record<string, string> = {},
-    ): Promise<AxiosResponse<DocumentCreateResponse> | void> {
+    ): Promise<DocumentCreateResponse | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: UploadDocumentPayload = {
             orderId,
@@ -136,18 +145,8 @@ export default class DocumentV2ApiService extends ApiService {
             documentType: documentTypeName,
             format,
             documentNumber,
-            documentDate,
-            documentComment,
             mediaId,
         };
-
-        if (documentTypeName === DOCUMENT_TYPES.DELIVERY_NOTE && deliveryDate) {
-            payload.deliveryDate = deliveryDate;
-        }
-
-        if (documentTypeName === DOCUMENT_TYPES.CANCELLATION_INVOICE && referencedDocumentId) {
-            payload.referencedDocumentId = referencedDocumentId;
-        }
 
         let request: Promise<AxiosResponse<DocumentCreateResponse>>;
 
@@ -170,12 +169,14 @@ export default class DocumentV2ApiService extends ApiService {
             });
         }
 
-        return request.catch((error: AxiosError<DocumentErrorResponse>) => {
-            this.emitDocumentFailed(error.response?.data.errors?.pop());
-        });
+        return request
+            .then((response) => ApiService.handleResponse<DocumentCreateResponse>(response))
+            .catch((error: AxiosError<DocumentErrorResponse>) => {
+                this.emitDocumentFailed(error.response?.data.errors?.pop());
+            });
     }
 
-    previewDocument(
+    public previewDocument(
         orderId: string,
         documentTypeName: string,
         format: string,
@@ -183,7 +184,7 @@ export default class DocumentV2ApiService extends ApiService {
         documentDate: string,
         documentComment = '',
         additionalHeaders: Record<string, string> = {},
-    ): Promise<AxiosResponse<Blob> | void> {
+    ): Promise<DocumentFileResponse | void> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: PreviewDocumentPayload = {
             orderId,
@@ -199,6 +200,12 @@ export default class DocumentV2ApiService extends ApiService {
                 responseType: 'blob',
                 headers,
             })
+            .then((response) => {
+                return {
+                    file: ApiService.handleResponse<Blob>(response),
+                    fileName: fileReaderUtils.getFilenameFromResponse(response as { headers?: { [key: string]: string } }),
+                };
+            })
             .catch(async (error: AxiosError<Blob>) => {
                 if (!error.response) {
                     return;
@@ -209,21 +216,35 @@ export default class DocumentV2ApiService extends ApiService {
             });
     }
 
-    getDocument(documentId: string, format = 'pdf'): Promise<AxiosResponse<Blob>> {
-        return this.httpClient.get<Blob>(`/_action/order/document-v2/${documentId}/download/${format}`, {
-            responseType: 'blob',
-            headers: this.getBasicHeaders(),
-        });
+    public getDocument(documentId: string, format = 'pdf'): Promise<DocumentFileResponse> {
+        return this.httpClient
+            .get<Blob>(`/_action/order/document-v2/${documentId}/download/${format}`, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return {
+                    file: ApiService.handleResponse<Blob>(response),
+                    fileName: fileReaderUtils.getFilenameFromResponse(response as { headers?: { [key: string]: string } }),
+                };
+            });
     }
 
-    getDocumentArchive(documentId: string): Promise<AxiosResponse<Blob>> {
-        return this.httpClient.get<Blob>(`/_action/order/document-v2/${documentId}/download-archive`, {
-            responseType: 'blob',
-            headers: this.getBasicHeaders(),
-        });
+    public getDocumentArchive(documentId: string): Promise<DocumentFileResponse> {
+        return this.httpClient
+            .get<Blob>(`/_action/order/document-v2/${documentId}/download-archive`, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return {
+                    file: ApiService.handleResponse<Blob>(response),
+                    fileName: fileReaderUtils.getFilenameFromResponse(response as { headers?: { [key: string]: string } }),
+                };
+            });
     }
 
-    setListener(callback: DocumentListener): void {
+    public setListener(callback: DocumentListener): void {
         this.listener = callback;
     }
 

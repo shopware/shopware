@@ -1,7 +1,7 @@
-import DocumentV2ApiService from 'src/core/service/api/documentV2.api.service';
-import { DocumentEvents } from 'src/core/service/api/document.api.service';
-import createLoginService from 'src/core/service/login.service';
-import createHTTPClient from 'src/core/factory/http.factory';
+import DocumentV2ApiService from './documentV2.api.service';
+import { DocumentEvents } from './document.api.service';
+import createLoginService from '../login.service';
+import createHTTPClient from '../../factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**

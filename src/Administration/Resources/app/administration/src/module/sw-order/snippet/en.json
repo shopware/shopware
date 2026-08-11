@@ -645,6 +645,11 @@
                     "html": "HTML",
                     "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
                     "zugferdXml": "ZUGFeRD XML"
+                },
+                "error": {
+                    "loadDocumentTypes": "Failed to load available document types.",
+                    "loadSupportedDocumentFileFormats": "Failed to load available file formats per document type.",
+                    "loadDocumentNumber": "Failed to load a document number."
                 }
             },
             "uploadDocumentModal": {

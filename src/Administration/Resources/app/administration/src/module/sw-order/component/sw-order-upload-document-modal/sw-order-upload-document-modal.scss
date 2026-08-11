@@ -6,9 +6,6 @@
     }
 
     &__type-specific-fields {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 var(--scale-size-16);
         margin-bottom: var(--scale-size-24);
 
         .mt-field {

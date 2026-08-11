@@ -1,8 +1,8 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { DocumentConfig } from 'src/core/service/documentV2.service';
-import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from 'src/core/service/documentV2.service';
-import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
+import type { DocumentConfig } from '../../service/documentV2.service';
+import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from '../../service/documentV2.service';
+import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 
@@ -203,42 +203,48 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const [
-                    response,
-                    supportResponse,
-                ] = await Promise.all([
-                    this.documentTypeRepository.search(this.documentTypeCriteria),
-                    this.documentV2ApiService.getAvailableTypes(),
-                ]);
+                this.documentTypeCollection = await this.documentTypeRepository.search(this.documentTypeCriteria);
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentTypes'),
+                });
 
-                this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
-                this.documentTypeCollection = response;
-                this.documentTypes = response.filter(
-                    (documentType) => documentType.technicalName in this.supportedDocumentTypes,
-                );
-
-                const documentTypeId = this.documentTypeId;
-
-                if (documentTypeId) {
-                    const documentType = this.documentTypeCollection.get(documentTypeId);
-
-                    if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
-                        this.documentTypeId = null;
-
-                        return;
-                    }
-
-                    await this.onDocumentTypeChange(documentType);
-                }
-            } finally {
                 this.isLoading = false;
+
+                return;
             }
+
+            try {
+                this.supportedDocumentTypes = (await this.documentV2ApiService.getAvailableTypes()).documentTypes ?? {};
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),
+                });
+
+                this.isLoading = false;
+
+                return;
+            }
+
+            this.documentTypes = this.documentTypeCollection.filter(
+                (documentType) => documentType.technicalName in this.supportedDocumentTypes,
+            );
+
+            if (this.documentTypeId) {
+                const documentType = this.documentTypeCollection.get(this.documentTypeId);
+
+                if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
+                    this.documentTypeId = null;
+                    return;
+                }
+
+                await this.onDocumentTypeChange(documentType);
+            }
+
+            this.isLoading = false;
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
-            this.selectedFileFormat = null;
-            this.selectedDocumentFile = null;
-
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
@@ -248,13 +254,17 @@ export default Component.wrapComponentConfig({
 
             this.documentTypeLoading = true;
 
+            this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+
             try {
-                const nextDocumentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
-                nextDocumentConfig.documentNumber = documentNumber;
-                this.documentConfig = nextDocumentConfig;
+                this.documentConfig.documentNumber = documentNumber;
                 this.documentNumberPreview = documentNumber;
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
+                });
             } finally {
                 this.documentTypeLoading = false;
             }

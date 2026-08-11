@@ -1,8 +1,8 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { AvailableDocumentTypesResponse } from 'src/core/service/api/documentV2.api.service';
-import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from 'src/core/service/documentV2.service';
-import type { DocumentConfig } from 'src/core/service/documentV2.service';
+import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
+import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
+import type { DocumentConfig } from '../../service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
 
@@ -230,33 +230,45 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const [
-                    response,
-                    supportResponse,
-                ] = await Promise.all([
-                    this.documentTypeRepository.search(this.documentTypeCriteria),
-                    this.documentV2ApiService.getAvailableTypes(),
-                ]);
+                this.documentTypeCollection = await this.documentTypeRepository.search(this.documentTypeCriteria);
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentTypes'),
+                });
 
-                this.supportedDocumentTypes = supportResponse.data?.documentTypes ?? {};
-                this.documentTypeCollection = response;
-                this.documentTypes = response.filter(
-                    (documentType) => documentType.technicalName in this.supportedDocumentTypes,
-                );
-
-                if (this.documentTypeId) {
-                    const documentType = this.documentTypeCollection.get(this.documentTypeId);
-
-                    if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
-                        this.documentTypeId = null;
-                        return;
-                    }
-
-                    await this.onDocumentTypeChange(documentType);
-                }
-            } finally {
                 this.isLoading = false;
+
+                return;
             }
+
+            try {
+                this.supportedDocumentTypes = (await this.documentV2ApiService.getAvailableTypes()).documentTypes ?? {};
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),
+                });
+
+                this.isLoading = false;
+
+                return;
+            }
+
+            this.documentTypes = this.documentTypeCollection.filter(
+                (documentType) => documentType.technicalName in this.supportedDocumentTypes,
+            );
+
+            if (this.documentTypeId) {
+                const documentType = this.documentTypeCollection.get(this.documentTypeId);
+
+                if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
+                    this.documentTypeId = null;
+                    return;
+                }
+
+                await this.onDocumentTypeChange(documentType);
+            }
+
+            this.isLoading = false;
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
@@ -269,13 +281,17 @@ export default Component.wrapComponentConfig({
 
             this.documentTypeLoading = true;
 
-            try {
-                this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+            this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
 
+            try {
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
 
                 this.documentConfig.documentNumber = documentNumber;
                 this.documentNumberPreview = documentNumber;
+            } catch (_) {
+                this.createNotificationError({
+                    message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
+                });
             } finally {
                 this.documentTypeLoading = false;
             }

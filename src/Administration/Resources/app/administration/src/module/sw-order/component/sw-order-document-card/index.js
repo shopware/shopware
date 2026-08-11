@@ -7,7 +7,7 @@ import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
-import { DOCUMENT_TYPES } from 'src/core/service/documentV2.service';
+import { DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -373,19 +373,6 @@ export default {
         },
 
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
-            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                return this.documentV2ApiService.createDocument(
-                    orderId,
-                    documentTypeName,
-                    params.requestedFileFormats ?? [],
-                    params.documentNumber,
-                    params.documentDate,
-                    params.documentComment,
-                    params.deliveryDate,
-                    referencedDocumentId,
-                );
-            }
-
             return this.documentService.createDocument(
                 orderId,
                 documentTypeName,
@@ -393,22 +380,6 @@ export default {
                 referencedDocumentId,
                 {},
                 {},
-                file,
-            );
-        },
-
-        uploadDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
-            return this.documentV2ApiService.uploadDocument(
-                orderId,
-                this.order.versionId,
-                documentTypeName,
-                params.requestedFileFormats?.[0] ?? 'pdf',
-                params.documentNumber,
-                params.documentDate,
-                params.documentComment,
-                params.deliveryDate,
-                referencedDocumentId,
-                params.documentMediaFileId,
                 file,
             );
         },
@@ -432,7 +403,7 @@ export default {
             const formats = this.getDocumentFileFormats(document);
 
             if (formats.length === 0) {
-                return ['pdf'];
+                return [FILE_FORMATS.PDF];
             }
 
             return this.documentV2Service.sortFileFormats(formats);
@@ -442,23 +413,12 @@ export default {
             return this.getDocumentActionFormats(document).length > 1;
         },
 
-        getDocumentFormatLabel(format) {
-            return (
-                {
-                    pdf: 'PDF',
-                    html: 'HTML',
-                    zugferd_embedded_pdf: 'ZUGFeRD PDF',
-                    zugferd_xml: 'ZUGFeRD XML',
-                }[format] ?? format.toUpperCase()
-            );
-        },
-
         resolveOpenFileType(document) {
-            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), 'pdf');
+            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), FILE_FORMATS.PDF);
         },
 
         resolveDownloadFileType(document) {
-            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), 'pdf');
+            return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), FILE_FORMATS.PDF);
         },
 
         onCancelCreation() {
@@ -470,50 +430,92 @@ export default {
             this.showModal = true;
         },
 
-        openDocument(documentId, deepLinkCode, fileType) {
-            const openRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2ApiService.getDocument(documentId, fileType)
-                : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
-
-            openRequest.then((response) => {
-                if (response.data) {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.target = '_blank';
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+        openDocument(documentId, documentDeepLink, fileType) {
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
-        downloadDocument(documentId, deepLinkCode, fileType) {
-            const downloadRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2ApiService.getDocument(documentId, fileType)
-                : this.documentService.getDocument(documentId, deepLinkCode, Shopware.Context.api, true, fileType);
+        downloadDocument(documentId, documentDeepLink, fileType) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.documentV2ApiService
+                    .getDocument(documentId, fileType)
+                    .then((documentFileResponse) => {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(documentFileResponse.file);
+                        link.download = documentFileResponse.fileName;
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: 'Error',
+                        });
+                    });
 
-            return downloadRequest.then((response) => {
-                if (response.data) {
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+                return;
+            }
+
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const filename = fileReaderUtils.getFilenameFromResponse(response);
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.download = filename;
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
         downloadDocumentArchive(documentId) {
-            return this.documentV2ApiService.getDocumentArchive(documentId).then((response) => {
-                if (response.data) {
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
+            return this.documentV2ApiService
+                .getDocumentArchive(documentId)
+                .then((response) => {
+                    if (response.data) {
+                        const filename = fileReaderUtils.getFilenameFromResponse(response);
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.download = filename;
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
+                });
+        },
+
+        async sendDocument(documentId) {
+            try {
+                const documentData = await this.documentRepository.get(
+                    documentId,
+                    Shopware.Context.api,
+                    this.documentCriteria,
+                );
+                if (!documentData) {
+                    return;
                 }
-            });
+
+                this.sendDocument = documentData;
+                this.showSendDocumentModal = true;
+            } catch (_) {
+                this.createNotificationError({
+                    message: 'Error',
+                });
+            }
         },
 
         markDocumentAsSent(documentId) {
@@ -537,6 +539,44 @@ export default {
         async onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
             this.isLoadingDocument = true;
 
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                let documentCreateResponse;
+
+                try {
+                    documentCreateResponse = await this.documentV2ApiService.createDocument(
+                        this.order.id,
+                        this.currentDocumentType.technicalName,
+                        params.requestedFileFormats ?? [],
+                        params.documentNumber,
+                        params.documentDate,
+                        params.documentComment,
+                        params.deliveryDate,
+                        referencedDocumentId,
+                    );
+                } catch (_) {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
+
+                    this.isLoadingDocument = false;
+                    return;
+                }
+
+                const documentId = documentCreateResponse.documentId;
+
+                if (additionalAction === 'download') {
+                    const fileType = this.isXmlDocument ? FILE_FORMATS.ZUGFERD_XML : FILE_FORMATS.PDF;
+                    this.downloadDocument(documentId, null, fileType);
+                } else if (additionalAction === 'send') {
+                    await this.sendDocument(documentId);
+                }
+
+                await this.finishDocumentCreation();
+
+                this.isLoadingDocument = false;
+                return;
+            }
+
             await this.$nextTick();
 
             try {
@@ -554,9 +594,9 @@ export default {
 
                 const documentId = Array.isArray(response) ? response[0].documentId : response?.data?.documentId;
 
-                const deepLinkCode = Array.isArray(response)
-                    ? (response[0].deepLinkCode ?? response[0].documentDeepLink)
-                    : (response?.data?.deepLinkCode ?? response?.data?.documentDeepLink);
+                const documentDeepLink = Array.isArray(response)
+                    ? response[0].documentDeepLink
+                    : response?.data?.documentDeepLink;
 
                 if (params.documentMediaFileId) {
                     const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
@@ -565,116 +605,114 @@ export default {
                 }
 
                 if (additionalAction === 'download') {
-                    if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                        const formats = response?.data?.formats ?? params.requestedFileFormats ?? [];
+                    const fileType = this.isXmlDocument ? 'xml' : 'pdf';
+                    this.downloadDocument(documentId, documentDeepLink, fileType);
+                } else if (additionalAction === 'send') {
+                    const criteria = new Criteria(null, null);
+                    criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');
 
-                        if (formats.length > 1) {
-                            await this.downloadDocumentArchive(documentId);
-                            await this.finishDocumentCreation();
-
+                    this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
+                        if (!documentData) {
                             return;
                         }
 
-                        await this.downloadDocument(documentId, deepLinkCode, this.getPreferredFileFormat(formats, 'pdf'));
-                        await this.finishDocumentCreation();
-
-                        return;
-                    }
-
-                    const format = this.isXmlDocument ? 'xml' : 'pdf';
-
-                    this.downloadDocument(documentId, deepLinkCode, format);
-                } else if (additionalAction === 'send') {
-                    await this.documentRepository
-                        .get(documentId, Shopware.Context.api, this.documentCriteria)
-                        .then((documentData) => {
-                            if (!documentData) {
-                                return;
-                            }
-
-                            this.sendDocument = documentData;
-                            this.showSendDocumentModal = true;
-                        });
-                }
-
-                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                    await this.finishDocumentCreation();
+                        this.sendDocument = documentData;
+                        this.showSendDocumentModal = true;
+                    });
                 }
             } finally {
                 this.isLoadingDocument = false;
             }
         },
 
-        async onUploadDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+        async onUploadDocument(params, additionalAction, file = null) {
             this.isLoadingDocument = true;
 
-            await this.$nextTick();
+            let fileUploadResponse;
 
             try {
-                const response = await this.uploadDocument(
+                fileUploadResponse = await this.documentV2ApiService.uploadDocument(
                     this.order.id,
+                    this.order.versionId,
                     this.currentDocumentType.technicalName,
-                    params,
-                    referencedDocumentId,
+                    params.requestedFileFormats?.[0] ?? FILE_FORMATS.PDF,
+                    params.documentNumber,
+                    params.documentMediaFileId,
                     file,
                 );
+            } catch (_) {
+                this.createNotificationError({
+                    message: 'Error',
+                });
 
-                if (!response) {
-                    return;
-                }
+                this.isLoadingDocument = false;
+                return;
+            }
 
-                const documentId = Array.isArray(response) ? response[0].documentId : response?.data?.documentId;
+            const documentId = fileUploadResponse.documentId;
 
-                if (params.documentMediaFileId) {
+            if (params.documentMediaFileId) {
+                try {
                     const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
                     documentData.documentMediaFileId = params.documentMediaFileId;
                     await this.documentRepository.save(documentData);
-                }
+                } catch (_) {
+                    this.createNotificationError({
+                        message: 'Error',
+                    });
 
-                if (additionalAction === 'send') {
-                    await this.documentRepository
-                        .get(documentId, Shopware.Context.api, this.documentCriteria)
-                        .then((documentData) => {
-                            if (!documentData) {
-                                return;
-                            }
-
-                            this.sendDocument = documentData;
-                            this.showSendDocumentModal = true;
-                        });
+                    this.isLoadingDocument = false;
+                    return;
                 }
-
-                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                    await this.finishDocumentCreation();
-                }
-            } finally {
-                this.isLoadingDocument = false;
             }
+
+            if (additionalAction === 'send') {
+                await this.sendDocument(documentId);
+            }
+
+            await this.finishDocumentCreation();
+
+            this.isLoadingDocument = false;
         },
 
-        onPreview(params, format) {
+        onPreview(params, fileType) {
             this.isLoadingPreview = true;
 
-            const previewRequest = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2ApiService.previewDocument(
-                      this.order.id,
-                      this.currentDocumentType.technicalName,
-                      format,
-                      params.documentNumber,
-                      params.documentDate,
-                      params.documentComment,
-                  )
-                : this.documentService.getDocumentPreview(
-                      this.order.id,
-                      this.order.deepLinkCode,
-                      this.currentDocumentType.technicalName,
-                      params,
-                      { fileType: format },
-                  );
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.documentV2ApiService
+                    .previewDocument(
+                        this.order.id,
+                        this.currentDocumentType.technicalName,
+                        fileType,
+                        params.documentNumber,
+                        params.documentDate,
+                        params.documentComment,
+                    )
+                    .then((documentFileResponse) => {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(documentFileResponse.file);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: 'Error',
+                        });
+                    })
+                    .finally(() => {
+                        this.isLoadingPreview = false;
+                    });
 
-            return previewRequest
+                return;
+            }
+
+            return this.documentService
+                .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
+                    fileType,
+                })
                 .then((response) => {
-                    if (response?.data) {
+                    if (response.data) {
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.target = '_blank';
@@ -690,6 +728,25 @@ export default {
         },
 
         onOpenDocument(id, deepLink, fileType) {
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.documentV2ApiService
+                    .getDocument(id, fileType)
+                    .then((documentFileResponse) => {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(documentFileResponse.file);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: 'Error!',
+                        });
+                    });
+
+                return;
+            }
+
             this.openDocument(id, deepLink, fileType);
         },
 
@@ -785,7 +842,7 @@ export default {
 
         availableFormatsFilter(item) {
             return this.getDocumentFileFormats(item)
-                .map((format) => this.getDocumentFormatLabel(format))
+                .map((format) => this.$t(this.documentV2Service.getFileFormatSnippet(format)))
                 .join(', ');
         },
     },

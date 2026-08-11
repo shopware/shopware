@@ -84,14 +84,6 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             $definition->add('format', new NotBlank(), new Type('string'));
         }
 
-        if (\array_key_exists('deliveryDate', $payload)) {
-            $definition->add('deliveryDate', new NotBlank(), new Type('string'));
-        }
-
-        if (\array_key_exists('referencedDocumentId', $payload)) {
-            $definition->add('referencedDocumentId', new NotBlank(), new Type('string'));
-        }
-
         $this->dataValidator->validate($payload, $definition);
     }
 

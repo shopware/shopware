@@ -56,11 +56,28 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a missing `orderId` or a non-string `finishUrl` or `errorUrl`."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No order exists for the given `orderId`."
                     }
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ],
                 "parameters": [
@@ -125,11 +142,28 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a missing `orderId` or a non-string `finishUrl` or `errorUrl`."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No order exists for the given `orderId`."
                     }
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

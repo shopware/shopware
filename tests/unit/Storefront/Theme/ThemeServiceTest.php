@@ -200,6 +200,41 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
+    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(
+            \sprintf('theme-config/%s.json', $themeId),
+            json_encode([
+                'styleFiles' => [],
+                'scriptFiles' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())->method('refreshConfigValues')->with($themeId, $this->context);
+        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $configLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
     public function testCompileThemeAsyncSkipHeader(): void
     {
         $themeId = Uuid::randomHex();

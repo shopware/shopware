@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,6 +36,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
+        private DocumentTypeRegistry $documentTypeRegistry,
         private ValidatorInterface $validator,
     ) {
     }
@@ -77,10 +79,11 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): InvoiceRenderData {
+        $order = $input->order;
+        $generationRequest = $input->generationRequest;
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {
@@ -100,7 +103,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $order,
         );
 
-        $allowNegative = DocumentType::tryFrom($generationRequest->documentType)?->allowsNegativeLineItems() ?? false;
+        $allowNegative = $this->documentTypeRegistry
+            ->getDocumentType($generationRequest->documentType)
+            ->allowsNegativeLineItems();
 
         $lineItems = LineItemView::listFromOrder($order, $allowNegative);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);

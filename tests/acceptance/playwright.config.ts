@@ -54,8 +54,7 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
-    /* There are still some issues with running the tests in parallel */
-    workers: process.env.CI ? 1 : 1,
+    workers: process.env.CI ? 4 : '50%',
 
     reporter: 'html',
 
@@ -67,6 +66,8 @@ export default defineConfig({
         trace: 'retain-on-failure',
         video: 'off',
         ignoreHTTPSErrors,
+        /* Pin the browser clock to the server timezone; see "Avoid time bombs" in the README. */
+        timezoneId: 'UTC',
     },
 
     // We abuse this to wait for the external webserver
@@ -90,9 +91,6 @@ export default defineConfig({
             name: 'Platform',
             use: {
                 ...devices['Desktop Chrome'],
-                launchOptions: {
-                    args: ['--remote-debugging-port=9222'],
-                },
             },
             dependencies: ['Setup'],
             grepInvert: /@Install|@Update|@Visual|@Setup.*/,

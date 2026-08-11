@@ -49,7 +49,16 @@ class CmsSlotsDataResolver
         }
     }
 
-    private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->_resolve(...),
+        );
+    }
+
+    private function _resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $criteriaList = $this->extensions->publish(
             name: CmsSlotsDataCollectExtension::NAME,
@@ -74,15 +83,6 @@ class CmsSlotsDataResolver
                 resolverContext: $resolverContext,
             ),
             function: $this->enrichCmsSlots(...),
-        );
-    }
-
-    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
-    {
-        return $this->extensions->publish(
-            name: CmsSlotsDataResolveExtension::NAME,
-            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
-            function: $this->__resolve(...),
         );
     }
 
@@ -198,7 +198,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @return array{array<string, array<string>>, array<string, array<string, Criteria>>}
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -222,10 +222,7 @@ class CmsSlotsDataResolver
             }
         }
 
-        foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
-            $directReads[$definition] = array_merge(...$idLists);
-        }
+        $directReads = array_map(static fn (array $directRead) => array_merge(...$directRead), $directReads);
 
         return [
             array_filter($directReads),

@@ -140,6 +140,29 @@ describe('src/app/init/tabs.init', () => {
         ]);
     });
 
+    it('should update the visibility of a registered tab item', async () => {
+        // add tab
+        await ui.tabs('visibility-position-id').addTabItem({
+            label: 'My tab item',
+            componentSectionId: 'visibility-component-section-id',
+            visible: true,
+        });
+
+        // toggle visibility
+        await ui.tabs('visibility-position-id').setVisibility({
+            componentSectionId: 'visibility-component-section-id',
+            visible: false,
+        });
+
+        expect(Shopware.Store.get('tabs').tabItems['visibility-position-id']).toEqual([
+            {
+                label: 'My tab item',
+                componentSectionId: 'visibility-component-section-id',
+                visible: false,
+            },
+        ]);
+    });
+
     it('should create correct route entry for tab item when route gets opened (dynamic route)', async () => {
         // add tab
         await ui.tabs('route-position-example-id').addTabItem({

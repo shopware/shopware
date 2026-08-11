@@ -100,6 +100,17 @@ abstract class MigrationStep
         );
     }
 
+    /**
+     * @see NonStandardFkGuard
+     *
+     * @internal Temporary workaround, will be removed once MySQL fixes bug #118151; safe to call
+     *           from extension migrations in the meantime.
+     */
+    protected function executeDdlStatement(Connection $connection, string $sql): void
+    {
+        NonStandardFkGuard::executeDdl($connection, $sql);
+    }
+
     protected function dropTableIfExists(Connection $connection, string $table): void
     {
         $sql = \sprintf('DROP TABLE IF EXISTS `%s`', $table);
@@ -112,7 +123,7 @@ abstract class MigrationStep
     protected function dropColumnIfExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
-            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
+            NonStandardFkGuard::executeDdl($connection, \sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -137,7 +148,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $foreignKeyName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -162,7 +173,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;

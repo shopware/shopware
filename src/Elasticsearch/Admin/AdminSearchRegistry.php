@@ -394,7 +394,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     /**
      * @param array<string, array<array<string, mixed>>> $result
      *
-     * @return array<array{reason: string}|string>
+     * @return list<array{index: string, id: string, type: string, reason: string}>
      */
     private function parseErrors(array $result): array
     {

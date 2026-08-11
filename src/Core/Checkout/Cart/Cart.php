@@ -82,6 +82,11 @@ class Cart extends Struct
 
     public function setToken(string $token): void
     {
+        if ($token !== $this->token) {
+            // the persisted state describes a storage entry for the previous token
+            $this->persisted = false;
+        }
+
         $this->token = $token;
     }
 

@@ -1,6 +1,7 @@
 import './service';
 import './acl';
 import './store/flow.store';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -76,6 +77,7 @@ Module.register('sw-flow', {
     icon: 'regular-rule',
     favicon: 'icon-module-settings.png',
     entity: 'flow',
+    defaultSearchConfiguration,
 
     routes: {
         index: {

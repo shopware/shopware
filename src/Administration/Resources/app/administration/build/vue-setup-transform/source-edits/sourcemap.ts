@@ -4,17 +4,33 @@
 
 import { decode, encode } from '@jridgewell/sourcemap-codec';
 
+/**
+ * A cursor into the generated (rewritten) output.
+ *
+ * `line` is 1-based and `column` is 0-based, matching MagicString's own cursor and the
+ * sourcemap column convention. The 1-based line is why {@link markGeneratedCodeAsUnmapped}
+ * subtracts one before indexing into the decoded (0-based) mappings array.
+ */
 type GeneratedPosition = {
     line: number;
     column: number;
 };
 
+/**
+ * The minimal structural view of a source map this module needs: just its VLQ `mappings`
+ * string. Kept narrow so the mappings can be decoded, mutated, and re-encoded in place
+ * without depending on the full {@link SourceMap} shape.
+ */
 type MutableMappingsSourceMap = {
     mappings: string;
 };
 
 /**
- * Tracks a generated output cursor after appending code.
+ * Advances a {@link GeneratedPosition} as if `code` were appended at the cursor.
+ *
+ * Single-line code only moves the column; a newline resets the column to the length of the
+ * final line. Callers keep this cursor in step with the bundle so generated-only positions
+ * can be recorded at the correct generated coordinates.
  */
 function moveGeneratedCursor(position: GeneratedPosition, code: string): void {
     const lines = code.split('\n');
@@ -62,6 +78,11 @@ function findGeneratedOnlyMappingEdges(position: GeneratedPosition, code: string
  *
  * MagicString intentionally leaves generated-only chunks without original locations. This
  * second pass also blocks closest-match lookups from drifting into neighboring user code.
+ *
+ * Concept: a decoded mapping segment is `[genColumn, sourceIndex, sourceLine, sourceColumn]`.
+ * A single-element `[genColumn]` segment is a valid but *unmapped* marker — it names a
+ * generated column that points at no original source. Writing one at each edge column pins the
+ * boundary so a consumer resolving a nearby column cannot bleed into an author-owned segment.
  */
 function markGeneratedCodeAsUnmapped(map: MutableMappingsSourceMap, positions: GeneratedPosition[]): void {
     if (positions.length === 0) {

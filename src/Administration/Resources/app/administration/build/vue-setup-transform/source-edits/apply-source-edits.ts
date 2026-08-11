@@ -36,6 +36,18 @@ type AppliedSourceEdits = {
     map: SourceMap;
 };
 
+/**
+ * Mutable accumulator threaded through the chunk-append helpers while one transform runs.
+ *
+ * Chunks are appended one at a time, so the map cannot be derived from the final string alone: it has
+ * to be built up as we go. This holds that in-progress state so each helper can mutate it in place.
+ * - `bundle` collects the emitted content (original slices keep their mapping, generated code does not).
+ * - `originalSource`/`source` are the same SFC as a MagicString and as a raw string, used to snip
+ *   original slices and to advance the cursor by their text.
+ * - `generatedCursor` tracks the line/column in the generated output reached so far.
+ * - `generatedOnlyPositions` collects the guard edges that {@link markGeneratedCodeAsUnmapped} later
+ *   stamps into the map so closest-match lookups can't attribute generated bridge code to user code.
+ */
 type ApplySourceEditContext = {
     bundle: Bundle;
     originalSource: MagicString;

@@ -86,6 +86,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         return transformPromise;
     }
 
+    /**
+     * Transforms a `.vue` file read from disk.
+     *
+     * The virtual-filename path (`resolveId`/`load`) hands us only an id, not the file's source, so the
+     * plugin reads it itself. The in-hand-code variant is {@link transformSource}, used by `transform`
+     * where Rollup already supplies the module code.
+     */
     async function transformFile(fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const code = await fs.readFile(fileName, 'utf8');
@@ -93,6 +100,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         return transformShopwareSetupSfc(code, fileName);
     }
 
+    /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
@@ -136,6 +144,16 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         name: 'shopware-vite-plugin-shopware-setup',
         enforce: 'pre',
 
+        /**
+         * Redirects a setup `.vue` import to a virtual `<realpath>.shopware-setup.vue` id so the rewritten
+         * SFC is compiled under a source path distinct from the author's original file.
+         *
+         * `resolveId` is the earliest hook that can substitute a module id before Rollup loads and hands it
+         * to @vitejs/plugin-vue. Compiling the rewritten body under its own name is what lets the two map
+         * layers (our rewrite, then plugin-vue's compile) compose without the original and transformed
+         * bodies claiming the same `sourcesContent`; `generateBundle` collapses the virtual name back out.
+         * The transform result is stashed in {@link resolvedTransforms} so the paired `load` need not rerun it.
+         */
         async resolveId(source, importer) {
             if (source.includes('?') || !source.endsWith('.vue')) {
                 return null;
@@ -166,6 +184,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             return virtualFileName;
         },
 
+        /**
+         * Serves the rewritten SFC (code + map) for a virtual id minted by `resolveId`.
+         *
+         * Only the virtual id reaches this branch; real `.vue` files fall through to Vite's own loading.
+         * Reuses the cached `resolveId` result when present, otherwise re-runs the transform. The emitted
+         * map is registered via `rememberSetupMap` so `generateBundle` can later remap the shipped chunk.
+         */
         async load(id) {
             if (id.includes('?')) {
                 return null;
@@ -238,6 +263,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             sourcemapsEnabled = Boolean(config.build?.sourcemap);
         },
 
+        /**
+         * Collapses the virtual `.shopware-setup.vue` source paths back to the real files in the shipped maps.
+         *
+         * This runs in `generateBundle` because it is the last hook where the final chunk maps exist and are
+         * still mutable before they are written to disk - the only point at which the virtual filenames (a
+         * build-internal detail) can be rewritten out of what actually ships.
+         */
         generateBundle(outputOptions, bundle) {
             if (!sourcemapsEnabled) {
                 return;

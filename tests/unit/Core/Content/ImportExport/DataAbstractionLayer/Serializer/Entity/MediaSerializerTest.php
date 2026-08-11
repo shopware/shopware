@@ -30,19 +30,19 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(MediaSerializer::class)]
 #[Package('fundamentals@after-sales')]
+#[CoversClass(MediaSerializer::class)]
 class MediaSerializerTest extends TestCase
 {
     public function testExistingMediaWithSameHashDoesNotPersistDownloadedFileAgain(): void
     {
         $context = Context::createDefaultContext();
         $mediaDefinition = new MediaDefinition();
-        $mediaDefinition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $mediaDefinition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = static::createStub(EntityRepository::class);
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
@@ -88,11 +88,11 @@ class MediaSerializerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $mediaDefinition = new MediaDefinition();
-        $mediaDefinition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $mediaDefinition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = static::createStub(EntityRepository::class);
         $mediaRepository = $this->createMock(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);

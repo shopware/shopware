@@ -96,6 +96,9 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
         $config = new Config([], [], []);
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
+        $this->repository->expects($this->never())->method('upsert');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $result = $this->strategy->commit($config, $progress, Context::createDefaultContext());
 
         static::assertSame([], $result->results);

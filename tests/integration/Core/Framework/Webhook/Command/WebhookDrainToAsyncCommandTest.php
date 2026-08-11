@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
@@ -278,7 +279,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
     {
         $guzzle = static::getContainer()->get('shopware.webhook.guzzle');
         $clock = static::getContainer()->get(ClockInterface::class);
-        $webhookClient = new WebhookClient($guzzle, $clock);
+        $webhookClient = new WebhookClient($guzzle, $clock, static::getContainer()->get(WebhookTargetValidator::class));
 
         $deliveryService = new WebhookDeliveryService(
             $webhookClient,

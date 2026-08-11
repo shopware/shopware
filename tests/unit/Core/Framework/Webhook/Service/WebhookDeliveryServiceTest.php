@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
@@ -68,7 +69,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->guzzleMock = new MockHandler();
         $stack = HandlerStack::create($this->guzzleMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
-        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock);
+        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock, new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']]));
 
         $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);

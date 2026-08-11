@@ -228,6 +228,42 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
     }
 
+    public function testWebhookNetworkPolicyDefaultsAreSecure(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), []);
+
+        static::assertFalse($config['webhook']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['webhook']['allowed_ip_addresses']);
+    }
+
+    public function testWebhookNetworkPolicyCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'webhook' => [
+                    'allow_unencrypted_traffic' => true,
+                    'allowed_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                ],
+            ],
+        ]);
+
+        static::assertTrue($config['webhook']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['webhook']['allowed_ip_addresses']);
+    }
+
+    public function testWebhookNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.webhook.allowed_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'webhook' => [
+                    'allowed_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
+    }
+
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
     {
         $configuration = new Configuration();

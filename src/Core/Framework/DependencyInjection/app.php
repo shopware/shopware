@@ -160,6 +160,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -277,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(WebhookCacheClearer::class),
             service(ClockInterface::class),
+            service(WebhookTargetValidator::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -100]);
 

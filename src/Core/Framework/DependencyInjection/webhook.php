@@ -36,6 +36,8 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
+use Shopware\Core\Framework\Webhook\Validation\WebhookUrlWriteValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -84,7 +86,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.webhook.guzzle'),
             service(SymfonyClockInterface::class),
+            service(WebhookTargetValidator::class),
         ]);
+
+    $services->set(WebhookTargetValidator::class)
+        ->args([
+            param('shopware.webhook.allow_unencrypted_traffic'),
+            param('shopware.webhook.allowed_ip_addresses'),
+        ]);
+
+    $services->set(WebhookUrlWriteValidator::class)
+        ->args([
+            service(WebhookTargetValidator::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(WebhookOutboxStore::class)
         ->args([

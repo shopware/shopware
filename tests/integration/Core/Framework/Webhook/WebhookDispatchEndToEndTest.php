@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -910,7 +911,7 @@ class WebhookDispatchEndToEndTest extends TestCase
     {
         $guzzle = static::getContainer()->get('shopware.webhook.guzzle');
         $clock = static::getContainer()->get(ClockInterface::class);
-        $webhookClient = new WebhookClient($guzzle, $clock);
+        $webhookClient = new WebhookClient($guzzle, $clock, static::getContainer()->get(WebhookTargetValidator::class));
 
         // Construct a fresh WebhookDeliveryService bound to the requested admin_worker flag
         // — the container-wired service reads `%shopware.admin_worker.enable_admin_worker%`

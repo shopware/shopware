@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -73,7 +74,7 @@ class WebhookManagerTest extends TestCase
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
-        $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
+        $this->webhookClient = new WebhookClient($guzzle, new NativeClock(), new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']]));
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);

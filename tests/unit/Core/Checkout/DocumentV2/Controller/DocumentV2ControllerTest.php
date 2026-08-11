@@ -261,12 +261,9 @@ class DocumentV2ControllerTest extends TestCase
                 'orderVersionId' => $orderVersionId,
                 'documentTypeId' => $documentTypeId,
                 'documentMediaFileId' => $mediaId,
-                'referencedDocumentId' => null,
                 'static' => true,
                 'deepLinkCode' => $payload['deepLinkCode'],
                 'config' => [
-                    'documentComment' => '',
-                    'documentDate' => '2026-07-13T00:00:00.000Z',
                     'documentNumber' => '1000',
                 ],
             ],

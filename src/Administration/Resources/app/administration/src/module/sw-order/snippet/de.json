@@ -643,8 +643,14 @@
                 "fileFormats": {
                     "pdf": "PDF",
                     "html": "HTML",
-                    "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
+                    "zugferdEmbeddedPdf": "PDF mit eingebettetem ZUGFeRD XML",
                     "zugferdXml": "ZUGFeRD XML"
+                },
+                "error": {
+                    "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
+                    "loadSupportedDocumentFileFormats": "Das Laden der verfügbaren Dateiformaten je Dokumenttyp ist fehlgeschlagen.",
+                    "loadDocumentNumber": "Das Laden der Dokumentennummer ist fehlgeschlagen.",
+                    "loadUploadedDocument": "Das Laden der hochgeladenen Datei ist fehlgeschlagen."
                 }
             },
             "uploadDocumentModal": {

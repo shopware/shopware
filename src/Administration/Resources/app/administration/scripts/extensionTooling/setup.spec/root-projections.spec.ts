@@ -132,7 +132,26 @@ describe('scripts/extensionTooling/setup root projections', () => {
         expect(result.manifest.rootConfigs.tsconfig).toBe('conflict');
         expect(result.manifest.ideBootstraps['.vscode/settings.json']).toBe('skipped');
         expect(result.instructions.join('\n')).toContain('includes');
-        expect(result.instructions.join('\n')).toContain('typescript.tsdk');
+        expect(result.instructions.join('\n')).toContain('js/ts.tsdk.path');
+        // `typescript.tsdk` is deprecated — VS Code flags it on the line we told
+        // the reader to add.
+        expect(result.instructions.join('\n')).not.toContain('"typescript.tsdk"');
+    });
+
+    it('prints the IDE settings hint as a paste-ready JSON fragment', () => {
+        writeDefaultFixtures(projectRoot);
+        writeFile(path.join(projectRoot, '.vscode/settings.json'), '{"editor.tabSize": 2}\n');
+
+        const result = setupExtensionTooling({ projectRoot, administrationRoot });
+        const hint = result.instructions.find((instruction) => instruction.includes('.vscode/settings.json')) ?? '';
+        const entries = hint.split('\n').filter((line) => line.trim().startsWith('"'));
+
+        expect(entries.length).toBeGreaterThan(1);
+        // Every entry but the last carries its separator, so the block drops
+        // straight into an existing settings object.
+        expect(entries.slice(0, -1).every((line) => line.endsWith(','))).toBe(true);
+        expect(entries[entries.length - 1]).not.toMatch(/,$/);
+        expect(() => JSON.parse(`{${entries.join('\n')}}`)).not.toThrow();
     });
 
     it('rewrites marker-owned files when their content is outdated', () => {

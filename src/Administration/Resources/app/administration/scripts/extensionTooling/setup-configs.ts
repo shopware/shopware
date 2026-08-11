@@ -49,6 +49,26 @@ function flattenFix(fix: string[]): string {
     return fix.map((line) => line.trim()).join(' ');
 }
 
+/**
+ * The settings as a paste-ready JSON fragment: one `"key": value,` per line,
+ * indented to sit inside an existing object. The trailing comma is dropped on
+ * the last entry, so the block is valid wherever it is pasted — appended to a
+ * settings object that already has entries, or as the whole body.
+ */
+function settingsFragment(settings: Record<string, unknown>): string[] {
+    const entries = Object.entries(settings);
+
+    return entries.map(
+        (
+            [
+                name,
+                value,
+            ],
+            index,
+        ) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
+    );
+}
+
 /** Expands dotted setting keys into the nested objects Zed expects. */
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
     const nested: Record<string, unknown> = {};
@@ -211,7 +231,8 @@ export function createIdeBootstraps(
             key: '.vscode/settings.json',
             nested: false,
             settings: {
-                'typescript.tsdk': tsdk,
+                // `typescript.tsdk` is deprecated in favour of this key.
+                'js/ts.tsdk.path': tsdk,
                 'eslint.nodePath': nodePath,
                 ...(flags.length > 0 ? { 'eslint.options': { flags } } : {}),
                 'eslint.validate': [
@@ -243,12 +264,9 @@ export function createIdeBootstraps(
             context.instructions.push(
                 [
                     `${file} is user-owned and was not touched. For IDE support add:`,
-                    ...Object.entries(settings).map(
-                        ([
-                            name,
-                            value,
-                        ]) => `    "${name}": ${JSON.stringify(value)}`,
-                    ),
+                    // Comma-separated and in the shape the file itself uses, so
+                    // the block pastes straight into the existing object.
+                    ...settingsFragment(nested ? nestKeys(settings) : settings),
                 ].join('\n'),
             );
 

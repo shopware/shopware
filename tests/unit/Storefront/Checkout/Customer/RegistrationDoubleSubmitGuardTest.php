@@ -95,13 +95,10 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
             }
         );
 
-        // a stale context token is exactly what a fixated session presents, so handing back what it
-        // became would undo the session migration that login performs
         static::assertTrue($cache->getItem(self::markerKey())->get());
         static::assertSame([self::markerKey()], array_keys($cache->getValues()));
 
         foreach ($cache->getValues() as $stored) {
-            // getValues() hands back serialized payloads, an unserialized comparison never matches
             static::assertStringNotContainsString(self::WINNER_TOKEN, $stored);
         }
     }
@@ -115,7 +112,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $context = $this->createContext();
         $registerCalls = 0;
 
-        // a double opt-in registration leaves the visitor anonymous, the token is not rotated
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
             $context,
             static function () use (&$registerCalls): void {
@@ -152,8 +148,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $guard = $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger());
 
-        // a suppressed request stays anonymous and keeps presenting the same token, so the marker has
-        // to outlive the whole burst rather than one resubmission of it
         for ($resubmission = 0; $resubmission < 3; ++$resubmission) {
             $guard->guard($this->createContext(), static function (): void {
                 static::fail('The double submit must not register a second time.');
@@ -166,7 +160,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
     public function testASuppressedResubmissionDoesNotRenewTheMarker(): void
     {
         $cache = $this->createMock(CacheItemPoolInterface::class);
-        // absent before the lock, written by the competing registration while this request waited
         $cache->expects($this->exactly(2))
             ->method('getItem')
             ->with(self::markerKey())
@@ -203,7 +196,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
             static::assertSame($rejection, $caught);
         }
 
-        // nothing was created, so the visitor can correct the submission and send it again
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
@@ -211,8 +203,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
     {
         $cache = new ArrayAdapter();
 
-        // the competing registration finishes while this request waits for the lock, so the marker
-        // is absent before the lock and present after it
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())
             ->method('acquire')
@@ -252,7 +242,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         static::assertSame(1, $registerCalls);
         static::assertContains('Registration lock could not be created, registering unguarded.', $warnings);
-        // an unguarded run creates a customer too, so it spends the token as well
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
@@ -262,7 +251,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())->method('acquire')->willThrowException(new \RuntimeException('lock store unreachable'));
-        // acquire() can throw after the store already saved the lock, it must not be stranded until the TTL expires
         $lock->expects($this->once())->method('release');
 
         $warnings = [];
@@ -339,7 +327,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $registerCalls = 0;
 
-        // one retry fits into the budget: 0.05s / 50ms retry delay
         $this->createGuard($this->createLockFactory($lock), new ArrayAdapter(), $logger, lockWaitTimeout: 0.05)->guard(
             $this->createContext(),
             static function () use (&$registerCalls): void {
@@ -433,8 +420,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $item->set($storedValue);
         $cache->save($item);
 
-        // the presence of the marker is the whole signal, a payload left by an older format neither
-        // keeps the token usable nor is read back for anything
         $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
             ->guard($this->createContext(), static function (): void {
                 static::fail('The registration must not run a second time.');
@@ -496,7 +481,6 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
             static::assertSame($exception, $caught);
         }
 
-        // the customer exists from the rotation on, whatever failed afterwards
         static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 

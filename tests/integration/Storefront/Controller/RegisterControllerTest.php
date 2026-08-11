@@ -145,13 +145,9 @@ class RegisterControllerTest extends TestCase
         static::assertNotSame($consumedToken, $this->salesChannelContext->getToken());
         static::assertTrue($firstRequest->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
 
-        // the double tap resolves its context from the token the first request already consumed,
-        // which carries no customer because the registration renamed that context to the new token
         $duplicateContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create($consumedToken, TestDefaults::SALES_CHANNEL);
 
-        // the guard is keyed on the context token alone, so changing what is submitted does not make
-        // consuming that token again legitimate
         $otherEmail = 'erika.musterfrau@example.com';
         $otherData = $this->getRegistrationData(email: $otherEmail);
         $otherBillingAddress = $otherData->get('billingAddress');
@@ -183,8 +179,6 @@ class RegisterControllerTest extends TestCase
 
         static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
 
-        // a browser that never stored the rotated token keeps presenting the spent one, so the marker
-        // has to outlive the whole burst rather than one resubmission of it
         for ($resubmission = 0; $resubmission < 2; ++$resubmission) {
             $staleContext = $contextFactory->create($consumedToken, TestDefaults::SALES_CHANNEL);
             $staleRequest = $this->createMainRequest();
@@ -213,7 +207,6 @@ class RegisterControllerTest extends TestCase
 
         $registerController->register($this->createMainRequest(), $data, $this->salesChannelContext);
 
-        // a registration that waits for a double opt-in confirmation returns without rotating the token
         static::assertSame($consumedToken, $this->salesChannelContext->getToken());
         static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
 
@@ -233,7 +226,6 @@ class RegisterControllerTest extends TestCase
         $email = (string) $data->get('email');
         $consumedToken = $this->salesChannelContext->getToken();
 
-        // the visitor registers out of a checkout that already holds a cart
         $cart = $cartService->getCart($consumedToken, $this->salesChannelContext);
         $cartService->add($cart, $this->createProductLineItem(), $this->salesChannelContext);
 
@@ -263,7 +255,6 @@ class RegisterControllerTest extends TestCase
             )
         );
 
-        // the cart travelled to the winning token instead of being stranded on the consumed one
         $winnerCart = $cartService->getCart(
             $winnerToken,
             $contextFactory->create($winnerToken, TestDefaults::SALES_CHANNEL),
@@ -285,7 +276,6 @@ class RegisterControllerTest extends TestCase
         $winnerToken = $this->salesChannelContext->getToken();
         static::assertSame($winnerToken, $firstRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        // the duplicate carries the session the visitor had while anonymous
         $duplicateRequest = $this->createMainRequest();
         $duplicateRequest->getSession()->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $consumedToken);
 
@@ -299,9 +289,6 @@ class RegisterControllerTest extends TestCase
             'the duplicate submission must be suppressed instead of registering again'
         );
 
-        // suppression must never log the sender in: anybody who holds a pre-registration session
-        // cookie can replay its token, so handing back the rotated one would undo the session
-        // migration that login performs
         static::assertSame($consumedToken, $duplicateRequest->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNull($duplicateRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
@@ -323,7 +310,6 @@ class RegisterControllerTest extends TestCase
         static::assertCount(0, $this->fetchCustomerIdsByEmail($email));
         static::assertSame($token, $this->salesChannelContext->getToken(), 'a rejected registration must not rotate the token');
 
-        // the visitor corrects the form and submits again on the very same token
         $registerController->register($this->createMainRequest(), $this->getRegistrationData(), $this->salesChannelContext);
 
         static::assertCount(1, $this->fetchCustomerIdsByEmail($email));
@@ -610,9 +596,6 @@ class RegisterControllerTest extends TestCase
         return $request;
     }
 
-    /**
-     * Storefront session handling only acts on the main request.
-     */
     private function createMainRequest(): Request
     {
         $requestStack = static::getContainer()->get('request_stack');

@@ -389,7 +389,6 @@ class RegisterControllerTest extends TestCase
         $customerRepository = static::createStub(EntityRepository::class);
         $domainRepository = static::createStub(EntityRepository::class);
 
-        // a guard on in-memory infrastructure: an unconsumed token always reaches the registration
         $doubleSubmitGuard = new RegistrationDoubleSubmitGuard(
             new LockFactory(new InMemoryStore()),
             new ArrayAdapter(),

@@ -14,10 +14,7 @@ use Symfony\Component\Lock\SharedLockInterface;
  * Suppresses a storefront registration that re-submits an already consumed context token.
  *
  * The marker records only that a token is spent, never what it became: a stale token is what a
- * fixated session presents, so anything derived from it would be as available to an attacker as to
- * the genuine sender.
- *
- * Best effort - registers unguarded when the lock or the cache is unavailable.
+ * fixated session presents, so anything derived from it would reach an attacker just as easily.
  *
  * @internal
  */
@@ -30,7 +27,6 @@ class RegistrationDoubleSubmitGuard
 
     private const LOCK_RETRY_DELAY_US = 50000;
 
-    // outlives the lock wait budget, so a request that waited it out still finds the marker
     private const MARKER_TTL = 10;
 
     private const MARKER_KEY_PREFIX = 'storefront-registration-';
@@ -46,9 +42,7 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * Runs $register unless the context token was already consumed by a registration.
-     *
-     * @param \Closure(): void $register the actual registration
+     * @param \Closure(): void $register
      */
     public function guard(SalesChannelContext $context, \Closure $register): void
     {
@@ -61,7 +55,6 @@ class RegistrationDoubleSubmitGuard
 
         try {
             $lock = $this->lockFactory->createLock(
-                // sha256: the raw token must not be recoverable from key listings
                 self::LOCK_KEY_PREFIX . Hasher::hash($token, 'sha256'),
                 self::LOCK_TTL,
                 autoRelease: false,
@@ -77,7 +70,6 @@ class RegistrationDoubleSubmitGuard
         try {
             $acquired = $this->acquireWithDeadline($lock);
         } catch (\Throwable $e) {
-            // acquire() can throw after the store saved the lock, do not strand it until the TTL expires
             $this->releaseSilently($lock);
             $this->logger->warning('Registration lock could not be acquired, registering unguarded.', ['exception' => $e]);
 
@@ -87,7 +79,6 @@ class RegistrationDoubleSubmitGuard
         }
 
         if (!$acquired) {
-            // the holder may have finished while we waited
             if ($this->isConsumed($markerKey)) {
                 return;
             }
@@ -116,9 +107,7 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * Runs the registration and spends the token, on every path that reaches the registration.
-     *
-     * @param \Closure(): void $register the actual registration
+     * @param \Closure(): void $register
      */
     private function registerAndMark(\Closure $register, SalesChannelContext $context, string $token, string $markerKey): void
     {
@@ -129,7 +118,6 @@ class RegistrationDoubleSubmitGuard
 
             $registered = true;
         } finally {
-            // the customer exists from the rotation on, whatever failed afterwards
             if ($registered || $context->getToken() !== $token) {
                 $this->markConsumed($markerKey);
             }
@@ -137,8 +125,6 @@ class RegistrationDoubleSubmitGuard
     }
 
     /**
-     * The marker stays until it expires, so it suppresses every resubmission and not just the first.
-     *
      * @phpstan-impure a competing registration can write the marker between two calls
      */
     private function isConsumed(string $markerKey): bool
@@ -146,16 +132,12 @@ class RegistrationDoubleSubmitGuard
         try {
             return $this->cache->getItem($markerKey)->isHit();
         } catch (\Throwable $e) {
-            // a broken cache must not skip the lock
             $this->logger->warning('Registration marker could not be read.', ['exception' => $e]);
 
             return false;
         }
     }
 
-    /**
-     * Written only by the request that ran the registration, so resubmitting cannot renew it.
-     */
     private function markConsumed(string $markerKey): void
     {
         try {
@@ -171,9 +153,6 @@ class RegistrationDoubleSubmitGuard
         }
     }
 
-    /**
-     * Non-blocking acquire within a bounded retry budget; a blocking acquire could wait indefinitely.
-     */
     private function acquireWithDeadline(SharedLockInterface $lock): bool
     {
         $retries = (int) ceil($this->lockWaitTimeout * 1000000 / self::LOCK_RETRY_DELAY_US);

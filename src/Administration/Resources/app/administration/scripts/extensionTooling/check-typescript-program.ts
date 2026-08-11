@@ -12,9 +12,14 @@ import path from 'path';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { diffTypeScript } from './baseline';
 import type { BaselineTsEntry, TypeScriptFinding } from './baseline';
-import { canonicalizePath, relativePosix, relativizeToolOutput, toPosix } from './shared';
+import { canonicalizePath, relativePosix, relativizeToolOutput, toPosix, wrapText } from './shared';
 import type { AdministrationTarget } from './shared';
-import { countTypeScriptFindings, deduplicateByMaximumMultiplicity, parseTypeScriptFindings } from './check-parsing';
+import {
+    countTypeScriptFindings,
+    deduplicateByMaximumMultiplicity,
+    joinProgramOutputs,
+    parseTypeScriptFindings,
+} from './check-parsing';
 import { formatCommand } from './check-pipeline';
 import type { TargetProgramGroup } from './check-pipeline';
 import type { Limiter, ToolRunResult, ToolStatus } from './check-types';
@@ -205,7 +210,7 @@ export async function runTypeScriptPrograms(
         return {
             result: {
                 status: 'tooling-error',
-                output: outputs.join('\n\n'),
+                output: joinProgramOutputs(outputs),
                 durationMs,
                 findings: findings.length,
                 typeScriptFindings: findings,
@@ -234,12 +239,14 @@ export async function runTypeScriptPrograms(
         surfaceFindings.length > 0 || split.newFindings.length > 0 || split.parseMismatch ? 'failed' : 'passed';
     const surfaceHeader =
         surfaceFindings.length > 0
-            ? `The shared Administration type surface emitted ${surfaceFindings.length} diagnostic(s) outside ` +
-              `${basePath} (${[...new Set(surfaceFindings.map((finding) => finding.file))]
-                  .slice(0, 3)
-                  .join(', ')}${surfaceFindings.length > 3 ? ', …' : ''}). This is a type-surface failure, not ` +
-              'extension debt — it cannot be baselined. A global declaration in the extension may conflict with the ' +
-              'shipped surface; check the named file.'
+            ? wrapText(
+                  `The shared Administration type surface emitted ${surfaceFindings.length} diagnostic(s) outside ` +
+                      `${basePath} (${[...new Set(surfaceFindings.map((finding) => finding.file))]
+                          .slice(0, 3)
+                          .join(', ')}${surfaceFindings.length > 3 ? ', …' : ''}). This is a type-surface failure, not ` +
+                      'extension debt — it cannot be baselined. A global declaration in the extension may conflict ' +
+                      'with the shipped surface; check the named file.',
+              )
             : '';
 
     return {
@@ -256,7 +263,7 @@ export async function runTypeScriptPrograms(
             surfaceDiagnostics: surfaceFindings.length,
             output: [
                 surfaceHeader,
-                outputs.join('\n\n'),
+                joinProgramOutputs(outputs),
             ]
                 .filter((part) => part.trim() !== '')
                 .join('\n\n'),

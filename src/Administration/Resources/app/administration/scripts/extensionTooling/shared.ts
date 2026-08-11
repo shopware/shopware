@@ -282,6 +282,29 @@ export function canonicalizePath(filePath: string): string {
     return path.join(fs.realpathSync(existingPath), path.relative(existingPath, filePath));
 }
 
+/**
+ * Greedy word wrap. Used for prose the runner embeds in a tool's output, which
+ * the report indents and prints verbatim — unwrapped it reads as a wall of text
+ * glued in front of the diagnostics.
+ */
+export function wrapText(text: string, width = 96): string {
+    const lines: string[] = [];
+
+    for (const word of text.split(/\s+/).filter((part) => part !== '')) {
+        const current = lines[lines.length - 1];
+
+        if (current === undefined || `${current} ${word}`.length > width) {
+            lines.push(word);
+
+            continue;
+        }
+
+        lines[lines.length - 1] = `${current} ${word}`;
+    }
+
+    return lines.join('\n');
+}
+
 function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

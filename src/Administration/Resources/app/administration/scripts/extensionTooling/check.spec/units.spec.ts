@@ -8,6 +8,7 @@ import {
     countEslintFindings,
     countTypeCheckableFiles,
     countTypeScriptFindings,
+    joinProgramOutputs,
     parseEslintFindings,
     parseTypeScriptFindings,
 } from '../check-parsing';
@@ -146,6 +147,46 @@ describe('scripts/extensionTooling/check units', () => {
 
         expect(relativized[0]).toBe('custom/plugins/X/src/main.ts');
         expect(relativized[1]).toBe(`/anything${projectRoot}/custom/plugins/X/src/main.ts`);
+    });
+
+    // Every program compiles the shared type surface, so a diagnostic there was
+    // printed once per program even though the structured findings counted it
+    // once — the main reason the TypeScript block was hard to read.
+    it('prints a diagnostic shared by several programs once', () => {
+        const surface = [
+            'extension-tooling/admin-types.d.ts(9,1): error TS2300: Duplicate identifier.',
+            '  the related declaration is here',
+        ].join('\n');
+        const runtime = [
+            surface,
+            'custom/plugins/X/src/main.ts(4,7): error TS2322: nope.',
+        ].join('\n');
+        const spec = [
+            surface,
+            'custom/plugins/X/src/main.spec.ts(2,1): error TS2531: also nope.',
+        ].join('\n');
+
+        const joined = joinProgramOutputs([
+            runtime,
+            spec,
+        ]);
+
+        expect(joined.match(/TS2300/g)).toHaveLength(1);
+        // The dropped duplicate must not orphan its related-information line.
+        expect(joined.match(/the related declaration is here/g)).toHaveLength(1);
+        expect(joined).toContain('main.ts(4,7): error TS2322');
+        expect(joined).toContain('main.spec.ts(2,1): error TS2531');
+    });
+
+    it('keeps a program whose every diagnostic was already reported out of the join', () => {
+        const only = 'a.ts(1,1): error TS2322: nope.';
+
+        expect(
+            joinProgramOutputs([
+                only,
+                only,
+            ]),
+        ).toBe(only);
     });
 
     it('counts findings from native tool output without altering it', () => {

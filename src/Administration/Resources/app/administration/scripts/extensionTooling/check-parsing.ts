@@ -206,6 +206,58 @@ export function parseEslintFindings(output: string): EslintFinding[] {
 }
 
 /**
+ * Splits a tool's output into diagnostic blocks: one `error TSxxxx:` line plus
+ * the indented related-information lines belonging to it. Anything before the
+ * first diagnostic stays in its own leading block so no text is lost.
+ */
+function splitDiagnosticBlocks(output: string): string[] {
+    const blocks: string[] = [];
+
+    for (const line of output.split(/\r?\n/)) {
+        if (blocks.length === 0 || /error TS\d+:/.test(line)) {
+            blocks.push(line);
+
+            continue;
+        }
+
+        blocks[blocks.length - 1] += `\n${line}`;
+    }
+
+    return blocks;
+}
+
+/**
+ * Joins the outputs of several programs, printing each diagnostic once. Every
+ * program compiles the shared type surface, so a diagnostic there was otherwise
+ * repeated once per program in the visible output even though the structured
+ * findings counted it once. Blocks are compared whole, so a dropped diagnostic
+ * never leaves its related-information lines orphaned behind it.
+ */
+export function joinProgramOutputs(outputs: string[]): string {
+    const seen = new Set<string>();
+
+    return outputs
+        .map((output) =>
+            splitDiagnosticBlocks(output)
+                .filter((block) => {
+                    const key = block.trim();
+
+                    if (key === '' || seen.has(key)) {
+                        return key === '';
+                    }
+
+                    seen.add(key);
+
+                    return true;
+                })
+                .join('\n')
+                .trim(),
+        )
+        .filter((output) => output !== '')
+        .join('\n\n');
+}
+
+/**
  * Merges findings from several programs that overlap on the shared type
  * surface: a finding is kept as many times as the single program that reported
  * it most, so duplicate surface diagnostics collapse while a genuinely repeated

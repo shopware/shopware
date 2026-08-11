@@ -39,8 +39,58 @@ describe('renderCheckReport findings baseline', () => {
         );
 
         expect(output).toContain('✖ 2 new · 10 baselined');
-        expect(output).toContain('new (not baselined): custom/plugins/MyPlugin/src/a.ts · TS2322');
         expect(output).toContain('· 10 baselined ·');
+        // The blocking findings get their own heading, one per line — the raw
+        // dump below mixes them with the baselined ones in the tool's order.
+        expect(output).toContain('new — must fix to pass (2):');
+        expect(output).toContain('custom/plugins/MyPlugin/src/a.ts · TS2322');
+        expect(output).toContain('custom/plugins/MyPlugin/src/b.ts · TS2531');
+        // The dump must say what it is, or it reads as the fix list.
+        expect(output).toContain('full TypeScript output (new + 10 baselined):');
+    });
+
+    // Without a baseline file the new-findings block used to be suppressed
+    // entirely, so a first failing run named nothing to fix.
+    it('names the blocking findings even when nothing is baselined', () => {
+        const output = report(
+            [
+                extension(project('MyPlugin'), {
+                    eslint: run('failed', {
+                        findings: 1,
+                        newFindings: 1,
+                        baselinedFindings: 0,
+                        newFindingRefs: [{ file: 'custom/plugins/MyPlugin/src/a.ts', code: 'no-console' }],
+                        output: 'custom/plugins/MyPlugin/src/a.ts\n  1:1  error  Unexpected console  no-console',
+                    }),
+                }),
+            ],
+            { exitCode: 1 },
+        );
+
+        expect(output).toContain('new — must fix to pass (1):');
+        expect(output).toContain('custom/plugins/MyPlugin/src/a.ts · no-console');
+        // Nothing was suppressed, so labelling the dump would be noise.
+        expect(output).not.toContain('full ESLint output');
+    });
+
+    it('collapses the new-finding list past ten entries', () => {
+        const refs = Array.from({ length: 13 }, (_unused, index) => ({
+            file: `custom/plugins/MyPlugin/src/f${index}.ts`,
+            code: 'TS2322',
+        }));
+        const output = report(
+            [
+                extension(project('MyPlugin'), {
+                    typescript: run('failed', { findings: 13, newFindings: 13, newFindingRefs: refs, output: 'x' }),
+                }),
+            ],
+            { exitCode: 1 },
+        );
+
+        expect(output).toContain('new — must fix to pass (13):');
+        expect(output).toContain('custom/plugins/MyPlugin/src/f9.ts · TS2322');
+        expect(output).not.toContain('custom/plugins/MyPlugin/src/f10.ts');
+        expect(output).toContain('… and 3 more');
     });
 
     it('nudges to prune stale baseline entries', () => {

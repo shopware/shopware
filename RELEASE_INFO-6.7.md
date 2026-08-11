@@ -6,22 +6,9 @@
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
 
-### Custom entity and field names must be valid identifiers
+### Custom entity and field names are validated before the schema is built
 
-Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. To ensure a name cannot alter the generated SQL, they must now start with a letter or underscore and may only contain letters, digits and underscores. Manifests using other characters are rejected when the app or plugin is installed or updated.
-
-Most names are unaffected, but names beginning with a digit or containing `$` were previously accepted and must be renamed:
-
-```xml
-<entity name="ce_blog">
-    <fields>
-        <int name="2fa_counter" store-api-aware="true"/>  <!-- no longer valid -->
-        <int name="two_fa_counter" store-api-aware="true"/>
-    </fields>
-</entity>
-```
-
-Renaming a field changes its column, so ship a migration if the extension already stores data in it.
+Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores and `$` — the characters that are valid in an unquoted SQL identifier. A manifest using any other character (whitespace, or punctuation such as `-`) is rejected with a clear error.
 
 # 6.7.13.0
 

@@ -22,18 +22,11 @@ class SchemaUpdater
 
     final public const SHORTHAND_TABLE_PREFIX = 'ce_';
 
-    /**
-     * Entity and field names end up as SQL identifiers in the generated DDL, which Doctrine emits
-     * unquoted. Restrict them to characters that cannot terminate an identifier, so a name can
-     * never break out of its position and append arbitrary SQL.
-     *
-     * Currently identical to CustomFieldService::CUSTOM_FIELD_NAME_PATTERN, but intentionally not
-     * reused: that pattern keeps names valid Twig variables and must stay free to change without
-     * weakening this boundary.
-     */
-    final public const NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
-
     private const COMMENT = 'custom-entity-element';
+
+    public function __construct(private readonly CustomEntityNameValidator $nameValidator)
+    {
+    }
 
     /**
      * @param list<array{name: string, fields: string}> $customEntities
@@ -54,7 +47,7 @@ class SchemaUpdater
                 );
             }
 
-            $this->validateNames($entityName, $fields);
+            $this->nameValidator->validate($entityName, $this->fieldNames($fields));
 
             $tables[$entityName] = $fields;
         }
@@ -70,19 +63,13 @@ class SchemaUpdater
     }
 
     /**
-     * @param list<CustomEntityField> $fields
+     * @return list<string>
      */
-    private function validateNames(string $entityName, array $fields): void
+    private function fieldNames(mixed $fields): array
     {
-        if (!\preg_match(self::NAME_PATTERN, $entityName)) {
-            throw CustomEntityException::invalidEntityName($entityName);
-        }
+        \assert(\is_array($fields) && \array_is_list($fields));
 
-        foreach ($fields as $field) {
-            if (!\preg_match(self::NAME_PATTERN, $field['name'])) {
-                throw CustomEntityException::invalidFieldName($entityName, $field['name']);
-            }
-        }
+        return array_map(static fn (array $field): string => (string) $field['name'], $fields);
     }
 
     /**

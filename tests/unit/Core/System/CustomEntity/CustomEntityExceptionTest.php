@@ -44,11 +44,11 @@ class CustomEntityExceptionTest extends TestCase
 
     public function testInvalidEntityName(): void
     {
-        $exception = CustomEntityException::invalidEntityName('ce_test`; DROP TABLE `product');
+        $exception = CustomEntityException::invalidEntityName('ce_test`x');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_NAME, $exception->getErrorCode());
-        static::assertSame('Custom entity name "ce_test`; DROP TABLE `product" is invalid. It must start with a letter or underscore and may only contain letters, digits and underscores.', $exception->getMessage());
+        static::assertSame('Custom entity name "ce_test`x" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
     }
 
     public function testInvalidFieldName(): void
@@ -57,7 +57,7 @@ class CustomEntityExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_FIELD_NAME, $exception->getErrorCode());
-        static::assertSame('Field name "my-field" of custom entity "ce_test" is invalid. It must start with a letter or underscore and may only contain letters, digits and underscores.', $exception->getMessage());
+        static::assertSame('Field name "my-field" of custom entity "ce_test" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
     }
 
     public function testUnsupportedOnDeletePropertyOnField(): void

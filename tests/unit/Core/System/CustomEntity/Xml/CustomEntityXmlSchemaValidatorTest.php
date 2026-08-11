@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Entities;
@@ -21,7 +22,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
     {
         $schema = new CustomEntityXmlSchema(__DIR__, null);
 
-        $validator = new CustomEntityXmlSchemaValidator();
+        $validator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $this->expectExceptionObject(new \RuntimeException('No entities found in parsed xml file'));
 
@@ -41,7 +42,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         ]);
         $schema = new CustomEntityXmlSchema(__DIR__, $entities);
 
-        $validator = new CustomEntityXmlSchemaValidator();
+        $validator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $this->expectExceptionObject($expectedException);
 
@@ -65,7 +66,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
 
         static::expectNotToPerformAssertions();
 
-        (new CustomEntityXmlSchemaValidator())->validate(new CustomEntityXmlSchema(__DIR__, $entities));
+        (new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()))->validate(new CustomEntityXmlSchema(__DIR__, $entities));
     }
 
     /**
@@ -77,6 +78,8 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         yield 'camelCase' => ['topSeller'];
         yield 'leading underscore' => ['_internal'];
         yield 'with digits' => ['field2'];
+        yield 'leading digit' => ['2fa_counter'];
+        yield 'dollar sign' => ['price$usd'];
     }
 
     /**
@@ -120,26 +123,26 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
             CustomEntityException::labelPropertyWrongType('name'),
         ];
 
-        yield 'sql-injection-in-field-name' => [
+        yield 'whitespace-in-field-name' => [
             <<<'XML'
             <entity name="ce_test">
                 <fields>
-                    <int name="x INT); CREATE TABLE poc_pwned (marker INT); -- " store-api-aware="true"/>
+                    <int name="foo bar" store-api-aware="true"/>
                 </fields>
             </entity>
             XML,
-            CustomEntityException::invalidFieldName('ce_test', 'x INT); CREATE TABLE poc_pwned (marker INT); -- '),
+            CustomEntityException::invalidFieldName('ce_test', 'foo bar'),
         ];
 
-        yield 'sql-injection-in-entity-name' => [
+        yield 'backtick-in-entity-name' => [
             <<<'XML'
-            <entity name="ce_test`; DROP TABLE `product">
+            <entity name="ce_test`x">
                 <fields>
                     <string name="title" store-api-aware="true"/>
                 </fields>
             </entity>
             XML,
-            CustomEntityException::invalidEntityName('ce_test`; DROP TABLE `product'),
+            CustomEntityException::invalidEntityName('ce_test`x'),
         ];
 
         yield 'field-name-with-invalid-character' => [

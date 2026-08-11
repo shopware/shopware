@@ -47,7 +47,7 @@ class CustomEntityException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOM_ENTITY_INVALID_NAME,
-            'Custom entity name "{{ entityName }}" is invalid. It must start with a letter or underscore and may only contain letters, digits and underscores.',
+            'Custom entity name "{{ entityName }}" is invalid. It may only contain letters, digits, underscores and dollar signs.',
             ['entityName' => $entityName],
         );
     }
@@ -57,7 +57,7 @@ class CustomEntityException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOM_ENTITY_INVALID_FIELD_NAME,
-            'Field name "{{ fieldName }}" of custom entity "{{ entityName }}" is invalid. It must start with a letter or underscore and may only contain letters, digits and underscores.',
+            'Field name "{{ fieldName }}" of custom entity "{{ entityName }}" is invalid. It may only contain letters, digits, underscores and dollar signs.',
             ['entityName' => $entityName, 'fieldName' => $fieldName],
         );
     }

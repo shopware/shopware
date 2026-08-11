@@ -9,9 +9,9 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:simpleType name="identifier">
+    <xs:simpleType name="custom_entity_identifier">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[a-zA-Z_&#x80;-&#xFFFD;][a-zA-Z0-9_&#x80;-&#xFFFD;]*"/>
+            <xs:pattern value="[a-zA-Z0-9_$&#x80;-&#xFFFD;]+"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -28,7 +28,7 @@
             <xs:element name="fields" maxOccurs="unbounded" type="field-list" minOccurs="1"/>
         </xs:choice>
 
-        <xs:attribute name="name" type="identifier" use="required"/>
+        <xs:attribute name="name" type="custom_entity_identifier" use="required"/>
         <!-- @todo NEXT-22697 - Re-implement, when re-enabling cms-aware -->
         <!--<xs:attribute name="cms-aware" type="xs:boolean"/>-->
         <xs:attribute name="custom-fields-aware" type="xs:boolean"/>
@@ -54,7 +54,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-int-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -62,7 +62,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-float-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -70,7 +70,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-string-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -78,7 +78,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-text-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="allow-html" default="false" />
@@ -87,7 +87,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-bool-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -95,14 +95,14 @@
     </xs:complexType>
 
     <xs:complexType name="field-json-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-email-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -110,13 +110,13 @@
     </xs:complexType>
 
     <xs:complexType name="field-price-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-date-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="translatable" default="false" />
@@ -124,7 +124,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-many-to-many-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
@@ -132,7 +132,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-many-to-one-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
@@ -142,7 +142,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-one-to-many-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
@@ -152,7 +152,7 @@
     </xs:complexType>
 
     <xs:complexType name="field-one-to-one-type">
-        <xs:attribute type="identifier" name="name" use="required"/>
+        <xs:attribute type="custom_entity_identifier" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />

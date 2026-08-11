@@ -4,8 +4,9 @@ namespace Shopware\Core\System\CustomEntity\Xml;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
-use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
+use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 
@@ -15,6 +16,10 @@ use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 #[Package('framework')]
 class CustomEntityXmlSchemaValidator
 {
+    public function __construct(private readonly CustomEntityNameValidator $nameValidator)
+    {
+    }
+
     public function validate(CustomEntityXmlSchema $schema): void
     {
         if ($schema->getEntities() === null) {
@@ -54,15 +59,10 @@ class CustomEntityXmlSchemaValidator
      */
     private function validateNames(Entity $entity): void
     {
-        if (!\preg_match(SchemaUpdater::NAME_PATTERN, $entity->getName())) {
-            throw CustomEntityException::invalidEntityName($entity->getName());
-        }
-
-        foreach ($entity->getFields() as $field) {
-            if (!\preg_match(SchemaUpdater::NAME_PATTERN, $field->getName())) {
-                throw CustomEntityException::invalidFieldName($entity->getName(), $field->getName());
-            }
-        }
+        $this->nameValidator->validate(
+            $entity->getName(),
+            array_map(static fn (Field $field): string => $field->getName(), $entity->getFields())
+        );
     }
 
     private function validateAssociation(OneToManyField $field): void

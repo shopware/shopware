@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Schema;
 
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -12,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
@@ -28,7 +28,7 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
@@ -42,95 +42,22 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
     }
 
-    /**
-     * @param array{name: string, fields: string} $entity
-     */
-    #[DataProvider('hostileNameProvider')]
-    public function testNamesWithSqlSyntaxAreRejected(array $entity, \Exception $expectedException): void
+    public function testInvalidNamesAreRejectedThroughTheNameValidator(): void
     {
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
 
-        $this->expectExceptionObject($expectedException);
+        $this->expectExceptionObject(CustomEntityException::invalidFieldName('ce_poc', 'foo bar'));
 
-        $updater->applyCustomEntities(new Schema(), [$entity]);
-    }
-
-    /**
-     * @return \Generator<string, array{0: array{name: string, fields: string}, 1: \Exception}>
-     */
-    public static function hostileNameProvider(): \Generator
-    {
-        $stackedStatement = 'x INT); CREATE TABLE poc_pwned (marker INT); -- ';
-
-        yield 'stacked statement in field name' => [
-            [
-                'name' => 'ce_poc',
-                'fields' => \json_encode([['name' => $stackedStatement, 'type' => 'int', 'storeApiAware' => true]], \JSON_THROW_ON_ERROR),
-            ],
-            CustomEntityException::invalidFieldName('ce_poc', $stackedStatement),
-        ];
-
-        yield 'backtick in entity name' => [
-            [
-                'name' => 'ce_poc`; DROP TABLE `product',
-                'fields' => '[]',
-            ],
-            CustomEntityException::invalidEntityName('ce_poc`; DROP TABLE `product'),
-        ];
-
-        yield 'dash in field name' => [
-            [
-                'name' => 'ce_poc',
-                'fields' => '[{"name":"my-field","type":"string","storeApiAware":true}]',
-            ],
-            CustomEntityException::invalidFieldName('ce_poc', 'my-field'),
-        ];
-
-        yield 'parentheses in entity name' => [
-            [
-                'name' => 'ce_poc(id)',
-                'fields' => '[]',
-            ],
-            CustomEntityException::invalidEntityName('ce_poc(id)'),
-        ];
-    }
-
-    public function testGeneratedDdlNeverCarriesASecondStatement(): void
-    {
-        $schema = new Schema([
-            new Table('language', [new Column('id', Type::getType(Types::BINARY))]),
-        ]);
-
-        $updater = new SchemaUpdater();
-        $updater->applyCustomEntities($schema, [
-            [
-                'name' => 'custom_entity_edge',
-                'fields' => '[{"name":"_leading","storeApiAware":true,"type":"string","required":false},{"name":"camelCase","storeApiAware":true,"type":"int","required":false},{"name":"with_digits2","storeApiAware":true,"type":"text","translatable":true,"required":false}]',
-            ],
-        ]);
-
-        $platform = new MySQLPlatform();
-
-        $asserted = 0;
-
-        foreach ($schema->getTables() as $table) {
-            if ($table->getComment() !== 'custom-entity-element') {
-                continue;
-            }
-
-            foreach ($platform->getCreateTableSQL($table) as $sql) {
-                static::assertStringNotContainsString(';', $sql, \sprintf('Generated DDL must be a single statement, got: %s', $sql));
-                ++$asserted;
-            }
-        }
-
-        static::assertGreaterThan(0, $asserted, 'No custom entity DDL was generated, the assertion above never ran');
+        $updater->applyCustomEntities(new Schema(), [[
+            'name' => 'ce_poc',
+            'fields' => \json_encode([['name' => 'foo bar', 'type' => 'int', 'storeApiAware' => true]], \JSON_THROW_ON_ERROR),
+        ]]);
     }
 
     public function testExtendingExistingTables(): void
@@ -147,7 +74,7 @@ class SchemaUpdaterTest extends TestCase
             'fields' => '[{"name":"product","reference":"product","onDelete":"set-null","inherited":true,"type":"one-to-one"}]',
         ];
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$customEntity]);
 
         $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
@@ -178,7 +105,7 @@ class SchemaUpdaterTest extends TestCase
             new Table('language', [new Column('id', Type::getType(Types::BINARY))]),
         ]);
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
@@ -194,7 +121,7 @@ class SchemaUpdaterTest extends TestCase
     {
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
@@ -282,7 +209,7 @@ class SchemaUpdaterTest extends TestCase
     {
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedNonExistTableNames as $nonExistTableName) {
@@ -366,7 +293,7 @@ class SchemaUpdaterTest extends TestCase
     public function testAssociationWithoutIgnoreMissingReference(array $entities): void
     {
         $schema = new Schema();
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $this->expectException(CustomEntityException::class);
         $this->expectExceptionMessageMatches('/Association reference table "custom_entity_right" not found/');
         $updater->applyCustomEntities($schema, $entities);

@@ -42,7 +42,7 @@ describe('listing-pagination.plugin', () => {
 
         const canonicalLink = document.createElement('link');
         canonicalLink.setAttribute('rel', 'canonical');
-        canonicalLink.setAttribute('href', 'https://example.com/paginated-page');
+        canonicalLink.setAttribute('href', 'https://example.com/paginated-page/');
         document.head.appendChild(canonicalLink);
 
         document.body.innerHTML = template;
@@ -79,7 +79,7 @@ describe('listing-pagination.plugin', () => {
                     </div>
                 </div>
                 `),
-            })
+            }),
         );
     });
 
@@ -103,7 +103,7 @@ describe('listing-pagination.plugin', () => {
         await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
-        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
+        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': 3 });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
 
@@ -113,6 +113,16 @@ describe('listing-pagination.plugin', () => {
             const canonicalUrl = new URL(canonicalMetaTag.href);
             expect(canonicalUrl.searchParams.get('p')).toBe('3');
         }
+    });
+
+    test('removes pagination parameter from canonical URL when returning to first page', async () => {
+        const pageItem = document.querySelector('[data-page="1"]');
+
+        pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        expect(canonicalMetaTag?.href).toBe('https://example.com/paginated-page/');
     });
 
     test('tries to set the focus back to the pagination link when content changes after pagination', async () => {

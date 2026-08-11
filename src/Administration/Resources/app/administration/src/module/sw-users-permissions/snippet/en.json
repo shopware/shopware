@@ -206,6 +206,9 @@
                     "saveSuccess": {
                         "message": "User \"{name}\" saved."
                     },
+                    "themeSaveError": {
+                        "message": "The theme preference could not be saved."
+                    },
                     "invalidEmailErrorMessage": "Please enter a valid email address.",
                     "duplicateEmailErrorMessage": "This email address has been registered already."
                 }

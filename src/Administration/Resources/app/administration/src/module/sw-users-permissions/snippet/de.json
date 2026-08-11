@@ -206,6 +206,9 @@
                     "saveSuccess": {
                         "message": "Benutzer \"{name}\" gespeichert."
                     },
+                    "themeSaveError": {
+                        "message": "Die Design-Einstellung konnte nicht gespeichert werden."
+                    },
                     "invalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
                     "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."
                 }

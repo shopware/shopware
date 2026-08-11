@@ -208,6 +208,21 @@ export default {
             this.loadedLandingPages = {};
         },
 
+        // Offsets shift as soon as entries are added, removed or renamed, so every page that was
+        // already loaded has to be fetched again to stay in sync with the server ordering.
+        async reloadLandingPages() {
+            const loadedPages = this.page;
+
+            this.loadedLandingPages = {};
+
+            for (let page = 1; page <= loadedPages; page += 1) {
+                this.page = page;
+
+                // eslint-disable-next-line no-await-in-loop
+                await this.loadLandingPages();
+            }
+        },
+
         checkedElementsCount(count) {
             this.$emit('landing-page-checked-elements-count', count);
         },
@@ -216,6 +231,8 @@ export default {
             const ids = Object.keys(checkedItems);
             this.landingPageRepository.syncDeleted(ids).then(() => {
                 ids.forEach((id) => this.removeFromStore(id));
+
+                return this.reloadLandingPages();
             });
         },
 
@@ -231,6 +248,8 @@ export default {
                 if (landingPage.id === this.landingPageId) {
                     this.$router.push({ name: 'sw.category.index' });
                 }
+
+                return this.reloadLandingPages();
             });
         },
 
@@ -260,16 +279,18 @@ export default {
             this.landingPageRepository
                 .clone(contextItem.id, behavior, Shopware.Context.api)
                 .then((clone) => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.setIds([clone.id]);
-                    this.landingPageRepository.search(criteria).then((landingPages) => {
-                        landingPages.forEach((element) => {
-                            element.childCount = 0;
-                            element.parentId = null;
-                        });
+                    return this.reloadLandingPages().then(() => {
+                        const criteria = new Criteria(1, 25);
+                        criteria.setIds([clone.id]);
 
-                        this.total += landingPages.length;
-                        this.addLandingPages(landingPages);
+                        return this.landingPageRepository.search(criteria).then((landingPages) => {
+                            landingPages.forEach((element) => {
+                                element.childCount = 0;
+                                element.parentId = null;
+                            });
+
+                            this.addLandingPages(landingPages);
+                        });
                     });
                 })
                 .catch(() => {
@@ -286,7 +307,9 @@ export default {
         },
 
         syncLandingPages() {
-            return this.landingPageRepository.sync(this.landingPages);
+            return this.landingPageRepository.sync(this.landingPages).then(() => {
+                return this.reloadLandingPages();
+            });
         },
 
         createNewLandingPage(name) {
@@ -297,11 +320,13 @@ export default {
 
             newLandingPage.save = () => {
                 return this.landingPageRepository.save(newLandingPage).then(() => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.setIds([newLandingPage.id].filter((id) => id !== null));
-                    this.landingPageRepository.search(criteria).then((landingPages) => {
-                        this.total += landingPages.length;
-                        this.addLandingPages(landingPages);
+                    return this.reloadLandingPages().then(() => {
+                        const criteria = new Criteria(1, 25);
+                        criteria.setIds([newLandingPage.id].filter((id) => id !== null));
+
+                        return this.landingPageRepository.search(criteria).then((landingPages) => {
+                            this.addLandingPages(landingPages);
+                        });
                     });
                 });
             };
@@ -345,8 +370,6 @@ export default {
                     return key !== id;
                 }),
             );
-
-            this.total = Math.max(0, this.total - 1);
         },
 
         getLandingPageUrl(landingPage) {

@@ -379,7 +379,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         expect(wrapper.vm.landingPages).toHaveLength(500);
     });
 
-    it('should keep the total in sync when a landing page is removed', async () => {
+    it('should drop a deleted landing page from the tree', async () => {
         const search = () => Promise.resolve(createSearchResult(createLandingPages(500), 700));
 
         const wrapper = await createWrapper(search);
@@ -387,7 +387,63 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         wrapper.vm.removeFromStore('id-0');
 
-        expect(wrapper.vm.total).toBe(699);
         expect(wrapper.vm.landingPages).toHaveLength(499);
+    });
+
+    it('should reload the loaded pages after a delete so shifted entries stay reachable', async () => {
+        // 501 landing pages: page one is full, one entry is left over.
+        let serverCount = 501;
+        const search = jest.fn((criteria) => {
+            const offset = (criteria.page - 1) * 500;
+            const size = Math.max(0, Math.min(500, serverCount - offset));
+
+            return Promise.resolve(createSearchResult(createLandingPages(size, offset), serverCount));
+        });
+
+        const wrapper = await createWrapper(search);
+        await flushPromises();
+
+        expect(wrapper.vm.landingPages).toHaveLength(500);
+        expect(wrapper.vm.hasMoreLandingPages).toBe(true);
+
+        const deleteMock = jest.fn(() => {
+            serverCount -= 1;
+
+            return Promise.resolve();
+        });
+        wrapper.vm.landingPageRepository.delete = deleteMock;
+
+        await wrapper.vm.onDeleteLandingPage({ data: { id: 'id-0', isNew: () => false } });
+        await flushPromises();
+
+        // Without the reload the offset cursor would still sit behind the shrunken result set,
+        // so the entry that moved into page one would never be fetched.
+        expect(wrapper.vm.total).toBe(500);
+        expect(wrapper.vm.landingPages).toHaveLength(500);
+        expect(wrapper.vm.hasMoreLandingPages).toBe(false);
+    });
+
+    it('should reload every page that was loaded before the mutation', async () => {
+        const search = jest.fn((criteria) =>
+            Promise.resolve(createSearchResult(createLandingPages(500, (criteria.page - 1) * 500), 1000)),
+        );
+
+        const wrapper = await createWrapper(search);
+        await flushPromises();
+
+        await wrapper.find('.sw-landing-page-tree__load-more-button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.page).toBe(2);
+        search.mockClear();
+
+        await wrapper.vm.reloadLandingPages();
+
+        expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([
+            1,
+            2,
+        ]);
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.landingPages).toHaveLength(1000);
     });
 });

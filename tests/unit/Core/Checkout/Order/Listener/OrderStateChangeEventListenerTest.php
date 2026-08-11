@@ -586,4 +586,69 @@ class OrderStateChangeEventListenerTest extends TestCase
         static::assertArrayHasKey('state_enter.order.paid', $events->getElements());
         static::assertArrayHasKey('state_leave.order.paid', $events->getElements());
     }
+
+    public function testOnAddStateEventsSkipsStatesWithoutAStateMachine(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $event = new BusinessEventCollectorEvent(
+            new BusinessEventCollectorResponse(),
+            $context
+        );
+
+        // the state without a state machine comes first, so the loop has to skip it and carry on
+        $orphanedState = new StateMachineStateEntity();
+        $orphanedState->setId('orphaned_state_id');
+        $orphanedState->setTechnicalName('open');
+
+        $stateMachine = new StateMachineEntity();
+        $stateMachine->setTechnicalName('order');
+
+        $state = new StateMachineStateEntity();
+        $state->setId('state_id');
+        $state->setTechnicalName('paid');
+        $state->setStateMachine($stateMachine);
+
+        $expectedCriteria = new Criteria();
+        $expectedCriteria->addAssociation('stateMachine');
+
+        $states = new EntitySearchResult(
+            'state_machine_state',
+            2,
+            new StateMachineStateCollection([$orphanedState, $state]),
+            null,
+            $expectedCriteria,
+            $context
+        );
+
+        $stateRepo = $this->createMock(EntityRepository::class);
+        $stateRepo
+            ->expects($this->once())
+            ->method('search')
+            ->with(static::equalTo($expectedCriteria), $context)
+            ->willReturn($states);
+
+        $collector = $this->createMock(BusinessEventCollector::class);
+        $collector
+            ->expects($this->exactly(2))
+            ->method('define')
+            ->with(OrderStateMachineStateChangeEvent::class, static::logicalOr(static::equalTo('state_enter.order.paid'), static::equalTo('state_leave.order.paid')))
+            ->willReturnCallback(static fn (string $class, string $name): BusinessEventDefinition => new BusinessEventDefinition($name, $class, []));
+
+        $listener = new OrderStateChangeEventListener(
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $collector,
+            $stateRepo,
+        );
+
+        $listener->onAddStateEvents($event);
+
+        $events = $event->getCollection();
+        static::assertCount(2, $events, 'The state without a state machine contributes no event');
+        static::assertArrayHasKey('state_enter.order.paid', $events->getElements());
+        static::assertArrayHasKey('state_leave.order.paid', $events->getElements());
+    }
 }

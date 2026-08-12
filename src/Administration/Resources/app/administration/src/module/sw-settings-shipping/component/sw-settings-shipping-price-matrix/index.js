@@ -495,7 +495,6 @@ export default {
         onQuantityEndChange(price) {
             const priceIndex = this.priceGroup.prices.indexOf(price);
 
-            // when last price, continue the matrix with a new price
             if (priceIndex + 1 === this.priceGroup.prices.length) {
                 this.onAddNewShippingPrice();
                 return;
@@ -505,8 +504,6 @@ export default {
                 return;
             }
 
-            // The number field of the following price only clamps its displayed value to the new end, it never
-            // writes it back. Move the start along explicitly, otherwise the displayed and the saved value drift.
             this.priceGroup.prices[priceIndex + 1].quantityStart = this.getFollowingQuantityStart(price.quantityEnd);
         },
 

@@ -4,7 +4,7 @@ export default class Navbar extends window.ShopwareComponent {
         navItemActiveClassName: 'active',
         scrollable: true,
         scrollDistance: 450,
-    }
+    };
 
     init() {
         this.navContainer = this.el.querySelector('.sw-navbar__nav');

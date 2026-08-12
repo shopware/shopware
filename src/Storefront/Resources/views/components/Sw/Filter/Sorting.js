@@ -11,9 +11,9 @@ export default class FilterSorting extends ShopwareComponent {
     handleChange(event) {
         const sorting = event.target.value;
 
-        Shopware.emit(`FilterSorting:Change`, sorting);
+        Shopware.emit('FilterSorting:Change', sorting);
 
-        this.dispatchEvent(`FilterSorting:Change`, { sorting });
+        this.dispatchEvent('FilterSorting:Change', { sorting });
     }
 
     destroy() {

@@ -130,7 +130,7 @@ export default class MediaGallery extends ShopwareComponent {
         // Native mousewheel scrolls or touch swipes can scroll the container normally.
         // Since there is no native mouse "drag-to-scroll" functionality, we change the scroll position when dragging the mouse.
         let isDown = false;
-        let startX, startY, scrollLeft, scrollTop;
+        let startX; let startY; let scrollLeft; let scrollTop;
 
         container.addEventListener('mousedown', (e) => {
             isDown = true;

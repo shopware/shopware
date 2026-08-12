@@ -712,7 +712,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (($row[$csvKey] ?? '') === '') {
                 $row[$csvKey] = $mapping->getDefaultValue();
             }
         }
@@ -732,7 +732,7 @@ class ImportExport
                 continue;
             }
 
-            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+            if (($row[$csvKey] ?? '') === '') {
                 throw ImportExportException::requiredByUser($csvKey);
             }
         }

@@ -246,7 +246,8 @@ class PrimaryKeyResolver
             return implode('.', $updateByFieldPath);
         }
 
-        if (empty($updateByFieldPath[1])) {
+        // a translated update-by field needs the locale of the translation, e.g. `translations.DEFAULT.name`
+        if (($updateByFieldPath[1] ?? '') === '') {
             return null;
         }
 
@@ -291,7 +292,7 @@ class PrimaryKeyResolver
             $updatedBy = $config->getUpdateBy()->get($manyToManyDefinition->getEntityName());
             $record = \is_array($record) ? $record : iterator_to_array($record);
 
-            if (!$updatedBy || empty($record[$field->getPropertyName()])) {
+            if (!$updatedBy || ($record[$field->getPropertyName()] ?? '') === '') {
                 continue;
             }
 

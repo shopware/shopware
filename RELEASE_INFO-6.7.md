@@ -191,22 +191,22 @@ When updating an Elasticsearch/OpenSearch mapping references an analyzer/normali
 
 The product-specific progress bar is gone, replaced by the remaining document count per entity. Its total came from a live `product` count rather than from the recorded task, so it was only ever an approximation and could not be generalised to other entities.
 
-### Outdated Elasticsearch indices are removed automatically
+### Admin search indices go live only after their indexing run finished
 
-Indices that no longer serve an alias were only removable by hand, and `es:index:cleanup` never covered the admin search indices at all — it builds its search pattern from the storefront index prefix (`sw_<entity>_*`), which never matches an admin index (`sw-admin-<name>_<timestamp>`), and it talks to the storefront client rather than the admin one. Admin indices are normally cleaned up when the alias is swapped at the end of an indexing run, so leftovers came from runs that were aborted before that point and then stayed until `es:admin:reset` deleted every admin index, including the live ones.
+`es:admin:index` swapped each alias to the newly built index immediately after queueing the indexing messages, before a single one had been handled. Admin search was served by an almost empty index for the whole time the queue took to drain, and the previous index was deleted in the same step, so there was nothing to fall back to. The `doc_count` column of `admin_elasticsearch_index_task` was written but never read or decremented, so nothing recorded how far a run had progressed.
 
-Two additions close this:
+The admin indexing lifecycle now works like the storefront one:
 
-* `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation, leaving the aliased indices in place. It fails when admin Elasticsearch is disabled.
-* A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when either Elasticsearch or admin Elasticsearch is enabled.
+* Every indexing message counts its documents off `admin_elasticsearch_index_task.doc_count` after it was written successfully. A failing batch does not count down, so a retried or dead-lettered batch keeps the alias on the previous index instead of promoting an incomplete one.
+* A new `shopware.elasticsearch.admin.create.alias` scheduled task runs every five minutes, promotes indices whose remaining count reached zero, and deletes the index each one replaces. `es:admin:index --no-queue` still swaps within the command, because its messages are handled inline.
+* While a run is in progress an entity has two indices — the one the alias serves and the one being built — and live updates from `AdminSearchRegistry::refresh()` are written to both. Previously they only reached the index being built, so they were invisible in admin search until the swap.
+* Rows of runs that never finished are removed when the entity is indexed again, so a leftover index is no longer recorded as being written to.
 
-The scheduled task applies two guards the interactive commands do not need, because an index that is currently being built also has no alias: it skips indices that an entry in `elasticsearch_index_task` or `admin_elasticsearch_index_task` still writes to, and it only deletes indices older than `elasticsearch.index_cleanup_minimum_age` (default 86400 seconds, override with `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE`). Raise the value if a full indexing run can take longer than the threshold. Indices whose creation date cannot be read are never deleted by the task.
+Note that promoting an index adds the alias before the index it replaces is deleted, so admin search can briefly see both. That behaviour is unchanged.
 
-`es:index:cleanup` is unchanged and still deletes every storefront index without an alias after confirmation, regardless of age.
+### New `es:admin:status` command
 
-### Admin index alias swap no longer stops at the first missing alias
-
-`AdminSearchRegistry` swapped aliases in a loop that returned instead of continuing when an alias did not exist yet. Every entity after that one kept its previous index and left the newly built index behind without an alias. Each entity's alias is now swapped independently.
+Admin indexing had no status output at all, and the only indirect signal — the `message_queue_stats` entry for `AdminSearchIndexingMessage` — is gone in 6.8. `bin/console es:admin:status` reports the admin cluster health and one row per entity with its index, alias, remaining document count and whether it is live, still indexing, or waiting for its alias swap.
 
 ### Built-in translation system configurable via `shopware.translation`
 

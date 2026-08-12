@@ -230,6 +230,36 @@ shopware:
                         operation:
                             allowed_values: [read, write, delete, none]
 
+                api.sync.operations.count:
+                    description: 'Operations per Sync API request'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 10, 25, 50, 100, 500]
+
+                api.sync.entities.affected:
+                    # pre-aggregated per request: one emit per (entity_group, action) pair
+                    description: 'Entities written/deleted via the Sync API, per entity group and action'
+                    type: 'counter'
+                    labels:
+                        # see EntityGroupResolver
+                        entity_group:
+                            policy: open
+                        action:
+                            allowed_values: [upsert, delete]
+
+                api.sync.duration:
+                    description: 'Total Sync API request duration'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # small payloads up to bulk imports
+                        buckets: [10, 100, 1000, 10000, 60000, 300000]
+                    labels:
+                        # 'default' = no explicit behavior requested (synchronous indexing)
+                        indexing_behavior:
+                            allowed_values: ['use-queue-indexing', 'disable-indexing', 'default']
+                        # failed requests are timed too, kept out of the healthy distribution
+
                 flow.execution.duration:
                     # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.
                     # heavy actions that offload to queue (mail, webhooks) are not included in the flow engine wall time

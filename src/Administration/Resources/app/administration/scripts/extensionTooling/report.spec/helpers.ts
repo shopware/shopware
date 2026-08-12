@@ -73,6 +73,7 @@ export function extension(
         tsResolution: overrides.tsResolution ?? firstDrift(project_, 'tsconfig'),
         eslintResolution: overrides.eslintResolution ?? firstDrift(project_, 'eslintConfig'),
         typescript: overrides.typescript ?? run('passed'),
+        typescriptSpecs: overrides.typescriptSpecs ?? run('no-files'),
         eslint: overrides.eslint ?? run('passed'),
         commands: overrides.commands ?? {},
         coverage: overrides.coverage ?? [],

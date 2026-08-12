@@ -79,6 +79,8 @@ export interface ToolRunResult {
     staleBaseline?: number;
     /** Identities of the new findings, for the report to point at them among the baselined ones. */
     newFindingRefs?: Array<{ file: string; code: string }>;
+    /** Identities of the suppressed findings, so a baselined run can name what it hid. */
+    baselinedFindingRefs?: Array<{ file: string; code: string }>;
     /** Structured diagnostics retained for safe aggregate baselines across multiple programs. */
     typeScriptFindings?: TypeScriptFinding[];
     eslintFindings?: EslintFinding[];
@@ -94,8 +96,10 @@ export interface ToolRunResult {
 
 export interface AdministrationTargetCoverage {
     target: AdministrationTarget;
-    /** Effective TypeScript config; identical canonical paths are executed once. */
+    /** Effective runtime config; identical canonical paths are executed once. */
     runtimeConfig: string;
+    /** Dedicated spec config for this target. */
+    specConfig: string;
     /** Effective ESLint config; identical canonical paths are executed once. */
     eslintConfig: string;
 }
@@ -107,9 +111,11 @@ export interface ExtensionCheckResult {
     /** The first ESLint config that does not compose, or null when every root is covered. */
     eslintResolution: OwnedConfig | null;
     typescript: ToolRunResult;
+    /** The dedicated spec type-check program (jest types, spec files only). */
+    typescriptSpecs: ToolRunResult;
     eslint: ToolRunResult;
     /** Reproduction commands for the tool runs that actually happened. */
-    commands: { typescript?: string[]; eslint?: string[] };
+    commands: { typescript?: string[]; typescriptSpecs?: string[]; eslint?: string[] };
     /** Target/config routing used by this aggregate extension result. */
     coverage: AdministrationTargetCoverage[];
     /** Targets whose own config kept a tool from covering them, regardless of the run status. */
@@ -120,6 +126,7 @@ export interface CheckExtensionsOptions {
     projectRoot: string;
     administrationRoot: string;
     only?: string | string[];
+    strictVendor?: boolean;
     maxWorkers?: number;
     /** Forward --fix to ESLint (never to vue-tsc). */
     fix?: boolean;
@@ -127,6 +134,8 @@ export interface CheckExtensionsOptions {
     explicitOnly?: string[];
     /** Record the current findings as the baseline instead of failing on them. */
     updateBaseline?: boolean;
+    /** Fail (exit 1) when a writable extension's tool run was skipped/blocked, not only on findings. */
+    failOnSkipped?: boolean;
 }
 
 export interface CheckExtensionsResult {

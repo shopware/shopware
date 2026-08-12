@@ -30,9 +30,9 @@ const ESLINT_CONFIG_NAMES = [
 export function discoverProjects(
     projectRoot: string,
     administrationRoot: string,
-    pluginsConfigPath: string,
+    bundleDumpPath: string,
 ): ExtensionToolingProject[] {
-    const bundles = readBundleConfig(pluginsConfigPath);
+    const bundles = readBundleConfig(bundleDumpPath);
     const administrationSourcePath = path.resolve(administrationRoot, 'src');
     const vendorRoot = path.join(projectRoot, 'vendor');
 

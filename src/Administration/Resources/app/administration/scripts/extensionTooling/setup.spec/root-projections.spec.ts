@@ -64,6 +64,21 @@ describe('scripts/extensionTooling/setup root projections', () => {
         }
     });
 
+    it('excludes test files from the scaffolded committed tsconfig — the spec program checks them instead', () => {
+        writeDefaultFixtures(projectRoot);
+        setupExtensionTooling({ projectRoot, administrationRoot });
+
+        const scaffold = fs.readFileSync(
+            path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration/tsconfig.json'),
+            'utf8',
+        );
+
+        // The runtime config excludes specs; the generated .shopware/ spec
+        // program (spec-tsconfig.spec.ts) type-checks them with jest types.
+        expect(scaffold).toContain('"**/*.spec.ts"');
+        expect(scaffold).toContain('type-checks them separately with jest types');
+    });
+
     it('escapes filesystem paths so a quote in an extension path cannot break the generated config', () => {
         const pluginPath = "custom/plugins/O'Brien";
         writeZeroConfigPlugin({ projectRoot, pluginPath });
@@ -136,6 +151,13 @@ describe('scripts/extensionTooling/setup root projections', () => {
         // `typescript.tsdk` is deprecated — VS Code flags it on the line we told
         // the reader to add.
         expect(result.instructions.join('\n')).not.toContain('"typescript.tsdk"');
+        // The command commonly runs inside a container, where an absolute path
+        // is not cmd+clickable in the editor. Every file an instruction names is
+        // project-relative — asserted across the whole set, since this test
+        // triggers both the root-config and the IDE-bootstrap conflict.
+        expect(result.instructions.join('\n')).toContain('.vscode/settings.json is user-owned');
+        expect(result.instructions.join('\n')).toContain('tsconfig.json exists and is not managed');
+        expect(result.instructions.join('\n')).not.toContain(projectRoot);
     });
 
     it('prints the IDE settings hint as a paste-ready JSON fragment', () => {

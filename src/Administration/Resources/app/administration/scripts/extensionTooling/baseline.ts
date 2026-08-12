@@ -51,14 +51,16 @@ export interface BaselineEslintEntry {
 export interface FindingsBaseline {
     version: 1;
     typescript: BaselineTsEntry[];
+    /** Findings from the dedicated spec type-check program. */
+    typescriptSpecs: BaselineTsEntry[];
     eslint: BaselineEslintEntry[];
 }
 
 export interface BaselineSplit<F> {
     /** Findings not covered by the baseline — these drive the exit code. */
     newFindings: F[];
-    /** Findings matched against a baseline entry. */
-    baselinedCount: number;
+    /** Findings matched against a baseline entry, so the report can list what it suppressed. */
+    baselinedFindings: F[];
     /** Baseline entries that matched nothing this run (prunable). */
     staleCount: number;
     /**
@@ -74,9 +76,20 @@ interface BaselineProject {
     vendor: boolean;
 }
 
+/**
+ * A baseline is committed plugin data, so only a writable `custom/plugins`
+ * extension can carry one: vendor extensions are not ours to write to, and an
+ * in-repo bundle (`src/Storefront`, …) must not collect per-developer debt
+ * files. Callers gate on this rather than on a null path, so "cannot hold a
+ * baseline" is a stated condition instead of a silent absence.
+ */
+export function canHoldBaseline(project: BaselineProject): boolean {
+    return !project.vendor && project.basePath.startsWith('custom/plugins/');
+}
+
 /** Absolute path to a project's baseline file, or null when the project cannot carry one. */
 export function baselineFilePath(projectRoot: string, project: BaselineProject): string | null {
-    if (project.vendor || !project.basePath.startsWith('custom/plugins/')) {
+    if (!canHoldBaseline(project)) {
         return null;
     }
 
@@ -101,6 +114,7 @@ export function readBaseline(projectRoot: string, project: BaselineProject): Fin
         return {
             version: 1,
             typescript: Array.isArray(parsed.typescript) ? parsed.typescript : [],
+            typescriptSpecs: Array.isArray(parsed.typescriptSpecs) ? parsed.typescriptSpecs : [],
             eslint: Array.isArray(parsed.eslint) ? parsed.eslint : [],
         };
     } catch {
@@ -135,7 +149,7 @@ function coreDiff<F, E extends { count: number }>(
     }
 
     const newFindings: F[] = [];
-    let baselinedCount = 0;
+    const baselinedFindings: F[] = [];
 
     for (const finding of findings) {
         const key = findingKey(finding);
@@ -143,7 +157,7 @@ function coreDiff<F, E extends { count: number }>(
 
         if (left > 0) {
             remaining.set(key, left - 1);
-            baselinedCount += 1;
+            baselinedFindings.push(finding);
         } else {
             newFindings.push(finding);
         }
@@ -155,7 +169,7 @@ function coreDiff<F, E extends { count: number }>(
         staleCount += left;
     }
 
-    return { newFindings, baselinedCount, staleCount };
+    return { newFindings, baselinedFindings, staleCount };
 }
 
 function tsFindingKey(finding: TypeScriptFinding, basePath: string): string {
@@ -186,7 +200,7 @@ export function diffTypeScript(
     regexCount: number,
 ): BaselineSplit<TypeScriptFinding> {
     if (findings.length !== regexCount) {
-        return { newFindings: [...findings], baselinedCount: 0, staleCount: 0, parseMismatch: true };
+        return { newFindings: [...findings], baselinedFindings: [], staleCount: 0, parseMismatch: true };
     }
 
     return {
@@ -209,7 +223,7 @@ export function diffEslint(
     const errors = findings.filter((finding) => finding.severity === 'error');
 
     if (findings.length !== regexCount) {
-        return { newFindings: errors, baselinedCount: 0, staleCount: 0, parseMismatch: true };
+        return { newFindings: errors, baselinedFindings: [], staleCount: 0, parseMismatch: true };
     }
 
     return {
@@ -271,12 +285,13 @@ function aggregateEslint(findings: EslintFinding[], basePath: string): BaselineE
  * are recorded (warnings never fail the check).
  */
 export function buildBaseline(
-    findings: { typescript: TypeScriptFinding[]; eslint: EslintFinding[] },
+    findings: { typescript: TypeScriptFinding[]; typescriptSpecs: TypeScriptFinding[]; eslint: EslintFinding[] },
     basePath: string,
 ): FindingsBaseline {
     return {
         version: 1,
         typescript: aggregateTs(findings.typescript, basePath),
+        typescriptSpecs: aggregateTs(findings.typescriptSpecs, basePath),
         eslint: aggregateEslint(
             findings.eslint.filter((finding) => finding.severity === 'error'),
             basePath,

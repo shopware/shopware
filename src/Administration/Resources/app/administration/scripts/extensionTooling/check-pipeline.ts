@@ -108,7 +108,10 @@ export function applyBaseline<F>(
     totalFindings: number,
     split: BaselineSplit<F>,
     refOf: (finding: F) => { file: string; code: string },
-): Pick<ToolRunResult, 'status' | 'findings' | 'newFindings' | 'baselinedFindings' | 'staleBaseline' | 'newFindingRefs'> {
+): Pick<
+    ToolRunResult,
+    'status' | 'findings' | 'newFindings' | 'baselinedFindings' | 'staleBaseline' | 'newFindingRefs' | 'baselinedFindingRefs'
+> {
     const newFindings = split.newFindings.length;
     let status: ToolStatus;
 
@@ -125,8 +128,9 @@ export function applyBaseline<F>(
         status,
         findings: totalFindings,
         newFindings,
-        baselinedFindings: split.baselinedCount,
+        baselinedFindings: split.baselinedFindings.length,
         staleBaseline: split.staleCount,
         newFindingRefs: split.newFindings.map(refOf),
+        baselinedFindingRefs: split.baselinedFindings.map(refOf),
     };
 }

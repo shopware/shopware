@@ -152,6 +152,11 @@ export function projectHasBridge(project: ExtensionToolingProject): boolean {
     return project.targets.some((target) => target.bridgePresent);
 }
 
+/** Whether the extension owns any config (either tool) — i.e. is not purely covered by the host root projection. */
+export function projectHasOwnedConfig(project: ExtensionToolingProject): boolean {
+    return project.targets.some((target) => target.tsconfig !== null || target.eslintConfig !== null);
+}
+
 /** Every extension-owned config of this project, both tools. */
 function ownedConfigs(project: ExtensionToolingProject): OwnedConfig[] {
     return project.targets
@@ -384,6 +389,15 @@ export function findExtensionRoot(projectRoot: string, bundleBasePath: string): 
     }
 
     return bundleBasePath;
+}
+
+/**
+ * The bundle dump every command discovers extensions from. Fixed on purpose:
+ * setup and check must never look at two different files. If a custom
+ * `bundle:dump` path ever comes up it gets added to both commands at once.
+ */
+export function pluginsConfigPath(projectRoot: string): string {
+    return path.join(projectRoot, 'var', 'plugins.json');
 }
 
 export function readBundleConfig(configPath: string): BundleConfig[] {

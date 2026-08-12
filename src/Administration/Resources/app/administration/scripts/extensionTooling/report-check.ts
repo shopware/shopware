@@ -21,6 +21,10 @@ import type { OwnedConfig, ToolingCommands } from './shared';
 
 interface RenderOptions {
     verbose?: boolean;
+    /** Print the underlying tool invocation per extension (reproduction escape hatch). */
+    showCommands?: boolean;
+    /** Whether the run enforced --fail-on-skipped (shapes the skip warning wording). */
+    failOnSkipped?: boolean;
     /** Whether --fix was applied this run (adds the fix → baseline handoff hint). */
     fix?: boolean;
     /** Layout-aware command invocations for printed next steps (defaults to the composer scripts). */
@@ -46,26 +50,21 @@ function modeLabel(resolution: OwnedConfig | null): string {
     return resolution.composes ? 'bridged' : 'unmanaged';
 }
 
-/** How many new findings are listed by identity before the rest collapse into a count. */
-const MAX_LISTED_NEW_FINDINGS = 10;
+/** How many findings a block lists by identity before the rest collapse into a count. */
+const MAX_LISTED_FINDINGS = 10;
 
-/**
- * The findings that actually fail the run, listed one per line under their own
- * heading. The raw tool output below carries new and baselined findings mixed
- * together in the tool's own order, so without this block the reader cannot tell
- * which of them has to be fixed to get back to green.
- */
-function newFindingBlock(run: ToolRunResult): string[] {
-    const refs = run.newFindingRefs ?? [];
+type FindingRef = { file: string; code: string };
 
-    if (run.status !== 'failed' || refs.length === 0) {
+/** One labelled, collapsing list of finding identities; empty when there is nothing to list. */
+function findingBlock(heading: string, refs: FindingRef[], paint: (text: string) => string): string[] {
+    if (refs.length === 0) {
         return [];
     }
 
-    const shown = refs.slice(0, MAX_LISTED_NEW_FINDINGS);
+    const shown = refs.slice(0, MAX_LISTED_FINDINGS);
     const overflow = refs.length - shown.length;
     const lines = [
-        colors.red(`      new — must fix to pass (${refs.length}):`),
+        paint(`      ${heading} (${refs.length}):`),
         ...shown.map((ref) => colors.dim(`        ${ref.file} · ${ref.code}`)),
     ];
 
@@ -74,6 +73,25 @@ function newFindingBlock(run: ToolRunResult): string[] {
     }
 
     return lines;
+}
+
+/**
+ * The two groups the raw tool output cannot express: what has to be fixed, and
+ * what a baseline is suppressing. The dump below carries both mixed together in
+ * the tool's own order, so on its own it never says which is which.
+ *
+ * The suppressed list is the only way to see baselined findings again. It shows
+ * on a failing run (next to the new ones it must be told apart from) and, under
+ * --verbose, on the green run that hid them in the first place.
+ */
+function findingBlocks(run: ToolRunResult, verbose: boolean): string[] {
+    const failed = run.status === 'failed';
+    const baselined = failed || verbose ? (run.baselinedFindingRefs ?? []) : [];
+
+    return [
+        ...findingBlock('new — must fix to pass', failed ? (run.newFindingRefs ?? []) : [], colors.red),
+        ...findingBlock('baselined — suppressed', baselined, colors.dim),
+    ];
 }
 
 /**
@@ -97,14 +115,17 @@ function baselineNotes(run: ToolRunResult): string[] {
     return notes;
 }
 
-function statusLine(tool: string, run: ToolRunResult, resolution: OwnedConfig | null): string {
+function statusLine(tool: string, run: ToolRunResult, resolution: OwnedConfig | null, verbose: boolean): string {
     const label = tool.padEnd(11, ' ');
     const meta = colors.dim(`${modeLabel(resolution)} · ${seconds(run)}`);
     const baselined = run.baselinedFindings ?? 0;
 
     switch (run.status) {
         case 'passed': {
-            const note = baselined > 0 ? ` ${colors.dim(`(${baselined} baselined)`)}` : '';
+            // A green run says nothing about what it hid, so the count names the
+            // way to see it again — otherwise baselining looks irreversible.
+            const hint = verbose ? '' : ' — show with -- --verbose';
+            const note = baselined > 0 ? ` ${colors.dim(`(${baselined} baselined${hint})`)}` : '';
 
             return `${label}${colors.green('✔ passed')}${note}       ${meta}`;
         }
@@ -146,12 +167,33 @@ interface ToolRow {
     resolution: OwnedConfig | null;
 }
 
-/** The per-extension status rows, in print order: TypeScript then ESLint. */
+const SPEC_RUN_STATUSES = [
+    'passed',
+    'failed',
+    'tooling-error',
+];
+
+/** The per-extension status rows, in print order: TypeScript, its spec companion (only when it ran), ESLint. */
 function toolRows(result: ExtensionCheckResult): ToolRow[] {
-    return [
+    const rows: ToolRow[] = [
         { label: 'TypeScript', tool: 'TypeScript', run: result.typescript, resolution: result.tsResolution },
-        { label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution },
     ];
+
+    // The spec program is a companion of the TypeScript run — only shown when it
+    // actually ran (a plugin without specs, an unmanaged config, or a blocked
+    // schema is already conveyed by the TypeScript line).
+    if (SPEC_RUN_STATUSES.includes(result.typescriptSpecs.status)) {
+        rows.push({
+            label: 'TS (specs)',
+            tool: 'TypeScript',
+            run: result.typescriptSpecs,
+            resolution: result.tsResolution,
+        });
+    }
+
+    rows.push({ label: 'ESLint', tool: 'ESLint', run: result.eslint, resolution: result.eslintResolution });
+
+    return rows;
 }
 
 function renderCoverageLines(result: ExtensionCheckResult): string[] {
@@ -160,8 +202,9 @@ function renderCoverageLines(result: ExtensionCheckResult): string[] {
     for (const coverage of result.coverage) {
         lines.push(
             colors.dim(`    target ${coverage.target.technicalNames.join(', ')} · ${coverage.target.sourcePath}`),
-            colors.dim(`      typescript: ${coverage.runtimeConfig}`),
-            colors.dim(`      eslint:     ${coverage.eslintConfig}`),
+            colors.dim(`      runtime: ${coverage.runtimeConfig}`),
+            colors.dim(`      specs:   ${coverage.specConfig}`),
+            colors.dim(`      eslint:  ${coverage.eslintConfig}`),
         );
     }
 
@@ -180,9 +223,10 @@ function renderToolRow(
     verbose: boolean,
 ): { lines: string[]; unmanaged: boolean } {
     const { label, tool, run, resolution } = row;
-    const toolSkips = skipped.filter((entry) => entry.tool === tool);
+    // The runtime TypeScript row already lists the skips the spec row shares.
+    const toolSkips = label === 'TS (specs)' ? [] : skipped.filter((entry) => entry.tool === tool);
     const unmanaged = run.status === 'unmanaged' || toolSkips.length > 0;
-    const lines = [`    ${statusLine(tool, run, resolution)}`];
+    const lines = [`    ${statusLine(label, run, resolution, verbose)}`];
 
     // A vacuous TypeScript pass is not a dead end: point at the one action
     // that turns it into real coverage instead of leaving green-with-asterisk.
@@ -198,7 +242,7 @@ function renderToolRow(
         return { lines, unmanaged };
     }
 
-    lines.push(...baselineNotes(run), ...newFindingBlock(run));
+    lines.push(...baselineNotes(run), ...findingBlocks(run, verbose));
 
     const showOutput = run.status === 'failed' || run.status === 'tooling-error' || (verbose && run.status !== 'no-files');
 
@@ -230,6 +274,17 @@ function renderUnmanagedNote(result: ExtensionCheckResult, commands: ToolingComm
     return [];
 }
 
+function renderReproductionCommands(result: ExtensionCheckResult): string[] {
+    return [
+        result.commands.typescript,
+        result.commands.typescriptSpecs,
+        result.commands.eslint,
+    ]
+        .flatMap((commands) => commands ?? [])
+        .filter((command) => command)
+        .map((command) => colors.dim(`      $ ${command}`));
+}
+
 function renderExtension(result: ExtensionCheckResult, options: RenderOptions): string[] {
     const verbose = options.verbose === true;
     const location = result.project.vendor ? 'vendor' : result.project.basePath;
@@ -253,6 +308,10 @@ function renderExtension(result: ExtensionCheckResult, options: RenderOptions): 
 
     if (anyUnmanaged) {
         lines.push(...renderUnmanagedNote(result, options.commands ?? DEFAULT_TOOLING_COMMANDS));
+    }
+
+    if (options.showCommands === true) {
+        lines.push(...renderReproductionCommands(result));
     }
 
     return lines;
@@ -283,8 +342,19 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
     const headers = [
         'extension',
         'ts',
+        'specs',
         'eslint',
     ];
+    // Extensions without specs (or with an unmanaged/blocked TS run) get a dash
+    // rather than a misleading "passed" in the specs column.
+    const specCell = (run: ToolRunResult): string =>
+        [
+            'no-files',
+            'unmanaged',
+            'blocked',
+        ].includes(run.status)
+            ? '—'
+            : summaryCell(run, 'TypeScript');
     const rows = results.map((result) => {
         const skipped = result.skippedTargets ?? collectSkippedTargets(result.project);
         // Partial skips get an explicit suffix — a plain "passed"/"N finding(s)"
@@ -298,6 +368,7 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
         return [
             result.project.name,
             withSkipNote('TypeScript', summaryCell(result.typescript, 'TypeScript')),
+            specCell(result.typescriptSpecs),
             withSkipNote('ESLint', summaryCell(result.eslint, 'ESLint')),
         ];
     });
@@ -319,6 +390,7 @@ function renderSummary(results: ExtensionCheckResult[]): string[] {
 function hasFindings(result: ExtensionCheckResult): boolean {
     return [
         result.typescript.status,
+        result.typescriptSpecs.status,
         result.eslint.status,
     ].some((status) => status === 'failed' || status === 'tooling-error');
 }
@@ -329,8 +401,9 @@ interface CheckStats {
     extensionsSkipped: number;
     /**
      * Individual tool runs that did not happen (unmanaged or blocked), across all
-     * extensions. Counts the same streams as `writableSkipped`, so the verdict
-     * line and the skip warning above it can never state different numbers.
+     * extensions. Counts the same three streams as `writableSkipped` and
+     * `computeExitCode`'s --fail-on-skipped gate, so the verdict line and the
+     * skip warning above it can never state different numbers.
      */
     toolsSkipped: number;
     baselined: number;
@@ -353,13 +426,17 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
                 sum +
                 countSkippedRuns([
                     extension.typescript,
+                    extension.typescriptSpecs,
                     extension.eslint,
                 ]),
             0,
         ),
         baselined: results.reduce(
             (sum, extension) =>
-                sum + (extension.typescript.baselinedFindings ?? 0) + (extension.eslint.baselinedFindings ?? 0),
+                sum +
+                (extension.typescript.baselinedFindings ?? 0) +
+                (extension.typescriptSpecs.baselinedFindings ?? 0) +
+                (extension.eslint.baselinedFindings ?? 0),
             0,
         ),
         writableSkipped: results
@@ -369,6 +446,7 @@ function summarizeCheck(results: ExtensionCheckResult[]): CheckStats {
                     sum +
                     countSkippedRuns([
                         extension.typescript,
+                        extension.typescriptSpecs,
                         extension.eslint,
                     ]),
                 0,
@@ -423,7 +501,13 @@ export function renderCheckReport(result: CheckExtensionsResult, options: Render
     if (writableSkipped > 0) {
         const noun = `${writableSkipped} tool run${writableSkipped === 1 ? '' : 's'} on writable extension(s)`;
 
-        lines.push(colors.yellow(`\n⚠ ${noun} were skipped and NOT checked.`));
+        lines.push(
+            colors.yellow(
+                options.failOnSkipped
+                    ? `\n⚠ ${noun} were skipped and NOT checked — failing because --fail-on-skipped is set.`
+                    : `\n⚠ ${noun} were skipped and NOT checked. Pass --fail-on-skipped to fail CI on this.`,
+            ),
+        );
     }
 
     const { paint, glyph } = verdictStyle(result.exitCode === 0, writableSkipped);

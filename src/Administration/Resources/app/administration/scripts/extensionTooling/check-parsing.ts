@@ -104,6 +104,19 @@ export function countTypeCheckableFiles(projectRoot: string, sourcePaths: string
     return listTypeCheckableFiles(projectRoot, sourcePaths).length;
 }
 
+/**
+ * The spec files the dedicated spec program would type-check
+ * (`.spec.ts`/`.spec.tsx`; `.spec.js` is parsed but not type-checked, like any
+ * `.js`). Zero means the spec program would be vacuous — reported as no-files.
+ */
+export function listSpecFiles(projectRoot: string, sourcePaths: string[]): string[] {
+    return collectSourceFiles(projectRoot, sourcePaths, (fileName) => /\.spec\.(ts|tsx)$/.test(fileName));
+}
+
+export function countSpecFiles(projectRoot: string, sourcePaths: string[]): number {
+    return listSpecFiles(projectRoot, sourcePaths).length;
+}
+
 export function countTypeScriptFindings(output: string): number {
     return output.split(/\r?\n/).filter((line) => /error TS\d+:/.test(line)).length;
 }

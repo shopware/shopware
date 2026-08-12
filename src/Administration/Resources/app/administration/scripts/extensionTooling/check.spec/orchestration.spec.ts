@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { runCommand } from '../probe-command';
 import { checkExtensions } from '../check';
-import { listTypeCheckableFiles } from '../check-parsing';
+import { listSpecFiles, listTypeCheckableFiles } from '../check-parsing';
 import {
     cleanupTempProject,
     createSkeletonAdmin,
@@ -71,9 +71,12 @@ describe('scripts/extensionTooling/check orchestration', () => {
                 // The probe resolves composition from whether the config's
                 // extends chain reaches the bridge's admin-types surface; an
                 // auto-bridged config extends the generated .shopware/ tsconfig.
+                // The dedicated spec program carries only the spec files.
                 const configPath = args[args.indexOf('--project') + 1];
                 const composes = fs.readFileSync(configPath, 'utf8').includes('.shopware/tsconfig.json');
-                const files = listTypeCheckableFiles(projectRoot, ['custom/plugins']);
+                const files = configPath.includes('tsconfig.specs.json')
+                    ? listSpecFiles(projectRoot, ['custom/plugins'])
+                    : listTypeCheckableFiles(projectRoot, ['custom/plugins']);
 
                 return answer({
                     status: 0,
@@ -169,19 +172,21 @@ describe('scripts/extensionTooling/check orchestration', () => {
 
         for (const result of check.results) {
             expect(result.typescript.status).toBe('passed');
+            expect(result.typescriptSpecs.status).toBe('passed');
             expect(result.eslint.status).toBe('passed');
         }
 
-        // 2 extensions × (3 coverage probes + 3 programs + 1 ESLint group) —
-        // enough parallel work that an unshared or per-extension limit would
-        // exceed 2 concurrent processes.
-        expect(runCommandMock.mock.calls.length).toBeGreaterThanOrEqual(14);
+        // 2 extensions × (3 coverage + 3 runtime + 3 spec coverage + 3 spec
+        // programs + 1 ESLint group) — enough parallel work that an unshared
+        // or per-extension limit would exceed 2 concurrent processes.
+        expect(runCommandMock.mock.calls.length).toBeGreaterThanOrEqual(26);
         expect(maxRunning).toBe(2);
 
         // Every fake process reports 60s; a stage that still summed process
         // times would report multiples of that instead of wall-clock time.
         for (const result of check.results) {
             expect(result.typescript.durationMs).toBeLessThan(60000);
+            expect(result.typescriptSpecs.durationMs).toBeLessThan(60000);
             expect(result.eslint.durationMs).toBeLessThan(60000);
         }
     }, 60000);

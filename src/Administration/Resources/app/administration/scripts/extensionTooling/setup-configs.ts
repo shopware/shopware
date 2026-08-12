@@ -3,7 +3,8 @@
  *
  * Config generators: the marker-owned root tsconfig/eslint projections, IDE
  * bootstraps, the entity-schema stub gate, and the per-extension configs
- * scaffolded beside every generated bridge.
+ * (runtime plus a dedicated spec tsconfig) scaffolded beside every generated
+ * bridge.
  */
 
 import fs from 'fs';
@@ -33,12 +34,12 @@ const SOURCE_EXTENSIONS = [
     'js',
 ];
 /**
- * Test files stay out of the generated program: the preset sets `types: []`, so
- * a spec's runner globals (`describe`, `it`, `expect`) are absent and every one
- * of them would report as an error. Type-checking specs needs its own program
- * with jest types injected.
+ * Test files are split off from the runtime program (whose preset sets
+ * `types: []`, so its runner globals are absent) into a dedicated spec program
+ * that adds jest types. The committed runtime config excludes these suffixes;
+ * the generated spec tsconfig (setup-bridge) includes exactly them.
  */
-const SPEC_FILE_SUFFIXES = [
+export const SPEC_FILE_SUFFIXES = [
     'spec.ts',
     'spec.tsx',
     'spec.js',
@@ -160,7 +161,8 @@ export function createRootTsconfig(context: GeneratorContext, projects: Extensio
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these includes:`,
+                `${relativePosix(context.projectRoot, rootTsconfigPath)} exists and is not managed by this tool. ` +
+                    'To integrate, add these includes:',
                 ...projection.include.map((glob) => `    "${glob}"`),
                 `or remove the file and re-run \`${context.commands.setup}\`.`,
             ].join('\n'),
@@ -201,7 +203,8 @@ export function createRootEslintConfig(context: GeneratorContext, projects: Exte
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootEslintPath} exists and is not managed by this tool. To integrate, compose the shared factory:`,
+                `${relativePosix(context.projectRoot, rootEslintPath)} exists and is not managed by this tool. ` +
+                    'To integrate, compose the shared factory:',
                 `    import { shopwareAdminExtension } from ${JSON.stringify(factorySpecifier)};`,
                 '    export default [',
                 '        ...shopwareAdminExtension({ tsconfigRootDir: import.meta.dirname, extensionRoots: [/* … */] }),',
@@ -263,7 +266,10 @@ export function createIdeBootstraps(
             record(context, { file, state: 'skipped' });
             context.instructions.push(
                 [
-                    `${file} is user-owned and was not touched. For IDE support add:`,
+                    // The project-relative `key`, not the absolute `file`: a path
+                    // printed from inside a container is only clickable in the
+                    // editor when it resolves against the workspace root.
+                    `${key} is user-owned and was not touched. For IDE support add:`,
                     // Comma-separated and in the shape the file itself uses, so
                     // the block pastes straight into the existing object.
                     ...settingsFragment(nested ? nestKeys(settings) : settings),
@@ -327,6 +333,7 @@ export function scaffoldExtensionConfigs(
     const tsconfigContent =
         `// ${configKind} for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
         `// (git-ignored, holds the machine-specific paths). ${tsconfigLifecycleNote}\n` +
+        '// Spec files stay excluded here — the check type-checks them separately with jest types.\n' +
         `${JSON.stringify(
             {
                 extends: BRIDGE_TSCONFIG_EXTENDS,

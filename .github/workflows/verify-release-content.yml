@@ -1,4 +1,8 @@
 name: Verify release content
+# The verdict is delivered through the `release-content/verify` commit status on the release branch
+# head, not through the job result — block on that status; the job stays green by design. A red job
+# here means the verification itself could not run (operational error), so pipeline monitoring only
+# surfaces real CI problems.
 
 on:
   push:
@@ -9,6 +13,10 @@ on:
       version_prefix:
         description: 'Version prefix to verify (e.g. 6.7.11). Derived from branch name when omitted.'
         required: false
+
+permissions:
+  contents: read
+  statuses: write
 
 jobs:
   verify:
@@ -36,4 +44,26 @@ jobs:
         run: git fetch origin trunk "${{ steps.version.outputs.prefix }}.x"
 
       - name: Verify release content
+        id: verify
+        # The script never fails on a verdict; it writes state/description to GITHUB_OUTPUT. A non-zero
+        # exit here is an operational error (bad usage, refs not fetched) and must stay a job failure.
         run: php .github/bin/verify-release-content.php "${{ steps.version.outputs.prefix }}"
+
+      - name: Report verdict as commit status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          # Written by verify-release-content.php via GITHUB_OUTPUT. An empty state means the script
+          # produced no verdict — createCommitStatus then rejects the call and fails this job, which is
+          # the guard we want.
+          STATE: ${{ steps.verify.outputs.state }}
+          DESCRIPTION: ${{ steps.verify.outputs.description }}
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              ...context.repo,
+              sha: context.sha,
+              state: process.env.STATE,
+              context: 'release-content/verify',
+              description: process.env.DESCRIPTION,
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            })

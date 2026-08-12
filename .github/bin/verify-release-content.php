@@ -3,6 +3,7 @@
 use Shopware\Core\DevOps\Release\ProcessGitReader;
 use Shopware\Core\DevOps\Release\ReleaseContentVerifier;
 use Shopware\Core\DevOps\Release\ReleaseSummaryRenderer;
+use Symfony\Component\Filesystem\Filesystem;
 
 // Thin CLI wrapper around the release-content verification. All logic lives in
 // Shopware\Core\DevOps\Release\* (unit-tested); this script only handles argv, wiring and output.
@@ -63,6 +64,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 
     $result = (new ReleaseContentVerifier($git))->verify($versionPrefix, $trunkRef, $branchRef, $releaseInfoFile);
     $renderer = new ReleaseSummaryRenderer($commitUrlBase);
+    $filesystem = new Filesystem();
 
     if ($result->total === 0) {
         echo "No entries found for {$versionPrefix}.* in trunk's {$releaseInfoFile} — nothing to verify.\n";
@@ -72,7 +74,7 @@ require __DIR__ . '/../../vendor/autoload.php';
         // Job summary: rendered Markdown with real commit links (written whenever GitHub provides the file).
         $summaryFile = getenv('GITHUB_STEP_SUMMARY');
         if (\is_string($summaryFile) && $summaryFile !== '') {
-            file_put_contents($summaryFile, $renderer->markdownSummary($versionPrefix, $branchRef, $releaseInfoFile, $result), \FILE_APPEND);
+            $filesystem->appendToFile($summaryFile, $renderer->markdownSummary($versionPrefix, $branchRef, $releaseInfoFile, $result));
         }
     }
 
@@ -81,6 +83,6 @@ require __DIR__ . '/../../vendor/autoload.php';
     if (\is_string($outputFile) && $outputFile !== '') {
         $state = $result->hasMissing() ? 'failure' : 'success';
         $description = $renderer->commitStatusDescription($result, $versionPrefix, $targetBranch);
-        file_put_contents($outputFile, "state={$state}\ndescription={$description}\n", \FILE_APPEND);
+        $filesystem->appendToFile($outputFile, "state={$state}\ndescription={$description}\n");
     }
 })();

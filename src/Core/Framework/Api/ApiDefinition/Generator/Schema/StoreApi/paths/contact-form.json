@@ -82,6 +82,14 @@
                 "responses": {
                     "200": {
                         "description": "Message sent successful."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted contact form data failed validation, e.g. a missing email address, subject or message."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

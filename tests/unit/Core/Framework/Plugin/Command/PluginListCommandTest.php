@@ -253,7 +253,7 @@ class PluginListCommandTest extends TestCase
 
     public function testInvalidFormatReturnsError(): void
     {
-        $this->setupEntityCollection([]);
+        $this->pluginRepoMock->expects($this->never())->method('search');
 
         $commandTester = $this->executeCommand(['--format' => 'xml']);
         static::assertSame(2, $commandTester->getStatusCode());
@@ -278,7 +278,7 @@ class PluginListCommandTest extends TestCase
     {
         $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new PluginCollection($entities));
-        $this->pluginRepoMock->method('search')->willReturn($result);
+        $this->pluginRepoMock->expects($this->atLeastOnce())->method('search')->willReturn($result);
     }
 
     /**

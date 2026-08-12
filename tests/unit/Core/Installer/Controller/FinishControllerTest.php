@@ -34,6 +34,10 @@ class FinishControllerTest extends TestCase
 
     public function testFinishWithCompletedParameterRendersTemplate(): void
     {
+        $this->systemLocker
+            ->expects($this->never())
+            ->method('lock');
+
         $controller = $this->getMockBuilder(FinishController::class)
             ->setConstructorArgs([
                 $this->systemLocker,

@@ -183,11 +183,24 @@ export default {
     mapInheritanceSlotPropsToMeteorProps,
 };
 
+type CreatedId<EntityName> = [EntityName] extends [never]
+    ? string
+    : EntityName extends keyof EntitySchema.EntityKeys
+      ? EntityKey<EntityName>
+      : never;
+
 /**
- * Returns an uuid string in hex format.
+ * Returns a UUID in hex format (no dashes).
+ *
+ * Acts like an overload driven by the type argument:
+ * - `createId()`            → `string`               (plain id: tokens, telemetry, …)
+ * - `createId<'product'>()` → `EntityKey<'product'>` (branded id for that entity)
+ *
+ * The entity name is validated against `EntitySchema.EntityKeys`, so an unknown
+ * entity (e.g. `createId<'nope'>()`) is a compile error.
  */
-function createId<UUID extends string>(): UUID {
-    return uuidv7().replace(/-/g, '') as UUID;
+function createId<EntityName extends keyof EntitySchema.EntityKeys = never>(): CreatedId<EntityName> {
+    return uuidv7().replace(/-/g, '') as CreatedId<EntityName>;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

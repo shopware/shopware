@@ -41,7 +41,7 @@ describe('components/media/sw-media-folder-thumbnail', () => {
 
         expect(svg.exists()).toBe(true);
         expect(svg.findAll('path')).toHaveLength(2);
-        expect(svg.findAll('path').at(1).attributes('fill')).toBe('var(--color-icon-brand-default)');
+        expect(svg.findAll('path')[1].attributes('fill')).toBe('var(--color-icon-brand-default)');
     });
 
     it('should reject unknown variants', () => {

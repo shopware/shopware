@@ -23,7 +23,14 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
 {
     use IntegrationTestBehaviour;
 
-    private const FIXTURES = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-7787/';
+    private const ADMIN_TEMPLATES = __DIR__ . '/../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/';
+
+    /**
+     * The body Migration1780029093FixProductComparisonTemplateBreadcrumb wrote. Its `_new`
+     * snapshots are the bodies shops actually have stored, so they are the closest thing to
+     * a real pre-upgrade template this suite can assert against.
+     */
+    private const SHIPPED_SNAPSHOTS = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-12852/';
 
     private Connection $connection;
 
@@ -39,153 +46,157 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
     }
 
     /**
-     * @return iterable<string, array{string, string, bool}>
+     * @return iterable<string, array{string}>
      */
-    public static function vendorProvider(): iterable
+    public static function shippedBodyProvider(): iterable
     {
-        // The bool mirrors the per-vendor `body.trim()` behaviour in
-        // src/Administration/.../product-export-templates/{vendor}/index.js.
-        foreach ([
-            'current',
-            'legacy-seo-url',
-        ] as $variant) {
-            yield $variant . ' google' => [$variant, 'google.xml', false];
-            yield $variant . ' idealo' => [$variant, 'idealo.csv', true];
-            yield $variant . ' billiger' => [$variant, 'billiger.csv', true];
-        }
+        yield 'google' => ['google_new.xml.twig'];
+        yield 'idealo' => ['idealo_new.csv.twig'];
+        yield 'billiger' => ['billiger_new.csv.twig'];
     }
 
-    #[DataProvider('vendorProvider')]
-    public function testMigrationUpgradesUnmodifiedTemplate(string $variant, string $name, bool $adminTrims): void
+    #[DataProvider('shippedBodyProvider')]
+    public function testMigrationRenamesTheAccessorInAShippedBody(string $fixture): void
     {
-        [$base, $ext] = explode('.', $name);
-        $pre = $this->readFixture($variant . '/' . $base . '_old.' . $ext . '.twig');
-        $post = $this->readFixture($variant . '/' . $base . '_new.' . $ext . '.twig');
-        if ($adminTrims) {
-            $pre = trim($pre);
-            $post = trim($post);
-        }
-        static::assertStringContainsString('product.availableStock', $pre);
-        static::assertStringNotContainsString('product.availableStock', $post);
+        $pre = $this->readShippedSnapshot($fixture);
+        static::assertStringContainsString('product.availableStock', $pre, 'fixture sanity: the snapshot must still use the deprecated accessor');
 
-        $id = $this->prepareOldDatabaseEntry($pre);
+        $id = $this->prepareDatabaseEntry(body: $pre);
 
-        (new Migration1786383817MigrateProductComparisonAvailableStock())->update($this->connection);
+        $this->migrate();
 
-        $row = $this->getCurrentBodyAndUpdateTimestamp($id);
-        static::assertNotFalse($row);
-        static::assertSame($post, $row['body']);
+        $row = $this->getRow($id);
+        static::assertSame(str_replace('product.availableStock', 'product.stock', $pre), $row['body']);
         static::assertNotNull($row['updatedAt']);
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * The point of the accessor-level rename: a template a merchant edited keeps its edits
+     * and still loses the deprecated accessor. Snapshot matching skipped these rows entirely.
      */
-    public static function variantVendorProvider(): iterable
+    public function testMigrationRenamesTheAccessorInAnEditedTemplate(): void
     {
-        foreach (self::vendorProvider() as $key => [$variant, $name]) {
-            yield $key => [$variant, $name];
-        }
+        $edited = <<<'TWIG'
+            {# our own feed, hand written #}
+            <item>
+                <sku>{{ product.productNumber }}</sku>
+                <qty>{{ product.availableStock }}</qty>
+                {% if product.availableStock > 0 %}<available>1</available>{% endif %}
+            </item>
+            TWIG;
+
+        $id = $this->prepareDatabaseEntry(body: $edited);
+
+        $this->migrate();
+
+        $row = $this->getRow($id);
+        static::assertStringNotContainsString('product.availableStock', $row['body']);
+        static::assertStringContainsString('<qty>{{ product.stock }}</qty>', $row['body']);
+        static::assertStringContainsString('{% if product.stock > 0 %}', $row['body']);
+        static::assertStringContainsString('{# our own feed, hand written #}', $row['body'], 'the rest of the template must be preserved');
     }
 
-    #[DataProvider('variantVendorProvider')]
-    public function testMigrationOnlyRenamesTheStockAccessor(string $variant, string $name): void
+    public function testMigrationRenamesTheAccessorInHeaderAndFooter(): void
     {
-        // The legacy variant must keep `seoUrl(...)`: this migration renames the stock
-        // accessor, it does not retroactively apply the `entitySeoUrl(...)` change from
-        // shopware/shopware#17991, which shipped without a migration of its own.
-        [$base, $ext] = explode('.', $name);
-        $pre = $this->readFixture($variant . '/' . $base . '_old.' . $ext . '.twig');
-        $post = $this->readFixture($variant . '/' . $base . '_new.' . $ext . '.twig');
-
-        static::assertSame(
-            str_replace('product.availableStock', 'product.stock', $pre),
-            $post,
-            "issue-7787/$variant fixtures for $name differ in more than the stock accessor"
+        $id = $this->prepareDatabaseEntry(
+            body: '<item>{{ product.productNumber }}</item>',
+            header: '{# total {{ product.availableStock }} #}',
+            footer: '<total>{{ product.availableStock }}</total>',
         );
+
+        $this->migrate();
+
+        $row = $this->getRow($id);
+        static::assertSame('{# total {{ product.stock }} #}', $row['header']);
+        static::assertSame('<total>{{ product.stock }}</total>', $row['footer']);
+        static::assertSame('<item>{{ product.productNumber }}</item>', $row['body']);
     }
 
     /**
      * @return iterable<string, array{string}>
      */
-    public static function legacyPredecessorProvider(): iterable
+    public static function unrelatedAccessorProvider(): iterable
     {
-        yield 'google' => ['google.xml'];
-        yield 'idealo' => ['idealo.csv'];
-        yield 'billiger' => ['billiger.csv'];
+        // Deliberately lower case, so the string genuinely contains `product.availableStock`
+        // and the match has to be rejected by the word boundary rather than by case.
+        yield 'different root variable' => ['<qty>{{ myproduct.availableStock }}</qty>'];
+        yield 'longer property name' => ['<qty>{{ product.availableStockLevel }}</qty>'];
+        yield 'aliased product variable' => ['{% set p = product %}<qty>{{ p.availableStock }}</qty>'];
     }
 
-    #[DataProvider('legacyPredecessorProvider')]
-    public function testLegacyVariantIsTheOnlyDifferenceFromTheCurrentOne(string $name): void
+    #[DataProvider('unrelatedAccessorProvider')]
+    public function testMigrationLeavesAccessorsOnOtherVariablesAlone(string $template): void
     {
-        // Guard for the regression this variant exists to fix: the two predecessors must
-        // describe the same template except for the SEO URL helper. If a future change to
-        // the starter templates lands without extending this list, the `current` snapshot
-        // stops matching the installed base and the migration silently becomes a no-op.
-        [$base, $ext] = explode('.', $name);
-        $legacy = $this->readFixture('legacy-seo-url/' . $base . '_old.' . $ext . '.twig');
-        $current = $this->readFixture('current/' . $base . '_old.' . $ext . '.twig');
+        $id = $this->prepareDatabaseEntry(body: $template);
 
-        static::assertNotSame($legacy, $current);
-        static::assertStringContainsString('seoUrl(\'frontend.detail.page\'', $legacy);
-        static::assertStringContainsString('entitySeoUrl(\'product\'', $current);
-        static::assertSame(
-            preg_replace("/entitySeoUrl\('product', product\.id\)/", 'seoUrl(\'frontend.detail.page\', {\'productId\': product.id})', $current),
-            $legacy,
-            "issue-7787 legacy-seo-url snapshot for $name differs from the current one in more than the SEO URL helper"
-        );
+        $this->migrate();
+
+        $row = $this->getRow($id);
+        static::assertSame($template, $row['body']);
     }
 
-    public function testMigrationLeavesCustomerModifiedTemplatesAlone(): void
+    public function testMigrationLeavesTemplatesWithoutTheAccessorUntouched(): void
     {
-        $customTemplate = "<item>{{ product.availableStock }} -- customized</item>\n";
-        $id = $this->prepareOldDatabaseEntry($customTemplate);
+        $id = $this->prepareDatabaseEntry(body: '<item>{{ product.stock }}</item>');
 
-        (new Migration1786383817MigrateProductComparisonAvailableStock())->update($this->connection);
+        $this->migrate();
 
-        $row = $this->getCurrentBodyAndUpdateTimestamp($id);
-        static::assertNotFalse($row);
-        static::assertSame($customTemplate, $row['body']);
+        $row = $this->getRow($id);
+        static::assertSame('<item>{{ product.stock }}</item>', $row['body']);
+        static::assertNull($row['updatedAt'], 'a row with nothing to rename must not be touched');
     }
 
-    public function testShippedAdminTemplatesMatchPostFixFixtures(): void
+    public function testMigrationIsIdempotent(): void
     {
-        // Guard: ensure the snapshotted post-fix fixtures stay in sync with the
-        // canonical admin starter templates. Drift between them silently breaks
-        // future migrations.
-        $adminRoot = __DIR__ . '/../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/';
+        $id = $this->prepareDatabaseEntry(body: '<qty>{{ product.availableStock }}</qty>');
 
+        $this->migrate();
+        $afterFirstRun = $this->getRow($id);
+
+        $this->migrate();
+
+        static::assertSame($afterFirstRun['body'], $this->getRow($id)['body']);
+    }
+
+    public function testShippedAdminTemplatesUseTheReplacement(): void
+    {
+        // Guard: the starter templates a merchant copies must not reintroduce the accessor
+        // the migration just removed from every stored template.
         foreach ([
-            'google.xml' => 'google-product-search-de/body.xml.twig',
-            'idealo.csv' => 'idealo/body.csv.twig',
-            'billiger.csv' => 'billiger-de/body.csv.twig',
-        ] as $name => $adminPath) {
-            [$base, $ext] = explode('.', $name);
-            $fixture = $this->readFixture('current/' . $base . '_new.' . $ext . '.twig');
-            $admin = file_get_contents($adminRoot . $adminPath);
+            'google-product-search-de/body.xml.twig',
+            'idealo/body.csv.twig',
+            'billiger-de/body.csv.twig',
+        ] as $adminPath) {
+            $admin = file_get_contents(self::ADMIN_TEMPLATES . $adminPath);
             static::assertNotFalse($admin);
-            static::assertSame($admin, $fixture, "issue-7787 post-fix fixture for $name has drifted from the admin starter template at $adminPath");
+            static::assertStringNotContainsString('product.availableStock', $admin, "the starter template at $adminPath still uses the deprecated accessor");
         }
     }
 
     /**
-     * @return array{body: string, updatedAt: ?string}|false
+     * @return array{header: ?string, body: string, footer: ?string, updatedAt: ?string}
      */
-    private function getCurrentBodyAndUpdateTimestamp(string $id): array|false
+    private function getRow(string $id): array
     {
         $sql = <<<'SQL'
-            SELECT body_template AS body, updated_at AS updatedAt
+            SELECT header_template AS header, body_template AS body, footer_template AS footer, updated_at AS updatedAt
             FROM product_export
             WHERE id = ?
         SQL;
 
-        /** @var array{body: string, updatedAt: ?string}|false $row */
+        /** @var array{header: ?string, body: string, footer: ?string, updatedAt: ?string}|false $row */
         $row = $this->connection->fetchAssociative($sql, [$id]);
+        static::assertNotFalse($row);
 
         return $row;
     }
 
-    private function prepareOldDatabaseEntry(string $body): string
+    private function migrate(): void
+    {
+        (new Migration1786383817MigrateProductComparisonAvailableStock())->update($this->connection);
+    }
+
+    private function prepareDatabaseEntry(string $body, ?string $header = null, ?string $footer = null): string
     {
         $id = Uuid::randomBytes();
         $productStreamId = Uuid::randomBytes();
@@ -206,7 +217,9 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
                 'encoding' => 'UTF-8',
                 'file_format' => 'test',
                 '`interval`' => 300,
+                'header_template' => $header,
                 'body_template' => $body,
+                'footer_template' => $footer,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             ],
@@ -221,9 +234,9 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
         return $id;
     }
 
-    private function readFixture(string $name): string
+    private function readShippedSnapshot(string $name): string
     {
-        $content = file_get_contents(self::FIXTURES . $name);
+        $content = file_get_contents(self::SHIPPED_SNAPSHOTS . $name);
         static::assertNotFalse($content);
 
         return $content;

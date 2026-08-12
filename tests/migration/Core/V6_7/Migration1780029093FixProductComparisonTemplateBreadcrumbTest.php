@@ -84,22 +84,29 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
         static::assertSame($customTemplate, $row['body']);
     }
 
-    public function testPostFixFixturesMatchTheNextMigrationsPreFixFixtures(): void
+    public function testShippedAdminTemplatesMatchPostFixFixtures(): void
     {
-        // Guard: this migration's post-fix snapshot is the pre-fix snapshot of the
-        // migration that follows it. Drift between them silently turns the follow-up
-        // migration into a no-op. The last link of the chain is verified against the
-        // canonical admin starter templates in the newest migration's test.
-        $nextFixtures = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/issue-7787/';
+        // Guard: ensure the snapshotted post-fix fixtures stay in sync with the canonical
+        // admin starter templates. Drift between them silently breaks future migrations.
+        //
+        // The starter templates have since been moved off the deprecated
+        // `product.availableStock` accessor (Migration1786383817), which this migration's
+        // snapshots predate, so the accessor is normalised away before comparing.
+        $adminRoot = __DIR__ . '/../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/';
 
-        foreach (['google.xml', 'idealo.csv', 'billiger.csv'] as $name) {
+        foreach ([
+            'google.xml' => 'google-product-search-de/body.xml.twig',
+            'idealo.csv' => 'idealo/body.csv.twig',
+            'billiger.csv' => 'billiger-de/body.csv.twig',
+        ] as $name => $adminPath) {
             [$base, $ext] = explode('.', $name);
-            $next = file_get_contents($nextFixtures . 'current/' . $base . '_old.' . $ext . '.twig');
-            static::assertNotFalse($next);
+            $fixture = $this->readFixture($base . '_new.' . $ext . '.twig');
+            $admin = file_get_contents($adminRoot . $adminPath);
+            static::assertNotFalse($admin);
             static::assertSame(
-                $next,
-                $this->readFixture($base . '_new.' . $ext . '.twig'),
-                "issue-12852 post-fix fixture for $name has drifted from the issue-7787 pre-fix fixture"
+                $admin,
+                str_replace('product.availableStock', 'product.stock', $fixture),
+                "issue-12852 post-fix fixture for $name has drifted from the admin starter template at $adminPath"
             );
         }
     }

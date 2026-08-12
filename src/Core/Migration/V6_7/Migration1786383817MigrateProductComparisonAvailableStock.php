@@ -3,37 +3,37 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
- * Move existing `product_export.body_template` rows off the deprecated
- * `product.availableStock` accessor, which is removed with 6.8. Since 6.6 the
- * value is a mirror of `product.stock`, so the rendered output is unchanged.
- * Customer-modified templates are not affected — the WHERE clause requires a
- * byte-exact match against a shipped snapshot and has to be adjusted manually,
- * see UPGRADE-6.8.md.
+ * Rename the deprecated `product.availableStock` accessor to `product.stock` in every
+ * stored product export template, which is removed with 6.8. Since 6.6 the value is a
+ * mirror of `product.stock`, so the rendered output is unchanged.
+ *
+ * This rewrites merchant-edited templates as well, not only the shipped starter ones:
+ * a template that keeps the old accessor stops rendering in 6.8, and the shipped bodies
+ * have been changed twice without a migration already, so matching known snapshots
+ * byte for byte misses most of the installed base.
  */
 #[Package('inventory')]
 class Migration1786383817MigrateProductComparisonAvailableStock extends MigrationStep
 {
+    private const DEPRECATED_ACCESSOR = 'product.availableStock';
+
+    private const REPLACEMENT = 'product.stock';
+
     /**
-     * One directory per OOTB body a shop can legitimately have stored, because the
-     * starter templates were changed without a migration in the past. `current` is
-     * the body shipped today; `legacy-seo-url` is the body every shop still has that
-     * ran Migration1780029093FixProductComparisonTemplateBreadcrumb before
-     * `seoUrl('frontend.detail.page', ...)` was replaced by `entitySeoUrl('product', ...)`.
-     * Matching only `current` would make this migration a no-op for that whole
-     * population. Each variant keeps its own SEO URL helper: this migration renames
-     * the stock accessor and nothing else.
+     * Every Twig-bearing column of `product_export`.
      */
-    private const VARIANTS = [
-        'current',
-        'legacy-seo-url',
+    private const TEMPLATE_COLUMNS = [
+        'header_template',
+        'body_template',
+        'footer_template',
     ];
 
     public function getCreationTimestamp(): int
@@ -43,42 +43,73 @@ class Migration1786383817MigrateProductComparisonAvailableStock extends Migratio
 
     public function update(Connection $connection): void
     {
-        $filesystem = new Filesystem();
-        $fixtures = __DIR__ . '/../Fixtures/productComparison-export-profiles/issue-7787/';
+        $rows = $connection->fetchAllAssociative(
+            'SELECT `id`, `header_template`, `body_template`, `footer_template`
+             FROM `product_export`
+             WHERE `header_template` LIKE :needle
+                OR `body_template` LIKE :needle
+                OR `footer_template` LIKE :needle',
+            ['needle' => '%' . self::DEPRECATED_ACCESSOR . '%']
+        );
+
+        if ($rows === []) {
+            return;
+        }
 
         $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        foreach (self::VARIANTS as $variant) {
-            // Match the admin starter template registration in
-            // src/Administration/.../product-export-templates/{vendor}/index.js — Idealo
-            // and Billiger send `body.trim()` to the DAL, Google sends the body as-is.
-            // We must apply the same normalisation here, otherwise the byte-exact WHERE
-            // clause silently misses every Idealo / Billiger row.
-            foreach ([
-                ['google.xml', false],
-                ['idealo.csv', true],
-                ['billiger.csv', true],
-            ] as [$name, $trim]) {
-                [$base, $ext] = explode('.', $name);
-                $old = $filesystem->readFile($fixtures . $variant . '/' . $base . '_old.' . $ext . '.twig');
-                $new = $filesystem->readFile($fixtures . $variant . '/' . $base . '_new.' . $ext . '.twig');
+        foreach ($rows as $row) {
+            $payload = [];
 
-                if ($trim) {
-                    $old = trim($old);
-                    $new = trim($new);
+            foreach (self::TEMPLATE_COLUMNS as $column) {
+                $template = $row[$column];
+
+                if (!\is_string($template)) {
+                    continue;
                 }
 
-                $connection->update(
-                    'product_export',
-                    ['body_template' => $new, 'updated_at' => $now],
-                    ['body_template' => $old],
-                );
+                $renamed = self::rename($template);
+
+                if ($renamed !== $template) {
+                    $payload[$column] = $renamed;
+                }
             }
+
+            // The LIKE above also matches accessors the rename deliberately skips, such as
+            // `myProduct.availableStock`, so a matched row can still end up unchanged.
+            if ($payload === []) {
+                continue;
+            }
+
+            $payload['updated_at'] = $now;
+
+            $connection->update(
+                'product_export',
+                $payload,
+                ['id' => $row['id']],
+                ['id' => ParameterType::BINARY],
+            );
         }
     }
 
     public function updateDestructive(Connection $connection): void
     {
         // intentionally empty
+    }
+
+    /**
+     * Word boundaries keep the rename to the `product` root variable the export templates
+     * are rendered with. Without them `myproduct.availableStock` would become
+     * `myproduct.stock` and `product.availableStockLevel` would become
+     * `product.stockLevel`. An aliased variable (`{% set p = product %}{{ p.availableStock }}`)
+     * cannot be recognised without parsing the template and stays untouched, see UPGRADE-6.8.md.
+     */
+    private static function rename(string $template): string
+    {
+        return (string) preg_replace(
+            '/\b' . preg_quote(self::DEPRECATED_ACCESSOR, '/') . '\b/',
+            self::REPLACEMENT,
+            $template
+        );
     }
 }

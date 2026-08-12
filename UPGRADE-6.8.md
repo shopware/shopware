@@ -1163,7 +1163,7 @@ Since 6.6 the stock is decremented when an order is placed, so `stock` is the re
 * DAL: `availableStock` is no longer a field of the product definition. Criteria, filters, sortings, aggregations and `Criteria::addFields()` calls referencing it now throw. Use `stock`.
 * `\Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber` and its service definition were removed. There is nothing left to mirror.
 * Dynamic product groups (`product_stream`) can no longer filter on `availableStock`. Groups still filtering on it stop matching; change the condition to `stock`.
-* Product comparison exports can no longer render `product.availableStock`. In 6.7 a migration renamed the accessor in every export template that still matched one of the shipped Google, Idealo or Billiger bodies byte for byte. Templates you edited yourself were left untouched — search your export templates for `product.availableStock` and replace it with `product.stock`, otherwise the export fails to render.
+* Product comparison exports can no longer render `product.availableStock`. A 6.7 migration renamed the accessor to `product.stock` in the header, body and footer of every stored export template, including the ones you edited yourself, so no action is needed for templates that reference the `product` variable directly. An accessor reached through an alias (`{% set p = product %}{{ p.availableStock }}`) could not be recognised and was left untouched — replace those with `p.stock`, otherwise the export fails to render.
 
 ```php
 // Before

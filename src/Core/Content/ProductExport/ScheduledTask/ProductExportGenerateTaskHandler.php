@@ -42,14 +42,14 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
+        $now = $this->clock->now();
+
         foreach ($this->fetchSalesChannelIds() as $salesChannelId) {
             $productExports = $this->fetchProductExports($salesChannelId);
 
             if ($productExports === []) {
                 continue;
             }
-
-            $now = $this->clock->now();
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {

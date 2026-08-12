@@ -175,6 +175,17 @@ workflow, pipeline table, and Slack message style. Unattended-run specifics:
    plain-text summary covering every pipeline checked (green/known/new
    classification, one line each, with the evidence the skill's workflow
    step 5 requires). Keep it concise — this posts directly to Slack.
+
+   **The `text` field specifically must follow the skill's "Slack message
+   style" section, not the structured/bulleted style that's fine for the
+   rest of this JSON file.** A prior run wrote `text` as a multi-line
+   report with `•` bullets per pipeline — readable, but not what that
+   section asks for. Plain conversational sentences, no bullets, no
+   headers — e.g. "Platform trunk is red tonight: the usual PHP blue-green
+   job plus a new one, `8.2 Storefront mariadb:11`, first seen today.
+   6.6.x is green." rather than a bulleted per-job breakdown. The detailed
+   per-job breakdown belongs in the `pipelines` object above, which is for
+   the record, not for Slack.
 3. Do not take any write action beyond producing this file — no issue
    creation, no comments, no repo writes anywhere. This workflow is
    read-only end to end; the only side effect is the Slack post handled by

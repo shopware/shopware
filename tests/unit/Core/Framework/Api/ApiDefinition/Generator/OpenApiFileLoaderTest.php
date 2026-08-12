@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -57,5 +58,41 @@ class OpenApiFileLoaderTest extends TestCase
         $spec = $fsLoader->loadOpenapiSpecification();
 
         static::assertSame('Override', $spec['paths']['/_action/order_delivery/{orderDeliveryId}/state/{transition}']['post']['description']);
+    }
+
+    public function testMergingFilesUsesDeterministicNameOrder(): void
+    {
+        $filesystem = new Filesystem();
+        $path = sys_get_temp_dir() . '/' . uniqid('openapi-file-loader-', true);
+        $filesystem->mkdir($path);
+
+        try {
+            $filesystem->dumpFile($path . '/z-override.json', json_encode([
+                'paths' => [
+                    '/deterministic' => [
+                        'get' => [
+                            'description' => 'Sorted last',
+                        ],
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR));
+            $filesystem->dumpFile($path . '/a-base.json', json_encode([
+                'paths' => [
+                    '/deterministic' => [
+                        'get' => [
+                            'description' => 'Sorted first',
+                        ],
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR));
+
+            $fsLoader = new OpenApiFileLoader([$path]);
+
+            $spec = $fsLoader->loadOpenapiSpecification();
+
+            static::assertSame('Sorted last', $spec['paths']['/deterministic']['get']['description']);
+        } finally {
+            $filesystem->remove($path);
+        }
     }
 }

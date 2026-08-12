@@ -37,25 +37,27 @@ class OpenApiFileLoader
             return $spec;
         }
 
-        $finder = new Finder();
-        $finder->in($this->paths)->name('*.json');
+        foreach ($this->paths as $path) {
+            $finder = new Finder();
+            $finder->in($path)->name('*.json')->sortByName();
 
-        foreach ($finder as $entry) {
-            try {
-                $data = json_decode((string) file_get_contents($entry->getPathname()), true, 512, \JSON_THROW_ON_ERROR);
-            } catch (\JsonException $exception) {
-                throw ApiException::invalidSchemaDefinitions($entry->getPathname(), $exception);
+            foreach ($finder as $entry) {
+                try {
+                    $data = json_decode((string) file_get_contents($entry->getPathname()), true, 512, \JSON_THROW_ON_ERROR);
+                } catch (\JsonException $exception) {
+                    throw ApiException::invalidSchemaDefinitions($entry->getPathname(), $exception);
+                }
+
+                $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);
+                $spec['components'] = array_merge_recursive(
+                    $spec['components'],
+                    $data['components'] ?? []
+                );
+                $spec['tags'] = array_merge_recursive(
+                    $spec['tags'],
+                    $data['tags'] ?? []
+                );
             }
-
-            $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);
-            $spec['components'] = array_merge_recursive(
-                $spec['components'],
-                $data['components'] ?? []
-            );
-            $spec['tags'] = array_merge_recursive(
-                $spec['tags'],
-                $data['tags'] ?? []
-            );
         }
 
         $spec['components'] = $this->deduplicateArraysRecursive($spec['components']);

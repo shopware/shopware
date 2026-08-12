@@ -121,6 +121,10 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
+### Admin index alias swap no longer stops at the first missing alias
+
+`AdminSearchRegistry` swapped aliases in a loop that returned instead of continuing when an alias did not exist yet. Every entity after that one kept its previous index and left the newly built index behind without an alias. Each entity's alias is now swapped independently.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

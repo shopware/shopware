@@ -206,6 +206,55 @@ class AdminSearchRegistryTest extends TestCase
         $registry->iterate(new AdminIndexingBehavior(false));
     }
 
+    public function testIterateSwapsRemainingAliasesWhenAnEarlierOneIsMissing(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+
+        $secondIndexer = static::createStub(AbstractAdminIndexer::class);
+        $secondIndexer->method('getName')->willReturn('order-listing');
+        $secondIndexer->method('getEntity')->willReturn('order');
+
+        $client = static::createStub(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        // only the second indexer already has an alias, so the first one takes the "alias is missing" branch
+        $indices
+            ->method('existsAlias')
+            ->willReturnCallback(static fn (array $arguments): bool => $arguments['name'] === 'sw-admin-order-listing');
+        $indices
+            ->method('getAlias')
+            ->willReturn([
+                'sw-admin-order-listing_12345' => [
+                    'aliases' => [
+                        'sw-admin-order-listing' => [],
+                    ],
+                ],
+            ]);
+        $indices
+            ->expects($this->once())
+            ->method('delete')
+            ->with(['index' => 'sw-admin-order-listing_12345']);
+
+        $client->method('indices')->willReturn($indices);
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
+        $registry = new AdminSearchRegistry(
+            ['promotion' => $this->indexer, 'order' => $secondIndexer],
+            static::createStub(Connection::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        $registry->iterate(new AdminIndexingBehavior(false));
+    }
+
     /**
      * @param array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}} $constructorConfig
      */

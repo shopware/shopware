@@ -435,7 +435,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if (!$this->client->indices()->existsAlias(['name' => $alias])) {
                 $this->putAlias($index, $alias);
 
-                return;
+                continue;
             }
 
             $current = $this->client->indices()->getAlias(['name' => $alias]);

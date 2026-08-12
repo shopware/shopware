@@ -16,6 +16,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { EntitySchemaConverter } from '../entitySchemaConverter/entity-schema-converter';
+import { pluginsConfigPath } from './shared';
 import type { SetupWarning } from './shared';
 
 export const realAdministrationRoot = path.resolve(__dirname, '../..');
@@ -190,7 +191,7 @@ export interface FixtureBundleDefinition {
 }
 
 export function writePluginsConfig(projectRoot: string, bundles: FixtureBundleDefinition[]): string {
-    const pluginsConfigPath = path.join(projectRoot, 'var', 'plugins.json');
+    const configPath = pluginsConfigPath(projectRoot);
     const entries = Object.fromEntries(
         bundles.map((bundle) => [
             bundle.technicalName,
@@ -205,9 +206,9 @@ export function writePluginsConfig(projectRoot: string, bundles: FixtureBundleDe
         ]),
     );
 
-    writeFile(pluginsConfigPath, `${JSON.stringify(entries, null, 2)}\n`);
+    writeFile(configPath, `${JSON.stringify(entries, null, 2)}\n`);
 
-    return pluginsConfigPath;
+    return configPath;
 }
 
 export function cleanupTempProject(projectRoot: string): void {

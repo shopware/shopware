@@ -5,6 +5,11 @@
 import { extension, project, report, run } from './helpers';
 
 describe('renderCheckReport findings baseline', () => {
+    const baselinedRefs = [
+        { file: 'custom/plugins/MyPlugin/src/a.ts', code: 'TS2322' },
+        { file: 'custom/plugins/MyPlugin/src/b.ts', code: 'TS2531' },
+    ];
+
     it('reads a fully baselined tool as a green pass with the baselined count', () => {
         const output = report([
             extension(project('MyPlugin'), {
@@ -13,10 +18,61 @@ describe('renderCheckReport findings baseline', () => {
         ]);
 
         expect(output).toContain('✔ passed');
-        expect(output).toContain('(5 baselined)');
+        expect(output).toContain('(5 baselined');
         // A fully baselined pass suppresses the raw diagnostics like any pass.
         expect(output).not.toContain('exit 1');
         expect(output).toContain('5 baselined');
+    });
+
+    // Baselining used to look irreversible: the count was the only trace, and it
+    // named no way to see the suppressed findings again.
+    it('names the flag that shows the suppressed findings, and lists them under it', () => {
+        const baselined = extension(project('MyPlugin'), {
+            typescript: run('passed', {
+                findings: 2,
+                newFindings: 0,
+                baselinedFindings: 2,
+                baselinedFindingRefs: baselinedRefs,
+                output: 'custom/plugins/MyPlugin/src/a.ts(1,1): error TS2322: nope',
+            }),
+        });
+        const quiet = report([baselined]);
+
+        expect(quiet).toContain('(2 baselined — show with -- --verbose)');
+        expect(quiet).not.toContain('baselined — suppressed');
+
+        const verbose = report([baselined], {}, true);
+
+        expect(verbose).toContain('baselined — suppressed (2):');
+        expect(verbose).toContain('custom/plugins/MyPlugin/src/a.ts · TS2322');
+        expect(verbose).toContain('custom/plugins/MyPlugin/src/b.ts · TS2531');
+        // The hint would be stale advice in the run that already followed it.
+        expect(verbose).not.toContain('show with -- --verbose');
+    });
+
+    // The raw dump lists new and baselined findings in the tool's own order with
+    // nothing to tell them apart, so both groups get their own labelled list.
+    it('groups the new findings against the baselined ones on a failing run', () => {
+        const output = report(
+            [
+                extension(project('MyPlugin'), {
+                    eslint: run('failed', {
+                        findings: 3,
+                        newFindings: 1,
+                        baselinedFindings: 2,
+                        newFindingRefs: [{ file: 'custom/plugins/MyPlugin/src/c.ts', code: 'no-console' }],
+                        baselinedFindingRefs: baselinedRefs,
+                        output: 'custom/plugins/MyPlugin/src/c.ts\n  1:1  error  Unexpected console  no-console',
+                    }),
+                }),
+            ],
+            { exitCode: 1 },
+        );
+
+        expect(output).toContain('new — must fix to pass (1):');
+        expect(output).toContain('custom/plugins/MyPlugin/src/c.ts · no-console');
+        expect(output).toContain('baselined — suppressed (2):');
+        expect(output.indexOf('new — must fix to pass')).toBeLessThan(output.indexOf('baselined — suppressed'));
     });
 
     it('splits new from baselined findings and points at the new ones', () => {

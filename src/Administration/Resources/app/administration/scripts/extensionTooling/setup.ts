@@ -38,6 +38,7 @@ import type { CommandSpec } from './cli';
 import { renderSetupReport } from './report';
 import {
     STATE_DIR,
+    pluginsConfigPath,
     readEslintMajorVersion,
     readPreviousManifest,
     relativePosix,
@@ -108,7 +109,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
-    const pluginsConfigPath = path.join(projectRoot, 'var', 'plugins.json');
+    const bundleDumpPath = pluginsConfigPath(projectRoot);
     const context: GeneratorContext = {
         projectRoot,
         administrationRoot,
@@ -125,7 +126,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     const entitySchemaAvailable = ensureEntitySchema(context);
     const previousManifest = readPreviousManifest(projectRoot);
 
-    let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    let discovered = discoverProjects(projectRoot, administrationRoot, bundleDumpPath);
     const rootConfigDirs: Record<string, string> = {};
 
     if (options.rootConfig) {
@@ -152,7 +153,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     // (A --check dry-run cannot see unwritten bridges, so it reports the
     // projection a real run would not need — the exit code is 1 either way.)
     createBridges(context, discovered, rootConfigDirs);
-    discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    discovered = discoverProjects(projectRoot, administrationRoot, bundleDumpPath);
 
     const rootTsconfigState = createRootTsconfig(context, discovered);
     const rootEslintState = createRootEslintConfig(context, discovered);

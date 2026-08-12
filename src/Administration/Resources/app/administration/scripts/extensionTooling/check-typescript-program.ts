@@ -254,12 +254,15 @@ export async function runTypeScriptPrograms(
             status,
             findings: findings.length,
             newFindings: split.newFindings.length + surfaceFindings.length,
-            baselinedFindings: split.baselinedCount,
+            baselinedFindings: split.baselinedFindings.length,
             staleBaseline: split.staleCount,
             newFindingRefs: [
                 ...surfaceFindings,
                 ...split.newFindings,
             ].map((finding) => ({ file: finding.file, code: finding.code })),
+            // Surface findings are never baselineable, so they only ever appear
+            // among the new ones above.
+            baselinedFindingRefs: split.baselinedFindings.map((finding) => ({ file: finding.file, code: finding.code })),
             surfaceDiagnostics: surfaceFindings.length,
             output: [
                 surfaceHeader,

@@ -13,10 +13,11 @@ import {
     parseTypeScriptFindings,
 } from '../check-parsing';
 import { createLimiter, runPool } from '../check-pipeline';
-import { appendFixHint, buildEslintArguments } from '../check-run';
+import { appendFixHint, buildEslintArguments, computeExitCode, recordProjectBaseline } from '../check-run';
 import { relativizeToolOutput } from '../shared';
 import { buildVueTscArguments } from '../check-typescript-program';
 import { cleanupTempProject, createTempProject, writeFile } from '../test-helpers';
+import { extension, project, run } from '../report.spec/helpers';
 
 describe('scripts/extensionTooling/check units', () => {
     let projectRoot: string;
@@ -301,5 +302,40 @@ describe('scripts/extensionTooling/check units', () => {
         expect(findings[0].rule).toBe('@typescript-eslint/unbound-method');
         expect(findings[1].rule).toBe('@typescript-eslint/no-explicit-any');
         expect(findings).toHaveLength(countEslintFindings(output));
+    });
+
+    /**
+     * The reported failure: `--update-baseline` on an in-repo bundle wrote no
+     * baseline, printed nothing, and still exited 0 — so the flag looked like it
+     * had worked while the next plain run failed again on the same findings.
+     */
+    describe('--update-baseline on an extension that cannot hold one', () => {
+        const options = { projectRoot: '/shop', administrationRoot: '/shop/admin', updateBaseline: true };
+        const failing = (basePath: string, vendor = false) =>
+            extension(project('Storefront', { basePath, vendor }), { eslint: run('failed', { findings: 3 }) });
+
+        it('keeps failing the run instead of absorbing the findings', () => {
+            expect(computeExitCode([failing('src/Storefront')], options, false)).toBe(1);
+            // A plugin that really records one still gets its findings absorbed.
+            expect(computeExitCode([failing('custom/plugins/MyPlugin')], options, false)).toBe(0);
+        });
+
+        it('says why nothing was recorded', () => {
+            const recorded = recordProjectBaseline(failing('src/Storefront'), '/shop');
+
+            expect(recorded.baselineUpdates).toEqual([]);
+            expect(recorded.warnings.join('\n')).toContain('Storefront');
+            expect(recorded.warnings.join('\n')).toContain('custom/plugins/');
+            // Not fatal on its own: the findings themselves already fail the run.
+            expect(recorded.fatalDiagnostics).toEqual([]);
+        });
+
+        it('names the vendor reason separately, since vendor findings are non-fatal anyway', () => {
+            const recorded = recordProjectBaseline(failing('vendor/acme/x', true), '/shop');
+
+            expect(recorded.baselineUpdates).toEqual([]);
+            expect(recorded.warnings.join('\n')).toContain('vendor-installed');
+            expect(computeExitCode([failing('vendor/acme/x', true)], options, false)).toBe(0);
+        });
     });
 });

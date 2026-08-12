@@ -151,6 +151,13 @@ describe('scripts/extensionTooling/setup root projections', () => {
         // `typescript.tsdk` is deprecated — VS Code flags it on the line we told
         // the reader to add.
         expect(result.instructions.join('\n')).not.toContain('"typescript.tsdk"');
+        // The command commonly runs inside a container, where an absolute path
+        // is not cmd+clickable in the editor. Every file an instruction names is
+        // project-relative — asserted across the whole set, since this test
+        // triggers both the root-config and the IDE-bootstrap conflict.
+        expect(result.instructions.join('\n')).toContain('.vscode/settings.json is user-owned');
+        expect(result.instructions.join('\n')).toContain('tsconfig.json exists and is not managed');
+        expect(result.instructions.join('\n')).not.toContain(projectRoot);
     });
 
     it('prints the IDE settings hint as a paste-ready JSON fragment', () => {

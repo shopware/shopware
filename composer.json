@@ -247,7 +247,7 @@
         }
     ],
     "scripts-descriptions": {
-        "admin:check-extensions": "Type-checks and lints Administration extensions with the Administration's own toolchain (pass -- --only=<name[,name]> to select; help: composer admin:check-extensions -- --help)",
+        "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
         "admin:code-mods": "Run admin code mods",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",

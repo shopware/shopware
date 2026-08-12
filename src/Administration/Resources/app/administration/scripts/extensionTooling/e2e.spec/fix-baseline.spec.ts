@@ -9,6 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import { checkExtensions } from '../check';
+import { renderCheckReport } from '../report';
 import { cleanupTempProject, createTempProject, createVendorAdmin, writeFile, writePluginsConfig } from '../test-helpers';
 
 const CHECK_TIMEOUT = 300000;
@@ -75,6 +76,15 @@ describe('extension tooling fix -> baseline workflow (e2e)', () => {
                 expect(after.results[0].typescript.status).toBe('passed');
                 expect(after.results[0].eslint.status).toBe('passed');
                 expect(after.exitCode).toBe(0);
+
+                // 5. Green is not a dead end: the suppressed findings are still
+                // identifiable, so baselining stays reversible. Asserted on the
+                // real diff of real tool output, not a fixture.
+                expect(after.results[0].typescript.baselinedFindingRefs).toEqual([
+                    { file: 'custom/plugins/FixBase/src/Resources/app/administration/src/main.ts', code: 'TS2322' },
+                ]);
+                expect(renderCheckReport(after, { verbose: false })).toContain('show with -- --verbose');
+                expect(renderCheckReport(after, { verbose: true })).toContain('baselined — suppressed (1):');
             } finally {
                 cleanupTempProject(projectRoot);
             }

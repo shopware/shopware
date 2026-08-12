@@ -7,6 +7,7 @@ import path from 'path';
 import {
     BASELINE_FILE_NAME,
     buildBaseline,
+    canHoldBaseline,
     diffEslint,
     diffTypeScript,
     readBaseline,
@@ -42,6 +43,17 @@ describe('scripts/extensionTooling/baseline', () => {
 
     afterEach(() => {
         cleanupTempProject(projectRoot);
+    });
+
+    describe('canHoldBaseline', () => {
+        it('admits only writable custom/plugins extensions', () => {
+            expect(canHoldBaseline(customProject)).toBe(true);
+            expect(canHoldBaseline({ basePath: 'vendor/acme/x', vendor: true })).toBe(false);
+            // An in-repo bundle is writable and its findings are fatal, but it is
+            // not a plugin — it must not collect per-developer debt files.
+            expect(canHoldBaseline({ basePath: 'src/Storefront', vendor: false })).toBe(false);
+            expect(canHoldBaseline({ basePath: 'custom/static-plugins/MyPlugin', vendor: false })).toBe(false);
+        });
     });
 
     describe('readBaseline', () => {
@@ -90,7 +102,7 @@ describe('scripts/extensionTooling/baseline', () => {
             const findings = [tsFinding()];
             const split = diffTypeScript(findings, [], customProject.basePath, 1);
 
-            expect(split).toEqual({ newFindings: findings, baselinedCount: 0, staleCount: 0, parseMismatch: false });
+            expect(split).toEqual({ newFindings: findings, baselinedFindings: [], staleCount: 0, parseMismatch: false });
         });
 
         it('matches findings against the baseline on a base-path-relative key', () => {
@@ -102,7 +114,9 @@ describe('scripts/extensionTooling/baseline', () => {
             );
 
             expect(split.newFindings).toEqual([]);
-            expect(split.baselinedCount).toBe(1);
+            // The matched findings themselves are kept, not just a count — the
+            // report lists them to say what it suppressed.
+            expect(split.baselinedFindings).toEqual([tsFinding()]);
             expect(split.staleCount).toBe(0);
         });
 
@@ -117,7 +131,7 @@ describe('scripts/extensionTooling/baseline', () => {
                 2,
             );
 
-            expect(split.baselinedCount).toBe(1);
+            expect(split.baselinedFindings).toHaveLength(1);
             expect(split.newFindings).toHaveLength(1);
         });
 
@@ -144,7 +158,7 @@ describe('scripts/extensionTooling/baseline', () => {
 
             expect(split.parseMismatch).toBe(true);
             expect(split.newFindings).toEqual(findings);
-            expect(split.baselinedCount).toBe(0);
+            expect(split.baselinedFindings).toEqual([]);
         });
     });
 
@@ -161,7 +175,7 @@ describe('scripts/extensionTooling/baseline', () => {
                 2,
             );
 
-            expect(split.baselinedCount).toBe(1);
+            expect(split.baselinedFindings).toEqual([eslintFinding()]);
             expect(split.newFindings).toEqual([]);
         });
 
@@ -175,7 +189,7 @@ describe('scripts/extensionTooling/baseline', () => {
 
             expect(split.parseMismatch).toBe(true);
             expect(split.newFindings).toHaveLength(1);
-            expect(split.baselinedCount).toBe(0);
+            expect(split.baselinedFindings).toEqual([]);
         });
     });
 

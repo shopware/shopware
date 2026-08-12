@@ -160,7 +160,7 @@ class SalesChannelContextPersisterTest extends TestCase
     public function testSaveNewCustomerContextWithoutExistingCustomer(): void
     {
         $token = Random::getAlphanumericString(32);
-        $expected = [
+        $payload = [
             'key' => 'value',
             'token' => $token,
             'expired' => false,
@@ -168,11 +168,14 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($token, $payload, TestDefaults::SALES_CHANNEL, $customerId);
 
         $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
         static::assertNotEmpty($result);
+
+        $expected = $payload;
+        $expected[SalesChannelContextService::CUSTOMER_ID] = $customerId;
 
         static::assertEquals($expected, $result);
         static::assertSame($token, $result['token']);
@@ -236,6 +239,7 @@ class SalesChannelContextPersisterTest extends TestCase
         ], TestDefaults::SALES_CHANNEL, $customerId);
 
         $expected = [
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
             'expired' => false,
             'first' => 'test',
             'second' => 'overwritten',
@@ -392,7 +396,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $result = $persister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
         static::assertSame($result['expired'], $expectedExpired);
-        static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
+        static::assertSame($customerId, $result[SalesChannelContextService::CUSTOMER_ID]);
     }
 
     #[DataProvider('revokeTokensTestDataProvider')]

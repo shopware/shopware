@@ -50,6 +50,16 @@
                 "description": "Experimental: Logs in the user into the Shopware shop and forwards to the admin",
                 "operationId": "callBackWithCode",
                 "responses": {
+                    "200": {
+                        "description": "Authorisation process continues",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "302": {
                         "description": "Experimental: Forwards to the Shopware admin"
                     }

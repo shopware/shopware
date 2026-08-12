@@ -124,12 +124,35 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         expect(warningText(setupExtensionTooling({ projectRoot, administrationRoot }))).toContain('"files" array');
     });
 
+    it('names a missing "include" instead of leaving the sources silently unchecked', () => {
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+
+        // Composes the bridge, but the inherited "files" is then the whole
+        // program. Reported downstream as an opaque coverage tooling error, so
+        // the warning has to name the missing "include" here.
+        writeFile(path.join(adminFolder, 'tsconfig.json'), [`{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}" }`]);
+
+        // Scoped to ZeroConfig: the fixture's vendor extension genuinely misses
+        // its extends, so the project-wide text carries that hint too.
+        const warning = setupExtensionTooling({ projectRoot, administrationRoot })
+            .warnings.filter((entry) => entry.extension === 'ZeroConfig')
+            .map((entry) => entry.message)
+            .join('\n');
+
+        expect(warning).toContain('declares no "include"');
+        expect(warning).toContain('"include": ["src/**/*.ts", "src/**/*.vue"]');
+        // It already has its extends, so the remediation must not ask for one.
+        expect(warning).not.toContain('add "extends"');
+    });
+
     it('stays silent about an existing plugin config that already composes the bridge', () => {
         const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
 
         // A wired plugin must not be nagged on every run — the warning asks
         // whether the config composes, not merely whether a file is there.
-        writeFile(path.join(adminFolder, 'tsconfig.json'), [`{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}" }`]);
+        writeFile(path.join(adminFolder, 'tsconfig.json'), [
+            `{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}", "include": ["src/**/*.ts"] }`,
+        ]);
         writeFile(path.join(adminFolder, 'eslint.config.mjs'), [
             `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
             'export default [...shopware];',

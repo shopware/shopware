@@ -23,7 +23,7 @@ class DocumentTypeRegistryTest extends TestCase
             new StaticDocumentType('delivery_note', ['html']),
         ]);
 
-        static::assertSame(['invoice', 'delivery_note'], $registry->getDocumentTypes());
+        static::assertSame(['invoice', 'delivery_note'], $registry->getTechnicalNames());
         static::assertSame(['html', 'pdf'], $registry->getSupportedFormats('invoice'));
         static::assertTrue($registry->supports('invoice'));
         static::assertFalse($registry->supports('credit_note'));
@@ -56,5 +56,15 @@ class DocumentTypeRegistryTest extends TestCase
         $this->expectExceptionObject(DocumentV2Exception::unsupportedDocumentFormat('pdf', 'invoice'));
 
         $registry->validateFormats('invoice', ['pdf']);
+    }
+
+    public function testThrowsForNotExistingDocumentType(): void
+    {
+        $registry = new DocumentTypeRegistry([new StaticDocumentType('invoice', ['html'])]);
+
+        static::assertSame('invoice', $registry->getDocumentType('invoice')->getTechnicalName());
+
+        $this->expectExceptionObject(DocumentV2Exception::documentTypeNotFound('test'));
+        $registry->getDocumentType('test');
     }
 }

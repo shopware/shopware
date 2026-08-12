@@ -20,6 +20,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -58,7 +59,8 @@ class ThemeChangeCommandTest extends TestCase
             $this->themeService,
             $this->pluginRegistry,
             $this->salesChannelRepository,
-            $this->themeRepository
+            $this->themeRepository,
+            static::createStub(UnusedThemeDirectoryDeleter::class)
         );
 
         $this->commandTester = new CommandTester($themeChangeCommand);

@@ -53,6 +53,8 @@ export type ConfigDefect =
     | 'extends-missing'
     /** The extends chain is fine, but an own `files` array replaces the bridge's type surface. */
     | 'files-override'
+    /** The extends chain is fine, but no `include` names the sources, so the inherited `files` is the whole program. */
+    | 'include-missing'
     /** An ESLint config that never composes the Shopware factory. */
     | 'factory-missing';
 

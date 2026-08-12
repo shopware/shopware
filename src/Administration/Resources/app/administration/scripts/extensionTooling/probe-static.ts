@@ -94,6 +94,35 @@ function reachesPreset(configPath: string, config: Record<string, unknown>, dept
     });
 }
 
+/**
+ * Whether the config or anything in its local `extends` chain declares `key`.
+ * Both `files` and `include` are inherited through `extends`, so a plugin base
+ * config declaring one counts for the leaf that extends it.
+ */
+function chainDeclares(configPath: string, config: Record<string, unknown>, key: 'files' | 'include', depth = 1): boolean {
+    if (config[key] !== undefined) {
+        return true;
+    }
+
+    if (depth > MAX_EXTENDS_DEPTH) {
+        return false;
+    }
+
+    const specifiers = Array.isArray(config.extends) ? config.extends : [config.extends];
+
+    return specifiers.some((specifier) => {
+        const parentPath = resolveLocalExtends(configPath, specifier);
+
+        if (parentPath === null) {
+            return false;
+        }
+
+        const parent = parseTsconfig(parentPath).config;
+
+        return parent !== undefined && chainDeclares(parentPath, parent, key, depth + 1);
+    });
+}
+
 /** Static verdict for an extension-owned tsconfig, at `relativePath` in the report's namespace. */
 export function tsconfigVerdict(absolutePath: string, relativePath: string): OwnedConfig {
     const { config, error } = parseTsconfig(absolutePath);
@@ -128,6 +157,24 @@ export function tsconfigVerdict(absolutePath: string, relativePath: string): Own
                 'the tsconfig declares its own "files" array, which replaces the bridge\'s ' +
                 `(tsconfig extends semantics) — admin-types.d.ts never enters the program.${aliasesNote}`,
             reason: 'files-override',
+        };
+    }
+
+    // TypeScript only applies its default `**/*` glob when neither `files` nor
+    // `include` is set anywhere in the chain. The bridge sets `files` for the
+    // type surface, so a config inheriting it and declaring no `include` has a
+    // program of exactly that one .d.ts — every source silently unchecked,
+    // which surfaces downstream as a coverage tooling error rather than as the
+    // one-line config defect it is.
+    if (!chainDeclares(absolutePath, config, 'include') && chainDeclares(absolutePath, config, 'files')) {
+        return {
+            path: relativePath,
+            composes: false,
+            detail:
+                'the tsconfig declares no "include", and the "files" inherited from the bridge suppresses ' +
+                `TypeScript's default "**/*" glob — only admin-types.d.ts enters the program, none of the ` +
+                `extension's own sources.${aliasesNote}`,
+            reason: 'include-missing',
         };
     }
 

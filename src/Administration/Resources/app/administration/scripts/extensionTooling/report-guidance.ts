@@ -23,6 +23,7 @@ export interface ToolGuidance {
 }
 
 const BRIDGE_TSCONFIG_LINE = `"extends": "${BRIDGE_TSCONFIG_EXTENDS}"`;
+const BRIDGE_INCLUDE_LINE = '"include": ["src/**/*.ts", "src/**/*.vue"]';
 const BRIDGE_ESLINT_LINES = [
     `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
     'export default [ ...shopware /* , your rules */ ];',
@@ -45,6 +46,11 @@ export function describeConfigFix(tool: 'TypeScript' | 'ESLint', config: OwnedCo
     switch (config.reason) {
         case 'files-override':
             return ['remove the own "files" array from the tsconfig — the bridge provides the type surface.'];
+        case 'include-missing':
+            return [
+                'add an "include" to the tsconfig naming your sources:',
+                `    ${BRIDGE_INCLUDE_LINE}`,
+            ];
         case 'unreadable':
             return ['repair the tsconfig so it parses, then re-run setup.'];
         default:

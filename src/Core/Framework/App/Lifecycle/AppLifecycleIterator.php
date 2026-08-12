@@ -129,7 +129,7 @@ class AppLifecycleIterator
             unset($appsFromDb[$app]);
         }
         foreach ($appsFromDb as $appName => $app) {
-            $appLifecycle->uninstall($appName, $app, $context);
+            $appLifecycle->uninstall($appName, ['id' => $app['id']], $context);
         }
     }
 }

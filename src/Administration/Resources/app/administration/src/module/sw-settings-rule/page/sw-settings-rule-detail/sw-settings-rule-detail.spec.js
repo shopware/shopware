@@ -643,7 +643,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleConditionDataProviderServiceMock.addScriptConditions).toHaveBeenCalledTimes(1);
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(1);
 
-        const criteria = new Criteria(2, 25);
+        const criteria = new Criteria(2);
+        criteria.addSorting(Criteria.sort('parentId'));
+        criteria.addSorting(Criteria.sort('position'));
+        criteria.addSorting(Criteria.sort('id'));
 
         if (entity === 'product') {
             criteria.addAssociation('options.group');

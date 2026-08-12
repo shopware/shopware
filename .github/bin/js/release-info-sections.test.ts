@@ -113,6 +113,40 @@ test('a version heading quoted inside a code fence does not open a section', () 
     assert.deepEqual(sections, ['6.7.14.0', '6.7.14.0', '6.7.14.0', '6.7.14.0', '6.7.14.0']);
 });
 
+test('an info-string line cannot close a fence, only a bare one can', () => {
+    // Regression: RELEASE_INFO-6.7.md ships an unclosed ```javascript block whose
+    // next marker is a ```js opener. Toggling on every marker flipped the fence
+    // state for the rest of the file, so #19225's misfiled entry passed as green.
+    const sections = sectionByLine([
+        '# 6.7.14.0 (upcoming)', // 1
+        '```javascript', //         2  opened and never closed by its author
+        'code();', //               3
+        '### heading in code', //   4
+        '```js', //                 5  info string: content, not a closer
+        'more();', //               6
+        '```', //                   7  bare: closes the block from line 2
+        '# 6.7.13.0', //            8
+        'entry', //                 9
+    ].join('\n'));
+
+    assert.equal(sections[3], '6.7.14.0');
+    assert.equal(sections[7], '6.7.13.0');
+    assert.equal(sections[8], '6.7.13.0');
+});
+
+test('a closing fence must be at least as long as the opener and use the same character', () => {
+    const sections = sectionByLine([
+        '# 6.7.14.0 (upcoming)', // 1
+        '````', //                  2
+        '```', //                   3  shorter: content
+        '~~~~', //                  4  wrong character: content
+        '`````', //                 5  longer: closes
+        '# 6.7.13.0', //            6
+    ].join('\n'));
+
+    assert.deepEqual(sections.slice(2, 6), ['6.7.14.0', '6.7.14.0', '6.7.14.0', '6.7.13.0']);
+});
+
 test('a PR that does not touch a RELEASE_INFO file is fine', () => {
     const verdict = evaluate([`${MILESTONE_LABEL_PREFIX}6.7.14.0`], [{ filename: 'src/Core/Framework/Api/README.md', patch: '@@ -1 +1 @@\n+x', headContent: 'x' }]);
 

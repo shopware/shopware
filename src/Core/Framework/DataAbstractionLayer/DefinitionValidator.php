@@ -55,6 +55,7 @@ class DefinitionValidator
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
+        'sales_channel_domain.external_storefront_language_id',
     ];
 
     /**
@@ -102,6 +103,7 @@ class DefinitionValidator
     private const TABLES_WITHOUT_DEFINITION = [
         'admin_elasticsearch_index_task',
         'app_config',
+        'app_feature',
         'cart',
         'deleted_apps',
         'migration',
@@ -121,6 +123,7 @@ class DefinitionValidator
         'consent_state',
         'consent_log',
         'mcp_tool_result_cache',
+        'mcp_toolset_session',
         'webhook_delivery',
         'webhook_stream',
     ];

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRouteResponse;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
@@ -48,15 +49,14 @@ class NavigationLoaderTest extends TestCase
 
     public function testTreeBuilderWithSimpleTree(): void
     {
-        $loader = new NavigationLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(NavigationRoute::class)
-        );
+        $categories = new CategoryCollection($this->createSimpleTree());
 
-        $categories = $this->createSimpleTree();
+        $navigationRoute = static::createStub(NavigationRoute::class);
+        $navigationRoute->method('load')->willReturn(new NavigationRouteResponse($categories));
 
-        /** @var Tree $tree */
-        $tree = (new \ReflectionMethod(NavigationLoader::class, 'getTree'))->invoke($loader, '1', new CategoryCollection($categories), \array_shift($categories));
+        $loader = new NavigationLoader(new EventDispatcher(), $navigationRoute);
+
+        $tree = $loader->load('1', Generator::generateSalesChannelContext(), '1');
 
         $treeItems = $tree->getTree();
 

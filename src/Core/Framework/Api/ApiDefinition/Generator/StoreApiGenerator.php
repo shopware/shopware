@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -82,8 +81,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $loader = new OpenApiFileLoader($schemaPaths);
         $jsonSpec = $loader->loadOpenapiSpecification();
         $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
-
-        $overriddenSchemaNames = [];
+        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec);
 
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
@@ -96,29 +94,43 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
+            if (\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $jsonSchemaNames, true)) {
+                // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
+                $schema = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                );
+            } else {
+                if (!\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $referencedJsonSchemaNames, true)) {
+                    continue;
+                }
 
-            $overlapping = array_intersect(array_keys($schema), $jsonSchemaNames);
-
-            foreach ($overlapping as $schemaName) {
-                $overriddenSchemaNames[] = $schemaName;
+                $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                    $onlyReference,
+                    DefinitionService::TYPE_JSON_API,
+                );
             }
 
             $openApi->components->merge(array_values($schema));
         }
 
         $this->addGeneralInformation($openApi);
-        $this->addContentTypeParameter($openApi);
+        $this->addLanguageIdParameter($openApi);
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
-
-        $this->stripOverriddenPhpSchemas($data, $overriddenSchemaNames);
+        $data['components']['schemas'] ??= [];
 
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
+        $this->filterUndefinedRequiredProperties($finalSpecs);
+        /** @var OpenApiSpec $finalSpecs */
         $this->resolveParameterGroups($finalSpecs);
         $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
@@ -179,31 +191,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         ]);
     }
 
-    private function addContentTypeParameter(OpenApi $openApi): void
+    private function addLanguageIdParameter(OpenApi $openApi): void
     {
         $openApi->components->parameters = [
-            new Parameter([
-                'parameter' => 'contentType',
-                'name' => 'Content-Type',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Content type of the request',
-            ]),
-            new Parameter([
-                'parameter' => 'accept',
-                'name' => 'Accept',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Accepted response content types',
-            ]),
             new Parameter([
                 'parameter' => 'swLanguageId',
                 'name' => 'sw-language-id',
@@ -216,58 +206,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 'description' => 'Instructs Shopware to return the response in the given language.',
             ]),
         ];
-
-        if (!is_iterable($openApi->paths)) {
-            return;
-        }
-
-        foreach ($openApi->paths as $path) {
-            foreach (self::OPERATION_KEYS as $key) {
-                $operation = $path->$key;
-
-                if (!$operation instanceof Operation) {
-                    continue;
-                }
-
-                if (!\is_array($operation->parameters)) {
-                    $operation->parameters = [];
-                }
-
-                array_push(
-                    $operation->parameters,
-                    new Parameter(['ref' => '#/components/parameters/contentType']),
-                    new Parameter(['ref' => '#/components/parameters/accept']),
-                );
-            }
-        }
-    }
-
-    /**
-     * For schemas that exist in both PHP and JSON, strips the PHP-generated data
-     * down to only plugin extension fields. The JSON schema becomes the source of
-     * truth for the base definition, while plugin extensions are preserved.
-     *
-     * @param array<string, mixed> $data
-     * @param list<string> $schemaNames
-     */
-    private function stripOverriddenPhpSchemas(array &$data, array $schemaNames): void
-    {
-        foreach ($schemaNames as $schemaName) {
-            if (!isset($data['components']['schemas'][$schemaName])) {
-                continue;
-            }
-
-            $extensions = $data['components']['schemas'][$schemaName]['properties']['extensions'] ?? null;
-
-            unset($data['components']['schemas'][$schemaName]);
-
-            if ($extensions !== null) {
-                $data['components']['schemas'][$schemaName] = [
-                    'type' => 'object',
-                    'properties' => ['extensions' => $extensions],
-                ];
-            }
-        }
     }
 
     /**
@@ -278,6 +216,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
     {
+        if (!isset($specsFromDefinition['components']['schemas']) || !\is_array($specsFromDefinition['components']['schemas'])) {
+            return $specsFromStaticJsonDefinition;
+        }
+
         foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
             if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required']) && isset($specsFromDefinition['components']['schemas'][$key]['required'])) {
                 $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
@@ -289,6 +231,84 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return $specsFromStaticJsonDefinition;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     */
+    private function filterUndefinedRequiredProperties(array &$schema): void
+    {
+        foreach ($schema as &$value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $this->filterUndefinedRequiredProperties($value);
+        }
+
+        if (!isset($schema['required'], $schema['properties']) || !\is_array($schema['required']) || !\is_array($schema['properties'])) {
+            return;
+        }
+
+        $properties = array_flip(array_keys($schema['properties']));
+        $schema['required'] = array_values(array_filter(
+            $schema['required'],
+            static fn (mixed $property): bool => \is_string($property) && isset($properties[$property])
+        ));
+
+        if ($schema['required'] === []) {
+            unset($schema['required']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $jsonSpec
+     *
+     * @return list<string>
+     */
+    private function getReferencedJsonSchemaNames(array $jsonSpec): array
+    {
+        $componentSchemas = $jsonSpec['components']['schemas'] ?? [];
+        if (!\is_array($componentSchemas)) {
+            $componentSchemas = [];
+        }
+
+        $referencedSchemaNames = [];
+        $queue = [];
+        $this->collectSchemaReferences($jsonSpec['paths'] ?? [], $queue);
+
+        while ($queue !== []) {
+            $schemaName = array_shift($queue);
+            if (isset($referencedSchemaNames[$schemaName]) || !\is_string($schemaName)) {
+                continue;
+            }
+
+            $referencedSchemaNames[$schemaName] = true;
+
+            if (isset($componentSchemas[$schemaName])) {
+                $this->collectSchemaReferences($componentSchemas[$schemaName], $queue);
+            }
+        }
+
+        return array_keys($referencedSchemaNames);
+    }
+
+    /**
+     * @param list<string> $schemaNames
+     */
+    private function collectSchemaReferences(mixed $value, array &$schemaNames): void
+    {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        if (isset($value['$ref']) && \is_string($value['$ref']) && str_starts_with($value['$ref'], '#/components/schemas/')) {
+            $schemaNames[] = mb_substr($value['$ref'], 21);
+        }
+
+        foreach ($value as $nestedValue) {
+            $this->collectSchemaReferences($nestedValue, $schemaNames);
+        }
     }
 
     /**
@@ -342,10 +362,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function resolveParameterGroups(array &$specs): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // this is a custom extension that is not supported by the OpenAPI spec
         // it has to be processed and removed before the final output
         $parameterGroups = $specs['components']['x-parameter-groups'] ?? [];
@@ -437,10 +453,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function enrichPathsWithAssociations(array &$specs, array $definitions): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         // Build a map of entity names to their association documentation
         $associationDocs = [];
         foreach ($definitions as $def) {

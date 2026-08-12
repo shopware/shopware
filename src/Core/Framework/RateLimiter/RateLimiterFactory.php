@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\RateLimiter;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
+use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Lock\LockFactory;
@@ -15,15 +16,20 @@ use Symfony\Component\RateLimiter\RateLimiterFactory as SymfonyRateLimiterFactor
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 /**
- * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
+ * @phpstan-import-type TimeBackoffLimit from TimeBackoff
+ * @phpstan-import-type SystemConfigLimit from SystemConfigLimiter
+ *
  * @phpstan-type RateLimiterConfig array{
- *  enabled: bool,
- *  id: string,
- *  reset?: \DateInterval|string,
- *  policy: string,
- *  limits?: list<array{limit?: int, domain?: string, interval: string}>,
- *  limit?: int,
- *  rate?: array<string, string>
+ *     id: string,
+ *     enabled: bool,
+ *     lock_factory?: string,
+ *     policy: string,
+ *     limit?: int,
+ *     cache_pool?: string,
+ *     interval?: scalar,
+ *     reset?: \DateInterval|string,
+ *     rate?: array{interval: scalar, amount?: int},
+ *     limits?: list<TimeBackoffLimit|SystemConfigLimit>,
  * }
  */
 #[Package('framework')]
@@ -56,7 +62,7 @@ class RateLimiterFactory
             $this->config['reset'] = $this->clock->now()->diff($this->clock->now()->modify('+' . $this->config['reset']));
         }
 
-        if ($this->config['policy'] === 'time_backoff' && isset($this->config['limits']) && isset($this->config['reset'])) {
+        if ($this->config['policy'] === 'time_backoff' && isset($this->config['limits'], $this->config['reset'])) {
             /** @var list<TimeBackoffLimit> $limits */
             $limits = $this->config['limits'];
 
@@ -65,14 +71,16 @@ class RateLimiterFactory
             return new TimeBackoffLimiter($id, $limits, $this->config['reset'], $this->storage, $this->clock, $lock);
         }
 
-        if ($this->config['policy'] === 'system_config' && isset($this->config['limits']) && isset($this->config['reset'])) {
+        if ($this->config['policy'] === 'system_config' && isset($this->config['limits'], $this->config['reset'])) {
+            /** @var list<SystemConfigLimit> $limits */
+            $limits = $this->config['limits'];
+
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock, $this->clock);
+            return new SystemConfigLimiter($this->systemConfigService, $id, $limits, $this->config['reset'], $this->storage, $lock, $this->clock);
         }
 
-        // prevent symfony errors due to customized values
-        /** @var RateLimiterConfig $rateLimiterConfig */
+        // prevent Symfony errors due to customized values
         $rateLimiterConfig = \array_filter($this->config, static fn ($key): bool => !\in_array($key, ['enabled', 'reset', 'cache_pool', 'lock_factory', 'limits'], true), \ARRAY_FILTER_USE_KEY);
 
         $sfFactory = new SymfonyRateLimiterFactory($rateLimiterConfig, $this->storage, $this->lockFactory);

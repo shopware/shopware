@@ -22,7 +22,6 @@ class DocumentV2ApiService extends ApiService {
 
     createDocument(
         orderId,
-        orderVersionId,
         documentTypeName,
         formats,
         documentNumber,
@@ -37,7 +36,6 @@ class DocumentV2ApiService extends ApiService {
                 '/_action/order/document-v2/create',
                 {
                     orderId,
-                    orderVersionId,
                     documentType: documentTypeName,
                     formats,
                     documentNumber,
@@ -113,7 +111,6 @@ class DocumentV2ApiService extends ApiService {
 
     previewDocument(
         orderId,
-        orderVersionId,
         documentTypeName,
         format,
         documentNumber,
@@ -128,7 +125,6 @@ class DocumentV2ApiService extends ApiService {
                 '/_action/order/document-v2/preview',
                 {
                     orderId,
-                    orderVersionId,
                     documentType: documentTypeName,
                     format,
                     documentNumber,

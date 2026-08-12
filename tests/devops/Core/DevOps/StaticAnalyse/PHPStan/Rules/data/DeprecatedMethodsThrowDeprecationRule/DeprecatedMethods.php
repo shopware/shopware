@@ -9,6 +9,13 @@ class DeprecatedMethods
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
+    public function __invoke(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function deprecatedWithoutTrigger(): void
     {
     }

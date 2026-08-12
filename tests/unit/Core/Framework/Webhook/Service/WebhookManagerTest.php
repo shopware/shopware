@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -55,8 +54,6 @@ class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
-
     private MockHandler $clientMock;
 
     private WebhookClient $webhookClient;
@@ -70,7 +67,6 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
@@ -96,6 +92,9 @@ class WebhookManagerTest extends TestCase
             ->expects($this->exactly(2))
             ->method('createHookablesFor')
             ->willReturn([$event1], [$event2]);
+
+        // only the second dispatch matches a webhook and is delivered synchronously
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess');
 
         $webhookManager = $this->getWebhookManager(true);
         $webhookManager->dispatch($event1);
@@ -163,6 +162,8 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -202,6 +203,8 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $this->prepareWebhook($event->getName(), true);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -217,6 +220,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -234,6 +239,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true, []);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
@@ -267,6 +274,8 @@ class WebhookManagerTest extends TestCase
                 return $privileges;
             });
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $webhookManager = $this->getWebhookManager(false);
 
         $webhookManager->dispatch($event);
@@ -290,6 +299,8 @@ class WebhookManagerTest extends TestCase
         ]);
 
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -315,6 +326,8 @@ class WebhookManagerTest extends TestCase
 
         $this->prepareWebhook('customer.written', true, ['customer:read']);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -330,6 +343,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -359,6 +374,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -394,6 +411,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -530,7 +549,7 @@ class WebhookManagerTest extends TestCase
 
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
@@ -541,7 +560,6 @@ class WebhookManagerTest extends TestCase
 
         return new WebhookManager(
             $this->webhookLoader,
-            $this->eventDispatcher,
             $this->eventFactory,
             static::createStub(AppLocaleProvider::class),
             $appPayloadServiceHelper,

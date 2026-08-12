@@ -23,11 +23,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -51,7 +47,6 @@ class AbstractPluginLifecycleCommandTest extends TestCase
         $this->cacheClearer = $this->createMock(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (): PluginCollection => $this->plugins,
         ]);
@@ -166,7 +161,7 @@ class AbstractPluginLifecycleCommandTest extends TestCase
             )
         ));
 
-        $this->handleClearCacheOption(clearCache: true);
+        $this->runCommandUsingDeprecatedClearCacheOption(clearCache: true);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -175,9 +170,10 @@ class AbstractPluginLifecycleCommandTest extends TestCase
     {
         $this->cacheClearer->expects($this->once())->method('clear');
 
-        $output = $this->handleClearCacheOption(clearCache: true);
+        $commandTester = $this->runCommandUsingDeprecatedClearCacheOption(clearCache: true);
 
-        static::assertStringContainsString('Cache cleared', $output);
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertStringContainsString('Cache cleared', $commandTester->getDisplay());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -186,29 +182,35 @@ class AbstractPluginLifecycleCommandTest extends TestCase
     {
         $this->cacheClearer->expects($this->never())->method('clear');
 
-        $output = $this->handleClearCacheOption(clearCache: false);
+        $commandTester = $this->runCommandUsingDeprecatedClearCacheOption(clearCache: false);
 
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
         static::assertStringContainsString(
             'You may want to clear the cache after deactivating plugin(s)',
-            $output
+            $commandTester->getDisplay()
         );
     }
 
     /**
-     * Invokes the deprecated protected method directly, as it is no longer called by production code.
+     * Runs a lifecycle command that still calls the deprecated method, which the shipped commands no longer do.
      */
-    private function handleClearCacheOption(bool $clearCache): string
+    private function runCommandUsingDeprecatedClearCacheOption(bool $clearCache): CommandTester
     {
-        $input = new ArrayInput(
-            $clearCache ? ['--clearCache' => true] : [],
-            new InputDefinition([new InputOption('clearCache', 'c', InputOption::VALUE_NONE)])
+        $command = new DeprecatedClearCacheOptionCommand(
+            static::createStub(PluginLifecycleService::class),
+            StaticEntityRepository::of(PluginCollection::class),
+            $this->cacheClearer
         );
-        $output = new BufferedOutput();
 
-        $method = new \ReflectionMethod($this->command, 'handleClearCacheOption');
-        $method->invoke($this->command, $input, new ShopwareStyle($input, $output), 'deactivating');
+        $command->setHelperSet(new HelperSet());
 
-        return $output->fetch();
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(
+            $clearCache ? ['plugins' => ['TestPlugin'], '--clearCache' => true] : ['plugins' => ['TestPlugin']],
+            ['interactive' => false]
+        );
+
+        return $commandTester;
     }
 
     private function createActivePlugin(): PluginEntity
@@ -222,5 +224,26 @@ class AbstractPluginLifecycleCommandTest extends TestCase
         $plugin->setActive(true);
 
         return $plugin;
+    }
+}
+
+/**
+ * Calls the deprecated handleClearCacheOption(), which the shipped lifecycle commands no longer do.
+ *
+ * @internal
+ */
+#[Package('framework')]
+class DeprecatedClearCacheOptionCommand extends AbstractPluginLifecycleCommand
+{
+    protected function configure(): void
+    {
+        $this->configureCommand('deactivate');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->handleClearCacheOption($input, new ShopwareStyle($input, $output), 'deactivating');
+
+        return self::SUCCESS;
     }
 }

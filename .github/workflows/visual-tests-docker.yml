@@ -12,7 +12,21 @@ on:
         description: "Update snapshots?"
         type: boolean
         default: false
-      use-currents:
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input (matches test titles)."
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      currents:
         description: 'Report to currents?'
         type: boolean
         default: false
@@ -58,12 +72,12 @@ jobs:
         working-directory: tests/acceptance
         continue-on-error: true
         env:
-          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=all' || '--update-snapshots=none' }}
           FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
           CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
           CURRENTS_BUILD_ID: ${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}
-          ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
+          ATS_CMD: ${{ inputs.currents && 'pwc' || 'playwright'}}
         run: |
           PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
           docker run --rm \
@@ -106,7 +120,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: eu-central-1
           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
@@ -171,7 +185,7 @@ jobs:
 
       - name: Create Pull Request
         if: ${{ inputs.update-snapshots && steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' }}
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ steps.create-pr-token.outputs.token }}
           add-paths: |

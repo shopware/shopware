@@ -68,6 +68,8 @@ use Shopware\Core\Content\Flow\Rule\OrderStatusRule;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
 use Shopware\Core\Content\Flow\Rule\OrderTrackingCodeRule;
 use Shopware\Core\Content\Flow\Rule\OrderTransactionStatusRule;
+use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
+use Shopware\Core\Content\Flow\Telemetry\TriggerGroupResolver;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
@@ -85,6 +87,7 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -158,6 +161,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionDispatcher::class),
             service('logger'),
             tagged_iterator('flow.action', 'key'),
+            service(FlowMetricsInstrumentor::class),
+        ]);
+
+    $services->set(TriggerGroupResolver::class);
+
+    $services->set(FlowMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(TriggerGroupResolver::class),
         ]);
 
     $services->set(AddOrderTagAction::class)

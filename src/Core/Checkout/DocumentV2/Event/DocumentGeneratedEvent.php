@@ -5,14 +5,16 @@ namespace Shopware\Core\Checkout\DocumentV2\Event;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
-class DocumentGeneratedEvent extends Event implements OrderAware, FlowEventAware, ScalarValuesAware
+class DocumentGeneratedEvent extends Event implements OrderAware, MailAware, FlowEventAware, ScalarValuesAware
 {
     final public const EVENT_NAME = 'document.generation.completed';
 
@@ -29,6 +31,22 @@ class DocumentGeneratedEvent extends Event implements OrderAware, FlowEventAware
     public function getOrderId(): string
     {
         return $this->orderId;
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        // No recipient is resolved here. Throwing MailEventConfigurationException — the
+        // trunk idiom for an event without an inherent recipient — would route through
+        // MailStorer's OrderAware fallback, which lazy-loads the order during dispatch.
+        // Because this event fires whenever a document is generated, that load fails in
+        // transient contexts (order recalculation; a migration writing orders before the
+        // schema is complete). A flow's send-mail action configures the recipient explicitly.
+        return new MailRecipientStruct([]);
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return null;
     }
 
     public function getName(): string

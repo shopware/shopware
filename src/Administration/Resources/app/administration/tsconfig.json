@@ -48,7 +48,9 @@
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"
   ],
-  "exclude": ["node_modules"],
+  // The sourcemap fixtures are standalone ESM scripts run via jiti/node (import.meta, top-level await),
+  // not part of the admin's commonjs compilation - keep them out of the type-check program.
+  "exclude": ["node_modules", "build/vite-plugins/**/fixtures/**"],
   "files": [
     "node_modules/jest-expect-message/types/index.d.ts",
     "build/vue-setup-transform/shopware-setup-macros.d.ts"

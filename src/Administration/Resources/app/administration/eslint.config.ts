@@ -12,6 +12,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
 import importX from 'eslint-plugin-import-x';
 import jestPlugin from 'eslint-plugin-jest';
@@ -355,7 +356,16 @@ export default [
             },
         },
         rules: {
+            // .vue SFCs are type-checked by vue-tsc, not typescript-eslint: its projectService cannot
+            // resolve script-setup macros (defineProps, swDefinePublic, useSwPreviousState, ...), which
+            // makes every type-aware rule report false `no-unsafe`/error-typed positives. Turn them off
+            // here; vue-tsc (lint:types is tsc, editors use Volar) owns .vue type safety.
+            ...tseslint.configs.disableTypeChecked.rules,
             'no-unused-vars': 'off',
+            // Its typed twin isn't type-aware (so disableTypeChecked leaves it on) and, like the base
+            // rule, cannot see template usage - a setup binding used only in <template> reads as unused.
+            // vue/script-setup-uses-vars is what tracks template usage here.
+            '@typescript-eslint/no-unused-vars': 'off',
             'vue/script-setup-uses-vars': 'error',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',

@@ -298,7 +298,6 @@ export default {
             });
 
             this.documentService.setListener(this.convertStoreEventToVueEvent);
-            this.documentV2ApiService.setListener(this.convertStoreEventToVueEvent);
         },
 
         convertStoreEventToVueEvent({ action, payload }) {
@@ -457,7 +456,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: 'Error',
+                            message: this.$t('sw-order.documentCard.error.downloadDocument'),
                         });
                     });
 
@@ -490,7 +489,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: 'Error',
+                        message: this.$t('sw-order.documentCard.error.downloadDocumentArchive'),
                     });
                 });
         },
@@ -508,9 +507,9 @@ export default {
 
                 this.sendDocument = documentData;
                 this.showSendDocumentModal = true;
-            } catch (_) {
+            } catch {
                 this.createNotificationError({
-                    message: 'Error',
+                    message: this.$t('sw-order.documentCard.error.loadSendingDocument'),
                 });
             }
         },
@@ -552,7 +551,7 @@ export default {
                     );
                 } catch (_) {
                     this.createNotificationError({
-                        message: 'Error',
+                        message: this.$t('sw-order.documentCard.error.createDocument'),
                     });
 
                     this.isLoadingDocument = false;
@@ -646,9 +645,9 @@ export default {
                     params.documentMediaFileId,
                     file,
                 );
-            } catch (_) {
+            } catch {
                 this.createNotificationError({
-                    message: 'Error',
+                    message: this.$t('sw-order.documentCard.error.uploadDocument'),
                 });
 
                 this.isLoadingDocument = false;
@@ -662,9 +661,9 @@ export default {
                     const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
                     documentData.documentMediaFileId = params.documentMediaFileId;
                     await this.documentRepository.save(documentData);
-                } catch (_) {
+                } catch {
                     this.createNotificationError({
-                        message: 'Error',
+                        message: 'sw-order.documentCard.error.attachMediaToDocumentUpload',
                     });
 
                     this.isLoadingDocument = false;
@@ -703,7 +702,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: 'Error',
+                            message: this.$t('sw-order.documentCard.error.loadDocumentPreview'),
                         });
                     })
                     .finally(() => {
@@ -746,7 +745,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: 'Error!',
+                            message: this.$t('sw-order.documentCard.error.openDocument'),
                         });
                     });
 

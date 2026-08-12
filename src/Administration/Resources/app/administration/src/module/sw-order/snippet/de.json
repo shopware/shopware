@@ -380,7 +380,15 @@
             "messageEmptySubline": "Verwaltung von Dokumenten.",
             "notificationDeleteErrorMessage": "Das Dokument konnte nicht gelöscht werden.",
             "error": {
-                "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung."
+                "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung.",
+                "createDocument": "Das Erstellen des Dokuments ist fehlgeschlagen.",
+                "downloadDocument": "Das Herunterladen des Dokuments ist fehlgeschlagen.",
+                "downloadDocumentArchive": "Das Herunterladen des Dokumentarchives ist fehlgeschlagen.",
+                "loadSendingDocument": "Das Laden des zu versendenden Dokumentes ist fehlgeschlagen.",
+                "uploadDocument": "Das Hochladen des Dokumentes ist fehlgeschlagen.",
+                "attachMediaToDocumentUpload": "Das Anfügen des ausgewählten Mediums an das Dokument ist fehlgeschlagen.",
+                "loadDocumentPreview": "Das Laden der Dokumentenvorschau ist fehlgeschlagen.",
+                "openDocument": "Das Öffnen des ausgewählten Dokumentes ist fehlgeschlagen."
             },
             "info": {
                 "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."

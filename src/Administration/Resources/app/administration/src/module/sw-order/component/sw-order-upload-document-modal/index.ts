@@ -204,7 +204,7 @@ export default Component.wrapComponentConfig({
 
             try {
                 this.documentTypeCollection = await this.documentTypeRepository.search(this.documentTypeCriteria);
-            } catch (_) {
+            } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentTypes'),
                 });
@@ -216,7 +216,7 @@ export default Component.wrapComponentConfig({
 
             try {
                 this.supportedDocumentTypes = (await this.documentV2ApiService.getAvailableTypes()).documentTypes ?? {};
-            } catch (_) {
+            } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),
                 });
@@ -261,7 +261,7 @@ export default Component.wrapComponentConfig({
 
                 this.documentConfig.documentNumber = documentNumber;
                 this.documentNumberPreview = documentNumber;
-            } catch (_) {
+            } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
                 });
@@ -294,7 +294,7 @@ export default Component.wrapComponentConfig({
 
                 try {
                     documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
-                } catch (_) {
+                } catch {
                     this.createNotificationError({
                         message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
                     });

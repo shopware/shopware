@@ -1,7 +1,6 @@
-import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
-import { DocumentEvents } from './document.api.service';
 import { DOCUMENT_TYPES } from '../../../module/sw-order/service/documentV2.service';
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 
@@ -18,19 +17,6 @@ type DocumentCreateResponse = {
     deepLinkCode: string;
     formats: string[];
 };
-
-type DocumentError = {
-    code: string;
-    detail: string;
-    [key: string]: unknown;
-};
-
-type DocumentEvent = {
-    action: string;
-    payload?: DocumentError;
-};
-
-type DocumentListener = (event: DocumentEvent) => void;
 
 type DocumentRequestPayload = {
     orderId: string;
@@ -60,10 +46,6 @@ type PreviewDocumentPayload = DocumentRequestPayload & {
     format: string;
 };
 
-type DocumentErrorResponse = {
-    errors?: DocumentError[];
-};
-
 type DocumentFileResponse = {
     file: Blob;
     fileName: string | null;
@@ -76,8 +58,6 @@ type DocumentFileResponse = {
  * @extends ApiService
  */
 export default class DocumentV2ApiService extends ApiService {
-    private listener: DocumentListener = () => {};
-
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'document-v2') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'documentV2ApiService';
@@ -101,7 +81,7 @@ export default class DocumentV2ApiService extends ApiService {
         deliveryDate: string | null = null,
         referencedDocumentId: string | null = null,
         additionalHeaders: Record<string, string> = {},
-    ): Promise<DocumentCreateResponse | void> {
+    ): Promise<DocumentCreateResponse> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: CreateDocumentPayload = {
             orderId,
@@ -122,10 +102,7 @@ export default class DocumentV2ApiService extends ApiService {
 
         return this.httpClient
             .post<DocumentCreateResponse>('/_action/order/document-v2/create', payload, { headers })
-            .then((response) => ApiService.handleResponse<DocumentCreateResponse>(response))
-            .catch((error: AxiosError<DocumentErrorResponse>) => {
-                this.emitDocumentFailed(error.response?.data.errors?.pop());
-            });
+            .then((response) => ApiService.handleResponse<DocumentCreateResponse>(response));
     }
 
     public uploadDocument(
@@ -137,7 +114,7 @@ export default class DocumentV2ApiService extends ApiService {
         mediaId: string | null = null,
         file: File | null = null,
         additionalHeaders: Record<string, string> = {},
-    ): Promise<DocumentCreateResponse | void> {
+    ): Promise<DocumentCreateResponse> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: UploadDocumentPayload = {
             orderId,
@@ -169,11 +146,7 @@ export default class DocumentV2ApiService extends ApiService {
             });
         }
 
-        return request
-            .then((response) => ApiService.handleResponse<DocumentCreateResponse>(response))
-            .catch((error: AxiosError<DocumentErrorResponse>) => {
-                this.emitDocumentFailed(error.response?.data.errors?.pop());
-            });
+        return request.then((response) => ApiService.handleResponse<DocumentCreateResponse>(response));
     }
 
     public previewDocument(
@@ -184,7 +157,7 @@ export default class DocumentV2ApiService extends ApiService {
         documentDate: string,
         documentComment = '',
         additionalHeaders: Record<string, string> = {},
-    ): Promise<DocumentFileResponse | void> {
+    ): Promise<DocumentFileResponse> {
         const headers = this.getBasicHeaders(additionalHeaders);
         const payload: PreviewDocumentPayload = {
             orderId,
@@ -205,14 +178,6 @@ export default class DocumentV2ApiService extends ApiService {
                     file: ApiService.handleResponse<Blob>(response),
                     fileName: fileReaderUtils.getFilenameFromResponse(response as { headers?: { [key: string]: string } }),
                 };
-            })
-            .catch(async (error: AxiosError<Blob>) => {
-                if (!error.response) {
-                    return;
-                }
-
-                const errorObject = (JSON.parse(await error.response.data.text()) as DocumentErrorResponse).errors?.pop();
-                this.emitDocumentFailed(errorObject);
             });
     }
 
@@ -243,32 +208,9 @@ export default class DocumentV2ApiService extends ApiService {
                 };
             });
     }
-
-    public setListener(callback: DocumentListener): void {
-        this.listener = callback;
-    }
-
-    private createDocumentEvent(action: string, payload?: DocumentError): DocumentEvent {
-        return { action, payload };
-    }
-
-    private emitDocumentFailed(payload?: DocumentError): void {
-        if (!payload) {
-            return;
-        }
-
-        this.listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, payload));
-    }
 }
 
 /**
  * @private
  */
-export type {
-    AvailableDocumentTypesResponse,
-    DocumentCreateResponse,
-    DocumentError,
-    DocumentEvent,
-    DocumentListener,
-    DocumentTypeFormats,
-};
+export type { AvailableDocumentTypesResponse, DocumentCreateResponse, DocumentError, DocumentTypeFormats };

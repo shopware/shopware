@@ -274,6 +274,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(SeoUrlRouteRegistry::class),
             service('messenger.default_bus'),
+            tagged_iterator('shopware.entity.seo_url.route'),
         ])
         ->tag('messenger.message_handler');
 

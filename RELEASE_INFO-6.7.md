@@ -320,6 +320,7 @@ Writing the `template` field of a `seo_url_template` row now regenerates the SEO
 
 This affects every write path, not just Settings > Shop > SEO:
 
+- Both storefront routes (registered in the `SeoUrlRouteRegistry`) and headless store-api routes (tagged `shopware.entity.seo_url.route`) are covered.
 - Deleting a sales-channel-specific template also regenerates, because the channel falls back to the default template. Deleting a default template does not, because there would be no template left to generate from.
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.

@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Seo\SeoUrlTemplate;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingHandler;
@@ -206,20 +208,80 @@ class SeoUrlTemplateIndexingHandlerTest extends TestCase
         $handler->__invoke(new SeoUrlTemplateIndexingMessage('unregistered.route', 'category'));
     }
 
+    public function testProcessesHeadlessStoreApiRouteNotInTheRouteRegistry(): void
+    {
+        // Headless store-api routes are tagged `shopware.entity.seo_url.route` and are
+        // absent from the SeoUrlRouteRegistry, but their templates are equally editable,
+        // so the reindex must run for them too.
+        $ids = $this->randomHexIds(2);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('isVersionAware')->willReturn(true);
+
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definitionRegistry->method('has')->willReturn(true);
+        $definitionRegistry->method('getByEntityName')->willReturn($definition);
+
+        $seoUrlRouteRegistry = static::createStub(SeoUrlRouteRegistry::class);
+        $seoUrlRouteRegistry->method('findByRouteName')->willReturn(null);
+
+        $iterator = static::createStub(IterableQuery::class);
+        $iterator->method('fetch')->willReturn(array_combine($ids, $ids));
+
+        $iteratorFactory = $this->createMock(IteratorFactory::class);
+        $iteratorFactory->expects($this->once())->method('createIterator')->willReturn($iterator);
+
+        $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
+        $seoUrlUpdater->expects($this->once())
+            ->method('update')
+            ->with('store-api.product.detail', $ids);
+
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->never())->method('dispatch');
+
+        $handler = $this->createHandler(
+            $seoUrlUpdater,
+            $iteratorFactory,
+            $definitionRegistry,
+            $seoUrlRouteRegistry,
+            $messageBus,
+            [$this->entitySeoUrlRoute('store-api.product.detail', 'product')]
+        );
+        $handler->__invoke(new SeoUrlTemplateIndexingMessage('store-api.product.detail', 'product'));
+    }
+
+    /**
+     * @param iterable<EntitySeoUrlRouteInterface> $entitySeoUrlRoutes
+     */
     private function createHandler(
         SeoUrlUpdater $seoUrlUpdater,
         IteratorFactory $iteratorFactory,
         DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         MessageBusInterface $messageBus,
+        iterable $entitySeoUrlRoutes = [],
     ): SeoUrlTemplateIndexingHandler {
         return new SeoUrlTemplateIndexingHandler(
             $seoUrlUpdater,
             $iteratorFactory,
             $definitionRegistry,
             $seoUrlRouteRegistry,
-            $messageBus
+            $messageBus,
+            $entitySeoUrlRoutes
         );
+    }
+
+    private function entitySeoUrlRoute(string $routeName, string $entityName): EntitySeoUrlRouteInterface
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn($entityName);
+
+        $route = static::createStub(EntitySeoUrlRouteInterface::class);
+        $route->method('getConfig')->willReturn(
+            new SeoUrlRouteConfig($definition, $routeName, '{{ id }}')
+        );
+
+        return $route;
     }
 
     /**

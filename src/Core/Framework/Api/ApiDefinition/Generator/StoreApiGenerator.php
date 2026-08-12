@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -82,6 +81,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $loader = new OpenApiFileLoader($schemaPaths);
         $jsonSpec = $loader->loadOpenapiSpecification();
         $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
+        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec);
 
         foreach ($definitions as $definition) {
             if (!$definition instanceof EntityDefinition) {
@@ -102,6 +102,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     $forSalesChannel,
                 );
             } else {
+                if (!\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $referencedJsonSchemaNames, true)) {
+                    continue;
+                }
+
                 $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                     $definition,
                     $this->getResourceUri($definition),
@@ -115,7 +119,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         $this->addGeneralInformation($openApi);
-        $this->addContentTypeParameter($openApi);
+        $this->addLanguageIdParameter($openApi);
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
@@ -186,31 +190,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         ]);
     }
 
-    private function addContentTypeParameter(OpenApi $openApi): void
+    private function addLanguageIdParameter(OpenApi $openApi): void
     {
         $openApi->components->parameters = [
-            new Parameter([
-                'parameter' => 'contentType',
-                'name' => 'Content-Type',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Content type of the request',
-            ]),
-            new Parameter([
-                'parameter' => 'accept',
-                'name' => 'Accept',
-                'in' => 'header',
-                'required' => true,
-                'schema' => [
-                    'type' => 'string',
-                    'default' => 'application/json',
-                ],
-                'description' => 'Accepted response content types',
-            ]),
             new Parameter([
                 'parameter' => 'swLanguageId',
                 'name' => 'sw-language-id',
@@ -223,30 +205,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 'description' => 'Instructs Shopware to return the response in the given language.',
             ]),
         ];
-
-        if (!is_iterable($openApi->paths)) {
-            return;
-        }
-
-        foreach ($openApi->paths as $path) {
-            foreach (self::OPERATION_KEYS as $key) {
-                $operation = $path->$key;
-
-                if (!$operation instanceof Operation) {
-                    continue;
-                }
-
-                if (!\is_array($operation->parameters)) {
-                    $operation->parameters = [];
-                }
-
-                array_push(
-                    $operation->parameters,
-                    new Parameter(['ref' => '#/components/parameters/contentType']),
-                    new Parameter(['ref' => '#/components/parameters/accept']),
-                );
-            }
-        }
     }
 
     /**
@@ -257,6 +215,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
     {
+        if (!isset($specsFromDefinition['components']['schemas']) || !\is_array($specsFromDefinition['components']['schemas'])) {
+            return $specsFromStaticJsonDefinition;
+        }
+
         foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
             if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required']) && isset($specsFromDefinition['components']['schemas'][$key]['required'])) {
                 $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
@@ -295,6 +257,56 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         if ($schema['required'] === []) {
             unset($schema['required']);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $jsonSpec
+     *
+     * @return list<string>
+     */
+    private function getReferencedJsonSchemaNames(array $jsonSpec): array
+    {
+        $componentSchemas = $jsonSpec['components']['schemas'] ?? [];
+        if (!\is_array($componentSchemas)) {
+            $componentSchemas = [];
+        }
+
+        $referencedSchemaNames = [];
+        $queue = [];
+        $this->collectSchemaReferences($jsonSpec['paths'] ?? [], $queue);
+
+        while ($queue !== []) {
+            $schemaName = array_shift($queue);
+            if (isset($referencedSchemaNames[$schemaName]) || !\is_string($schemaName)) {
+                continue;
+            }
+
+            $referencedSchemaNames[$schemaName] = true;
+
+            if (isset($componentSchemas[$schemaName])) {
+                $this->collectSchemaReferences($componentSchemas[$schemaName], $queue);
+            }
+        }
+
+        return array_keys($referencedSchemaNames);
+    }
+
+    /**
+     * @param list<string> $schemaNames
+     */
+    private function collectSchemaReferences(mixed $value, array &$schemaNames): void
+    {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        if (isset($value['$ref']) && \is_string($value['$ref']) && str_starts_with($value['$ref'], '#/components/schemas/')) {
+            $schemaNames[] = mb_substr($value['$ref'], 21);
+        }
+
+        foreach ($value as $nestedValue) {
+            $this->collectSchemaReferences($nestedValue, $schemaNames);
         }
     }
 

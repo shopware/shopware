@@ -12,7 +12,21 @@ on:
         description: "Update snapshots?"
         type: boolean
         default: false
-      use-currents:
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input (matches test titles)."
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      currents:
         description: 'Report to currents?'
         type: boolean
         default: false
@@ -63,7 +77,7 @@ jobs:
           CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
           CURRENTS_BUILD_ID: ${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}
-          ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
+          ATS_CMD: ${{ inputs.currents && 'pwc' || 'playwright'}}
         run: |
           PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
           docker run --rm \

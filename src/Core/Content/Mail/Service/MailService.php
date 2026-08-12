@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -82,6 +83,7 @@ class MailService extends AbstractMailService
         private readonly LoggerInterface $logger,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
+        private readonly MailMetricsInstrumentor $mailMetrics,
     ) {
     }
 
@@ -144,7 +146,7 @@ class MailService extends AbstractMailService
         }
 
         try {
-            $this->mailSender->send($mail);
+            $this->sendMail($mail, $templateData);
         } catch (\Throwable $exception) {
             $this->mailError(
                 errorMessage: \sprintf('Could not send mail with error message: %s', $exception->getMessage()),
@@ -166,6 +168,19 @@ class MailService extends AbstractMailService
         ));
 
         return $mail;
+    }
+
+    /**
+     * @param array<string, mixed> $templateData
+     */
+    private function sendMail(Email $mail, array $templateData): void
+    {
+        $eventName = $templateData['eventName'] ?? null;
+
+        $this->mailMetrics->measureSend(
+            \is_string($eventName) ? $eventName : null,
+            fn () => $this->mailSender->send($mail),
+        );
     }
 
     private function getValidationDefinition(Context $context): DataValidationDefinition
@@ -242,10 +257,6 @@ class MailService extends AbstractMailService
                 return null;
             }
         }
-
-        // Validated through data validator
-        \assert(\is_string($data['contentHtml']));
-        \assert(\is_string($data['contentPlain']));
 
         $contents = [];
         foreach ($this->buildContents($data['contentPlain'], $data['contentHtml'], $salesChannel) as $index => $template) {

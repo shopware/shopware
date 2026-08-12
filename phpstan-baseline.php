@@ -170,12 +170,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Product/SalesChannel/FindVariant/FoundCombination.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/ProductStream/Service/ProductStreamBuilder.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
@@ -828,12 +822,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 4,
     'path' => __DIR__ . '/src/Core/Framework/Struct/Serializer/StructNormalizer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Struct/Struct.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\Validation\\DataValidator::getViolations() has parameter $data with no value type specified in iterable type array.',

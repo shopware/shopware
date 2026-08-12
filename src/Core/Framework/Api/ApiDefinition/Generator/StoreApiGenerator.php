@@ -123,6 +123,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
         $data['paths'] ??= [];
+        $data['components']['schemas'] ??= [];
 
         $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */

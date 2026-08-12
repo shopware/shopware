@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
@@ -46,12 +48,23 @@ class ProductEntityTest extends TestCase
         static::assertSame(5, $entity->getAvailableStock());
     }
 
-    public function testAvailableStockAccessorsThrowWithTheNextMajor(): void
+    public function testGetAvailableStockThrowsWithTheNextMajor(): void
     {
-        $entity = new ProductEntity();
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: '
+            . Feature::deprecatedMethodMessage(ProductEntity::class, 'getAvailableStock', 'v6.8.0.0', 'getStock')
+        ));
 
-        $this->expectException(\Throwable::class);
+        (new ProductEntity())->getAvailableStock();
+    }
 
-        $entity->getAvailableStock();
+    public function testSetAvailableStockThrowsWithTheNextMajor(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: '
+            . Feature::deprecatedMethodMessage(ProductEntity::class, 'setAvailableStock', 'v6.8.0.0', 'setStock')
+        ));
+
+        (new ProductEntity())->setAvailableStock(5);
     }
 }

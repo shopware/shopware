@@ -94,7 +94,7 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
 
         foreach (['google.xml', 'idealo.csv', 'billiger.csv'] as $name) {
             [$base, $ext] = explode('.', $name);
-            $next = file_get_contents($nextFixtures . $base . '_old.' . $ext . '.twig');
+            $next = file_get_contents($nextFixtures . 'current/' . $base . '_old.' . $ext . '.twig');
             static::assertNotFalse($next);
             static::assertSame(
                 $next,

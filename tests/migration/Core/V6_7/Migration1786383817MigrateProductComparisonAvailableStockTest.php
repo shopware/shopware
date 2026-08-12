@@ -39,23 +39,28 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
     }
 
     /**
-     * @return iterable<string, array{string, bool}>
+     * @return iterable<string, array{string, string, bool}>
      */
     public static function vendorProvider(): iterable
     {
         // The bool mirrors the per-vendor `body.trim()` behaviour in
         // src/Administration/.../product-export-templates/{vendor}/index.js.
-        yield 'google' => ['google.xml', false];
-        yield 'idealo' => ['idealo.csv', true];
-        yield 'billiger' => ['billiger.csv', true];
+        foreach ([
+            'current',
+            'legacy-seo-url',
+        ] as $variant) {
+            yield $variant . ' google' => [$variant, 'google.xml', false];
+            yield $variant . ' idealo' => [$variant, 'idealo.csv', true];
+            yield $variant . ' billiger' => [$variant, 'billiger.csv', true];
+        }
     }
 
     #[DataProvider('vendorProvider')]
-    public function testMigrationUpgradesUnmodifiedTemplate(string $name, bool $adminTrims): void
+    public function testMigrationUpgradesUnmodifiedTemplate(string $variant, string $name, bool $adminTrims): void
     {
         [$base, $ext] = explode('.', $name);
-        $pre = $this->readFixture($base . '_old.' . $ext . '.twig');
-        $post = $this->readFixture($base . '_new.' . $ext . '.twig');
+        $pre = $this->readFixture($variant . '/' . $base . '_old.' . $ext . '.twig');
+        $post = $this->readFixture($variant . '/' . $base . '_new.' . $ext . '.twig');
         if ($adminTrims) {
             $pre = trim($pre);
             $post = trim($post);
@@ -71,6 +76,64 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
         static::assertNotFalse($row);
         static::assertSame($post, $row['body']);
         static::assertNotNull($row['updatedAt']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function variantVendorProvider(): iterable
+    {
+        foreach (self::vendorProvider() as $key => [$variant, $name]) {
+            yield $key => [$variant, $name];
+        }
+    }
+
+    #[DataProvider('variantVendorProvider')]
+    public function testMigrationOnlyRenamesTheStockAccessor(string $variant, string $name): void
+    {
+        // The legacy variant must keep `seoUrl(...)`: this migration renames the stock
+        // accessor, it does not retroactively apply the `entitySeoUrl(...)` change from
+        // shopware/shopware#17991, which shipped without a migration of its own.
+        [$base, $ext] = explode('.', $name);
+        $pre = $this->readFixture($variant . '/' . $base . '_old.' . $ext . '.twig');
+        $post = $this->readFixture($variant . '/' . $base . '_new.' . $ext . '.twig');
+
+        static::assertSame(
+            str_replace('product.availableStock', 'product.stock', $pre),
+            $post,
+            "issue-7787/$variant fixtures for $name differ in more than the stock accessor"
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function legacyPredecessorProvider(): iterable
+    {
+        yield 'google' => ['google.xml'];
+        yield 'idealo' => ['idealo.csv'];
+        yield 'billiger' => ['billiger.csv'];
+    }
+
+    #[DataProvider('legacyPredecessorProvider')]
+    public function testLegacyVariantIsTheOnlyDifferenceFromTheCurrentOne(string $name): void
+    {
+        // Guard for the regression this variant exists to fix: the two predecessors must
+        // describe the same template except for the SEO URL helper. If a future change to
+        // the starter templates lands without extending this list, the `current` snapshot
+        // stops matching the installed base and the migration silently becomes a no-op.
+        [$base, $ext] = explode('.', $name);
+        $legacy = $this->readFixture('legacy-seo-url/' . $base . '_old.' . $ext . '.twig');
+        $current = $this->readFixture('current/' . $base . '_old.' . $ext . '.twig');
+
+        static::assertNotSame($legacy, $current);
+        static::assertStringContainsString('seoUrl(\'frontend.detail.page\'', $legacy);
+        static::assertStringContainsString('entitySeoUrl(\'product\'', $current);
+        static::assertSame(
+            preg_replace("/entitySeoUrl\('product', product\.id\)/", 'seoUrl(\'frontend.detail.page\', {\'productId\': product.id})', $current),
+            $legacy,
+            "issue-7787 legacy-seo-url snapshot for $name differs from the current one in more than the SEO URL helper"
+        );
     }
 
     public function testMigrationLeavesCustomerModifiedTemplatesAlone(): void
@@ -98,7 +161,7 @@ class Migration1786383817MigrateProductComparisonAvailableStockTest extends Test
             'billiger.csv' => 'billiger-de/body.csv.twig',
         ] as $name => $adminPath) {
             [$base, $ext] = explode('.', $name);
-            $fixture = $this->readFixture($base . '_new.' . $ext . '.twig');
+            $fixture = $this->readFixture('current/' . $base . '_new.' . $ext . '.twig');
             $admin = file_get_contents($adminRoot . $adminPath);
             static::assertNotFalse($admin);
             static::assertSame($admin, $fixture, "issue-7787 post-fix fixture for $name has drifted from the admin starter template at $adminPath");

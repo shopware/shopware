@@ -293,7 +293,7 @@ What to change now:
 - DAL: replace `availableStock` in criteria, filters, sortings, aggregations and `Criteria::addFields()` calls with `stock`.
 - Elasticsearch: the `availableStock` field of the product index is deprecated. Use `stock`.
 - Dynamic product groups: `availableStock` is deprecated as a filter field and shows a deprecation notice in the Administration. Existing groups filtering on it keep working; switch the condition to `stock`.
-- Product comparison exports: the shipped Google, Idealo and Billiger starter templates now use `product.stock`. A migration updates existing, unmodified export templates automatically; templates you have edited yourself have to be adjusted manually.
+- Product comparison exports: the shipped Google, Idealo and Billiger starter templates now use `product.stock`. A migration renames the accessor in existing export templates that still match one of the shipped bodies byte for byte, and changes nothing else about them. Templates you have edited yourself are left untouched and have to be adjusted manually — search your export templates for `product.availableStock`.
 
 ## Administration
 

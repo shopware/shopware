@@ -15,12 +15,27 @@ use Symfony\Component\Filesystem\Filesystem;
  * `product.availableStock` accessor, which is removed with 6.8. Since 6.6 the
  * value is a mirror of `product.stock`, so the rendered output is unchanged.
  * Customer-modified templates are not affected — the WHERE clause requires a
- * byte-exact match against the shipped snapshot and has to be adjusted manually,
+ * byte-exact match against a shipped snapshot and has to be adjusted manually,
  * see UPGRADE-6.8.md.
  */
 #[Package('inventory')]
 class Migration1786383817MigrateProductComparisonAvailableStock extends MigrationStep
 {
+    /**
+     * One directory per OOTB body a shop can legitimately have stored, because the
+     * starter templates were changed without a migration in the past. `current` is
+     * the body shipped today; `legacy-seo-url` is the body every shop still has that
+     * ran Migration1780029093FixProductComparisonTemplateBreadcrumb before
+     * `seoUrl('frontend.detail.page', ...)` was replaced by `entitySeoUrl('product', ...)`.
+     * Matching only `current` would make this migration a no-op for that whole
+     * population. Each variant keeps its own SEO URL helper: this migration renames
+     * the stock accessor and nothing else.
+     */
+    private const VARIANTS = [
+        'current',
+        'legacy-seo-url',
+    ];
+
     public function getCreationTimestamp(): int
     {
         return 1786383817;
@@ -33,30 +48,32 @@ class Migration1786383817MigrateProductComparisonAvailableStock extends Migratio
 
         $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        // Match the admin starter template registration in
-        // src/Administration/.../product-export-templates/{vendor}/index.js — Idealo
-        // and Billiger send `body.trim()` to the DAL, Google sends the body as-is.
-        // We must apply the same normalisation here, otherwise the byte-exact WHERE
-        // clause silently misses every Idealo / Billiger row.
-        foreach ([
-            ['google.xml', false],
-            ['idealo.csv', true],
-            ['billiger.csv', true],
-        ] as [$name, $trim]) {
-            [$base, $ext] = explode('.', $name);
-            $old = $filesystem->readFile($fixtures . $base . '_old.' . $ext . '.twig');
-            $new = $filesystem->readFile($fixtures . $base . '_new.' . $ext . '.twig');
+        foreach (self::VARIANTS as $variant) {
+            // Match the admin starter template registration in
+            // src/Administration/.../product-export-templates/{vendor}/index.js — Idealo
+            // and Billiger send `body.trim()` to the DAL, Google sends the body as-is.
+            // We must apply the same normalisation here, otherwise the byte-exact WHERE
+            // clause silently misses every Idealo / Billiger row.
+            foreach ([
+                ['google.xml', false],
+                ['idealo.csv', true],
+                ['billiger.csv', true],
+            ] as [$name, $trim]) {
+                [$base, $ext] = explode('.', $name);
+                $old = $filesystem->readFile($fixtures . $variant . '/' . $base . '_old.' . $ext . '.twig');
+                $new = $filesystem->readFile($fixtures . $variant . '/' . $base . '_new.' . $ext . '.twig');
 
-            if ($trim) {
-                $old = trim($old);
-                $new = trim($new);
+                if ($trim) {
+                    $old = trim($old);
+                    $new = trim($new);
+                }
+
+                $connection->update(
+                    'product_export',
+                    ['body_template' => $new, 'updated_at' => $now],
+                    ['body_template' => $old],
+                );
             }
-
-            $connection->update(
-                'product_export',
-                ['body_template' => $new, 'updated_at' => $now],
-                ['body_template' => $old],
-            );
         }
     }
 

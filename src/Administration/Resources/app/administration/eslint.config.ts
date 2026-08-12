@@ -362,10 +362,14 @@ export default [
             // coverage: `lint:types` is plain tsc, which does not type-check .vue at all, and vue-tsc
             // is not wired into CI; .vue type safety is an editor-time concern (Volar) today.
             ...tseslint.configs.disableTypeChecked.rules,
+            // no-unused-vars (base AND typed) stays OFF for .vue. With <script setup lang="ts"> the TS
+            // sub-parser severs vue-eslint-parser's template->script reference linking, so a binding
+            // used only in <template> reads as unused (verified: plain <script setup> tracks it,
+            // lang="ts" does not). Neither rule can tell template-used from truly-unused here, so both
+            // would false-positive on ordinary components. Unused-var coverage for .vue belongs to
+            // vue-tsc, which is not yet wired into CI - so .vue has no CI unused-var gate today (Volar
+            // covers it in the editor only).
             'no-unused-vars': 'off',
-            // Its typed twin isn't type-aware (so disableTypeChecked leaves it on) and, like the base
-            // rule, cannot see template usage - a setup binding used only in <template> reads as unused.
-            // vue/script-setup-uses-vars is what tracks template usage here.
             '@typescript-eslint/no-unused-vars': 'off',
             'vue/script-setup-uses-vars': 'error',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)

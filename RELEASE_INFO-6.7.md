@@ -2,6 +2,14 @@
 
 ## Critical Fixes
 
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### An oversized sales channel criteria is rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — to the first 99 criteria nodes it walks. A criteria with more nested associations than that kept the remaining nodes unrestricted. Such a criteria is now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces a criteria of that size; integrations that build one must split it into several requests.
+
 ### Media import URL checks apply to the address that is connected to
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.

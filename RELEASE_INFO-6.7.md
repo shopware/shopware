@@ -185,6 +185,29 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
+### `es:status` reports every indexed entity
+
+`es:status` only looked at the `product` row of `elasticsearch_index_task`, so a running category, manufacturer or custom-entity indexing run was reported as `completed`. It now lists every pending indexing task with its index, alias, remaining document count, and whether it is still indexing or waiting for the alias swap.
+
+The product-specific progress bar is gone, replaced by the remaining document count per entity. Its total came from a live `product` count rather than from the recorded task, so it was only ever an approximation and could not be generalised to other entities.
+
+### Outdated Elasticsearch indices are removed automatically
+
+Indices that no longer serve an alias were only removable by hand, and `es:index:cleanup` never covered the admin search indices at all — it builds its search pattern from the storefront index prefix (`sw_<entity>_*`), which never matches an admin index (`sw-admin-<name>_<timestamp>`), and it talks to the storefront client rather than the admin one. Admin indices are normally cleaned up when the alias is swapped at the end of an indexing run, so leftovers came from runs that were aborted before that point and then stayed until `es:admin:reset` deleted every admin index, including the live ones.
+
+Two additions close this:
+
+* `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation, leaving the aliased indices in place. It fails when admin Elasticsearch is disabled.
+* A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when either Elasticsearch or admin Elasticsearch is enabled.
+
+The scheduled task applies two guards the interactive commands do not need, because an index that is currently being built also has no alias: it skips indices that an entry in `elasticsearch_index_task` or `admin_elasticsearch_index_task` still writes to, and it only deletes indices older than `elasticsearch.index_cleanup_minimum_age` (default 86400 seconds, override with `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE`). Raise the value if a full indexing run can take longer than the threshold. Indices whose creation date cannot be read are never deleted by the task.
+
+`es:index:cleanup` is unchanged and still deletes every storefront index without an alias after confirmation, regardless of age.
+
+### Admin index alias swap no longer stops at the first missing alias
+
+`AdminSearchRegistry` swapped aliases in a loop that returned instead of continuing when an alias did not exist yet. Every entity after that one kept its previous index and left the newly built index behind without an alias. Each entity's alias is now swapped independently.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

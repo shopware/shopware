@@ -17,7 +17,7 @@ Tests should read like executable examples.
 - For unit tests around file access, choose the lightest setup that still reads naturally: simple single-file reads/writes can use Symfony `Filesystem` injected into the class and mocked in the test; when the scenario needs several consecutive filesystem calls, realistic paths, or directory structure, prefer committed `_fixtures` over building temp files at runtime or over-mocking the filesystem.
 - When a test must really write to disk, use the Symfony `Filesystem` component instead of raw `mkdir`/`file_put_contents`/`unlink`/`rmdir`.
 - Keep test helpers smaller than the code they replace.
-- Name the arguments when calling a test data builder or helper with bare literals: `->review(title: 'a', content: 'b', points: 0, status: false, customerId: $id)` says what `0` and `false` mean, and lets you drop the defaults you only passed to reach a later parameter. Production code keeps the restriction on naming Shopware parameters.
+- Name the arguments when calling a test data builder or helper with bare literals: `->review(title: 'a', content: 'b', points: 0, status: false, customerId: $id)` says what `0` and `false` mean, and lets you drop the defaults you only passed to reach a later parameter.
 - A dummy entity definition, stub subscriber, or other fixture class used by exactly one test file belongs in that file, below the test class. Move it into a shared `_fixtures` namespace once a second test needs it, so that namespace means "reused" rather than "test-only".
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.

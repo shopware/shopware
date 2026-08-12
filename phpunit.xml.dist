@@ -68,20 +68,6 @@
             <directory suffix="Struct.php">src/Core/System/</directory>
 
             <directory suffix="Collection.php">src/Core/Content/</directory>
-            <!-- Checkout collections carry logic but have no unit test yet; excluded per-file pending backfill. -->
-            <file>src/Core/Checkout/Cart/Price/Struct/PriceDefinitionCollection.php</file>
-            <file>src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerCollection.php</file>
-            <!-- Checkout definitions carry logic but have no dedicated unit test yet; excluded per-file pending backfill. -->
-            <file>src/Core/Checkout/Cart/Price/Struct/QuantityPriceDefinition.php</file>
-            <file>src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php</file>
-            <file>src/Core/Checkout/Customer/CustomerDefinition.php</file>
-            <file>src/Core/Checkout/Order/Aggregate/OrderAddress/OrderAddressDefinition.php</file>
-            <file>src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemDefinition.php</file>
-            <file>src/Core/Checkout/Order/OrderDefinition.php</file>
-            <!-- Checkout entities carry logic but have no dedicated unit test yet; excluded per-file pending backfill. -->
-            <file>src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressEntity.php</file>
-            <file>src/Core/Checkout/Order/OrderEntity.php</file>
-            <file>src/Core/Checkout/Promotion/Aggregate/PromotionDiscount/PromotionDiscountEntity.php</file>
             <directory suffix="Collection.php">src/Core/Installer/</directory>
             <directory suffix="Collection.php">src/Core/System/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>

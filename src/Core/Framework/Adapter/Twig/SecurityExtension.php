@@ -180,8 +180,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($arrow)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $arrow = implode('::', $arrow);
+            $arrow = implode('::', \array_map('\strval', $arrow));
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
@@ -192,15 +191,16 @@ class SecurityExtension extends AbstractExtension
             return null;
         }
 
-        foreach ($array as $key => $value) {
-            // mirror the map filter: custom string functions receive only the value
-            $matches = \is_string($arrow) ? $arrow($value) : $arrow($value, $key);
-            if ($matches) {
-                return $value;
-            }
+        if ($array instanceof \Traversable) {
+            $array = iterator_to_array($array);
         }
 
-        return null;
+        // mirror the map filter: custom string functions receive only the value
+        $arrowCallback = \is_string($arrow)
+            ? static fn (mixed $value): bool => (bool) $arrow($value)
+            : static fn (mixed $value, mixed $key): bool => (bool) $arrow($value, $key);
+
+        return \array_find($array, $arrowCallback);
     }
 
     /**
@@ -216,8 +216,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($callback)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $callback = implode('::', $callback);
+            $callback = implode('::', \array_map('\strval', $callback));
         }
 
         if (\is_string($callback) && !\in_array($callback, $this->allowedPHPFunctions, true)) {

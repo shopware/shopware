@@ -34,10 +34,10 @@ describe('build-components scss load paths', () => {
         const loadPaths = getScssLoadPaths(extensionDir, coreDir);
 
         expect(loadPaths.indexOf(path.join(extensionDir, 'vendor'))).toBeLessThan(
-            loadPaths.indexOf(path.join(extensionDir, 'node_modules'))
+            loadPaths.indexOf(path.join(extensionDir, 'node_modules')),
         );
         expect(loadPaths.indexOf(path.join(coreDir, 'vendor'))).toBeLessThan(
-            loadPaths.indexOf(path.join(coreDir, 'node_modules'))
+            loadPaths.indexOf(path.join(coreDir, 'node_modules')),
         );
     });
 });

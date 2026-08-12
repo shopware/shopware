@@ -52,7 +52,8 @@
 
     .sw-settings-shipping-price-matrix__price {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        width: 100%;
     }
 
     .sw-settings-shipping-price-matrix__price-inherit-icon {

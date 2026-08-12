@@ -17,6 +17,8 @@ Tests should read like executable examples.
 - For unit tests around file access, choose the lightest setup that still reads naturally: simple single-file reads/writes can use Symfony `Filesystem` injected into the class and mocked in the test; when the scenario needs several consecutive filesystem calls, realistic paths, or directory structure, prefer committed `_fixtures` over building temp files at runtime or over-mocking the filesystem.
 - When a test must really write to disk, use the Symfony `Filesystem` component instead of raw `mkdir`/`file_put_contents`/`unlink`/`rmdir`.
 - Keep test helpers smaller than the code they replace.
+- Name the arguments when calling a test data builder or helper with bare literals: `->review(title: 'a', content: 'b', points: 0, status: false, customerId: $id)` says what `0` and `false` mean, and lets you drop the defaults you only passed to reach a later parameter. Production code keeps the restriction on naming Shopware parameters.
+- A dummy entity definition, stub subscriber, or other fixture class used by exactly one test file belongs in that file, below the test class. Move it into a shared `_fixtures` namespace once a second test needs it, so that namespace means "reused" rather than "test-only".
 - Do not hide assertions or feature-flag toggling behind abstractions when direct assertions are just as readable.
 - Prefer one focused test per distinct exception or behavior over broad data providers when each case has its own meaning.
 - Do not invoke private or protected methods of Shopware classes via reflection (`->invoke()`, `->invokeArgs()`, `setAccessible()`). Test the behavior through the public API, or restructure the code (e.g. extract the logic into a collaborator with a public contract) so it is testable without reflection. Fix legacy usages when touching such a test. Reflecting into a third-party class stays acceptable when a vendor API leaves no other option, and reading metadata from a reflection object is always fine, for example asserting a declaring class, a signature, or an attribute. The PHPStan rule `shopware.reflectionOnNonPublicMethod` enforces this.
@@ -67,6 +69,7 @@ Tests should read like executable examples.
 - Do not use `yield from` with an inline array for providers. Prefer one explicit `yield 'human readable case description' => [...]` per scenario.
 - Provider case names should explain the scenario and expected behavior, not mechanically restate raw input values. Good names mention the rule being proven, such as priority, normalization, timezone conversion, or boundary handling.
 - Be conservative when deleting "duplicate" provider cases. Remove only exact semantic duplicates that add no coverage, and keep similar-looking cases when they cover distinct edge behavior.
+- Fold two tests into one provider when they differ only in their input and their expectation; pass the discriminating value together with the expectation instead of copying the whole scenario. This does not override the rule above about keeping one focused test per distinct behavior: a case that carries its own meaning stays its own test.
 
 ## Detailed Guidelines
 

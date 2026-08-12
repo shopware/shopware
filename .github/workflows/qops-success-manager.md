@@ -25,6 +25,11 @@ on:
   schedule:
     - cron: '0 4 * * *'   # ~06:00 Europe/Istanbul (UTC+2) — adjust if this timezone assumption is wrong
   workflow_dispatch: {}
+  # TEMPORARY — registration trick (.github/aw/README.md) to expose
+  # workflow_dispatch on this feature branch before merge. Remove before PR.
+  push:
+    branches: [feat/qops-success-manager-skill]
+    paths: [.github/workflows/qops-success-manager.md]
 
 run-name: "QOps Success Manager — nightly pipeline check"
 

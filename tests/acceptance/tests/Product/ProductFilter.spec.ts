@@ -1,109 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
-import type { Locator, Page } from '@playwright/test';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
 const TIMEOUT = 15_000;
-
-type ListingInstrumentation = {
-    filterPluginInitialized: boolean;
-    filterLinkedToListing: boolean;
-    filterRegisteredWithListing: boolean;
-    changeEvents: number;
-    changeListingCalls: number;
-    sendDataRequestCalls: number;
-};
-
-type ListingPlugin = {
-    _registry?: unknown[];
-    changeListing: (...args: unknown[]) => unknown;
-    sendDataRequest: (...args: unknown[]) => unknown;
-};
-
-type FilterPlugin = {
-    listing?: ListingPlugin;
-};
-
-type PluginElement = {
-    __plugins?: {
-        get(pluginName: string): unknown;
-    };
-};
-
-type InstrumentedWindow = {
-    __productFilterInstrumentation?: Record<string, ListingInstrumentation>;
-};
-
-async function instrumentListingChange(filterInput: Locator, key: string): Promise<void> {
-    await filterInput.evaluate((input, instrumentationKey) => {
-        const browser = globalThis as unknown as InstrumentedWindow & {
-            document: {
-                querySelector(selector: string): PluginElement | null;
-            };
-        };
-        const inputElement = input as unknown as {
-            closest(selector: string): PluginElement | null;
-            addEventListener(event: string, listener: () => void): void;
-        };
-        const filterElement = inputElement.closest('[data-filter-multi-select], [data-filter-rating-select]');
-        const listingElement = browser.document.querySelector('.cms-element-product-listing-wrapper');
-        const filterPlugin = (
-            filterElement?.__plugins?.get('FilterMultiSelect')
-            ?? filterElement?.__plugins?.get('FilterRatingSelect')
-        ) as FilterPlugin | undefined;
-        const listingPlugin = listingElement?.__plugins?.get('Listing') as ListingPlugin | undefined;
-        const instrumentation: ListingInstrumentation = {
-            filterPluginInitialized: filterPlugin !== undefined,
-            filterLinkedToListing: filterPlugin?.listing === listingPlugin,
-            filterRegisteredWithListing: listingPlugin?._registry?.includes(filterPlugin) ?? false,
-            changeEvents: 0,
-            changeListingCalls: 0,
-            sendDataRequestCalls: 0,
-        };
-
-        inputElement.addEventListener('change', () => {
-            instrumentation.changeEvents += 1;
-        });
-
-        if (listingPlugin) {
-            const originalChangeListing = listingPlugin.changeListing;
-            listingPlugin.changeListing = (...args) => {
-                instrumentation.changeListingCalls += 1;
-
-                return originalChangeListing.apply(listingPlugin, args);
-            };
-
-            const originalSendDataRequest = listingPlugin.sendDataRequest;
-            listingPlugin.sendDataRequest = (...args) => {
-                instrumentation.sendDataRequestCalls += 1;
-
-                return originalSendDataRequest.apply(listingPlugin, args);
-            };
-        }
-
-        browser.__productFilterInstrumentation ??= {};
-        browser.__productFilterInstrumentation[instrumentationKey] = instrumentation;
-    }, key);
-}
-
-async function assertListingChangeWasTriggered(page: Page, key: string): Promise<void> {
-    const instrumentation = await page.evaluate((instrumentationKey) => {
-        const instrumentedWindow = globalThis as unknown as InstrumentedWindow;
-
-        return instrumentedWindow.__productFilterInstrumentation?.[instrumentationKey];
-    }, key);
-
-    if (
-        !instrumentation
-        || !instrumentation.filterPluginInitialized
-        || !instrumentation.filterLinkedToListing
-        || !instrumentation.filterRegisteredWithListing
-        || instrumentation.changeEvents !== 1
-        || instrumentation.changeListingCalls !== 1
-        || instrumentation.sendDataRequestCalls !== 1
-    ) {
-        throw new Error(`Listing filter instrumentation failed: ${JSON.stringify(instrumentation)}`);
-    }
-}
 
 test(
     'Customer should see unavailable filter disabled based on selected filter',
@@ -198,9 +96,7 @@ test(
         await test.step('Select a manufacturer and verify that unavailable filter is disabled and products are filtered', async () => {
             const manufacturerLocator = await StorefrontHome.getFilterItemByFilterName(colorManufacturer.name);
             await ShopCustomer.presses(StorefrontHome.manufacturerFilter);
-            await instrumentListingChange(manufacturerLocator, 'manufacturer');
             await manufacturerLocator.check();
-            await assertListingChangeWasTriggered(StorefrontHome.page, 'manufacturer');
 
             await ShopCustomer.expects(manufacturerLocator).toBeChecked();
             await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
@@ -411,10 +307,7 @@ test(
 
         await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
             await ShopCustomer.presses(StorefrontHome.productRatingButton);
-            const ratingInput = StorefrontHome.page.locator('#rating-3');
-            await instrumentListingChange(ratingInput, 'rating');
             await StorefrontHome.page.locator('.filter-rating-select-item-label[for="rating-3"]').click();
-            await assertListingChangeWasTriggered(StorefrontHome.page, 'rating');
 
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });

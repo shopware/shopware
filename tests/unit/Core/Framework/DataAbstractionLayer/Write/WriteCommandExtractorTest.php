@@ -66,7 +66,7 @@ class WriteCommandExtractorTest extends TestCase
                 return new FieldCollection([
                     (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
                     (new StringField('name', 'name'))->addFlags(new Required()),
-                    (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+                    (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), (new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi()),
                 ]);
             }
         };

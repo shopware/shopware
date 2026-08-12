@@ -29,6 +29,9 @@ class IntegrationApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `Shopware.Service('repositoryFactory').create('integration').save(integration)` instead.
+     */
     updateAdmin(integrationId, admin, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
 

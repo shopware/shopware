@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
@@ -78,7 +78,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         private readonly EntityRepository $countryRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly AppDocumentTypeLoader $appDocumentTypeLoader,
+        private readonly DocumentTypeRegistry $documentTypeRegistry,
     ) {
     }
 
@@ -134,7 +134,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
         $effectiveCompanyInfo = $systemConfigCompanyInfo ?? $legacyConfig;
-        $appConfig = $this->appDocumentTypeLoader->loadConfig($documentType);
+        $appConfig = $this->documentTypeRegistry->getAppConfig($documentType);
 
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context, $appConfig);
         $companyInfo = $this->buildDocumentCompanyInfo($effectiveCompanyInfo, $context, $documentType);

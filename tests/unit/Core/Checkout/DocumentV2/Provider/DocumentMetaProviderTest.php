@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -150,7 +150,7 @@ class DocumentMetaProviderTest extends TestCase
                 $countryRepository,
                 $mediaRepository,
                 static::createStub(SystemConfigService::class),
-                new AppDocumentTypeLoader($storage),
+                new DocumentTypeRegistry([], $storage),
             ),
         );
     }

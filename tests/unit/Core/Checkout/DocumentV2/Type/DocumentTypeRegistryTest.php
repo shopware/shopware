@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeConfig;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
@@ -24,7 +23,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html', 'pdf'])],
-            $this->appDocumentTypeLoader(['swag_warranty' => ['html', 'pdf']]),
+            $this->appFeatureStorage(['swag_warranty' => ['html', 'pdf']]),
         );
 
         static::assertSame(['invoice', 'swag_warranty'], $registry->getTechnicalNames());
@@ -34,7 +33,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html', 'pdf'])],
-            $this->appDocumentTypeLoader([]),
+            $this->appFeatureStorage([]),
         );
 
         static::assertSame(['html', 'pdf'], $registry->getSupportedFormats('invoice'));
@@ -44,7 +43,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [],
-            $this->appDocumentTypeLoader(['swag_warranty' => ['html', 'pdf']]),
+            $this->appFeatureStorage(['swag_warranty' => ['html', 'pdf']]),
         );
 
         static::assertSame(['html', 'pdf'], $registry->getSupportedFormats('swag_warranty'));
@@ -52,7 +51,7 @@ final class DocumentTypeRegistryTest extends TestCase
 
     public function testGetSupportedFormatsReturnsEmptyArrayForUnknownType(): void
     {
-        $registry = new DocumentTypeRegistry([], $this->appDocumentTypeLoader([]));
+        $registry = new DocumentTypeRegistry([], $this->appFeatureStorage([]));
 
         static::assertSame([], $registry->getSupportedFormats('does_not_exist'));
     }
@@ -61,7 +60,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html'])],
-            $this->appDocumentTypeLoader(['swag_warranty' => ['html']]),
+            $this->appFeatureStorage(['swag_warranty' => ['html']]),
         );
 
         static::assertTrue($registry->supports('invoice'));
@@ -73,7 +72,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html', 'pdf'])],
-            $this->appDocumentTypeLoader([]),
+            $this->appFeatureStorage([]),
         );
 
         $registry->validateFormats('invoice', ['html', 'pdf']);
@@ -85,7 +84,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html'])],
-            $this->appDocumentTypeLoader([]),
+            $this->appFeatureStorage([]),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::unsupportedDocumentFormat('pdf', 'invoice'));
@@ -97,7 +96,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $invoice = new StaticDocumentType('invoice', ['html']);
 
-        $registry = new DocumentTypeRegistry([$invoice], $this->appDocumentTypeLoader([]));
+        $registry = new DocumentTypeRegistry([$invoice], $this->appFeatureStorage([]));
 
         static::assertSame($invoice, $registry->getDocumentType('invoice'));
     }
@@ -106,7 +105,7 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [],
-            $this->appDocumentTypeLoader(['swag_warranty' => ['html']]),
+            $this->appFeatureStorage(['swag_warranty' => ['html']]),
         );
 
         static::assertTrue($registry->supports('swag_warranty'));
@@ -120,12 +119,41 @@ final class DocumentTypeRegistryTest extends TestCase
     {
         $registry = new DocumentTypeRegistry(
             [new StaticDocumentType('invoice', ['html'])],
-            $this->appDocumentTypeLoader([]),
+            $this->appFeatureStorage([]),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentTypeNotFound('does_not_exist'));
 
         $registry->getDocumentType('does_not_exist');
+    }
+
+    public function testGetAppConfigReturnsConfigDeclaredByApp(): void
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([
+            $this->appFeature(new AppDocumentTypeConfig('swag_warranty', ['html'], [], ['pageSize' => 'a5'])),
+        ]);
+
+        $registry = new DocumentTypeRegistry([], $storage);
+
+        static::assertSame(['pageSize' => 'a5'], $registry->getAppConfig('swag_warranty'));
+    }
+
+    public function testGetAppConfigReturnsEmptyArrayForCoreType(): void
+    {
+        $registry = new DocumentTypeRegistry(
+            [new StaticDocumentType('invoice', ['html'])],
+            $this->appFeatureStorage([]),
+        );
+
+        static::assertSame([], $registry->getAppConfig('invoice'));
+    }
+
+    public function testGetAppConfigReturnsEmptyArrayForUnknownType(): void
+    {
+        $registry = new DocumentTypeRegistry([], $this->appFeatureStorage([]));
+
+        static::assertSame([], $registry->getAppConfig('does_not_exist'));
     }
 
     public function testAppTypesAreOnlyFetchedOnceUntilReset(): void
@@ -136,15 +164,13 @@ final class DocumentTypeRegistryTest extends TestCase
             ->with(AppDocumentTypeConfig::class)
             ->willReturn([$this->appFeature(new AppDocumentTypeConfig('swag_warranty', ['html'], [], []))]);
 
-        $loader = new AppDocumentTypeLoader($storage);
-        $registry = new DocumentTypeRegistry([new StaticDocumentType('invoice', ['html'])], $loader);
+        $registry = new DocumentTypeRegistry([new StaticDocumentType('invoice', ['html'])], $storage);
 
         static::assertSame(['invoice', 'swag_warranty'], $registry->getTechnicalNames());
         static::assertSame(['html'], $registry->getSupportedFormats('swag_warranty'));
         static::assertSame(['invoice', 'swag_warranty'], $registry->getTechnicalNames());
 
         $registry->reset();
-        $loader->reset();
 
         static::assertSame(['invoice', 'swag_warranty'], $registry->getTechnicalNames());
     }
@@ -152,7 +178,7 @@ final class DocumentTypeRegistryTest extends TestCase
     /**
      * @param array<string, list<string>> $appTypes
      */
-    private function appDocumentTypeLoader(array $appTypes): AppDocumentTypeLoader
+    private function appFeatureStorage(array $appTypes): AppFeatureStorage
     {
         $features = [];
 
@@ -163,7 +189,7 @@ final class DocumentTypeRegistryTest extends TestCase
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn($features);
 
-        return new AppDocumentTypeLoader($storage);
+        return $storage;
     }
 
     /**

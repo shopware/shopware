@@ -25,7 +25,6 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -566,7 +565,7 @@ class DocumentGeneratorTest extends TestCase
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
-        $documentTypeRegistry = new DocumentTypeRegistry([], new AppDocumentTypeLoader($storage));
+        $documentTypeRegistry = new DocumentTypeRegistry([], $storage);
 
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());

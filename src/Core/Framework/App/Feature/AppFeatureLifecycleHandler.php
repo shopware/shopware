@@ -50,6 +50,10 @@ class AppFeatureLifecycleHandler extends AbstractLifecycleHandler
         $rows = [];
 
         foreach ($this->registry->all() as $definition) {
+            if ($definition instanceof AppFeaturePersistListener) {
+                $definition->onPersist($context);
+            }
+
             $stored = [];
             foreach ($this->storage->forApp($appId, $definition->getConfigClass()) as $feature) {
                 $stored[$feature->config->getName()] = $feature->config;

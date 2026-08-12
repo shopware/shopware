@@ -73,8 +73,6 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
-    final public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'FRAMEWORK__APP_DOCUMENT_TYPE_ALREADY_REGISTERED';
-    final public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'FRAMEWORK__APP_DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -640,26 +638,6 @@ class AppException extends HttpException
             self::APP_REQUIREMENTS_NOT_MET,
             'The app requirements are not met: {{ violations }}',
             ['violations' => implode('; ', $violationDetails)]
-        );
-    }
-
-    public static function documentTypeAlreadyRegistered(string $identifier, string $owningApp): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DOCUMENT_TYPE_ALREADY_REGISTERED,
-            'The document type "{{ identifier }}" is already registered by app "{{ owningApp }}".',
-            ['identifier' => $identifier, 'owningApp' => $owningApp],
-        );
-    }
-
-    public static function documentTypeShadowsCoreType(string $identifier): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::DOCUMENT_TYPE_SHADOWS_CORE_TYPE,
-            'The document type "{{ identifier }}" shadows a core document type and cannot be registered by an app.',
-            ['identifier' => $identifier],
         );
     }
 }

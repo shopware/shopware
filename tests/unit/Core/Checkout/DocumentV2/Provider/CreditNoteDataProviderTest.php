@@ -25,7 +25,6 @@ use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -172,19 +171,19 @@ class CreditNoteDataProviderTest extends TestCase
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
-        $appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+        $documentTypeRegistry = new DocumentTypeRegistry([new CreditNoteDocumentType()], $storage);
 
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
-            $appDocumentTypeLoader,
+            $documentTypeRegistry,
         );
 
         return new InvoiceDataProvider(
             $configLoader,
-            new DocumentTypeRegistry([new CreditNoteDocumentType()], $appDocumentTypeLoader),
+            $documentTypeRegistry,
             static::createStub(ValidatorInterface::class),
         );
     }

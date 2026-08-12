@@ -26,15 +26,13 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
-use Shopware\Core\Checkout\DocumentV2\Subscriber\AppDocumentNumberRangeSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DeliveryNoteDocumentType;
-use Shopware\Core\Checkout\DocumentV2\Type\DocumentFeatureDefinition;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentAppFeatureDefinition;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
@@ -72,20 +70,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('country.repository'),
             service('media.repository'),
             service(SystemConfigService::class),
-            service(AppDocumentTypeLoader::class),
+            service(DocumentTypeRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
         ->args([
             service(Connection::class),
-        ])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(AppDocumentNumberRangeSubscriber::class)
-        ->args([
-            service('number_range_type.repository'),
-            service('number_range.repository'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -145,18 +136,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CreditNoteDocumentType::class)
         ->tag('shopware.document_v2.type');
 
-    $services->set(DocumentFeatureDefinition::class)
-        ->tag('shopware.app_feature.definition');
-
-    $services->set(AppDocumentTypeLoader::class)
+    $services->set(DocumentAppFeatureDefinition::class)
         ->args([
-            service(AppFeatureStorage::class),
-        ]);
+            service(Connection::class),
+            service('number_range_type.repository'),
+            service('number_range.repository'),
+        ])
+        ->tag('shopware.app_feature.definition');
 
     $services->set(DocumentTypeRegistry::class)
         ->args([
             tagged_iterator('shopware.document_v2.type'),
-            service(AppDocumentTypeLoader::class),
+            service(AppFeatureStorage::class),
         ]);
 
     $services->set(DocumentTemplateRenderer::class)

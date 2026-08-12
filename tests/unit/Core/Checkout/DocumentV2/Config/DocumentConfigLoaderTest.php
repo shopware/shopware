@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\Doc
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -39,14 +39,14 @@ class DocumentConfigLoaderTest extends TestCase
     private const LEGACY_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c1';
     private const COMPANY_INFO_LOGO_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c2';
 
-    private AppDocumentTypeLoader $appDocumentTypeLoader;
+    private DocumentTypeRegistry $documentTypeRegistry;
 
     protected function setUp(): void
     {
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
 
-        $this->appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+        $this->documentTypeRegistry = new DocumentTypeRegistry([], $storage);
     }
 
     public function testLoadPicksMatchingSalesChannelRowWhenMultipleNonGlobalRowsReturned(): void
@@ -87,7 +87,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(
@@ -129,7 +129,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(
@@ -166,7 +166,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $this->expectException(DocumentV2Exception::class);
@@ -210,7 +210,7 @@ class DocumentConfigLoaderTest extends TestCase
                 'companyCountryId' => self::COMPANY_COUNTRY_ID,
                 'companyLogoId' => self::COMPANY_INFO_LOGO_ID,
             ], $salesChannelId),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(
@@ -250,7 +250,7 @@ class DocumentConfigLoaderTest extends TestCase
             $this->createSystemConfigService([
                 'companyName' => 'System Config GmbH',
             ], $salesChannelId),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $this->expectException(DocumentV2Exception::class);
@@ -294,7 +294,7 @@ class DocumentConfigLoaderTest extends TestCase
                 'companyCity' => 'System City',
                 'companyCountryId' => self::COMPANY_COUNTRY_ID,
             ], $salesChannelId),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(
@@ -330,7 +330,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
-            $this->appDocumentTypeLoader,
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(

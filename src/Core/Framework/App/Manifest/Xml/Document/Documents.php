@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\Document;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
@@ -85,9 +86,16 @@ class Documents extends XmlElement
         $label = $values['label'] ?? [];
 
         $identifier = $values['identifier'] ?? '';
+        $identifier = \is_string($identifier) ? $identifier : '';
+
+        foreach (['identifier' => $identifier, 'label' => $label, 'formats' => $formats] as $field => $value) {
+            if ($value === '' || $value === []) {
+                throw AppException::invalidArgument($field . ' must not be empty');
+            }
+        }
 
         return [
-            'identifier' => \is_string($identifier) ? $identifier : '',
+            'identifier' => $identifier,
             'label' => $label,
             'formats' => $formats,
             'config' => $config,

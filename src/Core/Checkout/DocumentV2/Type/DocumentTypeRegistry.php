@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Type;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -18,6 +19,11 @@ final class DocumentTypeRegistry implements ResetInterface
     private ?array $coreTypes = null;
 
     /**
+     * @var array<string, AppDocumentTypeConfig>|null
+     */
+    private ?array $appTypes = null;
+
+    /**
      * @var array<string, list<string>>|null
      */
     private ?array $formatsByType = null;
@@ -27,8 +33,23 @@ final class DocumentTypeRegistry implements ResetInterface
      */
     public function __construct(
         private readonly iterable $documentTypes,
-        private readonly AppDocumentTypeLoader $appDocumentTypeLoader,
+        private readonly AppFeatureStorage $appFeatureStorage,
     ) {
+    }
+
+    public function reset(): void
+    {
+        $this->coreTypes = null;
+        $this->appTypes = null;
+        $this->formatsByType = null;
+    }
+
+    /***
+     * @return array<string, scalar>
+     */
+    public function getAppConfig(string $documentType): array
+    {
+        return ($this->appTypes()[$documentType] ?? null)?->getConfig() ?? [];
     }
 
     public function getDocumentType(string $documentType): AbstractDocumentType
@@ -77,12 +98,6 @@ final class DocumentTypeRegistry implements ResetInterface
         }
     }
 
-    public function reset(): void
-    {
-        $this->coreTypes = null;
-        $this->formatsByType = null;
-    }
-
     /**
      * @return array<string, AbstractDocumentType>
      */
@@ -102,6 +117,24 @@ final class DocumentTypeRegistry implements ResetInterface
     }
 
     /**
+     * @return array<string, AppDocumentTypeConfig>
+     */
+    private function appTypes(): array
+    {
+        if ($this->appTypes !== null) {
+            return $this->appTypes;
+        }
+
+        $appTypes = [];
+
+        foreach ($this->appFeatureStorage->forActiveApps(AppDocumentTypeConfig::class) as $feature) {
+            $appTypes[$feature->config->getName()] = $feature->config;
+        }
+
+        return $this->appTypes = $appTypes;
+    }
+
+    /**
      * @return array<string, list<string>>
      */
     private function formatsByType(): array
@@ -116,9 +149,8 @@ final class DocumentTypeRegistry implements ResetInterface
             $merged[$technicalName] = array_values(array_unique($documentType->getSupportedFormats()));
         }
 
-        foreach ($this->appDocumentTypeLoader->load() as $type => $formats) {
-            // DocumentLifecycleHandler guarantees app identifiers never collide with core
-            $merged[$type] = $formats;
+        foreach ($this->appTypes() as $type => $config) {
+            $merged[$type] = $config->getFormats();
         }
 
         return $this->formatsByType = $merged;

@@ -27,7 +27,6 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -75,7 +74,7 @@ class DocumentV2ControllerTest extends TestCase
      */
     private StaticEntityRepository $documentTypeRepository;
 
-    private AppDocumentTypeLoader $appDocumentTypeLoader;
+    private AppFeatureStorage $appFeatureStorage;
 
     protected function setUp(): void
     {
@@ -85,7 +84,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
-        $this->appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+        $this->appFeatureStorage = $storage;
     }
 
     public function testAvailableTypesReturnsFormatsFromTypeRegistry(): void
@@ -98,7 +97,7 @@ class DocumentV2ControllerTest extends TestCase
         $typeRegistry = new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             new StaticDocumentType('partial_cancellation', [DocumentFormat::HTML->value, DocumentFormat::PDF->value]),
-        ], $this->appDocumentTypeLoader);
+        ], $this->appFeatureStorage);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
@@ -692,7 +691,7 @@ class DocumentV2ControllerTest extends TestCase
     {
         return new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, $formats),
-        ], $this->appDocumentTypeLoader);
+        ], $this->appFeatureStorage);
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

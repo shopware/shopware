@@ -89,7 +89,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ActionButtonLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
-use Shopware\Core\Framework\App\Lifecycle\Handler\DocumentLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
@@ -364,12 +363,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(BlockTemplateLoader::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1200]);
-
-    $services->set(DocumentLifecycleHandler::class)
-        ->args([
-            service(Connection::class),
-        ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1250]);
 
     $services->set(AppFeatureLifecycleHandler::class)
         ->args([

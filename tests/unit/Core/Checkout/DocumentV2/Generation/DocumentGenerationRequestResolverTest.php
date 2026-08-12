@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
@@ -30,14 +29,14 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(DocumentGenerationRequestResolver::class)]
 class DocumentGenerationRequestResolverTest extends TestCase
 {
-    private AppDocumentTypeLoader $appDocumentTypeLoader;
+    private AppFeatureStorage $appFeatureStorage;
 
     protected function setUp(): void
     {
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
 
-        $this->appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+        $this->appFeatureStorage = $storage;
     }
 
     public function testResolveBuildsDocumentGenerationRequest(): void
@@ -175,7 +174,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ], $this->appDocumentTypeLoader),
+            ], $this->appFeatureStorage),
         );
     }
 
@@ -198,7 +197,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ], $this->appDocumentTypeLoader),
+            ], $this->appFeatureStorage),
         );
     }
 
@@ -243,7 +242,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
                     DocumentFormat::HTML->value,
                     DocumentFormat::PDF->value,
                 ]),
-            ], $this->appDocumentTypeLoader),
+            ], $this->appFeatureStorage),
         );
     }
 

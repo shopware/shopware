@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -246,7 +245,7 @@ class DocumentPersisterTest extends TestCase
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
-        $documentTypeRegistry = new DocumentTypeRegistry([], new AppDocumentTypeLoader($storage));
+        $documentTypeRegistry = new DocumentTypeRegistry([], $storage);
 
         return [
             new DocumentPersister(

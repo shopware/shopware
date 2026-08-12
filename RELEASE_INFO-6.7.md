@@ -120,6 +120,10 @@ The main menu and the search bar no longer color their icons by the `color` of t
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
 
+### Individual promotion codes are released again when their promotion line item is deleted
+
+Deleting a promotion line item from an order (or deleting the order) now releases the redeemed individual promotion code, so the customer can use it again. This restores the 6.6 behaviour that was lost in the 6.7 rewrite of `PromotionRedemptionUpdater`: since 6.7.0.0 a used individual code stayed permanently redeemed even after a merchant removed the promotion from the order — a common workflow when a payment fails and the order is edited, which previously forced merchants to generate and send a new code. The release is scoped to codes whose redemption payload references the order the line item is deleted from; the promotion usage counters were already recalculated correctly and are unchanged.
+
 ## Storefront
 
 ### Semantic footer markup

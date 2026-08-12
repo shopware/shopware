@@ -11,17 +11,26 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, SelectProductFilterOption, CheckVisibilityInHome }) => {
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontHome,
+        SelectProductFilterOption,
+        CheckVisibilityInHome,
+        IdProvider,
+    }) => {
+        const uniqueId = IdProvider.getIdPair().uuid;
+
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup({
-            name: 'Color',
+            name: `Color ${uniqueId}`,
             description: 'Color Description',
-            options: [{ name: 'Red', colorHexCode: '#bf0f2a' }],
+            options: [{ name: `Red ${uniqueId}`, colorHexCode: '#bf0f2a' }],
         });
         const size = await TestDataService.createTextPropertyGroup({
-            name: 'Size',
+            name: `Size ${uniqueId}`,
             description: 'Size Description',
-            options: [{ name: 'Medium' }],
+            options: [{ name: `Medium ${uniqueId}` }],
         });
         const propertyGroupsColor: PropertyGroup[] = [color];
         const propertyGroupsText: PropertyGroup[] = [size];
@@ -37,17 +46,17 @@ test(
 
         await test.step('Create manufacturer and products then verify products created', async () => {
             sizeManufacturer = await TestDataService.createBasicManufacturer({
-                name: 'Size Manufacturer',
+                name: `Size Manufacturer ${uniqueId}`,
                 description: 'Size Description Manufacturer',
             });
             colorManufacturer = await TestDataService.createBasicManufacturer({
-                name: 'Color Manufacturer',
+                name: `Color Manufacturer ${uniqueId}`,
                 description: 'Color Description Manufacturer',
             });
             parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
             parentProductSize = await TestDataService.createBasicProduct({ manufacturerId: sizeManufacturer.id });
             const freeShipManufacturer = await TestDataService.createBasicManufacturer({
-                name: 'Free-shipping Manufacturer',
+                name: `Free-shipping Manufacturer ${uniqueId}`,
                 description: 'Free ship Description Manufacturer',
             });
 
@@ -55,7 +64,7 @@ test(
                 shippingFree: true,
                 manufacturerId: freeShipManufacturer.id,
             });
-            basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
+            basicProduct = await TestDataService.createBasicProduct({ name: `Product without filters ${uniqueId}` });
             variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
                 description: 'Variant description',
             });
@@ -217,12 +226,14 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome, IdProvider }) => {
+        const uniqueId = IdProvider.getIdPair().uuid;
+
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup();
         const propertyGroupsColor: PropertyGroup[] = [color];
         const colorManufacturer = await TestDataService.createBasicManufacturer({
-            name: 'Color Manufacturer',
+            name: `Color Manufacturer ${uniqueId}`,
             description: 'Color Description Manufacturer',
         });
         const parentProductColor = await TestDataService.createBasicProduct({
@@ -233,7 +244,7 @@ test(
             description: 'Variant description',
         });
         const freeShipManufacturer = await TestDataService.createBasicManufacturer({
-            name: 'Free-shipping Manufacturer',
+            name: `Free-shipping Manufacturer ${uniqueId}`,
             description: 'Free ship Description Manufacturer',
         });
         const productWithShippingAndManufacturer = await TestDataService.createBasicProduct({
@@ -242,7 +253,9 @@ test(
         });
         const productWithRating1 = await TestDataService.createBasicProduct();
         const productWithRating2 = await TestDataService.createBasicProduct();
-        const productWithoutFilter = await TestDataService.createBasicProduct({ name: 'Product without filters' });
+        const productWithoutFilter = await TestDataService.createBasicProduct({
+            name: `Product without filters ${uniqueId}`,
+        });
 
         await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
         await TestDataService.createProductReview(productWithRating2.id, { points: 5 });

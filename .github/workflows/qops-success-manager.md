@@ -74,6 +74,22 @@ post-steps:
     with:
       node-version: lts/*
 
+  # TEMPORARY debug step — print the summary regardless of the Slack step's
+  # outcome, so it's visible in the run without needing the webhook secret
+  # or downloading artifacts. Remove once the webhook is validated end-to-end.
+  - name: Print summary (debug)
+    if: always()
+    shell: bash
+    run: |
+      if [ -f qops-success-manager-summary.json ]; then
+        echo "### qops-success-manager-summary.json" >> "$GITHUB_STEP_SUMMARY"
+        echo '```json' >> "$GITHUB_STEP_SUMMARY"
+        cat qops-success-manager-summary.json >> "$GITHUB_STEP_SUMMARY"
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+      else
+        echo "No qops-success-manager-summary.json file found in the working directory." >> "$GITHUB_STEP_SUMMARY"
+      fi
+
   - name: Notify Slack (personal test webhook)
     if: always()   # notify regardless of whether the agent step succeeded, so a broken run is itself visible
     shell: bash

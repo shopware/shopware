@@ -45,7 +45,6 @@
                  suffix (e.g. Migration...Field, MigrationCollection), which PHPUnit 12 then reports as
                  invalid #[CoversClass] targets. src/Core/Migration and src/Core/Framework/Migration are
                  deliberately NOT listed. -->
-            <directory suffix="Definition.php">src/Core/Checkout/</directory>
             <directory suffix="Definition.php">src/Core/Content/</directory>
             <directory suffix="Definition.php">src/Core/Framework/</directory>
             <directory suffix="Definition.php">src/Core/System/</directory>
@@ -73,6 +72,13 @@
             <!-- Checkout collections carry logic but have no unit test yet; excluded per-file pending backfill. -->
             <file>src/Core/Checkout/Cart/Price/Struct/PriceDefinitionCollection.php</file>
             <file>src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerCollection.php</file>
+            <!-- Checkout definitions carry logic but have no dedicated unit test yet; excluded per-file pending backfill. -->
+            <file>src/Core/Checkout/Cart/Price/Struct/QuantityPriceDefinition.php</file>
+            <file>src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php</file>
+            <file>src/Core/Checkout/Customer/CustomerDefinition.php</file>
+            <file>src/Core/Checkout/Order/Aggregate/OrderAddress/OrderAddressDefinition.php</file>
+            <file>src/Core/Checkout/Order/Aggregate/OrderLineItem/OrderLineItemDefinition.php</file>
+            <file>src/Core/Checkout/Order/OrderDefinition.php</file>
             <directory suffix="Collection.php">src/Core/Installer/</directory>
             <directory suffix="Collection.php">src/Core/System/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>

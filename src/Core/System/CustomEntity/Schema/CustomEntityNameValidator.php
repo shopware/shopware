@@ -18,6 +18,9 @@ use Shopware\Core\System\CustomEntity\CustomEntityException;
 #[Package('framework')]
 class CustomEntityNameValidator
 {
+    // Matches an unquoted MySQL/MariaDB identifier: [0-9,a-z,A-Z$_] plus bytes >= 0x80 (UTF-8).
+    // and punctuation (backtick, quote, `;`, `()`, `-`, `.`, `/`), which would otherwise make the
+    // generated CREATE statement invalid.
     private const NAME_PATTERN = '/^[a-zA-Z0-9_$\x7f-\xff]+$/';
 
     /**

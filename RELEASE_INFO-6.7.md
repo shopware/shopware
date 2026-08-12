@@ -9,6 +9,7 @@ Media imports send the request to the address the URL check resolved, and check 
 ### Custom entity and field names are validated before the schema is built
 
 Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores and `$` — the characters that are valid in an unquoted SQL identifier. A manifest using any other character (whitespace, or punctuation such as `-`) is rejected with a clear error.
+
 ## Administration
 
 ### `integrationService.updateAdmin()` is deprecated

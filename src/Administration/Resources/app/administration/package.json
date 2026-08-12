@@ -83,7 +83,7 @@
     "date-fns": "2.30.0",
     "date-fns-tz": "2.0.1",
     "debug": "4.4.3",
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "eslint-plugin-listeners": "1.5.1",
     "flatpickr": "4.6.13",
     "fs-extra": "11.3.0",
@@ -254,11 +254,13 @@
     "glob": "12.0.0",
     "immutable": "4.3.9",
     "js-cookie": "3.0.8",
-    "js-yaml": "4.3.0",
+    "js-yaml": "4.3.1",
     "svgo": "3.3.4",
     "vue": "3.5.22",
     "markdown-it": "14.2.0",
     "micromatch": "4.0.8",
+    "nanoid@^3.3.16": "3.3.18",
+    "nanoid@^5.0.7": "5.1.16",
     "ws": "8.21.0",
     "lighthouse": {
       "ws": "7.5.11"

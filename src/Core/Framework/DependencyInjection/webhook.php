@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask;
 use Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler;
-use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
@@ -106,7 +105,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookHealthService::class)
         ->args([
             service(Connection::class),
-            service(RelatedWebhooks::class),
         ]);
 
     $services->set(MySQLWebhookReceiver::class)
@@ -138,7 +136,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->lazy()
         ->args([
             service(WebhookLoader::class),
-            service('event_dispatcher'),
             service(HookableEventFactory::class),
             service(AppLocaleProvider::class),
             service(AppPayloadServiceHelper::class),
@@ -183,11 +180,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookEventLogDefinition::class)
         ->tag('shopware.entity.definition');
 
-    $services->set(RelatedWebhooks::class)
-        ->args([
-            service(Connection::class),
-        ]);
-
     $services->set(HookableEventCollector::class)
         ->args([
             service(BusinessEventCollector::class),
@@ -222,7 +214,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(WebhookEventMessageHandler::class)
         ->args([
             service(WebhookClient::class),
-            service(RelatedWebhooks::class),
+            service(WebhookHealthService::class),
             service(WebhookOutboxStore::class),
             service(WebhookDeliveryService::class),
             service('logger'),
@@ -233,7 +225,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(WebhookOutboxStore::class),
-            service(RelatedWebhooks::class),
             param('shopware.webhook.failure_strategy'),
         ])
         ->tag('kernel.event_subscriber');

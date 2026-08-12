@@ -28,7 +28,8 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}
- * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, active_payment_methods?: list<string>, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string, active_payment_methods?: list<string>}>}
+ * @phpstan-type CookieEntryArray array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string, active_payment_methods?: list<string>}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, active_payment_methods?: list<string>, entries?: list<CookieEntryArray>}
  *
  * @phpstan-import-type SourceConfig from AppDefinition
  */

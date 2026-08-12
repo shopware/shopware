@@ -36,6 +36,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -175,6 +187,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted profile data failed validation, e.g. a missing salutation, a missing company name for a business account or an invalid VAT ID."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -237,6 +261,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a malformed email address, a confirmation that does not match, an email that is already in use or a wrong password."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -290,6 +326,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `languageId` is not a valid UUID or does not reference a language assigned to the current sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -352,6 +400,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a password confirmation that does not match, a new password below the configured minimum length or a wrong current password."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -414,6 +474,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -486,6 +554,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `hash` is missing or is not a 32 character string."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No customer recovery exists for the given `hash`."
                     }
                 },
                 "security": [
@@ -533,6 +613,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -571,6 +663,14 @@
                 "responses": {
                     "204": {
                         "description": "Returns a no content response indicating a successful removal of the customer profile"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -606,6 +706,14 @@
                     },
                     "400": {
                         "description": "Response containing a list of errors, most likely due to the address being in use"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -662,6 +770,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not belong to the logged in customer, or the submitted address data failed validation."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -723,6 +843,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -797,6 +929,10 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many failed login attempts for this email address or client IP. The `Retry-After` window is contained in the error."
                     }
                 },
                 "security": [
@@ -861,6 +997,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. The response also uses this status when the customer to imitate cannot be authenticated."
                     }
                 },
                 "security": [
@@ -886,6 +1026,10 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "403": {
                         "$ref": "#/components/responses/403"
@@ -939,6 +1083,10 @@
                 "responses": {
                     "200": {
                         "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "404": {
                         "description": "No hash provided"
@@ -1113,6 +1261,14 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted registration data failed validation, e.g. a missing required field, an email address that is already registered or an unknown country."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -1174,6 +1330,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a missing hash or a new password that does not match its confirmation."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No customer recovery exists for the given `hash`."
+                    },
+                    "410": {
+                        "description": "The password recovery hash has expired and can no longer be used."
                     }
                 },
                 "security": [
@@ -1230,6 +1401,14 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a malformed email address or a storefront URL that does not belong to the sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. The response also uses this status when no customer exists for the given email address in this sales channel."
                     }
                 },
                 "security": [
@@ -1269,6 +1448,18 @@
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not exist or does not belong to the logged in customer."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -1304,6 +1495,18 @@
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not exist or does not belong to the logged in customer."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -1348,6 +1551,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted address data failed validation, e.g. a missing required field or a zip code that does not match the selected country."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [

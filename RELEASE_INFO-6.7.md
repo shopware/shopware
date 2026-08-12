@@ -830,6 +830,10 @@ The `bin/console plugin:create` command now accepts a `--no-scaffold` flag that 
 bin/console plugin:create MyPlugin MyNamespace --no-scaffold
 ```
 
+### `plugin:create --create-admin-module` scaffolds a TypeScript module
+
+`bin/console plugin:create <name> <namespace> --create-admin-module` now scaffolds the example Administration module as TypeScript (`src/module/swag-example/index.ts` and `src/main.ts`) instead of JavaScript, so a freshly created plugin type-checks and lints cleanly against the Administration extension toolchain (`admin:check-extensions`) without any toolchain files of its own. Existing plugins are untouched: a plugin that ships `main.js` keeps being built from it.
+
 ### Dynamic product groups can keep matching variants ungrouped
 
 Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.

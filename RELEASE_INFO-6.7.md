@@ -266,6 +266,10 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Removing a cart line item no longer throws `lineItemNotFound` for promotions with multiple sibling discounts
+
+Removing a line item that belonged to a promotion with two or more sibling discount line items still in the cart could throw `CartException::lineItemNotFound`, because the sibling cleanup removed the same line item twice: once directly, and once through a nested call triggered by its own `BeforeLineItemRemovedEvent`. The cleanup now skips a sibling that a nested call already removed. No action needed; the fix only prevents the exception.
+
 ## Administration
 
 ### System config forms show validation errors for the selected sales channel scope

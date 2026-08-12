@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Event;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartContextHashStruct;
@@ -15,7 +15,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartContextHashEvent::class)]
+#[CoversNothing]
 class CartContextHashEventTest extends TestCase
 {
     public SalesChannelContext $salesChannelContext;

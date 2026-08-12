@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressEntity;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(SalesChannelCustomerAddressCollection::class)]
+#[CoversNothing]
 class SalesChannelCustomerAddressCollectionTest extends TestCase
 {
     public function testGetApiAliasReturnsUniqueAlias(): void

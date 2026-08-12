@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(PaymentTransactionStruct::class)]
+#[CoversNothing]
 class PaymentTransactionStructTest extends TestCase
 {
     public function testGetters(): void

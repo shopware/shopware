@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Event;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(BeforeCartMergeEvent::class)]
+#[CoversNothing]
 class BeforeCartMergeEventTest extends TestCase
 {
     public function testReturnsCorrectProperties(): void

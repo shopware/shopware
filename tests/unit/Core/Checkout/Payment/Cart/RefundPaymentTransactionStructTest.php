@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\RefundPaymentTransactionStruct;
 use Shopware\Core\Framework\Log\Package;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(RefundPaymentTransactionStruct::class)]
+#[CoversNothing]
 class RefundPaymentTransactionStructTest extends TestCase
 {
     public function testGetters(): void

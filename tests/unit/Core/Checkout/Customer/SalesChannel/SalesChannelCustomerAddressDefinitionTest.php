@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
+#[CoversNothing]
 class SalesChannelCustomerAddressDefinitionTest extends TestCase
 {
     public function testProcessCriteria(): void

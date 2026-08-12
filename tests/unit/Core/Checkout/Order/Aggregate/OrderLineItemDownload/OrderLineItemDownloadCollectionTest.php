@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Aggregate\OrderLineItemDownload;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(OrderLineItemDownloadCollection::class)]
+#[CoversNothing]
 class OrderLineItemDownloadCollectionTest extends TestCase
 {
     public function testFilterByOrderLineItemId(): void

@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Gateway\Command\Struct;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
@@ -15,7 +15,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CheckoutGatewayPayloadStruct::class)]
+#[CoversNothing]
 class CheckoutGatewayPayloadStructTest extends TestCase
 {
     public function testConstruct(): void

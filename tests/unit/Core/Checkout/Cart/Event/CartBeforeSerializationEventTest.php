@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Event;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\CartBeforeSerializationEvent;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartBeforeSerializationEvent::class)]
+#[CoversNothing]
 class CartBeforeSerializationEventTest extends TestCase
 {
     public function testConstructor(): void

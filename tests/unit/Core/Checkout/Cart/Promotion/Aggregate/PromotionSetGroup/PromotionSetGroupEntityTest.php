@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionSetGroup;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(PromotionSetGroupEntity::class)]
+#[CoversNothing]
 class PromotionSetGroupEntityTest extends TestCase
 {
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';

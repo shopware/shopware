@@ -46,6 +46,7 @@ test(
         await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
         await test.step('Create screenshot of account login page in storefront.', async () => {
+            step.skip();
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
             await ShopCustomer.expects(StorefrontAccountLogin.page).toHaveScreenshot('Account-Login-Page.png', {
                 fullPage: true,

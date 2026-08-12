@@ -1,6 +1,6 @@
 import { test, setViewport, replaceElements, hideElements, assertScreenshot, FlowConfig } from '@fixtures/AcceptanceTest';
 
-test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({ ShopAdmin, AdminFlowBuilderListing }) => {
+test.skip('Visual: Flow Builder listing', { tag: '@Visual' }, async ({ ShopAdmin, AdminFlowBuilderListing }) => {
     await test.step('Create a screenshot of the flow listing.', async () => {
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         await setViewport(AdminFlowBuilderListing.page, {

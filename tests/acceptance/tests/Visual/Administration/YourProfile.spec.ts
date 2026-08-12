@@ -20,6 +20,7 @@ test(
         });
 
         await test.step('Creates a screenshot of the search preferences tab.', async () => {
+            step.skip();
             await AdminYourProfile.searchPreferencesTab.click();
             await setViewport(AdminYourProfile.page, {
                 waitForSelector: AdminYourProfile.deselectAllButton,

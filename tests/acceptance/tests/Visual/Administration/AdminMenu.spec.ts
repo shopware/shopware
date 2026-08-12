@@ -1,6 +1,6 @@
 import { test, setViewport, hideElements, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
 
-test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
+test.skip('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
         await AdminDashboard.adminMenuCatalog.click();

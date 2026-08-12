@@ -9,12 +9,14 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * Customer group of the current user
  *
  * @codeCoverageIgnore
  */
-final readonly class SalesChannelContextCurrentCustomerGroup
+final class SalesChannelContextCurrentCustomerGroup extends AbstractRequest
 {
     public function __construct(
         /**

@@ -175,7 +175,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if ($event->getContext()->getSource() instanceof SalesChannelApiSource) {
                 $this->queue->dispatch($msg);
 
-                return;
+                continue;
             }
 
             // otherwise we invoke the message handler directly

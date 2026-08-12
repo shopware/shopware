@@ -9,12 +9,13 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-final readonly class SalesChannelContextItemRounding
+final class SalesChannelContextItemRounding extends AbstractRequest
 {
     public function __construct(
         #[Assert\NotNull]

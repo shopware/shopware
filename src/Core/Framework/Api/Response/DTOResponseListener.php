@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\Response\StoreApi;
+namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -10,16 +10,23 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
  * @internal
  */
 #[Package('framework')]
-final class StoreApiDTOResponseListener
+final class DTOResponseListener
 {
     public function __invoke(ViewEvent $event): void
     {
         $result = $event->getControllerResult();
 
-        if (!$result instanceof StoreApiDTOResponseInterface) {
+        if (!$result instanceof AbstractResponse) {
             return;
         }
 
-        $event->setResponse(new JsonResponse(get_object_vars($result)));
+        $data = get_object_vars($result);
+
+        $extensions = $result->getExtensions();
+        if ($extensions !== []) {
+            $data['extensions'] = $extensions;
+        }
+
+        $event->setResponse(new JsonResponse($data));
     }
 }

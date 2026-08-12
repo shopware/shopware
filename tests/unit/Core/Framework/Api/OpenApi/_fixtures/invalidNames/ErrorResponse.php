@@ -9,13 +9,13 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-final readonly class ErrorResponse implements StoreApiDTOResponseInterface
+final class ErrorResponse extends AbstractResponse
 {
     public function __construct(
         /**

@@ -9,14 +9,14 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 
 /**
  * Success
  *
  * @codeCoverageIgnore
  */
-final readonly class CreateItemsResponse implements StoreApiDTOResponseInterface
+final class CreateItemsResponse extends AbstractResponse
 {
     public function __construct(
         public ?int $created = null,

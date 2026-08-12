@@ -357,7 +357,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
     });
 
-    it('should omit meteor tabs hidden for variant products', async () => {
+    it('should show the layout meteor tab for variant products', async () => {
         wrapper.unmount();
         wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
         await flushPromises();
@@ -373,9 +373,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             .map((item) => item.name);
 
         expect(tabNames).toContain('sw.product.detail.prices');
+        expect(tabNames).toContain('sw.product.detail.layout');
         expect(tabNames).toContain('sw.product.detail.seo');
         expect(tabNames).not.toContain('sw.product.detail.variants');
-        expect(tabNames).not.toContain('sw.product.detail.layout');
     });
 
     it('should navigate when a meteor route tab is selected', async () => {
@@ -451,6 +451,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(contextButton.exists()).toBeFalsy();
 
         const visibleTabItem = [
+            '.sw-product-detail__tab-layout',
             '.sw-product-detail__tab-seo',
             '.sw-product-detail__tab-cross-selling',
             '.sw-product-detail__tab-reviews',
@@ -458,7 +459,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const invisibleTabItem = [
             '.sw-product-detail__tab-variants',
-            '.sw-product-detail__tab-layout',
         ];
 
         visibleTabItem.forEach((item) => {

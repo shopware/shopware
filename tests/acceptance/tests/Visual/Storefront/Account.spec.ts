@@ -15,7 +15,7 @@ test(
         Login,
     }) => {
         const countryId = await DefaultSalesChannel.salesChannel.countryId;
-        const salutationId = await DefaultSalesChannel.salesChannel.salutationId;
+        const salutation = await TestDataService.getSalutation();
         const customer = await TestDataService.createCustomer({
             firstName: 'John',
             lastName: 'Goldblum',
@@ -30,7 +30,7 @@ test(
                 street: 'Ebbinghoff 10',
                 zipcode: '48624',
                 countryId: countryId,
-                salutationId: salutationId,
+                salutationId: salutation.id,
             },
             defaultBillingAddress: {
                 firstName: 'John',
@@ -39,7 +39,7 @@ test(
                 street: 'Ebbinghoff 10',
                 zipcode: '48624',
                 countryId: countryId,
-                salutationId: salutationId,
+                salutationId: salutation.id,
             },
         });
 
@@ -47,6 +47,7 @@ test(
 
         await test.step('Create screenshot of account login page in storefront.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await ShopCustomer.expects(StorefrontAccountLogin.loginButton).toBeVisible();
             await ShopCustomer.expects(StorefrontAccountLogin.page).toHaveScreenshot('Account-Login-Page.png', {
                 fullPage: true,
             });

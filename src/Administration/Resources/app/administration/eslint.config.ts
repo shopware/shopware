@@ -738,7 +738,10 @@ export default [
         ],
     },
     {
-        files: ['extension-tooling/**/*.mjs', 'scripts/extensionTooling/**/*.ts'],
+        files: [
+            'extension-tooling/**/*.mjs',
+            'scripts/extensionTooling/**/*.ts',
+        ],
         rules: {
             'filename-rules/match': 'off',
             'import/extensions': 'off',

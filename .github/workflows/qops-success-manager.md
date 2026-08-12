@@ -82,11 +82,16 @@ post-steps:
     shell: bash
     run: |
       if [ -f qops-success-manager-summary.json ]; then
-        echo "### qops-success-manager-summary.json" >> "$GITHUB_STEP_SUMMARY"
-        echo '```json' >> "$GITHUB_STEP_SUMMARY"
-        cat qops-success-manager-summary.json >> "$GITHUB_STEP_SUMMARY"
-        echo '```' >> "$GITHUB_STEP_SUMMARY"
+        echo "=== qops-success-manager-summary.json ==="
+        cat qops-success-manager-summary.json
+        {
+          echo "### qops-success-manager-summary.json"
+          echo '```json'
+          cat qops-success-manager-summary.json
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
       else
+        echo "No qops-success-manager-summary.json file found in the working directory."
         echo "No qops-success-manager-summary.json file found in the working directory." >> "$GITHUB_STEP_SUMMARY"
       fi
 

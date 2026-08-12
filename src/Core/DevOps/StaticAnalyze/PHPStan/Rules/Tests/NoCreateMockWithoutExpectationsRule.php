@@ -34,28 +34,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Static guard for the PHPUnit 12+ "no expectations configured for mock … use a test stub" notice: flags a
- * `createMock()` double that is never `->expects()`-ed (local var, inline argument, or property) and points it
- * to `createStub()`. A property `->expects()`-ed in only some tests is flagged as mixed usage instead (fix it
- * per-method, not with `createStub()`).
- *
- * Only flags what it can prove, to never block CI on a legitimate mock: a double handed to a `$this->`/
- * `self::`/`static::` call is skipped unless the callee is a method of the same class whose matching parameter
- * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
- * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
- * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
- * stub (`$this->dep->method(...)`), forwards it into a constructor, or `->expects()`-es it directly keeps it
- * analysable; any other helper use (handing it to an unresolvable call, expecting it through an alias or a
- * parameter) skips the property wholesale (see {@see self::helperUsageOfPropertyIsUnsafe()}). Which tests
- * trigger the runtime notice is then decided over the class's own call graph: a test is covered when it,
- * `setUp()`, or any own method one of them transitively calls configures a direct `->expects()` on the
- * property (see {@see self::coversProperty()}); every uncovered test notices and is listed in the mixed-usage
- * error. The reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is
- * undefined).
- *
- * Abstract test classes are analysed through their concrete subclasses instead of on their own: the notice
- * fires per concrete class run, and only there are all call sites of the base fixtures visible. The inherited
- * methods of unit-test ancestors are parsed from their files and merged under the subclass (overrides win, see
- * {@see self::inheritedMethods()}); findings inside an ancestor are reported at that ancestor's file and line.
+ * `createMock()` double that will trigger it, with the fix stated in the message ({@see self::ERROR_STUB},
+ * {@see self::ERROR_MIXED}, {@see self::ERROR_ORPHANED}). It only flags what it can prove; anything it cannot
+ * resolve is skipped.
  *
  * @implements Rule<InClassNode>
  *
@@ -67,6 +48,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_STUB = 'createMock(%s) is only used as a stub (no ->expects() is configured on it). Use createStub(%s) instead, the correct PHPUnit API for a test double without call expectations.';
 
     public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in %s, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
+
+    public const ERROR_ORPHANED = 'createMock(%s) is created in setUp() and re-created via `$this->... = $this->createMock(...)` in %s. Re-assigning the property replaces this instance before it is used, so it never receives an expectation and triggers the PHPUnit "no expectations" notice. Configure the setUp instance directly in those tests instead of re-creating it (or move the creation out of setUp).';
 
     /**
      * The domain-by-domain rollout is complete: every unit test suite is covered.
@@ -737,6 +720,26 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
         $errors = [];
         foreach ($assignments as $name => $propAssignments) {
+            // A property created in setUp() and re-created inside a test replaces the setUp instance
+            // before it is used, orphaning it.
+            $setUpAssign = $setUp !== null && !$this->methodExpectsProperty($finder, $setUp, $name)
+                ? $this->propertyCreationAssign($finder, $setUp, $name)
+                : null;
+            if ($setUpAssign !== null) {
+                $reassigners = [];
+                foreach ($testMethods as $test) {
+                    if ($this->propertyCreationAssign($finder, $test, $name) !== null) {
+                        $reassigners[] = $test->name->name . '()';
+                    }
+                }
+
+                if ($reassigners !== []) {
+                    $errors[] = [$setUpAssign, self::ERROR_ORPHANED, implode(', ', $reassigners), $this->sourceFile($setUp)];
+
+                    continue;
+                }
+            }
+
             if ($this->isPropertyOffLimits($finder, $methods, $helperMethods, $ownMethods, $name)) {
                 continue;
             }
@@ -919,13 +922,21 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function methodCreatesProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
     {
+        return $this->propertyCreationAssign($finder, $method, $name) !== null;
+    }
+
+    /**
+     * The first `$this->$name = $this->createMock(...)` assignment in $method, or null if there is none.
+     */
+    private function propertyCreationAssign(NodeFinder $finder, ClassMethod $method, string $name): ?Assign
+    {
         foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
             if ($this->propertyName($assign->var) === $name && $this->isCreateMockCall($assign->expr)) {
-                return true;
+                return $assign;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

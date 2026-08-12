@@ -269,6 +269,61 @@ class HelperEscapedPropertyCases extends TestCase
 
 /**
  * @internal
+ *
+ * The property is created in setUp() and re-created in a test, orphaning the setUp instance. FLAGGED as
+ * orphaned on the setUp assignment, naming testReCreates().
+ */
+class ReCreatedPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testReCreates(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+        $this->dependency->expects($this->once())->method('value')->willReturn('a');
+
+        static::assertSame('a', (new PropertySut($this->dependency))->run());
+    }
+}
+
+/**
+ * @internal
+ *
+ * Re-created in one test, configured on the setUp instance in another. The setUp instance is still orphaned
+ * in the re-creating test. FLAGGED as orphaned, naming only testReCreates().
+ */
+class PartiallyReCreatedPropertyCases extends TestCase
+{
+    private PropertyDependency $dependency;
+
+    protected function setUp(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+    }
+
+    public function testReCreates(): void
+    {
+        $this->dependency = $this->createMock(PropertyDependency::class);
+        $this->dependency->expects($this->once())->method('value')->willReturn('a');
+
+        static::assertSame('a', (new PropertySut($this->dependency))->run());
+    }
+
+    public function testConfiguresSetUpInstance(): void
+    {
+        $this->dependency->expects($this->once())->method('value')->willReturn('b');
+
+        static::assertSame('b', (new PropertySut($this->dependency))->run());
+    }
+}
+
+/**
+ * @internal
  */
 class PropertySut
 {

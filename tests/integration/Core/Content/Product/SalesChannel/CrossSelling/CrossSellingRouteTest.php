@@ -491,6 +491,88 @@ class CrossSellingRouteTest extends TestCase
         }
     }
 
+    public function testCrossSellingProductStreamNotContainsCurrentVariantAndItsSiblings(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $otherProductId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+        $optionIds = [Uuid::randomHex(), Uuid::randomHex()];
+        $groupId = Uuid::randomHex();
+
+        $parentData = $this->getProductData($parentId, $manufacturerId, $taxId);
+        $parentData['configuratorSettings'] = [];
+        $parentData['children'] = [];
+
+        foreach ($optionIds as $index => $optionId) {
+            $parentData['configuratorSettings'][] = [
+                'option' => [
+                    'id' => $optionId,
+                    'name' => 'Option ' . $index,
+                    'position' => $index,
+                    'group' => [
+                        'id' => $groupId,
+                        'sortingType' => 'alphanumeric',
+                        'displayType' => 'text',
+                        'name' => 'test one group',
+                    ],
+                ],
+                'position' => $index,
+            ];
+            $parentData['children'][] = [
+                'id' => $variantIds[$index],
+                'type' => ProductDefinition::TYPE_PHYSICAL,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'options' => [['id' => $optionId]],
+            ];
+        }
+
+        $parentData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'productStreamId' => $streamId,
+        ]];
+
+        $this->productRepository->create(
+            [$parentData, $this->getProductData($otherProductId, $manufacturerId, $taxId)],
+            $this->salesChannelContext->getContext()
+        );
+
+        // dynamic product group which contains the whole variant family and one unrelated product
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'testStream',
+                'filters' => [
+                    [
+                        'type' => 'equalsAny',
+                        'field' => 'id',
+                        'value' => implode('|', [$parentId, ...$variantIds, $otherProductId]),
+                    ],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $this->salesChannelContext->getContext()->setConsiderInheritance(true);
+
+        $result = $this->route->load($variantIds[0], new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult();
+
+        $element = $result->first();
+
+        static::assertNotNull($element);
+        static::assertSame(
+            [$otherProductId],
+            array_values($element->getProducts()->getIds()),
+            'Neither the currently viewed variant nor its parent or sibling variants may be cross-sold.'
+        );
+    }
+
     public function testCrossSellingEventSubscriberCanUpdateCriteria(): void
     {
         $eventDispatcher = new EventDispatcher();
@@ -516,6 +598,7 @@ class CrossSellingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $this->createMock(AbstractProductCloseoutFilterFactory::class),
             $this->createMock(CacheTagCollector::class),
+            static::getContainer()->get(Connection::class),
         );
 
         $productId = Uuid::randomHex();

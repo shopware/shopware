@@ -1,6 +1,15 @@
-# Future-compatibility analysis for Shopware's own code, based on the internal BC-change
-# attributes. This protects core call sites and extensions from missing announced changes
-# before the next major version.
+# Opt-in future-compatibility analysis based on the BC-change attributes
+# (Shopware\Core\Framework\Deprecation\BCChange).
+#
+# Include this file from your project's phpstan.neon to be warned about code that works
+# against the current Shopware version but breaks with an announced BC change - so you
+# can make it compatible with the current and the next major version ahead of time:
+#
+#     includes:
+#         - vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/future-compatibility.neon
+#
+# This file is intentionally NOT part of Shopware's own PHPStan configuration: the core
+# keeps supporting the current contract until the next major.
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\FutureCompatibility\AnnouncedTypeResolver

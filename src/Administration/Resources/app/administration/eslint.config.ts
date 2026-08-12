@@ -356,10 +356,11 @@ export default [
             },
         },
         rules: {
-            // .vue SFCs are type-checked by vue-tsc, not typescript-eslint: its projectService cannot
-            // resolve script-setup macros (defineProps, swDefinePublic, useSwPreviousState, ...), which
-            // makes every type-aware rule report false `no-unsafe`/error-typed positives. Turn them off
-            // here; vue-tsc (lint:types is tsc, editors use Volar) owns .vue type safety.
+            // typescript-eslint's projectService cannot resolve Vue script-setup macros (defineProps,
+            // swDefinePublic, useSwPreviousState, ...), so its type-aware rules report only false
+            // `no-unsafe`/error-typed positives on .vue - turn them off. This removes noise, not
+            // coverage: `lint:types` is plain tsc, which does not type-check .vue at all, and vue-tsc
+            // is not wired into CI; .vue type safety is an editor-time concern (Volar) today.
             ...tseslint.configs.disableTypeChecked.rules,
             'no-unused-vars': 'off',
             // Its typed twin isn't type-aware (so disableTypeChecked leaves it on) and, like the base

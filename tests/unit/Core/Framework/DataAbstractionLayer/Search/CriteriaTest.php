@@ -166,4 +166,11 @@ class CriteriaTest extends TestCase
 
         static::assertSame(2, $nestedNested->getNestingLevel());
     }
+
+    public function testNextPagesLimitIncludesNavigationWindowAndSentinel(): void
+    {
+        $criteria = (new Criteria())->setLimit(2);
+
+        static::assertSame(13, $criteria->getNextPagesLimit());
+    }
 }

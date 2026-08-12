@@ -117,8 +117,8 @@ class OpenApiDtoClassRendererTest extends TestCase
 
         $response = $this->renderDefinition($this->definitionByName($definitions, 'ReadNewsletterRecipientResponse'));
 
-        static::assertStringContainsString('use Shopware\\Core\\Framework\\Api\\Response\\StoreApi\\StoreApiDTOResponseInterface;', $response);
-        static::assertStringContainsString('final readonly class ReadNewsletterRecipientResponse implements StoreApiDTOResponseInterface', $response);
+        static::assertStringContainsString('use Shopware\\Core\\Framework\\Api\\Response\\AbstractResponse;', $response);
+        static::assertStringContainsString('final class ReadNewsletterRecipientResponse extends AbstractResponse', $response);
         static::assertStringContainsString('#[Assert\Choice(choices: [0.5, 10.5, 20.5])]', $response);
         static::assertStringContainsString('public float $priority,', $response);
         static::assertStringNotContainsString('public NewsletterStatus $status,', $response);

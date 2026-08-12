@@ -9,14 +9,14 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 
 /**
  * Returns context token
  *
  * @codeCoverageIgnore
  */
-final readonly class ImitateCustomerLoginResponse implements StoreApiDTOResponseInterface
+final class ImitateCustomerLoginResponse extends AbstractResponse
 {
     public function __construct(
         /**

@@ -9,12 +9,14 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * Country details
  *
  * @codeCoverageIgnore
  */
-final readonly class OrderBillingAddressCountry
+final class OrderBillingAddressCountry extends AbstractRequest
 {
     public function __construct(
         /**

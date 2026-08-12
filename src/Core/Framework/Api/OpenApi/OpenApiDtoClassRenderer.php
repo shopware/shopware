@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -15,8 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 final class OpenApiDtoClassRenderer
 {
     /**
-     * Class name suffix that marks a generated DTO as a response. Response DTOs implement
-     * {@see StoreApiDTOResponseInterface} so they can be identified in later processing steps.
+     * Class name suffix that marks a generated DTO as a response.
      */
     private const RESPONSE_CLASS_SUFFIX = 'Response';
 
@@ -80,8 +80,9 @@ final class OpenApiDtoClassRenderer
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
 
-        $lines[] = 'final readonly class ' . $definition->name
-            . ($this->isResponse($definition) ? ' implements ' . $this->shortClassName(StoreApiDTOResponseInterface::class) : '');
+        $baseClass = $this->isResponse($definition) ? AbstractResponse::class : AbstractRequest::class;
+        $classDeclaration = 'final class ' . $definition->name . ' extends ' . $this->shortClassName($baseClass);
+        $lines[] = $classDeclaration;
         $lines[] = '{';
         $lines[] = '    public function __construct(';
 
@@ -409,9 +410,10 @@ final class OpenApiDtoClassRenderer
         $current = $namespace !== null ? trim($namespace, '\\') : '';
 
         $imports = [];
-        $responseInterfaceNamespace = substr(StoreApiDTOResponseInterface::class, 0, (int) strrpos(StoreApiDTOResponseInterface::class, '\\'));
-        if ($this->isResponse($definition) && $responseInterfaceNamespace !== $current) {
-            $imports[StoreApiDTOResponseInterface::class] = true;
+        $baseClass = $this->isResponse($definition) ? AbstractResponse::class : AbstractRequest::class;
+        $baseClassNamespace = substr($baseClass, 0, (int) strrpos($baseClass, '\\'));
+        if ($baseClassNamespace !== $current) {
+            $imports[$baseClass] = true;
         }
         if ($this->needsDateTimeFormatAssertion($definition)) {
             $imports[Defaults::class] = true;

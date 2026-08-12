@@ -9,10 +9,12 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * @codeCoverageIgnore
  */
-final readonly class Media
+final class Media extends AbstractRequest
 {
     public function __construct(
         public ?string $url = null,

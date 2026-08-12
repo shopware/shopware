@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Api\Response\StoreApi;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Response;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseListener;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
+use Shopware\Core\Framework\Api\Response\DTOResponseListener;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,18 +16,18 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(StoreApiDTOResponseListener::class)]
-class StoreApiDTOResponseListenerTest extends TestCase
+#[CoversClass(DTOResponseListener::class)]
+class DTOResponseListenerTest extends TestCase
 {
     public function testConvertsResponseDtoToJsonResponse(): void
     {
-        $event = $this->createViewEvent(new class implements StoreApiDTOResponseInterface {
+        $event = $this->createViewEvent(new class extends AbstractResponse {
             public string $status = 'optIn';
 
             public string $apiAlias = 'account_newsletter_recipient';
         });
 
-        (new StoreApiDTOResponseListener())($event);
+        (new DTOResponseListener())($event);
 
         static::assertInstanceOf(JsonResponse::class, $event->getResponse());
         static::assertSame(
@@ -40,7 +40,7 @@ class StoreApiDTOResponseListenerTest extends TestCase
     {
         $event = $this->createViewEvent(new \stdClass());
 
-        (new StoreApiDTOResponseListener())($event);
+        (new DTOResponseListener())($event);
 
         static::assertNull($event->getResponse());
     }
@@ -50,7 +50,7 @@ class StoreApiDTOResponseListenerTest extends TestCase
         $nestedAddress = new class {
             public string $city = 'Berlin';
         };
-        $response = new class($nestedAddress) implements StoreApiDTOResponseInterface {
+        $response = new class($nestedAddress) extends AbstractResponse {
             public function __construct(public object $address)
             {
             }
@@ -64,12 +64,25 @@ class StoreApiDTOResponseListenerTest extends TestCase
 
         $event = $this->createViewEvent($response);
 
-        (new StoreApiDTOResponseListener())($event);
+        (new DTOResponseListener())($event);
 
         static::assertSame(
             '{"address":{"city":"Berlin"},"relatedAddresses":[{"city":"Berlin"}]}',
             $event->getResponse()?->getContent(),
         );
+    }
+
+    public function testConvertsResponseDtoExtensionsToJsonResponse(): void
+    {
+        $response = new class extends AbstractResponse {
+        };
+        $response->addExtension('customData', ['value' => 'test']);
+
+        $event = $this->createViewEvent($response);
+
+        (new DTOResponseListener())($event);
+
+        static::assertSame('{"extensions":{"customData":{"value":"test"}}}', $event->getResponse()?->getContent());
     }
 
     private function createViewEvent(object $result): ViewEvent

@@ -375,7 +375,7 @@ export class GatewayClient implements TrackingClient {
     }
 
     #createInsertId(): string {
-        return Shopware.Utils.createId();
+        return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     }
 
     #writeStorage(storage: Storage, key: string, value: string): void {

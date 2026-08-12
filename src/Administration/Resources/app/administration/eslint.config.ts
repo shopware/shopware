@@ -6,8 +6,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import { fixupPluginRules } from '@eslint/compat';
-import tseslint from 'typescript-eslint';
-import pluginVue from 'eslint-plugin-vue';
 import importX from 'eslint-plugin-import-x';
 import jestPlugin from 'eslint-plugin-jest';
 import prettier from 'eslint-config-prettier';
@@ -20,9 +18,13 @@ import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
 
 import swCoreRules from 'eslint-plugin-sw-core-rules';
-import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
+// The factory is the single source of the base lint setup for admin AND
+// extensions. pluginVue/swDeprecationRules must be the factory's own objects:
+// ESLint refuses to redefine a plugin key with a different object reference,
+// and the factory blocks register these plugins for overlapping files.
+import shopwareAdminExtension, { pluginVue, swDeprecationRules } from './extension-tooling/eslint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -182,6 +184,13 @@ export default [
             'jest.config.ts',
             'test/e2e/**/*',
             'scripts/**/*',
+            '!scripts/extensionTooling/',
+            '!scripts/extensionTooling/**/*',
+            // Declaration-only type surface; admin-types imports the gitignored
+            // generated entity schema, and spec-types references jest, so both
+            // must stay outside the admin's own typed-lint program.
+            'extension-tooling/admin-types.d.ts',
+            'extension-tooling/spec-types.d.ts',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             '**/*.fixtures.js',
@@ -190,6 +199,21 @@ export default [
     },
 
     { ...js.configs.recommended, ignores: ['**/*.json'] },
+
+    // The shared extension factory supplies the typed-lint bootstrap
+    // (tseslint recommendedTypeChecked via projectService) and the common rule
+    // sets, so the admin and extension configs cannot drift apart. Host
+    // options: the admin IS src (no src-import boundary), tracks deprecated
+    // usage through sw-deprecation-rules instead of
+    // @typescript-eslint/no-deprecated, type-checks its spec files, and runs
+    // its own stricter twig pipeline below instead of the lenient legacy one.
+    ...shopwareAdminExtension({
+        tsconfigRootDir: __dirname,
+        legacyTwig: false,
+        srcImportBoundary: false,
+        deprecatedApiSeverity: 'off',
+        specFiles: 'typed',
+    }),
 
     // Vue plugin setup (global) + parser for .vue files
     ...pluginVue.configs['flat/recommended']
@@ -216,7 +240,10 @@ export default [
             'file-progress': fixupPluginRules(fileProgress),
             'filename-rules': fixupPluginRules(filenameRulesPatched),
             'sw-core-rules': fixupPluginRules(swCoreRules),
-            'sw-deprecation-rules': fixupPluginRules(swDeprecationRules),
+            // Deliberately not fixup-wrapped: the wrapper would be a second
+            // object under the key the factory already registers, and the
+            // rules only use context APIs that still exist in ESLint 9.
+            'sw-deprecation-rules': swDeprecationRules,
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
             listeners: fixupPluginRules(listeners),
@@ -580,25 +607,16 @@ export default [
         },
     },
 
-    // TypeScript files
-    ...tseslint.configs.recommendedTypeChecked.map((config) => ({
-        ...config,
-        files: [
-            '**/*.ts',
-            '**/*.tsx',
-        ],
-    })),
+    // TypeScript rules on top of the factory's typed-lint bootstrap. The
+    // factory already spreads tseslint recommendedTypeChecked with
+    // projectService — `project` must not reappear anywhere: parserOptions
+    // merge per key across flat configs, and typescript-estree throws when
+    // both are set.
     {
         files: [
             '**/*.ts',
             '**/*.tsx',
         ],
-        languageOptions: {
-            parserOptions: {
-                tsconfigRootDir: __dirname,
-                project: ['./tsconfig.json'],
-            },
-        },
         rules: {
             ...baseRules,
             '@typescript-eslint/ban-ts-comment': 0,
@@ -641,6 +659,15 @@ export default [
             '**/*.tsx',
             '**/*.vue',
         ],
+    },
+    {
+        files: ['extension-tooling/**/*.mjs', 'scripts/extensionTooling/**/*.ts'],
+        rules: {
+            'filename-rules/match': 'off',
+            'import/extensions': 'off',
+            'no-console': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
     },
 
     // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation

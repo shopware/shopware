@@ -61,26 +61,9 @@ class AppSecretRotationServiceTest extends TestCase
         static::assertNotNull($integration);
 
         $manifest = Manifest::createFromXmlFile($appDir . '/manifest.xml');
-        $setup = $manifest->getSetup();
-        static::assertNotNull($setup);
-
         $appSecret = 'new-app-secret';
 
-        // The proof is calculated the same way as in initial registration
-        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
-        $shopUrl = $_SERVER['APP_URL'];
-        $appName = $manifest->getMetadata()->getName();
-        $secret = $setup->getSecret();
-        static::assertNotNull($secret);
-
-        $proof = hash_hmac('sha256', $shopId . $shopUrl . $appName, $secret);
-
-        $this->appendNewResponse(new Response(200, [], json_encode([
-            'proof' => $proof,
-            'secret' => $appSecret,
-            'confirmation_url' => 'https://example.com/confirm',
-        ], \JSON_THROW_ON_ERROR)));
-
+        $this->appendNewResponse(new Response(200, [], $this->buildHandshakeResponse($manifest, $appSecret)));
         $this->appendNewResponse(new Response(200, []));
 
         $this->service->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
@@ -119,57 +102,56 @@ class AppSecretRotationServiceTest extends TestCase
         static::assertSame(0, $this->getRequestCount());
     }
 
-    public function testRotateNowRethrowsExceptionOnRegistrationFailure(): void
+    public function testRotateNowRollsBackIntegrationOnDefinitiveRejection(): void
     {
         $appDir = __DIR__ . '/../Manifest/_fixtures/test';
         $this->loadAppsFromDir($appDir);
 
         $app = $this->getInstalledApp();
-
         $manifest = Manifest::createFromXmlFile($appDir . '/manifest.xml');
-        $setup = $manifest->getSetup();
-        static::assertNotNull($setup);
 
         $integration = $app->getIntegration();
         static::assertNotNull($integration);
+        $oldIntegrationId = $integration->getId();
+        $originalAppSecret = $app->getAppSecret();
 
-        // Generate proper proof same way as initial registration
-        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
-        $shopUrl = $_SERVER['APP_URL'];
-        $appName = $manifest->getMetadata()->getName();
-        $secret = $setup->getSecret();
-        static::assertNotNull($secret);
-
-        $proof = hash_hmac('sha256', $shopId . $shopUrl . $appName, $secret);
-
-        $this->appendNewResponse(new Response(200, [], json_encode([
-            'proof' => $proof,
-            'secret' => 'new-app-secret',
-            'confirmation_url' => 'https://example.com/confirm',
-        ], \JSON_THROW_ON_ERROR)));
-
-        // Confirmation fails
-        $this->appendNewResponse(new Response(500, [], 'Internal Server Error'));
-
-        $this->expectException(\Throwable::class);
+        $this->appendNewResponse(new Response(200, [], $this->buildHandshakeResponse($manifest, 'new-app-secret')));
+        // Definitive rejection (4xx): the app did not switch, so roll the integration back.
+        $this->appendNewResponse(new Response(403, []));
 
         try {
             $this->service->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
-        } finally {
-            // Verify that the secret and integration were NOT changed after the failure
-            $unchangedApp = $this->getInstalledApp();
-            $unchangedIntegration = $unchangedApp->getIntegration();
-            static::assertNotNull($unchangedIntegration);
-
-            // Integration should be the same
-            static::assertSame($integration->getId(), $unchangedApp->getIntegrationId());
-
-            // Secret key should be unchanged
-            static::assertSame($integration->getSecretAccessKey(), $unchangedIntegration->getSecretAccessKey());
-
-            // App secret should be unchanged
-            static::assertSame($app->getAppSecret(), $unchangedApp->getAppSecret());
+            static::fail('Expected rotation to rethrow');
+        } catch (\Throwable) {
+            // expected
         }
+
+        $rolledBack = $this->getInstalledApp();
+        $rolledBackIntegration = $rolledBack->getIntegration();
+        static::assertNotNull($rolledBackIntegration);
+
+        static::assertSame($oldIntegrationId, $rolledBack->getIntegrationId());
+        static::assertSame($integration->getSecretAccessKey(), $rolledBackIntegration->getSecretAccessKey());
+        static::assertSame($originalAppSecret, $rolledBack->getAppSecret());
+        static::assertNull($rolledBack->getUnconfirmedAppSecrets());
+    }
+
+    private function buildHandshakeResponse(Manifest $manifest, string $appSecret): string
+    {
+        $setup = $manifest->getSetup();
+        static::assertNotNull($setup);
+        $secret = $setup->getSecret();
+        static::assertNotNull($secret);
+
+        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
+        $appName = $manifest->getMetadata()->getName();
+        $proof = hash_hmac('sha256', $shopId . $_SERVER['APP_URL'] . $appName, $secret);
+
+        return json_encode([
+            'proof' => $proof,
+            'secret' => $appSecret,
+            'confirmation_url' => 'https://example.com/confirm',
+        ], \JSON_THROW_ON_ERROR);
     }
 
     private function getInstalledApp(): AppEntity

@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -52,6 +53,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var EntityRepository<ProductExportCollection>
@@ -380,6 +382,67 @@ class ProductExportGeneratorTest extends TestCase
         yield 'excluded variants' => [false, ['parent-1', 'stand-alone-1']];
     }
 
+    public function testExportWithHeadlessSalesChannel(): void
+    {
+        $headlessSalesChannelId = Uuid::randomHex();
+        $headlessSalesChannelDomainId = Uuid::randomHex();
+        $domainUrl = 'https://composable-frontends.test';
+
+        $this->createSalesChannel([
+            'id' => $headlessSalesChannelId,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'name' => 'Headless sales channel',
+            'domains' => [
+                [
+                    'id' => $headlessSalesChannelDomainId,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => $domainUrl,
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ]);
+
+        $productIds = $this->createHeadlessProducts($headlessSalesChannelId);
+
+        $expectedUrls = [
+            'https://composable-frontends.test/headless-product-1/headless-product-1',
+            'https://composable-frontends.test/headless-product-2/headless-product-2',
+            'https://composable-frontends.test/headless-product-3/headless-product-3',
+        ];
+
+        $productExportId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $productExportId,
+                'fileName' => 'Testexport.csv',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'headerTemplate' => '',
+                'bodyTemplate' => '{{ entitySeoUrl("product", product.id) }}',
+                'productStreamId' => $this->getProductStreamId($productIds),
+                'storefrontSalesChannelId' => $headlessSalesChannelId,
+                'salesChannelId' => $headlessSalesChannelId,
+                'salesChannelDomainId' => $headlessSalesChannelDomainId,
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+            ],
+        ], $this->context);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+
+        static::assertSame(implode(\PHP_EOL, $expectedUrls) . \PHP_EOL, $exportResult->getContent());
+    }
+
     private function createProductExportCriteria(string $id): Criteria
     {
         $criteria = new Criteria([$id]);
@@ -589,6 +652,27 @@ class ProductExportGeneratorTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function createHeadlessProducts(string $salesChannelId): array
+    {
+        $ids = new IdsCollection();
+        $keys = ['headless-product-1', 'headless-product-2', 'headless-product-3'];
+
+        $products = [];
+        foreach ($keys as $key) {
+            $products[] = (new ProductBuilder($ids, $key))
+                ->price(10)
+                ->visibility($salesChannelId)
+                ->build();
+        }
+
+        static::getContainer()->get('product.repository')->create($products, $this->context);
+
+        return array_values($ids->getList($keys));
     }
 
     /**

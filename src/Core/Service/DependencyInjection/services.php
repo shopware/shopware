@@ -37,6 +37,7 @@ use Shopware\Core\Service\ServiceHookableEventDescriber;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
+use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
@@ -60,7 +61,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
-    $parameters->set('env(SERVICE_REGISTRY_URL)', 'https://registry.services.shopware.io');
+    $parameters->set('env(SERVICE_REGISTRY_URL)', ServiceExtension::DEFAULT_REGISTRY_URL);
     $parameters->set('env(ENABLE_SERVICES)', 'auto');
 
     $services = $containerConfigurator->services();
@@ -87,9 +88,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(RegistryUrlProcessor::class)
+        ->args([
+            ServiceExtension::DEFAULT_REGISTRY_URL,
+            param('shopware.service_registry.trusted_domains'),
+        ])
+        ->tag('container.env_var_processor');
+
     $services->set(Client::class)
         ->args([
-            env('SERVICE_REGISTRY_URL'),
+            param('shopware.service_registry.url'),
             env('APP_URL'),
             service('service_registry.http_client'),
         ])

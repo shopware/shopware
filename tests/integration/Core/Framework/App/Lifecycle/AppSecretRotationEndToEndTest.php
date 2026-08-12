@@ -191,6 +191,69 @@ class AppSecretRotationEndToEndTest extends TestCase
         }
     }
 
+    public function testRotationRefusesAnInstallationThatNeverFinishedSoItStaysResumable(): void
+    {
+        $command = new CommandTester($this->createInstallCommand());
+        $installedEvents = new \ArrayObject();
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+            $installedEvents->append($event);
+        });
+
+        $firstInstallSecret = 'first-install-secret';
+        $this->enqueueReRegistrationAttempt(minting: $firstInstallSecret, confirmResponse: new Response(500));
+
+        try {
+            $command->execute(['name' => self::FIXTURE_APP_NAME, '-f' => true]);
+            static::fail('An ambiguous first install must surface as a registration failure.');
+        } catch (AppRegistrationException) {
+            // expected — the lifecycle never ran and the unconfirmed secret is the only marker saying so
+        }
+
+        try {
+            $halfInstalled = $this->getInstalledApp();
+            static::assertNull($halfInstalled->getAppSecret());
+            static::assertSame([$firstInstallSecret], $halfInstalled->getUnconfirmedAppSecrets());
+
+            // A rotation only repairs credentials, and committing clears the unconfirmed list — the marker
+            // the installation needs to resume. It must refuse before contacting the app rather than
+            // silently leaving an app that can never finish installing.
+            $requestsBeforeRotation = $this->getRequestCount();
+
+            try {
+                $this->rotationService->rotateNow($halfInstalled->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+                static::fail('A rotation must not repair an installation that never finished.');
+            } catch (AppException $e) {
+                static::assertSame(AppException::APP_INSTALLATION_INCOMPLETE, $e->getErrorCode());
+            }
+
+            static::assertSame($requestsBeforeRotation, $this->getRequestCount(), 'the refusal must happen before the app is contacted');
+            static::assertSame([$firstInstallSecret], $this->getInstalledApp()->getUnconfirmedAppSecrets());
+
+            // ...so re-running the install still completes the interrupted lifecycle.
+            $recoveredSecret = 'recovered-secret';
+            $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
+            static::assertSame(Command::SUCCESS, $command->execute([
+                'name' => self::FIXTURE_APP_NAME,
+                '-f' => true,
+                '-a' => true,
+            ]));
+
+            $recovered = $this->getInstalledApp();
+            static::assertSame($recoveredSecret, $recovered->getAppSecret());
+            static::assertNull($recovered->getUnconfirmedAppSecrets());
+            static::assertTrue($recovered->isActive());
+            static::assertCount(1, $installedEvents, 'the skipped install lifecycle must run exactly once');
+        } finally {
+            // Installed through a standalone command, so the trait's #[After] cleanup does not track this app.
+            static::getContainer()->get(Connection::class)->executeStatement(
+                'DELETE FROM app WHERE name = :name',
+                ['name' => self::FIXTURE_APP_NAME]
+            );
+        }
+    }
+
     public function testAmbiguousRotationLeavesPendingThenRecoveryFallsBackToTheCurrentSecret(): void
     {
         $app = $this->installApp();
@@ -370,7 +433,9 @@ class AppSecretRotationEndToEndTest extends TestCase
         $confirmsBeforeRecovery = $this->confirmCount();
         $this->enqueueReRegistrationAttempt(minting: $recoveredSecret, confirmResponse: new Response(200));
 
-        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+        // Driven as the installation's own recovery, the way AppManager reaches this state: a bare rotation
+        // refuses an unfinished install, because committing clears the marker app:install needs to resume it.
+        $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_RECOVERY);
 
         $recovered = $this->getInstalledApp();
         static::assertSame($recoveredSecret, $recovered->getAppSecret());
@@ -446,7 +511,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         $this->enqueueReRegistrationAttempt(minting: 'rejected', confirmResponse: new Response(403));
 
         try {
-            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_CLI);
+            $this->rotationService->rotateNow($app->getId(), $this->context, AppSecretRotationService::TRIGGER_RECOVERY);
             static::fail('Recovery must fail when the only candidate is rejected.');
         } catch (AppException $e) {
             static::assertSame(AppException::APP_SECRET_RECOVERY_FAILED, $e->getErrorCode());

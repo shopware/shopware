@@ -506,6 +506,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
+            service(DeletedAppsGateway::class),
         ]);
 
     $services->set(AppFeatureValidator::class)

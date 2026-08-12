@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -54,6 +55,8 @@ class AppSecretRotationServiceTest extends TestCase
 
     private ManifestFactory&MockObject $manifestFactory;
 
+    private DeletedAppsGateway&Stub $deletedAppsGateway;
+
     private MockClock $clock;
 
     protected function setUp(): void
@@ -64,6 +67,7 @@ class AppSecretRotationServiceTest extends TestCase
         $this->messageBus = static::createStub(MessageBusInterface::class);
         $this->logger = static::createStub(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->deletedAppsGateway = static::createStub(DeletedAppsGateway::class);
         // A fixed clock so the soft-delete timestamp written for a retired integration is deterministic.
         $this->clock = new MockClock('2025-06-13 12:00:00');
         $this->service = $this->createService();
@@ -402,6 +406,7 @@ class AppSecretRotationServiceTest extends TestCase
             $logger ?? $this->logger,
             $this->manifestFactory,
             $this->clock,
+            $this->deletedAppsGateway,
         );
     }
 

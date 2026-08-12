@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
@@ -43,6 +44,7 @@ class AppSecretRotationService
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ClockInterface $clock,
+        private readonly DeletedAppsGateway $deletedAppsGateway,
     ) {
     }
 
@@ -85,6 +87,17 @@ class AppSecretRotationService
         \assert($currentIntegration !== null);
 
         $manifest = $this->manifestFactory->createFromApp($app);
+
+        // A rotation repairs credentials; it cannot run the install lifecycle. Committing clears the
+        // unconfirmed list, which is the only marker {@see AppManager::recoverInstallation} has to resume
+        // an interrupted installation — so refuse rather than silently consume it.
+        if ($trigger !== self::TRIGGER_RECOVERY
+            && $manifest->getSetup() !== null
+            && ($app->getAppSecret() === null || $this->deletedAppsGateway->getDeletedAppSecret($app->getName()) !== null)
+        ) {
+            throw AppException::appInstallationIncomplete($app->getName());
+        }
+
         $candidateSecrets = $this->candidateSecrets($app);
         $unconfirmedBefore = $app->getUnconfirmedAppSecrets();
 

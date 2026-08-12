@@ -35,6 +35,7 @@ class AppException extends HttpException
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
     public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
     public const APP_SECRET_RECOVERY_FAILED = 'FRAMEWORK__APP_SECRET_RECOVERY_FAILED';
+    public const APP_INSTALLATION_INCOMPLETE = 'FRAMEWORK__APP_INSTALLATION_INCOMPLETE';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
@@ -162,6 +163,16 @@ class AppException extends HttpException
             Response::HTTP_CONFLICT,
             self::APP_SECRET_RECOVERY_FAILED,
             'App "{{ appName }}" did not accept any saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function appInstallationIncomplete(string $appName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_INSTALLATION_INCOMPLETE,
+            'App "{{ appName }}" has an unfinished installation and cannot be rotated. Run "bin/console app:install {{ appName }}" to complete it — that also recovers the credentials.',
             ['appName' => $appName]
         );
     }

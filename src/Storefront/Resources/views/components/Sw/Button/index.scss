@@ -1,8 +1,31 @@
 .sw-button {
     --bs-btn-disabled-color: var(--btn-link-disabled-color);
-    --bs-btn-focus-box-shadow: 0 0 0 0.125rem var(--bs-white), 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+    --bs-btn-focus-box-shadow:
+        0 0 0 0.125rem var(--bs-white), 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/**
+ * Square icon-only button via the `iconOnly` prop (`btn-icon` class).
+ * Override `--sw-btn-icon-size` when a different footprint is needed.
+ */
+.btn-icon {
+    --bs-btn-padding-x: 0;
+    --bs-btn-padding-y: 0;
+    --sw-btn-icon-size: 2.5rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sw-btn-icon-size);
+    height: var(--sw-btn-icon-size);
+    line-height: 1;
+}
+
+.btn-icon .sw-icon > svg,
+.btn-icon .icon > svg {
+    top: 0;
 }
 
 .btn-buy {

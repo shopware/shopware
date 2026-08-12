@@ -61,10 +61,7 @@
 .sw-media-gallery-lightbox__close-btn {
     --bs-btn-border-color: var(--bs-gray-300);
     position: absolute;
-    padding: 0;
     top: var(--sw-media-gallery-lightbox-padding);
     right: var(--sw-media-gallery-lightbox-padding);
-    width: 40px;
-    height: 40px;
     z-index: 1;
 }

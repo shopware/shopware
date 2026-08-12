@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
@@ -146,5 +147,44 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
             ],
             ThemeCompilerEnrichScssVarSubscriber::getSubscribedEvents()
         );
+    }
+
+    public function testConfigurationNullValuesDefaultToEmptyString(): void
+    {
+        $this->systemConfigDefinitionService->method('getResolvedConfiguration')->willReturn([
+            new SystemConfigTab(
+                [
+                    new SystemConfigCard(
+                        [
+                            new SystemConfigElement(
+                                'test',
+                                ['css' => 'test', 'defaultValue' => null],
+                                'text'
+                            ),
+                        ],
+                        []
+                    ),
+                ]
+            ),
+        ]);
+
+        $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('test'),
+            ])
+        );
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->systemConfigDefinitionService, $this->storefrontPluginRegistry);
+
+        $event = new ThemeCompilerEnrichScssVariablesEvent(
+            [],
+            TestDefaults::SALES_CHANNEL,
+            Context::createDefaultContext()
+        );
+
+        $subscriber->enrichExtensionVars(
+            $event
+        );
+
+        static::assertSame(['test' => ''], $event->getVariables());
     }
 }

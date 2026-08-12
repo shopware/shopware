@@ -173,7 +173,7 @@ class SystemConfigDefinitionService
                     $element->value = $this->systemConfigService->get(
                         $element->name,
                         $salesChannelId
-                    ) ?? $element->config['defaultValue'] ?? '';
+                    ) ?? $element->config['defaultValue'] ?? null;
                 }
             }
         }

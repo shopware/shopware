@@ -27,9 +27,6 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -68,26 +65,32 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
         foreach ($allConfigs as $tab) {
             foreach ($tab->cards as $card) {
                 foreach ($card->elements as $element) {
-                    if (!$this->hasCssValue($element)) {
+                    $cssValue = $this->getCssValue($element);
+
+                    if ($cssValue === null) {
                         continue;
                     }
 
-                    $event->addVariable($element->config['css'], $element->value ?? $element->config['defaultValue']);
+                    $event->addVariable($element->config['css'], $cssValue);
                 }
             }
         }
     }
 
-    private function hasCssValue(SystemConfigElement $element): bool
+    private function getCssValue(SystemConfigElement $element): ?string
     {
         if (!isset($element->config['css'])) {
-            return false;
+            return null;
         }
 
-        if (!\is_string($element->value ?? $element->config['defaultValue'])) {
-            return false;
+        if ($element->value === null) {
+            return '';
         }
 
-        return true;
+        if (\is_string($element->value)) {
+            return $element->value;
+        }
+
+        return null;
     }
 }

@@ -304,6 +304,9 @@ sw.ui.tabs('sw-order-detail').addTabItem({
     label: 'my-plugin.tabTitle',
     componentSectionId: 'my-plugin-tab',
     visible: order.stateMachineState.technicalName === 'open',
+});
+```
+
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -523,6 +526,12 @@ shopware:
 ```
 
 Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
+
+### `SERVICE_REGISTRY_URL` is limited to Shopware domains in production
+
+The service registry decides which Shopware Services a shop installs and where their code is downloaded from. With `APP_ENV=prod`, `SERVICE_REGISTRY_URL` is now only used when its host is `shopware.io` or a subdomain of it. Any other value is ignored and `https://registry.services.shopware.io` is used instead, so a mistyped registry URL no longer breaks service installation on a live shop.
+
+Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
 # 6.7.13.0
 

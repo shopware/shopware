@@ -87,6 +87,14 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
         static::assertNull($this->fetchFilenameInfixes($deliveryNoteConfigId));
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(
+            1786378835,
+            (new Migration1786378835AddDocumentBaseConfigFilenameInfixes())->getCreationTimestamp()
+        );
+    }
+
     private function fetchDocumentTypeId(string $technicalName): string
     {
         $documentTypeId = $this->connection->fetchOne(
@@ -96,14 +104,6 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
         static::assertIsString($documentTypeId);
 
         return $documentTypeId;
-    }
-
-    public function testGetCreationTimestamp(): void
-    {
-        static::assertSame(
-            1786378835,
-            (new Migration1786378835AddDocumentBaseConfigFilenameInfixes())->getCreationTimestamp()
-        );
     }
 
     private function fetchFilenameInfixes(string $id): ?string

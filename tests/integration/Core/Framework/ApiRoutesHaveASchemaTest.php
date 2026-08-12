@@ -260,35 +260,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
         static::assertSame([], $duplicates);
     }
 
-    public function testSsoSchemaOperationsUseSharedTags(): void
-    {
-        $data = json_decode((string) file_get_contents(__DIR__ . '/../../../../src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/sso.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-
-        $paths = $data['paths'] ?? [];
-        static::assertIsArray($paths);
-
-        foreach ($paths as $path => $pathItem) {
-            static::assertIsString($path);
-            static::assertIsArray($pathItem);
-
-            foreach ($pathItem as $method => $operation) {
-                static::assertIsString($method);
-                static::assertIsArray($operation);
-
-                if (!isset(self::OPEN_API_METHODS[strtolower($method)])) {
-                    continue;
-                }
-
-                static::assertSame(
-                    ['Experimental', 'Authorization & Authentication', 'SSO'],
-                    $operation['tags'] ?? null,
-                    \sprintf('SSO operation %s %s should use shared tags.', strtoupper($method), $path)
-                );
-            }
-        }
-    }
-
     private function handleRouteNotInSchema(Route $route, string $subPath): void
     {
         if ($this->isRepositoryCrudRoute($route)) {

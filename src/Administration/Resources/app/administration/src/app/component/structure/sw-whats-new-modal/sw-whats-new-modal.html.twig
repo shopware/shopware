@@ -9,23 +9,67 @@
         inset
     >
         <div class="sw-whats-new-modal__content">
-            <div class="sw-whats-new-modal__media">
-                <video
-                    :key="activePage.id"
-                    class="sw-whats-new-modal__media-video"
-                    :src="activePage.videoSrc"
-                    autoplay
-                    loop
-                    muted
-                    playsinline
-                ></video>
+            <div
+                class="sw-whats-new-modal__media"
+                :class="`sw-whats-new-modal__media--${activePage.id}`"
+            >
+                <img
+                    class="sw-whats-new-modal__media-image sw-whats-new-modal__media-image--light"
+                    :src="backgroundSrc"
+                    alt=""
+                    aria-hidden="true"
+                >
+
+                <img
+                    class="sw-whats-new-modal__media-image sw-whats-new-modal__media-image--dark"
+                    :src="darkBackgroundSrc"
+                    alt=""
+                    aria-hidden="true"
+                >
+
+                <div class="sw-whats-new-modal__glass">
+                    <!-- Decorative: rests at an even split without a mouse -->
+                    <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                    <div
+                        class="sw-whats-new-modal__compare"
+                        :class="{
+                            'sw-whats-new-modal__compare--settled': splitPosition !== null,
+                            'sw-whats-new-modal__compare--eased': isSplitEased,
+                            'sw-whats-new-modal__compare--pinned': isSplitPinned,
+                        }"
+                        :style="compareStyle"
+                        @mousemove="onCompareMove"
+                        @mouseleave="onCompareLeave"
+                    >
+                        <img
+                            class="sw-whats-new-modal__compare-image"
+                            :src="beforeSrc"
+                            alt=""
+                            aria-hidden="true"
+                        >
+
+                        <img
+                            class="sw-whats-new-modal__compare-image sw-whats-new-modal__compare-image--after sw-whats-new-modal__compare-image--after-light"
+                            :src="afterSrc"
+                            alt=""
+                            aria-hidden="true"
+                        >
+
+                        <img
+                            class="sw-whats-new-modal__compare-image sw-whats-new-modal__compare-image--after sw-whats-new-modal__compare-image--after-dark"
+                            :src="darkAfterSrc"
+                            alt=""
+                            aria-hidden="true"
+                        >
+                    </div>
+                </div>
             </div>
 
             <div class="sw-whats-new-modal__text">
                 <mt-text
                     as="h3"
                     size="m"
-                    weight="bold"
+                    weight="semibold"
                     class="sw-whats-new-modal__headline"
                 >
                     {{ activePage.headline }}
@@ -44,17 +88,37 @@
                     color="color-text-secondary-default"
                     class="sw-whats-new-modal__description"
                 >
-                    <i18n-t :keypath="activePage.descriptionKey">
-                        <template #profileSettingsLink>
-                            <mt-link
-                                :to="{ name: 'sw.profile.index.general' }"
-                                @click="onFinish"
-                            >
-                                {{ $t('sw-whats-new-modal.pages.darkMode.profileSettingsLink') }}
-                            </mt-link>
-                        </template>
-                    </i18n-t>
+                    {{ $t(activePage.descriptionKey) }}
                 </mt-text>
+
+                <template v-if="activePage.hasThemeSelect">
+                    <mt-theme-select
+                        v-model="userTheme"
+                        name="sw-field--whats-new-theme"
+                        class="sw-whats-new-modal__theme-select"
+                        :label="$t('sw-whats-new-modal.pages.darkMode.themeSelectLabel')"
+                    />
+
+                    <mt-text
+                        as="p"
+                        size="s"
+                        color="color-text-tertiary-default"
+                        class="sw-whats-new-modal__theme-hint"
+                    >
+                        <i18n-t keypath="sw-whats-new-modal.pages.darkMode.themeSelectHint">
+                            <template #profileSettingsLink>
+                                <mt-link
+                                    class="sw-whats-new-modal__inline-link"
+                                    type="internal"
+                                    :to="{ name: 'sw.profile.index.general' }"
+                                    @click="onFinish"
+                                >
+                                    {{ $t('sw-whats-new-modal.pages.darkMode.profileSettingsLink') }}
+                                </mt-link>
+                            </template>
+                        </i18n-t>
+                    </mt-text>
+                </template>
             </div>
         </div>
 

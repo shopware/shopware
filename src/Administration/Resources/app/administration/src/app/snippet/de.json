@@ -1808,14 +1808,17 @@
     "finishButton": "Verstanden",
     "pages": {
       "adminNavigation": {
-        "headline": "Eine überarbeitete Navigation",
-        "description": "Das Hauptmenü wurde von Grund auf überarbeitet: klareres Design, flüssigere Flyouts, bessere Tastaturbedienung und ein Layout, das sich an kleinere Bildschirme anpasst."
+        "headline": "Eine klarere, übersichtlichere Navigation",
+        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
       },
       "darkMode": {
-        "headline": "Dark Mode",
+        "headline": "Dunkle Darstellung",
         "badge": "Experimentell",
-        "description": "Die Administration unterstützt jetzt Farbthemes, inklusive eines Dark Modes. Probiere ihn aus und passe ihn jederzeit in {profileSettingsLink} an.",
-        "profileSettingsLink": "Deinen Profileinstellungen"
+        "description": "Die Administration bietet jetzt eine dunkle Darstellung der Benutzeroberfläche – für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
+        "profileSettingsLink": "Deinen Profileinstellungen",
+        "themeSelectLabel": "Darstellung",
+        "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
+        "themeSaveError": "Die Darstellung konnte nicht gespeichert werden."
       }
     }
   }

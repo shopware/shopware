@@ -1803,19 +1803,22 @@
     "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
   },
   "sw-whats-new-modal": {
-    "title": "A new look for your Admin",
+    "title": "A new look for your Administration",
     "nextButton": "Next",
     "finishButton": "Got it",
     "pages": {
       "adminNavigation": {
-        "headline": "A redesigned navigation",
-        "description": "The main menu has been rebuilt from the ground up: a cleaner look, smoother flyouts, improved keyboard support and a layout that adapts to smaller screens."
+        "headline": "A clearer, more streamlined navigation",
+        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility."
       },
       "darkMode": {
-        "headline": "Dark mode",
+        "headline": "Dark appearance",
         "badge": "Experimental",
-        "description": "The Administration now supports color themes, including dark mode. Try it out and adjust it anytime in your {profileSettingsLink}.",
-        "profileSettingsLink": "profile settings"
+        "description": "The Administration now offers a dark appearance for the user interface, for better accessibility and to match your personal preferences.",
+        "profileSettingsLink": "profile settings",
+        "themeSelectLabel": "Appearance",
+        "themeSelectHint": "You can change this setting at any time in your {profileSettingsLink}.",
+        "themeSaveError": "The appearance could not be saved."
       }
     }
   }

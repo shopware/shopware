@@ -1,15 +1,141 @@
+// The images show the sidebar at its real width; the glass adds its border around it.
+$compare-max-width: 300px;
+$glass-padding: 16px;
+$glass-border-width: 2px;
+$glass-max-width: $compare-max-width + 2 * ($glass-padding + $glass-border-width);
+
+// Concentric corners: the outer radius has to grow by the gap between the two edges,
+// otherwise the curves are not parallel.
+$compare-radius: 16px;
+$glass-radius: $compare-radius + $glass-padding;
+$glass-gradient: linear-gradient(
+    79.32deg,
+    rgba(255, 255, 255, 28%) 5.524%,
+    rgba(255, 255, 255, 32%) 27.645%,
+    rgba(255, 255, 255, 28%) 60.183%
+);
+
+// Registered so the idle hint below can interpolate it; the component writes the
+// same property directly on the element while the mouse is over the images.
+@property --sw-whats-new-modal-split {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 50%;
+}
+
+@keyframes sw-whats-new-modal-hint {
+    0%,
+    100% {
+        --sw-whats-new-modal-split: 50%;
+    }
+
+    25% {
+        --sw-whats-new-modal-split: 42%;
+    }
+
+    75% {
+        --sw-whats-new-modal-split: 58%;
+    }
+}
+
 .sw-whats-new-modal {
     &__media {
-        aspect-ratio: 16 / 9;
+        position: relative;
+        aspect-ratio: 14 / 9;
         background: var(--color-elevation-surface-sunken);
         overflow: hidden;
     }
 
-    &__media-video {
+    &__media-image {
+        position: absolute;
+        inset: 0;
         display: block;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: top center;
+        pointer-events: none;
+    }
+
+    // Inset from the background on three sides and flush to the bottom, centred by the
+    // auto margins once the max width kicks in.
+    &__glass {
+        position: absolute;
+        inset: 32px 20px 0;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        max-width: $glass-max-width;
+        margin: 0 auto;
+        padding: $glass-padding $glass-padding 0;
+        border: $glass-border-width solid rgba(255, 255, 255, 10%);
+        border-bottom: 0;
+        border-radius: $glass-radius $glass-radius 0 0;
+        background-image: $glass-gradient;
+        backdrop-filter: blur(48px);
+        box-shadow: 0 0 124px rgba(94, 24, 16, 10%);
+    }
+
+    &__compare {
+        position: relative;
+        width: 100%;
+        max-width: $compare-max-width;
+        border-radius: $compare-radius $compare-radius 0 0;
+        background: #fff;
+        box-shadow: 0 0 16px rgba(94, 24, 16, 5%);
+        overflow: hidden;
+        cursor: ew-resize;
+
+        // Runs once as an invitation rather than looping: it replays whenever the reveal is
+        // handed back, which is the only time the offer needs making again.
+        animation: sw-whats-new-modal-hint 2.5s ease-in-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+
+    // Once the mouse has set a position the hint must not fight it for the property.
+    &__compare--settled {
+        animation: none;
+    }
+
+    // Held at one position, so there is nothing for the mouse to drag.
+    &__compare--pinned {
+        cursor: default;
+    }
+
+    // The eased slide and the idle return use it; following the cursor stays immediate.
+    &__compare--eased {
+        // The disable is a false positive: this names the property, it does not read it.
+        /* stylelint-disable-next-line custom-property-no-missing-var-function */
+        transition: --sw-whats-new-modal-split 300ms ease-in-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &__compare-image {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        pointer-events: none;
+    }
+
+    // Revealed from the left edge, so moving right slides the new UI in over the old one.
+    &__compare-image--after {
+        clip-path: inset(0 calc(100% - var(--sw-whats-new-modal-split, 50%)) 0 0);
+    }
+
+    // The dark variants only ever appear through the rule below.
+    &__media-image--dark,
+    &__compare-image--after-dark {
+        display: none;
     }
 
     &__text {
@@ -20,11 +146,27 @@
         display: flex;
         align-items: center;
         gap: var(--scale-size-8);
-        margin-bottom: var(--scale-size-4);
+        margin-bottom: var(--scale-size-8);
     }
 
     &__description {
         margin-bottom: 0;
+    }
+
+    &__theme-select {
+        margin-top: var(--scale-size-16);
+        margin-bottom: var(--scale-size-16);
+    }
+
+    &__theme-hint {
+        margin-top: var(--scale-size-8);
+        margin-bottom: 0;
+    }
+
+    // Takes the size of the surrounding text instead of the link default.
+    &__inline-link {
+        font-size: inherit;
+        line-height: inherit;
     }
 
     &__footer {
@@ -42,5 +184,26 @@
 
     &__footer-right {
         justify-content: flex-end;
+    }
+}
+
+// The attribute sits on the document element, which the teleported modal is a descendant
+// of. The backdrop follows the theme on every page.
+[data-theme="dark"] .sw-whats-new-modal__media-image--light {
+    display: none;
+}
+
+[data-theme="dark"] .sw-whats-new-modal__media-image--dark {
+    display: block;
+}
+
+// The sidebar shot only follows it on the page announcing the appearance.
+[data-theme="dark"] .sw-whats-new-modal__media--dark-mode {
+    .sw-whats-new-modal__compare-image--after-light {
+        display: none;
+    }
+
+    .sw-whats-new-modal__compare-image--after-dark {
+        display: block;
     }
 }

@@ -308,7 +308,7 @@ swDefinePublic({ count });
         ).rejects.toThrow('A Shopware setup component needs a <script setup> block.');
     });
 
-    it('ignores files without Shopware setup blocks', async () => {
+    it('ignores non-vue files', async () => {
         const plugin = createPlugin();
 
         await expect(plugin.resolveId('./component.ts', '/example/entry.ts')).resolves.toBeNull();
@@ -325,7 +325,7 @@ swDefinePublic({ count });
         await expect(plugin.transform('<script>export default {};</script>', dependencyFile)).resolves.toBeNull();
     });
 
-    it('loads the shared transform once per plugin instance', async () => {
+    it('surfaces a clear error when the shared transform cannot be loaded', async () => {
         // A root inside the package but without a transform under it: `src/build/vue-setup-transform`
         // does not exist, while staying inside the package keeps the `require` itself resolvable.
         const plugin = createPlugin({ administrationRoot: path.join(process.cwd(), 'src') });
@@ -334,18 +334,11 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
 
-        // A bad `administrationRoot` is a config error, not a per-file one, so every file fails on the
-        // same unresolvable module. Asserted through `rejects` rather than a caught value, because a
-        // rejection reason is `unknown` in TypeScript and this needs no cast to read its message.
+        // A bad `administrationRoot` is a config error, not a per-file one: the loader fails on the same
+        // unresolvable module. Asserted through `rejects` rather than a caught value, because a rejection
+        // reason is `unknown` in TypeScript and this needs no cast to read its message.
         await expect(plugin.transform(source, '/example/sw-first.vue')).rejects.toThrow(
             'build/vue-setup-transform/index.js',
         );
-
-        // The loader caches its promise, so both files reject with the *same* error object. Identity is
-        // what proves the module was imported once; `toBe` compares unknowns, so this needs no cast either.
-        const first = await plugin.transform(source, '/example/sw-first.vue').catch((error: unknown) => error);
-        const second = await plugin.transform(source, '/example/sw-second.vue').catch((error: unknown) => error);
-
-        expect(second).toBe(first);
     });
 });

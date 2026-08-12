@@ -75,9 +75,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     const resolvedTransforms = new Map<string, ShopwareSetupTransformResult>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
-    // Lazy so a bad `administrationRoot` surfaces on a real `.vue` file; an eager rejection would go
-    // unhandled in builds that never reach one. Rejections are cached too - the failure is a config
-    // error, so one error beats one per file.
+    // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
     function loadShopwareSetupTransform(): Promise<typeof transformShopwareSetupSfcRuntime> {
@@ -133,11 +131,12 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * longer exists and report a duplicate until the dev server restarts.
      */
     function forgetBaseComponentFile(fileName: string): void {
-        baseComponentFiles.forEach((claimedBy, componentName) => {
+        for (const [componentName, claimedBy] of baseComponentFiles) {
             if (claimedBy === fileName) {
                 baseComponentFiles.delete(componentName);
+                break;
             }
-        });
+        }
     }
 
     return {

@@ -260,85 +260,62 @@ The registry maps a block name to an ordered array of Vue `Slot` functions. Ever
 
 ### `sw-block` render logic
 
-```59:114:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
-export default Shopware.Component.wrapComponentConfig({
-    props: {
-        name: {
-            type: String,
-        },
-        extends: {
-            type: String,
-        },
-        data: {
-            type: Object as PropType<ComponentInternalInstance['proxy']>,
-            default: null,
-        },
-    },
-    setup(props, { slots }) {
-        const { addBlock, removeBlock, getBlocks } = useBlockContext();
-        if (props.extends) {
-            addBlock(props.extends, slots.default);
-
-            onBeforeUnmount(() => {
-                if (props.extends) {
-                    removeBlock(props.extends, slots.default);
-                }
-            });
-
-            return { template: null };
-        }
-
-        const providedParents = ref<ReturnType<Slot>[]>([]);
-        provide(parentsInjectionKey, providedParents);
-
+```147:171:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
         const template = computed(() => {
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
 
-            const blocks = getBlocks(props.name);
+            // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
+            // at boot time) are positioned below native <sw-block extends> overrides
+            // (registered at mount time), matching the expected stacking order:
+            //   default → shim (legacy plugin) → native (newer plugin or core extension)
+            const nativeBlocks = getBlocks(props.name);
             const blocksAndParent = [
                 slots.default ?? (() => []),
-                ...blocks,
+                ...shimSlots,
+                ...nativeBlocks,
             ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             const lastNode = blocksNodes.pop();
-            // Reset the list on every render so unconsumed entries from the previous cycle
-            // are released and each sw-block-parent pops the correct slot.
+            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
+            // to claim its parent slot. The array must be reset to the current render's
+            // ordered list so that each parent instance pops the correct slot — not a
+            // stale or accumulated list from a previous render cycle.
             providedParents.value = blocksNodes;
             return lastNode;
         });
-
-        return {
-            template,
-        };
-    },
-    render() {
-        return this.template;
-    },
-});
 ```
+
+`shimSlots` is built once in `setup()` from the legacy TwigJS overrides for this block name (via `getBlockEntries`), giving each shim a stable VNode type so reactive updates don't remount it.
 
 The key steps when rendering a **named block** (`name` prop):
 
-1. Retrieve all registered override slots from `getBlocks(name)`
-2. Build an array: `[defaultSlot, ...overrideSlots]`
-3. Call each slot function with the `data` prop (making scope available)
-4. **Pop the last element** — that is what actually gets rendered
-5. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
+1. Build the ordered slot array `[defaultSlot, ...shimSlots, ...nativeBlocks]` — the default content, then legacy Twig-plugin overrides (shim slots), then native `<sw-block extends>` overrides from `getBlocks(name)`
+2. Call each slot function with the `data` prop (making scope available)
+3. **Pop the last element** — that is what actually gets rendered
+4. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
 
 This is why the last registered override wins when no `<sw-block-parent />` is used.
 
 ### `sw-block-parent` render logic
 
-```1:26:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
-import { h, inject } from 'vue';
-import parentsInjectionKey from '../sw-block/parents-injection-key';
-
+```15:37:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
 export default Shopware.Component.wrapComponentConfig({
     setup() {
-        const parent = inject(parentsInjectionKey, null)?.value.pop();
+        const parents = inject(parentsInjectionKey, null);
+        const initialParents = parents?.value;
+        const initialParent = initialParents?.pop();
+        const parentIndex = initialParents ? initialParents.length : -1;
+        // Reserve the stack slot once, then read the current VNode at that slot after reactive parent updates.
+        const parent = computed(() => {
+            if (parentIndex < 0 || !parents || parents.value === initialParents) {
+                return initialParent;
+            }
+
+            return parents.value[parentIndex];
+        });
 
         return {
             parent,
@@ -350,7 +327,7 @@ export default Shopware.Component.wrapComponentConfig({
 });
 ```
 
-`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key), and **pops** the last element from it — which is the pre-rendered VNode array of the previous block in the chain. It then renders that as its output.
+`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key) and **pops** its last element **once** during `setup()`, claiming the previous block in the chain. It remembers that slot index and reads it through a `computed`, so when `sw-block` re-renders and replaces `providedParents.value`, the parent re-reads the current VNode at its reserved slot instead of popping again. It renders that as its output.
 
 ### Data flow diagram
 
@@ -359,25 +336,25 @@ Component with <sw-block name="foo"> (data scope wired by the setup transform)
 │
 │  Mount
 │
-│  useBlockContext.getBlocks("foo")
-│  → [defaultSlot, overrideSlot1, overrideSlot2]
+│  Compose [defaultSlot, ...shimSlots, ...getBlocks("foo")]
+│  → [defaultSlot, shimSlot, nativeSlot]   (one legacy shim, one native override)
 │
 │  Call each slot with $dataScope
-│  → [defaultVNodes, override1VNodes, override2VNodes]
+│  → [defaultVNodes, shimVNodes, nativeVNodes]
 │
-│  provide(parentsInjectionKey, [defaultVNodes, override1VNodes])
-│  render → override2VNodes   ← last one wins
+│  providedParents.value = [defaultVNodes, shimVNodes]
+│  render → nativeVNodes   ← last one wins
 │
-│       ↓ inside override2VNodes template ↓
-│
-│  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
-│  → override1VNodes   ← previous in chain
-│
-│       ↓ inside override1VNodes template ↓
+│       ↓ inside nativeVNodes template ↓
 │
 │  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
+│  setup() reserves slot 1, computed reads providedParents.value[1]
+│  → shimVNodes   ← previous in chain
+│
+│       ↓ inside shimVNodes template ↓
+│
+│  <sw-block-parent />
+│  setup() reserves slot 0, computed reads providedParents.value[0]
 │  → defaultVNodes
 ```
 

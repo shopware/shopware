@@ -280,6 +280,7 @@ swDefineOverride({});
         },
         {
             filename: 'dynamic-key.vue',
+            // Also pins the loc math: a full-range error underlines the whole offending property.
             code: `<script setup>
 const count = 1;
 swDefinePublic({ [dynamicKey]: count });
@@ -288,6 +289,10 @@ swDefinePublic({ [dynamicKey]: count });
                 {
                     message:
                         'swDefinePublic() only supports shorthand bindings such as { a, b }. Renaming and string or computed keys (for example { a: b } or { \'a\': b }) are not supported.',
+                    line: 3,
+                    column: 18,
+                    endLine: 3,
+                    endColumn: 37,
                 },
             ],
         },

@@ -26,7 +26,7 @@ function deriveComponentName(filename) {
         return path.basename(path.dirname(filename));
     }
 
-    return file.endsWith(suffix) ? file.slice(0, -suffix.length) : file;
+    return file.slice(0, -suffix.length);
 }
 
 /**

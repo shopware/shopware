@@ -80,12 +80,8 @@ const baseRules = {
         { ignoreRegExpLiterals: true },
     ],
     'import/no-useless-path-segments': 0,
-    // `never` for js/ts/tsx because TypeScript resolves those extensionless itself. `.vue` is the
-    // exception, and not for consistency's sake: nothing resolves `./sw-thing` to `./sw-thing.vue`.
-    // TypeScript matches SFCs through the `declare module '*.vue'` shim, which keys off the literal
-    // specifier, and Vite's default `resolve.extensions` deliberately omits `.vue`. So the extension is
-    // mandatory for the type checker, Volar and the bundler alike - which is also what the TypeScript
-    // override further down already enforces by leaving `vue` unlisted.
+    // `.vue` needs the explicit extension (js/ts/tsx don't): nothing resolves `./sw-thing` to
+    // `./sw-thing.vue` - not TypeScript's `*.vue` shim, not Vite's default `resolve.extensions`.
     'import/extensions': [
         'error',
         'ignorePackages',
@@ -140,11 +136,7 @@ const baseRules = {
     'vue/multi-word-component-names': [
         'error',
         {
-            // The option matches component names, and `sw-thing/index.vue` is a documented native-setup
-            // form where the name comes from the directory - so without the ignore this rule reports the
-            // literal name "index" for a component actually called `sw-thing`. Multi-word naming is still
-            // enforced for those files by `sw-core-rules/native-setup-filename`, which resolves the
-            // directory-derived name.
+            // Support for our `sw-some-component/index.vue` convention
             ignores: [
                 'index.html',
                 'index',
@@ -338,11 +330,7 @@ export default [
         rules: {
             'no-unused-vars': 'off',
             'vue/script-setup-uses-vars': 'error',
-            // A native-setup base binding must not share a declared prop's name: the extendable setup
-            // runtime strips declared prop keys from returned state, so the binding would be deleted and
-            // its template reference would read `undefined`. vue/no-dupe-keys flags the collision across
-            // props/setup - including the `defineProps<Props>()` named-type form the build-time transform
-            // guard cannot resolve.
+            // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',
         },
     },

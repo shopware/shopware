@@ -107,7 +107,8 @@ class StateMachineRegistryTest extends TestCase
 
         // The history entry is written first inside the transaction; if it fails, the state must not be
         // updated, so no entity-written events are dispatched for a state change that never commits.
-        $fixture->historyRepository->method('create')
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
             ->willThrowException(new \RuntimeException('history write failed'));
 
         $fixture->entityRepository->expects($this->never())

@@ -364,6 +364,15 @@ jobs:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-${{ matrix.suite }}
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
   license-check:
     needs:

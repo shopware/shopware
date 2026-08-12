@@ -17,6 +17,7 @@ class TranslationConfig extends Struct
      * @param list<string> $locales
      * @param list<string> $plugins
      * @param list<string> $excludedLocales
+     * @param list<string> $pseudoLocales
      *
      * @internal
      */
@@ -28,6 +29,10 @@ class TranslationConfig extends Struct
         public readonly PluginMappingCollection $pluginMapping,
         public readonly Uri $metadataUrl,
         public readonly array $excludedLocales,
+        public readonly ?Uri $communityTranslationsUrl = null,
+        public readonly ?string $documentationUrlSnippetKey = null,
+        public readonly array $pseudoLocales = [],
+        public readonly int $completenessThreshold = 90,
     ) {
     }
 

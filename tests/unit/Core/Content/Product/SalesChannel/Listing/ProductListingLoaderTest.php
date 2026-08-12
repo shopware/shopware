@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
@@ -43,11 +44,11 @@ class ProductListingLoaderTest extends TestCase
 
     private MockObject&SystemConfigService $systemConfigService;
 
-    private MockObject&Connection $connection;
+    private Stub&Connection $connection;
 
     private EventDispatcher $eventDispatcher;
 
-    private MockObject&AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    private Stub&AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -55,9 +56,9 @@ class ProductListingLoaderTest extends TestCase
     {
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->eventDispatcher = new EventDispatcher();
-        $this->productCloseoutFilterFactory = $this->createMock(AbstractProductCloseoutFilterFactory::class);
+        $this->productCloseoutFilterFactory = static::createStub(AbstractProductCloseoutFilterFactory::class);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
     }
 
@@ -421,6 +422,7 @@ class ProductListingLoaderTest extends TestCase
     private function resolveSearchIds(bool $findBestVariant): Criteria
     {
         $this->systemConfigService
+            ->expects($this->atLeastOnce())
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId) use ($findBestVariant): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);

@@ -185,7 +185,7 @@ jobs:
           identity: ShopwareBackport
 
       - name: Backporting
-        uses: kiegroup/git-backporting@c176e6651d88576d2de7cfdb99525fe387e705cb # main
+        uses: kiegroup/git-backporting@1fcd779784db9dfb49e61bb8c5df0f550261161d # main
         with:
           auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           target-branch: ${{ matrix.target-branch }}

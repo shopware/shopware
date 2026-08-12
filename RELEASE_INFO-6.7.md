@@ -2,13 +2,17 @@
 
 ## Features
 
+### New "Automation" administration menu entry
+
+Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
+
 ## API
 
 ### Order recalculation and conversion endpoints now require ACL privileges
 
-Ten admin endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+Thirteen admin checkout endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
 
-* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions` require `order:update`.
+* `POST /api/_action/order/{orderId}/recalculate`, `/product/{productId}`, `/creditItem`, `/lineItem`, `/promotion-item`, `/toggleAutomaticPromotions` and `/applyAutomaticPromotions`, plus `PATCH /api/_proxy/modify-shipping-costs`, `/api/_proxy/disable-automatic-promotions` and `/api/_proxy/enable-automatic-promotions`, require `order:update`.
 * `POST /api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}` and `POST /api/_action/order/{orderId}/order-address` require `order_address:update`.
 * `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
 
@@ -127,11 +131,16 @@ shopware:
     translation:
         repository_url: 'https://example.com/translations'
         metadata_url: 'https://example.com/crowdin-metadata.json'
+        community_translations_url: 'https://translate.shopware.com'
+        documentation_url_snippet_key: 'sw-settings-language.addModal.docsUrl'
+        completeness_threshold: 90
         plugins:
             - 'MyPlugin'
         excluded_locales:
             - 'de-DE'
             - 'en-GB'
+        pseudo_locales:
+            - 'ach-UG'
         plugin_mapping:
             - plugin: 'MyPlugin'
               name: 'MySnippetName'
@@ -140,13 +149,21 @@ shopware:
               locale: 'de-DE'
 ```
 
-List options (`plugins`, `excluded_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
+List options (`plugins`, `excluded_locales`, `pseudo_locales`, `plugin_mapping`, `languages`) replace the shipped default entirely rather than merging; provide the full list you want. Setting a list to `[]` clears the shipped default. Decorating `AbstractTranslationConfigLoader` continues to work; a decorator that fully replaces `load()` bypasses these config overrides.
 
 ### Product export body media URLs are RFC 3986 encoded
 
 Product export body templates now receive RFC 3986-encoded `MediaEntity::url` and `MediaThumbnailEntity::url` values from their data context. This applies to media URLs such as `product.cover.media.url` and `product.media.*.media.url` in built-in and custom body templates, so feeds such as Google Merchant Center exports can use them without manually encoding their paths.
 
 Other URL-valued strings, including custom fields, are unchanged. Custom body templates that render those values can explicitly encode them with the `sw_encode_url` Twig filter.
+
+### Community translations auto-update can be configured per language
+
+The `translation.update` scheduled task (`UpdateTranslationsTaskHandler`) refreshes the community translations of installed languages. It can now be controlled per language via the new `translationAutoUpdate` flag.
+
+* The `language` entity gains a boolean `translationAutoUpdate` field (API-aware, **enabled by default**). A migration adds the `language.translation_auto_update` column automatically, defaulting to on, so existing languages keep being updated as before.
+* Only linked languages are considered: a language flagged for auto-update whose translation is not installed, or whose locale is not part of the translation set (for example built-in or custom languages), is ignored and never triggers a request.
+* The flag can be toggled per language on the Administration language detail page ("Snippet updates" card), letting shops opt individual languages out of automatic updates.
 
 ### Product migrations no longer fail on MySQL 8.4 with non-standard foreign keys
 
@@ -201,6 +218,15 @@ MCP `tools/list`, `resources/list`, and `prompts/list` responses now apply the c
 MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `/_action/mcp/capabilities` responses. The Administration MCP allowlist UI and `bin/console debug:mcp` use this value to group tools for operators without changing tool names or call behaviour.
 
 Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
+
+### SEO URLs for headless sales channels
+
+Headless (API type) sales channels can now generate SEO URLs and be used for product export feeds. Products, categories and landing pages generate SEO URLs for headless channels via dedicated store-api routes (`store-api.product.detail`, `store-api.category.detail`, `store-api.landing-page.detail`).
+
+- The `seo_url_template` entity gained an `is_headless` flag that discriminates the storefront (`frontend.*`) and headless (`store-api.*`) route families. Storefront channels resolve the non-headless templates, headless channels the headless ones — the two inheritance chains are kept separate.
+- Three default `store-api.*` templates are seeded (one per entity), mirroring the relative template of their storefront counterpart. Headless channels inherit these defaults just like storefront channels inherit the `frontend.*` defaults; the resolved path is prefixed with the host of the external storefront domain. A per-channel template may be an absolute URL (`https://…`), which is then used as-is.
+- The `sales_channel_domain` entity gained an `is_external_storefront` flag (default `false`). For headless sales channels, SEO URLs are only generated for domains flagged as external storefront, and the resolved relative path is prefixed with that domain's URL (one SEO URL per matching domain). The flag can be set per domain in the Administration when editing a headless sales channel's domains.
+- Product export feeds now accept both *Storefront* and *Headless* sales channels.
 
 ### New BC-change attributes for planned API changes
 
@@ -287,6 +313,9 @@ sw.ui.tabs('sw-order-detail').addTabItem({
     label: 'my-plugin.tabTitle',
     componentSectionId: 'my-plugin-tab',
     visible: order.stateMachineState.technicalName === 'open',
+});
+```
+
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -371,6 +400,13 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
+### Theme CLI commands clean up unused theme directories
+
+Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
+
+`bin/console theme:compile` and `bin/console theme:change` now run the same cleanup once after compilation, deleting unused theme directories whose files are older than 24 hours (recent directories are kept so cached responses still referencing them keep working). Pass `--no-cleanup` to skip this step and preserve the previous behaviour.
+
+The cleanup logic is now provided by the reusable `Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter` service, which the commands and the scheduled task all use. The scheduled task remains unchanged as a fallback.
 ### `theme:create` gains `--full` and granular scaffold flags
 
 `bin/console theme:create` accepts new options to scaffold more than the default skeleton: `--with-config` generates `src/Resources/config/config.xml`, `--with-snippets` generates storefront snippet files (`src/Resources/snippet/storefront.{de-DE,en-GB}.json`), and `--with-scss` generates a starter SCSS 7-1 folder structure (`abstracts/`, `base/`, `components/`, `layout/`, `pages/`) referenced from `base.scss`. `--full` is shorthand for all three combined. Default `theme:create` output (without any of these flags) is unchanged. The generated `composer.json` also now sets a real package name (`custom/<theme-name>` instead of a hardcoded placeholder) and pins `shopware/core`.
@@ -418,6 +454,11 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## App System
 
+### App installation recovers ambiguously failed registrations
+
+A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed.
+
+Recovery also survives an uninstall. An app that adopted a secret the shop never committed rejects everything the shop signs afterwards, including the `app.deleted` webhook, so it keeps its registration across an uninstall and a plain reinstall used to fail with a signature error. The unconfirmed secrets are now kept alongside the committed one when an app is removed, and reinstalling authenticates with them.
 ### Apps can register custom fields on media folders
 
 Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.
@@ -499,6 +540,12 @@ shopware:
 ```
 
 Fallback sizes apply only in remote-thumbnail mode to media in known folders whose configuration has `createThumbnails: true` but no assigned thumbnail sizes. Configured folder-specific sizes remain the normal source when thumbnail creation is enabled. A folder with `createThumbnails: false` is an explicit opt-out and receives no thumbnail URLs, even when fallback sizes are configured. Media without a known folder mapping also receives no fallback thumbnail URLs.
+
+### `SERVICE_REGISTRY_URL` is limited to Shopware domains in production
+
+The service registry decides which Shopware Services a shop installs and where their code is downloaded from. With `APP_ENV=prod`, `SERVICE_REGISTRY_URL` is now only used when its host is `shopware.io` or a subdomain of it. Any other value is ignored and `https://registry.services.shopware.io` is used instead, so a mistyped registry URL no longer breaks service installation on a live shop.
+
+Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
 # 6.7.13.0
 
@@ -935,12 +982,13 @@ If a listener intentionally needs private media access, wrap that specific read 
 
 Translation management — previously only possible through the `translation:list`, `translation:install`, and `translation:update` CLI commands — is now available through the Admin API, so it can be driven from the Administration without shell access:
 
-- `GET /api/_action/translation/list` — lists every configured locale with its locally installed metadata (`{ total, items: [{ locale, name, lastUpdate, progress }] }`).
+- `GET /api/_action/translation/list` — lists every configured locale, merging its local install state with the remote metadata (`{ total, items: [{ locale, name, lastUpdate, progress, updateAvailable, isPseudoLanguage }] }`). `lastUpdate` is the local install timestamp (`null` when not installed), while `progress` comes from the remote metadata (`null` when the remote source is unavailable).
+- `GET /api/_action/translation/meta` — returns configuration metadata for the translation UI (`{ builtInLocales, communityTranslationsUrl, documentationUrlSnippetKey, completenessThreshold }`).
 - `POST /api/_action/translation/install` — downloads and installs translations for the given `locales` (or all configured locales when `all` is `true`); created languages are activated unless `activate` is `false`. Returns `{ updated, skipped, unavailable }`, where `unavailable` lists requested locales that have no translation available.
 - `POST /api/_action/translation/update` — updates all installed translations. Returns `{ updated, skipped, unavailable }`.
 - `DELETE /api/_action/translation/{locale}` — removes the downloaded translation files and the metadata entry for a locale. The associated `language`, `locale`, and `snippet_set` records are left untouched and remain manageable through their regular entity endpoints.
 
-The routes are guarded by the new `system:translation` ACL privilege (`read` for listing, `create` for install, `update` for update, `delete` for uninstall).
+The routes are guarded by the new `system:translation` ACL privilege (`read` for listing and metadata, `create` for install, `update` for update, `delete` for uninstall).
 
 `install` and `update` process the requested locales synchronously during the request, downloading each locale's snippet files in turn. Installing many locales at once — in particular `all: true`, which covers every configured locale — can therefore take a while, and the operation is not atomic: if one locale fails, the locales processed before it remain installed.
 
@@ -992,6 +1040,30 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 ```
 
 ## Administration
+
+### Opt-in TypeScript and ESLint configuration for Administration extensions (experimental)
+
+This toolchain is **experimental** and not covered by the backwards-compatibility promise: it is shipped early to gather feedback while it is still being shaped, so the command names and their options, the layout of the generated files, and the `manifest.json` schema can change in any release without a deprecation cycle. Re-running setup after a Shopware update is the supported migration path — the generated files are disposable by design, so nothing should be hand-edited or automated on top of. Stabilization is targeted for v6.8.0 (annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING` in the source); the experimental marker is removed once the surfaces have settled. Not running the command leaves a project exactly as it was.
+
+`composer admin:setup-extension-tooling` generates the TypeScript and ESLint configuration that lets an Administration extension be type-checked and linted against the **installed** Shopware version — its live types, its entity schema and its pinned tool versions — instead of against a toolchain the extension vendors itself and that drifts.
+
+- **Every extension is bridged automatically.** Setup discovers every installed extension with Administration sources from `var/plugins.json` and writes a git-ignored, self-explaining `.shopware/` bridge beside each Administration folder — custom and vendor-installed alike — plus small committable `tsconfig.json` / `eslint.config.mjs` that extend it when the extension has none yet. Existing configs are never overwritten — the report prints the single line to add instead. One bridge is written per directory that owns a config, so a multi-bundle package whose shared config governs several Administration roots gets a single shared bridge (`-- --root-config=<Extension>:<dir>` forces one for a layout the grouping cannot infer). Root `tsconfig.json` / `eslint.config.mjs` projections and IDE bootstraps for VS Code and Zed are generated at the project root (PhpStorm settings are printed); editors then resolve the full Administration API, including installation-specific entity types.
+- **Unwritable directories degrade gracefully.** A bridge that cannot be written (e.g. a read-only vendor directory) is skipped with a warning; the extension's sources stay covered by the generated root `tsconfig.json`, which includes whatever no extension config governs. Files written under `vendor/` are local only: a composer update removes them and re-running setup restores them.
+- **The report says what is missing, not just what happened.** Each extension is classified `ready`, `bridged`, `bridge-unwired` or `not bridged`, changed files are listed by path, git-ignored bridge files are distinguished from committable plugin-owned ones, and only the actually-missing next step is printed.
+- **CI can verify the projection is current** with `composer admin:setup-extension-tooling:check` — a guaranteed read-only dry run that writes nothing and exits 1 on drift.
+
+Options belong after Composer's `--` separator; `-- --help` prints the generated reference, and an unknown flag exits 2 before anything is written. In a Composer/Flex install, where the Administration lives under `vendor/shopware/administration` and the Composer scripts do not exist, the same commands are available as `bin/console administration:setup-extension-tooling` and `bin/console administration:generate-entity-schema-types` — run `npm ci` in the Administration directory once, since its Node dependencies are not part of the Composer package.
+
+`composer admin:check-extensions` then runs that configuration: per extension it executes `vue-tsc` and ESLint with the Administration's own pinned tool versions and prints their native, unmodified output under a per-extension header, paths relativized to the project root. Pass `-- --only=<name[,name]>` to narrow it; without that it checks everything. Extension configs that do not compose the Shopware preset are visibly skipped with a reason-specific `why:` and the exact `fix:` — never silently green — and a run that skipped a writable extension carries a prominent warning so `exit 0` cannot be mistaken for full coverage. TypeScript is blocked with the fix command while the entity schema is missing, rather than flooding the report with cascade errors, and a JavaScript-only extension reports an honest qualified pass (`0 TypeScript files — .js is not type-checked`) instead of a vacuous green. `-- --fix` applies ESLint autofixes, including the Shopware `sw-*` → `mt-*` deprecation codemods. Findings in `vendor/`-installed extensions are reported but never fail the run.
+
+Because bridging a large plugin can surface hundreds of findings at once — which would make an exit-1 check useless — `-- --only=<name> --update-baseline` records the current findings into a committed, plugin-relative `.shopware-admin-baseline.json` (custom/plugins only). The check then reports `N new · M baselined` and fails only on new findings, so a fully baselined plugin reads green while regressions still fail. Matching ignores line and column, so a recorded finding survives unrelated line drift; entries that no longer occur are reported as stale and pruned on the next `--update-baseline`. A safety net compares the structured parse against each tool's own counter and disables suppression on any disagreement, so a parser bug can never silently green a real finding. Diagnostics originating outside the extension's own root — a conflict it imposes on the shared type surface — are fatal and cannot be baselined away.
+
+Spec files are type-checked too. A dedicated `vue-tsc` program per extension injects jest types (`describe`/`it`/`expect`, from a shipped `spec-types.d.ts`) and includes only the specs, so the runtime program stays free of runner globals; spec findings are reported on their own `TS (specs)` line and column. ESLint lints specs with the jest globals available, but its type-aware rules stay off for them: the generated `.shopware/` bridges are not solution-style project references, so typescript-eslint's project service has no spec program to resolve them against — `vue-tsc` is what type-checks specs, ESLint is not. Type-checking test code surfaces findings that were previously invisible, which is exactly what the baseline above absorbs: the two features are partners.
+
+In an interactive terminal the check opens a numbered picker (numbers, ranges, `a` for all, `w` for writable-only); `-- --only=<name[,name]>` or `-- --all` skip it, and non-interactive shells check everything. Three flags exist for CI and debugging: `-- --fail-on-skipped` turns any skipped or blocked writable extension into exit 1, so `exit 0` cannot mean "checked nothing" — this is the flag a CI gate should use; `-- --strict-vendor` makes findings in `vendor/`-installed extensions fatal too; and `-- --show-commands` prints the exact underlying `vue-tsc`/ESLint invocation per extension, so any result can be reproduced by hand.
+
+Nothing changes for existing flows: no default build, watch, init or CI pipeline invokes the new command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
+Nothing changes for existing flows unless you opt in: in a platform checkout `composer setup` runs the setup command only when the experimental `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g. `ADMIN_EXTENSION_TOOLING=1` in `.env`); without the flag the step is a one-line no-op, and no build, watch or CI pipeline invokes the command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
 
 ### Reworked search behaviour options
 

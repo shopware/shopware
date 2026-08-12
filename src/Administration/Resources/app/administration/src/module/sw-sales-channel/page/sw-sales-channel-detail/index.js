@@ -240,7 +240,12 @@ export default {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
+            return criteria.addFilter(
+                Criteria.equalsAny('typeId', [
+                    Defaults.storefrontSalesChannelTypeId,
+                    Defaults.apiSalesChannelTypeId,
+                ]),
+            );
         },
 
         tooltipSave() {

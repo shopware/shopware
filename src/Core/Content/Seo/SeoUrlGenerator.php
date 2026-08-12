@@ -7,6 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -65,6 +67,16 @@ class SeoUrlGenerator
         $config = $route->getConfig();
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
+
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            $domain = $salesChannel->getDomains()
+                ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
+                    && $domain->getLanguageId() === $context->getLanguageId());
+
+            if ($domain === null) {
+                return [];
+            }
+        }
 
         if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());

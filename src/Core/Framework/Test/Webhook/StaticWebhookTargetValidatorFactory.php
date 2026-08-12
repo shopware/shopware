@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Webhook;
 
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 
@@ -14,10 +15,10 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 final class StaticWebhookTargetValidatorFactory
 {
     /**
-     * @param list<string> $allowedIpAddresses
+     * @param list<string> $allowedPrivateIpAddresses
      */
-    public static function create(bool $allowUnencryptedTraffic, array $allowedIpAddresses): WebhookTargetValidator
+    public static function create(bool $allowUnencryptedTraffic, array $allowedPrivateIpAddresses): WebhookTargetValidator
     {
-        return new WebhookTargetValidator($allowUnencryptedTraffic, $allowedIpAddresses, static fn (string $host): array => [['ip' => '93.184.216.34']]);
+        return new WebhookTargetValidator($allowUnencryptedTraffic, $allowedPrivateIpAddresses, new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'], allowedPrivateIps: $allowedPrivateIpAddresses));
     }
 }

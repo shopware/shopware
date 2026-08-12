@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Validation;
 
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,28 +15,23 @@ final readonly class WebhookTargetValidator
     /**
      * @var list<string>
      */
-    private array $allowedIpAddresses;
+    private array $allowedPrivateIpAddresses;
+
+    private TrustedUrlResolver $urlResolver;
 
     /**
-     * @var \Closure(string): list<array{ip?: string, ipv6?: string}>
-     */
-    private \Closure $dnsResolver;
-
-    /**
-     * @param list<string> $allowedIpAddresses
-     * @param (\Closure(string): list<array{ip?: string, ipv6?: string}>)|null $dnsResolver
+     * @param list<string> $allowedPrivateIpAddresses
      */
     public function __construct(
         private bool $allowUnencryptedTraffic,
-        array $allowedIpAddresses = [],
-        ?\Closure $dnsResolver = null,
+        array $allowedPrivateIpAddresses = [],
+        ?TrustedUrlResolver $urlResolver = null,
     ) {
-        $this->allowedIpAddresses = array_values(array_filter(
-            $allowedIpAddresses,
+        $this->allowedPrivateIpAddresses = array_values(array_filter(
+            $allowedPrivateIpAddresses,
             static fn (string $ip): bool => filter_var($ip, \FILTER_VALIDATE_IP) !== false
         ));
-
-        $this->dnsResolver = $dnsResolver ?? self::createDefaultDnsResolver();
+        $this->urlResolver = $urlResolver ?? new TrustedUrlResolver(allowedPrivateIps: $this->allowedPrivateIpAddresses);
     }
 
     public function validate(string $url): ?WebhookTarget
@@ -56,74 +53,21 @@ final readonly class WebhookTargetValidator
         }
 
         $ipLiteral = trim($host, '[]');
-        if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false) {
-            return $this->isAllowedIpAddress($ipLiteral) ? new WebhookTarget($host, $port, $ipLiteral) : null;
-        }
-
-        $records = ($this->dnsResolver)($host);
-        if ($records === []) {
+        if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false && !\in_array($ipLiteral, $this->allowedPrivateIpAddresses, true)) {
             return null;
         }
 
-        $validatedIp = null;
-        foreach ($records as $record) {
-            $ip = $record['ip'] ?? $record['ipv6'] ?? null;
-            if ($ip === null) {
-                continue;
-            }
-
-            if (!$this->isPublicIpAddress($ip) && !$this->isAllowedIpAddress($ip)) {
-                return null;
-            }
-
-            $validatedIp ??= $ip;
-        }
-
-        if ($validatedIp === null) {
+        try {
+            $resolvedUrl = $this->urlResolver->resolve($url);
+        } catch (MediaException) {
             return null;
         }
 
-        return new WebhookTarget($host, $port, $validatedIp);
+        return new WebhookTarget($host, $port, $resolvedUrl->ip);
     }
 
     private function isAllowedScheme(string $scheme): bool
     {
         return $scheme === 'https' || ($this->allowUnencryptedTraffic && $scheme === 'http');
-    }
-
-    private function isPublicIpAddress(string $ip): bool
-    {
-        return filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE) !== false;
-    }
-
-    private function isAllowedIpAddress(string $ip): bool
-    {
-        return \in_array($ip, $this->allowedIpAddresses, true);
-    }
-
-    /**
-     * @return \Closure(string): list<array{ip?: string, ipv6?: string}>
-     */
-    private static function createDefaultDnsResolver(): \Closure
-    {
-        return static function (string $host): array {
-            $records = @dns_get_record($host, \DNS_A | \DNS_AAAA);
-            if (!\is_array($records)) {
-                return [];
-            }
-
-            $addresses = [];
-            foreach ($records as $record) {
-                if (isset($record['ip']) && \is_string($record['ip'])) {
-                    $addresses[] = ['ip' => $record['ip']];
-                }
-
-                if (isset($record['ipv6']) && \is_string($record['ipv6'])) {
-                    $addresses[] = ['ipv6' => $record['ipv6']];
-                }
-            }
-
-            return $addresses;
-        };
     }
 }

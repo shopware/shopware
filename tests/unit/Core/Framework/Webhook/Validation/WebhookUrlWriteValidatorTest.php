@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -142,8 +143,6 @@ class WebhookUrlWriteValidatorTest extends TestCase
 
     private function createValidator(): WebhookUrlWriteValidator
     {
-        return new WebhookUrlWriteValidator(new WebhookTargetValidator(false, [], static fn (string $host): array => [
-            ['ip' => '93.184.216.34'],
-        ]));
+        return new WebhookUrlWriteValidator(new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'])));
     }
 }

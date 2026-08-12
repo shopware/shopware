@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
@@ -82,7 +83,7 @@ class WebhookClientTest extends TestCase
         $client = new WebhookClient(
             new Client(['handler' => $stack]),
             new NativeClock(),
-            new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '10.0.0.10']])
+            new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.10']))
         );
 
         $result = $client->send($this->createWebhookRequest());
@@ -105,7 +106,7 @@ class WebhookClientTest extends TestCase
         $client = new WebhookClient(
             new Client(['handler' => $stack]),
             new NativeClock(),
-            new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']])
+            new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34']))
         );
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
@@ -128,7 +129,7 @@ class WebhookClientTest extends TestCase
         $client = new WebhookClient(
             new Client(['handler' => $stack]),
             new NativeClock(),
-            new WebhookTargetValidator(false, [], static fn (string $host): array => [['ipv6' => '2001:4860:4860::8888']])
+            new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['2001:4860:4860::8888']))
         );
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
@@ -154,11 +155,11 @@ class WebhookClientTest extends TestCase
         $client = new WebhookClient(
             new Client(['handler' => $stack]),
             new NativeClock(),
-            new WebhookTargetValidator(false, [], static fn (string $host): array => match ($host) {
-                'example.com' => [['ip' => '93.184.216.34']],
-                'redirect.example.com' => [['ip' => '93.184.216.35']],
+            new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => match ($host) {
+                'example.com' => ['93.184.216.34'],
+                'redirect.example.com' => ['93.184.216.35'],
                 default => [],
-            })
+            }))
         );
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
@@ -187,11 +188,11 @@ class WebhookClientTest extends TestCase
         $client = new WebhookClient(
             new Client(['handler' => $stack]),
             new NativeClock(),
-            new WebhookTargetValidator(false, [], static fn (string $host): array => match ($host) {
-                'example.com' => [['ip' => '93.184.216.34']],
-                'redirect.example.com' => [['ip' => '10.0.0.10']],
+            new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => match ($host) {
+                'example.com' => ['93.184.216.34'],
+                'redirect.example.com' => ['10.0.0.10'],
                 default => [],
-            })
+            }))
         );
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
@@ -482,7 +483,7 @@ class WebhookClientTest extends TestCase
 
     private function createPublicTargetValidator(): WebhookTargetValidator
     {
-        return new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']]);
+        return new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34']));
     }
 
     /**

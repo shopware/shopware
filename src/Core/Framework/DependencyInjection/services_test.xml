@@ -172,7 +172,7 @@
         <service id="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator">
             <factory class="Shopware\Core\Framework\Test\Webhook\StaticWebhookTargetValidatorFactory" method="create"/>
             <argument>%shopware.webhook.allow_unencrypted_traffic%</argument>
-            <argument>%shopware.webhook.allowed_ip_addresses%</argument>
+            <argument>%shopware.webhook.allowed_private_ip_addresses%</argument>
         </service>
 
         <service id="Shopware\Core\Test\Integration\App\TestAppServer">

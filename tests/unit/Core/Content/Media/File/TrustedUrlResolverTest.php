@@ -142,6 +142,30 @@ class TrustedUrlResolverTest extends TestCase
         static::assertSame('127.0.0.1', $resolved->ip);
     }
 
+    public function testAllowsExactPrivateIpWhenAllowListed(): void
+    {
+        $resolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['10.0.0.10'],
+            allowedPrivateIps: ['10.0.0.10'],
+        );
+
+        $resolved = $resolver->resolve('https://internal.example.com/image.png');
+
+        static::assertSame('10.0.0.10', $resolved->ip);
+    }
+
+    public function testRejectsPrivateIpWhenDifferentPrivateIpIsAllowListed(): void
+    {
+        $resolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['10.0.0.11'],
+            allowedPrivateIps: ['10.0.0.10'],
+        );
+
+        $this->expectException(MediaException::class);
+
+        $resolver->resolve('https://internal.example.com/image.png');
+    }
+
     public function testPermittingPrivateRangesStillRejectsUnusableUrls(): void
     {
         $resolver = new TrustedUrlResolver(

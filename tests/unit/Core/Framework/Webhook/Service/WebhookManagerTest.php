@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -74,7 +75,7 @@ class WebhookManagerTest extends TestCase
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
-        $this->webhookClient = new WebhookClient($guzzle, new NativeClock(), new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']]));
+        $this->webhookClient = new WebhookClient($guzzle, new NativeClock(), new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'])));
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);

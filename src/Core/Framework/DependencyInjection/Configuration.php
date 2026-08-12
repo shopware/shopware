@@ -1672,7 +1672,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
                 ->end()
                 ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
-                ->arrayNode('allowed_ip_addresses')
+                ->arrayNode('allowed_private_ip_addresses')
                     ->performNoDeepMerging()
                     ->defaultValue([])
                     ->scalarPrototype()

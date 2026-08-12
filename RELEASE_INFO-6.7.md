@@ -85,7 +85,7 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ### Webhook target validation hardened
 
-Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.webhook.allow_unencrypted_traffic` or `shopware.webhook.allowed_ip_addresses` in `shopware.yaml`.
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.webhook.allow_unencrypted_traffic` or `shopware.webhook.allowed_private_ip_addresses` in `shopware.yaml`.
 
 Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
 

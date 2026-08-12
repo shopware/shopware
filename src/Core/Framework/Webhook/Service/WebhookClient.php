@@ -150,6 +150,7 @@ final readonly class WebhookClient
             throw $redirect ? WebhookException::redirectTargetNotAllowed() : WebhookException::targetNotAllowed();
         }
 
+        // Guzzle redirects are disabled so every redirect target can be validated and pinned before following it.
         $options['allow_redirects'] = false;
 
         $curlOptions = $options['curl'] ?? [];

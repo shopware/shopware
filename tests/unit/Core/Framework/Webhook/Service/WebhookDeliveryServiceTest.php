@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -69,7 +70,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->guzzleMock = new MockHandler();
         $stack = HandlerStack::create($this->guzzleMock);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
-        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock, new WebhookTargetValidator(false, [], static fn (string $host): array => [['ip' => '93.184.216.34']]));
+        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock, new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'])));
 
         $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);

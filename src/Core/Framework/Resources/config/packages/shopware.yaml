@@ -708,4 +708,4 @@ shopware:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
         allow_unencrypted_traffic: false
-        allowed_ip_addresses: []
+        allowed_private_ip_addresses: []

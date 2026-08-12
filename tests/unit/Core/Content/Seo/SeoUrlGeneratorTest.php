@@ -116,12 +116,12 @@ class SeoUrlGeneratorTest extends TestCase
             new EntityCollection(),
         ], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = $this->createStub(TwigVariableParser::class);
         $parser->method('parse')->willReturn([]);
 
         $twig = $this->createTwigEnvironment();
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = $this->createStub(RouterInterface::class);
         $router->method('generate')->willReturn('/store-api/product/entity-1');
 
         $route = static::createStub(SeoUrlRouteInterface::class);
@@ -151,7 +151,7 @@ class SeoUrlGeneratorTest extends TestCase
     {
         $entityRepository = new StaticEntityRepository([], $this->createTestDefinition());
 
-        $parser = $this->createMock(TwigVariableParser::class);
+        $parser = $this->createStub(TwigVariableParser::class);
         $twig = $this->createTwigEnvironment();
 
         $route = static::createStub(SeoUrlRouteInterface::class);

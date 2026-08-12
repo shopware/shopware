@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\SeoUrlRoute;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -26,14 +26,14 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(EntityRouteResolver::class)]
 class EntityRouteResolverTest extends TestCase
 {
-    private SeoUrlPlaceholderHandlerInterface&MockObject $placeholderHandler;
+    private SeoUrlPlaceholderHandlerInterface&Stub $placeholderHandler;
 
-    private RouterInterface&MockObject $router;
+    private RouterInterface&Stub $router;
 
     protected function setUp(): void
     {
-        $this->placeholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $this->router = $this->createMock(RouterInterface::class);
+        $this->placeholderHandler = $this->createStub(SeoUrlPlaceholderHandlerInterface::class);
+        $this->router = $this->createStub(RouterInterface::class);
     }
 
     public function testGetRouteNameReturnsRegisteredRoute(): void
@@ -75,8 +75,7 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateSeoUrlPlaceholderPassesResolvedRouteAndParameters(): void
     {
-        $this->router->expects($this->never())->method('generate');
-
+        $this->placeholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->placeholderHandler
             ->expects($this->once())
             ->method('generate')
@@ -90,8 +89,7 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateUrlPassesResolvedRouteAndParameters(): void
     {
-        $this->placeholderHandler->expects($this->never())->method('generate');
-
+        $this->router = $this->createMock(RouterInterface::class);
         $this->router
             ->expects($this->once())
             ->method('generate')

@@ -157,6 +157,10 @@ class SalesChannelContextPersister
 
         $payload['token'] = $context['token'];
 
+        if (!isset($payload[SalesChannelContextService::CUSTOMER_ID]) && !empty($context['customer_id'])) {
+            $payload[SalesChannelContextService::CUSTOMER_ID] = Uuid::fromBytesToHex($context['customer_id']);
+        }
+
         return $payload;
     }
 

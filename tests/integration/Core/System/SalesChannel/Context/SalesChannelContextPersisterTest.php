@@ -61,6 +61,26 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
+    public function testLoadPromotesCustomerIdFromColumnWhenMissingInPayload(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $customerId = $this->createCustomer();
+
+        $this->connection->insert('sales_channel_api_context', [
+            'token' => $token,
+            'payload' => json_encode([], \JSON_THROW_ON_ERROR),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            'customer_id' => Uuid::fromHexToBytes($customerId),
+            'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL);
+
+        static::assertSame($customerId, $result[SalesChannelContextService::CUSTOMER_ID]);
+        static::assertSame($token, $result['token']);
+        static::assertFalse($result['expired']);
+    }
+
     public function testLoadByCustomerId(): void
     {
         $token = Uuid::randomHex();

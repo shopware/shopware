@@ -159,13 +159,13 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
 
                 // Normalize aliases to the package node used by the sorter. Without a matching
                 // node, PackageSorter silently drops the dependency edge and may sort alphabetically.
-                $requires[] = $target === $requirement->getTarget()
+                $requires[$target] = $target === $requirement->getTarget()
                     ? $requirement
                     : new Link(
                         $packageName,
                         $target,
                         $requirement->getConstraint(),
-                        $requirement->getDescription(),
+                        Link::TYPE_REQUIRE,
                         $requirement->getPrettyConstraint()
                     );
             }

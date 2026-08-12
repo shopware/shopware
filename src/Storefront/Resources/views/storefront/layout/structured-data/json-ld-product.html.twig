@@ -123,6 +123,17 @@
                 }
             }) %}
         {% endif %}
+
+        {% if calculatedPrice.listPrice and calculatedPrice.listPrice.price > calculatedPrice.unitPrice %}
+            {% set offersData = offersData|merge({
+                priceSpecification: {
+                    '@type': 'UnitPriceSpecification',
+                    priceType: 'https://schema.org/StrikethroughPrice',
+                    price: calculatedPrice.listPrice.price,
+                    priceCurrency: context.currency.isoCode
+                }
+            }) %}
+        {% endif %}
     {% endif %}
 
     {# Build main product data structure #}
@@ -158,8 +169,41 @@
         }) %}
     {% endif %}
 
-    {% if page.product.ean %}
-        {% set productData = productData|merge({gtin13: page.product.ean}) %}
+    {% set gtinProperty = null %}
+    {% if page.product.ean and page.product.ean matches '/^[0-9]+$/' %}
+        {% set gtinProperty = 'gtin' %}
+        {% if page.product.ean|length == 8 %}
+            {% set gtinProperty = 'gtin8' %}
+        {% elseif page.product.ean|length == 12 %}
+            {% set gtinProperty = 'gtin12' %}
+        {% elseif page.product.ean|length == 13 %}
+            {% set gtinProperty = 'gtin13' %}
+        {% elseif page.product.ean|length == 14 %}
+            {% set gtinProperty = 'gtin14' %}
+        {% endif %}
+        {% set productData = productData|merge({(gtinProperty): page.product.ean}) %}
+    {% endif %}
+
+    {% set categoryBreadcrumb = [] %}
+    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+        {% set categoryBreadcrumb = page.breadcrumb|default([]) %}
+    {% elseif page.product.seoCategory %}
+        {% set categoryBreadcrumb = sw_breadcrumb_full(page.product.seoCategory, context) %}
+    {% endif %}
+
+    {% set categoryNames = [] %}
+    {% for breadcrumbCategory in categoryBreadcrumb %}
+        {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+            {% set categoryNames = categoryNames|merge([breadcrumbCategory.name]) %}
+        {% else %}
+            {% set categoryNames = categoryNames|merge([breadcrumbCategory.translated.name]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% if categoryNames|length > 0 %}
+        {% set productData = productData|merge({
+            category: [categoryNames|join(' > ')]
+        }) %}
     {% endif %}
 
     {% if page.product.manufacturerNumber %}
@@ -292,8 +336,11 @@
         {% if savedData.image is defined %}
             {% set variantProduct = variantProduct|merge({image: savedData.image}) %}
         {% endif %}
-        {% if savedData.gtin13 is defined %}
-            {% set variantProduct = variantProduct|merge({gtin13: savedData.gtin13}) %}
+        {% if gtinProperty and savedData[gtinProperty] is defined %}
+            {% set variantProduct = variantProduct|merge({(gtinProperty): savedData[gtinProperty]}) %}
+        {% endif %}
+        {% if savedData.category is defined %}
+            {% set variantProduct = variantProduct|merge({category: savedData.category}) %}
         {% endif %}
         {% if savedData.mpn is defined %}
             {% set variantProduct = variantProduct|merge({mpn: savedData.mpn}) %}
@@ -334,6 +381,9 @@
         {% endif %}
         {% if savedData.brand is defined %}
             {% set productData = productData|merge({brand: savedData.brand}) %}
+        {% endif %}
+        {% if savedData.category is defined %}
+            {% set productData = productData|merge({category: savedData.category}) %}
         {% endif %}
         {% if savedData.aggregateRating is defined %}
             {% set productData = productData|merge({aggregateRating: savedData.aggregateRating}) %}

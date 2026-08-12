@@ -32,6 +32,17 @@ class EntityPipe extends AbstractPipe
         return $this->entitySerializer->serialize($config, $this->definition, $record);
     }
 
+    public function warmUp(Config $config, array $records): array
+    {
+        $this->loadConfig($config);
+
+        if ($this->primaryKeyResolver) {
+            $this->primaryKeyResolver->warmUp($config, $this->definition, $records);
+        }
+
+        return $records;
+    }
+
     public function out(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);

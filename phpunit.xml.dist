@@ -70,8 +70,10 @@
             <directory suffix="Struct.php">src/Core/Framework/</directory>
             <directory suffix="Struct.php">src/Core/System/</directory>
 
-            <directory suffix="Collection.php">src/Core/Checkout/</directory>
             <directory suffix="Collection.php">src/Core/Content/</directory>
+            <!-- Checkout collections carry logic but have no unit test yet; excluded per-file pending backfill. -->
+            <file>src/Core/Checkout/Cart/Price/Struct/PriceDefinitionCollection.php</file>
+            <file>src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerCollection.php</file>
             <directory suffix="Collection.php">src/Core/Installer/</directory>
             <directory suffix="Collection.php">src/Core/System/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>

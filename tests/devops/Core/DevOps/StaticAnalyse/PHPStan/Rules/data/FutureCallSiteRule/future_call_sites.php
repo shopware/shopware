@@ -3,6 +3,8 @@
 namespace Shopware\Core\DevOps\MyFakeNamespace;
 
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -34,6 +36,16 @@ class BCSubject
     public function withNarrowing(int|string $id): void
     {
     }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function withNewRequired(string $id): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'strict', newDefaultValue: true)]
+    public function withDefaultValue(bool $strict = false): void
+    {
+    }
 }
 
 #[BecomesInternal(version: 'v6.8.0')]
@@ -57,6 +69,10 @@ class Caller
         $subject->withRename(oldName: 'x');
         $subject->withNarrowing('ok');
         $subject->withNarrowing(123);
+        $subject->withNewRequired('id');
+        $subject->withNewRequired('id', 'context');
+        $subject->withDefaultValue();
+        $subject->withDefaultValue(false);
         $internal->anyMethod();
         new InternalSubject();
     }

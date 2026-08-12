@@ -82,7 +82,6 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ## Core
 
-### New BC-change attributes for planned, non-breaking API changes
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).
@@ -232,7 +231,6 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 * If your code does not use the annotated symbol in the affected way, there is nothing to do.
 
 All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
-The existing `reason:*` annotations will be migrated to these attributes in follow-up releases.
 
 ### Product export scheduling decoupled from the cache timestamp
 
@@ -605,8 +603,6 @@ Plugins that build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` ins
 ### Text-based media is stored and served with an explicit charset
 
 Text-based media files (`text/plain`, `text/csv`, `text/html`, `text/xml`, `application/json`, `application/xml`) are now written to storage with an explicit `Content-Type: …; charset=utf-8`. Previously the charset was missing, so serving such a file directly from object storage / CDN made browsers fall back to a non-UTF-8 encoding and render umlauts and other multi-byte characters as mojibake. This applies to both the server-side upload path and the presigned direct-to-S3 upload path. The `mimeType` persisted on the media entity stays bare (without the charset parameter), so no code reading it needs to change.
-
-You can also opt in to future-compatibility analysis: including `vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/future-compatibility.neon` in your project's `phpstan.neon` makes PHPStan report code that works today but breaks with an announced change — arguments outside a narrowing parameter type, arguments for parameters being removed, named arguments for parameters being renamed, calls to symbols becoming internal or less visible, and subclasses that do not yet anticipate announced signature changes. Calls to methods with an announced wider return type are analyzed against the future type (e.g. nullable), so you can make your code compatible with the current and the next major version at the same time.
 
 ### Webhooks are signed with the current app secret after a secret rotation
 

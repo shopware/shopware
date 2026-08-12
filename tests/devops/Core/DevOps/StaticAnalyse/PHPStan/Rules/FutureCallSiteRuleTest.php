@@ -22,35 +22,43 @@ class FutureCallSiteRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/FutureCallSiteRule/future_call_sites.php'], [
             [
                 '"Shopware\Core\DevOps\MyFakeNamespace\BCSubject::internalMethod()" will become internal in v6.8.0. Stop calling it to stay compatible.',
-                51,
+                63,
             ],
             [
                 '"Shopware\Core\DevOps\MyFakeNamespace\BCSubject::becomesProtected()" will become protected in v6.8.0. This call will break; stop calling it from outside that scope.',
-                52,
+                64,
             ],
             [
                 'Parameter $options of "Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withRemoval()" will be removed in v6.8.0. Stop passing it to stay compatible with both versions.',
-                53,
+                65,
             ],
             [
                 'Parameter $options of "Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withRemoval()" will be removed in v6.8.0. Stop passing it to stay compatible with both versions.',
-                54,
+                66,
             ],
             [
                 'Parameter $oldName of "Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withRename()" will be renamed to $newName in v6.8.0. A named argument cannot be compatible with both versions; pass it positionally.',
-                57,
+                69,
             ],
             [
                 'Parameter $id of "Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withNarrowing()" will be narrowed to string in v6.8.0, but int is passed. Pass string to stay compatible with both versions.',
-                59,
+                71,
+            ],
+            [
+                '"Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withNewRequired()" will require a new parameter $context in v6.8.0. Pass it positionally now to stay compatible with both versions.',
+                72,
+            ],
+            [
+                'The default value of parameter $strict of "Shopware\Core\DevOps\MyFakeNamespace\BCSubject::withDefaultValue()" will change in v6.8.0. Pass the current default explicitly to retain current behavior.',
+                74,
             ],
             [
                 'Class "Shopware\Core\DevOps\MyFakeNamespace\InternalSubject" will become internal in v6.8.0. Stop using it to stay compatible.',
-                60,
+                76,
             ],
             [
                 'Class "Shopware\Core\DevOps\MyFakeNamespace\InternalSubject" will become internal in v6.8.0. Stop using it to stay compatible.',
-                61,
+                77,
             ],
         ]);
     }

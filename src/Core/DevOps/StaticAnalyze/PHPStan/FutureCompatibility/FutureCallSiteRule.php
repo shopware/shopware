@@ -20,6 +20,8 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\VerbosityLevel;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -76,6 +78,8 @@ class FutureCallSiteRule implements Rule
                 VisibilityChange::class => $this->validateVisibility($attribute, $classReflection, $scope, $symbol),
                 ParameterRemoval::class => $this->validateRemoval($attribute, $method, $node, $symbol),
                 ParameterNameChange::class => $this->validateNamedArgument($attribute, $node, $symbol),
+                NewRequiredParameter::class => $this->validateNewRequiredParameter($attribute, $method, $node, $symbol),
+                ParameterDefaultValueChange::class => $this->validateDefaultValue($attribute, $method, $node, $symbol),
                 ParameterTypeNarrowing::class => $this->validateNarrowing($attribute, $method, $node, $scope, $symbol),
                 default => [],
             }];
@@ -236,6 +240,49 @@ class FutureCallSiteRule implements Rule
             $this->argument($attribute, 'version', 0) ?? '?',
             $argType->describe(VerbosityLevel::typeOnly()),
             $newType
+        ))];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateNewRequiredParameter(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, CallLike $node, string $symbol): array
+    {
+        foreach ($node->getArgs() as $arg) {
+            if ($arg->unpack) {
+                return [];
+            }
+        }
+
+        if (\count($node->getArgs()) > \count($method->getParameters())) {
+            return [];
+        }
+
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+
+        return [$this->error(\sprintf(
+            '"%s" will require a new parameter $%s in %s. Pass it positionally now to stay compatible with both versions.',
+            $symbol,
+            \is_string($parameterName) ? $parameterName : '?',
+            $this->argument($attribute, 'version', 0) ?? '?'
+        ))];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateDefaultValue(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, CallLike $node, string $symbol): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName) || $this->findArgument($node, $method, $parameterName) !== null) {
+            return [];
+        }
+
+        return [$this->error(\sprintf(
+            'The default value of parameter $%s of "%s" will change in %s. Pass the current default explicitly to retain current behavior.',
+            $parameterName,
+            $symbol,
+            $this->argument($attribute, 'version', 0) ?? '?'
         ))];
     }
 

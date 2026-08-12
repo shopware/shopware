@@ -4,6 +4,7 @@ includes:
     - phpstan-paths.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
+    - src/Core/DevOps/StaticAnalyze/PHPStan/future-compatibility.neon
 
 parameters:
     tmpDir: var/cache/phpstan

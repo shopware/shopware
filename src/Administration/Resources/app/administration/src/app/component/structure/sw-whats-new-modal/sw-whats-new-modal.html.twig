@@ -11,7 +11,6 @@
         <div class="sw-whats-new-modal__content">
             <div class="sw-whats-new-modal__media">
                 <video
-                    v-if="showActiveVideo"
                     :key="activePage.id"
                     class="sw-whats-new-modal__media-video"
                     :src="activePage.videoSrc"
@@ -19,18 +18,7 @@
                     loop
                     muted
                     playsinline
-                    @error="onVideoError"
                 ></video>
-
-                <div
-                    v-else
-                    class="sw-whats-new-modal__media-placeholder"
-                >
-                    <mt-icon
-                        :name="activePage.placeholderIcon"
-                        size="48px"
-                    />
-                </div>
             </div>
 
             <div class="sw-whats-new-modal__text">

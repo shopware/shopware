@@ -10,7 +10,6 @@ type WhatsNewPage = {
     headline: string;
     descriptionKey: string;
     videoSrc: string;
-    placeholderIcon: string;
     badge?: string;
 };
 
@@ -30,12 +29,10 @@ export default Shopware.Component.wrapComponentConfig({
     data(): {
         isOpen: boolean;
         currentPage: number;
-        failedVideos: string[];
     } {
         return {
             isOpen: false,
             currentPage: 0,
-            failedVideos: [],
         };
     },
 
@@ -49,14 +46,12 @@ export default Shopware.Component.wrapComponentConfig({
                     headline: this.$t('sw-whats-new-modal.pages.adminNavigation.headline'),
                     descriptionKey: 'sw-whats-new-modal.pages.adminNavigation.description',
                     videoSrc: assetFilter('/administration/administration/static/video/whats-new/admin-navigation.mp4'),
-                    placeholderIcon: 'regular-sidebar',
                 },
                 {
                     id: 'dark-mode',
                     headline: this.$t('sw-whats-new-modal.pages.darkMode.headline'),
                     descriptionKey: 'sw-whats-new-modal.pages.darkMode.description',
                     videoSrc: assetFilter('/administration/administration/static/video/whats-new/dark-mode.mp4'),
-                    placeholderIcon: 'regular-moon',
                     badge: this.$t('sw-whats-new-modal.pages.darkMode.badge'),
                 },
             ];
@@ -72,10 +67,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         isLastPage(): boolean {
             return this.currentPage === this.pages.length - 1;
-        },
-
-        showActiveVideo(): boolean {
-            return !this.failedVideos.includes(this.activePage.id);
         },
     },
 
@@ -104,12 +95,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onFinish() {
             this.isOpen = false;
-        },
-
-        onVideoError() {
-            if (this.showActiveVideo) {
-                this.failedVideos.push(this.activePage.id);
-            }
         },
     },
 });

@@ -12,14 +12,6 @@
         object-fit: cover;
     }
 
-    &__media-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: var(--color-icon-primary-default);
-    }
-
     &__text {
         padding: var(--scale-size-24);
     }

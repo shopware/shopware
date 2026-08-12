@@ -16,7 +16,6 @@ async function createWrapper(): Promise<VueWrapper> {
                     template: '<div><slot/></div>',
                 },
                 'sw-wizard-dot-navigation': await wrapTestComponent('sw-wizard-dot-navigation'),
-                'mt-icon': true,
             },
         },
     });
@@ -111,16 +110,14 @@ describe('src/app/component/structure/sw-whats-new-modal', () => {
         );
     });
 
-    it('falls back to the placeholder when the page video cannot be loaded', async () => {
+    it('renders the video of the active page', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-whats-new-modal__media-video').exists()).toBe(true);
-        expect(wrapper.find('.sw-whats-new-modal__media-placeholder').exists()).toBe(false);
+        expect(wrapper.get('.sw-whats-new-modal__media-video').attributes('src')).toContain('admin-navigation.mp4');
 
-        await wrapper.get('.sw-whats-new-modal__media-video').trigger('error');
+        await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
 
-        expect(wrapper.find('.sw-whats-new-modal__media-video').exists()).toBe(false);
-        expect(wrapper.find('.sw-whats-new-modal__media-placeholder').exists()).toBe(true);
+        expect(wrapper.get('.sw-whats-new-modal__media-video').attributes('src')).toContain('dark-mode.mp4');
     });
 });

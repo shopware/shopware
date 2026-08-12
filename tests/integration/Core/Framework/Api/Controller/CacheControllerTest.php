@@ -75,6 +75,10 @@ class CacheControllerTest extends TestCase
         static::assertIsBool($decodedContent['httpCache']);
         static::assertArrayHasKey('cacheAdapter', $decodedContent);
         static::assertSame('Filesystem', $decodedContent['cacheAdapter']);
+        static::assertArrayHasKey('indexers', $decodedContent);
+        static::assertArrayHasKey('category.indexer', $decodedContent['indexers']);
+        static::assertContains('category.tree', $decodedContent['indexers']['category.indexer']);
+        static::assertNotContains('product.description_teaser.indexer', array_keys($decodedContent['indexers']));
     }
 
     public function testCacheIndexEndpoint(): void

@@ -225,7 +225,7 @@
                                                             :label="updater"
                                                             :name="updater"
                                                             size="small"
-                                                            :disabled="indexerSelection.includes(indexer)"
+                                                            :disabled="indexingMethod === 'only' || indexerSelection.includes(indexer)"
                                                             @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>

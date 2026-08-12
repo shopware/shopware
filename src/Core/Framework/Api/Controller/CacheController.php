@@ -48,6 +48,7 @@ class CacheController extends AbstractController
             'environment' => $this->getParameter('kernel.environment'),
             'httpCache' => $this->container->get('parameter_bag')->has('shopware.http.cache.enabled') && $this->getParameter('shopware.http.cache.enabled'),
             'cacheAdapter' => $this->getUsedCache($this->adapter),
+            'indexers' => $this->indexerRegistry->getIndexers(),
         ]);
     }
 

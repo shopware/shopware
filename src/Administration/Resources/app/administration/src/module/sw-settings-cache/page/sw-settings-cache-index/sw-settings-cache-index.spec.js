@@ -9,6 +9,9 @@ const cacheInfo = {
         httpCache: true,
         environment: 'dev',
         cacheAdapter: 'fooBar',
+        indexers: {
+            'category.indexer': ['category.tree'],
+        },
     },
 };
 
@@ -124,12 +127,6 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         await flushPromises();
 
         expect(indexMock).toHaveBeenCalledTimes(2);
-        expect(indexMock).toHaveBeenCalledWith(
-            [],
-            [
-                'category.indexer',
-                'category.tree',
-            ],
-        );
+        expect(indexMock).toHaveBeenCalledWith([], ['category.indexer']);
     });
 });

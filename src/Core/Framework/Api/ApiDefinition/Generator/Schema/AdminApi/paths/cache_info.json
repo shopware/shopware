@@ -28,6 +28,16 @@
                                         "cacheAdapter": {
                                             "description": "The active cache adapter.",
                                             "type": "string"
+                                        },
+                                        "indexers": {
+                                            "description": "Normal-refresh indexers and their optional child updaters.",
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         }
                                     },
                                     "type": "object"

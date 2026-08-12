@@ -8,6 +8,10 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 ## API
 
+### Cache information includes registered indexers
+
+`GET /api/_action/cache_info` now returns an `indexers` map containing the registered normal-refresh indexers and their optional child updaters. Administration clients can use this metadata when offering cache-index refresh controls; post-update-only indexers are excluded.
+
 ### Order recalculation and conversion endpoints now require ACL privileges
 
 Thirteen admin checkout endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:

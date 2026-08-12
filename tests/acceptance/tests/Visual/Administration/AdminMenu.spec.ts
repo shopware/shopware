@@ -1,5 +1,5 @@
 import { test, setViewport, hideElements, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
-
+// eslint-disable-next-line playwright/no-skipped-test
 test.skip('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());

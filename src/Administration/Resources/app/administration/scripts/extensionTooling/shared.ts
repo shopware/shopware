@@ -298,6 +298,15 @@ export function findExtensionRoot(projectRoot: string, bundleBasePath: string): 
     return bundleBasePath;
 }
 
+/**
+ * The bundle dump every command discovers extensions from. Fixed on purpose:
+ * setup and check must never look at two different files. If a custom
+ * `bundle:dump` path ever comes up it gets added to both commands at once.
+ */
+export function pluginsConfigPath(projectRoot: string): string {
+    return path.join(projectRoot, 'var', 'plugins.json');
+}
+
 export function readBundleConfig(configPath: string): BundleConfig[] {
     if (!fs.existsSync(configPath)) {
         throw new Error(`The file ${configPath} could not be found. Try bin/console bundle:dump to create this file.`);

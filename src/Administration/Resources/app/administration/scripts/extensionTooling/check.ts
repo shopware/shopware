@@ -25,7 +25,7 @@ import { discoverProjects, setupExtensionTooling } from './setup';
 import type { SetupExtensionToolingResult } from './setup';
 import { renderCheckReport } from './report';
 import { promptSelection } from './select';
-import { readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
+import { pluginsConfigPath, readEslintMajorVersion, relativePosix, resolveToolingCommands } from './shared';
 import type { ExtensionToolingProject, ToolingCommands } from './shared';
 import { CliUsageError, parseCli, renderHelp } from './cli';
 import type { CommandSpec } from './cli';
@@ -102,7 +102,6 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
     const commands = resolveToolingCommands(projectRoot, administrationRoot);
-    // setup computes the bundle dump path (var/plugins.json) itself.
     const setupResult = setupExtensionTooling({ projectRoot, administrationRoot });
     const fatalDiagnostics = collectSetupDiagnostics(setupResult, commands);
     const warnings: string[] = [...setupResult.warnings];
@@ -239,12 +238,6 @@ const CHECK_COMMAND: CommandSpec = {
             valueName: '<path>',
             description: 'Administration app root (defaults to the installed one running this script).',
         },
-        {
-            name: '--plugins-config',
-            value: 'required',
-            valueName: '<path>',
-            description: 'Path to the bundle dump (defaults to var/plugins.json under the project root).',
-        },
     ],
 };
 
@@ -296,7 +289,6 @@ export async function runCheckCli(argv: string[]): Promise<number> {
         return 2;
     }
 
-    const pluginsConfigPath = parsed.values['--plugins-config'];
     const only = parsed.values['--only'];
     // Resolved once: the same list drives both the run's selection and the
     // explicit-name set that --fix uses to decide whether a vendor extension
@@ -309,8 +301,8 @@ export async function runCheckCli(argv: string[]): Promise<number> {
     } else if (parsed.flags.has('--all')) {
         selection = undefined;
     } else if (process.stdin.isTTY && process.stdout.isTTY) {
-        const pluginsPath = path.resolve(projectRoot, pluginsConfigPath ?? path.join('var', 'plugins.json'));
-        const projects = discoverProjects(path.resolve(projectRoot), administrationRoot, pluginsPath);
+        const resolvedRoot = path.resolve(projectRoot);
+        const projects = discoverProjects(resolvedRoot, administrationRoot, pluginsConfigPath(resolvedRoot));
 
         if (projects.length === 0) {
             console.log('No Administration extensions discovered.');
@@ -337,7 +329,6 @@ export async function runCheckCli(argv: string[]): Promise<number> {
     const check = await checkExtensions({
         projectRoot,
         administrationRoot,
-        pluginsConfigPath,
         only: selection,
         strictVendor: parsed.flags.has('--strict-vendor'),
         maxWorkers,

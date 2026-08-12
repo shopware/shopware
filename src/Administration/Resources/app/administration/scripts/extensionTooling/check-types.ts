@@ -123,7 +123,6 @@ export interface ExtensionCheckResult {
 export interface CheckExtensionsOptions {
     projectRoot: string;
     administrationRoot: string;
-    pluginsConfigPath?: string;
     only?: string | string[];
     strictVendor?: boolean;
     maxWorkers?: number;

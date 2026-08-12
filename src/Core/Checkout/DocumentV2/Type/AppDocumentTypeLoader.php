@@ -75,6 +75,8 @@ final class AppDocumentTypeLoader implements ResetInterface
             \assert($config instanceof AppDocumentTypeConfig);
 
             $technicalName = $config->getName();
+
+            // silent filter invalid formats, app author knows by xsd validation
             $formats = array_values(array_intersect($config->getFormats(), $validFormats));
 
             if ($formats !== []) {

@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -35,11 +36,13 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -72,11 +75,17 @@ class DocumentV2ControllerTest extends TestCase
      */
     private StaticEntityRepository $documentTypeRepository;
 
+    private AppDocumentTypeLoader $appDocumentTypeLoader;
+
     protected function setUp(): void
     {
         $this->documentRepository = new StaticEntityRepository([], new DocumentDefinition());
         $this->documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
         $this->documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
+
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $this->appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
     }
 
     public function testAvailableTypesReturnsFormatsFromTypeRegistry(): void
@@ -89,7 +98,7 @@ class DocumentV2ControllerTest extends TestCase
         $typeRegistry = new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
             new StaticDocumentType('partial_cancellation', [DocumentFormat::HTML->value, DocumentFormat::PDF->value]),
-        ]);
+        ], $this->appDocumentTypeLoader);
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
@@ -667,7 +676,7 @@ class DocumentV2ControllerTest extends TestCase
             static::createStub(FileNameProvider::class),
         );
 
-        static::expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
+        $this->expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
 
         $controller->download(
             $documentId,
@@ -683,7 +692,7 @@ class DocumentV2ControllerTest extends TestCase
     {
         return new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, $formats),
-        ]);
+        ], $this->appDocumentTypeLoader);
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator
@@ -758,10 +767,12 @@ class DocumentV2ControllerTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $this->createTypeRegistry(),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
+            static::createStub(ScriptExecutor::class),
         );
     }
 }

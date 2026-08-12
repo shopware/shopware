@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -30,6 +31,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
@@ -388,16 +390,21 @@ class InvoiceDataProviderTest extends TestCase
 
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
 
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
+            $appDocumentTypeLoader,
         );
 
         return new InvoiceDataProvider(
             $configLoader,
-            new DocumentTypeRegistry([new InvoiceDocumentType()]),
+            new DocumentTypeRegistry([new InvoiceDocumentType()], $appDocumentTypeLoader),
             $validator ?? static::createStub(ValidatorInterface::class),
         );
     }

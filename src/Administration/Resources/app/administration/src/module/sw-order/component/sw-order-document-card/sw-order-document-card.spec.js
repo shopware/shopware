@@ -772,6 +772,23 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         ]);
     });
 
+    it('should exclude app-provided document types from documentTypeCriteria', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.documentTypeCriteria.filters).toContainEqual({
+            type: 'not',
+            operator: 'AND',
+            queries: [
+                {
+                    type: 'equals',
+                    field: 'technicalName',
+                    value: 'app_provided',
+                },
+            ],
+        });
+    });
+
     it('should render the only pdf on available formats column', async () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 

@@ -13,7 +13,9 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  *
  * @hook-use-case data_loading
  *
- * @since 6.7.13.0
+ * @codeCoverageIgnore
+ *
+ * @since 6.7.14.0
  */
 #[Package('after-sales')]
 final class DocumentGenerationHook extends Hook

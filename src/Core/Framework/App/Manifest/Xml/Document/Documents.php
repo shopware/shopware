@@ -84,8 +84,10 @@ class Documents extends XmlElement
         /** @var array<string, string> $label */
         $label = $values['label'] ?? [];
 
+        $identifier = $values['identifier'] ?? '';
+
         return [
-            'identifier' => (string) ($values['identifier'] ?? ''),
+            'identifier' => \is_string($identifier) ? $identifier : '',
             'label' => $label,
             'formats' => $formats,
             'config' => $config,

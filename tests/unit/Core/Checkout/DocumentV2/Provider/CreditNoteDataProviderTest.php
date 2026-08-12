@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -34,6 +35,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -168,16 +170,21 @@ class CreditNoteDataProviderTest extends TestCase
 
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
 
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $appDocumentTypeLoader = new AppDocumentTypeLoader($storage);
+
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
+            $appDocumentTypeLoader,
         );
 
         return new InvoiceDataProvider(
             $configLoader,
-            new DocumentTypeRegistry([new CreditNoteDocumentType()]),
+            new DocumentTypeRegistry([new CreditNoteDocumentType()], $appDocumentTypeLoader),
             static::createStub(ValidatorInterface::class),
         );
     }

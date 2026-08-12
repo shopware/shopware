@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>swagIntegrationTestDocumentWarrantyApp</name>
+        <label>Swag integration test document warranty app</label>
+        <label lang="de-DE">Swag Integrationstest Dokument Garantie-App</label>
+        <description>Fixture app registering the swag_warranty app-provided document type for integration tests</description>
+        <description lang="de-DE">Fixture-App, die den App-Dokumententyp swag_warranty für Integrationstests registriert</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+
+    <documents>
+        <document-type>
+            <identifier>swag_warranty</identifier>
+            <label>Warranty certificate</label>
+            <label lang="de-DE">Garantieschein</label>
+            <formats>
+                <format>html</format>
+                <format>pdf</format>
+            </formats>
+            <config>
+                <page-size>a4</page-size>
+                <page-orientation>portrait</page-orientation>
+                <items-per-page>10</items-per-page>
+                <display-header>true</display-header>
+                <display-footer>true</display-footer>
+                <display-page-count>true</display-page-count>
+                <display-company-address>true</display-company-address>
+                <display-line-items>true</display-line-items>
+                <display-line-item-position>true</display-line-item-position>
+                <display-prices>true</display-prices>
+            </config>
+        </document-type>
+    </documents>
+</manifest>

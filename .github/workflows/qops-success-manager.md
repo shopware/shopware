@@ -49,7 +49,13 @@ network: defaults
 timeout-minutes: 10
 
 tools:
-  bash: ["gh run list", "gh run view"]
+  github:
+    # actions toolset: list workflow runs and read job logs (mirrors sw-nightly.md's
+    # usage of the same toolset for reading nightly-run failure logs). Raw `gh run
+    # list`/`gh run view` via bash is NOT available in this sandbox — GitHub API
+    # reads go through this MCP toolset instead.
+    toolsets: [actions]
+    min-integrity: none
 
 safe-outputs:
   upload-artifact:

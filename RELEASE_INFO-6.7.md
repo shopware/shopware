@@ -502,6 +502,24 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed.
 
 Recovery also survives an uninstall. An app that adopted a secret the shop never committed rejects everything the shop signs afterwards, including the `app.deleted` webhook, so it keeps its registration across an uninstall and a plain reinstall used to fail with a signature error. The unconfirmed secrets are now kept alongside the committed one when an app is removed, and reinstalling authenticates with them.
+### Manifest validation now runs on every app install and update
+
+Manifest validation used to run only in the `app:install`, `app:refresh` and `app:validate` commands. It now also runs inside the installation itself, so apps installed from the store or the administration, and services, are validated the same way as apps installed from the CLI.
+
+In particular, webhooks that subscribe to a non-hookable event, or whose event requires a permission the manifest does not request, now prevent the installation instead of being silently accepted. Such a refusal reports `FRAMEWORK__APP_VALIDATION_FAILED` with HTTP status `400`.
+
+Validators are services tagged `shopware.app_manifest.validator`, which is the set the commands report. A validator that must also be able to refuse an installation is additionally tagged `shopware.app_manifest.validator.enforced`:
+
+```php
+$services->set(MyManifestValidator::class)
+    ->tag('shopware.app_manifest.validator')
+    ->tag('shopware.app_manifest.validator.enforced');
+```
+
+Without the second tag a validator only reports its findings in `app:validate` and never refuses an installation.
+
+`--no-validate` on `app:install` and `app:refresh` skips only the reporting set. The enforced validators still run during the installation.
+
 ### Apps can register custom fields on media folders
 
 Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.

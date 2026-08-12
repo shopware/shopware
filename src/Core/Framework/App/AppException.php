@@ -30,6 +30,7 @@ class AppException extends HttpException
 {
     public const CANNOT_DELETE_COMPOSER_MANAGED = 'FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED';
     public const NOT_COMPATIBLE = 'FRAMEWORK__APP_NOT_COMPATIBLE';
+    public const VALIDATION_FAILED = 'FRAMEWORK__APP_VALIDATION_FAILED';
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
@@ -91,13 +92,17 @@ class AppException extends HttpException
         );
     }
 
-    public static function notCompatible(string $pluginName): self
+    /**
+     * The error decides how the refusal is reported, so a check that already had its own API error
+     * code keeps reporting under it.
+     */
+    public static function validationFailedFromError(Error $error): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::NOT_COMPATIBLE,
-            'App {{ name }} is not compatible with this Shopware version',
-            ['name' => $pluginName]
+            $error->getErrorCode(),
+            $error->getMessage(),
+            $error->getParameters()
         );
     }
 

@@ -144,6 +144,7 @@ use Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -233,17 +234,39 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.app_manifest.validator'),
         ]);
 
+    $services->set('shopware.app_manifest.enforced_validator', ManifestValidator::class)
+        ->args([
+            tagged_iterator('shopware.app_manifest.validator.enforced'),
+        ]);
+
     $services->set(ConfigValidator::class)
         ->args([
             service(ConfigReader::class),
+            service(SourceResolver::class),
         ])
-        ->tag('shopware.app_manifest.validator');
+        ->tag('shopware.app_manifest.validator')
+        ->tag('shopware.app_manifest.validator.enforced');
 
     $services->set(HookableValidator::class)
         ->args([
             service(HookableEventCollector::class),
         ])
-        ->tag('shopware.app_manifest.validator');
+        ->tag('shopware.app_manifest.validator')
+        ->tag('shopware.app_manifest.validator.enforced');
+
+    $services->set(CompatibilityValidator::class)
+        ->args([
+            param('kernel.shopware_version'),
+        ])
+        ->tag('shopware.app_manifest.validator.enforced');
+
+    $services->set(AppRequirementsValidator::class)
+        ->args([
+            tagged_iterator('app.requirements_validator'),
+            service('logger'),
+            param('kernel.environment'),
+        ])
+        ->tag('shopware.app_manifest.validator.enforced');
 
     $services->set(SecureUrlValidator::class);
 
@@ -254,13 +277,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('app.requirements_validator')
         ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(AppRequirementsValidator::class)
-        ->args([
-            tagged_iterator('app.requirements_validator'),
-            service('logger'),
-            param('kernel.environment'),
-        ]);
 
     $services->set(PermissionLifecycleService::class)
         ->args([
@@ -540,19 +556,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service('language.repository'),
             service(SystemConfigService::class),
-            service(ConfigValidator::class),
             service('integration.repository'),
             service('acl_role.repository'),
             service(AssetService::class),
             service(ScriptExecutor::class),
             param('kernel.project_dir'),
             service(CustomEntityLifecycleService::class),
-            param('kernel.shopware_version'),
             service(AppFeatureValidator::class),
             service(SourceResolver::class),
             service(ConfigReader::class),
             service(DeletedAppsGateway::class),
-            service(AppRequirementsValidator::class),
+            service('shopware.app_manifest.enforced_validator'),
             service(ClockInterface::class),
         ]);
 

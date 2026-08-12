@@ -52,7 +52,7 @@ class RefreshAppCommand extends Command
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip app validation.'
+                'Skip the optional manifest validation performed by this command. The required validators still run during the installation itself and can still refuse the app.'
             );
     }
 

@@ -1,5 +1,5 @@
 {% props
-    icon = null,
+    iconOnly = false,
     variant = 'primary',
     outline = false,
     size = null,
@@ -18,6 +18,9 @@
         size: {
             sm: 'btn-sm',
             lg: 'btn-lg',
+        },
+        iconOnly: {
+            true: 'btn-icon',
         },
     },
     compoundVariants: [{
@@ -87,6 +90,11 @@
     }],
 }) %}
 
-<button {{ attributes.defaults({ class: buttonCVA.apply({ variant, outline, size }) }) }}>
+{% set attributeDefaults = {
+    class: buttonCVA.apply({ variant, outline, size, iconOnly }),
+    type: 'button',
+} %}
+
+<button {{ attributes.defaults(attributeDefaults) }}>
     {% block content %}{{ text }}{% endblock %}
 </button>

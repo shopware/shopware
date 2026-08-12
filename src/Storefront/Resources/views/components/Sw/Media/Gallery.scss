@@ -24,10 +24,10 @@
     .sw-media-gallery__thumbnail-nav {
         order: 2;
     }
+}
 
-    .sw-media-gallery__previews-wrapper {
-        min-height: 0;
-    }
+.sw-media-gallery__previews-wrapper {
+    min-height: 0;
 }
 
 .sw-media-gallery--display-mode-fixed-height {
@@ -79,10 +79,6 @@
 
     position: absolute;
     z-index: 1;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    line-height: 1;
     top: 50%;
     transform: translateY(-50%);
 
@@ -93,6 +89,11 @@
     &.is--forward {
         right: 0;
     }
+}
+
+/* Higher specificity than `.btn-icon` so desktop hide wins over icon-button display */
+.sw-media-gallery__nav-button.sw-button {
+    display: none;
 }
 
 .sw-media-gallery__preview-item-badge {
@@ -114,10 +115,6 @@
     }
 }
 
-.sw-media-gallery__nav-button {
-    display: none;
-}
-
 @include media-breakpoint-down(md) {
     .sw-media-gallery__thumbnail-nav {
         display: none;
@@ -127,8 +124,8 @@
         grid-template-columns: 100%;
     }
 
-    .sw-media-gallery__nav-button {
-        display: block;
+    .sw-media-gallery__nav-button.sw-button {
+        display: inline-flex;
     }
 }
 

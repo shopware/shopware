@@ -29,13 +29,15 @@
             {{ 'component.cms.mediaGallery.lightboxTitle'|trans|striptags }}
         </h2>
 
-        <button
-            type="button"
-            class="sw-media-gallery-lightbox__close-btn btn btn-light"
+        <twig:Sw:Button
+            class="sw-media-gallery-lightbox__close-btn"
+            variant="light"
+            :iconOnly="true"
             data-bs-dismiss="modal"
-            aria-label="{{ 'global.default.close'|trans|striptags }}">
+            aria-label="{{ 'global.default.close'|trans|striptags }}"
+        >
             <twig:Sw:Icon name="x" size="sm" />
-        </button>
+        </twig:Sw:Button>
 
         <div class="sw-media-gallery-lightbox__content">
             <twig:Sw:Media:Gallery

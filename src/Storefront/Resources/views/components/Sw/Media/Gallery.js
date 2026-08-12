@@ -296,26 +296,48 @@ export default class MediaGallery extends ShopwareComponent {
         }
 
         this.thumbnailNavInner.addEventListener('scroll', this.updateThumbnailNavScrollArrows.bind(this));
-        this.thumbnailNavScrollFordwardBtn.addEventListener('click', this.scrollForwardThumbnailNav.bind(this));
-        this.thumbnailNavScrollBackBtn.addEventListener('click', this.scrollBackwardThumbnailNav.bind(this));
+        this.thumbnailNavScrollFordwardBtn.addEventListener('click', this.scrollThumbnailNavForward.bind(this));
+        this.thumbnailNavScrollBackBtn.addEventListener('click', this.scrollThumbnailNavBackward.bind(this));
 
         this.updateThumbnailNavScrollArrows();
     }
 
-    scrollForwardThumbnailNav() {
-        this.thumbnailNavInner.scrollBy({ top: this.thumbnailNavInner.clientHeight / 2, behavior: 'smooth' });
+    isThumbnailNavHorizontal() {
+        return this.options.thumbnailNavigationPosition === 'bottom';
     }
 
-    scrollBackwardThumbnailNav() {
-        this.thumbnailNavInner.scrollBy({ top: -(this.thumbnailNavInner.clientHeight / 2), behavior: 'smooth' });
+    getThumbnailNavScrollDistance() {
+        if (this.isThumbnailNavHorizontal()) {
+            return this.thumbnailNavInner.clientWidth / 2;
+        }
+
+        return this.thumbnailNavInner.clientHeight / 2;
+    }
+
+    scrollThumbnailNavForward() {
+        this.scrollThumbnailNavBy(this.getThumbnailNavScrollDistance());
+    }
+
+    scrollThumbnailNavBackward() {
+        this.scrollThumbnailNavBy(-this.getThumbnailNavScrollDistance());
+    }
+
+    scrollThumbnailNavBy(amount) {
+        this.thumbnailNavInner.scrollBy({
+            left: this.isThumbnailNavHorizontal() ? amount : 0,
+            top: this.isThumbnailNavHorizontal() ? 0 : amount,
+            behavior: 'smooth',
+        });
     }
 
     updateThumbnailNavScrollArrows() {
-        const canScrollUp = this.thumbnailNavInner.scrollTop > 0;
-        const canScrollDown = this.thumbnailNavInner.scrollTop + this.thumbnailNavInner.clientHeight < this.thumbnailNavInner.scrollHeight - 1;
+        const isHorizontal = this.isThumbnailNavHorizontal();
+        const scrollPos = isHorizontal ? this.thumbnailNavInner.scrollLeft : this.thumbnailNavInner.scrollTop;
+        const clientSize = isHorizontal ? this.thumbnailNavInner.clientWidth : this.thumbnailNavInner.clientHeight;
+        const scrollSize = isHorizontal ? this.thumbnailNavInner.scrollWidth : this.thumbnailNavInner.scrollHeight;
 
-        this.thumbnailNavScrollBackBtn.toggleAttribute('hidden', !canScrollUp);
-        this.thumbnailNavScrollFordwardBtn.toggleAttribute('hidden', !canScrollDown);
+        this.thumbnailNavScrollBackBtn.toggleAttribute('hidden', scrollPos <= 0);
+        this.thumbnailNavScrollFordwardBtn.toggleAttribute('hidden', scrollPos + clientSize >= scrollSize - 1);
     }
 
     destroy() {

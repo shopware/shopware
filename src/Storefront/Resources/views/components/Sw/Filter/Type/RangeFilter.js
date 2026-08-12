@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class RangeFilter extends ShopwareComponent {
 
     static options = {

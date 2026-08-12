@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class Modal extends ShopwareComponent {
 
     static options = {

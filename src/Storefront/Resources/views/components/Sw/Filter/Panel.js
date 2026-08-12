@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class FilterPanel extends ShopwareComponent {
 
     static options = {

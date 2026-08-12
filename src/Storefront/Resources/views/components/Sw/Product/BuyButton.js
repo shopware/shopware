@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class BuyButton extends ShopwareComponent {
 
     static options = {

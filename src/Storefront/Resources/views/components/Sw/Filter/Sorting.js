@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class FilterSorting extends ShopwareComponent {
 
     init() {

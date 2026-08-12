@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class FilterItem extends ShopwareComponent {
 
     init() {

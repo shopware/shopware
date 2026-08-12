@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class RatingFilter extends ShopwareComponent {
 
     static options = {

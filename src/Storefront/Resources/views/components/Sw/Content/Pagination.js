@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class Pagination extends ShopwareComponent {
 
     static options = {

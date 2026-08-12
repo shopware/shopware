@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class BooleanFilter extends ShopwareComponent {
 
     init() {

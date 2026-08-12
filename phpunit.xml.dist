@@ -55,7 +55,6 @@
             <directory suffix="Entity.php">src/Core/Framework/</directory>
             <directory suffix="Entity.php">src/Core/System/</directory>
 
-            <directory suffix="Event.php">src/Core/Checkout/</directory>
             <directory suffix="Event.php">src/Core/Content/</directory>
             <directory suffix="Event.php">src/Core/Framework/</directory>
             <directory suffix="Event.php">src/Core/Maintenance/</directory>

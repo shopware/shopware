@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 class DocumentDeletedEvent extends Event implements FlowEventAware, ScalarValuesAware
 {
-    final public const EVENT_NAME = 'after_sales.document.deleted';
+    final public const EVENT_NAME = 'document.generation.deleted';
 
     public function __construct(
         public readonly string $documentId,

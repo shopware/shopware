@@ -1,12 +1,6 @@
 <?php declare(strict_types=1);
 
 return [
-    'after_sales.document.deleted' => <<<'EOD'
-Triggers when a document is deleted
-EOD,
-    'after_sales.document.generated' => <<<'EOD'
-Triggers when a document is generated or uploaded for an order
-EOD,
     'checkout.customer.before.login' => <<<'EOD'
 Triggers as soon as a customer logs in
 EOD,
@@ -48,6 +42,12 @@ __EMPTY__
 EOD,
     'customer.recovery.request' => <<<'EOD'
 Triggers when a customer recovers his password
+EOD,
+    'document.generation.completed' => <<<'EOD'
+Triggers when a document is generated or uploaded for an order
+EOD,
+    'document.generation.deleted' => <<<'EOD'
+Triggers when a document is deleted
 EOD,
     'mail.after.create.message' => <<<'EOD'
 __EMPTY__

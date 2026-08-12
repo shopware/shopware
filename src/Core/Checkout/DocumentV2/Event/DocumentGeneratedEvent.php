@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 class DocumentGeneratedEvent extends Event implements OrderAware, FlowEventAware, ScalarValuesAware
 {
-    final public const EVENT_NAME = 'after_sales.document.generated';
+    final public const EVENT_NAME = 'document.generation.completed';
 
     public function __construct(
         public readonly string $documentId,

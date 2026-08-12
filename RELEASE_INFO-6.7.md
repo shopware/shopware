@@ -113,10 +113,10 @@ Cron-driven product export generation no longer derives the next run from `gener
 
 Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
 
-- `after_sales.document.generated` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
-- `after_sales.document.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
+- `document.generation.completed` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
+- `document.generation.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
 
-Both events are selectable as triggers in Flow Builder. `after_sales.document.generated` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `after_sales.document.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
+Both events are selectable as triggers in Flow Builder. `document.generation.completed` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `document.generation.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
 
 ## Administration
 

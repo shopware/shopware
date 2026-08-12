@@ -46,9 +46,9 @@ final class BusinessEvents
 
     public const CHECKOUT_ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
 
-    public const AFTER_SALES_DOCUMENT_GENERATED = DocumentGeneratedEvent::EVENT_NAME;
+    public const DOCUMENT_GENERATION_COMPLETED = DocumentGeneratedEvent::EVENT_NAME;
 
-    public const AFTER_SALES_DOCUMENT_DELETED = DocumentDeletedEvent::EVENT_NAME;
+    public const DOCUMENT_GENERATION_DELETED = DocumentDeletedEvent::EVENT_NAME;
 
     public const CUSTOMER_ACCOUNT_RECOVER_REQUEST = CustomerAccountRecoverRequestEvent::EVENT_NAME;
 

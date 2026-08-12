@@ -246,6 +246,24 @@ shopware:
                         operation:
                             allowed_values: [read, write, delete, none]
 
+                number_range.allocation.duration:
+                    # IncrementStorage::reserve duration; rising p95/p99 with storage=mysql under order load =
+                    # number_range_state row-lock contention, the leading indicator for switching to the Redis storage
+                    description: 'Number range increment reservation duration, per type/storage/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # single indexed statement; anything beyond tens of ms indicates lock contention
+                        buckets: [1, 5, 10, 50, 100, 1000]
+                    labels:
+                        # see NumberRangeTypeResolver
+                        number_range_type:
+                            policy: open
+                        # configured storage key (known core: mysql, redis; plugin-registered backends pass through)
+                        storage:
+                            policy: open
+                        # a reserve failing on lock wait timeout is the contention signal itself
+
                 api.sync.operations.count:
                     description: 'Operations per Sync API request'
                     type: 'histogram'

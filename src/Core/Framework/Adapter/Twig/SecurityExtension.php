@@ -190,8 +190,9 @@ class SecurityExtension extends AbstractExtension
         }
 
         // mirror the map filter: custom string functions receive only the value
-        // @phpstan-ignore-next-line
-        $arrowCallback = \is_string($arrow) ? static fn (mixed $value): bool => (bool) $arrow($value) : static fn (mixed $value, mixed $key): bool => (bool) $arrow($value, $key);
+        $arrowCallback = \is_string($arrow)
+            ? static fn (mixed $value): bool => (bool) \call_user_func($arrow, $value)
+            : static fn (mixed $value, mixed $key): bool => (bool) \call_user_func($arrow, $value, $key);
 
         return \array_find($array, $arrowCallback);
     }
@@ -223,8 +224,7 @@ class SecurityExtension extends AbstractExtension
 
         if (\is_string($callback)) {
             // mirror the map filter: custom string functions receive only the value, never the key
-            // @phpstan-ignore-next-line
-            return static fn (mixed $value): mixed => $callback($value);
+            return static fn (mixed $value): mixed => \call_user_func($callback, $value);
         }
 
         return \Closure::fromCallable($callback);

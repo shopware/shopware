@@ -40,7 +40,7 @@ concurrency:
 engine:
   id: claude
   model: claude-sonnet-4-6   # Sonnet family is the repo default; this task is mechanical comparison, no escalation needed
-  max-turns: 20
+  max-turns: 30              # 20 wasn't enough even with the efficient get_job_logs(failed_only) path; some headroom for retries
   env:
     ANTHROPIC_API_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY }}
 
@@ -100,6 +100,17 @@ workflow, pipeline table, and Slack message style. Unattended-run specifics:
    workflow needs to change — the summary format and Slack post are already
    pipeline-count-agnostic.
    -->
+
+   **Tool efficiency — read this before fetching job data.** This workflow
+   has no `bash` access to `gh`/`jq`; GitHub data comes through the
+   `actions` MCP toolset instead, and its `list_workflow_jobs` method has no
+   failed-only filter — paginating through every job of a run (Platform
+   nightly runs have 100+ matrix jobs) burns turns fast and can blow the
+   turn budget before writing any output. Do NOT call `list_workflow_jobs`
+   for this. Instead, for each run you need the failing job names for, call
+   `get_job_logs` with `run_id` set and `failed_only: true` — it returns
+   only the failed jobs directly, in one call per run, which is what the
+   skill's workflow step 2 needs.
 2. Write the result to `qops-success-manager-summary.json` in the current
    working directory, with at minimum a `text` field: a short, Slack-ready
    plain-text summary covering every pipeline checked (green/known/new

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Marker interface for all BC-change attributes.
  *
  * BC-change attributes document planned changes to the public API surface that are *not* deprecations:

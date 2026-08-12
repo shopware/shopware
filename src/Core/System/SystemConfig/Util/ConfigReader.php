@@ -52,7 +52,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
+     * @return array<array{title: array<string, string|null>, subtitle?: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
      */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
@@ -64,6 +64,10 @@ class ConfigReader extends XmlReader
                 'name' => $this->getCardName($element),
                 'elements' => $this->getElements($element),
             ];
+
+            if ($this->getCardSubtitles($element) !== []) {
+                $cardDefinition['subtitle'] = $this->getCardSubtitles($element);
+            }
 
             if ($this->getCardFlag($element) !== null) {
                 $cardDefinition['flag'] = $this->getCardFlag($element);
@@ -89,6 +93,19 @@ class ConfigReader extends XmlReader
     }
 
     /**
+     * @return array<string, string|null>
+     */
+    private function getCardSubtitles(\DOMElement $element): array
+    {
+        $subtitles = [];
+        foreach ($element->getElementsByTagName('subtitle') as $subtitle) {
+            $subtitles[$this->getLocaleCodeFromElement($subtitle)] = $subtitle->nodeValue;
+        }
+
+        return $subtitles;
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     private function getElements(\DOMElement $xml): array
@@ -96,7 +113,7 @@ class ConfigReader extends XmlReader
         $elements = [];
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
-            if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
+            if (\in_array($nodeName, ['title', 'subtitle', 'name', 'flag'], true)) {
                 continue;
             }
 

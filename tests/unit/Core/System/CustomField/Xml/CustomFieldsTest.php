@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFields::class)]
 class CustomFieldsTest extends TestCase
 {
@@ -36,9 +38,11 @@ class CustomFieldsTest extends TestCase
         static::assertSame('bla_test', $fields[0]->getName());
         static::assertFalse($fields[0]->isAllowCustomerWrite());
         static::assertFalse($fields[0]->isAllowCartExpose());
+        static::assertFalse($fields[0]->isIncludeInSearch());
 
         static::assertSame('bla_test2', $fields[1]->getName());
         static::assertTrue($fields[1]->isAllowCustomerWrite());
         static::assertTrue($fields[1]->isAllowCartExpose());
+        static::assertTrue($fields[1]->isIncludeInSearch());
     }
 }

@@ -17,6 +17,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailerTransportDecorator::class)]
 class MailerTransportDecoratorTest extends TestCase
 {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
@@ -168,17 +169,6 @@ class NewRequiredParameterCases
     }
 }
 
-class UnresolvableTypePayloads
-{
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'UnimportedShortName')]
-    public function shortClassName(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'narrowing');
-
-        return null;
-    }
-}
-
 class ExceptionChangeCases
 {
     /**
@@ -246,7 +236,64 @@ class ExceptionChangeCases
      * @throws \RuntimeException
      */
     #[ExceptionChange(version: 'v6.8.0', newExceptions: [])]
-    public function emptyAnnouncement(): void
+    public function removedExceptionIsARealChange(): void
     {
+    }
+}
+
+class ParameterDefaultValueChangeCases
+{
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'missing', newDefaultValue: 'new')]
+    public function missingParameter(string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'required', newDefaultValue: 'new')]
+    public function requiredParameter(string $required): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'value', newDefaultValue: 'old')]
+    public function unchangedDefault(string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'value', newDefaultValue: null)]
+    public function defaultChangesToNull(?string $value = 'old'): void
+    {
+    }
+
+    #[ParameterDefaultValueChange(version: 'v6.8.0', parameterName: 'scopes', newDefaultValue: ['system', 'crud'])]
+    public function defaultChangesToArray(array $scopes = ['system']): void
+    {
+    }
+}
+
+class ParameterRemovalCases
+{
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'required')]
+    public function requiredParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
+    public function optionalParameter(string $required, ?string $optional = null): void
+    {
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $optional is deprecated');
+        }
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]
+    public function leadingDollar(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function optionalParameterBeforeLaterParameter(?string $legacy = null, ?string $following = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
+        }
     }
 }

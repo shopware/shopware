@@ -5,14 +5,16 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that a parameter of the method will be renamed in the given version.
  *
  * Call sites passing the parameter as a named argument must switch to the announced name before
  * the change happens; positional call sites are not affected. Tooling (e.g. Rector) can rename
  * the named argument at all call sites by reading `$parameterName` and `$newName`.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterNameChange implements CallSiteCompatibilityChange
 {
     /**

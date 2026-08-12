@@ -15,12 +15,10 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Message\RotateAppSecretMessage;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -49,8 +47,6 @@ class AppSecretRotationServiceTest extends TestCase
      */
     private EntityRepository&Stub $integrationRepository;
 
-    private SourceResolver&Stub $sourceResolver;
-
     private MessageBusInterface&Stub $messageBus;
 
     private LoggerInterface&MockObject $logger;
@@ -64,7 +60,6 @@ class AppSecretRotationServiceTest extends TestCase
         $this->registrationService = static::createStub(AppRegistrationService::class);
         $this->appRepository = $this->createMock(EntityRepository::class);
         $this->integrationRepository = static::createStub(EntityRepository::class);
-        $this->sourceResolver = static::createStub(SourceResolver::class);
         $this->messageBus = static::createStub(MessageBusInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = static::createStub(ManifestFactory::class);
@@ -74,7 +69,6 @@ class AppSecretRotationServiceTest extends TestCase
             $this->registrationService,
             $this->appRepository,
             $this->integrationRepository,
-            $this->sourceResolver,
             $this->messageBus,
             $this->logger,
             $this->manifestFactory,
@@ -115,7 +109,6 @@ class AppSecretRotationServiceTest extends TestCase
         $service = $this->createService(
             $this->registrationService,
             $this->integrationRepository,
-            $this->sourceResolver,
             $messageBus,
             $this->manifestFactory
         );
@@ -169,22 +162,11 @@ class AppSecretRotationServiceTest extends TestCase
             ->willReturn($searchResult);
 
         $manifest = static::createStub(Manifest::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())
-            ->method('path')
-            ->with('manifest.xml')
-            ->willReturn('/path/to/manifest.xml');
-
-        $sourceResolver = $this->createMock(SourceResolver::class);
-        $sourceResolver->expects($this->once())
-            ->method('filesystemForApp')
-            ->with($app)
-            ->willReturn($filesystem);
 
         $manifestFactory = $this->createMock(ManifestFactory::class);
         $manifestFactory->expects($this->once())
-            ->method('createFromXmlFile')
-            ->with('/path/to/manifest.xml')
+            ->method('createFromApp')
+            ->with($app)
             ->willReturn($manifest);
 
         $registrationService = $this->createMock(AppRegistrationService::class);
@@ -222,7 +204,6 @@ class AppSecretRotationServiceTest extends TestCase
         $service = $this->createService(
             $registrationService,
             $integrationRepository,
-            $sourceResolver,
             $this->messageBus,
             $manifestFactory
         );
@@ -256,22 +237,11 @@ class AppSecretRotationServiceTest extends TestCase
             ->willReturn($searchResult);
 
         $manifest = static::createStub(Manifest::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())
-            ->method('path')
-            ->with('manifest.xml')
-            ->willReturn('/path/to/manifest.xml');
-
-        $sourceResolver = $this->createMock(SourceResolver::class);
-        $sourceResolver->expects($this->once())
-            ->method('filesystemForApp')
-            ->with($app)
-            ->willReturn($filesystem);
 
         $manifestFactory = $this->createMock(ManifestFactory::class);
         $manifestFactory->expects($this->once())
-            ->method('createFromXmlFile')
-            ->with('/path/to/manifest.xml')
+            ->method('createFromApp')
+            ->with($app)
             ->willReturn($manifest);
 
         $exception = new \RuntimeException('Registration failed');
@@ -301,7 +271,6 @@ class AppSecretRotationServiceTest extends TestCase
         $service = $this->createService(
             $registrationService,
             $this->integrationRepository,
-            $sourceResolver,
             $this->messageBus,
             $manifestFactory
         );
@@ -315,7 +284,6 @@ class AppSecretRotationServiceTest extends TestCase
     private function createService(
         AppRegistrationService $registrationService,
         EntityRepository $integrationRepository,
-        SourceResolver $sourceResolver,
         MessageBusInterface $messageBus,
         ManifestFactory $manifestFactory
     ): AppSecretRotationService {
@@ -323,7 +291,6 @@ class AppSecretRotationServiceTest extends TestCase
             $registrationService,
             $this->appRepository,
             $integrationRepository,
-            $sourceResolver,
             $messageBus,
             $this->logger,
             $manifestFactory,

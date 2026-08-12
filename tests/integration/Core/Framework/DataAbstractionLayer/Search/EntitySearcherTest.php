@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -31,6 +32,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -212,6 +214,32 @@ class EntitySearcherTest extends TestCase
         static::assertSame(2, $result->getTotal());
         static::assertCount(2, $result->getEntities());
         static::assertSame(1, $result->getPage());
+    }
+
+    public function testNextPagesCountIsBoundedByTheLookaheadWindow(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, 8) as $number) {
+            $productNumber = 'next-pages-' . $number;
+            $products[] = (new ProductBuilder($ids, $productNumber))->price(100)->build();
+        }
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria(array_values($ids->getList(array_map(
+            static fn (int $number): string => 'next-pages-' . $number,
+            range(1, 8)
+        ))));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertCount(1, $result->getEntities());
+        static::assertSame(7, $result->getTotal());
     }
 
     public function testSortingAndTotalCountWithManyAssociation(): void
@@ -434,28 +462,28 @@ class EntitySearcherTest extends TestCase
         $result = $this->productRepository->search($criteria, $context);
 
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant1));
-        static::assertTrue($result->has($variant2));
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant1));
+        static::assertTrue($result->getEntities()->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $smallId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
-        static::assertTrue($result->has($variant4));
-        static::assertTrue($result->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant4));
+        static::assertTrue($result->getEntities()->has($variant2));
     }
 
     public function testSortingByProvidedIds(): void

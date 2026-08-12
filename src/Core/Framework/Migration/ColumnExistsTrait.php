@@ -6,14 +6,13 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Framework\Util\UtilException;
 
 trait ColumnExistsTrait
 {
     /**
      * @param non-empty-string $table
      */
-    #[ExceptionChange(version: 'v6.8.0', newExceptions: [UtilException::class], description: 'Will throw UtilException instead of TableNotFoundException.')]
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [], description: 'Will no longer throw TableNotFoundException for a missing table but return false.')]
     protected function columnExists(Connection $connection, string $table, string $column): bool
     {
         if (Feature::isActive('v6.8.0.0')) {

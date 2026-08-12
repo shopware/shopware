@@ -7,10 +7,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
+use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationUpdateResult;
 use Shopware\Core\System\Snippet\Request\InstallTranslationRequest;
-use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
+use Shopware\Core\System\Snippet\Service\TranslationUpdater;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class TranslationController extends AbstractController
 {
     /**
@@ -28,7 +30,7 @@ class TranslationController extends AbstractController
     public function __construct(
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataStore $metadataStore,
-        private readonly AbstractTranslationLoader $translationLoader,
+        private readonly TranslationUpdater $translationUpdater,
         private readonly TranslationRemover $translationRemover,
     ) {
     }
@@ -41,23 +43,28 @@ class TranslationController extends AbstractController
     )]
     public function list(): Response
     {
-        $installed = $this->metadataStore->getLocalMetadata();
-
-        $items = [];
-        foreach ($this->config->languages as $language) {
-            $entry = $installed->get($language->locale);
-
-            $items[] = [
-                'locale' => $language->locale,
-                'name' => $language->name,
-                'lastUpdate' => $entry?->updatedAt->format(\DateTimeInterface::ATOM),
-                'progress' => $entry?->progress,
-            ];
-        }
+        $items = $this->metadataStore->getTranslationList();
 
         return new JsonResponse([
             'total' => \count($items),
             'items' => $items,
+        ]);
+    }
+
+    #[Route(
+        path: '/api/_action/translation/meta',
+        name: 'api.action.translation.meta',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:translation:read']],
+        methods: ['GET'],
+    )]
+    public function meta(): Response
+    {
+        return new JsonResponse([
+            // Built-in languages are exactly the locales excluded from the community translation download
+            'builtInLocales' => $this->config->excludedLocales,
+            'communityTranslationsUrl' => $this->config->communityTranslationsUrl?->__toString(),
+            'documentationUrlSnippetKey' => $this->config->documentationUrlSnippetKey,
+            'completenessThreshold' => $this->config->completenessThreshold,
         ]);
     }
 
@@ -79,12 +86,17 @@ class TranslationController extends AbstractController
             $this->config->assertLocalesAreConfigured($locales);
         }
 
-        return $this->loadTranslations(
-            $this->metadataStore->getUpdatedLocalMetadata($locales),
-            $context,
-            $parameters->activate,
-            $locales,
-        );
+        $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
+        $unavailable = $this->unavailableLocales($locales, $metadata);
+
+        // Nothing could be installed for any requested locale, so fail instead of reporting a misleading success.
+        if ($unavailable !== [] && \count($unavailable) === \count($locales)) {
+            throw SnippetException::translationsUnavailable($unavailable);
+        }
+
+        $result = $this->translationUpdater->update($metadata, $context, $parameters->activate);
+
+        return $this->translationResponse($result, $unavailable);
     }
 
     #[Route(
@@ -95,7 +107,8 @@ class TranslationController extends AbstractController
     )]
     public function update(Context $context): Response
     {
-        return $this->loadTranslations($this->metadataStore->getUpdatedLocalMetadata(), $context, true, []);
+        // Refreshes every installed locale, so there are no requested-but-unavailable locales to report.
+        return $this->translationResponse($this->translationUpdater->updateInstalled($context), []);
     }
 
     #[Route(
@@ -114,24 +127,28 @@ class TranslationController extends AbstractController
     }
 
     /**
-     * @param list<string> $requestedLocales locales the caller asked for, used to report requested locales that have no translation available
+     * @param list<string> $unavailable
      */
-    private function loadTranslations(MetadataCollection $metadata, Context $context, bool $activate, array $requestedLocales): Response
+    private function translationResponse(TranslationUpdateResult $result, array $unavailable): Response
     {
-        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
-        $skipped = array_values(array_diff($metadata->getKeys(), $localesRequiringUpdate));
-        $unavailable = array_values(array_diff($requestedLocales, $metadata->getKeys()));
-
-        foreach ($localesRequiringUpdate as $locale) {
-            $this->translationLoader->load($locale, $context, $activate);
-        }
-
-        $this->metadataStore->save($metadata);
-
         return new JsonResponse([
-            'updated' => $localesRequiringUpdate,
-            'skipped' => $skipped,
+            'updated' => $result->updated,
+            'skipped' => $result->skipped,
             'unavailable' => $unavailable,
         ]);
+    }
+
+    /**
+     * Requested locales the remote translation source does not offer: they are configured (otherwise the
+     * request would have been rejected earlier), but have no entry in the fetched metadata, so nothing
+     * could be installed for them.
+     *
+     * @param list<string> $requestedLocales
+     *
+     * @return list<string>
+     */
+    private function unavailableLocales(array $requestedLocales, MetadataCollection $metadata): array
+    {
+        return array_values(array_diff($requestedLocales, $metadata->getKeys()));
     }
 }

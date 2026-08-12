@@ -15,6 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'acl',
+        'feature',
         'repositoryFactory',
     ],
 
@@ -45,6 +46,23 @@ export default Shopware.Component.wrapComponentConfig({
 
         flowCriteria(): CriteriaType {
             return new Criteria(1, null);
+        },
+
+        flowTabs(): Array<{ label: string; name: string; onClick: () => void }> {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-flow.general.tabMyFlows', 'sw.flow.index.flows'),
+                createRouteTab('sw-flow.general.tabFlowTemplates', 'sw.flow.index.templates'),
+            ];
         },
     },
 

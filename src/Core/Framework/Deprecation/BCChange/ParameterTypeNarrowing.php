@@ -5,17 +5,17 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the type of a parameter will be narrowed in the given version.
  *
  * Call sites passing values that are not covered by the announced type must adjust before the
- * change happens; call sites already passing the announced type are not affected. When the
- * narrowing removes `null` from a parameter with a `null` default, the parameter also becomes
- * required, so call sites must pass it explicitly. Overrides may keep the wider parameter type
- * (contravariance). Tooling (e.g. Rector) can add type guards or casts at affected call sites
- * by reading `$newType`.
+ * change happens; call sites already passing the announced type are not affected. Overrides may
+ * keep the wider parameter type (contravariance). Tooling (e.g. Rector) can add type guards or
+ * casts at affected call sites by reading `$newType`.
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class ParameterTypeNarrowing implements CallSiteCompatibilityChange
 {
     /**

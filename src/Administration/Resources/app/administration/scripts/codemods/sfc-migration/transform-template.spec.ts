@@ -1,11 +1,24 @@
 import path from 'path';
 import fs from 'fs';
+import { compile } from '@vue/compiler-dom';
 import { transformTemplate } from './transform-template';
 
 const fixturesDir = path.join(__dirname, '__fixtures__');
 
 function readFixture(name: string): string {
     return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+function expectTemplateCompiles(template: string): void {
+    const body = template.replace(/^<template>\n/, '').replace(/\n<\/template>$/, '');
+
+    expect(() => {
+        compile(body, {
+            onError: (error) => {
+                throw error;
+            },
+        });
+    }).not.toThrow();
 }
 
 /**
@@ -189,5 +202,239 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
 <div class="sw-foo">{{ title }}</div>
         `),
         ).toThrow('Twig extends is not supported by the SFC migration codemod.');
+    });
+
+    it('throws when parent() is used without a migrated twig block instead of leaving a Vue method call', () => {
+        expect(() =>
+            transformTemplate(`
+<div class="sw-foo">
+    {{ parent() }}
+</div>
+        `),
+        ).toThrow('Twig template is not supported by the SFC migration codemod.');
+    });
+
+    it('inserts a guard before v-else continuations across sibling sw-blocks', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="test">true</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else>false</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="test">true</div>');
+        expect(result).toContain(
+            '<template v-if="(test)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else>false</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('inserts a guard when the cross-block chain starts after the first block child', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div>first element</div>
+    <div v-if="isPrimary">primary</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        const firstElement = '<div>first element</div>';
+        const primaryBranch = '<div v-if="isPrimary">primary</div>';
+        const crossBlockGuard =
+            '<template v-if="(isPrimary)"><!-- Keeps the conditional chain connected across sw-block. --></template>';
+        const fallbackBranch = '<div v-else>fallback</div>';
+
+        expect(result).toContain('<div>first element</div>');
+        expect(result).toContain(primaryBranch);
+        expect(result).toContain(crossBlockGuard);
+        expect(result).toContain(fallbackBranch);
+        expect(result.indexOf(firstElement)).toBeLessThan(result.indexOf(primaryBranch));
+        expect(result.indexOf(primaryBranch)).toBeLessThan(result.indexOf(crossBlockGuard));
+        expect(result.indexOf(crossBlockGuard)).toBeLessThan(result.indexOf(fallbackBranch));
+        expectTemplateCompiles(result);
+    });
+
+    it('inserts guards before v-else-if and v-else continuations across multiple sibling sw-blocks', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="firstCondition">first</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else-if="secondCondition">second</div>
+{% endblock %}
+
+{% block sw_third %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="firstCondition">first</div>');
+        expect(result).toContain(
+            '<template v-if="(firstCondition)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else-if="secondCondition">second</div>');
+        expect(result).toContain(
+            '<template v-if="(firstCondition) || (secondCondition)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('keeps the full leading continuation chain inside a following sw-block', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="firstCondition">first</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else-if="secondCondition">second</div>
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="firstCondition">first</div>');
+        expect(result).toContain(
+            '<template v-if="(firstCondition)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else-if="secondCondition">second</div>');
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('uses one guard for previous branches and keeps the following local chain readable', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="firstCondition">first</div>
+    <div v-else-if="secondCondition">second</div>
+{% endblock %}
+
+{% block sw_second %}
+    <div v-else-if="thirdCondition">third</div>
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="firstCondition">first</div>');
+        expect(result).toContain('<div v-else-if="secondCondition">second</div>');
+        expect(result).toContain(
+            '<template v-if="(firstCondition) || (secondCondition)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else-if="thirdCondition">third</div>');
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('inserts guards for cross-block continuations inside nested wrapper elements', () => {
+        const result = transformTemplate(`
+<section class="wrapper">
+    {% block sw_first %}
+        <span v-if="isVisible">visible</span>
+    {% endblock %}
+
+    {% block sw_second %}
+        <span v-else>hidden</span>
+    {% endblock %}
+</section>
+        `).template;
+
+        expect(result).toContain('<span v-if="isVisible">visible</span>');
+        expect(result).toContain(
+            '<template v-if="(isVisible)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<span v-else>hidden</span>');
+        expectTemplateCompiles(result);
+    });
+
+    it('keeps continuations after an empty extension point block in a normal chain', () => {
+        const result = transformTemplate(`
+<div v-if="false"></div>
+
+{% block sw_filter_panel_extension_point %}{% endblock %}
+
+<sw-boolean-filter v-else-if="showFilter(filter, 'boolean-filter')" />
+<sw-existence-filter v-else-if="showFilter(filter, 'existence-filter')" />
+<sw-string-filter v-else />
+        `).template;
+
+        expect(result).toContain('<div v-if="false"></div>');
+        expect(result).toContain('<sw-block name="sw_filter_panel_extension_point" :data="$dataScope"></sw-block>');
+        expect(result).toContain(
+            '<template v-if="(false)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<sw-boolean-filter v-else-if="showFilter(filter, \'boolean-filter\')" />');
+        expect(result).toContain('<sw-existence-filter v-else-if="showFilter(filter, \'existence-filter\')" />');
+        expect(result).toContain('<sw-string-filter v-else />');
+        expectTemplateCompiles(result);
+    });
+
+    it('inserts a guard before normal v-else continuations after a preceding sw-block condition', () => {
+        const result = transformTemplate(`
+{% block sw_button %}
+<mt-button v-if="!deprecated">
+    <slot></slot>
+</mt-button>
+{% endblock %}
+
+<sw-button-deprecated v-else>
+    <slot></slot>
+</sw-button-deprecated>
+        `).template;
+
+        expect(result).toContain('<mt-button v-if="!deprecated">');
+        expect(result).toContain(
+            '<template v-if="(!deprecated)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<sw-button-deprecated v-else>');
+        expectTemplateCompiles(result);
+    });
+
+    it('keeps guard conditions with double quotes valid through HTML entities', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+<div v-if="name === 'foo&quot;bar'">quoted</div>
+{% endblock %}
+
+{% block sw_second %}
+<div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="name === \'foo&quot;bar\'">quoted</div>');
+        expect(result).toContain(
+            '<template v-if="(name === \'foo&quot;bar\')"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+        );
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('keeps same-block v-if/v-else chains unchanged', () => {
+        const result = transformTemplate(`
+{% block sw_first %}
+    <div v-if="isPrimary">primary</div>
+    <div v-else>fallback</div>
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<div v-if="isPrimary">primary</div>');
+        expect(result).toContain('<div v-else>fallback</div>');
+        expectTemplateCompiles(result);
+    });
+
+    it('throws for leading v-else cases without a preceding converted v-if block', () => {
+        expect(() =>
+            transformTemplate(`
+{% block sw_first %}
+    <div v-else>fallback</div>
+{% endblock %}
+        `),
+        ).toThrow('Cross-block v-else/v-else-if without previous v-if block is not supported by the SFC migration codemod.');
     });
 });

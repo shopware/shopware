@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -57,6 +58,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -108,7 +110,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -128,7 +130,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -154,7 +156,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -217,7 +219,7 @@ class WebhookManagerTest extends TestCase
         $customerId = Uuid::randomHex();
         $this->createCustomer($customerId);
 
-        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
@@ -896,7 +898,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
@@ -948,7 +952,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchCreatesWebhookEventLogEntry(): void
@@ -1016,7 +1022,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
@@ -1042,7 +1050,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void
@@ -1123,7 +1133,10 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        // flag-OFF terminal semantics; the pending-retry rework path is covered by testSyncPathMarksPendingRetryWhenFlagOn
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        });
 
         // Even on failure, the event log should exist and show failed status
         $eventLog = $this->connection->fetchAssociative(
@@ -1256,7 +1269,10 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        // flag-OFF terminal semantics; the pending-retry rework path is covered by testSyncPathMarksPendingRetryWhenFlagOn
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        });
 
         $eventLog = $this->connection->fetchAssociative(
             'SELECT delivery_status, response_status_code, response_reason_phrase FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
@@ -1584,7 +1600,6 @@ class WebhookManagerTest extends TestCase
 
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
-            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),

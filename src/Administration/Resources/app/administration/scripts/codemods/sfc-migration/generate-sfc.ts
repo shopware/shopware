@@ -15,6 +15,8 @@ export interface MergeResult {
     blockers: string[];
     /** Non-fatal issues in the generated output that require manual follow-up. */
     warnings: string[];
+    /** Component name from the registration call (`unknown-component` when non-literal). */
+    componentName: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -42,37 +44,35 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         ({ template: templateSection } = transformTemplate(twigContent));
     } catch (err) {
         if (err instanceof TemplateTransformError) {
-            return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [] };
+            return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [], componentName: '' };
         }
 
         throw err;
     }
 
     const scriptResult = transformScript(jsContent);
+    const { componentName } = scriptResult;
 
     if (scriptResult.status === 'not-migratable') {
-        return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };
+        return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [], componentName };
     }
 
     const scriptWrapper = scriptResult.scriptType === 'setup' ? '<script setup>' : '<script>';
-
-    if (scriptResult.status === 'partially-migratable') {
-        const sfc = [
-            templateSection,
-            '',
-            `${scriptWrapper}\n${scriptResult.script}\n</script>`,
-        ].join('\n');
-        return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
-    }
-
     const sfc = [
         templateSection,
         '',
         `${scriptWrapper}\n${scriptResult.script}\n</script>`,
     ].join('\n');
+
+    // $el has no direct setup equivalent, so it is emitted as a placeholder and
+    // keeps the migration partial; surface it as a follow-up warning either way.
     const warnings = sfc.includes('TODO: $el')
         ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context']
         : [];
 
-    return { sfc, status: 'fully-migrated', blockers: [], warnings };
+    if (scriptResult.status === 'partially-migratable') {
+        return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings, componentName };
+    }
+
+    return { sfc, status: 'fully-migrated', blockers: [], warnings, componentName };
 }

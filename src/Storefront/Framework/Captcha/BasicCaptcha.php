@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 class BasicCaptcha extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'basicCaptcha';

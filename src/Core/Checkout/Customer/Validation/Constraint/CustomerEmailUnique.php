@@ -17,6 +17,8 @@ class CustomerEmailUnique extends Constraint
 {
     final public const CUSTOMER_EMAIL_NOT_UNIQUE = '79d30fe0-febf-421e-ac9b-1bfd5c9007f7';
 
+    final public const CUSTOMER_EMAIL_NOT_UNIQUE_CODE = 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE';
+
     protected const ERROR_NAMES = [
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',
     ];
@@ -34,7 +36,7 @@ class CustomerEmailUnique extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param array{salesChannelContext?: SalesChannelContext}|null $options
+     * @param array{salesChannelContext?: SalesChannelContext, context?: Context}|null $options
      *
      * @internal
      */
@@ -68,7 +70,7 @@ class CustomerEmailUnique extends Constraint
                 $options['context'] = $options['salesChannelContext']->getContext();
             }
 
-            if (!($options['context'] ?? null) instanceof Context) {
+            if (!$options['context'] instanceof Context) {
                 throw CustomerException::missingOption('context', self::class);
             }
 

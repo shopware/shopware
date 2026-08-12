@@ -56,7 +56,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
@@ -80,14 +80,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
 
             if ($onlyFlat) {
                 continue;
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge(array_values($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition))));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }

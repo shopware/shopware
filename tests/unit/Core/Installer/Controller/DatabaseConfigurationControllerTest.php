@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
@@ -27,6 +28,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseConfigurationController::class)]
 #[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
@@ -344,6 +346,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->translator->expects($this->never())->method('trans');
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 
@@ -363,6 +366,7 @@ class DatabaseConfigurationControllerTest extends TestCase
     {
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 
@@ -388,6 +392,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->translator->expects($this->never())->method('trans');
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 

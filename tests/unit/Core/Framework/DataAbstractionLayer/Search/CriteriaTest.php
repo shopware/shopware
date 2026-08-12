@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Criteria::class)]
 class CriteriaTest extends TestCase
 {
@@ -163,5 +165,12 @@ class CriteriaTest extends TestCase
         $nestedNested = $nested->getAssociation('nestedNested');
 
         static::assertSame(2, $nestedNested->getNestingLevel());
+    }
+
+    public function testNextPagesLimitIncludesNavigationWindowAndSentinel(): void
+    {
+        $criteria = (new Criteria())->setLimit(2);
+
+        static::assertSame(13, $criteria->getNextPagesLimit());
     }
 }

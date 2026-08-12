@@ -13,14 +13,34 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(Cart::class)]
 #[Package('checkout')]
+#[CoversClass(Cart::class)]
 class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void
     {
         $cart = new Cart('test');
         static::assertCount(0, $cart->getLineItems()->filterGoods());
+    }
+
+    public function testChangingTheTokenDropsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('other');
+
+        static::assertFalse($cart->isPersisted());
+    }
+
+    public function testKeepingTheTokenKeepsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('test');
+
+        static::assertTrue($cart->isPersisted());
     }
 
     public function testCartWithLineItemsHasGoods(): void

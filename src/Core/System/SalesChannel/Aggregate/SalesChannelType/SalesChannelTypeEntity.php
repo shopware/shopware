@@ -80,6 +80,7 @@ class SalesChannelTypeEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getCoverUrl(): string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->coverUrl === null) {
             return '';
         }
@@ -95,6 +96,7 @@ class SalesChannelTypeEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string')]
     public function getIconName(): string
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->iconName === null) {
             return '';
         }
@@ -113,6 +115,7 @@ class SalesChannelTypeEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?array')]
     public function getScreenshotUrls(): array
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->screenshotUrls === null) {
             return [];
         }

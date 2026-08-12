@@ -34,6 +34,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommandTest
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'webhook:drain-to-async',
     description: 'Re-publish leftover webhook deliveries to the async transport after disabling WEBHOOKS_REWORK',
@@ -52,7 +53,6 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
         expected to deduplicate via <info>X-Shopware-Event-Id</info>.
         HELP,
 )]
-#[Package('framework')]
 final readonly class WebhookDrainToAsyncCommand
 {
     private const BATCH_SIZE = 1000;
@@ -69,6 +69,11 @@ final readonly class WebhookDrainToAsyncCommand
         #[Option(description: 'Skip the interactive confirmation prompt', shortcut: 'f')]
         bool $force = false,
     ): int {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The webhook:drain-to-async command is deprecated and will be removed in v6.8.0.0.',
+        );
+
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             $io->error('WEBHOOKS_REWORK is active. This drain is only for after the flag is off — running it now would race the rework consumer.');
 

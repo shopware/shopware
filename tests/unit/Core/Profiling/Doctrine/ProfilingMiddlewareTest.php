@@ -7,12 +7,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ProfilingMiddleware::class)]
 class ProfilingMiddlewareTest extends TestCase
 {

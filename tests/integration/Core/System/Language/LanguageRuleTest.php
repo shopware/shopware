@@ -76,7 +76,7 @@ class LanguageRuleTest extends TestCase
             $ruleId
         );
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     /**

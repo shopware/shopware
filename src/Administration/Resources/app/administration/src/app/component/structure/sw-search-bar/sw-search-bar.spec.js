@@ -308,6 +308,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });

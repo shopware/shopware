@@ -92,6 +92,7 @@ class TaxRuleEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . TaxRuleTypeEntity::class)]
     public function getType(): TaxRuleTypeEntity
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->type === null) {
             return new TaxRuleTypeEntity();
         }

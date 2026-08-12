@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -46,6 +47,7 @@ use Symfony\Component\Messenger\MessageBus;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeService::class)]
 class ThemeServiceTest extends TestCase
 {
@@ -196,6 +198,41 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(
+            \sprintf('theme-config/%s.json', $themeId),
+            json_encode([
+                'styleFiles' => [],
+                'scriptFiles' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->once())->method('refreshConfigValues')->with($themeId, $this->context);
+        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            configLoader: $configLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     public function testCompileThemeAsyncSkipHeader(): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule;
@@ -188,8 +189,8 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, 10.0);
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(static::createLineItem('a'));
-        $lineItemCollection->add(static::createLineItem('b'));
+        $lineItemCollection->add(static::createLineItem());
+        $lineItemCollection->add(static::createLineItem());
 
         $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
@@ -262,5 +263,31 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         static::assertIsArray($result['operatorSet']['operators']);
         static::assertSame('dimension', $result['fields']['amount']['config']['unit']);
+    }
+
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemDimensionHeightRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $lineItem = self::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 }

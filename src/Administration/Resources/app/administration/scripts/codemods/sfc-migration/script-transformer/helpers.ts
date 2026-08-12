@@ -1,4 +1,4 @@
-import type { MethodDeclaration, PropertyAssignment, ShorthandPropertyAssignment } from 'ts-morph';
+import type { MethodDeclaration, ParameterDeclaration, PropertyAssignment, ShorthandPropertyAssignment } from 'ts-morph';
 import { Node } from 'ts-morph';
 import { quoteJsString } from '../string-literals';
 import { indentIdentifierTemplate, isIdentifierTemplate } from './identifier-template';
@@ -81,6 +81,15 @@ export function serializeMethodLikeFunction(method: MethodDeclaration): string {
     const bodyText = method.getBodyText() ?? '';
 
     return `${asyncPrefix}function(${paramsText}) {${bodyText ? `\n${bodyText}\n` : ''}}`;
+}
+
+/**
+ * A parameter that maps 1:1 to a Composition API arrow parameter. Default
+ * values, rest syntax, and destructuring patterns are dropped by `getName()`,
+ * so they must be reported as unsupported instead of silently rewritten.
+ */
+export function isSimpleParameter(param: ParameterDeclaration): boolean {
+    return Node.isIdentifier(param.getNameNode()) && !param.hasInitializer() && !param.isRestParameter();
 }
 
 export function getPropertyName(prop: PropertyAssignment | MethodDeclaration | ShorthandPropertyAssignment): string {

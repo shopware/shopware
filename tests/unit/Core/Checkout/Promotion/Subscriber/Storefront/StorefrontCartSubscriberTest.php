@@ -60,6 +60,7 @@ class StorefrontCartSubscriberTest extends TestCase
     public function testResetCodesWithSession(): void
     {
         $session = $this->createMock(SessionInterface::class);
+        $session->method('isStarted')->willReturn(true);
         $session->expects($this->once())
             ->method('set')
             ->with(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES, []);

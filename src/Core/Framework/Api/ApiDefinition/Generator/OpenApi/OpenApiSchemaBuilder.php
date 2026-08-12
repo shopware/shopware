@@ -42,7 +42,7 @@ class OpenApiSchemaBuilder
 
     public function enrich(OpenApi $openApi, string $api): void
     {
-        $openApi->merge($this->createServers($api));
+        $openApi->merge(array_values($this->createServers($api)));
         $openApi->info = $this->createInfo($api, $this->version);
 
         $security = $openApi->security;
@@ -99,9 +99,12 @@ EOF,
 
     private function enrichComponents(Components $components, string $api): void
     {
-        $components->merge($this->getDefaultSchemas());
-        $components->merge($this->createSecurityScheme($api));
-        $components->merge($this->createDefaultResponses());
+        if ($api !== DefinitionService::STORE_API) {
+            $components->merge(array_values($this->getDefaultSchemas()));
+        }
+
+        $components->merge(array_values($this->createSecurityScheme($api)));
+        $components->merge(array_values($this->createDefaultResponses()));
     }
 
     /**
@@ -260,23 +263,25 @@ EOF,
                 'schema' => 'relationships',
                 'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
                 'type' => 'object',
-                'anyOf' => [
-                    ['required' => ['data']],
-                    ['required' => ['meta']],
-                    ['required' => ['links']],
-                    [
-                        'type' => 'object',
-                        'properties' => [
-                            'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
-                            'data' => [
-                                'description' => 'Member, whose value represents "resource linkage".',
-                                'oneOf' => [
-                                    ['$ref' => '#/components/schemas/relationshipToOne'],
-                                    ['$ref' => '#/components/schemas/relationshipToMany'],
-                                ],
-                            ],
+                'additionalProperties' => [
+                    '$ref' => '#/components/schemas/relationship',
+                ],
+            ]),
+            'relationship' => new Schema([
+                'schema' => 'relationship',
+                'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
+                'type' => 'object',
+                'minProperties' => 1,
+                'properties' => [
+                    'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
+                    'data' => [
+                        'description' => 'Member, whose value represents "resource linkage".',
+                        'oneOf' => [
+                            ['$ref' => '#/components/schemas/relationshipToOne'],
+                            ['$ref' => '#/components/schemas/relationshipToMany'],
                         ],
                     ],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
                 'additionalProperties' => false,
             ]),

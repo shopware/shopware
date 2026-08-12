@@ -11,7 +11,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use PHPStan\Node\InClassNode;
-use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
@@ -26,12 +25,11 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
-use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
-use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -77,7 +75,11 @@ class BCChangeAttributeUsageRule implements Rule
         'Symfony\Component\Routing\Annotation\Route',
     ];
 
-    private const MUST_NOT_EXIST = [
+    /**
+     * These attributes announce a parameter that will only be added in the next major.
+     * The named parameter must therefore not be part of the current method signature.
+     */
+    private const NEW_PARAMETER_ATTRIBUTES = [
         NewOptionalParameter::class,
         NewRequiredParameter::class,
     ];
@@ -85,30 +87,15 @@ class BCChangeAttributeUsageRule implements Rule
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
         NewRequiredParameter::class,
+        ParameterDefaultValueChange::class,
         ParameterNameChange::class,
         ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];
 
-    /**
-     * Attributes carrying a type payload; the announced type must be resolvable as
-     * written (reference classes via ::class), so tooling can act on it.
-     *
-     * @var array<class-string, array{string, int}>
-     */
-    private const TYPE_CARRYING = [
-        ReturnTypeNarrowing::class => ['newType', 1],
-        ReturnTypeWidening::class => ['newType', 1],
-        ParameterTypeNarrowing::class => ['newType', 2],
-        ParameterTypeWidening::class => ['newType', 2],
-        NewOptionalParameter::class => ['parameterType', 2],
-    ];
-
-    public function __construct(
-        private readonly ReflectionProvider $reflectionProvider,
-        private readonly TypeStringResolver $typeStringResolver,
-    ) {
+    public function __construct(private readonly ReflectionProvider $reflectionProvider)
+    {
     }
 
     public function getNodeType(): string
@@ -198,14 +185,6 @@ class BCChangeAttributeUsageRule implements Rule
             ));
         }
 
-        $typeArgument = self::TYPE_CARRYING[$attribute->getName()] ?? null;
-        if ($typeArgument !== null) {
-            $typeString = $this->argument($attribute, $typeArgument[0], $typeArgument[1]);
-            if (\is_string($typeString)) {
-                $errors = [...$errors, ...$this->validateResolvableType($attribute, $typeString, $symbol, $line)];
-            }
-        }
-
         if (\in_array($attribute->getName(), self::PARAMETER_SCOPED, true)) {
             $parameterName = $this->argument($attribute, 'parameterName', 1);
             if (\is_string($parameterName) && \str_starts_with($parameterName, '$')) {
@@ -269,6 +248,14 @@ class BCChangeAttributeUsageRule implements Rule
             }
         }
 
+        if ($attributeClass === ParameterDefaultValueChange::class) {
+            return $this->validateParameterDefaultValueChange($attribute, $method, $symbol, $line);
+        }
+
+        if ($attributeClass === ParameterRemoval::class) {
+            return $this->validateParameterRemoval($attribute, $method, $symbol, $line);
+        }
+
         if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
             return [];
         }
@@ -278,9 +265,9 @@ class BCChangeAttributeUsageRule implements Rule
             return [];
         }
 
-        $parameterExists = $this->parameterExists($method, ltrim($parameterName, '$'));
+        $parameterExists = $this->parameterExists($method, \ltrim($parameterName, '$'));
 
-        if (\in_array($attributeClass, self::MUST_NOT_EXIST, true) && $parameterExists) {
+        if (\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && $parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" already exists.',
                 $this->shortName($attribute),
@@ -289,10 +276,82 @@ class BCChangeAttributeUsageRule implements Rule
             ))];
         }
 
-        if (!\in_array($attributeClass, self::MUST_NOT_EXIST, true) && !$parameterExists) {
+        if (!\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
                 $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateParameterDefaultValueChange(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, \ltrim($parameterName, '$'));
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": parameter "%s" does not exist.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional() || !$parameter->isDefaultValueAvailable()) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": parameter "%s" has no current default value.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        $newDefaultValue = $this->argument($attribute, 'newDefaultValue', 2);
+        if ($parameter->getDefaultValue() === $newDefaultValue) {
+            return [$this->error($line, \sprintf(
+                '%s on "%s": announced default value for parameter "%s" is already current.',
+                $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, $parameterName);
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" does not exist.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional()) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
                 $symbol,
                 $parameterName
             ))];
@@ -351,41 +410,6 @@ class BCChangeAttributeUsageRule implements Rule
         ))];
     }
 
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function validateResolvableType(ReflectionAttribute|FakeReflectionAttribute $attribute, string $typeString, string $symbol, int $line): array
-    {
-        if (\in_array(\strtolower($typeString), ['self', 'static', '$this'], true)) {
-            return [];
-        }
-
-        try {
-            $type = $this->typeStringResolver->resolve($typeString);
-        } catch (\Throwable) {
-            return [$this->error($line, \sprintf(
-                '%s on "%s": announced type "%s" is not a valid type expression.',
-                $this->shortName($attribute),
-                $symbol,
-                $typeString
-            ))];
-        }
-
-        foreach ($type->getReferencedClasses() as $referenced) {
-            if (!$this->reflectionProvider->hasClass($referenced)) {
-                return [$this->error($line, \sprintf(
-                    '%s on "%s": announced type "%s" references the unresolvable class "%s". Reference classes fully qualified via ::class so tooling can resolve them.',
-                    $this->shortName($attribute),
-                    $symbol,
-                    $typeString,
-                    $referenced
-                ))];
-            }
-        }
-
-        return [];
-    }
-
     private function isFrameworkInvoked(\ReflectionMethod $method): bool
     {
         foreach ($method->getAttributes() as $attribute) {
@@ -403,11 +427,15 @@ class BCChangeAttributeUsageRule implements Rule
     private function validateExceptionChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, string $methodName, string $symbol, int $line): array
     {
         $announced = $this->argument($attribute, 'newExceptions', 1);
-        if (!\is_array($announced) || $announced === []) {
+        if (!\is_array($announced)) {
             return [$this->error($line, \sprintf(
-                'ExceptionChange on "%s": "newExceptions" must announce at least one exception class.',
+                'ExceptionChange on "%s": "newExceptions" must be an array of exception classes.',
                 $symbol
             ))];
+        }
+
+        if ($announced === []) {
+            return [];
         }
 
         $announcedTypes = [];
@@ -454,13 +482,18 @@ class BCChangeAttributeUsageRule implements Rule
 
     private function parameterExists(\ReflectionMethod $method, string $parameterName): bool
     {
+        return $this->parameter($method, $parameterName) !== null;
+    }
+
+    private function parameter(\ReflectionMethod $method, string $parameterName): ?\ReflectionParameter
+    {
         foreach ($method->getParameters() as $parameter) {
             if ($parameter->getName() === $parameterName) {
-                return true;
+                return $parameter;
             }
         }
 
-        return false;
+        return null;
     }
 
     private function argument(ReflectionAttribute|FakeReflectionAttribute $attribute, string $name, int $position): mixed

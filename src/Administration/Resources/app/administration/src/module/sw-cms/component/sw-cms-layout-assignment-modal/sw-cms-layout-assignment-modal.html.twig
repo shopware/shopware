@@ -7,7 +7,7 @@
 
     {% block sw_cms_layout_assignment_modal_loader %}
     <sw-loader
-        v-if="isLoading"
+        v-if="isModalLoading"
         class="sw-cms-layout-assignment-modal__loader"
     />
     {% endblock %}
@@ -40,199 +40,365 @@
     {% endblock %}
 
     {% block sw_cms_layout_assignment_modal_tabs %}
-    <sw-tabs
-        position-identifier="sw-cms-layout-assignment-modal"
-        class="sw-cms-layout-assignment-modal__tabs"
-        default-item="categories"
-    >
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_cms_layout_assignment_modal_mt_tabs %}
+        <mt-tabs
+            position-identifier="sw-cms-layout-assignment-modal"
+            class="sw-cms-layout-assignment-modal__tabs"
+            :default-item="activeTab"
+            :items="layoutAssignmentTabs"
+            :small="true"
+            @new-item-active="activeTab = $event"
+        />
+        {% endblock %}
 
-        <template #default="{ active }">
-            {% block sw_cms_layout_assignment_modal_tab_categories %}
-            <sw-tabs-item
-                v-if="page.type === 'page' || page.type === 'landingpage'"
-                :active-tab="active"
-                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
-                class="sw-cms-layout-assignment-modal__tab-categories"
-                name="categories"
-            >
-                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories') }}
-            </sw-tabs-item>
-            {% endblock %}
+        {% block sw_cms_layout_assignment_modal_mt_tabs_permission_warning %}
+        {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips. #}
+        <mt-banner
+            v-if="!acl.can('system.system_config') && (page.type === 'page' || page.type === 'landingpage')"
+            class="sw-cms-layout-assignment-modal__tab-permission-warning"
+            variant="attention"
+        >
+            {{ $t('sw-privileges.tooltip.warning') }}
+        </mt-banner>
+        {% endblock %}
 
-            {% block sw_cms_layout_assignment_modal_tab_shop_pages %}
-            <sw-tabs-item
-                v-if="page.type === 'page'"
-                v-tooltip="{
-                    message: $t('sw-privileges.tooltip.warning'),
-                    showOnDisabledElements: true,
-                    disabled: acl.can('system.system_config')
-                }"
-                :active-tab="active"
-                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages')"
-                :disabled="!acl.can('system.system_config')"
-                class="sw-cms-layout-assignment-modal__tab-shop-pages"
-                name="shop_pages"
-            >
-                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
-            </sw-tabs-item>
-            {% endblock %}
+        {% block sw_cms_layout_assignment_modal_mt_landing_page_select %}
+        <template v-if="activeTab === 'landing_pages'">
 
-            {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
-            <sw-tabs-item
-                v-if="page.type === 'landingpage'"
-                v-tooltip="{
-                    message: $t('sw-privileges.tooltip.warning'),
-                    showOnDisabledElements: true,
-                    disabled: acl.can('system.system_config')
-                }"
-                :active-tab="active"
-                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
-                :disabled="!acl.can('system.system_config')"
-                class="sw-cms-layout-assignment-modal__tab-landing-pages"
-                name="landing_pages"
-            >
-                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages') }}
-            </sw-tabs-item>
+            {% block sw_cms_layout_assignment_modal_mt_landing_page_select_field %}
+            <sw-entity-multi-select
+                v-model:entity-collection="page.landingPages"
+                class="sw-cms-layout-assignment-modal__landing-page-select"
+                :label="$t('global.entities.landing_page')"
+                :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
+                entity-name="landing_page"
+            />
             {% endblock %}
         </template>
+        {% endblock %}
 
-        <template #content="{ active }">
-            {% block sw_cms_layout_assignment_modal_landing_page_select %}
-            <template v-if="active === 'landing_pages'">
+        {% block sw_cms_layout_assignment_modal_mt_category_select %}
+        <template v-if="!isProductDetailPage && activeTab === 'categories'">
 
-                {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
-                <sw-entity-multi-select
-                    v-model:entity-collection="page.landingPages"
-                    class="sw-cms-layout-assignment-modal__landing-page-select"
-                    :label="$t('global.entities.landing_page')"
-                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
-                    entity-name="landing_page"
-                />
-                {% endblock %}
-            </template>
+            {% block sw_cms_layout_assignment_modal_mt_category_select_field %}
+            <sw-category-tree-field
+                key="categorySelect"
+                v-model:categories-collection="page.categories"
+                :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
+                :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                :page-id="page.id"
+                :allowed-types="allowedCategoryTypes"
+                :is-categories-loading="isCategoriesLoading"
+                class="sw-cms-layout-assignment-modal__category-select"
+                @categories-load-more="onExtraCategories"
+                @selection-add="onCategoryAdd"
+                @selection-remove="onCategoryRemove"
+            />
             {% endblock %}
-
-            {% block sw_cms_layout_assignment_modal_category_select %}
-            <template v-if="!isProductDetailPage && active === 'categories'">
-
-                {% block sw_cms_layout_assignment_modal_category_select_field %}
-                <sw-category-tree-field
-                    key="categorySelect"
-                    :categories-collection="page.categories"
-                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
-                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
-                    :page-id="page.id"
-                    :is-categories-loading="isCategoriesLoading"
-                    class="sw-cms-layout-assignment-modal__category-select"
-                    @categories-load-more="onExtraCategories"
-                />
-                {% endblock %}
-            </template>
-            {% endblock %}
-
-            {% block sw_cms_layout_assignment_modal_shop_pages_select %}
-            <template v-if="!isProductDetailPage && active === 'shop_pages'">
-
-                {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
-                <sw-entity-single-select
-                    v-model:value="shopPageSalesChannelId"
-                    class="sw-cms-layout-assignment-modal__sales-channel-select"
-                    entity="sales_channel"
-                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
-                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
-                    :reset-option="$t('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
-                    :help-text="$t('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
-                    show-clearable-button
-                    @update:value="onInputSalesChannelSelect"
-                />
-                {% endblock %}
-
-                {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
-                <sw-inherit-wrapper
-                    v-model:value="selectedShopPages[shopPageSalesChannelId]"
-                    :inherited-value="selectedShopPages.null"
-                    :has-parent="shopPageSalesChannelId !== null"
-                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
-                >
-                    <template #content="props">
-                        <sw-multi-select
-                            class="sw-cms-layout-assignment-modal__shop-page-select"
-                            :options="shopPages"
-                            :disabled="props.isInherited"
-                            :value="props.currentValue"
-                            :map-inheritance="props"
-                            @update:value="props.updateCurrentValue"
-                        />
-                    </template>
-                </sw-inherit-wrapper>
-                {% endblock %}
-            </template>
-            {% endblock %}
-
-            {% block sw_cms_layout_assignment_modal_product_detail_pages_select %}
-            <template v-if="page.type === 'product_detail'">
-                {% block sw_entity_many_to_many_assignment_card_select %}
-                <sw-cms-product-assignment
-                    class="sw-cms-layout-assignment-modal__product-select"
-                    :local-mode="true"
-                    :entity-collection="page.products"
-                    :columns="productColumns"
-                    :criteria="productCriteria"
-                    :select-label="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
-                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
-                >
-                    {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
-                    <template #column-name="{ item, column }">
-                        <router-link
-                            :to="{ name: column.routerLink, params: { id: item.id } }"
-                        >
-                            <sw-product-variant-info
-                                :variations="item.options"
-                                @click="onAbort"
-                            >
-                                {{ item.translated.name }}
-                            </sw-product-variant-info>
-                        </router-link>
-                    </template>
-                    {% endblock %}
-
-                    {% block sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer %}
-                    <template #column-manufacturer.name="{ item, column }">
-                        <router-link
-                            v-if="item.manufacturerId"
-                            :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
-                        >
-                            <p
-                                role="button"
-                                tabindex="0"
-                                @click="onAbort"
-                                @keydown.enter="onAbort"
-                            >
-                                {{ item.manufacturer.translated.name }}
-                            </p>
-                        </router-link>
-                        <span v-else></span>
-                    </template>
-
-                    {% endblock %}
-
-                    {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
-                    <template #empty-state>
-                        <img
-                            class="sw-cms-product-assignment__empty-state"
-                            :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                            alt=""
-                        >
-                        <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
-                    </template>
-                    {% endblock %}
-                </sw-cms-product-assignment>
-                {% endblock %}
-            </template>
-            {% endblock %}
-
         </template>
-    </sw-tabs>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_mt_shop_pages_select %}
+        <template v-if="!isProductDetailPage && activeTab === 'shop_pages'">
+
+            {% block sw_cms_layout_assignment_modal_mt_shop_pages_select_sales_channel_field %}
+            <sw-entity-single-select
+                v-model:value="shopPageSalesChannelId"
+                class="sw-cms-layout-assignment-modal__sales-channel-select"
+                entity="sales_channel"
+                :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
+                :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
+                :reset-option="$t('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
+                :help-text="$t('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
+                show-clearable-button
+                @update:value="onInputSalesChannelSelect"
+            />
+            {% endblock %}
+
+            {% block sw_cms_layout_assignment_modal_mt_shop_pages_select_field %}
+            <sw-inherit-wrapper
+                v-model:value="selectedShopPages[shopPageSalesChannelId]"
+                :inherited-value="selectedShopPages.null"
+                :has-parent="shopPageSalesChannelId !== null"
+                :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
+            >
+                <template #content="props">
+                    <sw-multi-select
+                        class="sw-cms-layout-assignment-modal__shop-page-select"
+                        :options="shopPages"
+                        :disabled="props.isInherited"
+                        :value="props.currentValue"
+                        :map-inheritance="props"
+                        @update:value="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_mt_product_detail_pages_select %}
+        <template v-if="page.type === 'product_detail'">
+            {% block sw_cms_layout_assignment_modal_mt_product_assignment_card_select %}
+            <sw-cms-product-assignment
+                class="sw-cms-layout-assignment-modal__product-select"
+                :local-mode="true"
+                :entity-collection="page.products"
+                :columns="productColumns"
+                :criteria="productCriteria"
+                :select-label="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
+                :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
+            >
+                {% block sw_cms_layout_assignment_modal_mt_product_detail_pages_column_name %}
+                <template #column-name="{ item, column }">
+                    <router-link
+                        :to="{ name: column.routerLink, params: { id: item.id } }"
+                    >
+                        <sw-product-variant-info
+                            :variations="item.variation"
+                            @click="onAbort"
+                        >
+                            {{ item.translated.name }}
+                        </sw-product-variant-info>
+                    </router-link>
+                </template>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_mt_product_detail_pages_column_manufacturer %}
+                <template #column-manufacturer.name="{ item, column }">
+                    <router-link
+                        v-if="item.manufacturerId"
+                        :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
+                    >
+                        <p
+                            role="button"
+                            tabindex="0"
+                            @click="onAbort"
+                            @keydown.enter="onAbort"
+                        >
+                            {{ item.manufacturer.translated.name }}
+                        </p>
+                    </router-link>
+                    <span v-else></span>
+                </template>
+
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_mt_product_detail_pages_empty_state %}
+                <template #empty-state>
+                    <img
+                        class="sw-cms-product-assignment__empty-state"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                        alt=""
+                    >
+                    <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                </template>
+                {% endblock %}
+            </sw-cms-product-assignment>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            position-identifier="sw-cms-layout-assignment-modal"
+            class="sw-cms-layout-assignment-modal__tabs"
+            default-item="categories"
+        >
+
+            <template #default="{ active }">
+                {% block sw_cms_layout_assignment_modal_tab_categories %}
+                <sw-tabs-item
+                    v-if="page.type === 'page' || page.type === 'landingpage'"
+                    :active-tab="active"
+                    :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
+                    class="sw-cms-layout-assignment-modal__tab-categories"
+                    name="categories"
+                >
+                    {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_tab_shop_pages %}
+                <sw-tabs-item
+                    v-if="page.type === 'page'"
+                    v-tooltip="{
+                        message: $t('sw-privileges.tooltip.warning'),
+                        showOnDisabledElements: true,
+                        disabled: acl.can('system.system_config')
+                    }"
+                    :active-tab="active"
+                    :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages')"
+                    :disabled="!acl.can('system.system_config')"
+                    class="sw-cms-layout-assignment-modal__tab-shop-pages"
+                    name="shop_pages"
+                >
+                    {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
+                <sw-tabs-item
+                    v-if="page.type === 'landingpage'"
+                    v-tooltip="{
+                        message: $t('sw-privileges.tooltip.warning'),
+                        showOnDisabledElements: true,
+                        disabled: acl.can('system.system_config')
+                    }"
+                    :active-tab="active"
+                    :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
+                    :disabled="!acl.can('system.system_config')"
+                    class="sw-cms-layout-assignment-modal__tab-landing-pages"
+                    name="landing_pages"
+                >
+                    {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                {% block sw_cms_layout_assignment_modal_landing_page_select %}
+                <template v-if="active === 'landing_pages'">
+
+                    {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
+                    <sw-entity-multi-select
+                        v-model:entity-collection="page.landingPages"
+                        class="sw-cms-layout-assignment-modal__landing-page-select"
+                        :label="$t('global.entities.landing_page')"
+                        :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
+                        entity-name="landing_page"
+                    />
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_category_select %}
+                <template v-if="!isProductDetailPage && active === 'categories'">
+
+                    {% block sw_cms_layout_assignment_modal_category_select_field %}
+                    <sw-category-tree-field
+                        key="categorySelect"
+                        v-model:categories-collection="page.categories"
+                        :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
+                        :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                        :page-id="page.id"
+                        :allowed-types="allowedCategoryTypes"
+                        :is-categories-loading="isCategoriesLoading"
+                        class="sw-cms-layout-assignment-modal__category-select"
+                        @categories-load-more="onExtraCategories"
+                        @selection-add="onCategoryAdd"
+                        @selection-remove="onCategoryRemove"
+                    />
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_shop_pages_select %}
+                <template v-if="!isProductDetailPage && active === 'shop_pages'">
+
+                    {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
+                    <sw-entity-single-select
+                        v-model:value="shopPageSalesChannelId"
+                        class="sw-cms-layout-assignment-modal__sales-channel-select"
+                        entity="sales_channel"
+                        :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
+                        :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
+                        :reset-option="$t('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
+                        :help-text="$t('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
+                        show-clearable-button
+                        @update:value="onInputSalesChannelSelect"
+                    />
+                    {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
+                    <sw-inherit-wrapper
+                        v-model:value="selectedShopPages[shopPageSalesChannelId]"
+                        :inherited-value="selectedShopPages.null"
+                        :has-parent="shopPageSalesChannelId !== null"
+                        :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
+                    >
+                        <template #content="props">
+                            <sw-multi-select
+                                class="sw-cms-layout-assignment-modal__shop-page-select"
+                                :options="shopPages"
+                                :disabled="props.isInherited"
+                                :value="props.currentValue"
+                                :map-inheritance="props"
+                                @update:value="props.updateCurrentValue"
+                            />
+                        </template>
+                    </sw-inherit-wrapper>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_product_detail_pages_select %}
+                <template v-if="page.type === 'product_detail'">
+                    {% block sw_entity_many_to_many_assignment_card_select %}
+                    <sw-cms-product-assignment
+                        class="sw-cms-layout-assignment-modal__product-select"
+                        :local-mode="true"
+                        :entity-collection="page.products"
+                        :columns="productColumns"
+                        :criteria="productCriteria"
+                        :select-label="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
+                        :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
+                    >
+                        {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
+                        <template #column-name="{ item, column }">
+                            <router-link
+                                :to="{ name: column.routerLink, params: { id: item.id } }"
+                            >
+                                <sw-product-variant-info
+                                    :variations="item.variation"
+                                    @click="onAbort"
+                                >
+                                    {{ item.translated.name }}
+                                </sw-product-variant-info>
+                            </router-link>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer %}
+                        <template #column-manufacturer.name="{ item, column }">
+                            <router-link
+                                v-if="item.manufacturerId"
+                                :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
+                            >
+                                <p
+                                    role="button"
+                                    tabindex="0"
+                                    @click="onAbort"
+                                    @keydown.enter="onAbort"
+                                >
+                                    {{ item.manufacturer.translated.name }}
+                                </p>
+                            </router-link>
+                            <span v-else></span>
+                        </template>
+
+                        {% endblock %}
+
+                        {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
+                        <template #empty-state>
+                            <img
+                                class="sw-cms-product-assignment__empty-state"
+                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
+                                alt=""
+                            >
+                            <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                        </template>
+                        {% endblock %}
+                    </sw-cms-product-assignment>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+            </template>
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_cms_layout_assignment_modal_confirm_changes %}
@@ -354,7 +520,7 @@
     <template #modal-footer>
         {% block sw_cms_layout_assignment_action_abort %}
         <mt-button
-            :disabled="isLoading"
+            :disabled="isModalLoading"
             class="sw-cms-layout-assignment-modal__action-cancel"
             size="small"
             variant="secondary"
@@ -366,7 +532,7 @@
 
         {% block sw_cms_layout_assignment_action_confirm %}
         <mt-button
-            :disabled="isLoading"
+            :disabled="isModalLoading"
             class="sw-cms-layout-assignment-modal__action-confirm"
             size="small"
             variant="primary"

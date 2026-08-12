@@ -64,6 +64,7 @@ class MainCategoryEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . CategoryEntity::class)]
     public function getCategory(): CategoryEntity
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->category === null) {
             return new CategoryEntity();
         }

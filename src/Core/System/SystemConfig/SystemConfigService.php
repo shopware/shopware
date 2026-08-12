@@ -204,7 +204,7 @@ class SystemConfigService implements ResetInterface
     /**
      * @param array<mixed>|bool|float|int|string|null $value
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', description: 'The default will be true.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -220,7 +220,7 @@ class SystemConfigService implements ResetInterface
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', description: 'The default will be true.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -351,7 +351,7 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', description: 'The default will be true.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below

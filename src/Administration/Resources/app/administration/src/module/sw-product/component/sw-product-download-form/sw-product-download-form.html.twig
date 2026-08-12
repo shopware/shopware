@@ -18,6 +18,7 @@
         :upload-tag="`downloads-${product.id}`"
         :private-filesystem="true"
         :extension-accept="fileAccept"
+        :extension-mime-types-by-extension="fileAcceptedMimeTypesByExtension"
         default-folder="product_download"
         v-bind="$attrs"
     />

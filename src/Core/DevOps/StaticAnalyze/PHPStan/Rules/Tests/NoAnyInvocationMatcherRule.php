@@ -63,7 +63,7 @@ class NoAnyInvocationMatcherRule implements Rule
         $isAny = ($matcher instanceof MethodCall || $matcher instanceof StaticCall)
             && $matcher->name instanceof Identifier
             && $matcher->name->name === 'any'
-            && \count($matcher->getArgs()) === 0;
+            && $matcher->getArgs() === [];
 
         if (!$isAny) {
             return [];

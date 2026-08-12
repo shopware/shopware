@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PasswordFieldSerializer::class)]
 class PasswordFieldSerializerTest extends TestCase
 {
@@ -59,6 +61,8 @@ class PasswordFieldSerializerTest extends TestCase
 
     public function testEncodeNotPasswordField(): void
     {
+        $this->systemConfigService->expects($this->never())->method('getInt');
+
         $this->expectException(DataAbstractionLayerException::class);
 
         $existence = new EntityExistence('product', [], false, false, false, []);
@@ -73,6 +77,8 @@ class PasswordFieldSerializerTest extends TestCase
 
     public function testEncodeAllowsNullForOptionalField(): void
     {
+        $this->systemConfigService->expects($this->never())->method('getInt');
+
         $field = new PasswordField('password', 'password');
         $kv = new KeyValuePair($field->getPropertyName(), null, true);
         $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
@@ -90,6 +96,8 @@ class PasswordFieldSerializerTest extends TestCase
     #[DataProvider('requiredExistenceProvider')]
     public function testRequiredPasswordReportsNotBlankViolation(bool $exists): void
     {
+        $this->systemConfigService->expects($this->never())->method('getInt');
+
         $field = (new PasswordField('password', 'password'))->addFlags(new Required());
         $kv = new KeyValuePair($field->getPropertyName(), null, true);
         $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());

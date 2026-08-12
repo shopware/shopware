@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
@@ -31,6 +32,7 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\Asy
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(PluginLifecycleSubscriber::class)]
 class PluginLifecycleSubscriberTest extends TestCase
 {

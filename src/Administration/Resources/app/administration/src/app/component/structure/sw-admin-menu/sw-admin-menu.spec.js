@@ -48,7 +48,7 @@ async function createWrapper(options = {}) {
             stubs: {
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'router-link': {

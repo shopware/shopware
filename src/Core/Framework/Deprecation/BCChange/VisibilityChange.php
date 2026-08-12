@@ -5,14 +5,16 @@ namespace Shopware\Core\Framework\Deprecation\BCChange;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * Signals that the visibility of the method will be reduced in the given version.
  *
  * Call sites outside the announced visibility scope must stop calling the method before the
  * change happens. Overrides in extending classes must not declare a wider visibility than the
  * announced one once the change happens.
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD)]
 final class VisibilityChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**

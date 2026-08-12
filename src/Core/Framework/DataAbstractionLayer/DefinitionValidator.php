@@ -102,6 +102,7 @@ class DefinitionValidator
     private const TABLES_WITHOUT_DEFINITION = [
         'admin_elasticsearch_index_task',
         'app_config',
+        'app_feature',
         'cart',
         'deleted_apps',
         'migration',
@@ -121,8 +122,16 @@ class DefinitionValidator
         'consent_state',
         'consent_log',
         'mcp_tool_result_cache',
+        'mcp_toolset_session',
         'webhook_delivery',
         'webhook_stream',
+    ];
+
+    /**
+     * @deprecated tag:v6.8.0 - should be cleared in preparation for 6.9
+     */
+    private const MAJOR_REMOVED_DEFINITIONS = [
+        'import_export_profile_translation',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -198,6 +207,9 @@ class DefinitionValidator
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                continue;
+            }
+            if (Feature::isActive('v6.8.0.0') && \in_array($definition->getEntityName(), self::MAJOR_REMOVED_DEFINITIONS, true)) {
                 continue;
             }
 

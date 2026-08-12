@@ -15,10 +15,11 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
+use Shopware\Core\Framework\App\Cookie\CookieConfig;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -42,7 +43,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'value' => '',
                 'cookie' => 'swag-analytics',
@@ -50,7 +51,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'swag.analytics.name',
             ],
         ]);
-        $this->createListener([$appEntity])->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -70,7 +71,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -89,7 +90,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_description' => 'app.cookies.group.description',
             ],
         ]);
-        $this->createListener([$appEntity])->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -131,7 +132,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -146,7 +147,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED,
             ],
         ]);
-        $this->createListener([$appEntity])->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -182,7 +183,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $firstAppEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $firstAppFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -193,7 +194,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookie.group.name',
             ],
         ]);
-        $secondAppEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $secondAppFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -208,7 +209,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookie.group.name',
             ],
         ]);
-        $this->createListener([$firstAppEntity, $secondAppEntity])->__invoke($event);
+        $this->createListener([...$firstAppFeatures, ...$secondAppFeatures])->__invoke($event);
 
         $groups = $event->cookieGroupCollection;
         static::assertCount(1, $groups);
@@ -258,7 +259,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -274,7 +275,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookies.group',
             ],
         ]);
-        $this->createListener([$appEntity])->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         $firstGroup = $event->cookieGroupCollection->first();
         static::assertNotNull($firstGroup);
@@ -293,7 +294,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -305,7 +306,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookies.group',
             ],
         ]);
-        $this->createListener([$appEntity], ['app\\TestApp_myPaymentMethod'])->__invoke($event);
+        $this->createListener($appFeatures, ['app\\TestApp_myPaymentMethod'])->__invoke($event);
 
         $firstGroup = $event->cookieGroupCollection->first();
         static::assertNotNull($firstGroup);
@@ -323,7 +324,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -335,7 +336,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookies.group',
             ],
         ]);
-        $this->createListener([$appEntity], ['app\\TestApp_anyOfItsMethods'])->__invoke($event);
+        $this->createListener($appFeatures, ['app\\TestApp_anyOfItsMethods'])->__invoke($event);
 
         $firstGroup = $event->cookieGroupCollection->first();
         static::assertNotNull($firstGroup);
@@ -353,7 +354,7 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'entries' => [
                     [
@@ -365,7 +366,7 @@ class AppCookieCollectListenerTest extends TestCase
                 'snippet_name' => 'app.cookies.group',
             ],
         ]);
-        $this->createListener([$appEntity], ['app\\OtherApp_someMethod'])->__invoke($event);
+        $this->createListener($appFeatures, ['app\\OtherApp_someMethod'])->__invoke($event);
 
         $firstGroup = $event->cookieGroupCollection->first();
         static::assertNotNull($firstGroup);
@@ -382,40 +383,55 @@ class AppCookieCollectListenerTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $appEntity = $this->createAppEntity(Uuid::randomHex(), [
+        $appFeatures = $this->createAppFeatures(Uuid::randomHex(), [
             [
                 'cookie' => 'swag-analytics',
                 'snippet_name' => 'swag.analytics.name',
                 'active_payment_methods' => ['myPaymentMethod'],
             ],
         ]);
-        $this->createListener([$appEntity])->__invoke($event);
+        $this->createListener($appFeatures)->__invoke($event);
 
         static::assertEmpty($event->cookieGroupCollection);
     }
 
     /**
      * @param list<Cookie> $cookies
+     *
+     * @return list<AppFeature<CookieConfig>>
      */
-    private function createAppEntity(string $appId, array $cookies): AppEntity
+    private function createAppFeatures(string $appId, array $cookies): array
     {
-        return (new AppEntity())->assign([
-            'id' => $appId,
-            '_uniqueIdentifier' => $appId,
-            'name' => 'TestApp',
-            'cookies' => $cookies,
-        ]);
+        return array_map(
+            static fn (array $cookie): AppFeature => new AppFeature(
+                $appId,
+                'TestApp',
+                true,
+                '1.0.0',
+                true,
+                new \DateTimeImmutable(),
+                new CookieConfig(
+                    $cookie['snippet_name'],
+                    $cookie['snippet_description'] ?? null,
+                    $cookie['cookie'] ?? null,
+                    $cookie['value'] ?? null,
+                    isset($cookie['expiration']) ? (int) $cookie['expiration'] : null,
+                    $cookie['active_payment_methods'] ?? [],
+                    $cookie['entries'] ?? [],
+                ),
+            ),
+            $cookies,
+        );
     }
 
     /**
-     * @param list<AppEntity> $appEntities
+     * @param list<AppFeature<CookieConfig>> $features
      * @param list<string> $activePaymentMethodHandlers
      */
-    private function createListener(array $appEntities = [], array $activePaymentMethodHandlers = []): AppCookieCollectListener
+    private function createListener(array $features = [], array $activePaymentMethodHandlers = []): AppCookieCollectListener
     {
-        $appRepo = new StaticEntityRepository([
-            new AppCollection($appEntities),
-        ], new AppDefinition());
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn($features);
 
         $paymentMethods = [];
         foreach ($activePaymentMethodHandlers as $handlerIdentifier) {
@@ -431,6 +447,6 @@ class AppCookieCollectListenerTest extends TestCase
             new PaymentMethodCollection($paymentMethods),
         ], new PaymentMethodDefinition());
 
-        return new AppCookieCollectListener($appRepo, $paymentMethodRepo);
+        return new AppCookieCollectListener($storage, $paymentMethodRepo);
     }
 }

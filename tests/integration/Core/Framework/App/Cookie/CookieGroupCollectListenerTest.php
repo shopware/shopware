@@ -33,10 +33,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener = new AppCookieCollectListener(
-            static::getContainer()->get('app.repository'),
-            static::getContainer()->get('payment_method.repository'),
-        );
+        $this->listener = static::getContainer()->get(AppCookieCollectListener::class);
     }
 
     public function testItFiltersCookiesOfInactivePaymentMethods(): void

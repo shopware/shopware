@@ -10,21 +10,17 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppHandlerIdentifier;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @phpstan-import-type CookieEntryArray from AppEntity
- * @phpstan-import-type Cookie from AppEntity
  */
 #[Package('framework')]
 class AppCookieCollectListener
@@ -32,100 +28,104 @@ class AppCookieCollectListener
     private const ANY_PAYMENT_METHOD = '*';
 
     /**
-     * @param EntityRepository<AppCollection> $appRepository
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
-        private readonly EntityRepository $appRepository,
+        private readonly AppFeatureStorage $storage,
         private readonly EntityRepository $paymentMethodRepository,
     ) {
     }
 
     public function __invoke(CookieGroupCollectEvent $event): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('active', true),
-            new NotEqualsFilter('app.cookies', null)
-        );
+        $features = $this->storage->forActiveApps(CookieConfig::class);
 
-        $apps = $this->appRepository->search($criteria, $event->getContext())->getEntities();
+        $activeHandlerIdentifiers = $this->fetchActiveHandlerIdentifiers($features, $event);
 
-        $activeHandlerIdentifiers = $this->fetchActiveHandlerIdentifiers($apps, $event);
+        foreach ($features as $feature) {
+            $config = $feature->config;
 
-        foreach ($apps as $app) {
-            $cookies = $this->filterCookies($app->getName(), $app->getCookies(), $activeHandlerIdentifiers);
+            if (!$this->isCookieAllowed($feature->appName, $config->activePaymentMethods, $activeHandlerIdentifiers)) {
+                continue;
+            }
 
-            $this->addCookies($event->cookieGroupCollection, $cookies);
+            $entries = array_values(array_filter(
+                $config->entries,
+                fn (array $entry): bool => $this->isCookieAllowed($feature->appName, self::entryPaymentMethods($entry), $activeHandlerIdentifiers),
+            ));
+
+            $this->addCookieGroup($event->cookieGroupCollection, $config, $entries);
         }
     }
 
     /**
-     * @param list<Cookie> $appCookies
+     * @param list<array<string, mixed>> $entries
      */
-    private function addCookies(CookieGroupCollection $cookieGroupCollection, array $appCookies): void
+    private function addCookieGroup(CookieGroupCollection $cookieGroupCollection, CookieConfig $config, array $entries): void
     {
-        foreach ($appCookies as $cookie) {
-            $cookieGroup = $cookieGroupCollection->get($cookie['snippet_name']);
-            if ($cookieGroup === null) {
-                $cookieGroup = new CookieGroup($cookie['snippet_name']);
-                $cookieGroupCollection->add($cookieGroup);
+        $cookieGroup = $cookieGroupCollection->get($config->snippetName);
+        if ($cookieGroup === null) {
+            $cookieGroup = new CookieGroup($config->snippetName);
+            $cookieGroupCollection->add($cookieGroup);
+        }
+
+        if ($config->snippetDescription !== null) {
+            $cookieGroup->description = $config->snippetDescription;
+        }
+
+        if ($config->cookie !== null) {
+            $cookieGroup->setCookie($config->cookie);
+        }
+
+        if ($config->value !== null) {
+            $cookieGroup->value = $config->value;
+        }
+
+        if ($config->expiration !== null) {
+            $cookieGroup->expiration = $config->expiration;
+        }
+
+        if ($config->entries === []) {
+            return;
+        }
+
+        $cookieEntries = $cookieGroup->getEntries();
+        if ($cookieEntries === null) {
+            $cookieEntries = new CookieEntryCollection();
+            $cookieGroup->setEntries($cookieEntries);
+        }
+
+        foreach ($entries as $entry) {
+            $cookieEntry = new CookieEntry((string) $entry['cookie']);
+
+            if (\array_key_exists('snippet_name', $entry)) {
+                $cookieEntry->name = (string) $entry['snippet_name'];
             }
 
-            if (\array_key_exists('snippet_description', $cookie)) {
-                $cookieGroup->description = $cookie['snippet_description'];
+            if (\array_key_exists('snippet_description', $entry)) {
+                $cookieEntry->description = (string) $entry['snippet_description'];
             }
 
-            if (\array_key_exists('cookie', $cookie)) {
-                $cookieGroup->setCookie($cookie['cookie']);
+            if (\array_key_exists('value', $entry)) {
+                $cookieEntry->value = (string) $entry['value'];
             }
 
-            if (\array_key_exists('value', $cookie)) {
-                $cookieGroup->value = $cookie['value'];
+            if (\array_key_exists('expiration', $entry)) {
+                $cookieEntry->expiration = (int) $entry['expiration'];
             }
 
-            if (\array_key_exists('expiration', $cookie)) {
-                $cookieGroup->expiration = (int) $cookie['expiration'];
-            }
-
-            if (\array_key_exists('entries', $cookie)) {
-                $cookieEntries = $cookieGroup->getEntries();
-                if ($cookieEntries === null) {
-                    $cookieEntries = new CookieEntryCollection();
-                    $cookieGroup->setEntries($cookieEntries);
-                }
-
-                foreach ($cookie['entries'] as $entry) {
-                    $cookieEntry = new CookieEntry($entry['cookie']);
-
-                    if (\array_key_exists('snippet_name', $entry)) {
-                        $cookieEntry->name = $entry['snippet_name'];
-                    }
-
-                    if (\array_key_exists('snippet_description', $entry)) {
-                        $cookieEntry->description = $entry['snippet_description'];
-                    }
-
-                    if (\array_key_exists('value', $entry)) {
-                        $cookieEntry->value = $entry['value'];
-                    }
-
-                    if (\array_key_exists('expiration', $entry)) {
-                        $cookieEntry->expiration = (int) $entry['expiration'];
-                    }
-
-                    $cookieEntries->add($cookieEntry);
-                }
-            }
+            $cookieEntries->add($cookieEntry);
         }
     }
 
     /**
+     * @param list<AppFeature<CookieConfig>> $features
+     *
      * @return array<string, true> handler identifiers of the app payment methods active in the sales channel
      */
-    private function fetchActiveHandlerIdentifiers(AppCollection $apps, CookieGroupCollectEvent $event): array
+    private function fetchActiveHandlerIdentifiers(array $features, CookieGroupCollectEvent $event): array
     {
-        if (!$this->hasPaymentMethodConditions($apps)) {
+        if (!$this->hasPaymentMethodConditions($features)) {
             return [];
         }
 
@@ -146,14 +146,19 @@ class AppCookieCollectListener
         return $activeHandlerIdentifiers;
     }
 
-    private function hasPaymentMethodConditions(AppCollection $apps): bool
+    /**
+     * @param list<AppFeature<CookieConfig>> $features
+     */
+    private function hasPaymentMethodConditions(array $features): bool
     {
-        foreach ($apps as $app) {
-            foreach ($app->getCookies() as $cookie) {
-                foreach ([$cookie, ...($cookie['entries'] ?? [])] as $item) {
-                    if (($item['active_payment_methods'] ?? []) !== []) {
-                        return true;
-                    }
+        foreach ($features as $feature) {
+            if ($feature->config->activePaymentMethods !== []) {
+                return true;
+            }
+
+            foreach ($feature->config->entries as $entry) {
+                if (self::entryPaymentMethods($entry) !== []) {
+                    return true;
                 }
             }
         }
@@ -162,45 +167,16 @@ class AppCookieCollectListener
     }
 
     /**
-     * @param list<Cookie> $cookies
-     * @param array<string, true> $activeHandlerIdentifiers
-     *
-     * @return list<Cookie>
-     */
-    private function filterCookies(string $appName, array $cookies, array $activeHandlerIdentifiers): array
-    {
-        $filtered = [];
-
-        foreach ($cookies as $cookie) {
-            if (!$this->isCookieAllowed($appName, $cookie, $activeHandlerIdentifiers)) {
-                continue;
-            }
-
-            if (\array_key_exists('entries', $cookie)) {
-                $cookie['entries'] = array_values(array_filter(
-                    $cookie['entries'],
-                    fn (array $entry): bool => $this->isCookieAllowed($appName, $entry, $activeHandlerIdentifiers),
-                ));
-            }
-
-            $filtered[] = $cookie;
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param Cookie|CookieEntryArray $cookie
+     * @param list<string> $activePaymentMethods
      * @param array<string, true> $activeHandlerIdentifiers
      */
-    private function isCookieAllowed(string $appName, array $cookie, array $activeHandlerIdentifiers): bool
+    private function isCookieAllowed(string $appName, array $activePaymentMethods, array $activeHandlerIdentifiers): bool
     {
-        $identifiers = $cookie['active_payment_methods'] ?? [];
-        if ($identifiers === []) {
+        if ($activePaymentMethods === []) {
             return true;
         }
 
-        foreach ($identifiers as $identifier) {
+        foreach ($activePaymentMethods as $identifier) {
             if ($identifier === self::ANY_PAYMENT_METHOD) {
                 $prefix = AppHandlerIdentifier::build($appName, '');
                 foreach (array_keys($activeHandlerIdentifiers) as $handlerIdentifier) {
@@ -218,5 +194,16 @@ class AppCookieCollectListener
         }
 
         return false;
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     *
+     * @return list<string>
+     */
+    private static function entryPaymentMethods(array $entry): array
+    {
+        /** @var list<string> */
+        return $entry['active_payment_methods'] ?? [];
     }
 }

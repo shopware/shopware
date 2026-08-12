@@ -653,6 +653,18 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * Drops an allowlist field selection added via {@see addFields()}. Use it when the consumer of the
+     * search result requires fully hydrated entities: partial loading hydrates PartialEntity instances
+     * into a generic EntityCollection instead of the entity and collection class of the definition.
+     */
+    public function resetFields(): self
+    {
+        $this->fields = [];
+
+        return $this;
+    }
+
+    /**
      * Denylist counterpart to {@see addFields()}: loads the full, typed entity but omits the given
      * storage fields. Cannot be combined with addFields(); required and write-protected fields cannot be excluded.
      *

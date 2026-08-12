@@ -94,6 +94,11 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 ### Store API schema documents cart totals as a separate `CartPrice` component
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
+### Cross selling always returns completely loaded products
+
+`POST /store-api/product/{productId}/cross-selling` now ignores a `fields` selection and always loads complete products. A `fields` selection returns `PartialEntity` instances, which the cross selling elements are not typed against, so such a request previously failed with a `500`. Use `includes` to reduce the size of the response instead. A field selection added by a subscriber of `ProductCrossSellingStreamCriteriaEvent` or `ProductCrossSellingIdsCriteriaEvent` is dropped as well.
+
+The new `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops a field selection added via `addFields()`. Use it in custom routes and services when the consumer of the result requires completely loaded entities.
 
 ## Core
 

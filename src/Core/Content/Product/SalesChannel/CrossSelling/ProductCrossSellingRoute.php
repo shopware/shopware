@@ -180,6 +180,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
+        // CrossSellingElement is typed against ProductCollection, a field selection would hydrate
+        // PartialEntity instances into a generic EntityCollection instead
+        $criteria->resetFields();
+
         $products = $this->listingLoader->load($criteria, $context)->getEntities();
 
         $element = new CrossSellingElement();
@@ -225,6 +229,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $this->eventDispatcher->dispatch(
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
+
+        // CrossSellingElement is typed against ProductCollection, a field selection would hydrate
+        // PartialEntity instances into a generic EntityCollection instead
+        $criteria->resetFields();
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
 

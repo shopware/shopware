@@ -173,4 +173,18 @@ class CriteriaTest extends TestCase
 
         static::assertSame(13, $criteria->getNextPagesLimit());
     }
+
+    public function testResetFieldsRemovesTheAllowlistFieldSelection(): void
+    {
+        $criteria = (new Criteria())->addFields(['id', 'name']);
+
+        $criteria->resetFields();
+
+        static::assertSame([], $criteria->getFields());
+
+        // the allowlist is gone, so the mutually exclusive denylist can be used again
+        $criteria->excludeFields(['description']);
+
+        static::assertSame(['description'], $criteria->getExcludedFields());
+    }
 }

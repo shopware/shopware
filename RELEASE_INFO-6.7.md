@@ -520,6 +520,15 @@ Cross-sellings with a manual product assignment are unchanged. Extensions that n
 Writing the `template` field of a `seo_url_template` row now regenerates the SEO URLs of the affected route automatically, instead of leaving them on the old template until the SEO indexer is run manually. The new `SeoUrlTemplateChangeSubscriber` queues `SeoUrlTemplateIndexingMessage` on the `async` transport, and the handler walks the route's entities in batches of 250, chaining one message per batch.
 
 This affects every write path, not just Settings > Shop > SEO:
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### An oversized sales channel criteria is rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — to the first 99 criteria nodes it walks. A criteria with more nested associations than that kept the remaining nodes unrestricted. Such a criteria is now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces a criteria of that size; integrations that build one must split it into several requests.
+
+### Media import URL checks apply to the address that is connected to
 
 - Both storefront routes (registered in the `SeoUrlRouteRegistry`) and headless store-api routes (tagged `shopware.entity.seo_url.route`) are covered.
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.

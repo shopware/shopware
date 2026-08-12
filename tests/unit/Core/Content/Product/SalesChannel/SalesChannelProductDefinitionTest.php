@@ -3,17 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -96,5 +96,53 @@ class SalesChannelProductDefinitionTest extends TestCase
         static::assertInstanceOf(SalesChannelProductDefinition::class, $definition);
 
         return $definition;
+    }
+
+    #[DataProvider('nestingLevelProvider')]
+    public function testProcessCriteriaFiltersInactiveReviewsOnEveryNestingLevel(int $nestingLevel): void
+    {
+        $definition = new SalesChannelProductDefinition();
+        $criteria = new Criteria(nestingLevel: $nestingLevel);
+        $criteria->addAssociation('productReviews');
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
+
+        $definition->processCriteria($criteria, $context);
+
+        static::assertEquals(
+            [new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)])],
+            $criteria->getAssociation('productReviews')->getFilters()
+        );
+    }
+
+    #[DataProvider('nestingLevelProvider')]
+    public function testProcessCriteriaAllowsOwnReviewsOnEveryNestingLevel(int $nestingLevel): void
+    {
+        $definition = new SalesChannelProductDefinition();
+        $criteria = new Criteria(nestingLevel: $nestingLevel);
+        $criteria->addAssociation('productReviews');
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext(customer: $customer);
+
+        $definition->processCriteria($criteria, $context);
+
+        static::assertEquals(
+            [new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('status', true),
+                new EqualsFilter('customerId', $customer->getId()),
+            ])],
+            $criteria->getAssociation('productReviews')->getFilters()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function nestingLevelProvider(): iterable
+    {
+        yield 'root level' => [Criteria::ROOT_NESTING_LEVEL];
+        yield 'first association level' => [1];
+        yield 'second association level' => [2];
     }
 }

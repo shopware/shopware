@@ -15,7 +15,12 @@ declare(strict_types=1);
 //
 // Exit codes:
 //   0 — all entries verified (warnings may still be printed)
-//   1 — one or more entries are missing from the release branch
+//   1 — operational error (bad usage, refs not fetched)
+//   2 — one or more entries are missing from the release branch
+//
+// When GITHUB_OUTPUT is set, the verdict is also written as step outputs
+// (state=success|failure, description=<short summary>) so the workflow can
+// report it as a commit status instead of failing the job.
 
 const TRUNK_REF = 'origin/trunk';
 
@@ -65,6 +70,7 @@ $branchHeadings = extractHeadings($branchContent, $versionPrefix);
 
 if (!$trunkHeadings) {
     echo "No entries found for {$versionPrefix}.* in trunk's {$releaseInfoFile} — nothing to verify.\n";
+    writeStatusOutput('success', "no entries for {$versionPrefix}.* on trunk — nothing to verify");
     exit(0);
 }
 
@@ -146,11 +152,24 @@ if (\is_string($summaryFile) && $summaryFile !== '') {
 
 if ($missing) {
     echo "These features were documented in {$releaseInfoFile} on trunk but have not been merged into this release branch.\n";
-    exit(1);
+    writeStatusOutput('failure', sprintf('%d of %d documented entries missing from %s', \count($missing), $total, $targetBranch));
+    exit(2);
 }
 
 $ok = $total - \count($warnings);
 echo "OK: {$ok} of {$total} entries confirmed present. " . \count($warnings) . " need manual verification (see above).\n";
+writeStatusOutput('success', sprintf('%d of %d entries confirmed, %d need manual verification', $confirmed, $total, \count($warnings)));
+
+// Writes the verdict as step outputs so the workflow can report it as a commit status.
+function writeStatusOutput(string $state, string $description): void
+{
+    $outputFile = getenv('GITHUB_OUTPUT');
+    if (!\is_string($outputFile) || $outputFile === '') {
+        return;
+    }
+
+    file_put_contents($outputFile, "state={$state}\ndescription={$description}\n", \FILE_APPEND);
+}
 
 /**
  * Collects every "### " heading that appears under a "# <version-prefix>.*" section.

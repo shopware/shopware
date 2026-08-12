@@ -1,4 +1,3 @@
-// Pressed, not hover, so an open sidebar stays distinguishable from hovering an inactive trigger
 .sw-app-topbar-sidebar__icon.sw-app-topbar-sidebar__icon-active {
-    background: var(--color-interaction-secondary-pressed);
+    background: var(--color-interaction-secondary-hover);
 }

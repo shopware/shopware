@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -19,6 +20,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ElasticsearchStatusCommand extends Command
 {
+    /**
+     * @deprecated tag:v6.8.0 - The command no longer renders a progress bar, so the trait and the
+     * getSubscribedEvents(), startProgress(), advanceProgress() and finishProgress() methods it provides will be
+     * removed. They are kept for one minor because the class is not internal.
+     */
+    use ConsoleProgressTrait;
+
     /**
      * @internal
      */

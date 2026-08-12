@@ -10,17 +10,9 @@
             {% block sw_dashboard_index_content_intro_content %}
             <div class="sw-dashboard-index__welcome-text">
                 {% block sw_dashboard_index_content_intro %}
-                {% block sw_dashboard_index_content_intro_content_headline %}
-                <h1 class="sw-dashboard-index__welcome-title">
-                    {{ welcomeMessage }}
-                </h1>
-                {% endblock %}
+                {% block sw_dashboard_index_content_intro_content_headline %}{% endblock %}
 
-                {% block sw_dashboard_index_content_intro_welcome_message %}
-                <p class="sw-dashboard-index__welcome-message">
-                    {{ welcomeSubline }}
-                </p>
-                {% endblock %}
+                {% block sw_dashboard_index_content_intro_welcome_message %}{% endblock %}
                 {% endblock %}
             </div>
             {% endblock %}

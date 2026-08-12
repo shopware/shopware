@@ -219,6 +219,15 @@ MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `
 
 Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 
+### SEO URLs for headless sales channels
+
+Headless (API type) sales channels can now generate SEO URLs and be used for product export feeds. Products, categories and landing pages generate SEO URLs for headless channels via dedicated store-api routes (`store-api.product.detail`, `store-api.category.detail`, `store-api.landing-page.detail`).
+
+- The `seo_url_template` entity gained an `is_headless` flag that discriminates the storefront (`frontend.*`) and headless (`store-api.*`) route families. Storefront channels resolve the non-headless templates, headless channels the headless ones — the two inheritance chains are kept separate.
+- Three default `store-api.*` templates are seeded (one per entity), mirroring the relative template of their storefront counterpart. Headless channels inherit these defaults just like storefront channels inherit the `frontend.*` defaults; the resolved path is prefixed with the host of the external storefront domain. A per-channel template may be an absolute URL (`https://…`), which is then used as-is.
+- The `sales_channel_domain` entity gained an `is_external_storefront` flag (default `false`). For headless sales channels, SEO URLs are only generated for domains flagged as external storefront, and the resolved relative path is prefixed with that domain's URL (one SEO URL per matching domain). The flag can be set per domain in the Administration when editing a headless sales channel's domains.
+- Product export feeds now accept both *Storefront* and *Headless* sales channels.
+
 ### New BC-change attributes for planned API changes
 
 Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
@@ -304,6 +313,9 @@ sw.ui.tabs('sw-order-detail').addTabItem({
     label: 'my-plugin.tabTitle',
     componentSectionId: 'my-plugin-tab',
     visible: order.stateMachineState.technicalName === 'open',
+});
+```
+
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -442,6 +454,11 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## App System
 
+### App installation recovers ambiguously failed registrations
+
+A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed.
+
+Recovery also survives an uninstall. An app that adopted a secret the shop never committed rejects everything the shop signs afterwards, including the `app.deleted` webhook, so it keeps its registration across an uninstall and a plain reinstall used to fail with a signature error. The unconfirmed secrets are now kept alongside the committed one when an app is removed, and reinstalling authenticates with them.
 ### Apps can register custom fields on media folders
 
 Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.

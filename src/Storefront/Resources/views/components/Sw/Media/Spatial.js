@@ -1,11 +1,14 @@
+import { QuickView } from '@shopware-ag/dive/quickview';
+
 export default class MediaSpatial extends ShopwareComponent {
     static options = {
         dragClickThreshold: 10,
+        modelUrl: null,
     };
 
     init() {
-        this.spatialBaseViewerInstance = null;
-        this.canvasElement = this.el.querySelector('[data-spatial-base-viewer]');
+        this.viewer = null;
+        this.canvasElement = this.el.querySelector('.sw-media-spatial__canvas');
         this.loaderElement = this.el.querySelector('.sw-media-spatial__loader');
 
         this.pointerDown = false;
@@ -14,34 +17,41 @@ export default class MediaSpatial extends ShopwareComponent {
 
         this.initSuppressClickAfterDrag();
 
-        this.initializeObserver({
-            childList: true,
-            attributes: true,
-            subtree: true,
-        });
+        this.initViewer();
     }
 
-    onAttributeUpdate(mutationRecord) {
-        // Wait until SpatialBaseViewer initialized the canvas
-        if (mutationRecord.attributeName === 'data-engine') {
-            this.spatialBaseViewerInstance = window.PluginManager.getPluginInstanceFromElement(this.canvasElement, 'SpatialBaseViewer');
-            this.initVisibilityObserver();
+    /**
+     * Initialize the DIVE QuickView on the canvas. Rendering is not started
+     * automatically, the visibility observer takes care of that.
+     */
+    async initViewer() {
+        if (!this.canvasElement || !this.options.modelUrl) {
+            return;
         }
+
+        this.canvasElement.tabIndex = 0;
+
+        this.viewer = await QuickView(this.options.modelUrl, {
+            autoStart: false,
+            canvas: this.canvasElement,
+        });
+
+        this.initVisibilityObserver();
     }
 
     initVisibilityObserver() {
-        if (!this.spatialBaseViewerInstance) {
+        if (!this.viewer) {
             return;
         }
 
         this.observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    this.loaderElement.classList.add('d-none');
-                    this.spatialBaseViewerInstance.startRendering();
+                    this.loaderElement?.classList.add('d-none');
+                    this.viewer.start();
                 } else {
-                    this.spatialBaseViewerInstance.stopRendering();
-                    this.loaderElement.classList.remove('d-none');
+                    this.viewer.stop();
+                    this.loaderElement?.classList.remove('d-none');
                 }
             });
         });
@@ -95,6 +105,8 @@ export default class MediaSpatial extends ShopwareComponent {
         if (this.observer) {
             this.observer.disconnect();
         }
+
+        this.viewer?.stop();
 
         if (this.canvasElement) {
             this.canvasElement.removeEventListener('pointerdown', this.onPointerDown);

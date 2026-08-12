@@ -113,10 +113,6 @@ PluginManager.register('AlertAria', AlertAriaPlugin, '[data-alert-aria]'); // Pl
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialBaseViewer', () => import('src/plugin/spatial/spatial-base-viewer.plugin'), '[data-spatial-base-viewer]');
-/**
- * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
- */
 PluginManager.register('SpatialGallerySliderViewer', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES

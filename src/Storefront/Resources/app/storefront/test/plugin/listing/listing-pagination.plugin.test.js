@@ -115,6 +115,16 @@ describe('listing-pagination.plugin', () => {
         }
     });
 
+    test('falls back to first page when dataset page is non-numeric', () => {
+        const pageItem = document.querySelector('[data-page="3"]');
+        pageItem.dataset.page = 'page';
+
+        pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+
+        const canonicalMetaTag = document.head.querySelector('link[rel="canonical"]');
+        expect(canonicalMetaTag?.href).toBe('https://example.com/paginated-page/');
+    });
+
     test('removes pagination parameter from canonical URL when returning to first page', async () => {
         const pageItem = document.querySelector('[data-page="1"]');
 
@@ -139,5 +149,15 @@ describe('listing-pagination.plugin', () => {
         // Ensure the focusHandler tries to resume the focus with the correct parameters
         expect(resumeFocusSpy).toHaveBeenCalledTimes(1);
         expect(window.focusHandler.resumeFocusState).toHaveBeenCalledWith('listing-pagination', { preventScroll: true });
+    });
+
+    test('sets page from URL parameter', () => {
+        expect(listingPaginationPlugin.setValuesFromUrl({ p: '3' })).toBe(true);
+        expect(listingPaginationPlugin.getValues()).toEqual({ p: 3 });
+    });
+
+    test('falls back to first page for non-numeric URL parameter', () => {
+        expect(listingPaginationPlugin.setValuesFromUrl({ p: 'page' })).toBe(false);
+        expect(listingPaginationPlugin.getValues()).toEqual({ p: 1 });
     });
 });

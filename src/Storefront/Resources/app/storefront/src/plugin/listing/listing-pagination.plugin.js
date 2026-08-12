@@ -42,7 +42,7 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     onChangePage(event) {
         event.preventDefault();
 
-        this.tempValue = parseInt(event.currentTarget.dataset.page);
+        this.tempValue = this._getPageNumber(event.currentTarget.dataset.page);
         this._saveFocusState(event.currentTarget);
 
         this._pageChanged = true;
@@ -132,9 +132,9 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         this.tempValue = 1;
 
         if (params.p) {
-            const pageParam = parseInt(params.p);
-            if (pageParam !== this.tempValue) {
-                this.tempValue = pageParam;
+            const page = this._getPageNumber(params.p);
+            if (page !== this.tempValue) {
+                this.tempValue = page;
                 stateChanged = true;
             }
         }
@@ -158,5 +158,16 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
             }
             canonicalMetaTag.href = canonicalUrl.href;
         }
+    }
+
+    /**
+     * @param {string} page
+     * @returns {number}
+     * @private
+     */
+    _getPageNumber(page) {
+        const pageNumber = parseInt(page, 10);
+
+        return Number.isInteger(pageNumber) ? pageNumber : 1;
     }
 }

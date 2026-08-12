@@ -203,7 +203,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     {
         foreach ($this->getFinishedTargets() as $alias => $indices) {
             if (!$this->client->indices()->existsAlias(['name' => $alias])) {
-                $this->putAlias($indices[0], $alias);
+                $this->promote($alias, $this->newest($indices), []);
 
                 continue;
             }
@@ -216,21 +216,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 continue;
             }
 
-            // two runs can finish before either was promoted; the rows are ordered by index name, whose suffix is
-            // the creation timestamp, so the last one is the newest. The rows of the others are dropped below,
-            // which leaves their indices unused.
-            $newest = $finished[array_key_last($finished)];
-
-            $this->putAlias($newest, $alias);
-
-            foreach ($live as $outdated) {
-                $this->client->indices()->delete(['index' => $outdated]);
-            }
-
-            $this->connection->executeStatement(
-                'DELETE FROM admin_elasticsearch_index_task WHERE `alias` = :alias AND `index` != :index',
-                ['alias' => $alias, 'index' => $newest]
-            );
+            $this->promote($alias, $this->newest($finished), $live);
         }
     }
 
@@ -270,6 +256,36 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'body' => $mapping,
             ]);
         }
+    }
+
+    /**
+     * Two runs can finish before either was promoted. The rows are ordered by index name, whose suffix is the
+     * creation timestamp, so the last one is the newest.
+     *
+     * @param non-empty-list<string> $indices
+     */
+    private function newest(array $indices): string
+    {
+        return $indices[array_key_last($indices)];
+    }
+
+    /**
+     * @param array<string> $outdated indices the alias served so far
+     */
+    private function promote(string $alias, string $index, array $outdated): void
+    {
+        $this->putAlias($index, $alias);
+
+        foreach ($outdated as $previous) {
+            $this->client->indices()->delete(['index' => $previous]);
+        }
+
+        // drops the rows of the replaced indices and of any run that finished but lost the promotion, which leaves
+        // those indices unused
+        $this->connection->executeStatement(
+            'DELETE FROM admin_elasticsearch_index_task WHERE `alias` = :alias AND `index` != :index',
+            ['alias' => $alias, 'index' => $index]
+        );
     }
 
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
@@ -345,7 +361,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, list<string>> indices to write to, keyed by alias
+     * @return array<string, non-empty-list<string>> indices to write to, keyed by alias
      */
     private function getWriteTargets(): array
     {
@@ -355,7 +371,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, list<string>> indices whose indexing run completed, keyed by alias
+     * @return array<string, non-empty-list<string>> indices whose indexing run completed, keyed by alias
      */
     private function getFinishedTargets(): array
     {
@@ -367,7 +383,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     /**
      * @param list<array<string, mixed>> $rows
      *
-     * @return array<string, list<string>>
+     * @return array<string, non-empty-list<string>>
      */
     private function groupByAlias(array $rows): array
     {

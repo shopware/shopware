@@ -31,6 +31,10 @@ const projectRoot = process.env.PROJECT_ROOT
 const scssLoadPaths = [
     path.resolve(import.meta.dirname, 'vendor'),
     path.resolve(import.meta.dirname, 'src/scss'),
+    // Bare specifiers such as `bootstrap/scss/functions` otherwise resolve only through the
+    // views/components/node_modules symlink, which exists solely after the storefront's
+    // postinstall hook has run.
+    path.resolve(import.meta.dirname, 'node_modules'),
 ];
 
 const storefrontViteOrigin = process.env.STOREFRONT_VITE_ORIGIN;

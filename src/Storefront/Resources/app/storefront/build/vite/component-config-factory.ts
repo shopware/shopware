@@ -126,6 +126,11 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
         path.join(storefrontAppDir, 'vendor'),
         path.join(coreStorefrontAppDir, 'vendor'),
         path.join(coreStorefrontAppDir, 'src/scss'),
+        // Bare specifiers such as `bootstrap/scss/functions` otherwise resolve only through the
+        // views/components/node_modules symlink, which exists solely after the storefront's
+        // postinstall hook has run.
+        path.join(storefrontAppDir, 'node_modules'),
+        path.join(coreStorefrontAppDir, 'node_modules'),
     ];
 
     const pluginStack: Plugin[] = [

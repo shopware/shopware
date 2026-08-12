@@ -26,6 +26,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
@@ -337,7 +338,7 @@ class ProductControllerTest extends TestCase
             ->search(new Criteria([$this->getSalesChannelId()]), Context::createDefaultContext())
             ->getEntities()
             ->first();
-        static::assertNotNull($salesChannel);
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $parentCategoryId = Uuid::randomHex();
         $categoryId = Uuid::randomHex();

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
@@ -89,10 +90,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookTargetValidator::class),
         ]);
 
+    $services->set('shopware.webhook.trusted_url_resolver', TrustedUrlResolver::class)
+        ->args([
+            null,
+            true,
+            param('shopware.webhook.allowed_private_ip_addresses'),
+        ]);
+
     $services->set(WebhookTargetValidator::class)
         ->args([
             param('shopware.webhook.allow_unencrypted_traffic'),
             param('shopware.webhook.allowed_private_ip_addresses'),
+            service('shopware.webhook.trusted_url_resolver'),
         ]);
 
     $services->set(WebhookUrlWriteValidator::class)

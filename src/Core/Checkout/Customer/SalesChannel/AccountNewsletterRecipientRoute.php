@@ -4,11 +4,13 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient\NewsletterStatus;
+use Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient\ReadNewsletterRecipientExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient\ReadNewsletterRecipientResponse;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -29,8 +31,10 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
      *
      * @param SalesChannelRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
-    public function __construct(private readonly SalesChannelRepository $newsletterRecipientRepository)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $newsletterRecipientRepository,
+        private readonly ExtensionDispatcher $extensions,
+    ) {
     }
 
     public function getDecorated(): AbstractAccountNewsletterRecipientRoute
@@ -68,7 +72,18 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
         SalesChannelContext $context,
         CustomerEntity $customer
     ): ReadNewsletterRecipientResponse {
-        $criteria = new Criteria();
+        return $this->extensions->publish(
+            name: ReadNewsletterRecipientExtension::NAME,
+            extension: new ReadNewsletterRecipientExtension(new Criteria(), $context, $customer),
+            function: $this->loadV2Internal(...),
+        );
+    }
+
+    private function loadV2Internal(
+        Criteria $criteria,
+        SalesChannelContext $context,
+        CustomerEntity $customer,
+    ): ReadNewsletterRecipientResponse {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));
         $criteria->setLimit(1);
         $criteria->addFields(['status']);

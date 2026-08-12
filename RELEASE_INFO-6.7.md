@@ -534,6 +534,10 @@ Other environments are unrestricted, so local setups and tests can still point a
 
 ## Critical Fixes
 
+### Throwaway entry to test the release-info section gate
+
+This entry is deliberately misfiled in an already-shipped section to prove the `release-info/section` status turns red. This PR is never merged.
+
 ### Store API requests no longer start PHP sessions
 
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.

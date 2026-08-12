@@ -28,4 +28,9 @@ final readonly class CancellationInvoiceDocumentType extends AbstractDocumentTyp
             DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
         ];
     }
+
+    public function allowsNegativeLineItems(): bool
+    {
+        return true;
+    }
 }

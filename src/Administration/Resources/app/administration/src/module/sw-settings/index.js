@@ -63,7 +63,7 @@ Module.register('sw-settings', {
             color: '#9AA8B5',
             icon: 'regular-cog',
             path: 'sw.settings.index',
-            position: 80,
+            position: 90,
         },
     ],
 });

@@ -104,7 +104,7 @@ EOF,
         }
 
         $components->merge(array_values($this->createSecurityScheme($api)));
-        $components->merge(array_values($this->createDefaultResponses()));
+        $components->merge(array_values($this->createDefaultResponses($api)));
     }
 
     /**
@@ -432,16 +432,21 @@ EOF,
     /**
      * @return OpenApiResponse[]
      */
-    private function createDefaultResponses(): array
+    private function createDefaultResponses(string $api): array
     {
-        return [
+        $responses = [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
             Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
             Response::HTTP_TOO_MANY_REQUESTS => $this->createErrorResponse(Response::HTTP_TOO_MANY_REQUESTS, 'Too Many Requests', 'Rate limit exceeded. Please wait before retrying.'),
-            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
+
+        if ($api !== DefinitionService::STORE_API) {
+            $responses[Response::HTTP_NO_CONTENT] = new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]);
+        }
+
+        return $responses;
     }
 
     private function createErrorResponse(int $statusCode, string $title, string $description): OpenApiResponse

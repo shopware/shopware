@@ -82,6 +82,10 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ## Core
 
+### Sales channel API context hydrates customer when only `customer_id` column is set
+
+`SalesChannelContextPersister::load()` now promotes the `customer_id` database column into the session `customerId` when the JSON payload omits it (for example after `replace()` inserts a row with an empty payload). Store API requests then hydrate `SalesChannelContext::getCustomer()` correctly, so customer-scoped rules and flows no longer run as guest for those tokens.
+
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).

@@ -157,7 +157,10 @@ class SalesChannelContextPersister
 
         $payload['token'] = $context['token'];
 
-        if (!isset($payload[SalesChannelContextService::CUSTOMER_ID]) && !empty($context['customer_id'])) {
+        if (!isset($payload[SalesChannelContextService::CUSTOMER_ID])
+            && \is_string($context['customer_id'] ?? null)
+            && $context['customer_id'] !== ''
+        ) {
             $payload[SalesChannelContextService::CUSTOMER_ID] = Uuid::fromBytesToHex($context['customer_id']);
         }
 
@@ -201,7 +204,8 @@ class SalesChannelContextPersister
     private function getCustomerContext(array $data, string $salesChannelId, string $customerId): ?array
     {
         foreach ($data as $row) {
-            if (!empty($row['customer_id'])
+            if (\is_string($row['customer_id'] ?? null)
+                && $row['customer_id'] !== ''
                 && Uuid::fromBytesToHex($row['sales_channel_id']) === $salesChannelId
                 && Uuid::fromBytesToHex($row['customer_id']) === $customerId
             ) {

@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 env:
-  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:

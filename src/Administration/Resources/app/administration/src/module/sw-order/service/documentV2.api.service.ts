@@ -1,8 +1,10 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { LoginService } from '../login.service';
-import ApiService from '../api.service';
-import { DOCUMENT_TYPES } from '../../../module/sw-order/service/documentV2.service';
-import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
+import type { LoginService } from '../../../core/service/login.service';
+import ApiService from '../../../core/service/api.service';
+import { DOCUMENT_TYPES } from './documentV2.service';
+import fileReaderUtils from '../../../core/service/utils/file-reader.utils';
+
+const { Application } = Shopware;
 
 type DocumentTypeFormats = {
     formats: string[];
@@ -210,7 +212,14 @@ export default class DocumentV2ApiService extends ApiService {
     }
 }
 
+Application.addServiceProvider('documentV2ApiService', () => {
+    return new DocumentV2ApiService(
+        Application.getContainer('init').httpClient,
+        Shopware.Service('loginService'),
+    );
+});
+
 /**
  * @private
  */
-export type { AvailableDocumentTypesResponse, DocumentCreateResponse, DocumentError, DocumentTypeFormats };
+export type { AvailableDocumentTypesResponse, DocumentCreateResponse, DocumentTypeFormats };

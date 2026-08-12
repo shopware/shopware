@@ -1,4 +1,5 @@
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -45,6 +46,7 @@ Module.register('sw-settings-rule', {
     icon: 'regular-rule',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
+    defaultSearchConfiguration,
 
     routes: {
         index: {

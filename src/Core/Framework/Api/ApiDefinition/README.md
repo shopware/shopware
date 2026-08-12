@@ -51,7 +51,7 @@ Flags such as `ApiAware`, `Required`, `WriteProtected`, and `Runtime` are not sc
 
 The next metadata-cleanup phase should first preserve the corresponding Admin API schema in JSON or another Admin-specific source, then remove PHP descriptions, version information, and OpenAPI-only flags that have no remaining consumer. Keep runtime and DAL flags unchanged.
 
-JSON-owned Store API components use the flat JSON base schema and receive only typed extension fields from PHP. During the migration, definitions without a matching JSON component continue to generate their legacy flat and `*JsonApi` PHP schemas; both are tracked in `phpGeneratedStoreApiSchemas`.
+JSON-owned Store API components use the flat JSON base schema and receive only typed extension fields from PHP. During the migration, definitions without a matching JSON component generate their legacy flat and `*JsonApi` PHP schemas only when the static Store API path schema references the missing component; both are tracked in `phpGeneratedStoreApiSchemas`. Unreferenced PHP definitions are not Store API schema debt and should not be represented by unused JSON components.
 
 Core has reached the target state: `jsonOverridesPhpGenerated` and `phpGeneratedStoreApiSchemas` are empty. All core Store API entity components are JSON-owned, and the legacy PHP-generated `*JsonApi` compatibility schemas are no longer emitted.
 

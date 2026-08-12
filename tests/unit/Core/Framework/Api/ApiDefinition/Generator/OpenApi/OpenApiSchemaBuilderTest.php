@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(OpenApiSchemaBuilder::class)]
 class OpenApiSchemaBuilderTest extends TestCase
 {
-    public function testEnrichAddsDefaultErrorResponses(): void
+    public function testEnrichAddsDefaultErrorResponsesForStoreApi(): void
     {
         $openApi = new OpenApi([]);
 
@@ -33,11 +33,24 @@ class OpenApiSchemaBuilderTest extends TestCase
             Response::HTTP_FORBIDDEN => 'Forbidden',
             Response::HTTP_NOT_FOUND => 'Not Found',
             Response::HTTP_TOO_MANY_REQUESTS => 'Too Many Requests',
-            Response::HTTP_NO_CONTENT => 'No Content',
         ] as $statusCode => $description) {
             static::assertArrayHasKey($statusCode, $responses, \sprintf('Default response for status %d is missing', $statusCode));
             static::assertSame($description, $responses[$statusCode]->description);
         }
+
+        static::assertArrayNotHasKey(Response::HTTP_NO_CONTENT, $responses);
+    }
+
+    public function testEnrichAddsNoContentDefaultResponseForAdminApi(): void
+    {
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
+
+        $responses = $this->getResponsesByStatusCode($openApi);
+
+        static::assertArrayHasKey(Response::HTTP_NO_CONTENT, $responses);
+        static::assertSame('No Content', $responses[Response::HTTP_NO_CONTENT]->description);
     }
 
     public function testEnrichUsesApiKeySecurityForStoreApi(): void

@@ -1,0 +1,51 @@
+diff --git a/node_modules/axios-mock-adapter/src/handle_request.js b/node_modules/axios-mock-adapter/src/handle_request.js
+index 4b97b19..c8e6bf1 100644
+--- a/node_modules/axios-mock-adapter/src/handle_request.js
++++ b/node_modules/axios-mock-adapter/src/handle_request.js
+@@ -24,6 +24,32 @@ function passThroughRequest (mockAdapter, config) {
+   }));
+ }
+ 
++// axios >= 0.32 builds merged config objects (headers, params, ...) with
++// Object.create(null) as prototype-pollution hardening. Both the AxiosHeaders
++// detection below and fast-deep-equal (used by findHandler) read `.constructor`,
++// which is undefined on such objects - the first throws, the second never
++// matches. Re-attach Object.prototype before handing the values to findHandler.
++function withObjectPrototype(value) {
++  if (!value || typeof value !== "object") {
++    return value;
++  }
++
++  if (Array.isArray(value)) {
++    return value.map(withObjectPrototype);
++  }
++
++  if (Object.getPrototypeOf(value) !== null) {
++    return value;
++  }
++
++  const normalized = {};
++  Object.keys(value).forEach(function (key) {
++    normalized[key] = withObjectPrototype(value[key]);
++  });
++
++  return normalized;
++}
++
+ async function handleRequest(mockAdapter, config) {
+   let url = config.url || "";
+   // TODO we're not hitting this `if` in any of the tests, investigate
+@@ -42,10 +68,10 @@ async function handleRequest(mockAdapter, config) {
+     config.method,
+     url,
+     config.data,
+-    config.params,
+-    (config.headers && config.headers.constructor.name === "AxiosHeaders")
++    withObjectPrototype(config.params),
++    (config.headers && config.headers.constructor && config.headers.constructor.name === "AxiosHeaders")
+       ? Object.assign({}, config.headers.toJSON())
+-      : config.headers,
++      : withObjectPrototype(config.headers),
+     config.baseURL
+   );
+ 

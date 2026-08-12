@@ -64,13 +64,17 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Cache CS Fixer
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # per-run key + prefix restore, like the PHPStan and Rector result caches: a static
+      # key is never re-saved once it exists, so the stored cache goes stale against
+      # php-cs-fixer's internal signature (PHP/fixer version, rules) and the run silently
+      # pays a full scan despite a cache hit
+      - name: "Restore result cache"
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
-          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
           restore-keys: |
-            ${{ runner.os }}-cs-fixer-
+            cs-fixer-result-cache-
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
@@ -80,6 +84,13 @@ jobs:
 
       - name: Code Style
         run: composer run cs
+
+      - name: "Save result cache"
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: ./var/cache/cs_fixer
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
 
       - name: Lint Snippets
         run: bin/console translation:validate
@@ -353,6 +364,15 @@ jobs:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-${{ matrix.suite }}
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
   license-check:
     needs:

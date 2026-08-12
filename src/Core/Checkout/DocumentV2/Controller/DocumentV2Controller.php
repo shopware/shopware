@@ -74,7 +74,7 @@ final class DocumentV2Controller extends AbstractController
     {
         $documentTypes = [];
 
-        foreach ($this->documentTypeRegistry->getDocumentTypes() as $documentType) {
+        foreach ($this->documentTypeRegistry->getTechnicalNames() as $documentType) {
             $documentTypes[$documentType] = [
                 'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];

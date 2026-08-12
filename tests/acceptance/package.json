@@ -32,8 +32,8 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
+    "@shopware-ag/acceptance-test-suite": "https://pkg.pr.new/shopware/acceptance-test-suite/@shopware-ag/acceptance-test-suite@674",
     "@currents/playwright": "2.3.3",
-    "@shopware-ag/acceptance-test-suite": "12.16.0",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"

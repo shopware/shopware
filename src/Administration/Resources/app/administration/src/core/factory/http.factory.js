@@ -162,22 +162,29 @@ function createFormConfig(method, url, data, config) {
 }
 
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
-    const handlers = [];
+    // Keep the public facade separate from Axios' internal interceptor stacks. The
+    // initial handlers contain version-specific closures (notably the cache
+    // adapter), so copying v0 handlers into v1 would break v1 requests.
+    const handlers = axiosV0Interceptors.handlers.map(cloneInterceptorHandler);
 
-    const syncHandlers = () => {
-        axiosV0Interceptors.handlers = handlers.map(cloneInterceptorHandler);
-        axiosV1Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+    const mirrorHandlerMutation = (property, value) => {
+        const mirroredValue = property === 'length' ? value : cloneInterceptorHandler(value);
+
+        axiosV0Interceptors.handlers[property] = mirroredValue;
+        axiosV1Interceptors.handlers[property] = mirroredValue;
     };
+
     const mirroredHandlers = new Proxy(handlers, {
         set(target, property, value) {
             Reflect.set(target, property, value);
-            syncHandlers();
+            mirrorHandlerMutation(property, value);
 
             return true;
         },
         deleteProperty(target, property) {
             Reflect.deleteProperty(target, property);
-            syncHandlers();
+            Reflect.deleteProperty(axiosV0Interceptors.handlers, property);
+            Reflect.deleteProperty(axiosV1Interceptors.handlers, property);
 
             return true;
         },
@@ -189,10 +196,9 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
 
         handlers.length = 0;
         handlers.push(...value);
-        syncHandlers();
+        axiosV0Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+        axiosV1Interceptors.handlers = handlers.map(cloneInterceptorHandler);
     };
-
-    replaceHandlers(axiosV0Interceptors.handlers);
 
     return {
         get handlers() {
@@ -209,7 +215,8 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
                 synchronous: options?.synchronous ?? false,
                 runWhen: options?.runWhen ?? null,
             });
-            syncHandlers();
+            axiosV0Interceptors.handlers.push(cloneInterceptorHandler(handlers[id]));
+            axiosV1Interceptors.handlers.push(cloneInterceptorHandler(handlers[id]));
 
             return id;
         },
@@ -219,7 +226,8 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
             }
 
             handlers[id] = null;
-            syncHandlers();
+            axiosV0Interceptors.eject(id);
+            axiosV1Interceptors.eject(id);
         },
         clear() {
             replaceHandlers([]);

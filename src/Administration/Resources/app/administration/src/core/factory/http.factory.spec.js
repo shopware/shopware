@@ -519,27 +519,23 @@ describe('core/factory/http.factory.js', () => {
         });
 
         it('should cache identical requests with axios v1 (useAxiosV1: true)', async () => {
-            // Note: MockAdapter doesn't fully support axios v1 when using the dispatcher pattern
-            // This test verifies that the cache interceptor is applied to v1 without errors
-            // Full integration testing would require a different mocking strategy
-
-            // Enable cache interceptor by setting NODE_ENV to prod
             process.env.NODE_ENV = 'prod';
             const client = createHTTPClient();
-            const clientMock = new MockAdapter(client);
+            const clientMock = new MockAdapter(client.axiosV1);
             process.env.NODE_ENV = 'test';
 
             clientMock.onGet('/search/product').reply(200, { data: 'product' });
 
-            // First request with axios v0 (default) to verify cache works
-            await client.get('/search/product');
+            expect(client.axiosV0.interceptors.request.handlers[0].fulfilled).not.toBe(
+                client.axiosV1.interceptors.request.handlers[0].fulfilled,
+            );
+
+            await client.get('/search/product', { useAxiosV1: true });
             expect(clientMock.history.get).toHaveLength(1);
 
-            // Second identical request within cache timeout
             jest.advanceTimersByTime(1000);
-            await client.get('/search/product');
+            await client.get('/search/product', { useAxiosV1: true });
 
-            // Should still be only 1 actual request due to caching
             expect(clientMock.history.get).toHaveLength(1);
             expect(console.warn).toHaveBeenCalledWith(
                 expect.anything(),
@@ -547,9 +543,6 @@ describe('core/factory/http.factory.js', () => {
                 expect.anything(),
                 expect.anything(),
             );
-
-            // The v1 interceptor is applied in http.factory.js and uses the same
-            // cache adapter factory, so if v0 caching works, v1 will work the same way
         });
 
         it('should not cache requests after timeout expires', async () => {

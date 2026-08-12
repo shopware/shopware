@@ -38,14 +38,15 @@ import type { CommandSpec } from './cli';
 import { renderSetupReport } from './report';
 import {
     STATE_DIR,
+    pluginsConfigPath,
     readEslintMajorVersion,
     readPreviousManifest,
     relativePosix,
     resolveToolingCommands,
     writeStateFile,
 } from './shared';
-import type { ExtensionToolingManifest, WriteResult } from './shared';
-import { record, toManifestState } from './setup-context';
+import type { ExtensionToolingManifest, SetupWarning, WriteResult } from './shared';
+import { record, toManifestState, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
 import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
@@ -76,7 +77,7 @@ export interface SetupExtensionToolingResult {
     writes: WriteResult[];
     /** Files of removed extensions that were (or would be) deleted. */
     staleFiles: string[];
-    warnings: string[];
+    warnings: SetupWarning[];
     /** Human instructions for user-owned files and IDEs we never write to. */
     instructions: string[];
     /** True when anything was (or would be) created, updated, or deleted. */
@@ -94,7 +95,8 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
         modulePath,
     ] of Object.entries(hostModules)) {
         if (!fs.existsSync(path.join(context.administrationRoot, modulePath))) {
-            context.warnings.push(
+            warn(
+                context,
                 `Host module "${moduleName}" is declared in host-modules.json but ${modulePath} does not exist ` +
                     'in the installed Administration.',
             );
@@ -107,7 +109,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
 export function setupExtensionTooling(options: SetupExtensionToolingOptions): SetupExtensionToolingResult {
     const projectRoot = path.resolve(options.projectRoot);
     const administrationRoot = path.resolve(options.administrationRoot);
-    const pluginsConfigPath = path.join(projectRoot, 'var', 'plugins.json');
+    const bundleDumpPath = pluginsConfigPath(projectRoot);
     const context: GeneratorContext = {
         projectRoot,
         administrationRoot,
@@ -124,7 +126,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     const entitySchemaAvailable = ensureEntitySchema(context);
     const previousManifest = readPreviousManifest(projectRoot);
 
-    let discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    let discovered = discoverProjects(projectRoot, administrationRoot, bundleDumpPath);
     const rootConfigDirs: Record<string, string> = {};
 
     if (options.rootConfig) {
@@ -133,7 +135,8 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
         if (known) {
             rootConfigDirs[options.rootConfig.extension] = options.rootConfig.dir;
         } else {
-            context.warnings.push(
+            warn(
+                context,
                 `--root-config names the unknown extension ${options.rootConfig.extension}. ` +
                     `Discovered extensions: ${
                         discovered
@@ -150,7 +153,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     // (A --check dry-run cannot see unwritten bridges, so it reports the
     // projection a real run would not need — the exit code is 1 either way.)
     createBridges(context, discovered, rootConfigDirs);
-    discovered = discoverProjects(projectRoot, administrationRoot, pluginsConfigPath);
+    discovered = discoverProjects(projectRoot, administrationRoot, bundleDumpPath);
 
     const rootTsconfigState = createRootTsconfig(context, discovered);
     const rootEslintState = createRootEslintConfig(context, discovered);
@@ -164,7 +167,8 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     );
 
     if (!entitySchemaAvailable) {
-        context.warnings.push(
+        warn(
+            context,
             'Entity schema types are not available — entity names cannot be type-checked. ' +
                 `Run \`${context.commands.generateSchema}\`.`,
         );

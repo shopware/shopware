@@ -54,6 +54,7 @@ describe('scripts/extensionTooling/probe-static', () => {
 
             expect(verdict.composes).toBe(false);
             expect(verdict.detail).toContain('does not reach the Shopware preset');
+            expect(verdict.reason).toBe('extends-missing');
         });
 
         it('explains the files-override trap and points path declarers at tsconfig.aliases.json', () => {
@@ -70,6 +71,43 @@ describe('scripts/extensionTooling/probe-static', () => {
             expect(verdict.composes).toBe(false);
             expect(verdict.detail).toContain('"files"');
             expect(verdict.detail).toContain('tsconfig.aliases.json');
+            // Distinct from a missing extends: this config has one, so the
+            // remediation derived from the reason must not ask for it again.
+            expect(verdict.reason).toBe('files-override');
+        });
+
+        it('rejects a config that inherits the bridge "files" without declaring an own "include"', () => {
+            writeFile(path.join(projectRoot, 'admin/.shopware/tsconfig.json'), [
+                '{ "files": ["../../extension-tooling/admin-types.d.ts"] }',
+            ]);
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), ['{ "extends": "./.shopware/tsconfig.json" }']);
+
+            const verdict = verdictFor('admin/tsconfig.json');
+
+            expect(verdict.composes).toBe(false);
+            expect(verdict.detail).toContain('declares no "include"');
+            expect(verdict.reason).toBe('include-missing');
+        });
+
+        it('accepts an "include" inherited from the plugin\'s own base config', () => {
+            writeFile(path.join(projectRoot, 'admin/.shopware/tsconfig.json'), ['{ "files": ["x.d.ts"] }']);
+            writeFile(path.join(projectRoot, 'admin/base.json'), [
+                '{ "extends": "./.shopware/tsconfig.json", "include": ["src/**/*"] }',
+            ]);
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), ['{ "extends": "./base.json" }']);
+
+            expect(verdictFor('admin/tsconfig.json').composes).toBe(true);
+        });
+
+        it('does not demand an "include" when no "files" suppresses the default glob', () => {
+            // Extending the shipped preset directly inherits no "files", so
+            // TypeScript's default "**/*" still covers the sources.
+            writeFile(path.join(projectRoot, 'extension-tooling/tsconfig.base.json'), ['{}']);
+            writeFile(path.join(projectRoot, 'admin/tsconfig.json'), [
+                '{ "extends": "../extension-tooling/tsconfig.base.json" }',
+            ]);
+
+            expect(verdictFor('admin/tsconfig.json').composes).toBe(true);
         });
 
         it('surfaces a parse error as the reason', () => {

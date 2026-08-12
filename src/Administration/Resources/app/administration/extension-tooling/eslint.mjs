@@ -119,9 +119,9 @@ export function shopwareAdminExtension(options = {}) {
         );
     };
 
-    // No generated program covers spec files, so type-aware rules have nothing
-    // to resolve them against: they are parsed standalone with the jest globals
-    // available and the type-checked rules switched off.
+    // No program covers spec files, so type-aware rules have nothing to resolve
+    // them against: specs are parsed standalone with the jest globals available
+    // and the type-checked rules switched off.
     const specFilesConfig = {
         ...tseslint.configs.disableTypeChecked,
         name: 'shopware/admin-extension/spec-files',

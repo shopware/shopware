@@ -13,9 +13,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { record } from './setup-context';
+import { record, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
-import { scaffoldExtensionConfigs } from './setup-configs';
+import { SPEC_FILE_SUFFIXES, scaffoldExtensionConfigs } from './setup-configs';
 import { GENERATED_MARKER, SHIM_DIR_NAME, asRelativeSpecifier, isPlatformProject, writeManagedFile } from './shared';
 import type { ExtensionToolingProject, OwnedConfig } from './shared';
 
@@ -121,12 +121,19 @@ function bridgeReadmeContent(context: GeneratorContext): string {
  * eslint half derives its own parent directory at runtime, so one bridge serves
  * whichever config — per-root or a shared package root — sits beside it.
  */
-function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSources: AliasSource[]): void {
+function writeBridge(
+    context: GeneratorContext,
+    bridgeParent: string,
+    aliasSources: AliasSource[],
+    sourcePaths: string[],
+): void {
     const shimDir = path.join(bridgeParent, SHIM_DIR_NAME);
     const basePreset = path.join(context.administrationRoot, 'extension-tooling', 'tsconfig.base.json');
     const adminTypes = path.join(context.administrationRoot, 'extension-tooling', 'admin-types.d.ts');
+    const specTypes = path.join(context.administrationRoot, 'extension-tooling', 'spec-types.d.ts');
     const factoryPath = path.join(context.administrationRoot, 'extension-tooling', 'eslint.mjs');
     const shimTsconfigPath = path.join(shimDir, 'tsconfig.json');
+    const shimSpecTsconfigPath = path.join(shimDir, 'tsconfig.specs.json');
     const shimEslintPath = path.join(shimDir, 'eslint.mjs');
     const shimPaths = buildShimPaths(context, shimDir, aliasSources);
 
@@ -141,6 +148,46 @@ function writeBridge(context: GeneratorContext, bridgeParent: string, aliasSourc
                     extends: asRelativeSpecifier(shimTsconfigPath, basePreset),
                     files: [asRelativeSpecifier(shimTsconfigPath, adminTypes)],
                     ...(shimPaths ? { compilerOptions: { paths: shimPaths } } : {}),
+                },
+                null,
+                4,
+            )}\n`,
+            context.dryRun,
+        ),
+    );
+    // The dedicated spec program: composes the runtime bridge (inheriting its
+    // host paths and plugin aliases) but swaps the type surface for jest globals
+    // and includes only the spec files the runtime program excludes. typeRoots
+    // points at the Administration's own @types so the `jest` reference in
+    // spec-types.d.ts resolves relative to this config, not to the .d.ts.
+    record(
+        context,
+        writeManagedFile(
+            shimSpecTsconfigPath,
+            `// ${GENERATED_MARKER} — dedicated spec program: jest types, spec files only.\n${JSON.stringify(
+                {
+                    extends: asRelativeSpecifier(shimSpecTsconfigPath, shimTsconfigPath),
+                    compilerOptions: {
+                        typeRoots: [
+                            asRelativeSpecifier(
+                                shimSpecTsconfigPath,
+                                path.join(context.administrationRoot, 'node_modules', '@types'),
+                            ),
+                        ],
+                    },
+                    files: [
+                        asRelativeSpecifier(shimSpecTsconfigPath, adminTypes),
+                        asRelativeSpecifier(shimSpecTsconfigPath, specTypes),
+                    ],
+                    include: sourcePaths.flatMap((sourcePath) =>
+                        SPEC_FILE_SUFFIXES.map(
+                            (suffix) =>
+                                `${asRelativeSpecifier(
+                                    shimSpecTsconfigPath,
+                                    path.resolve(context.projectRoot, sourcePath),
+                                )}/**/*.${suffix}`,
+                        ),
+                    ),
                 },
                 null,
                 4,
@@ -241,13 +288,15 @@ export function createBridges(
                     ].map((baseDir) => ({ aliasesPath: path.join(baseDir, 'tsconfig.aliases.json'), baseDir })),
                 );
 
-                writeBridge(context, dir, aliasSources);
+                writeBridge(context, dir, aliasSources, sourcePaths);
                 scaffoldExtensionConfigs(context, project.name, dir, sourcePaths, project.vendor);
             }
         } catch (error) {
-            context.warnings.push(
+            warn(
+                context,
                 `Could not write the bridge for ${project.name} into ${project.basePath} ` +
                     `(${error instanceof Error ? error.message : String(error)}) — falling back to the root projection.`,
+                project.name,
             );
         }
     }

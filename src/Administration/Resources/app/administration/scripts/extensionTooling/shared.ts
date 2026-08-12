@@ -34,6 +34,39 @@ export interface OwnedConfig {
     composes: boolean;
     /** Why it does not compose, rendered under `why:`. Absent when it composes. */
     detail?: string;
+    /**
+     * Which defect `detail` describes. Remediation is derived from this rather
+     * than from the state alone, so a config that already has its `extends` is
+     * never told to add one.
+     */
+    reason?: ConfigDefect;
+}
+
+/**
+ * The distinct ways an extension-owned config fails to compose. Each maps to
+ * exactly one remediation step — see `describeConfigFix`.
+ */
+export type ConfigDefect =
+    /** The config does not parse (or cannot be read) at all. */
+    | 'unreadable'
+    /** No `extends` chain reaches the preset or the generated bridge. */
+    | 'extends-missing'
+    /** The extends chain is fine, but an own `files` array replaces the bridge's type surface. */
+    | 'files-override'
+    /** The extends chain is fine, but no `include` names the sources, so the inherited `files` is the whole program. */
+    | 'include-missing'
+    /** An ESLint config that never composes the Shopware factory. */
+    | 'factory-missing';
+
+/**
+ * A setup warning together with the extension it is about. `extension` is
+ * absent for project-global warnings (a missing entity schema, a missing host
+ * module, a user-owned root config); those stay visible under any selection,
+ * while an attributed one can be filtered to what a run actually checks.
+ */
+export interface SetupWarning {
+    message: string;
+    extension?: string;
 }
 
 export type ManagedFileState = 'created' | 'updated' | 'unchanged' | 'conflict' | 'skipped';
@@ -119,6 +152,11 @@ export function projectHasBridge(project: ExtensionToolingProject): boolean {
     return project.targets.some((target) => target.bridgePresent);
 }
 
+/** Whether the extension owns any config (either tool) — i.e. is not purely covered by the host root projection. */
+export function projectHasOwnedConfig(project: ExtensionToolingProject): boolean {
+    return project.targets.some((target) => target.tsconfig !== null || target.eslintConfig !== null);
+}
+
 /** Every extension-owned config of this project, both tools. */
 function ownedConfigs(project: ExtensionToolingProject): OwnedConfig[] {
     return project.targets
@@ -183,17 +221,21 @@ export interface ToolingCommands {
     setup: string;
     /** e.g. `composer admin:generate-entity-schema-types` or `bin/console administration:generate-entity-schema-types`. */
     generateSchema: string;
+    /** e.g. `composer admin:check-extensions` or `bin/console administration:check-extensions`. */
+    check: string;
 }
 
 /** The platform-checkout invocations — the safe default when the layout is unknown (e.g. in unit fixtures). */
 export const DEFAULT_TOOLING_COMMANDS: ToolingCommands = {
     setup: 'composer admin:setup-extension-tooling',
     generateSchema: 'composer admin:generate-entity-schema-types',
+    check: 'composer admin:check-extensions',
 };
 
 const CONSOLE_TOOLING_COMMANDS: ToolingCommands = {
     setup: 'bin/console administration:setup-extension-tooling',
     generateSchema: 'bin/console administration:generate-entity-schema-types',
+    check: 'bin/console administration:check-extensions',
 };
 
 export function resolveToolingCommands(projectRoot: string, administrationRoot: string): ToolingCommands {
@@ -247,6 +289,66 @@ export function canonicalizePath(filePath: string): string {
     return path.join(fs.realpathSync(existingPath), path.relative(existingPath, filePath));
 }
 
+/**
+ * Greedy word wrap. Used for prose the runner embeds in a tool's output, which
+ * the report indents and prints verbatim — unwrapped it reads as a wall of text
+ * glued in front of the diagnostics.
+ */
+export function wrapText(text: string, width = 96): string {
+    const lines: string[] = [];
+
+    for (const word of text.split(/\s+/).filter((part) => part !== '')) {
+        const current = lines[lines.length - 1];
+
+        if (current === undefined || `${current} ${word}`.length > width) {
+            lines.push(word);
+
+            continue;
+        }
+
+        lines[lines.length - 1] = `${current} ${word}`;
+    }
+
+    return lines.join('\n');
+}
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Strips the project root from a tool's output so every stream reports
+ * project-relative paths — ESLint prints absolute ones, and vue-tsc does too
+ * once its `--project` argument is canonicalized away from the cwd. Both the
+ * given root and its canonicalized form are removed, since macOS resolves
+ * /tmp to /private/tmp.
+ *
+ * Roots are tried longest-first and matched only where a path actually begins
+ * (start of line, or after a character that cannot occur inside a path). A
+ * plain substring strip cut the root out of the *middle* of the other form of
+ * itself: with cwd `/tmp/shop` and canonical `/private/tmp/shop`, removing
+ * `/tmp/shop/` from `/private/tmp/shop/custom/a.ts` yielded
+ * `/privatecustom/a.ts`.
+ */
+export function relativizeToolOutput(output: string, projectRoot: string): string {
+    const roots = [
+        ...new Set([
+            projectRoot,
+            canonicalizePath(projectRoot),
+        ]),
+    ].sort((left, right) => right.length - left.length);
+
+    let relativized = output;
+
+    for (const root of roots) {
+        const prefix = escapeRegExp(`${root}${path.sep}`);
+
+        relativized = relativized.replace(new RegExp(`(^|[^\\w.\\-/\\\\])${prefix}`, 'gm'), '$1');
+    }
+
+    return relativized;
+}
+
 export function findNearestConfig(startPath: string, boundaryPath: string, fileNames: string[]): string | null {
     let currentPath = startPath;
 
@@ -287,6 +389,15 @@ export function findExtensionRoot(projectRoot: string, bundleBasePath: string): 
     }
 
     return bundleBasePath;
+}
+
+/**
+ * The bundle dump every command discovers extensions from. Fixed on purpose:
+ * setup and check must never look at two different files. If a custom
+ * `bundle:dump` path ever comes up it gets added to both commands at once.
+ */
+export function pluginsConfigPath(projectRoot: string): string {
+    return path.join(projectRoot, 'var', 'plugins.json');
 }
 
 export function readBundleConfig(configPath: string): BundleConfig[] {

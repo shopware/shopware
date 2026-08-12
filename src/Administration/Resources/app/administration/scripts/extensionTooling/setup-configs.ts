@@ -3,13 +3,16 @@
  *
  * Config generators: the marker-owned root tsconfig/eslint projections, IDE
  * bootstraps, the entity-schema stub gate, and the per-extension configs
- * scaffolded beside every generated bridge.
+ * (runtime plus a dedicated spec tsconfig) scaffolded beside every generated
+ * bridge.
  */
 
 import fs from 'fs';
 import path from 'path';
-import { record } from './setup-context';
+import { record, warn } from './setup-context';
 import type { GeneratorContext } from './setup-context';
+import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
+import { describeConfigFix } from './report-guidance';
 import {
     BRIDGE_ESLINT_SPECIFIER,
     BRIDGE_TSCONFIG_EXTENDS,
@@ -17,6 +20,7 @@ import {
     SHIM_DIR_NAME,
     asRelativeSpecifier,
     isGeneratedContent,
+    relativePosix,
     toPosix,
     writeManagedFile,
     writeScaffoldFile,
@@ -30,16 +34,41 @@ const SOURCE_EXTENSIONS = [
     'js',
 ];
 /**
- * Test files stay out of the generated program: the preset sets `types: []`, so
- * a spec's runner globals (`describe`, `it`, `expect`) are absent and every one
- * of them would report as an error. Type-checking specs needs its own program
- * with jest types injected.
+ * Test files are split off from the runtime program (whose preset sets
+ * `types: []`, so its runner globals are absent) into a dedicated spec program
+ * that adds jest types. The committed runtime config excludes these suffixes;
+ * the generated spec tsconfig (setup-bridge) includes exactly them.
  */
-const SPEC_FILE_SUFFIXES = [
+export const SPEC_FILE_SUFFIXES = [
     'spec.ts',
     'spec.tsx',
     'spec.js',
 ];
+
+/** Collapses a multi-line fix into one warning sentence — the indentation only reads in the report's tree. */
+function flattenFix(fix: string[]): string {
+    return fix.map((line) => line.trim()).join(' ');
+}
+
+/**
+ * The settings as a paste-ready JSON fragment: one `"key": value,` per line,
+ * indented to sit inside an existing object. The trailing comma is dropped on
+ * the last entry, so the block is valid wherever it is pasted — appended to a
+ * settings object that already has entries, or as the whole body.
+ */
+function settingsFragment(settings: Record<string, unknown>): string[] {
+    const entries = Object.entries(settings);
+
+    return entries.map(
+        (
+            [
+                name,
+                value,
+            ],
+            index,
+        ) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
+    );
+}
 
 /** Expands dotted setting keys into the nested objects Zed expects. */
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
@@ -84,7 +113,8 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     ].join('\n');
 
     record(context, writeManagedFile(entitySchemaPath, stubContent, context.dryRun));
-    context.warnings.push(
+    warn(
+        context,
         'The generated entity schema types are missing; a stub with an empty entity list was created. ' +
             `Run \`${context.commands.generateSchema}\` to get installation-specific entity types.`,
     );
@@ -131,7 +161,8 @@ export function createRootTsconfig(context: GeneratorContext, projects: Extensio
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these includes:`,
+                `${relativePosix(context.projectRoot, rootTsconfigPath)} exists and is not managed by this tool. ` +
+                    'To integrate, add these includes:',
                 ...projection.include.map((glob) => `    "${glob}"`),
                 `or remove the file and re-run \`${context.commands.setup}\`.`,
             ].join('\n'),
@@ -172,7 +203,8 @@ export function createRootEslintConfig(context: GeneratorContext, projects: Exte
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootEslintPath} exists and is not managed by this tool. To integrate, compose the shared factory:`,
+                `${relativePosix(context.projectRoot, rootEslintPath)} exists and is not managed by this tool. ` +
+                    'To integrate, compose the shared factory:',
                 `    import { shopwareAdminExtension } from ${JSON.stringify(factorySpecifier)};`,
                 '    export default [',
                 '        ...shopwareAdminExtension({ tsconfigRootDir: import.meta.dirname, extensionRoots: [/* … */] }),',
@@ -202,7 +234,8 @@ export function createIdeBootstraps(
             key: '.vscode/settings.json',
             nested: false,
             settings: {
-                'typescript.tsdk': tsdk,
+                // `typescript.tsdk` is deprecated in favour of this key.
+                'js/ts.tsdk.path': tsdk,
                 'eslint.nodePath': nodePath,
                 ...(flags.length > 0 ? { 'eslint.options': { flags } } : {}),
                 'eslint.validate': [
@@ -233,13 +266,13 @@ export function createIdeBootstraps(
             record(context, { file, state: 'skipped' });
             context.instructions.push(
                 [
-                    `${file} is user-owned and was not touched. For IDE support add:`,
-                    ...Object.entries(settings).map(
-                        ([
-                            name,
-                            value,
-                        ]) => `    "${name}": ${JSON.stringify(value)}`,
-                    ),
+                    // The project-relative `key`, not the absolute `file`: a path
+                    // printed from inside a container is only clickable in the
+                    // editor when it resolves against the workspace root.
+                    `${key} is user-owned and was not touched. For IDE support add:`,
+                    // Comma-separated and in the shape the file itself uses, so
+                    // the block pastes straight into the existing object.
+                    ...settingsFragment(nested ? nestKeys(settings) : settings),
                 ].join('\n'),
             );
 
@@ -300,6 +333,7 @@ export function scaffoldExtensionConfigs(
     const tsconfigContent =
         `// ${configKind} for ${name}. Extends the generated Shopware bridge in ${SHIM_DIR_NAME}/\n` +
         `// (git-ignored, holds the machine-specific paths). ${tsconfigLifecycleNote}\n` +
+        '// Spec files stay excluded here — the check type-checks them separately with jest types.\n' +
         `${JSON.stringify(
             {
                 extends: BRIDGE_TSCONFIG_EXTENDS,
@@ -324,18 +358,35 @@ export function scaffoldExtensionConfigs(
     const tsconfigResult = record(context, writeScaffoldFile(tsconfigPath, tsconfigContent, context.dryRun));
     const eslintResult = record(context, writeScaffoldFile(eslintPath, eslintContent, context.dryRun));
 
+    // A pre-existing config is only worth warning about when it does not
+    // actually compose the preset — warning on mere existence nags a correctly
+    // wired extension at every run. The static verdict is safe here: it matches
+    // the bridge on the resolved path before reading it, so it is right even on
+    // the first run, where the bridge is not on disk yet (or never will be,
+    // under --check).
     if (tsconfigResult === 'skipped') {
-        context.warnings.push(
-            `${tsconfigPath} already exists and was not touched — add \`"extends": "${BRIDGE_TSCONFIG_EXTENDS}"\` ` +
-                `so ${name} composes the Shopware preset. Own "files" array? Remove it — the bridge provides the ` +
-                'type surface. Own paths? Declare them in tsconfig.aliases.json.',
-        );
+        const verdict = tsconfigVerdict(tsconfigPath, relativePosix(context.projectRoot, tsconfigPath));
+
+        if (!verdict.composes) {
+            warn(
+                context,
+                `${tsconfigPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware preset.'} ` +
+                    `Fix: ${flattenFix(describeConfigFix('TypeScript', verdict))}`,
+                name,
+            );
+        }
     }
 
     if (eslintResult === 'skipped') {
-        context.warnings.push(
-            `${eslintPath} already exists and was not touched — compose the bridge in it: ` +
-                `import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; export default [ ...shopware /* , your rules */ ];`,
-        );
+        const verdict = eslintConfigVerdict(eslintPath, relativePosix(context.projectRoot, eslintPath));
+
+        if (!verdict.composes) {
+            warn(
+                context,
+                `${eslintPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware factory.'} ` +
+                    `Fix: ${flattenFix(describeConfigFix('ESLint', verdict))}`,
+                name,
+            );
+        }
     }
 }

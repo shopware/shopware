@@ -4,6 +4,7 @@ namespace Shopware\Administration\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
 use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
@@ -70,6 +71,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('console.command');
 
     $services->set(DeleteExtensionLocalPublicFilesCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(CheckExtensionsCommand::class)
         ->args([
             service('kernel'),
         ])

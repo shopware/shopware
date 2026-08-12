@@ -83,6 +83,9 @@ class MailTemplateSendServiceTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
 
+        $this->mailDataProvider->expects($this->never())
+            ->method('getTemplateData');
+
         $this->mailService->expects($this->once())
             ->method('send')
             ->with(

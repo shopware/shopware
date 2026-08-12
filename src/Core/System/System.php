@@ -11,7 +11,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -33,7 +32,6 @@ class System extends Bundle
 
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 
-        $loader = new XmlFileLoader($container, $configLocator);
         $phpLoader = new PhpFileLoader($container, $configLocator);
         $phpLoader->load('sales_channel.php');
         $phpLoader->load('country.php');

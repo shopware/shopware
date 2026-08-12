@@ -99,7 +99,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array{type: 'customer'|'admin'|'custom'} $recipients
+     * @param array{type: 'customer'|'admin'|'custom', data?: array<string, string>} $recipients
      * @param list<string>|array{}|array{data: array<string, string>} $documentTypeIds
      */
     #[DataProvider('sendMailProvider')]
@@ -260,7 +260,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom'}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
+     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom', data?: array<string, string>}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
      */
     public static function sendMailProvider(): \Generator
     {
@@ -755,6 +755,7 @@ class SendMailActionTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
+        /** @var list<array{id: string, technical_name: string}> $documentTypes */
         $documentTypes = $this->connection->fetchAllAssociative(
             'SELECT HEX(`id`) AS `id`, `technical_name` FROM document_type WHERE `technical_name` IN (:type1, :type2);',
             [
@@ -832,9 +833,11 @@ class SendMailActionTest extends TestCase
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
                 static::assertNotEmpty($documentInfos);
 
+                static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
                 static::assertTrue($found, 'Attachment not found for document type: ' . $documentInfos['technical_name']);
 
+                static::assertArrayHasKey('documentId', $documentInfos);
                 $markedAsSent = $this->isDocumentMarkedAsSent($documentInfos['documentId'], $context);
                 static::assertTrue($markedAsSent, 'Successfully sent document with id ' . $documentInfos['documentId'] . ' was not marked as sent.');
             }
@@ -1201,9 +1204,9 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $documentTypes
+     * @param list<array{id: string, technical_name: string, documentId?: string, filename?: string}> $documentTypes
      *
-     * @return array{id: string, technical_name: string, documentId: string, filename: string}|array{}
+     * @return array{id: string, technical_name: string, documentId?: string, filename?: string}|array{}
      */
     private function getMatchingDocument(string $sequenzDocumentTypeId, array $documentTypes): array
     {
@@ -1298,6 +1301,11 @@ class TestEmailService extends MailService
     {
         $this->data = $data;
         ++$this->calls;
+
+        TestCase::assertArrayHasKey('subject', $data);
+        TestCase::assertIsString($data['subject']);
+        TestCase::assertArrayHasKey('recipients', $data);
+        TestCase::assertIsArray($data['recipients']);
 
         if ($this->mailFactory && $this->decorator) {
             $mail = $this->mailFactory->create(

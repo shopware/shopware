@@ -132,9 +132,9 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         this.tempValue = 1;
 
         if (params.p) {
-            const page = this._getPageNumber(params.p);
-            if (page !== this.tempValue) {
-                this.tempValue = page;
+            const pageNumber = this._getPageNumber(params.p);
+            if (pageNumber !== this.tempValue) {
+                this.tempValue = pageNumber;
                 stateChanged = true;
             }
         }

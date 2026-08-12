@@ -461,8 +461,7 @@
             height: var(--scale-size-36);
         }
 
-        // The off-canvas menu always renders expanded, so no collapsed header reset on mobile
-        @media screen and (min-width: 1281px) {
+        @media not screen and (max-width: 1280px) {
             .sw-admin-menu__header {
                 padding: 0;
                 margin: 0;

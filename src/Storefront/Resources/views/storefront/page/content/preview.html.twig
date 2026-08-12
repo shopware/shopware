@@ -1,19 +1,20 @@
+{# ludtwig-ignore-file twig-json-encode-escape-js #}
 {% sw_extends '@Storefront/storefront/page/content/page.html.twig' %}
 
 {% block base_body_script %}
     {{ parent() }}
 
     {% set iconAlignLeft %}
-        {% sw_icon 'align-left' style { 'size': '12px' } %}
+        {% sw_icon 'align-left' style { size: '12px' } %}
     {% endset %}
     {% set iconAlignCenter %}
-        {% sw_icon 'align-center' style { 'size': '12px' } %}
+        {% sw_icon 'align-center' style { size: '12px' } %}
     {% endset %}
     {% set iconAlignRight %}
-        {% sw_icon 'align-right' style { 'size': '12px' } %}
+        {% sw_icon 'align-right' style { size: '12px' } %}
     {% endset %}
     {% set iconAlignJustify %}
-        {% sw_icon 'align-justify' style { 'size': '12px' } %}
+        {% sw_icon 'align-justify' style { size: '12px' } %}
     {% endset %}
 
     <script>

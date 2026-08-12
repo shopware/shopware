@@ -249,6 +249,7 @@ valid-functions = [
     "html_attr",
     "html_classes",
     "html_cva",
+    "cva",
     "include",
     "language_names",
     "locale_names",

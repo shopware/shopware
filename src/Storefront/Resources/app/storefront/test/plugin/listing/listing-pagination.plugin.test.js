@@ -42,7 +42,7 @@ describe('listing-pagination.plugin', () => {
 
         const canonicalLink = document.createElement('link');
         canonicalLink.setAttribute('rel', 'canonical');
-        canonicalLink.setAttribute('href', 'https://example.com/paginated-page/');
+        canonicalLink.setAttribute('href', 'https://example.com/paginated-page/?p=4');
         document.head.appendChild(canonicalLink);
 
         document.body.innerHTML = template;

@@ -153,6 +153,8 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
             const canonicalUrl = new URL(canonicalMetaTag.href);
             if (newPageNumber > 1) {
                 canonicalUrl.searchParams.set('p', newPageNumber);
+            } else {
+                canonicalUrl.searchParams.delete('p');
             }
             canonicalMetaTag.href = canonicalUrl.href;
         }

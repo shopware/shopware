@@ -15,7 +15,7 @@ import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig, Toolin
 import { DEFAULT_TOOLING_COMMANDS } from './shared';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { probeEslintMode, probeTsMode } from './probe-live';
-import { baselineFilePath, buildBaseline, diffEslint, readBaseline, writeBaselineFile } from './baseline';
+import { buildBaseline, canHoldBaseline, diffEslint, readBaseline, writeBaselineFile } from './baseline';
 import type { BaselineEslintEntry, BaselineTsEntry, TypeScriptFinding } from './baseline';
 import {
     countEslintFindings,
@@ -501,8 +501,21 @@ export function recordProjectBaseline(
     projectRoot: string,
     commands: ToolingCommands = DEFAULT_TOOLING_COMMANDS,
 ): { baselineUpdates: string[]; fatalDiagnostics: string[]; warnings: string[] } {
-    if (!baselineFilePath(projectRoot, result.project)) {
-        return { baselineUpdates: [], fatalDiagnostics: [], warnings: [] };
+    // An extension that cannot hold a baseline must say so: silently recording
+    // nothing let --update-baseline read as success while the very next plain
+    // run failed again on the same findings.
+    if (!canHoldBaseline(result.project)) {
+        return {
+            baselineUpdates: [],
+            fatalDiagnostics: [],
+            warnings: [
+                result.project.vendor
+                    ? `${result.project.name} is vendor-installed — no baseline was recorded; its findings are ` +
+                      'already non-fatal unless --strict-vendor.'
+                    : `${result.project.name}: baselines are only supported under custom/plugins/ — ` +
+                      `${result.project.basePath} cannot record one, so its findings keep failing the check.`,
+            ],
+        };
     }
 
     const incompleteStreamNames = new Set<string>();
@@ -650,6 +663,10 @@ export function computeExitCode(
     let exitCode = hasFatalDiagnostics ? 1 : 0;
 
     for (const result of results) {
+        // Only an extension that can actually record one gets its findings
+        // absorbed: forgiving them for every project under --update-baseline
+        // returned exit 0 for extensions where nothing was written at all.
+        const baselineAbsorbs = options.updateBaseline === true && canHoldBaseline(result.project);
         const hasSurfaceDiagnostics =
             (result.typescript.surfaceDiagnostics ?? 0) > 0 || (result.typescriptSpecs.surfaceDiagnostics ?? 0) > 0;
         const hasFailure =
@@ -657,7 +674,7 @@ export function computeExitCode(
             result.typescript.status === 'tooling-error' ||
             result.typescriptSpecs.status === 'tooling-error' ||
             result.eslint.status === 'tooling-error' ||
-            (!options.updateBaseline &&
+            (!baselineAbsorbs &&
                 (result.typescript.status === 'failed' ||
                     result.typescriptSpecs.status === 'failed' ||
                     result.eslint.status === 'failed'));

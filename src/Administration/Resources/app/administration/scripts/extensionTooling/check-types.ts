@@ -79,6 +79,8 @@ export interface ToolRunResult {
     staleBaseline?: number;
     /** Identities of the new findings, for the report to point at them among the baselined ones. */
     newFindingRefs?: Array<{ file: string; code: string }>;
+    /** Identities of the suppressed findings, so a baselined run can name what it hid. */
+    baselinedFindingRefs?: Array<{ file: string; code: string }>;
     /** Structured diagnostics retained for safe aggregate baselines across multiple programs. */
     typeScriptFindings?: TypeScriptFinding[];
     eslintFindings?: EslintFinding[];

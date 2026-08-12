@@ -190,8 +190,20 @@ survives unrelated line drift. Findings that no longer occur are reported as sta
 on the next `--update-baseline`. Fix findings and re-run `--update-baseline` to shrink the
 baseline; it cannot be combined with `--fix` (fix first, then record).
 
-Vendor-installed extensions carry no baseline — their findings are already non-fatal unless
-`--strict-vendor`.
+A baselined finding is hidden, not gone. The passed line names its count and the flag that
+brings it back — `(12 baselined — show with -- --verbose)`; on a failing run the report lists
+`new — must fix to pass` and `baselined — suppressed` as two separate groups, so the raw tool
+output below them never has to be read to tell which is which. To un-hide everything
+permanently, delete the plugin's `.shopware-admin-baseline.json`.
+
+Only a writable `custom/plugins` extension can hold a baseline; the command says so instead of
+recording nothing:
+
+- **Vendor-installed extensions** carry no baseline — their findings are already non-fatal
+  unless `--strict-vendor`.
+- **In-repo bundles** (`src/Storefront`, `src/Administration`, …) are writable and their
+  findings *are* fatal, but they are not plugins and must not collect per-developer debt files.
+  `--update-baseline` warns and the check keeps failing them — fix the findings instead.
 
 > **Composer-managed plugins are `vendor`.** A plugin installed through Composer — including one
 > developed under `custom/static-plugins/` and pulled in via a path repository — resolves through

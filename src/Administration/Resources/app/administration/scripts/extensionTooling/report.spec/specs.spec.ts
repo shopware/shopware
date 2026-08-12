@@ -40,6 +40,8 @@ describe('renderCheckReport spec type-check program', () => {
         ]);
 
         expect(output).toContain('TS (specs)');
-        expect(output).toContain('(4 baselined)');
+        // The count carries a trailing --verbose hint; this case is about the
+        // spec program reporting its own baselined count at all.
+        expect(output).toContain('(4 baselined');
     });
 });

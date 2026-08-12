@@ -161,7 +161,8 @@ export function createRootTsconfig(context: GeneratorContext, projects: Extensio
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootTsconfigPath} exists and is not managed by this tool. To integrate, add these includes:`,
+                `${relativePosix(context.projectRoot, rootTsconfigPath)} exists and is not managed by this tool. ` +
+                    'To integrate, add these includes:',
                 ...projection.include.map((glob) => `    "${glob}"`),
                 `or remove the file and re-run \`${context.commands.setup}\`.`,
             ].join('\n'),
@@ -202,7 +203,8 @@ export function createRootEslintConfig(context: GeneratorContext, projects: Exte
     if (state === 'conflict') {
         context.instructions.push(
             [
-                `${rootEslintPath} exists and is not managed by this tool. To integrate, compose the shared factory:`,
+                `${relativePosix(context.projectRoot, rootEslintPath)} exists and is not managed by this tool. ` +
+                    'To integrate, compose the shared factory:',
                 `    import { shopwareAdminExtension } from ${JSON.stringify(factorySpecifier)};`,
                 '    export default [',
                 '        ...shopwareAdminExtension({ tsconfigRootDir: import.meta.dirname, extensionRoots: [/* … */] }),',
@@ -264,7 +266,10 @@ export function createIdeBootstraps(
             record(context, { file, state: 'skipped' });
             context.instructions.push(
                 [
-                    `${file} is user-owned and was not touched. For IDE support add:`,
+                    // The project-relative `key`, not the absolute `file`: a path
+                    // printed from inside a container is only clickable in the
+                    // editor when it resolves against the workspace root.
+                    `${key} is user-owned and was not touched. For IDE support add:`,
                     // Comma-separated and in the shape the file itself uses, so
                     // the block pastes straight into the existing object.
                     ...settingsFragment(nested ? nestKeys(settings) : settings),

@@ -260,13 +260,28 @@ swDefinePublic({ count });
 
         await fs.cp(fixtureDirectory, root, { recursive: true });
 
-        const { stdout } = await execFileAsync(process.execPath, [path.join(root, 'probe.js')], {
-            cwd: process.cwd(),
-            env: {
-                ...process.env,
-                SHOPWARE_ADMIN_ROOT: process.cwd(),
+        // Run the TypeScript probe through jiti's CLI rather than `node probe.ts` directly: node only
+        // strips types natively from v22.6+/v23.6, but the admin supports node >= 20, so native execution
+        // would break there. jiti transpiles on the fly on every supported node.
+        const jitiDir = path.dirname(require.resolve('jiti/package.json'));
+        const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
+            bin: { jiti: string };
+        };
+        const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
+        const { stdout } = await execFileAsync(
+            process.execPath,
+            [
+                jitiBin,
+                path.join(root, 'probe.ts'),
+            ],
+            {
+                cwd: process.cwd(),
+                env: {
+                    ...process.env,
+                    SHOPWARE_ADMIN_ROOT: process.cwd(),
+                },
             },
-        });
+        );
         const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is

@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-
 import Component from './sw-nested-component.vue';
 import Override from './sw-nested-component.override.vue';
 

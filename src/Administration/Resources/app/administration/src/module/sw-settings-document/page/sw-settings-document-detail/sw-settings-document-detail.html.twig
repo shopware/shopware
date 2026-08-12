@@ -222,9 +222,19 @@
                 :title="$t('sw-settings-document.detail.filenameCard')"
                 :is-loading="isLoading"
             >
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')">
+                    <p class="sw-settings-document-detail__filename_pattern">
+                        <mt-icon
+                            size="16"
+                            name="solid-info-circle"
+                        />
+                        {{ $t('sw-settings-document.detail.filenamePattern') }}
+                    </p>
+                </template>
+
                 <sw-container
                     class="sw-settings-document-detail__filename_card-form"
-                    columns="repeat(3, minmax(250px, 1fr))"
+                    columns="repeat(2, minmax(250px, 1fr))"
                     gap="0px 30px"
                 >
                     {% block sw_settings_document_detail_filename_field_prefix %}
@@ -254,22 +264,14 @@
 
                 {% block sw_settings_document_detail_filename_field_infixes %}
                 <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')">
-                    <mt-banner
-                        class="sw-settings-document-detail__filename_infix_banner"
-                        variant="info"
-                        :title="$t('sw-settings-document.detail.filenameInfixHeadline')"
-                    >
-                        <p class="sw-settings-document-detail__filename_infix_description">
-                            {{ $t('sw-settings-document.detail.filenameInfixDescription') }}
-                        </p>
-                        <p class="sw-settings-document-detail__filename_infix_example">
-                            {{ $t('sw-settings-document.detail.filenameInfixExample') }}
-                        </p>
-                    </mt-banner>
+                    <p class="sw-settings-document-detail__filename_infix_headline">
+                        <strong>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</strong>
+                        <sw-help-text :text="$t('sw-settings-document.detail.filenameInfixHelpText')" />
+                    </p>
 
                     <sw-container
                         class="sw-settings-document-detail__filename_infix_fields"
-                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        columns="repeat(2, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
                         <div

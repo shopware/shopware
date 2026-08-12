@@ -20,5 +20,14 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixes extends MigrationS
     public function update(Connection $connection): void
     {
         $this->addColumn($connection, 'document_base_config', 'filename_infixes', 'JSON');
+
+        // Seed the ZUGFeRD embedded PDF infix for the core document types that actually support it
+        $connection->executeStatement(<<<'SQL'
+            UPDATE `document_base_config` AS `config`
+            INNER JOIN `document_type` AS `type` ON `type`.`id` = `config`.`document_type_id`
+            SET `config`.`filename_infixes` = '{"zugferd_embedded_pdf": "zugferd"}'
+            WHERE `type`.`technical_name` IN ('invoice', 'credit_note', 'storno')
+              AND `config`.`filename_infixes` IS NULL
+        SQL);
     }
 }

@@ -220,6 +220,10 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     'sw-select-result': true,
                     'sw-highlight-text': true,
                     'sw-custom-field-set-renderer': true,
+                    'sw-help-text': {
+                        template: '<span class="sw-help-text"></span>',
+                        props: ['text'],
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -714,24 +718,23 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(infixFields).toHaveLength(4);
 
-        const infixBanner = wrapper.find('.sw-settings-document-detail__filename_infix_banner');
+        expect(wrapper.find('.sw-settings-document-detail__filename_pattern').text()).toContain(
+            'sw-settings-document.detail.filenamePattern',
+        );
 
-        expect(infixBanner.exists()).toBe(true);
-        expect(infixBanner.attributes('title')).toBe('sw-settings-document.detail.filenameInfixHeadline');
-        expect(infixBanner.find('.sw-settings-document-detail__filename_infix_description').text()).toBe(
-            'sw-settings-document.detail.filenameInfixDescription',
-        );
-        expect(infixBanner.find('.sw-settings-document-detail__filename_infix_example').text()).toBe(
-            'sw-settings-document.detail.filenameInfixExample',
-        );
+        const infixHeadline = wrapper.find('.sw-settings-document-detail__filename_infix_headline');
+
+        expect(infixHeadline.text()).toContain('sw-settings-document.detail.filenameInfixHeadline');
+        expect(infixHeadline.find('.sw-help-text').exists()).toBe(true);
     });
 
-    it('should not render the filename infix banner when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+    it('should not render the filename pattern or infix headline when DOCUMENT_GENERATION_REWORK is inactive', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithFormats' },
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__filename_infix_banner').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__filename_pattern').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
     });
 });

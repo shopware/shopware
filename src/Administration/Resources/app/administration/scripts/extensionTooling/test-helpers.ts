@@ -17,6 +17,7 @@ import os from 'os';
 import path from 'path';
 import { EntitySchemaConverter } from '../entitySchemaConverter/entity-schema-converter';
 import { pluginsConfigPath } from './shared';
+import type { SetupWarning } from './shared';
 
 export const realAdministrationRoot = path.resolve(__dirname, '../..');
 
@@ -212,4 +213,12 @@ export function writePluginsConfig(projectRoot: string, bundles: FixtureBundleDe
 
 export function cleanupTempProject(projectRoot: string): void {
     fs.rmSync(projectRoot, { recursive: true, force: true });
+}
+
+/**
+ * Setup warnings as one searchable block. Joining the records directly would
+ * yield `[object Object]` and pass any `not.toContain` assertion by accident.
+ */
+export function warningText(result: { warnings: SetupWarning[] }): string {
+    return result.warnings.map((warning) => warning.message).join('\n');
 }

@@ -56,7 +56,16 @@ describe('scripts/extensionTooling/check orchestration', () => {
             });
             running -= 1;
 
-            const base = { durationMs: 60000, timedOut: false };
+            // The real tools print their payload on stdout; `output` is the
+            // merged view the reporter renders.
+            const answer = (result: { status: number; output: string; stderr?: string }) => ({
+                durationMs: 60000,
+                timedOut: false,
+                status: result.status,
+                stdout: result.output,
+                stderr: result.stderr ?? '',
+                output: result.stderr ? `${result.output}\n${result.stderr}`.trim() : result.output,
+            });
 
             if (args.includes('--showConfig')) {
                 // The probe resolves composition from whether the config's
@@ -69,8 +78,7 @@ describe('scripts/extensionTooling/check orchestration', () => {
                     ? listSpecFiles(projectRoot, ['custom/plugins'])
                     : listTypeCheckableFiles(projectRoot, ['custom/plugins']);
 
-                return {
-                    ...base,
+                return answer({
                     status: 0,
                     output: JSON.stringify({
                         files: composes
@@ -80,20 +88,22 @@ describe('scripts/extensionTooling/check orchestration', () => {
                               ]
                             : files,
                     }),
-                };
+                    // vue-tsc runs under node, which is free to print notices
+                    // here — the JSON must still resolve.
+                    stderr: '(node:1) ExperimentalWarning: some feature is experimental',
+                });
             }
 
             if (args[0].includes('eslint')) {
                 // --print-config is the composition probe; the auto-bridged
                 // config carries the factory's runtime-contract rule.
-                return {
-                    ...base,
+                return answer({
                     status: 0,
                     output: args.includes('--print-config') ? 'plugin-rules/no-src-imports' : '',
-                };
+                });
             }
 
-            return { ...base, ...vueTscOutput };
+            return answer(vueTscOutput);
         });
     }
 
@@ -250,5 +260,28 @@ describe('scripts/extensionTooling/check orchestration', () => {
         expect(result.typescript.status).toBe('tooling-error');
         expect(result.typescript.output).toContain('heap out of memory');
         expect(check.exitCode).toBe(1);
+    }, 60000);
+
+    // The counting fake always prints a node warning to stderr alongside the
+    // --showConfig JSON, so every run above already exercises this. Asserted
+    // explicitly here because reading the merged output instead of stdout used
+    // to fail the JSON parse and abort the whole extension.
+    it('resolves coverage when --showConfig prints a warning on stderr', async () => {
+        writeZeroConfigSuite('Solo', ['BundleA']);
+        writePluginsConfig(projectRoot, [
+            {
+                technicalName: 'SoloBundleA',
+                basePath: 'custom/plugins/Solo/src/BundleA',
+                administrationPath: 'Resources/app/administration/src',
+            },
+        ]);
+        installCountingFake({ status: 0, output: '' });
+
+        const check = await checkExtensions({ projectRoot, administrationRoot });
+        const result = check.results[0];
+
+        expect(result.typescript.status).toBe('passed');
+        expect(result.typescript.output).not.toContain('returned invalid JSON');
+        expect(check.exitCode).toBe(0);
     }, 60000);
 });

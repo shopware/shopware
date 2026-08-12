@@ -17,32 +17,49 @@ final readonly class DocumentTypeRegistry
     private array $formatsByType;
 
     /**
+     * @var array<string, AbstractDocumentType>
+     */
+    private array $typesByName;
+
+    /**
      * @param iterable<AbstractDocumentType> $documentTypes
      */
     public function __construct(iterable $documentTypes)
     {
         $formatsByType = [];
+        $typesByName = [];
 
         foreach ($documentTypes as $documentType) {
             $technicalName = $documentType->getTechnicalName();
+            $typesByName[$technicalName] = $documentType;
 
             foreach ($documentType->getSupportedFormats() as $format) {
                 $formatsByType[$technicalName][$format] = true;
             }
         }
 
+        $this->typesByName = $typesByName;
         $this->formatsByType = array_map(
             static fn (array $formats): array => array_keys($formats),
             $formatsByType,
         );
     }
 
+    public function getDocumentType(string $documentType): AbstractDocumentType
+    {
+        if (!\array_key_exists($documentType, $this->typesByName)) {
+            throw DocumentV2Exception::documentTypeNotFound($documentType);
+        }
+
+        return $this->typesByName[$documentType];
+    }
+
     /**
      * @return list<string>
      */
-    public function getDocumentTypes(): array
+    public function getTechnicalNames(): array
     {
-        return array_keys($this->formatsByType);
+        return array_keys($this->typesByName);
     }
 
     /**

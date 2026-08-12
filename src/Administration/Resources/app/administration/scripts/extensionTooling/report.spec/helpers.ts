@@ -13,7 +13,7 @@ import { collectSkippedTargets } from '../check-types';
 import type { CheckExtensionsResult, ExtensionCheckResult, ToolRunResult } from '../check-types';
 import type { SetupExtensionToolingResult } from '../setup';
 import { firstDrift } from '../shared';
-import type { AdministrationTarget, ExtensionToolingProject, OwnedConfig } from '../shared';
+import type { AdministrationTarget, ConfigDefect, ExtensionToolingProject, OwnedConfig } from '../shared';
 
 // picocolors only ever emits SGR sequences (ESC[…m), so this narrow pattern
 // is exact for the renderer's output.
@@ -24,9 +24,15 @@ export function stripAnsi(value: string): string {
     return value.replace(ANSI_SGR_PATTERN, '');
 }
 
-/** An extension-owned config at `path`; a `detail` implies it does not compose. */
-export function owned(configPath: string, detail?: string): OwnedConfig {
-    return detail === undefined ? { path: configPath, composes: true } : { path: configPath, composes: false, detail };
+/**
+ * An extension-owned config at `path`; a `detail` implies it does not compose.
+ * The defect defaults to a missing `extends` — the common drift — so only specs
+ * about a different trap have to name one.
+ */
+export function owned(configPath: string, detail?: string, reason: ConfigDefect = 'extends-missing'): OwnedConfig {
+    return detail === undefined
+        ? { path: configPath, composes: true }
+        : { path: configPath, composes: false, detail, reason };
 }
 
 type ProjectOverrides = Partial<ExtensionToolingProject> & Partial<AdministrationTarget>;

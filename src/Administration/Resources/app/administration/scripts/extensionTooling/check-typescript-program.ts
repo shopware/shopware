@@ -12,9 +12,14 @@ import path from 'path';
 import { PROCESS_TIMEOUT_MS, runCommand } from './probe-command';
 import { diffTypeScript } from './baseline';
 import type { BaselineTsEntry, TypeScriptFinding } from './baseline';
-import { canonicalizePath, relativePosix, toPosix } from './shared';
+import { canonicalizePath, relativePosix, relativizeToolOutput, toPosix, wrapText } from './shared';
 import type { AdministrationTarget } from './shared';
-import { countTypeScriptFindings, deduplicateByMaximumMultiplicity, parseTypeScriptFindings } from './check-parsing';
+import {
+    countTypeScriptFindings,
+    deduplicateByMaximumMultiplicity,
+    joinProgramOutputs,
+    parseTypeScriptFindings,
+} from './check-parsing';
 import { formatCommand } from './check-pipeline';
 import type { TargetProgramGroup } from './check-pipeline';
 import type { Limiter, ToolRunResult, ToolStatus } from './check-types';
@@ -44,14 +49,19 @@ async function runTypeScriptProgram(
     const vueTscArguments = buildVueTscArguments(vueTscPath, tsconfigPath);
     const command = formatCommand(projectRoot, vueTscArguments);
     const run = await runCommand(process.execPath, vueTscArguments, projectRoot);
-    const findings = countTypeScriptFindings(run.output);
+    // vue-tsc prints cwd-relative paths only while its --project argument shares
+    // the cwd's form. The runner canonicalizes that path, so under a symlinked
+    // root the diagnostics come back absolute — relativize them like the ESLint
+    // stream, or the in-root/surface split below misreads every finding.
+    const output = relativizeToolOutput(run.output, projectRoot);
+    const findings = countTypeScriptFindings(output);
 
     if (run.timedOut) {
         return {
             command,
             result: {
                 status: 'tooling-error',
-                output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${run.output}`,
+                output: `vue-tsc timed out after ${PROCESS_TIMEOUT_MS / 1000}s.\n${output}`,
                 durationMs: run.durationMs,
                 findings,
             },
@@ -64,7 +74,7 @@ async function runTypeScriptProgram(
     // crash-with-output run fall through to the baseline and report `passed`.
     // Mirrors the ESLint stream's predicate in check-run.ts.
     if (run.status !== 0 && findings === 0) {
-        const detail = run.output.trim();
+        const detail = output.trim();
 
         return {
             command,
@@ -80,14 +90,14 @@ async function runTypeScriptProgram(
         };
     }
 
-    const parsedFindings = parseTypeScriptFindings(run.output);
+    const parsedFindings = parseTypeScriptFindings(output);
 
     return {
         command,
         result: {
             status: findings > 0 ? 'failed' : 'passed',
             findings,
-            output: run.output,
+            output,
             durationMs: run.durationMs,
             typeScriptFindings: parsedFindings,
             // The structured parse must account for every finding the regex
@@ -127,7 +137,10 @@ async function verifyVueTscCoverage(
     let files: string[];
 
     try {
-        const config = JSON.parse(resolved.output) as { files?: string[] };
+        // stdout alone, never the merged output: a Node deprecation notice on
+        // stderr would otherwise be glued onto the JSON and fail the parse,
+        // turning a healthy config into a whole-extension tooling error.
+        const config = JSON.parse(resolved.stdout) as { files?: string[] };
 
         files = (config.files ?? []).map((file) => canonicalizePath(path.resolve(path.dirname(group.configPath), file)));
     } catch {
@@ -197,7 +210,7 @@ export async function runTypeScriptPrograms(
         return {
             result: {
                 status: 'tooling-error',
-                output: outputs.join('\n\n'),
+                output: joinProgramOutputs(outputs),
                 durationMs,
                 findings: findings.length,
                 typeScriptFindings: findings,
@@ -226,12 +239,14 @@ export async function runTypeScriptPrograms(
         surfaceFindings.length > 0 || split.newFindings.length > 0 || split.parseMismatch ? 'failed' : 'passed';
     const surfaceHeader =
         surfaceFindings.length > 0
-            ? `The shared Administration type surface emitted ${surfaceFindings.length} diagnostic(s) outside ` +
-              `${basePath} (${[...new Set(surfaceFindings.map((finding) => finding.file))]
-                  .slice(0, 3)
-                  .join(', ')}${surfaceFindings.length > 3 ? ', …' : ''}). This is a type-surface failure, not ` +
-              'extension debt — it cannot be baselined. A global declaration in the extension may conflict with the ' +
-              'shipped surface; check the named file.'
+            ? wrapText(
+                  `The shared Administration type surface emitted ${surfaceFindings.length} diagnostic(s) outside ` +
+                      `${basePath} (${[...new Set(surfaceFindings.map((finding) => finding.file))]
+                          .slice(0, 3)
+                          .join(', ')}${surfaceFindings.length > 3 ? ', …' : ''}). This is a type-surface failure, not ` +
+                      'extension debt — it cannot be baselined. A global declaration in the extension may conflict ' +
+                      'with the shipped surface; check the named file.',
+              )
             : '';
 
     return {
@@ -248,7 +263,7 @@ export async function runTypeScriptPrograms(
             surfaceDiagnostics: surfaceFindings.length,
             output: [
                 surfaceHeader,
-                outputs.join('\n\n'),
+                joinProgramOutputs(outputs),
             ]
                 .filter((part) => part.trim() !== '')
                 .join('\n\n'),

@@ -35,6 +35,9 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGetRouteNameReturnsRegisteredRoute(): void
     {
+        $this->placeholderHandler->expects($this->never())->method('generate');
+        $this->router->expects($this->never())->method('generate');
+
         $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME);
 
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $resolver->getRouteNameForEntityName('product'));
@@ -42,6 +45,9 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGetRouteNameResolvesViaConfiguredRouteWhenNotRegistered(): void
     {
+        $this->placeholderHandler->expects($this->never())->method('generate');
+        $this->router->expects($this->never())->method('generate');
+
         $resolver = new EntityRouteResolver(
             new SeoUrlRouteRegistry([]),
             $this->placeholderHandler,
@@ -54,6 +60,9 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGetRouteNameThrowsWhenEntityHasNoRoute(): void
     {
+        $this->placeholderHandler->expects($this->never())->method('generate');
+        $this->router->expects($this->never())->method('generate');
+
         $resolver = new EntityRouteResolver(new SeoUrlRouteRegistry([]), $this->placeholderHandler, $this->router);
 
         $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigNotFoundForEntityName('product'));
@@ -63,6 +72,8 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateSeoUrlPlaceholderPassesResolvedRouteAndParameters(): void
     {
+        $this->router->expects($this->never())->method('generate');
+
         $this->placeholderHandler
             ->expects($this->once())
             ->method('generate')
@@ -76,6 +87,8 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateUrlPassesResolvedRouteAndParameters(): void
     {
+        $this->placeholderHandler->expects($this->never())->method('generate');
+
         $this->router
             ->expects($this->once())
             ->method('generate')
@@ -89,6 +102,9 @@ class EntityRouteResolverTest extends TestCase
 
     public function testThrowsExceptionWhenRouteHasNoPrimaryKeyConfigured(): void
     {
+        $this->placeholderHandler->expects($this->never())->method('generate');
+        $this->router->expects($this->never())->method('generate');
+
         $this->expectExceptionObject(SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey('product'));
 
         $resolver = $this->createResolverWithRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME);

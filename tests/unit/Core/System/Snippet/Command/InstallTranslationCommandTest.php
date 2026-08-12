@@ -50,6 +50,9 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionWithoutArguments(): void
     {
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
@@ -107,6 +110,9 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionWithInvalidLocales(): void
     {
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
@@ -208,6 +214,8 @@ class InstallTranslationCommandTest extends TestCase
         $collection->get('es-ES')?->markForUpdate();
         $this->initMetadataLoader($collection);
 
+        $this->translationLoader->expects($this->once())->method('load');
+
         $this->metadataStore->expects($this->once())
             ->method('save')
             ->willThrowException(new \Exception('Something went wrong'));
@@ -233,6 +241,8 @@ class InstallTranslationCommandTest extends TestCase
         ]);
 
         $this->initMetadataLoader($collection);
+
+        $this->translationLoader->expects($this->never())->method('load');
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
@@ -273,6 +283,8 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testCommandFailsIfMetadataCannotBeLoaded(): void
     {
+        $this->translationLoader->expects($this->never())->method('load');
+
         $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->willThrowException(new \Exception('Unable to fetch metadata'));

@@ -109,7 +109,12 @@ class SeoActionController extends AbstractController
         return new JsonResponse($preview);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/context', name: 'api.seo-url-template.context', methods: [Request::METHOD_POST])]
+    #[Route(
+        path: '/api/_action/seo-url-template/context',
+        name: 'api.seo-url-template.context',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:read']],
+        methods: [Request::METHOD_POST]
+    )]
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
         $routeName = $data->get('routeName');
@@ -142,7 +147,12 @@ class SeoActionController extends AbstractController
         return new JsonResponse($mapping->getSeoPathInfoContext());
     }
 
-    #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: [Request::METHOD_PATCH])]
+    #[Route(
+        path: '/api/_action/seo-url/canonical',
+        name: 'api.seo-url.canonical',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url:update']],
+        methods: [Request::METHOD_PATCH]
+    )]
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
         if (!$seoUrl->has('routeName')) {
@@ -187,7 +197,12 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: [Request::METHOD_POST])]
+    #[Route(
+        path: '/api/_action/seo-url/create-custom-url',
+        name: 'api.seo-url.create',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url:create']],
+        methods: [Request::METHOD_POST]
+    )]
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
         /** @var ParameterBag $dataBag */
@@ -244,7 +259,12 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/default/{routeName}', name: 'api.seo-url-template.default', methods: [Request::METHOD_GET])]
+    #[Route(
+        path: '/api/_action/seo-url-template/default/{routeName}',
+        name: 'api.seo-url-template.default',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);

@@ -19,15 +19,9 @@
 
 import colors from 'picocolors';
 import type { SetupExtensionToolingResult } from './setup';
-import {
-    BRIDGE_ESLINT_SPECIFIER,
-    BRIDGE_TSCONFIG_EXTENDS,
-    DEFAULT_TOOLING_COMMANDS,
-    SHIM_DIR_NAME,
-    deriveExtensionState,
-    firstDrift,
-} from './shared';
-import type { DerivedExtensionState, ExtensionToolingProject, ToolingCommands } from './shared';
+import { DEFAULT_TOOLING_COMMANDS, SHIM_DIR_NAME, deriveExtensionState, firstDrift } from './shared';
+import type { DerivedExtensionState, ExtensionToolingProject, OwnedConfig, ToolingCommands } from './shared';
+import { describeConfigFix } from './report-guidance';
 
 interface SetupRenderOptions {
     checkOnly?: boolean;
@@ -95,6 +89,8 @@ const COVERAGE: Record<
         paint: (value: string) => string;
         note: string;
         action?: (commands: ToolingCommands) => string[];
+        /** Print the fix under each drifting config instead of once for the bucket. */
+        perProjectFix?: boolean;
     }
 > = {
     bridged: {
@@ -111,10 +107,7 @@ const COVERAGE: Record<
         label: '⚠ bridge unwired',
         paint: colors.yellow,
         note: "bridge exists — own config doesn't compose it yet",
-        action: () => [
-            `add "extends": "${BRIDGE_TSCONFIG_EXTENDS}" to the tsconfig, and`,
-            `import shopware from '${BRIDGE_ESLINT_SPECIFIER}'; export default [ ...shopware ]; to the eslint config.`,
-        ],
+        perProjectFix: true,
     },
     'needs-bridge': {
         label: '⚠ not bridged',
@@ -155,11 +148,52 @@ function renderNotice(): string[] {
     ];
 }
 
+/** The first drifting config of the extension, whichever tool owns it. */
+function renderProjectDetail(project: ExtensionToolingProject): string[] {
+    const drift = firstDrift(project, 'tsconfig') ?? firstDrift(project, 'eslintConfig');
+
+    return drift?.detail ? [colors.dim(`      ${project.name}: ${drift.detail}`)] : [];
+}
+
 /**
- * One line per non-empty state bucket, plus that bucket's single action. The
- * action is per bucket rather than per extension because it never varied by
- * extension; what does vary — the concrete trap a config fell into — comes from
- * the drift detail.
+ * Every drifting config of the extension with the step that fixes *that* defect
+ * underneath it. Two extensions in the same bucket can need opposite steps — add
+ * an `extends`, or drop a `files` array that shadows one already there — so the
+ * remediation cannot live on the bucket.
+ */
+function renderProjectDrifts(project: ExtensionToolingProject): string[] {
+    const lines: string[] = [];
+
+    for (const [
+        tool,
+        drift,
+    ] of [
+        [
+            'TypeScript',
+            firstDrift(project, 'tsconfig'),
+        ],
+        [
+            'ESLint',
+            firstDrift(project, 'eslintConfig'),
+        ],
+    ] as Array<['TypeScript' | 'ESLint', OwnedConfig | null]>) {
+        if (!drift?.detail) {
+            continue;
+        }
+
+        lines.push(
+            colors.dim(`      ${project.name}: ${drift.detail}`),
+            ...describeConfigFix(tool, drift).map((line) => colors.dim(`        → ${line}`)),
+        );
+    }
+
+    return lines;
+}
+
+/**
+ * One line per non-empty state bucket, plus that bucket's action. A bucket whose
+ * remediation depends on the concrete defect carries `perProjectFix` instead and
+ * prints the step under each drifting config.
  */
 function renderCoverage(
     projects: ExtensionToolingProject[],
@@ -183,18 +217,19 @@ function renderCoverage(
 
         lines.push(`  ${row.paint(row.label)}  ${names}  ${colors.dim(`(${row.note})`)}`);
 
-        if (!row.action) {
+        // A bucket with neither an action nor a per-config fix is already covered
+        // (bridged, ready) or checked elsewhere (platform) — no remediation, and
+        // no drift detail to explain one.
+        if (!row.action && !row.perProjectFix) {
             continue;
         }
 
-        lines.push(...row.action(commands).map((line) => colors.dim(`      → ${line}`)));
+        if (row.action) {
+            lines.push(...row.action(commands).map((line) => colors.dim(`      → ${line}`)));
+        }
 
         for (const project of members) {
-            const drift = firstDrift(project, 'tsconfig') ?? firstDrift(project, 'eslintConfig');
-
-            if (drift?.detail) {
-                lines.push(colors.dim(`      ${project.name}: ${drift.detail}`));
-            }
+            lines.push(...(row.perProjectFix ? renderProjectDrifts(project) : renderProjectDetail(project)));
         }
 
         if (members.some((project) => project.vendor)) {
@@ -368,7 +403,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     }
 
     for (const warning of result.warnings) {
-        lines.push(colors.yellow(`  ⚠ ${warning}`));
+        lines.push(colors.yellow(`  ⚠ ${warning.message}`));
     }
 
     lines.push(

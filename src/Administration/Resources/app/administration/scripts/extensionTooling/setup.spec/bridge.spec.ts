@@ -11,8 +11,8 @@
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
-import { GENERATED_MARKER, deriveExtensionState } from '../shared';
-import { cleanupTempProject, writeFile } from '../test-helpers';
+import { BRIDGE_ESLINT_SPECIFIER, BRIDGE_TSCONFIG_EXTENDS, GENERATED_MARKER, deriveExtensionState } from '../shared';
+import { cleanupTempProject, warningText, writeFile } from '../test-helpers';
 import { createSetupProject, writeDefaultFixtures } from './fixtures';
 
 describe('scripts/extensionTooling/setup automatic bridging', () => {
@@ -108,7 +108,67 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
 
         expect(fs.readFileSync(path.join(adminFolder, 'tsconfig.json'), 'utf8')).toContain('"strict": true');
-        expect(result.warnings.join('\n')).toContain('extends');
+        expect(warningText(result)).toContain('extends');
+    });
+
+    it('names the actual reason an existing plugin config does not compose', () => {
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+
+        // Extends the bridge but replaces its file list, so admin-types.d.ts
+        // never enters the program — a different failure than a missing extends,
+        // and the warning has to say so instead of printing the generic block.
+        writeFile(path.join(adminFolder, 'tsconfig.json'), [
+            `{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}", "files": ["src/main.ts"] }`,
+        ]);
+
+        expect(warningText(setupExtensionTooling({ projectRoot, administrationRoot }))).toContain('"files" array');
+    });
+
+    it('names a missing "include" instead of leaving the sources silently unchecked', () => {
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+
+        // Composes the bridge, but the inherited "files" is then the whole
+        // program. Reported downstream as an opaque coverage tooling error, so
+        // the warning has to name the missing "include" here.
+        writeFile(path.join(adminFolder, 'tsconfig.json'), [`{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}" }`]);
+
+        // Scoped to ZeroConfig: the fixture's vendor extension genuinely misses
+        // its extends, so the project-wide text carries that hint too.
+        const warning = setupExtensionTooling({ projectRoot, administrationRoot })
+            .warnings.filter((entry) => entry.extension === 'ZeroConfig')
+            .map((entry) => entry.message)
+            .join('\n');
+
+        expect(warning).toContain('declares no "include"');
+        expect(warning).toContain('"include": ["src/**/*.ts", "src/**/*.vue"]');
+        // It already has its extends, so the remediation must not ask for one.
+        expect(warning).not.toContain('add "extends"');
+    });
+
+    it('stays silent about an existing plugin config that already composes the bridge', () => {
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+
+        // A wired plugin must not be nagged on every run — the warning asks
+        // whether the config composes, not merely whether a file is there.
+        writeFile(path.join(adminFolder, 'tsconfig.json'), [
+            `{ "extends": "${BRIDGE_TSCONFIG_EXTENDS}", "include": ["src/**/*.ts"] }`,
+        ]);
+        writeFile(path.join(adminFolder, 'eslint.config.mjs'), [
+            `import shopware from '${BRIDGE_ESLINT_SPECIFIER}';`,
+            'export default [...shopware];',
+        ]);
+
+        // The fixture's vendor extension ships genuinely non-composing configs
+        // and must keep warning, so only ZeroConfig's own lines may disappear.
+        const zeroConfigWarnings = (): string[] =>
+            setupExtensionTooling({ projectRoot, administrationRoot })
+                .warnings.filter((warning) => warning.extension === 'ZeroConfig')
+                .map((warning) => warning.message);
+
+        expect(zeroConfigWarnings()).toEqual([]);
+        // Re-running is the documented migration path, so the second run has to
+        // be quiet too — the first one wrote the bridge these configs point at.
+        expect(zeroConfigWarnings()).toEqual([]);
     });
 
     it('merges plugin aliases and preset host paths into the bridge tsconfig', () => {
@@ -171,8 +231,8 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
             const result = setupExtensionTooling({ projectRoot, administrationRoot });
 
             // The run completes; both failures degrade to warnings.
-            expect(result.warnings.join('\n')).toContain('Could not write the bridge for ZeroConfig');
-            expect(result.warnings.join('\n')).toContain('Could not write the bridge for custom-admin');
+            expect(warningText(result)).toContain('Could not write the bridge for ZeroConfig');
+            expect(warningText(result)).toContain('Could not write the bridge for custom-admin');
 
             const zeroConfig = result.manifest.projects.find((project) => project.name === 'ZeroConfig');
 

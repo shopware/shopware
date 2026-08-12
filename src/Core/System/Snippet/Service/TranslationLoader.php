@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
@@ -25,12 +26,13 @@ use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class TranslationLoader extends AbstractTranslationLoader
+class TranslationLoader extends AbstractTranslationLoader implements ResetInterface
 {
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',
@@ -42,6 +44,11 @@ class TranslationLoader extends AbstractTranslationLoader
         'Storefront',
         'Administration',
     ];
+
+    /**
+     * @var ArrayStruct<list<string>>|null
+     */
+    private ?ArrayStruct $existingPluginLocaleTranslations = null;
 
     /**
      * @param EntityRepository<LanguageCollection> $languageRepository
@@ -75,6 +82,9 @@ class TranslationLoader extends AbstractTranslationLoader
         $this->fetchPlatformSnippets($locale);
         $this->fetchPluginSnippets($locale);
 
+        // new plugin translation directories may have been written, invalidate the memoized lookup
+        $this->reset();
+
         $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
 
@@ -83,28 +93,30 @@ class TranslationLoader extends AbstractTranslationLoader
 
     public function pluginTranslationExists(Plugin $plugin): bool
     {
+        $this->memoizePluginLocaleTranslations();
+
         $name = $this->config->getMappedPluginName($plugin);
-        $localesBasePath = $this->getLocalesBasePath();
 
-        if (!$this->translationWriter->directoryExists($localesBasePath)) {
-            return false;
-        }
-
-        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
-            if ($fsNode->isDir() && str_ends_with($fsNode->path(), 'Plugins/' . $name)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->existingPluginLocaleTranslations?->has($name) === true;
     }
 
     public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
     {
-        $name = $this->config->getMappedPluginName($plugin);
-        $pluginPath = Path::join($this->getLocalePath($locale), 'Plugins', $name);
+        $this->memoizePluginLocaleTranslations();
 
-        return $this->translationWriter->directoryExists($pluginPath);
+        $name = $this->config->getMappedPluginName($plugin);
+        $localesByPlugin = $this->existingPluginLocaleTranslations?->get($name);
+
+        if (!\is_array($localesByPlugin)) {
+            return false;
+        }
+
+        return \in_array(\strtolower($locale), $localesByPlugin, true);
+    }
+
+    public function reset(): void
+    {
+        $this->existingPluginLocaleTranslations = null;
     }
 
     public function getLocalesBasePath(): string
@@ -123,6 +135,30 @@ class TranslationLoader extends AbstractTranslationLoader
         }
 
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
+    }
+
+    private function memoizePluginLocaleTranslations(): void
+    {
+        if ($this->existingPluginLocaleTranslations !== null) {
+            return;
+        }
+
+        $localesBasePath = $this->getLocalesBasePath();
+        /** @var ArrayStruct<list<string>> $pluginLocales */
+        $pluginLocales = new ArrayStruct();
+
+        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
+            if (\preg_match('#(?P<locale>[^/]+)/Plugins/(?P<plugin>[^/]+)#', $fsNode->path(), $matches) !== 1) {
+                continue;
+            }
+
+            $locales = $pluginLocales->get($matches['plugin']) ?? [];
+            $locales[] = \strtolower($matches['locale']);
+
+            $pluginLocales->set($matches['plugin'], \array_unique($locales));
+        }
+
+        $this->existingPluginLocaleTranslations = $pluginLocales;
     }
 
     private function fetchPluginSnippets(string $locale): void

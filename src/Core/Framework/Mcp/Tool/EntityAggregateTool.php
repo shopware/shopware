@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,6 +38,7 @@ class EntityAggregateTool extends McpToolResponse
         private readonly DefinitionInstanceRegistry $registry,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly McpContextProvider $contextProvider,
+        private readonly AclCriteriaValidator $criteriaValidator,
     ) {
     }
 
@@ -83,6 +85,13 @@ class EntityAggregateTool extends McpToolResponse
             $definition,
             $context,
         );
+
+        // Aggregations and filters can reference associated entities that require their own
+        // read privileges (same association ACL model as the Admin API).
+        $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
+        if ($missing !== []) {
+            return $this->missingPrivilegesError($missing);
+        }
 
         $criteriaObj->setLimit(0);
 

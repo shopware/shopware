@@ -173,25 +173,15 @@ class PromotionDeliveryCalculator
                 break;
             }
 
-            if (!$lineItems->exists($discountItem)) {
-                if ($priorityDiff > 0) {
-                    // valid discountItem with higher priority would have been added to the cart already
-                    continue;
-                }
-                // $priorityDiff === 0 is implied at this point
-
-                if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
-                    // requirements are not fulfilled
-                    continue;
-                }
-            }
-
             $promotionId = $discountItem->getPayloadValue('promotionId');
             if ($promotionId === null) {
+                // malformed discountItems without promotionId shouldn't be able to exclude anything
                 continue;
             }
 
             if ($promotionId === $checkedPromotionId) {
+                // within the same priority, enforce the loading order: whichever item is loaded first enforces its exclusions and can't be excluded by later items.
+                // if we'd continue instead, two same-priority promotions could exclude each other and neither would be added.
                 break;
             }
 
@@ -201,10 +191,11 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            // check if the promotion is active by its conditions
-            if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
+            if (!$lineItems->exists($discountItem) && !$this->isRequirementValid($discountItem, $calculated, $context)) {
+                // $discountItem's requirements are not fulfilled (doesn't need to be checked if it was already added)
                 continue;
             }
+
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
                 if ($id === $checkedPromotionId) {
                     return true;

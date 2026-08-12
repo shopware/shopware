@@ -9,10 +9,12 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * @codeCoverageIgnore
  */
-final readonly class CalculatedPrice
+final class CalculatedPrice extends AbstractRequest
 {
     public function __construct(
         public ?float $unitPrice = null,

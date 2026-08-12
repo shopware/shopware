@@ -9,10 +9,12 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * @codeCoverageIgnore
  */
-final readonly class NullableUnion
+final class NullableUnion extends AbstractRequest
 {
     public function __construct(
         public ?string $value = null,

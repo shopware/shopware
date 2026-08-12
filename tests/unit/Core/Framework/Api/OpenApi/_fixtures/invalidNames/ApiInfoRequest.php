@@ -9,12 +9,13 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-final readonly class ApiInfoRequest
+final class ApiInfoRequest extends AbstractRequest
 {
     public function __construct(
         /**

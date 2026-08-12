@@ -9,14 +9,14 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 
 /**
  * API info
  *
  * @codeCoverageIgnore
  */
-final readonly class ApiInfoResponse implements StoreApiDTOResponseInterface
+final class ApiInfoResponse extends AbstractResponse
 {
     public function __construct(
         public ?string $version = null,

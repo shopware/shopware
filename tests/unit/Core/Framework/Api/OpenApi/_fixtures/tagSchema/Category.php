@@ -9,10 +9,12 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
+
 /**
  * @codeCoverageIgnore
  */
-final readonly class Category
+final class Category extends AbstractRequest
 {
     public function __construct(
         public ?string $id = null,

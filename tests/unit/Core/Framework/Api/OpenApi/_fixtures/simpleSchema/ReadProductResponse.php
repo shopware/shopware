@@ -9,14 +9,14 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 
 /**
  * Product found
  *
  * @codeCoverageIgnore
  */
-final readonly class ReadProductResponse implements StoreApiDTOResponseInterface
+final class ReadProductResponse extends AbstractResponse
 {
     public function __construct(
         public ?string $id = null,

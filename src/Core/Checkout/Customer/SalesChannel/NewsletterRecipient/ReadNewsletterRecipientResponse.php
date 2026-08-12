@@ -4,12 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-10 15:01:45
+ * Last generated: 2026-08-12 14:37:02
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-final readonly class ReadNewsletterRecipientResponse implements StoreApiDTOResponseInterface
+final class ReadNewsletterRecipientResponse extends AbstractResponse
 {
     public function __construct(
         /**

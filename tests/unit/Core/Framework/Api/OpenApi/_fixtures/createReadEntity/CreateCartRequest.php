@@ -9,6 +9,7 @@
 
 namespace App\DTO;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-final readonly class CreateCartRequest
+final class CreateCartRequest extends AbstractRequest
 {
     public function __construct(
         /**

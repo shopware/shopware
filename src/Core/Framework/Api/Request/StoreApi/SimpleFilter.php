@@ -4,11 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-10 15:01:45
+ * Last generated: 2026-08-12 14:37:38
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
+use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-final readonly class SimpleFilter
+final class SimpleFilter extends AbstractRequest
 {
     public function __construct(
         #[Assert\NotBlank]

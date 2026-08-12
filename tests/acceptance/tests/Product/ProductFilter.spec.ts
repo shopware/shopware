@@ -1,7 +1,27 @@
 import { test } from '@fixtures/AcceptanceTest';
+import type { Page } from '@playwright/test';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
 const TIMEOUT = 15_000;
+
+const waitForFilterResponses = (page: Page, filterName: string, filterValue: string) =>
+    Promise.all(
+        [
+            false,
+            true,
+        ].map((isFilterRequest) =>
+            page.waitForResponse((response) => {
+                const url = new URL(response.url());
+
+                return (
+                    response.ok() &&
+                    url.pathname.includes('/widgets/cms/navigation/') &&
+                    url.pathname.endsWith('/filter') === isFilterRequest &&
+                    url.searchParams.get(filterName) === filterValue
+                );
+            }),
+        ),
+    );
 
 test(
     'Customer should see unavailable filter disabled based on selected filter',
@@ -11,26 +31,17 @@ test(
             '@Storefront',
         ],
     },
-    async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        SelectProductFilterOption,
-        CheckVisibilityInHome,
-        IdProvider,
-    }) => {
-        const uniqueId = IdProvider.getIdPair().uuid;
-
+    async ({ ShopCustomer, TestDataService, StorefrontHome, SelectProductFilterOption, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup({
-            name: `Color ${uniqueId}`,
+            name: 'Color',
             description: 'Color Description',
-            options: [{ name: `Red ${uniqueId}`, colorHexCode: '#bf0f2a' }],
+            options: [{ name: 'Red', colorHexCode: '#bf0f2a' }],
         });
         const size = await TestDataService.createTextPropertyGroup({
-            name: `Size ${uniqueId}`,
+            name: 'Size',
             description: 'Size Description',
-            options: [{ name: `Medium ${uniqueId}` }],
+            options: [{ name: 'Medium' }],
         });
         const propertyGroupsColor: PropertyGroup[] = [color];
         const propertyGroupsText: PropertyGroup[] = [size];
@@ -46,17 +57,17 @@ test(
 
         await test.step('Create manufacturer and products then verify products created', async () => {
             sizeManufacturer = await TestDataService.createBasicManufacturer({
-                name: `Size Manufacturer ${uniqueId}`,
+                name: 'Size Manufacturer',
                 description: 'Size Description Manufacturer',
             });
             colorManufacturer = await TestDataService.createBasicManufacturer({
-                name: `Color Manufacturer ${uniqueId}`,
+                name: 'Color Manufacturer',
                 description: 'Color Description Manufacturer',
             });
             parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
             parentProductSize = await TestDataService.createBasicProduct({ manufacturerId: sizeManufacturer.id });
             const freeShipManufacturer = await TestDataService.createBasicManufacturer({
-                name: `Free-shipping Manufacturer ${uniqueId}`,
+                name: 'Free-shipping Manufacturer',
                 description: 'Free ship Description Manufacturer',
             });
 
@@ -64,7 +75,7 @@ test(
                 shippingFree: true,
                 manufacturerId: freeShipManufacturer.id,
             });
-            basicProduct = await TestDataService.createBasicProduct({ name: `Product without filters ${uniqueId}` });
+            basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
             variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
                 description: 'Variant description',
             });
@@ -96,10 +107,11 @@ test(
 
         await test.step('Select a manufacturer and verify that unavailable filter is disabled and products are filtered', async () => {
             const manufacturerLocator = await StorefrontHome.getFilterItemByFilterName(colorManufacturer.name);
+            const filterResponses = waitForFilterResponses(StorefrontHome.page, 'manufacturer', colorManufacturer.id);
             await ShopCustomer.attemptsTo(
                 SelectProductFilterOption(StorefrontHome.manufacturerFilter, colorManufacturer.name),
             );
-            await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
+            await filterResponses;
 
             await ShopCustomer.expects(manufacturerLocator).toBeChecked();
             await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
@@ -226,14 +238,12 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome, IdProvider }) => {
-        const uniqueId = IdProvider.getIdPair().uuid;
-
+    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup();
         const propertyGroupsColor: PropertyGroup[] = [color];
         const colorManufacturer = await TestDataService.createBasicManufacturer({
-            name: `Color Manufacturer ${uniqueId}`,
+            name: 'Color Manufacturer',
             description: 'Color Description Manufacturer',
         });
         const parentProductColor = await TestDataService.createBasicProduct({
@@ -244,7 +254,7 @@ test(
             description: 'Variant description',
         });
         const freeShipManufacturer = await TestDataService.createBasicManufacturer({
-            name: `Free-shipping Manufacturer ${uniqueId}`,
+            name: 'Free-shipping Manufacturer',
             description: 'Free ship Description Manufacturer',
         });
         const productWithShippingAndManufacturer = await TestDataService.createBasicProduct({
@@ -253,9 +263,7 @@ test(
         });
         const productWithRating1 = await TestDataService.createBasicProduct();
         const productWithRating2 = await TestDataService.createBasicProduct();
-        const productWithoutFilter = await TestDataService.createBasicProduct({
-            name: `Product without filters ${uniqueId}`,
-        });
+        const productWithoutFilter = await TestDataService.createBasicProduct({ name: 'Product without filters' });
 
         await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
         await TestDataService.createProductReview(productWithRating2.id, { points: 5 });
@@ -297,8 +305,9 @@ test(
              * Cannot use presses() as this opens a list of radio buttons but the inputs are lacking
              *     a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
              */
+            const filterResponses = waitForFilterResponses(StorefrontHome.page, 'rating', '3');
             await ratingLocator.click();
-            await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
+            await filterResponses;
 
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });

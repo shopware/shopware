@@ -483,6 +483,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(ElasticsearchAdminStatusCommand::class)
+        ->args([
+            service('admin.openSearch.client'),
+            service(Connection::class),
+            service(AdminElasticsearchHelper::class),
+        ])
+        ->tag('console.command');
+
     $services->set(ElasticsearchAdminIndexingCommand::class)
         ->args([
             service(AdminSearchRegistry::class),

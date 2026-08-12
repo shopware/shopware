@@ -190,6 +190,9 @@ When updating an Elasticsearch/OpenSearch mapping references an analyzer/normali
 `es:status` only looked at the `product` row of `elasticsearch_index_task`, so a running category, manufacturer or custom-entity indexing run was reported as `completed`. It now lists every pending indexing task with its index, alias, remaining document count, and whether it is still indexing or waiting for the alias swap.
 
 The product-specific progress bar is gone, replaced by the remaining document count per entity. Its total came from a live `product` count rather than from the recorded task, so it was only ever an approximation and could not be generalised to other entities.
+### New `es:admin:status` command
+
+Admin indexing had no status output at all, and the only indirect signal — the `message_queue_stats` entry for `AdminSearchIndexingMessage` — is gone in 6.8. `bin/console es:admin:status` reports the admin cluster health and one row per entity with its index, alias, remaining document count and whether it is live, still indexing, or waiting for its alias swap.
 
 ### Admin search indices go live only after their indexing run finished
 

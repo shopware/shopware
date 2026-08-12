@@ -8,8 +8,10 @@ $glass-max-width: $compare-max-width + 2 * ($glass-padding + $glass-border-width
 // otherwise the curves are not parallel.
 $compare-radius: 16px;
 
-// The seam line that marks the reveal as draggable.
+// The seam line that marks the reveal as draggable. It thins out while hidden, so appearing
+// grows it back to full width.
 $handle-width: 3px;
+$handle-resting-scale: 0.5;
 $glass-radius: $compare-radius + $glass-padding;
 $glass-gradient: linear-gradient(
     79.32deg,
@@ -120,15 +122,20 @@ $glass-gradient: linear-gradient(
         position: absolute;
         top: 0;
         bottom: 0;
-        left: calc(var(--sw-whats-new-modal-split, 50%) - $handle-width / 2);
+
+        // Centred on the seam by the offset alone, so transform is left free for the reveal
+        // below. Doing both would move it half its width off the seam.
+        left: calc(var(--sw-whats-new-modal-split, 50%) - #{$handle-width * 0.5});
         width: $handle-width;
-        transform: translateX(-50%);
         background: var(--color-static-white);
         box-shadow: 0 0 4px rgba(0, 0, 0, 25%);
         pointer-events: none;
         opacity: 0;
+        transform: scaleX($handle-resting-scale);
         transform-origin: center;
-        transition: opacity 200ms ease-out, transform 200ms ease-out;
+        transition:
+            opacity 200ms ease-out,
+            transform 200ms ease-out;
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;

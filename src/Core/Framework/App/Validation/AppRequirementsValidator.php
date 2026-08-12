@@ -4,15 +4,17 @@ namespace Shopware\Core\Framework\App\Validation;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class AppRequirementsValidator
+class AppRequirementsValidator extends AbstractManifestValidator
 {
     /**
      * @param iterable<Requirement> $validators
@@ -28,18 +30,18 @@ class AppRequirementsValidator
      * Requirements are only enforced in the 'prod' environment.
      * In dev/test, validation is skipped so local development and CI are not blocked
      * by infrastructure checks (HTTPS, public reachability, etc.).
-     *
-     * @return array<UnmetRequirement>
      */
-    public function validate(Manifest $manifest): array
+    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
     {
+        $errors = new ErrorCollection();
+
         $this->logUnknownRequirements($manifest);
 
         if ($this->environment !== 'prod') {
-            return [];
+            return $errors;
         }
 
-        $validationErrors = [];
+        $violations = [];
         foreach ($this->validators as $validator) {
             if (!$validator->required($manifest)) {
                 continue;
@@ -47,11 +49,15 @@ class AppRequirementsValidator
 
             $unmet = $validator->validate($manifest);
             if ($unmet !== null) {
-                $validationErrors[] = $unmet;
+                $violations[] = $unmet;
             }
         }
 
-        return $validationErrors;
+        if ($violations !== []) {
+            $errors->add(new UnmetRequirementError(...$violations));
+        }
+
+        return $errors;
     }
 
     private function logUnknownRequirements(Manifest $manifest): void

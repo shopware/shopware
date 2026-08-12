@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Validation;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
@@ -33,5 +34,16 @@ class ManifestValidator
         }
 
         throw new AppValidationException($manifest->getMetadata()->getName(), $errors);
+    }
+
+    public function throwOnFirstError(Manifest $manifest, Context $context): void
+    {
+        foreach ($this->validators as $validator) {
+            $error = $validator->validate($manifest, $context)->first();
+
+            if ($error !== null) {
+                throw AppException::validationFailedFromError($error);
+            }
+        }
     }
 }

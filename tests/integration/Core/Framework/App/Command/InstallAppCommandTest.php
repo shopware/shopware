@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -246,14 +247,28 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('App installation of invalidWebhooks failed due: ', $commandTester->getDisplay());
     }
 
-    public function testInstallInvalidAppWithNoValidate(): void
+    public function testNoValidateStillRunsTheRequiredValidators(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
         $commandTester->setInputs(['yes', 'yes']);
+
+        // --no-validate only skips this command's own check; the enforced validators run inside
+        // AppManager and still refuse the installation.
+        $this->expectExceptionObject(AppException::validationFailedFromError(
+            new NotHookableError(['hook4NotAllowed: tax.written'])
+        ));
+
         $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);
+    }
+
+    public function testNoValidateSkipsTheOptionalValidators(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->setInputs(['yes', 'yes']);
+        $commandTester->execute(['name' => 'withoutPermissions', '--no-validate' => true]);
 
         static::assertSame(0, $commandTester->getStatusCode());
-        static::assertStringContainsString('App invalidWebhooks has been successfully installed.', $commandTester->getDisplay());
+        static::assertStringContainsString('App withoutPermissions has been successfully installed.', $commandTester->getDisplay());
     }
 
     public function testInstallMultipleAppsAtOnceForced(): void

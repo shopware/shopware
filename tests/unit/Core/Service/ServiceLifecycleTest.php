@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -20,6 +21,9 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
+use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -179,7 +183,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->logger
             ->expects($this->once())
@@ -210,7 +214,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -266,7 +270,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->never())->method('uninstall');
 
@@ -293,7 +297,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -306,6 +310,39 @@ class ServiceLifecycleTest extends TestCase
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         static::assertFalse($this->createLifecycle($this->buildAppRepository([], [$app], [$app]))->install($this->entry, Context::createDefaultContext()));
+    }
+
+    public function testInstallLogsAndSkipsWhenAManifestValidatorRefusesTheService(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willReturn($this->createManifest());
+
+        $this->appManager->expects($this->once())
+            ->method('install')
+            ->willThrowException(new AppValidationException('MyCoolService', new ErrorCollection([
+                new NotHookableError(['hook: tax.written']),
+            ])));
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('Cannot install service "MyCoolService" because of error: "The app "MyCoolService" is invalid:'));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->appManager->expects($this->never())->method('uninstall');
+
+        static::assertFalse($this->createLifecycle($this->buildAppRepository([], []))->install($this->entry, Context::createDefaultContext()));
     }
 
     public function testInstallReturnsFalseWhenManifestCannotBeParsed(): void
@@ -529,7 +566,7 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver->expects($this->once())
             ->method('filesystemForVersion')
             ->with($this->appInfo)
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
@@ -563,7 +600,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->once())
             ->method('update')
-            ->willThrowException(AppException::notCompatible('MyCoolService'));
+            ->willThrowException(AppException::validationFailedFromError(new IncompatibleAppError('MyCoolService')));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
@@ -571,6 +608,40 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('debug')
             ->with('Cannot update service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
+    }
+
+    public function testUpdateLogsAndSkipsWhenAManifestValidatorRefusesTheService(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '8.0.0']);
+        $this->registryReturnsEntry();
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willReturn($this->createManifest());
+
+        $this->appManager->expects($this->once())
+            ->method('update')
+            ->willThrowException(new AppValidationException('MyCoolService', new ErrorCollection([
+                new NotHookableError(['hook: tax.written']),
+            ])));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with(static::stringContains('Cannot update service "MyCoolService" because of error: "The app "MyCoolService" is invalid:'));
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }

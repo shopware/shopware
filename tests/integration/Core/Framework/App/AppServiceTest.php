@@ -284,8 +284,19 @@ class AppServiceTest extends TestCase
         $fails = $appService->doRefreshApps(new AppInstallParameters(), $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(9, $manifests); // 2 are not parsable (withRequirements still passes as requirements are not asserted in test env)
-        static::assertCount(7, $apps);
-        static::assertCount(2, $fails);
+
+        // `private` and `invalidManifestName` fail on registration resp. parsing; the three webhook
+        // fixtures are refused because AppManager runs the required manifest validators, which
+        // include the HookableValidator, on every install.
+        static::assertSame(
+            ['invalidWebhooks', 'missingPermissions', 'private', 'invalidManifestName', 'notHookableWebhooks'],
+            array_map(
+                static fn (array $fail) => $fail['manifest']->getMetadata()->getName(),
+                $fails
+            )
+        );
+
+        static::assertCount(4, $apps);
     }
 
     private function assertDefaultActionButtons(): void

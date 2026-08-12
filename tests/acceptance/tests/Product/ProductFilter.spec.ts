@@ -1,29 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
-import type { Page } from '@playwright/test';
 import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
 const TIMEOUT = 15_000;
-
-const waitForListingPlugins = (page: Page) =>
-    page.waitForFunction(`
-        () => {
-            const pluginManager = window.PluginManager;
-            const plugins = {
-                '[data-listing]': 'Listing',
-                '[data-filter-boolean]': 'FilterBoolean',
-                '[data-filter-multi-select]': 'FilterMultiSelect',
-                '[data-filter-property-select]': 'FilterPropertySelect',
-                '[data-filter-range]': 'FilterRange',
-                '[data-filter-rating-select]': 'FilterRatingSelect',
-            };
-
-            return pluginManager && Object.entries(plugins).every(([selector, pluginName]) =>
-                Array.from(document.querySelectorAll(selector)).every((element) =>
-                    pluginManager.getPluginInstanceFromElement(element, pluginName),
-                ),
-            );
-        }
-    `);
 
 test(
     'Customer should see unavailable filter disabled based on selected filter',
@@ -33,7 +11,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, SelectProductFilterOption, CheckVisibilityInHome }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({
             'core.listing.disableEmptyFilterOptions': true,
         });
@@ -103,7 +81,6 @@ test(
 
         await test.step('Verify setup filters display & enabled', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await waitForListingPlugins(StorefrontHome.page);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -118,9 +95,8 @@ test(
 
         await test.step('Select a manufacturer and verify that unavailable filter is disabled and products are filtered', async () => {
             const manufacturerLocator = await StorefrontHome.getFilterItemByFilterName(colorManufacturer.name);
-            await ShopCustomer.attemptsTo(
-                SelectProductFilterOption(StorefrontHome.manufacturerFilter, colorManufacturer.name),
-            );
+            await ShopCustomer.presses(StorefrontHome.manufacturerFilter);
+            await manufacturerLocator.check();
 
             await ShopCustomer.expects(manufacturerLocator).toBeChecked();
             await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
@@ -147,7 +123,6 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await waitForListingPlugins(StorefrontHome.page);
             await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({
                 timeout: TIMEOUT,
             });
@@ -181,9 +156,8 @@ test(
         });
 
         await test.step('Select another manufacturer and verify that a different filter is disabled', async () => {
-            await ShopCustomer.attemptsTo(
-                SelectProductFilterOption(StorefrontHome.manufacturerFilter, sizeManufacturer.name),
-            );
+            await ShopCustomer.presses(StorefrontHome.manufacturerFilter);
+            await (await StorefrontHome.getFilterItemByFilterName(sizeManufacturer.name)).check();
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
             await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
             await ShopCustomer.expects(
@@ -204,7 +178,8 @@ test(
 
         await test.step('Filter only by size and verify color and freeshipping filters are disabled', async () => {
             const sizeFilter = await StorefrontHome.getFilterButtonByFilterName(size.name);
-            await ShopCustomer.attemptsTo(SelectProductFilterOption(sizeFilter, sizeOptions[0].name));
+            await ShopCustomer.presses(sizeFilter);
+            await (await StorefrontHome.getFilterItemByFilterName(sizeOptions[0].name)).check();
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
             await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
             await ShopCustomer.expects(
@@ -226,7 +201,6 @@ test(
             await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await waitForListingPlugins(StorefrontHome.page);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -315,7 +289,6 @@ test(
 
         await test.step('Verify setup filters display', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await waitForListingPlugins(StorefrontHome.page);
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
@@ -334,12 +307,7 @@ test(
 
         await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
             await ShopCustomer.presses(StorefrontHome.productRatingButton);
-            const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
-            /**
-             * Cannot use presses() as this opens a list of radio buttons but the inputs are lacking
-             *     a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
-             */
-            await ratingLocator.click();
+            await StorefrontHome.page.locator('.filter-rating-select-item-label[for="rating-3"]').click();
 
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });

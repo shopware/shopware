@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeConfig;
+use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
@@ -88,6 +89,12 @@ class AppDocumentTypeGenerationTest extends TestCase
         $this->numberRangeRepository = static::getContainer()->get('number_range.repository');
 
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/DocumentWarrantyApp');
+
+        // DocumentTypeRegistry and AppDocumentTypeLoader are compute-once caches; reset both so the
+        // just-installed app type is visible. In production the request boundary resets them, but this
+        // shared-kernel test would otherwise reuse a cache warmed before the app was active.
+        static::getContainer()->get(AppDocumentTypeLoader::class)->reset();
+        static::getContainer()->get(DocumentTypeRegistry::class)->reset();
     }
 
     public function testInstallStoresAppFeatureAndSeedsNumberRange(): void
@@ -149,7 +156,6 @@ class AppDocumentTypeGenerationTest extends TestCase
     public function testDocumentTypeRegistrySupportsTheAppRegisteredType(): void
     {
         $registry = static::getContainer()->get(DocumentTypeRegistry::class);
-        $registry->reset();
 
         static::assertTrue($registry->supports(self::WARRANTY_DOCUMENT_TYPE));
         static::assertSame(['html', 'pdf'], $registry->getSupportedFormats(self::WARRANTY_DOCUMENT_TYPE));

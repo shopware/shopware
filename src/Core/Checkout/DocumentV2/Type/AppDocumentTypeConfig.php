@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 #[Package('after-sales')]

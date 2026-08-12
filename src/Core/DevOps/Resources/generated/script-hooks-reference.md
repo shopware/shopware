@@ -17,7 +17,7 @@ All available Hooks that can be used to load additional data.
 | <!-- -->               | <!-- -->                                |
 |:-----------------------|:----------------------------------------|
 | **Name**               | document-generation                         |
-| **Since**              | 6.7.13.0                        |
+| **Since**              | 6.7.14.0                        |
 | **Class**              | `Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook`                      |
 | **Description**        | Triggered once per document generation, after the order is loaded and the document number is allocated, but before any renderer runs.<br>                  |
 | **Available Data**     | context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>documentNumber: `string`<br>documentType: `string`<br>formats: `array`<br>orderId: `string`<br>orderVersionId: `string`<br>salesChannelId: `string`<br>        |

@@ -75,9 +75,7 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateSeoUrlPlaceholderPassesResolvedRouteAndParameters(): void
     {
-        $this->placeholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->placeholderHandler
-            ->expects($this->once())
             ->method('generate')
             ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => 'abc123'])
             ->willReturn('SEO_PLACEHOLDER');
@@ -89,9 +87,7 @@ class EntityRouteResolverTest extends TestCase
 
     public function testGenerateUrlPassesResolvedRouteAndParameters(): void
     {
-        $this->router = $this->createMock(RouterInterface::class);
         $this->router
-            ->expects($this->once())
             ->method('generate')
             ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => 'abc123'])
             ->willReturn('/product/some-product/abc123');

@@ -28,18 +28,19 @@
                 >
 
                 <div class="sw-whats-new-modal__glass">
-                    <!-- Decorative: rests at an even split without a mouse -->
-                    <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                    <!-- Decorative: rests at an even split until it is dragged -->
+                    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                     <div
+                        ref="compare"
                         class="sw-whats-new-modal__compare"
                         :class="{
                             'sw-whats-new-modal__compare--settled': splitPosition !== null,
                             'sw-whats-new-modal__compare--eased': isSplitEased,
                             'sw-whats-new-modal__compare--pinned': isSplitPinned,
+                            'sw-whats-new-modal__compare--dragging': isDragging,
                         }"
                         :style="compareStyle"
-                        @mousemove="onCompareMove"
-                        @mouseleave="onCompareLeave"
+                        @pointerdown="onDragStart"
                     >
                         <img
                             class="sw-whats-new-modal__compare-image"
@@ -61,6 +62,14 @@
                             alt=""
                             aria-hidden="true"
                         >
+
+                        {% block sw_whats_new_modal_compare_handle %}
+                        <div
+                            v-if="!isSplitPinned"
+                            class="sw-whats-new-modal__compare-handle"
+                            aria-hidden="true"
+                        ></div>
+                        {% endblock %}
                     </div>
                 </div>
             </div>

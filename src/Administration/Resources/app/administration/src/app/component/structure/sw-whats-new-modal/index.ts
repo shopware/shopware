@@ -21,9 +21,10 @@ type WhatsNewPage = {
 
 const SPLIT_PROPERTY = '--sw-whats-new-modal-split';
 const CENTER_SPLIT_POSITION = 50;
-const IDLE_RECENTER_DELAY = 3000;
 // Mirrors the transition duration of __compare--eased in the stylesheet.
 const SPLIT_EASE_DURATION = 300;
+// How far the pointer has to travel before a press counts as a drag rather than a click.
+const DRAG_START_THRESHOLD = 3;
 
 // eslint-disable-next-line no-warning-comments
 // @todo PLACEHOLDER DATE - set this to the release that ships the new navigation.
@@ -144,18 +145,23 @@ export default Shopware.Component.wrapComponentConfig({
         isOpen: boolean;
         currentPage: number;
         splitPosition: number | null;
-        recenterTimeout: number | null;
         hintHandoffTimeout: number | null;
         isSplitEased: boolean;
+        isDragging: boolean;
+        // Both are only read while a drag is running, so neither is rendered from.
+        draggedPosition: number | null;
+        dragOriginX: number | null;
         hasRecordedSeen: boolean;
     } {
         return {
             isOpen: false,
             currentPage: 0,
-            recenterTimeout: null,
             hintHandoffTimeout: null,
             isSplitEased: false,
             splitPosition: null,
+            isDragging: false,
+            draggedPosition: null,
+            dragOriginX: null,
             hasRecordedSeen: false,
         };
     },
@@ -226,7 +232,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         // Only the resting position is bound, so it survives the re-render that paging
-        // causes. Movement itself is written straight to the element, see onCompareMove.
+        // causes. The drag itself is written straight to the element, see onDragMove.
         compareStyle(): Record<string, string> {
             if (this.splitPosition === null) {
                 return {};
@@ -238,9 +244,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     watch: {
         // A pinned page slides the reveal over and holds it; any other page hands control
-        // back to the mouse, centered, with the idle hint inviting interaction again.
+        // back to the pointer, centered, with the idle hint inviting a drag again. This is
+        // the only thing that re-centers: a dragged position is deliberate and stays put.
         currentPage() {
-            this.clearRecenter();
             this.clearHintHandoff();
 
             const pinnedSplit = this.activePage.pinnedSplit;
@@ -271,8 +277,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     beforeUnmount() {
-        this.clearRecenter();
         this.clearHintHandoff();
+        this.stopListeningForDrag();
     },
 
     methods: {
@@ -342,78 +348,101 @@ export default Shopware.Component.wrapComponentConfig({
                 });
         },
 
-        // Written straight to the element rather than through component state, so following
-        // the cursor does not re-render the modal on every mouse move.
-        onCompareMove(event: MouseEvent) {
+        // Only arms the drag: a press on its own never moves the reveal, so clicking the
+        // images cannot yank the seam across and nothing has to be eased to cover a jump.
+        onDragStart(event: PointerEvent) {
             if (this.isSplitPinned) {
                 return;
             }
 
-            const element = event.currentTarget as HTMLElement;
+            // Stops the browser from starting its own drag on the images underneath.
+            event.preventDefault();
+
+            this.isDragging = true;
+            this.dragOriginX = event.clientX;
+
+            // On window rather than the element, so the reveal keeps following a pointer that
+            // has been dragged outside the images and still stops on release out there.
+            // Passing the methods unbound is safe: Vue binds options-API methods to the instance.
+            /* eslint-disable @typescript-eslint/unbound-method */
+            window.addEventListener('pointermove', this.onDragMove);
+            window.addEventListener('pointerup', this.onDragEnd);
+            window.addEventListener('pointercancel', this.onDragEnd);
+            /* eslint-enable @typescript-eslint/unbound-method */
+        },
+
+        // Written straight to the element rather than through component state, so dragging
+        // does not re-render the modal on every pointer move. Resolved from the ref on every
+        // move rather than captured on press, so it cannot end up writing to a stale node.
+        onDragMove(event: PointerEvent) {
+            const element = this.$refs.compare as HTMLElement | undefined;
+
+            if (!element) {
+                return;
+            }
+
+            // A null dragged position means this drag has not moved anything yet, so the press
+            // is still only a click until the pointer has really travelled.
+            const hasTakenOver = this.draggedPosition !== null;
+
+            if (!hasTakenOver && !this.hasPassedDragThreshold(event)) {
+                return;
+            }
+
             const position = this.splitPositionOf(event, element);
 
             if (position === null) {
                 return;
             }
 
-            // Committing the position once is what takes the property away from the idle
-            // hint and the eased slide, both of which would otherwise win over the inline
-            // value. It also has to agree with the value written below, or the render it
-            // triggers would put the reveal back where the slide left it.
-            if (this.isSplitEased || this.splitPosition === null) {
+            // The move that takes the drag over goes through the render, so that stopping the
+            // idle hint and dropping any paging slide land in the same frame as the position.
+            // An inline write cannot do that: an animation outranks it, and a transition still
+            // in effect would ease it. Every later move is written straight to the element,
+            // which is what keeps the drag itself immediate and free of re-renders.
+            if (!hasTakenOver) {
                 this.clearHintHandoff();
 
                 this.isSplitEased = false;
+                this.draggedPosition = position;
                 this.splitPosition = position;
-            }
 
-            element.style.setProperty(SPLIT_PROPERTY, `${position}%`);
-
-            this.scheduleRecenter(element);
-        },
-
-        // The reveal keeps the side the cursor left through, and leaving over the top or
-        // bottom edge holds the horizontal position. splitPositionOf clamps to the bounds,
-        // so an exit past either side lands on 0 or 100 on its own. Committing the resting
-        // position to state re-renders once, so it also survives paging.
-        onCompareLeave(event: MouseEvent) {
-            if (this.isSplitPinned) {
                 return;
             }
 
-            const element = event.currentTarget as HTMLElement;
-            const position = this.splitPositionOf(event, element);
-
-            if (position === null) {
-                return;
-            }
-
-            this.splitPosition = position;
+            this.draggedPosition = position;
 
             element.style.setProperty(SPLIT_PROPERTY, `${position}%`);
-
-            this.scheduleRecenter(element);
         },
 
-        // Idling anywhere on the images eases the reveal back to the middle, so the modal
-        // never rests on a lopsided split.
-        scheduleRecenter(element: HTMLElement) {
-            this.clearRecenter();
-
-            this.recenterTimeout = window.setTimeout(() => {
-                this.recenterTimeout = null;
-                this.isSplitEased = true;
-                this.splitPosition = CENTER_SPLIT_POSITION;
-
-                element.style.setProperty(SPLIT_PROPERTY, `${CENTER_SPLIT_POSITION}%`);
-            }, IDLE_RECENTER_DELAY);
-        },
-
-        clearRecenter() {
-            if (this.recenterTimeout !== null) {
-                window.clearTimeout(this.recenterTimeout);
-                this.recenterTimeout = null;
+        hasPassedDragThreshold(event: PointerEvent): boolean {
+            if (this.dragOriginX === null) {
+                return true;
             }
+
+            return Math.abs(event.clientX - this.dragOriginX) >= DRAG_START_THRESHOLD;
+        },
+
+        // The reveal stays wherever it was let go of; only paging ever re-centers it. A press
+        // that never became a drag leaves everything as it was.
+        onDragEnd() {
+            this.isDragging = false;
+            this.dragOriginX = null;
+
+            if (this.draggedPosition !== null) {
+                this.splitPosition = this.draggedPosition;
+                this.draggedPosition = null;
+            }
+
+            this.stopListeningForDrag();
+        },
+
+        stopListeningForDrag() {
+            /* eslint-disable @typescript-eslint/unbound-method */
+            window.removeEventListener('pointermove', this.onDragMove);
+            window.removeEventListener('pointerup', this.onDragEnd);
+            window.removeEventListener('pointercancel', this.onDragEnd);
+            /* eslint-enable @typescript-eslint/unbound-method */
         },
 
         clearHintHandoff() {
@@ -425,7 +454,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         // Snapped to whole pixels: a fractional edge only partially covers its boundary
         // column, which lets the image underneath bleed through the seam.
-        splitPositionOf(event: MouseEvent, element: HTMLElement): number | null {
+        splitPositionOf(event: { clientX: number }, element: HTMLElement): number | null {
             const { left, width } = element.getBoundingClientRect();
 
             if (width === 0) {

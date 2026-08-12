@@ -7,16 +7,19 @@ $glass-max-width: $compare-max-width + 2 * ($glass-padding + $glass-border-width
 // Concentric corners: the outer radius has to grow by the gap between the two edges,
 // otherwise the curves are not parallel.
 $compare-radius: 16px;
+
+// The seam line that marks the reveal as draggable.
+$handle-width: 3px;
 $glass-radius: $compare-radius + $glass-padding;
 $glass-gradient: linear-gradient(
     79.32deg,
-    rgba(255, 255, 255, 28%) 5.524%,
-    rgba(255, 255, 255, 32%) 27.645%,
-    rgba(255, 255, 255, 28%) 60.183%
+    rgba(255, 255, 255, 25%) 5.524%,
+    rgba(255, 255, 255, 30%) 27.645%,
+    rgba(255, 255, 255, 25%) 60.183%
 );
 
 // Registered so the idle hint below can interpolate it; the component writes the
-// same property directly on the element while the mouse is over the images.
+// same property directly on the element while the seam is being dragged.
 @property --sw-whats-new-modal-split {
     syntax: "<percentage>";
     inherits: true;
@@ -30,11 +33,11 @@ $glass-gradient: linear-gradient(
     }
 
     25% {
-        --sw-whats-new-modal-split: 42%;
+        --sw-whats-new-modal-split: 45%;
     }
 
     75% {
-        --sw-whats-new-modal-split: 58%;
+        --sw-whats-new-modal-split: 55%;
     }
 }
 
@@ -73,7 +76,7 @@ $glass-gradient: linear-gradient(
         border-radius: $glass-radius $glass-radius 0 0;
         background-image: $glass-gradient;
         backdrop-filter: blur(48px);
-        box-shadow: 0 0 124px rgba(94, 24, 16, 10%);
+        box-shadow: 0 0 124px rgba(94, 24, 16, 25%);
     }
 
     &__compare {
@@ -86,9 +89,14 @@ $glass-gradient: linear-gradient(
         overflow: hidden;
         cursor: ew-resize;
 
+        // The reveal is dragged, so neither the images nor a text selection may take over
+        // the gesture, and touch must not scroll the modal instead.
+        user-select: none;
+        touch-action: none;
+
         // Runs once as an invitation rather than looping: it replays whenever the reveal is
         // handed back, which is the only time the offer needs making again.
-        animation: sw-whats-new-modal-hint 2.5s ease-in-out;
+        animation: sw-whats-new-modal-hint 1.6s ease-in-out;
 
         @media (prefers-reduced-motion: reduce) {
             animation: none;
@@ -100,9 +108,39 @@ $glass-gradient: linear-gradient(
         animation: none;
     }
 
-    // Held at one position, so there is nothing for the mouse to drag.
+    // Held at one position, so there is nothing to drag.
     &__compare--pinned {
         cursor: default;
+    }
+
+    // Sits on the seam and rides the same property the reveal is clipped by, so it also
+    // follows the idle hint. Pointer events stay with the images, which take a press
+    // anywhere rather than only on the handle.
+    &__compare-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--sw-whats-new-modal-split, 50%) - $handle-width / 2);
+        width: $handle-width;
+        transform: translateX(-50%);
+        background: var(--color-static-white);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 25%);
+        pointer-events: none;
+        opacity: 0;
+        transform-origin: center;
+        transition: opacity 200ms ease-out, transform 200ms ease-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    // Only offered once the pointer is on the images, and held for the whole drag: the
+    // pointer is free to leave them while dragging.
+    &__compare:hover &__compare-handle,
+    &__compare--dragging &__compare-handle {
+        opacity: 1;
+        transform: scaleX(1);
     }
 
     // The eased slide and the idle return use it; following the cursor stays immediate.

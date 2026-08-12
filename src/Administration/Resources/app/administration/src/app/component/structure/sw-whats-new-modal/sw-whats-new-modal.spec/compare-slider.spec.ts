@@ -18,6 +18,20 @@ function splitOf(currentWrapper: VueWrapper): string {
     return compareElement(currentWrapper).style.getPropertyValue('--sw-whats-new-modal-split');
 }
 
+/** The drag follows the pointer on window, so moves and releases are dispatched there. */
+function dispatchPointer(type: 'pointermove' | 'pointerup' | 'pointercancel', clientX = 0) {
+    window.dispatchEvent(new MouseEvent(type, { clientX }));
+}
+
+/**
+ * The move that takes the drag over from the press hands its position through a render, so
+ * that the transition is dropped in the same frame. Later moves are written synchronously.
+ */
+async function takeOverDrag(clientX: number) {
+    dispatchPointer('pointermove', clientX);
+    await flushPromises();
+}
+
 describe('src/app/component/structure/sw-whats-new-modal - before/after slider', () => {
     let wrapper: VueWrapper | null = null;
 
@@ -34,25 +48,138 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         jest.useRealTimers();
     });
 
-    it('leaves the split to the stylesheet default until the mouse moves', async () => {
+    it('leaves the split to the stylesheet default until it is dragged', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
         expect(splitOf(wrapper)).toBe('');
     });
 
-    it('follows the mouse position across the images', async () => {
+    it('renders a handle on the seam', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-whats-new-modal__compare-handle').exists()).toBe(true);
+    });
+
+    it('does not move while the pointer only hovers the images', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         mockCompareBounds(100, 400);
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointermove', { clientX: 300 });
+        dispatchPointer('pointermove', 300);
+        await flushPromises();
 
-        expect(splitOf(wrapper)).toBe('25%');
+        expect(splitOf(wrapper)).toBe('');
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--settled');
+    });
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
+    it('does not move the reveal on a press alone, so a click leaves it alone', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        dispatchPointer('pointerup', 200);
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('');
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--settled');
+    });
+
+    it('follows the pointer once the drag has started', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        await takeOverDrag(400);
 
         expect(splitOf(wrapper)).toBe('75%');
+
+        dispatchPointer('pointermove', 300);
+
+        expect(splitOf(wrapper)).toBe('50%');
+    });
+
+    it('keeps following a pointer dragged outside the images', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        await takeOverDrag(900);
+
+        expect(splitOf(wrapper)).toBe('100%');
+
+        dispatchPointer('pointermove', -50);
+
+        expect(splitOf(wrapper)).toBe('0%');
+    });
+
+    it('stops following once the pointer is released', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        await takeOverDrag(400);
+        dispatchPointer('pointerup', 400);
+        await flushPromises();
+
+        dispatchPointer('pointermove', 140);
+
+        expect(splitOf(wrapper)).toBe('75%');
+    });
+
+    it('stops following when the drag is cancelled', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        await takeOverDrag(400);
+        dispatchPointer('pointercancel');
+        await flushPromises();
+
+        dispatchPointer('pointermove', 140);
+
+        expect(splitOf(wrapper)).toBe('75%');
+    });
+
+    it('keeps the position it was released at instead of re-centering', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+        jest.useFakeTimers();
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        await takeOverDrag(400);
+        dispatchPointer('pointerup', 400);
+        await flushPromises();
+
+        jest.advanceTimersByTime(10000);
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('75%');
+    });
+
+    it('marks the drag while the pointer is down', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).toContain('sw-whats-new-modal__compare--dragging');
+
+        dispatchPointer('pointerup', 200);
+        await flushPromises();
+
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--dragging');
     });
 
     it('snaps the split to whole pixels so the seam cannot bleed', async () => {
@@ -60,66 +187,86 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         await flushPromises();
         mockCompareBounds(100, 400);
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200.4 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        // Past the threshold first, so the sub-pixel moves below are taken as drag moves.
+        await takeOverDrag(400);
+
+        dispatchPointer('pointermove', 200.4);
 
         expect(splitOf(wrapper)).toBe('25%');
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200.6 });
+        dispatchPointer('pointermove', 200.6);
 
         expect(splitOf(wrapper)).toBe('25.25%');
     });
 
-    it('clamps the split to the bounds of the images', async () => {
+    // Dragging has to feel immediate, so no transition may ever be in effect while it runs.
+    it('never eases while dragging', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         mockCompareBounds(100, 400);
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 20 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
 
-        expect(splitOf(wrapper)).toBe('0%');
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--eased');
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 900 });
+        await takeOverDrag(400);
 
-        expect(splitOf(wrapper)).toBe('100%');
+        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--eased');
     });
 
-    it('ignores the mouse while the images have no width', async () => {
+    // Only the move that takes over goes through a render, so stopping the idle hint lands in
+    // the same frame as the position. An inline write there would lose to the animation.
+    it('hands the first drag move through a render and writes the rest directly', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        dispatchPointer('pointermove', 400);
+
+        expect(splitOf(wrapper)).toBe('');
+
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('75%');
+
+        // Already taken over, so this one is on the element before the next render.
+        dispatchPointer('pointermove', 300);
+
+        expect(splitOf(wrapper)).toBe('50%');
+    });
+
+    it('ignores the jitter a click carries instead of taking it for a drag', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+
+        // Two pixels is a shaky hand, not a drag.
+        dispatchPointer('pointermove', 202);
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('');
+
+        // Past the threshold it becomes one, and picks up the position from there.
+        await takeOverDrag(204);
+
+        expect(splitOf(wrapper)).toBe('26%');
+    });
+
+    it('ignores the drag while the images have no width', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         mockCompareBounds(0, 0);
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        await takeOverDrag(400);
 
         expect(splitOf(wrapper)).toBe('');
-    });
-
-    it('keeps the reveal on the side the mouse left through', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        mockCompareBounds(100, 400);
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mouseleave', { clientX: 60 });
-
-        expect(splitOf(wrapper)).toBe('0%');
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mouseleave', { clientX: 560 });
-
-        expect(splitOf(wrapper)).toBe('100%');
-    });
-
-    it('holds its position when the mouse leaves over the top or bottom edge', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        mockCompareBounds(100, 400);
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
-
-        expect(splitOf(wrapper)).toBe('75%');
-
-        // Leaving upwards keeps the horizontal position instead of snapping to an edge.
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mouseleave', { clientX: 400 });
-
-        expect(splitOf(wrapper)).toBe('75%');
     });
 
     it('stops the idle hint by class rather than by an inline animation-name', async () => {
@@ -129,71 +276,13 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
 
         expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--settled');
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        await takeOverDrag(400);
 
-        // An inline animation-name could never be handed back, so the very first move has to
-        // commit the position and let --settled silence the hint.
+        // An inline animation-name could never be handed back, so the drag has to commit the
+        // position and let --settled silence the hint.
         expect(wrapper.get('.sw-whats-new-modal__compare').classes()).toContain('sw-whats-new-modal__compare--settled');
         expect(compareElement(wrapper).style.animationName).toBe('');
-    });
-
-    it('eases back to the middle once the mouse goes idle', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        mockCompareBounds(100, 400);
-        jest.useFakeTimers();
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
-
-        expect(splitOf(wrapper)).toBe('75%');
-
-        jest.advanceTimersByTime(2999);
-
-        expect(splitOf(wrapper)).toBe('75%');
-
-        jest.advanceTimersByTime(1);
-        await flushPromises();
-
-        expect(splitOf(wrapper)).toBe('50%');
-        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).toContain('sw-whats-new-modal__compare--eased');
-    });
-
-    it('drops the recenter easing again as soon as the mouse moves', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        mockCompareBounds(100, 400);
-        jest.useFakeTimers();
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
-        jest.advanceTimersByTime(3000);
-        await flushPromises();
-
-        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).toContain('sw-whats-new-modal__compare--eased');
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 300 });
-        await flushPromises();
-
-        expect(wrapper.get('.sw-whats-new-modal__compare').classes()).not.toContain('sw-whats-new-modal__compare--eased');
-    });
-
-    it('restarts the idle countdown on every move', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        mockCompareBounds(100, 400);
-        jest.useFakeTimers();
-
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
-        jest.advanceTimersByTime(2000);
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
-        jest.advanceTimersByTime(2000);
-
-        // 4s since the first move, but only 2s since the last one.
-        expect(splitOf(wrapper)).toBe('25%');
-
-        jest.advanceTimersByTime(1000);
-        await flushPromises();
-
-        expect(splitOf(wrapper)).toBe('50%');
     });
 
     it('slides the reveal fully over to the new navigation on the dark mode page', async () => {
@@ -210,7 +299,7 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         expect(compare.classes()).toContain('sw-whats-new-modal__compare--pinned');
     });
 
-    it('ignores the mouse while the reveal is pinned', async () => {
+    it('hides the handle and ignores the pointer while the reveal is pinned', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         mockCompareBounds(100, 400);
@@ -218,8 +307,10 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mouseleave', { clientX: 20 });
+        expect(wrapper.find('.sw-whats-new-modal__compare-handle').exists()).toBe(false);
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
+        dispatchPointer('pointermove', 200);
 
         expect(splitOf(wrapper)).toBe('100%');
     });
@@ -242,6 +333,27 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         expect(splitOf(wrapper)).toBe('50%');
         expect(compare.classes()).toContain('sw-whats-new-modal__compare--eased');
         expect(compare.classes()).not.toContain('sw-whats-new-modal__compare--pinned');
+    });
+
+    it('re-centers a dragged position only when paging back from the pinned page', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        mockCompareBounds(100, 400);
+        jest.useFakeTimers();
+
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 500 });
+        await takeOverDrag(200);
+        dispatchPointer('pointerup', 200);
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('25%');
+
+        await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
+        await flushPromises();
+        await wrapper.get('.sw-whats-new-modal__footer-left button').trigger('click');
+        await flushPromises();
+
+        expect(splitOf(wrapper)).toBe('50%');
     });
 
     it('hands the reveal back to the idle hint once it has slid back', async () => {
@@ -276,7 +388,9 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         await wrapper.get('.sw-whats-new-modal__footer-left button').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 200 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 500 });
+        await takeOverDrag(200);
+        dispatchPointer('pointerup', 200);
 
         expect(splitOf(wrapper)).toBe('25%');
 
@@ -286,21 +400,20 @@ describe('src/app/component/structure/sw-whats-new-modal - before/after slider',
         expect(splitOf(wrapper)).toBe('25%');
     });
 
-    it('drops a pending recenter when the page changes', async () => {
+    it('stops listening for the drag when the modal goes away mid-gesture', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         mockCompareBounds(100, 400);
-        jest.useFakeTimers();
 
-        const pending = () => (wrapper?.vm as unknown as { recenterTimeout: number | null }).recenterTimeout;
+        const removeEventListener = jest.spyOn(window, 'removeEventListener');
 
-        await wrapper.get('.sw-whats-new-modal__compare').trigger('mousemove', { clientX: 400 });
+        await wrapper.get('.sw-whats-new-modal__compare').trigger('pointerdown', { clientX: 200 });
 
-        expect(pending()).not.toBeNull();
+        wrapper.unmount();
+        wrapper = null;
 
-        await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
-        await flushPromises();
-
-        expect(pending()).toBeNull();
+        expect(removeEventListener).toHaveBeenCalledWith('pointermove', expect.any(Function));
+        expect(removeEventListener).toHaveBeenCalledWith('pointerup', expect.any(Function));
+        expect(removeEventListener).toHaveBeenCalledWith('pointercancel', expect.any(Function));
     });
 });

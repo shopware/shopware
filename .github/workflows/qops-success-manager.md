@@ -124,14 +124,52 @@ workflow, pipeline table, and Slack message style. Unattended-run specifics:
 
    **Tool efficiency — read this before fetching job data.** This workflow
    has no `bash` access to `gh`/`jq`; GitHub data comes through the
-   `actions` MCP toolset instead, and its `list_workflow_jobs` method has no
-   failed-only filter — paginating through every job of a run (Platform
-   nightly runs have 100+ matrix jobs) burns turns fast and can blow the
-   turn budget before writing any output. Do NOT call `list_workflow_jobs`
-   for this. Instead, for each run you need the failing job names for, call
-   `get_job_logs` with `run_id` set and `failed_only: true` — it returns
-   only the failed jobs directly, in one call per run, which is what the
-   skill's workflow step 2 needs.
+   `actions` MCP toolset instead. Only fetch job-level detail for a run
+   whose overall conclusion is not `success` — a green run needs no further
+   look. Two different tools cover the two cases below; do not mix them up
+   or call both for the same run.
+
+   **For the latest run of each pipeline (if it's not green):** call
+   `list_workflow_jobs` with `per_page: 100` (its max). Platform nightly
+   runs have 100+ jobs (150-ish is typical) but never more than 200, so at
+   most 2 pages covers every job — fetch page 2 only if page 1 came back
+   full (100 items). Then sort every job into exactly one bucket by its
+   `conclusion`:
+     - `success` — ignore entirely, don't mention it.
+     - `skipped` — collect the names. Compare against the skipped set from
+       the most recent prior run you have data for (a cheap byproduct of
+       the same 7-day history lookup step 1 already does). If it's the
+       same set as before, say nothing about it — a stable handful of
+       conditionally-skipped jobs (e.g. release-prep steps that only run
+       under certain conditions) is normal and not worth repeating every
+       night. Only mention skipped jobs in the summary if the set changed
+       (something new got skipped, or something previously skipped now
+       isn't) — that's a real signal, a static baseline isn't.
+     - anything else (`failure`, `cancelled`, `timed_out`,
+       `action_required`, `stale`, `neutral`) — this is the "needs
+       attention" bucket. Treat all of these as failures needing
+       classification against the 7-day pattern; don't only look for the
+       literal `failure` conclusion, a run marked red with zero `failure`-
+       conclusion jobs usually means the real cause is a `cancelled` or
+       `timed_out` job that a narrower filter would silently miss.
+
+   **For every other run in the 7-day history window (i.e. not the
+   latest):** don't use `list_workflow_jobs` here — call `get_job_logs`
+   with `run_id` set and `failed_only: true` instead. It's a single call
+   per run (no pagination available or needed) and returns the jobs with a
+   literal `failure` conclusion, which is "good enough" for pattern-
+   matching against what the latest run found — full precision on every
+   historical day isn't worth the extra turns, precision on the latest run
+   (handled above) is what actually goes in the report. If `get_job_logs`
+   comes back empty for a run whose overall conclusion wasn't `success`,
+   note that plainly ("red for an unspecified reason — no `failure`-
+   conclusion job found") rather than treating the run as if it were
+   clean — a real prior run showed exactly this happening in practice.
+   Never fetch page 2+ of anything for these historical runs — one call
+   per run, no exceptions, that's what keeps this affordable across a
+   7-day window. State any of the limitations above plainly in the summary
+   text when they're relevant, the way the interactive skill's step 5
+   already asks for evidence to be visible rather than asserted.
 2. Write the result to `qops-success-manager-summary.json` in the current
    working directory, with at minimum a `text` field: a short, Slack-ready
    plain-text summary covering every pipeline checked (green/known/new

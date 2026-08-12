@@ -10,7 +10,7 @@
 namespace App\DTO;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-final readonly class ReadCartResponse implements StoreApiDTOResponseInterface
+final class ReadCartResponse extends AbstractResponse
 {
     public function __construct(
         /**

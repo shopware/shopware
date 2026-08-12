@@ -9,7 +9,7 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\StoreApi\StoreApiDTOResponseInterface;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-final readonly class AddLineItemResponse implements StoreApiDTOResponseInterface
+final class AddLineItemResponse extends AbstractResponse
 {
     public function __construct(
         #[Assert\NotBlank]

@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class Pagination extends ShopwareComponent {
 
     static options = {
@@ -21,9 +19,9 @@ export default class Pagination extends ShopwareComponent {
 
         let page = parseInt(item.getAttribute('data-page') ?? 1, 10);
 
-        ({ page } = Shopware.emitInterception(`Pagination:PreChange`, { page }));
+        ({ page } = Shopware.emitInterception('Pagination:PreChange', { page }));
 
-        Shopware.emit(`Pagination:Change`, page);
+        Shopware.emit('Pagination:Change', page);
 
         this.setActiveItem(page);
     }

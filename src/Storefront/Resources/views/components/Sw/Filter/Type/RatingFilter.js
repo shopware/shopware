@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class RatingFilter extends ShopwareComponent {
 
     static options = {
@@ -35,9 +33,9 @@ export default class RatingFilter extends ShopwareComponent {
         let paramName = this.paramName;
         let label = this.getLabel(value);
 
-        ({ paramName, value, label } = Shopware.emitInterception(`RatingFilter:PreChange`, { paramName, value, label }));
+        ({ paramName, value, label } = Shopware.emitInterception('RatingFilter:PreChange', { paramName, value, label }));
 
-        Shopware.emit(`RatingFilter:Change`, { paramName, value, label });
+        Shopware.emit('RatingFilter:Change', { paramName, value, label });
         Shopware.emit('Filter:Change', { paramName, value, label });
 
         this.updateBadge(value, this.options.maxStars);
@@ -69,7 +67,7 @@ export default class RatingFilter extends ShopwareComponent {
             Shopware.emitQueued('Filter:Init', {
                 paramName: this.paramName,
                 value,
-                label: this.getLabel(value)
+                label: this.getLabel(value),
             });
 
             this.updateBadge(value, this.options.maxStars);
@@ -77,7 +75,7 @@ export default class RatingFilter extends ShopwareComponent {
     }
 
     updateBadge(value, max) {
-        this.dispatchEvent(`Filter:UpdateBadge`, {
+        this.dispatchEvent('Filter:UpdateBadge', {
             content: value > 0 ? `${value}/${max}` : '',
         });
     }

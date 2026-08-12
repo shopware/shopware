@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class Modal extends ShopwareComponent {
 
     static options = {
@@ -36,13 +34,13 @@ export default class Modal extends ShopwareComponent {
         fetch(this.options.ajaxUrl)
             .then(response => response.text())
             .then(content => this.renderContent(content))
-            .catch(error => this.handleError(error))
+            .catch(error => this.handleError(error));
     }
 
     renderContent(content) {
-        ({ content } = Shopware.emitInterception(`Modal:PreRenderContent`, { content }));
+        ({ content } = Shopware.emitInterception('Modal:PreRenderContent', { content }));
 
-         this.modalBody.innerHTML = content;
+        this.modalBody.innerHTML = content;
 
         if (this.options.setTitleFromAjaxContent) {
             this.moveFirstHeadlineToModalTitle();

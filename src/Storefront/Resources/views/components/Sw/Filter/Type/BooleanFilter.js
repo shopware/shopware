@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class BooleanFilter extends ShopwareComponent {
 
     init() {
@@ -18,17 +16,17 @@ export default class BooleanFilter extends ShopwareComponent {
     }
 
     handleChange() {
-        let input = this.checkbox;
+        const input = this.checkbox;
         let value = input.checked;
         let paramName = this.paramName;
         let label = this.label;
 
-        ({ paramName, value, label } = Shopware.emitInterception(`BooleanFilter:PreChange`, { paramName, value, label }));
+        ({ paramName, value, label } = Shopware.emitInterception('BooleanFilter:PreChange', { paramName, value, label }));
 
-        Shopware.emit(`BooleanFilter:Change`, { paramName, value, label });
+        Shopware.emit('BooleanFilter:Change', { paramName, value, label });
         Shopware.emit('Filter:Change', { paramName, value, label });
 
-        this.dispatchEvent(`BooleanFilter:Update`, {
+        this.dispatchEvent('BooleanFilter:Update', {
             paramName,
             value,
             label,

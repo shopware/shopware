@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class RangeFilter extends ShopwareComponent {
 
     static options = {
@@ -39,9 +37,9 @@ export default class RangeFilter extends ShopwareComponent {
         let paramName = inputElement.getAttribute('name').trim();
         let label = paramName === this.minParamName ? this.getMinLabel(value) : this.getMaxLabel(value);
 
-        ({ paramName, value, label, unit } = Shopware.emitInterception(`RangeFilter:PreChange`, { paramName, value, label, unit }));
+        ({ paramName, value, label, unit } = Shopware.emitInterception('RangeFilter:PreChange', { paramName, value, label, unit }));
 
-        Shopware.emit(`RangeFilter:Change`, { paramName, value, label, unit });
+        Shopware.emit('RangeFilter:Change', { paramName, value, label, unit });
         Shopware.emit('Filter:Change', { paramName, value, label, unit });
 
         this.updateBadge();
@@ -70,7 +68,7 @@ export default class RangeFilter extends ShopwareComponent {
                 paramName: this.minParamName,
                 value: minValue,
                 label: this.getMinLabel(minValue),
-                unit: this.options.unit
+                unit: this.options.unit,
             });
         }
 
@@ -79,7 +77,7 @@ export default class RangeFilter extends ShopwareComponent {
                 paramName: this.maxParamName,
                 value: maxValue,
                 label: this.getMaxLabel(maxValue),
-                unit: this.options.unit
+                unit: this.options.unit,
             });
         }
 
@@ -92,10 +90,10 @@ export default class RangeFilter extends ShopwareComponent {
         const unit = this.options.unit;
 
         let content = min ? max > 0 ? `${min}${unit}` : `>= ${min}${unit}` : '';
-        content += min && max ? ` - ` : '';
+        content += min && max ? ' - ' : '';
         content += max ? min > 0 ? `${max}${unit}` : `<= ${max}${unit}` : '';
 
-        this.dispatchEvent(`Filter:UpdateBadge`, {
+        this.dispatchEvent('Filter:UpdateBadge', {
             content,
         });
     }

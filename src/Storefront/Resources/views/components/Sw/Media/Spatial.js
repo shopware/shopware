@@ -17,7 +17,7 @@ export default class MediaSpatial extends ShopwareComponent {
         this.initializeObserver({
             childList: true,
             attributes: true,
-            subtree: true
+            subtree: true,
         });
     }
 

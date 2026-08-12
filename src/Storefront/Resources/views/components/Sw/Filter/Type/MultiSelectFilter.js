@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class MultiSelectFilter extends ShopwareComponent {
 
     init() {
@@ -51,7 +49,7 @@ export default class MultiSelectFilter extends ShopwareComponent {
             }
         });
 
-        Shopware.emit(`MultiSelectFilter:Search`, searchTerm);
+        Shopware.emit('MultiSelectFilter:Search', searchTerm);
     }
 
     handleOptionChange(event) {
@@ -62,7 +60,7 @@ export default class MultiSelectFilter extends ShopwareComponent {
         let paramName = this.paramName;
         let label = this.getLabelFromInput(inputElement);
 
-        ({ paramName, value, option, label } = Shopware.emitInterception(`MultiSelectFilter:PreChange`, { paramName, value, option, label }));
+        ({ paramName, value, option, label } = Shopware.emitInterception('MultiSelectFilter:PreChange', { paramName, value, option, label }));
 
         if (value) {
             this.activeOptions.push(option);
@@ -73,7 +71,7 @@ export default class MultiSelectFilter extends ShopwareComponent {
 
         const eventData = { paramName, value, option, label, activeOptions: this.activeOptions, removedOptions };
 
-        Shopware.emit(`MultiSelectFilter:Change`, eventData);
+        Shopware.emit('MultiSelectFilter:Change', eventData);
         Shopware.emit('Filter:Change', eventData);
 
         this.updateBadge();
@@ -115,7 +113,7 @@ export default class MultiSelectFilter extends ShopwareComponent {
     }
 
     updateBadge() {
-        this.dispatchEvent(`Filter:UpdateBadge`, {
+        this.dispatchEvent('Filter:UpdateBadge', {
             content: this.activeOptions.length > 0 ? `${this.activeOptions.length}` : '',
         });
     }

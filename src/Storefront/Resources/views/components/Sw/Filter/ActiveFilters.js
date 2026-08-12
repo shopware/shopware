@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class ActiveFilters extends ShopwareComponent {
 
     init() {
@@ -71,7 +69,7 @@ export default class ActiveFilters extends ShopwareComponent {
                 paramName,
                 label,
                 option,
-                el: this.createActiveFilterEl({ paramName, label, option })
+                el: this.createActiveFilterEl({ paramName, label, option }),
             };
 
             this.activeFilters.set(key, filter);

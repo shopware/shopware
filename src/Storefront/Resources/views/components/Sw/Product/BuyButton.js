@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class BuyButton extends ShopwareComponent {
 
     static options = {
@@ -29,9 +27,9 @@ export default class BuyButton extends ShopwareComponent {
         let requestUrl = this.el.getAttribute('action');
         let formData = Shopware.serializeForm(this.el);
 
-        ({ requestUrl, formData } = Shopware.emitInterception(`BuyButton:PreSubmit`, { requestUrl, formData }));
+        ({ requestUrl, formData } = Shopware.emitInterception('BuyButton:PreSubmit', { requestUrl, formData }));
 
-        Shopware.emit(`BuyButton:Submit`, requestUrl, formData);
+        Shopware.emit('BuyButton:Submit', requestUrl, formData);
 
         window.PluginManager.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
     }

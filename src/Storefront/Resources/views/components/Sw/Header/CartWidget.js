@@ -3,7 +3,7 @@ export default class CartWidget extends window.ShopwareComponent {
     static options = {
         cartInfoRoute: window.router['frontend.checkout.info'],
         emptyValue: '0',
-    }
+    };
 
     init() {
         this._label = this.el.querySelector('.sw-header-widget__label');

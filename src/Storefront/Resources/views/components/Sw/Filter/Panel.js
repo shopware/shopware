@@ -1,5 +1,3 @@
-({ Shopware, ShopwareComponent } = window);
-
 export default class FilterPanel extends ShopwareComponent {
 
     static options = {
@@ -7,7 +5,7 @@ export default class FilterPanel extends ShopwareComponent {
          * Defines how much filters are visible by default.
          */
         visibleFilterCount: 3,
-    }
+    };
 
     init() {
         this.expandButton = this.el.querySelector('.sw-filter-panel__expand');
@@ -31,7 +29,7 @@ export default class FilterPanel extends ShopwareComponent {
         this.expandButton.addEventListener('click', this.onToggleHiddenFiltersBound);
     }
 
-    onToggleHiddenFilters(event) {
+    onToggleHiddenFilters() {
         if (this.filtersExpanded) {
             this.collapseFilters();
         } else {

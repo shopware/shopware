@@ -54,6 +54,12 @@ yalc.lock
 /vendor/*
 /composer.lock
 
+# Generated Administration extension tooling projections
+# (composer admin:setup-extension-tooling)
+/tsconfig.json
+/eslint.config.mjs
+/.zed/
+
 # Generated database schema files
 /schema
 

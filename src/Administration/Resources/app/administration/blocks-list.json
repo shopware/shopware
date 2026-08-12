@@ -5742,6 +5742,7 @@
  "sw_sales_channel_detail_domains_input_language",
  "sw_sales_channel_detail_domains_input_snippet_set",
  "sw_sales_channel_detail_domains_input_url",
+ "sw_sales_channel_detail_domains_is_external_storefront",
  "sw_sales_channel_detail_domains_meta",
  "sw_sales_channel_detail_header",
  "sw_sales_channel_detail_header_headline",

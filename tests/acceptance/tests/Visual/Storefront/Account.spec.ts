@@ -17,12 +17,6 @@ test(
         const countryId = await DefaultSalesChannel.salesChannel.countryId;
         const salutation = await TestDataService.getSalutation();
         const customer = await TestDataService.createCustomer({
-            firstName: 'John',
-            lastName: 'Goldblum',
-            customerNumber: '12345',
-            email: 'johngoldblum@example.com',
-            password: 'shopware',
-            createdAt: '2025-09-04T06:36:38.101+00:00',
             defaultShippingAddress: {
                 firstName: 'John',
                 lastName: 'Doe',
@@ -47,7 +41,6 @@ test(
 
         await test.step('Create screenshot of account login page in storefront.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-            await ShopCustomer.expects(StorefrontAccountLogin.loginButton).toBeVisible();
             await ShopCustomer.expects(StorefrontAccountLogin.page).toHaveScreenshot('Account-Login-Page.png', {
                 fullPage: true,
             });

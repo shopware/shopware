@@ -6,17 +6,41 @@ import { createRequire } from 'node:module';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { getNpmInstallCommand, shouldAllowInstallScripts, shouldInstallNpmDependencies } = require('./build-components.js') as {
+const { getNpmInstallCommand, getScssLoadPaths, shouldAllowInstallScripts, shouldInstallNpmDependencies } = require('./build-components.js') as {
     getNpmInstallCommand: (
         storefrontAppDir: string,
         env?: Record<string, string | undefined>
     ) => { cmd: string; args: string[]; scriptsAllowed: boolean };
+    getScssLoadPaths: (storefrontAppDir: string, coreStorefrontAppDir: string) => string[];
     shouldAllowInstallScripts: (env?: Record<string, string | undefined>) => boolean;
     shouldInstallNpmDependencies: (
         storefrontAppDir: string,
         env?: Record<string, string | undefined>
     ) => boolean;
 };
+
+describe('build-components scss load paths', () => {
+    const extensionDir = path.join('/ext', 'Resources', 'app', 'storefront');
+    const coreDir = path.join('/core', 'Resources', 'app', 'storefront');
+
+    it('includes both node_modules directories so bare imports do not need the postinstall symlink', () => {
+        const loadPaths = getScssLoadPaths(extensionDir, coreDir);
+
+        expect(loadPaths).toContain(path.join(extensionDir, 'node_modules'));
+        expect(loadPaths).toContain(path.join(coreDir, 'node_modules'));
+    });
+
+    it('keeps vendor ahead of node_modules so a vendored copy still wins', () => {
+        const loadPaths = getScssLoadPaths(extensionDir, coreDir);
+
+        expect(loadPaths.indexOf(path.join(extensionDir, 'vendor'))).toBeLessThan(
+            loadPaths.indexOf(path.join(extensionDir, 'node_modules'))
+        );
+        expect(loadPaths.indexOf(path.join(coreDir, 'vendor'))).toBeLessThan(
+            loadPaths.indexOf(path.join(coreDir, 'node_modules'))
+        );
+    });
+});
 
 describe('build-components npm install policy', () => {
     let fixtureRoot: string;

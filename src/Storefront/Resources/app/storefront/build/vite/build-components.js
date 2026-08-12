@@ -78,6 +78,25 @@ function getNpmInstallCommand(storefrontAppDir, env = process.env) {
     };
 }
 
+/**
+ * SCSS load paths for a component build: the extension's own vendor first, then core Storefront
+ * vendor and scss, then both node_modules directories.
+ *
+ * The node_modules entries matter because a bare specifier such as `bootstrap/scss/functions`
+ * otherwise resolves only through the `views/components/node_modules` symlink, which exists solely
+ * after the storefront's postinstall hook has run. Load paths are what sass supports for this, so
+ * the build must not depend on that symlink.
+ */
+function getScssLoadPaths(storefrontAppDir, coreStorefrontAppDir) {
+    return [
+        path.join(storefrontAppDir, 'vendor'),
+        path.join(coreStorefrontAppDir, 'vendor'),
+        path.join(coreStorefrontAppDir, 'src/scss'),
+        path.join(storefrontAppDir, 'node_modules'),
+        path.join(coreStorefrontAppDir, 'node_modules'),
+    ];
+}
+
 function shouldInstallNpmDependencies(storefrontAppDir, env = process.env) {
     if (env.FORCE_COMPONENT_DEP_INSTALL === '1') {
         return true;
@@ -338,17 +357,7 @@ async function main() {
         // Core Storefront's app/storefront directory — used as vendor fallback for extensions.
         const coreStorefrontAppDir = path.join(scriptDir, '../..');
 
-        // SCSS load paths: extension's own vendor first, then core Storefront vendor + scss.
-        const scssLoadPaths = [
-            path.join(storefrontAppDir, 'vendor'),
-            path.join(coreStorefrontAppDir, 'vendor'),
-            path.join(coreStorefrontAppDir, 'src/scss'),
-            // Bare specifiers such as `bootstrap/scss/functions` otherwise resolve only through the
-            // views/components/node_modules symlink, which exists solely after the storefront's
-            // postinstall hook has run.
-            path.join(storefrontAppDir, 'node_modules'),
-            path.join(coreStorefrontAppDir, 'node_modules'),
-        ];
+        const scssLoadPaths = getScssLoadPaths(storefrontAppDir, coreStorefrontAppDir);
 
         // Build the combined entry map.
         // For extensions the entry name carries the namespace prefix so the
@@ -480,6 +489,7 @@ module.exports = {
     componentMapPlugin,
     extensionNodeModulesPlugin,
     getNpmInstallCommand,
+    getScssLoadPaths,
     main,
     shouldInstallNpmDependencies,
     shouldAllowInstallScripts,

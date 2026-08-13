@@ -3,10 +3,10 @@
  */
 
 import { type VueWrapper } from '@vue/test-utils';
-import { IGNORE_SEEN_FLAG, WHATS_NEW_SEEN_CONFIG_KEY } from '../index';
+import { IGNORE_SEEN_FLAG, NEW_UI_2026_SEEN_CONFIG_KEY } from '../index';
 import createWrapper, { AFTER_RELEASE, setCurrentUser, setIntendedAudience, setShopContext } from './create-wrapper';
 
-describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
+describe('src/app/component/structure/sw-new-ui-2026-modal - visibility', () => {
     let wrapper: VueWrapper | null = null;
 
     beforeEach(() => {
@@ -25,7 +25,7 @@ describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
         await flushPromises();
 
         expect(wrapper.find('.mt-modal').exists()).toBe(true);
-        expect(wrapper.get('.mt-modal__title').text()).toBe('sw-whats-new-modal.title');
+        expect(wrapper.get('.mt-modal__title').text()).toBe('sw-new-ui-2026-modal.title');
     });
 
     it('does not show the modal while the first run wizard is active', async () => {
@@ -83,7 +83,7 @@ describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
 
     it('does not show the modal again once the user has seen it', async () => {
         (Shopware.Service('userConfigService').search as jest.Mock).mockResolvedValue({
-            data: { [WHATS_NEW_SEEN_CONFIG_KEY]: { seen: true } },
+            data: { [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true } },
         });
 
         wrapper = await createWrapper();
@@ -96,7 +96,7 @@ describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
 
     it('shows the modal while the flag says the user has not seen it', async () => {
         (Shopware.Service('userConfigService').search as jest.Mock).mockResolvedValue({
-            data: { [WHATS_NEW_SEEN_CONFIG_KEY]: { seen: false } },
+            data: { [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: false } },
         });
 
         wrapper = await createWrapper();
@@ -116,7 +116,7 @@ describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
         await wrapper.get('.mt-modal__close-button').trigger('click');
         await flushPromises();
 
-        expect(upsert).toHaveBeenCalledWith({ [WHATS_NEW_SEEN_CONFIG_KEY]: { seen: true } });
+        expect(upsert).toHaveBeenCalledWith({ [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true } });
         expect(upsert).toHaveBeenCalledTimes(1);
     });
 
@@ -126,13 +126,13 @@ describe('src/app/component/structure/sw-whats-new-modal - visibility', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
-        await wrapper.get('.sw-whats-new-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
         await flushPromises();
 
         // Closing reaches recordSeen twice: from onFinish and from the change MtModalRoot
         // reports back for the very same close.
-        expect(upsert).toHaveBeenCalledWith({ [WHATS_NEW_SEEN_CONFIG_KEY]: { seen: true } });
+        expect(upsert).toHaveBeenCalledWith({ [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true } });
         expect(upsert).toHaveBeenCalledTimes(1);
     });
 

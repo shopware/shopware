@@ -1802,7 +1802,7 @@
     "declineButton": "Ablehnen",
     "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird Deine vorherige Entscheidung, falls vorhanden, beibehalten."
   },
-  "sw-whats-new-modal": {
+  "sw-new-ui-2026-modal": {
     "title": "Ein neuer Look für Deine Administration",
     "nextButton": "Weiter",
     "finishButton": "Verstanden",

@@ -22,28 +22,28 @@ $glass-gradient: linear-gradient(
 
 // Registered so the idle hint below can interpolate it; the component writes the
 // same property directly on the element while the seam is being dragged.
-@property --sw-whats-new-modal-split {
+@property --sw-new-ui-2026-modal-split {
     syntax: "<percentage>";
     inherits: true;
     initial-value: 50%;
 }
 
-@keyframes sw-whats-new-modal-hint {
+@keyframes sw-new-ui-2026-modal-hint {
     0%,
     100% {
-        --sw-whats-new-modal-split: 50%;
+        --sw-new-ui-2026-modal-split: 50%;
     }
 
     25% {
-        --sw-whats-new-modal-split: 45%;
+        --sw-new-ui-2026-modal-split: 45%;
     }
 
     75% {
-        --sw-whats-new-modal-split: 55%;
+        --sw-new-ui-2026-modal-split: 55%;
     }
 }
 
-.sw-whats-new-modal {
+.sw-new-ui-2026-modal {
     &__media {
         position: relative;
         aspect-ratio: 14 / 9;
@@ -98,7 +98,7 @@ $glass-gradient: linear-gradient(
 
         // Runs once as an invitation rather than looping: it replays whenever the reveal is
         // handed back, which is the only time the offer needs making again.
-        animation: sw-whats-new-modal-hint 1.6s ease-in-out;
+        animation: sw-new-ui-2026-modal-hint 1.6s ease-in-out;
 
         @media (prefers-reduced-motion: reduce) {
             animation: none;
@@ -125,7 +125,7 @@ $glass-gradient: linear-gradient(
 
         // Centred on the seam by the offset alone, so transform is left free for the reveal
         // below. Doing both would move it half its width off the seam.
-        left: calc(var(--sw-whats-new-modal-split, 50%) - #{$handle-width * 0.5});
+        left: calc(var(--sw-new-ui-2026-modal-split, 50%) - #{$handle-width * 0.5});
         width: $handle-width;
         background: var(--color-static-white);
         box-shadow: 0 0 4px rgba(0, 0, 0, 25%);
@@ -154,7 +154,7 @@ $glass-gradient: linear-gradient(
     &__compare--eased {
         // The disable is a false positive: this names the property, it does not read it.
         /* stylelint-disable-next-line custom-property-no-missing-var-function */
-        transition: --sw-whats-new-modal-split 300ms ease-in-out;
+        transition: --sw-new-ui-2026-modal-split 300ms ease-in-out;
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;
@@ -174,7 +174,7 @@ $glass-gradient: linear-gradient(
 
     // Revealed from the left edge, so moving right slides the new UI in over the old one.
     &__compare-image--after {
-        clip-path: inset(0 calc(100% - var(--sw-whats-new-modal-split, 50%)) 0 0);
+        clip-path: inset(0 calc(100% - var(--sw-new-ui-2026-modal-split, 50%)) 0 0);
     }
 
     // The dark variants only ever appear through the rule below.
@@ -234,21 +234,21 @@ $glass-gradient: linear-gradient(
 
 // The attribute sits on the document element, which the teleported modal is a descendant
 // of. The backdrop follows the theme on every page.
-[data-theme="dark"] .sw-whats-new-modal__media-image--light {
+[data-theme="dark"] .sw-new-ui-2026-modal__media-image--light {
     display: none;
 }
 
-[data-theme="dark"] .sw-whats-new-modal__media-image--dark {
+[data-theme="dark"] .sw-new-ui-2026-modal__media-image--dark {
     display: block;
 }
 
 // The sidebar shot only follows it on the page announcing the appearance.
-[data-theme="dark"] .sw-whats-new-modal__media--dark-mode {
-    .sw-whats-new-modal__compare-image--after-light {
+[data-theme="dark"] .sw-new-ui-2026-modal__media--dark-mode {
+    .sw-new-ui-2026-modal__compare-image--after-light {
         display: none;
     }
 
-    .sw-whats-new-modal__compare-image--after-dark {
+    .sw-new-ui-2026-modal__compare-image--after-dark {
         display: block;
     }
 }

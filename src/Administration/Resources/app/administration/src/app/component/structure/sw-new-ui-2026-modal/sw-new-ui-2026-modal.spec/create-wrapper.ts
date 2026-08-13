@@ -1,14 +1,14 @@
 /**
  * @sw-package framework
  *
- * Shared mount helper and audience setup for the sw-whats-new-modal specs. Keep it in one
+ * Shared mount helper and audience setup for the sw-new-ui-2026-modal specs. Keep it in one
  * place so the split specs cannot drift apart on which audience they mount into.
  */
 
 import { mount, type VueWrapper } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard-dot-navigation';
 import useTheme from 'src/app/composables/use-theme';
-import swWhatsNewModal from '../index';
+import swNewUi2026Modal from '../index';
 
 /**
  * Before NEW_NAVIGATION_RELEASE_DATE, so it marks a shop or user that ran the old navigation.
@@ -64,7 +64,7 @@ export function setIntendedAudience() {
 }
 
 async function createWrapper(): Promise<VueWrapper> {
-    return mount(swWhatsNewModal, {
+    return mount(swNewUi2026Modal, {
         global: {
             mocks: {
                 $t: (snippet: string) => snippet,

@@ -532,7 +532,7 @@ export default () => {
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),
     );
     Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
-    Shopware.Component.register('sw-whats-new-modal', () => import('./structure/sw-whats-new-modal'));
+    Shopware.Component.register('sw-new-ui-2026-modal', () => import('./structure/sw-new-ui-2026-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',

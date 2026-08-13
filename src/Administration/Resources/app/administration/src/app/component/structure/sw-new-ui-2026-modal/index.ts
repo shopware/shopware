@@ -4,11 +4,11 @@
 import { MtBadge, MtModal, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import type { Theme } from '@shopware-ag/meteor-component-library';
 import useTheme from 'src/app/composables/use-theme';
-import template from './sw-whats-new-modal.html.twig';
-import './sw-whats-new-modal.scss';
+import template from './sw-new-ui-2026-modal.html.twig';
+import './sw-new-ui-2026-modal.scss';
 
 // Both pages share the same imagery; only how much of it is revealed differs.
-type WhatsNewPage = {
+type NewUi2026Page = {
     id: string;
     headline: string;
     descriptionKey: string;
@@ -19,7 +19,7 @@ type WhatsNewPage = {
     badge?: string;
 };
 
-const SPLIT_PROPERTY = '--sw-whats-new-modal-split';
+const SPLIT_PROPERTY = '--sw-new-ui-2026-modal-split';
 const CENTER_SPLIT_POSITION = 50;
 // Mirrors the transition duration of __compare--eased in the stylesheet.
 const SPLIT_EASE_DURATION = 300;
@@ -49,14 +49,14 @@ export const IGNORE_SEEN_FLAG = true;
  *
  * @private
  */
-export const WHATS_NEW_SEEN_CONFIG_KEY = 'core.whatsNewModalSeen';
+export const NEW_UI_2026_SEEN_CONFIG_KEY = 'core.newUi2026ModalSeen';
 
 type ContextSettings = {
     firstMigrationDate?: string | null;
 };
 
 function assetPath(fileName: string): string {
-    return Shopware.Filter.getByName('asset')(`/administration/administration/static/img/whats-new/${fileName}`);
+    return Shopware.Filter.getByName('asset')(`/administration/administration/static/img/new-ui-2026/${fileName}`);
 }
 
 function isBeforeRelease(value: unknown): boolean {
@@ -94,8 +94,8 @@ function isExistingUser(): boolean {
 }
 
 async function hasSeenModal(): Promise<boolean> {
-    const response = await Shopware.Service('userConfigService').search([WHATS_NEW_SEEN_CONFIG_KEY]);
-    const value = response?.data?.[WHATS_NEW_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
+    const response = await Shopware.Service('userConfigService').search([NEW_UI_2026_SEEN_CONFIG_KEY]);
+    const value = response?.data?.[NEW_UI_2026_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
 
     return value?.seen === true;
 }
@@ -108,7 +108,7 @@ async function hasSeenModal(): Promise<boolean> {
  */
 export async function markModalSeen(): Promise<void> {
     await Shopware.Service('userConfigService').upsert({
-        [WHATS_NEW_SEEN_CONFIG_KEY]: { seen: true },
+        [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true },
     });
 }
 
@@ -128,7 +128,7 @@ function isIntendedAudience(): boolean {
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    name: 'sw-whats-new-modal',
+    name: 'sw-new-ui-2026-modal',
     template,
 
     components: {
@@ -176,37 +176,37 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         beforeSrc(): string {
-            return assetPath('sidebar-before.jpg');
+            return assetPath('navigation-before.jpg');
         },
 
         afterSrc(): string {
-            return assetPath('sidebar-after.jpg');
+            return assetPath('navigation-after.jpg');
         },
 
         darkAfterSrc(): string {
-            return assetPath('sidebar-after-dark.jpg');
+            return assetPath('navigation-after-dark.jpg');
         },
 
-        pages(): WhatsNewPage[] {
+        pages(): NewUi2026Page[] {
             return [
                 {
                     id: 'admin-navigation',
-                    headline: this.$t('sw-whats-new-modal.pages.adminNavigation.headline'),
-                    descriptionKey: 'sw-whats-new-modal.pages.adminNavigation.description',
+                    headline: this.$t('sw-new-ui-2026-modal.pages.adminNavigation.headline'),
+                    descriptionKey: 'sw-new-ui-2026-modal.pages.adminNavigation.description',
                 },
                 {
                     id: 'dark-mode',
-                    headline: this.$t('sw-whats-new-modal.pages.darkMode.headline'),
-                    descriptionKey: 'sw-whats-new-modal.pages.darkMode.description',
+                    headline: this.$t('sw-new-ui-2026-modal.pages.darkMode.headline'),
+                    descriptionKey: 'sw-new-ui-2026-modal.pages.darkMode.description',
                     // Slides all the way over to the reworked navigation and stays there.
                     pinnedSplit: 100,
                     hasThemeSelect: true,
-                    badge: this.$t('sw-whats-new-modal.pages.darkMode.badge'),
+                    badge: this.$t('sw-new-ui-2026-modal.pages.darkMode.badge'),
                 },
             ];
         },
 
-        activePage(): WhatsNewPage {
+        activePage(): NewUi2026Page {
             return this.pages[this.currentPage];
         },
 
@@ -343,7 +343,7 @@ export default Shopware.Component.wrapComponentConfig({
                 .saveUserTheme(theme)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$t('sw-whats-new-modal.pages.darkMode.themeSaveError'),
+                        message: this.$t('sw-new-ui-2026-modal.pages.darkMode.themeSaveError'),
                     });
                 });
         },

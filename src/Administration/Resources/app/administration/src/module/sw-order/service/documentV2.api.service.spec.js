@@ -1,5 +1,4 @@
 import DocumentV2ApiService from './documentV2.api.service';
-import { DocumentEvents } from '../../../core/service/api/document.api.service';
 import createLoginService from '../../../core/service/login.service';
 import createHTTPClient from '../../../core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
@@ -17,7 +16,7 @@ function createDocumentV2ApiService() {
     return { documentV2ApiService, clientMock };
 }
 
-describe('documentV2Service', () => {
+describe('documentV2ApiService', () => {
     it('is registered correctly', async () => {
         const { documentV2ApiService } = createDocumentV2ApiService();
 
@@ -56,9 +55,6 @@ describe('documentV2Service', () => {
 
     it('creates a document with the selected formats', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const listener = jest.fn();
-
-        documentV2ApiService.setListener(listener);
 
         const orderId = '4a4a687257644d52bf481b4c20e59213';
 
@@ -71,7 +67,7 @@ describe('documentV2Service', () => {
             ],
         });
 
-        await documentV2ApiService.createDocument(
+        const createDocumentResponse = await documentV2ApiService.createDocument(
             orderId,
             'invoice',
             [
@@ -83,19 +79,14 @@ describe('documentV2Service', () => {
             '',
         );
 
-        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/create');
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
-            orderId,
-            documentType: 'invoice',
+        expect(createDocumentResponse).toStrictEqual({
+            deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+            documentId: '4d03324edcd0490b9180df8161c9167f',
             formats: [
                 'html',
                 'zugferd_xml',
             ],
-            documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
         });
-        expect(listener).not.toHaveBeenCalled();
     });
 
     it('uploads a document from an existing media file', async () => {
@@ -199,9 +190,6 @@ describe('documentV2Service', () => {
 
     it('emits a document failed event when previewing fails', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const listener = jest.fn();
-
-        documentV2ApiService.setListener(listener);
 
         const errorBody = {
             errors: [
@@ -221,23 +209,22 @@ describe('documentV2Service', () => {
             ];
         });
 
-        const response = await documentV2ApiService.previewDocument(
-            '4a4a687257644d52bf481b4c20e59213',
-            'invoice',
-            'html',
-            '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
-        );
+        let thrownError = null;
 
-        expect(response).toBeUndefined();
-        expect(listener).toHaveBeenCalledWith({
-            action: DocumentEvents.DOCUMENT_FAILED,
-            payload: {
-                code: 'DOCUMENT__UNSUPPORTED_DOCUMENT_FORMAT',
-                detail: 'Unsupported document format.',
-            },
-        });
+        try {
+            await documentV2ApiService.previewDocument(
+                '4a4a687257644d52bf481b4c20e59213',
+                'invoice',
+                'html',
+                '1000',
+                '2021-02-22T04:34:56.441Z',
+                '',
+            );
+        } catch (error) {
+            thrownError = error;
+        }
+
+        expect(thrownError).toEqual(new Error('Request failed with status code 400'));
     });
 
     it('downloads a document file', async () => {

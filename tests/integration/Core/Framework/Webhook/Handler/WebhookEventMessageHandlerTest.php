@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Handler;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -17,6 +18,9 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogEntity;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
+use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -125,6 +129,17 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame(['test.com:80:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
     }
 
+    public function testUsesDedicatedWebhookDeliveryClient(): void
+    {
+        $webhookDeliveryClient = static::getContainer()->get('shopware.webhook.guzzle');
+
+        static::assertInstanceOf(Client::class, $webhookDeliveryClient);
+        static::assertNotSame(static::getContainer()->get('shopware.app_system.guzzle'), $webhookDeliveryClient);
+
+        $clientProperty = new \ReflectionProperty(WebhookEventMessageHandler::class, 'client');
+        static::assertSame($webhookDeliveryClient, $clientProperty->getValue($this->webhookEventMessageHandler));
+    }
+
     public function testFollowsPermanentRedirectWithPostPayload(): void
     {
         $webhookEventMessage = $this->createWebhookEventMessage();
@@ -204,6 +219,29 @@ class WebhookEventMessageHandlerTest extends TestCase
         }
 
         static::assertSame(1, $this->getRequestCount());
+    }
+
+    public function testDoesNotSendWebhookWhenCurlCannotEnforceResolvedTarget(): void
+    {
+        $webhookEventMessage = $this->createWebhookEventMessage();
+        $webhookEventMessageHandler = new WebhookEventMessageHandler(
+            static::getContainer()->get('shopware.app_system.guzzle'),
+            static::getContainer()->get('webhook_event_log.repository'),
+            static::getContainer()->get(RelatedWebhooks::class),
+            static::getContainer()->get(WebhookSigningSecretResolver::class),
+            static::getContainer()->get(WebhookTargetValidator::class),
+            static fn (): bool => false,
+        );
+
+        try {
+            $webhookEventMessageHandler($webhookEventMessage);
+            static::fail('Expected webhook delivery to fail.');
+        } catch (WebhookException $exception) {
+            static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
+            static::assertSame('Webhook delivery requires cURL support.', $exception->getPrevious()?->getMessage());
+        }
+
+        static::assertSame(0, $this->getRequestCount());
     }
 
     public function testFailsAfterFiveRedirects(): void

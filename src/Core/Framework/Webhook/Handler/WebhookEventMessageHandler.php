@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\CurlVersion;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriComparator;
 use GuzzleHttp\Psr7\UriResolver;
@@ -35,6 +36,11 @@ final class WebhookEventMessageHandler
     private const MAX_REDIRECTS = 5;
 
     /**
+     * @var \Closure(): bool
+     */
+    private readonly \Closure $canUseCurl;
+
+    /**
      * @internal
      */
     public function __construct(
@@ -43,7 +49,9 @@ final class WebhookEventMessageHandler
         private readonly RelatedWebhooks $relatedWebhooks,
         private readonly WebhookSigningSecretResolver $signingSecretResolver,
         private readonly WebhookTargetValidator $targetValidator,
+        ?\Closure $canUseCurl = null,
     ) {
+        $this->canUseCurl = $canUseCurl ?? static fn (): bool => \defined('CURLOPT_CUSTOMREQUEST') && \function_exists('curl_exec') && CurlVersion::supportsCurlHandler();
     }
 
     public function __invoke(WebhookEventMessage $message): void
@@ -164,6 +172,10 @@ final class WebhookEventMessageHandler
             throw $redirects > 0 ? WebhookException::redirectTargetNotAllowed() : WebhookException::targetNotAllowed();
         }
 
+        if (!$this->canUseCurl()) {
+            throw new \RuntimeException('Webhook delivery requires cURL support.');
+        }
+
         // Guzzle redirects are disabled so every redirect target can be validated and pinned before following it.
         $requestContent['allow_redirects'] = false;
         $curlOptions = $requestContent['curl'] ?? [];
@@ -216,5 +228,10 @@ final class WebhookEventMessageHandler
     private function formatCurlResolveAddress(string $ip): string
     {
         return str_contains($ip, ':') ? \sprintf('[%s]', $ip) : $ip;
+    }
+
+    private function canUseCurl(): bool
+    {
+        return ($this->canUseCurl)();
     }
 }

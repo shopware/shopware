@@ -84,13 +84,29 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
-            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="shopware.webhook.guzzle"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator"/>
 
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="shopware.webhook.guzzle" class="GuzzleHttp\Client" lazy="true">
+            <argument type="collection">
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create"/>
+                        <argument type="service">
+                            <service class="GuzzleHttp\Handler\CurlHandler"/>
+                        </argument>
+                        <call method="push">
+                            <argument type="service" id="shopware.app_system.guzzle.middleware"/>
+                        </call>
+                    </service>
+                </argument>
+            </argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">

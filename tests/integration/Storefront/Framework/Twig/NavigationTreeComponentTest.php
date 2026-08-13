@@ -94,16 +94,17 @@ class NavigationTreeComponentTest extends TestCase
     }
 
     /**
-     * Pinning a depth or an enum reintroduces a ceiling the shop's own configured depth cannot pass.
+     * Depth belongs to the sales channel. Exposing it per element cannot be done honestly: Studio
+     * substitutes a number control's minimum for an unset value, so the field would display a cap it
+     * does not apply, and there is no way back to "inherit" once it is touched. The render limit
+     * stays a component prop for template callers.
      */
     public function testDepthIsLeftToTheSalesChannel(): void
     {
         $types = static::getContainer()->get(ContentSystemElementTypeRegistry::class);
         static::assertInstanceOf(AbstractContentSystemElementTypeRegistry::class, $types);
 
-        $renderDepth = $types->get('Sw:Navigation:Tree')->properties()['navigationMaxDepth']->toSchema();
-        static::assertNull($renderDepth['default'], 'A stored default would override the sales channel.');
-        static::assertNull($renderDepth['enum'], 'An enum would cap the shop below its own configured depth.');
+        static::assertArrayNotHasKey('navigationMaxDepth', $types->get('Sw:Navigation:Tree')->properties());
 
         $bindings = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $bindings);

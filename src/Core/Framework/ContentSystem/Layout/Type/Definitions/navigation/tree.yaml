@@ -30,25 +30,13 @@ properties:
     adminUI:
       helpText: "Filled automatically from the page you are on — leave this as it is."
 
-  navigationMaxDepth:
-    type: integer
-    title: "Maximum depth"
-    description: "Number of tree levels to render. Follows the sales channel's navigation depth when unset."
-    adminUI:
-      component: "number"
-      helpText: "Leave empty to follow the navigation depth configured on the sales channel."
-      # Without an explicit step the input falls back to "any" and the arrows produce fractions.
-      props:
-        min: 1
-        step: 1
-
   expandAll:
     type: boolean
     title: "Expand all"
     description: "Render all children instead of only the branch containing the active category."
     default: false
     adminUI:
-      helpText: "When off, only the branch leading to the current category is expanded."
+      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel."
 
   ariaLabel:
     type: string

@@ -258,6 +258,33 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
             },
         },
+        // TypeScript's project service cannot type-check `.vue` SFCs — it does
+        // not run the Vue language plugin — so every type-aware rule resolves
+        // the script to `any` and floods correct components with false
+        // `no-unsafe-*` reports. `vue-tsc` is the real type-checker for `.vue`
+        // (the check runs it separately); ESLint keeps only its syntactic,
+        // template, deprecation, and native-setup rules there. Same reasoning as
+        // the spec-files block. Placed last so it overrides the type-aware rules
+        // the earlier `.vue` blocks turned on.
+        {
+            ...tseslint.configs.disableTypeChecked,
+            name: 'shopware/admin-extension/vue-untyped',
+            files: scope(vueFilePatterns),
+        },
+        {
+            // The parser does not link `{{ }}` template interpolations back to
+            // the `<script setup>` bindings they read, so no-unused-vars reports
+            // a false positive for any binding used only in an interpolation
+            // (bindings used in a directive or attribute are linked and stay
+            // covered). vue-tsc and the editor track template usage correctly,
+            // so a genuinely unused setup binding still surfaces there.
+            name: 'shopware/admin-extension/vue-template-usage',
+            files: scope(vueFilePatterns),
+            rules: {
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'off',
+            },
+        },
         ...(specFiles === 'typed' ? [] : [specFilesConfig]),
     ];
 

@@ -116,6 +116,29 @@ describe('extension-tooling eslint factory host options', () => {
         );
     });
 
+    it('disables the type-aware rules on .vue files (vue-tsc type-checks them instead)', () => {
+        const blocks = variants.defaults;
+
+        // The project service cannot type SFCs, so the type-aware rules would
+        // only ever fire false positives on .vue; a dedicated last block turns
+        // them off there while leaving them on for .ts.
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-assignment')).toBe(
+            'off',
+        );
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-call')).toBe(
+            'off',
+        );
+    });
+
+    it('disables no-unused-vars on .vue (the parser misses interpolation usage; vue-tsc covers it)', () => {
+        const blocks = variants.defaults;
+
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', 'no-unused-vars')).toBe('off');
+        expect(
+            ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', '@typescript-eslint/no-unused-vars'),
+        ).toBe('off');
+    });
+
     it("omits the spec-files block entirely for specFiles: 'typed'", () => {
         const names = variants.typedSpecs.map((block) => block.name);
 

@@ -116,15 +116,10 @@ export function collectFreeIdentifierNames(rootNode: Node): Set<string> {
     const names = new Set<string>();
 
     for (const identifier of rootNode.getDescendantsOfKind(SyntaxKind.Identifier)) {
-        const parent = identifier.getParent();
-        const isName =
-            (Node.isPropertyAccessExpression(parent) ||
-                Node.isPropertyAssignment(parent) ||
-                Node.isMethodDeclaration(parent) ||
-                Node.isBindingElement(parent)) &&
-            parent.getNameNode()?.getStart() === identifier.getStart();
-
-        if (isName || isCoveredByBindingScope(scopes, identifier.getText(), identifier.getStart(), identifier.getEnd())) {
+        if (
+            isWrittenNameNode(identifier) ||
+            isCoveredByBindingScope(scopes, identifier.getText(), identifier.getStart(), identifier.getEnd())
+        ) {
             continue;
         }
 
@@ -132,6 +127,32 @@ export function collectFreeIdentifierNames(rootNode: Node): Set<string> {
     }
 
     return names;
+}
+
+/** true when the identifier names something rather than reading a binding. */
+function isWrittenNameNode(identifier: Node): boolean {
+    const parent = identifier.getParent();
+
+    if (!parent) {
+        return false;
+    }
+
+    // `{ a: b } = x` reads the property `a`, it does not read a binding named `a`.
+    if (Node.isBindingElement(parent) && parent.getPropertyNameNode()?.getStart() === identifier.getStart()) {
+        return true;
+    }
+
+    return (
+        (Node.isPropertyAccessExpression(parent) ||
+            Node.isPropertyAssignment(parent) ||
+            Node.isMethodDeclaration(parent) ||
+            Node.isBindingElement(parent) ||
+            Node.isFunctionExpression(parent) ||
+            Node.isFunctionDeclaration(parent) ||
+            Node.isClassExpression(parent) ||
+            Node.isClassDeclaration(parent)) &&
+        parent.getNameNode()?.getStart() === identifier.getStart()
+    );
 }
 
 /** true when a binding of `name` is visible at the given source range. */

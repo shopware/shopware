@@ -1,5 +1,11 @@
-import type { MethodDeclaration, ParameterDeclaration, PropertyAssignment, ShorthandPropertyAssignment } from 'ts-morph';
-import { Node } from 'ts-morph';
+import type {
+    MethodDeclaration,
+    ObjectLiteralElementLike,
+    ParameterDeclaration,
+    PropertyAssignment,
+    ShorthandPropertyAssignment,
+} from 'ts-morph';
+import { Node, SyntaxKind } from 'ts-morph';
 import { quoteJsString } from '../string-literals';
 
 const RESERVED_IDENTIFIERS = new Set([
@@ -103,21 +109,6 @@ export function getWatchRootName(name: string): string {
     return parseWatchPath(name)?.root ?? name;
 }
 
-/**
- * Rewrites the `function` expressions inside a property-assignment method value
- * into arrows: `debounce(function onSave() { … })` becomes
- * `debounce(() => { … })`. The wrapper call itself is preserved — flattening it
- * would drop the debounce — and `this` inside is rewritten separately.
- *
- * Applied at extraction, so the shape checks and the emitter read the same text.
- * That matters for a *named* function expression: its name is a binding inside
- * itself, so `debounce(function onSave() { this.onSave(); })` looks like a
- * shadowed rewrite target until the name is gone, which it is here.
- */
-export function normalizeMethodValueFunctions(rawText: string): string {
-    return rawText.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
-}
-
 export function serializeMethodLikeFunction(method: MethodDeclaration): string {
     const asyncPrefix = method.isAsync() ? 'async ' : '';
     const paramsText = method
@@ -136,6 +127,36 @@ export function serializeMethodLikeFunction(method: MethodDeclaration): string {
  */
 export function isSimpleParameter(param: ParameterDeclaration): boolean {
     return Node.isIdentifier(param.getNameNode()) && !param.hasInitializer() && !param.isRestParameter();
+}
+
+/**
+ * The option name a root property declares, however it is written. A quoted or
+ * bracketed key names the same option as the bare one, and `getProperty(name)`
+ * does not find those — so every lookup that decides whether an option is
+ * present has to go through this, or the option vanishes from the output with no
+ * report and `--delete-originals` removes the source.
+ *
+ * Returns undefined for a spread and for a computed key that is not a string
+ * literal: neither names a known option statically.
+ */
+export function readOptionName(prop: ObjectLiteralElementLike): string | undefined {
+    if (prop.isKind(SyntaxKind.SpreadAssignment)) {
+        return undefined;
+    }
+
+    const nameNode = prop.getNameNode();
+
+    if (Node.isStringLiteral(nameNode) || Node.isNumericLiteral(nameNode)) {
+        return nameNode.getLiteralText();
+    }
+
+    if (Node.isComputedPropertyName(nameNode)) {
+        const expression = nameNode.getExpression();
+
+        return expression.isKind(SyntaxKind.StringLiteral) ? expression.getLiteralValue() : undefined;
+    }
+
+    return nameNode.getText();
 }
 
 export function getPropertyName(prop: PropertyAssignment | MethodDeclaration | ShorthandPropertyAssignment): string {

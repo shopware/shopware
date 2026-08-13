@@ -298,7 +298,7 @@ This keeps "understand the old component" separate from "print the new code".
 | `extract-data.ts` | `data()` return values into future `ref(...)` declarations. |
 | `extract-computed.ts` | Computed getters and getter/setter objects. |
 | `expand-computed-spread.ts` | `...mapPropertyErrors` / `...mapCollectionPropertyErrors` / `...mapState` spreads. |
-| `extract-methods.ts` | Methods and property-assignment methods like debounce wrappers. |
+| `extract-methods.ts` | Methods, property-assignment methods like debounce wrappers, and module-binding aliases. |
 | `extract-watch.ts` | Watchers, string handlers, object handlers, `deep`, `immediate`. |
 | `extract-lifecycle.ts` | Lifecycle hooks and their Composition API equivalents. |
 | `rewrite-this.ts` | Rewrites known `this.*` accesses. |
@@ -504,6 +504,21 @@ SFC against the real build-time transform before returning it, so these come bac
 as `not-migratable` with a `native setup transform: …` blocker and nothing is
 written to disk. Only the reason is poor — it points at the generated duplicate
 instead of at the member that needs the manual rename.
+
+## Methods With An Identifier Value
+
+`{ methods: { getKey: get } }` carries no body to rewrite, so it used to fall
+back with `method value must be an inline function`. But the Options API never
+resolved `get` on the instance either — it is an ordinary module-scope
+identifier, and `extractModuleLevelCode` copies exactly those bindings (imports
+and `const`s before the registration) in front of the setup body. So when
+`collectModuleBindingNames` knows the name, the entry is emitted as
+`const getKey = get;` and joins `swDefinePublic` like any other method.
+
+Any other bare identifier keeps the fallback: nothing in the generated block
+would declare it, so re-declaring the alias would emit a reference to something
+that does not exist. The `template` default import is excluded from the binding
+set for the same reason — it is dropped on the way out.
 
 ## Root Template Ref For `$el`
 

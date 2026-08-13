@@ -398,6 +398,66 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('methods with an identifier value', () => {
+        // `{ getKey: get }` resolves `get` in module scope, never on the
+        // instance, and the generated block inherits that binding unchanged.
+        it.each([
+            [
+                'a destructured module-level const',
+                'const { get } = Shopware.Utils;',
+                'getKey: get',
+                'const getKey = get;',
+            ],
+            [
+                'a default import',
+                "import externalHelper from './helper';",
+                'toLabel: externalHelper',
+                'const toLabel = externalHelper;',
+            ],
+            [
+                'a named import',
+                "import { formatKey } from './helper';",
+                'getKey: formatKey',
+                'const getKey = formatKey;',
+            ],
+        ])('re-declares a method value that is %s', (_case, moduleSource, methodSource, expected) => {
+            const js = `${moduleSource}
+
+            Shopware.Component.register('sw-test', {
+                methods: { ${methodSource} },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain(expected);
+            expect(result.publicNames).toContain(expected.split(' ')[1]);
+        });
+
+        // Nothing in the generated block declares the name, so re-declaring it
+        // would emit a reference to something that does not exist.
+        it('keeps the fallback for an identifier the module never binds', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: { getKey: someGlobalHelper },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('methods: getKey: method value must be an inline function');
+            expect(result.script).not.toContain('const getKey =');
+        });
+
+        it('keeps the fallback for a value that is not an identifier at all', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: { getKey: 'not a function' },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('methods: getKey: method value must be an inline function');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('device-component: binds $device once from the setup instance', () => {
         let result: ReturnType<typeof transformScript>;
 

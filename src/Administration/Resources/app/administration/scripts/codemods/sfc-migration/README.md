@@ -67,6 +67,7 @@ my-component/
 | `watch` method/object/string-handler form | `watch(…)` in `<script setup>`                 |
 | `watch` on a path (`'entity.name'`)       | `watch(() => entity.value?.name, …)`           |
 | `methods`                                 | plain functions in `<script setup>`            |
+| `methods: { getKey: get }` (module binding) | `const getKey = get;`                        |
 | `created`                                 | runs directly in setup (equivalent behaviour)  |
 | other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
 | `this.$emit`                              | `emit(…)`                                      |
@@ -78,6 +79,13 @@ my-component/
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | `this.$device`                            | `const device = getCurrentInstance()?.proxy?.$device` |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+A `methods` entry whose value is a bare identifier (`getKey: get`) is re-declared as
+`const getKey = get;` when that identifier is a module-level import or `const` declared before the
+registration — the Options API resolved it in module scope too, and the generated block inherits the
+very same binding. It joins the public override API like any other method. An identifier the module
+never binds keeps the `method value must be an inline function` fallback, because nothing in the
+generated block would declare it.
 
 `this.$el` becomes a real template ref whenever the template offers an element to put it on. The
 codemod inserts `ref="rootEl"` on the first element inside the root `<sw-block>`, declares

@@ -2,6 +2,7 @@ import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph'
 import { Node, SyntaxKind } from 'ts-morph';
 import {
     collectGlobalAliasPaths,
+    collectModuleBindingNames,
     collectModuleLocalNames,
     collectModuleVueImportNames,
     extractModuleLevelCode,
@@ -151,7 +152,11 @@ export function collectCompositionScriptState(
         pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
     }
 
-    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propsText);
+    const supportedMembers = collectSupportedCompositionMembers(
+        optionsObj,
+        propsText,
+        collectModuleBindingNames(sourceFile, registration),
+    );
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
     todoComments.push(...supportedMembers.todoComments);
 
@@ -302,13 +307,14 @@ export function collectCompositionScriptState(
 function collectSupportedCompositionMembers(
     optionsObj: ObjectLiteralExpression,
     propsText: string | null,
+    moduleBindingNames: Set<string>,
 ): SupportedCompositionMembers {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries } = extractWatchProps(optionsObj);
     const unsupportedWatchEntries = [...unsupportedEntries];
-    const { methodProps, unsupportedEntries: unsupportedMethodEntries } = extractMethodProps(optionsObj);
+    const { methodProps, unsupportedEntries: unsupportedMethodEntries } = extractMethodProps(optionsObj, moduleBindingNames);
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
 

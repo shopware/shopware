@@ -2,7 +2,10 @@ import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
 import type { ExtractMethodPropsResult, MethodProp } from './types';
 
-export function extractMethodProps(optionsObj: ObjectLiteralExpression): ExtractMethodPropsResult {
+export function extractMethodProps(
+    optionsObj: ObjectLiteralExpression,
+    moduleBindingNames: Set<string>,
+): ExtractMethodPropsResult {
     const methodsProp = optionsObj.getProperty('methods');
 
     if (!methodsProp) {
@@ -45,15 +48,23 @@ export function extractMethodProps(optionsObj: ObjectLiteralExpression): Extract
             const initializer = pa.getInitializer();
 
             // Only inline functions or wrapper calls (e.g. debounce(fn)) carry a
-            // body whose `this` we can rewrite. A bare external reference such as
-            // `save: externalSave` loses its Options API instance binding when
-            // emitted as `const save = externalSave;`, so it needs manual review.
-            const isSupportedMethodValue =
+            // body whose `this` we can rewrite.
+            const isInlineFunctionValue =
                 initializer?.isKind(SyntaxKind.FunctionExpression) ||
                 initializer?.isKind(SyntaxKind.ArrowFunction) ||
                 initializer?.isKind(SyntaxKind.CallExpression);
 
-            if (!isSupportedMethodValue) {
+            // Example: `{ methods: { getKey: get } }` with `const { get } = Shopware.Utils;`
+            // at module level. The Options API resolves that name in module scope,
+            // not on the instance, and the generated block inherits the very same
+            // binding — so `const getKey = get;` is the same function. Any other
+            // bare reference is unresolved and stays a manual follow-up.
+            const isModuleBindingValue =
+                initializer !== undefined &&
+                initializer.isKind(SyntaxKind.Identifier) &&
+                moduleBindingNames.has(initializer.getText());
+
+            if (!initializer || !(isInlineFunctionValue || isModuleBindingValue)) {
                 unsupportedEntries.push(`${name}: method value must be an inline function`);
                 continue;
             }

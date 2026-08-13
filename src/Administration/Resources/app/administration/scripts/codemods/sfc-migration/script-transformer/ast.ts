@@ -263,6 +263,44 @@ export function collectModuleLocalNames(sourceFile: SourceFile, registration: Co
 }
 
 /**
+ * Every value binding the generated block inherits from the module: the imports
+ * and the locals declared before the registration, which `extractModuleLevelCode`
+ * copies in front of the setup body.
+ *
+ * An options entry whose value is one of these names reads the module binding,
+ * not the component instance, so it survives the move into setup unchanged.
+ */
+export function collectModuleBindingNames(sourceFile: SourceFile, registration: ComponentRegistration): Set<string> {
+    const registerPos = registration.call.getStart();
+    const names = collectModuleLocalNames(sourceFile, registration);
+
+    for (const importDeclaration of sourceFile.getImportDeclarations()) {
+        if (importDeclaration.getStart() >= registerPos) {
+            continue;
+        }
+
+        const defaultImport = importDeclaration.getDefaultImport()?.getText();
+
+        // The Twig import is dropped on the way out — the template lives in the
+        // SFC now — so its name is not available to the generated block.
+        if (defaultImport && defaultImport !== 'template') {
+            names.add(defaultImport);
+        }
+
+        const namespaceImport = importDeclaration.getNamespaceImport()?.getText();
+        if (namespaceImport) {
+            names.add(namespaceImport);
+        }
+
+        importDeclaration.getNamedImports().forEach((namedImport) => {
+            names.add(namedImport.getAliasNode()?.getText() ?? namedImport.getName());
+        });
+    }
+
+    return names;
+}
+
+/**
  * Objects that exist before any module code runs, so a property path rooted in
  * one of them can be written wherever the alias was readable — including inside
  * a hoisted compiler macro.

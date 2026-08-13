@@ -34,7 +34,6 @@ parameters:
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
-        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Type/data/WidensReturn.php
 
         # Danger rule test fixtures
         - tests/unit/Core/DevOps/StaticAnalyze/Danger/Rules/_fixtures/*

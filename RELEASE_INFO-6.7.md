@@ -232,8 +232,6 @@ Such changes are now documented with dedicated PHP attributes under `Shopware\Co
 
 All existing `reason:*` BC-planning annotations in the core have been migrated to these attributes; the remaining `@deprecated` annotations are actual deprecations.
 
-You can also opt in to future-compatibility analysis: including `vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/future-compatibility.neon` in your project's `phpstan.neon` makes PHPStan report code that works today but breaks with an announced change — arguments outside a narrowing parameter type, arguments for parameters being removed, named arguments for parameters being renamed, omitted parameters that will become required or receive a new default, calls to symbols becoming internal or less visible, and subclasses that do not yet anticipate announced signature changes. Calls to methods with an announced wider return type are analyzed against the future type (e.g. nullable), so you can make your code compatible with the current and the next major version at the same time.
-
 ### Product export scheduling decoupled from the cache timestamp
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.

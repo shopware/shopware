@@ -30,6 +30,7 @@ type FakeData = {
     files?: Record<string, string>;
     introducing?: Record<string, string>;
     existingRefs?: string[];
+    resolvedRefs?: Record<string, string>;
     ancestors?: string[];
     changed?: Record<string, string[]>;
 };
@@ -47,6 +48,10 @@ class FakeGitReader implements GitReader {
 
     refExists(ref: string): boolean {
         return (this.data.existingRefs ?? []).includes(ref);
+    }
+
+    resolveCommit(ref: string): string {
+        return this.data.resolvedRefs?.[ref] ?? '';
     }
 
     findIntroducingCommit(_ref: string, needle: string): string {
@@ -252,6 +257,7 @@ test('checkReleaseContent posts a success status and stays quiet on findings', a
     const git = new FakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
         existingRefs: [TRUNK, BRANCH],
+        resolvedRefs: { [BRANCH]: 'branchsha' },
         introducing: { '### Feature A': 'aaaa1111' },
         ancestors: ['aaaa1111'],
         changed: { aaaa1111: [FILE, 'src/Feature.php'] },
@@ -269,7 +275,7 @@ test('checkReleaseContent posts a success status and stays quiet on findings', a
     assert.equal(statuses.length, 1);
     assert.equal(statuses[0].state, 'success');
     assert.equal(statuses[0].context, STATUS_CONTEXT);
-    assert.equal(statuses[0].sha, 'headsha');
+    assert.equal(statuses[0].sha, 'branchsha');
     assert.equal(statuses[0].description, '1 of 1 entries confirmed, 0 need manual verification');
 });
 
@@ -277,11 +283,12 @@ test('checkReleaseContent posts a failure status when an entry is missing', asyn
     const git = new FakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
         existingRefs: [TRUNK, BRANCH],
+        resolvedRefs: { [BRANCH]: 'branchsha' },
         introducing: { '### Feature A': 'aaaa1111' },
         changed: { aaaa1111: [FILE, 'src/Feature.php'] },
     });
 
-    const statuses: { state: string; description: string }[] = [];
+    const statuses: { state: string; description: string; sha: string }[] = [];
     const toolkit = {
         github: { rest: { repos: { createCommitStatus: async (options) => void statuses.push(options) } } },
         core: { info: () => {}, summary: { addRaw: () => ({ write: async () => {} }) } },
@@ -291,6 +298,7 @@ test('checkReleaseContent posts a failure status when an entry is missing', asyn
     await withEnv({ VERSION_PREFIX: VERSION }, () => checkReleaseContent(toolkit, git));
 
     assert.equal(statuses[0].state, 'failure');
+    assert.equal(statuses[0].sha, 'branchsha');
     assert.equal(statuses[0].description, '1 of 1 documented entries missing from 6.7.11.x');
 });
 
@@ -304,6 +312,19 @@ test('checkReleaseContent throws when a required ref is not fetched', async () =
 
     await withEnv({ VERSION_PREFIX: VERSION }, async () => {
         await assert.rejects(() => checkReleaseContent(toolkit, git), /origin\/trunk not found/);
+    });
+});
+
+test('checkReleaseContent throws when the release branch cannot be resolved', async () => {
+    const git = new FakeGitReader({ existingRefs: [TRUNK, BRANCH] });
+    const toolkit = {
+        github: { rest: { repos: { createCommitStatus: async () => {} } } },
+        core: { info: () => {}, summary: { addRaw: () => ({ write: async () => {} }) } },
+        context: { repo: { owner: 'shopware', repo: 'shopware' }, sha: 'headsha' },
+    } as Toolkit;
+
+    await withEnv({ VERSION_PREFIX: VERSION }, async () => {
+        await assert.rejects(() => checkReleaseContent(toolkit, git), /could not be resolved to a commit/);
     });
 });
 
@@ -364,6 +385,7 @@ test('ProcessGitReader reads refs, files, commits and changes from a real reposi
 
     assert.equal(reader.refExists('main'), true);
     assert.equal(reader.refExists('does-not-exist'), false);
+    assert.equal(reader.resolveCommit('release'), firstCommit);
 
     assert.match(reader.showFile('main', FILE), /### Feature B/);
     assert.doesNotMatch(reader.showFile('release', FILE), /### Feature B/);

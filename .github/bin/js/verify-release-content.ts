@@ -34,6 +34,8 @@ export interface GitReader {
     showFile(ref: string, path: string): string;
     /** True when `ref` resolves to a commit (i.e. it has been fetched). */
     refExists(ref: string): boolean;
+    /** Commit SHA for `ref`, or an empty string when the ref does not resolve. */
+    resolveCommit(ref: string): string;
     /** Most recent commit on `ref` that changed the count of `needle` in `path`, or '' when none. */
     findIntroducingCommit(ref: string, needle: string, path: string): string;
     /** True when `commit` is a direct ancestor of `ref`. */
@@ -282,11 +284,15 @@ export class ProcessGitReader implements GitReader {
     }
 
     showFile(ref: string, path: string): string {
-        return this.output(['show', `${ref}:${path}`]);
+        return this.outputOrEmpty(['show', `${ref}:${path}`]);
     }
 
     refExists(ref: string): boolean {
         return this.succeeds(['rev-parse', '--verify', '--quiet', ref]);
+    }
+
+    resolveCommit(ref: string): string {
+        return this.output(['rev-parse', '--verify', ref]).trim();
     }
 
     findIntroducingCommit(ref: string, needle: string, path: string): string {
@@ -305,12 +311,38 @@ export class ProcessGitReader implements GitReader {
     }
 
     private output(args: string[]): string {
+        return execFileSync('git', args, { cwd: this.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    }
+
+    private outputOrEmpty(args: string[]): string {
         try {
-            return execFileSync('git', args, { cwd: this.cwd, encoding: 'utf8' });
-        } catch {
-            // git exits non-zero when the ref or file is absent; callers treat '' as "not present".
+            return this.output(args);
+        } catch (error) {
+            if (!this.isExpectedShowFileMiss(error)) {
+                throw error;
+            }
+
+            // Missing refs/files are an expected "not present" result for RELEASE_INFO comparisons.
             return '';
         }
+    }
+
+    private isExpectedShowFileMiss(error: unknown): boolean {
+        if (typeof error !== 'object' || error === null || !('status' in error)) {
+            return false;
+        }
+
+        const status = (error as { status?: unknown }).status;
+        if (status !== 128) {
+            return false;
+        }
+
+        const stderr = (error as { stderr?: unknown }).stderr;
+        const message = typeof stderr === 'string' ? stderr : Buffer.isBuffer(stderr) ? stderr.toString('utf8') : '';
+
+        return message.includes('does not exist in')
+            || message.includes('exists on disk, but not in')
+            || message.includes('invalid object name');
     }
 
     private succeeds(args: string[]): boolean {
@@ -390,6 +422,11 @@ export async function checkReleaseContent(toolkit: Toolkit, git: GitReader = new
         throw new Error(`release branch ${branchRef} not found — fetch it first (git fetch origin ${targetBranch}).`);
     }
 
+    const branchHeadSha = git.resolveCommit(branchRef);
+    if (branchHeadSha === '') {
+        throw new Error(`release branch ${branchRef} could not be resolved to a commit.`);
+    }
+
     const commitUrlBase = commitUrlBaseFromEnv(context.repo);
     const result = verifyReleaseContent(git, { versionPrefix, trunkRef, branchRef, releaseInfoFile });
 
@@ -404,7 +441,7 @@ export async function checkReleaseContent(toolkit: Toolkit, git: GitReader = new
     const target = runUrl(context.repo);
     await github.rest.repos.createCommitStatus({
         ...context.repo,
-        sha: context.sha,
+        sha: branchHeadSha,
         state: result.missing.length === 0 ? 'success' : 'failure',
         context: STATUS_CONTEXT,
         description: truncate(commitStatusDescription(result, versionPrefix, targetBranch)),

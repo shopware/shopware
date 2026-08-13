@@ -20,17 +20,6 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
  */
 export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
 
-/**
- * TODO: Get this from shared service
- * @private
- */
-export const DOCUMENT_FORMAT_LABELS = {
-    pdf: 'PDF',
-    html: 'HTML',
-    zugferd_xml: 'ZUGFeRD XML',
-    zugferd_embedded_pdf: 'ZUGFeRD embedded PDF',
-};
-
 const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';
 
 /**
@@ -376,6 +365,7 @@ export default {
         'feature',
         'customFieldDataProviderService',
         'documentV2Service',
+        'documentV2ApiService',
     ],
 
     mixins: [
@@ -452,7 +442,11 @@ export default {
         },
 
         formatLabels() {
-            return DOCUMENT_FORMAT_LABELS;
+            return this.supportedFormats.reduce((labels, format) => {
+                labels[format] = this.$t(this.documentV2Service.getFileFormatSnippet(format));
+
+                return labels;
+            }, {});
         },
 
         supportedFormats() {
@@ -630,7 +624,7 @@ export default {
         },
 
         async loadAvailableDocumentTypes() {
-            const response = await this.documentV2Service.getAvailableTypes();
+            const response = await this.documentV2ApiService.getAvailableTypes();
 
             this.availableDocumentTypes = response.data.documentTypes;
         },

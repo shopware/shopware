@@ -118,7 +118,7 @@ const documentBaseConfigSalesChannelsRepositoryMock = {
     },
 };
 
-const documentV2ServiceMock = {
+const documentV2ApiServiceMock = {
     getAvailableTypes: jest.fn(() =>
         Promise.resolve({
             data: {
@@ -135,6 +135,10 @@ const documentV2ServiceMock = {
             },
         }),
     ),
+};
+
+const documentV2ServiceMock = {
+    getFileFormatSnippet: jest.fn((format) => `sw-order.components.createDocumentModal.fileFormats.${format}`),
 };
 
 const repositoryMockFactory = (entity) => {
@@ -239,6 +243,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                         getCustomFieldSets: () => Promise.resolve([]),
                     },
                     documentV2Service: documentV2ServiceMock,
+                    documentV2ApiService: documentV2ApiServiceMock,
                 },
             },
             ...customOptions,
@@ -251,7 +256,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
         documentBaseConfigRepositoryMock.save.mockReset();
         documentBaseConfigRepositoryMock.save.mockResolvedValue();
-        documentV2ServiceMock.getAvailableTypes.mockClear();
+        documentV2ApiServiceMock.getAvailableTypes.mockClear();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
@@ -693,7 +698,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
-        expect(documentV2ServiceMock.getAvailableTypes).not.toHaveBeenCalled();
+        expect(documentV2ApiServiceMock.getAvailableTypes).not.toHaveBeenCalled();
     });
 
     it('should render a filename infix field per supported format when DOCUMENT_GENERATION_REWORK is active', async () => {
@@ -706,7 +711,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
         await flushPromises();
 
-        expect(documentV2ServiceMock.getAvailableTypes).toHaveBeenCalledTimes(1);
+        expect(documentV2ApiServiceMock.getAvailableTypes).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.supportedFormats).toEqual([
             'html',
             'pdf',

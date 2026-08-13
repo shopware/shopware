@@ -1,4 +1,4 @@
-import type { BindingName, CallExpression, PropertyAccessExpression, SourceFile } from 'ts-morph';
+import type { BindingName, CallExpression, ImportDeclaration, PropertyAccessExpression, SourceFile } from 'ts-morph';
 import { Node, Project, ScriptKind, SyntaxKind, VariableDeclarationKind } from 'ts-morph';
 import { UNKNOWN_COMPONENT_NAME } from '../types';
 import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './types';
@@ -293,11 +293,18 @@ export function collectModuleBindingNames(sourceFile: SourceFile, registration: 
             continue;
         }
 
+        // The Twig import is dropped on the way out — the template lives in the
+        // SFC now — so none of its names reach the generated block. The test is
+        // the module specifier, not the local name: `import tpl from './x.twig'`
+        // is just as dropped, and treating its binding as available would leave
+        // a "fully migrated" file referencing an import that is not there.
+        if (isTwigImport(importDeclaration)) {
+            continue;
+        }
+
         const defaultImport = importDeclaration.getDefaultImport()?.getText();
 
-        // The Twig import is dropped on the way out — the template lives in the
-        // SFC now — so its name is not available to the generated block.
-        if (defaultImport && defaultImport !== 'template') {
+        if (defaultImport) {
             names.add(defaultImport);
         }
 
@@ -312,6 +319,15 @@ export function collectModuleBindingNames(sourceFile: SourceFile, registration: 
     }
 
     return names;
+}
+
+/**
+ * The template import the migration replaces. Keyed on the specifier because the
+ * local name is a convention, not a guarantee, and `--delete-originals` removes
+ * the `.twig` file — a retained import of it would not resolve.
+ */
+function isTwigImport(importDeclaration: ImportDeclaration): boolean {
+    return importDeclaration.getModuleSpecifierValue().endsWith('.twig');
 }
 
 /** Modules that export the helpers `expand-computed-spread.ts` knows how to port. */
@@ -558,10 +574,8 @@ export function extractModuleLevelCode(sourceFile: SourceFile, registration: Com
 
         // Keep side-effect imports and constants before registration, but drop
         // the old Twig import because the template now lives inside the SFC.
-        if (stmt.isKind(SyntaxKind.ImportDeclaration)) {
-            const imp = stmt.asKindOrThrow(SyntaxKind.ImportDeclaration);
-            const defaultImport = imp.getDefaultImport()?.getText();
-            if (defaultImport === 'template') continue;
+        if (stmt.isKind(SyntaxKind.ImportDeclaration) && isTwigImport(stmt.asKindOrThrow(SyntaxKind.ImportDeclaration))) {
+            continue;
         }
 
         lines.push(stmt.getText());

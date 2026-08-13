@@ -434,9 +434,19 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         // The composables run during setup, so the slot only has to be past the
-        // bindings a guard body reads.
+        // bindings a guard body reads — and past the lifecycle hooks, which is
+        // where the hooks region ends.
         it('emits the guards after the lifecycle hooks and before swDefinePublic', () => {
-            expect(result.script).toMatch(/onBeforeRouteUpdate\([\s\S]*\n\nswDefinePublic\(\{/u);
+            const mountedIndex = result.script.indexOf('onMounted(');
+            const leaveIndex = result.script.indexOf('onBeforeRouteLeave(');
+            const updateIndex = result.script.indexOf('onBeforeRouteUpdate(');
+            const publicIndex = result.script.indexOf('swDefinePublic({');
+
+            expect(mountedIndex).toBeGreaterThan(-1);
+            expect(leaveIndex).toBeGreaterThan(mountedIndex);
+            // Source order between the guards is kept: they run in registration order.
+            expect(updateIndex).toBeGreaterThan(leaveIndex);
+            expect(publicIndex).toBeGreaterThan(updateIndex);
         });
 
         it('matches the complete converted script snapshot', () => {
@@ -473,15 +483,54 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         // A function value's `this` is not the receiver the rewrite assumes, the
-        // same reason lifecycle hooks only migrate in method form.
-        it('drops a guard that is not defined as a method', () => {
+        // same reason lifecycle hooks only migrate in method form. Every
+        // non-method shape has to be reported here: taking the two options off
+        // the unsupported top-level list left nothing else that would.
+        it.each([
+            [
+                'a function value',
+                'beforeRouteUpdate: function (to, from, next) { next(); }',
+                'beforeRouteUpdate',
+            ],
+            [
+                'a get accessor',
+                'get beforeRouteLeave() { return (to, from, next) => next(); }',
+                'beforeRouteLeave',
+            ],
+            [
+                'a shorthand entry',
+                'beforeRouteLeave',
+                'beforeRouteLeave',
+            ],
+        ])('drops a guard defined as %s', (_case, optionSource, optionName) => {
             const js = `Shopware.Component.register('sw-test', {
-                beforeRouteUpdate: function (to, from, next) { next(); },
+                ${optionSource},
             });`;
             const result = transformScript(js);
 
-            expect(result.blockers).toEqual(['beforeRouteUpdate: route guard must be defined as a method to be migrated']);
-            expect(result.script).not.toContain('onBeforeRouteUpdate');
+            expect(result.blockers).toEqual([`${optionName}: route guard must be defined as a method to be migrated`]);
+            expect(result.script).not.toContain('onBeforeRoute');
+        });
+
+        // A quoted or bracketed key names the same option, so it is migrated
+        // rather than dropped — these were silently lost before.
+        it.each([
+            [
+                'a string-literal key',
+                "'beforeRouteLeave'(to, from, next) { next(); }",
+            ],
+            [
+                'a computed string key',
+                "['beforeRouteLeave'](to, from, next) { next(); }",
+            ],
+        ])('migrates a guard written with %s', (_case, optionSource) => {
+            const js = `Shopware.Component.register('sw-test', {
+                ${optionSource},
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('onBeforeRouteLeave((to, from, next) => {');
         });
     });
 
@@ -519,6 +568,25 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain(expected);
             expect(result.publicNames).toContain(expected.split(' ')[1]);
+        });
+
+        // The twig import is dropped on the way out and `--delete-originals`
+        // removes the file, so its binding is not available whatever it is named.
+        it.each([
+            ['template'],
+            ['tpl'],
+        ])('keeps the fallback for the twig import bound as %s', (localName) => {
+            const js = `import ${localName} from './sw-test.html.twig';
+
+            Shopware.Component.register('sw-test', {
+                template: ${localName},
+                methods: { render: ${localName} },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('methods: render: method value must be an inline function');
+            expect(result.script).not.toContain('.html.twig');
         });
 
         // Nothing in the generated block declares the name, so re-declaring it

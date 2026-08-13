@@ -518,8 +518,11 @@ and `const`s before the registration) in front of the setup body. So when
 
 Any other bare identifier keeps the fallback: nothing in the generated block
 would declare it, so re-declaring the alias would emit a reference to something
-that does not exist. The `template` default import is excluded from the binding
-set for the same reason — it is dropped on the way out.
+that does not exist. The Twig import is excluded from the binding set for the
+same reason — it is dropped on the way out, and `--delete-originals` removes the
+file. Both that exclusion and the drop itself key on the `.twig` module
+specifier, not on the local name: `import tpl from './x.html.twig'` is the same
+import under a different convention.
 
 ## Root Template Ref For `$el`
 
@@ -819,8 +822,15 @@ migrated the same way as lifecycle hooks:
 
 The signature is preserved, `async` is preserved, and the body goes through the
 same `this` rewriting; a guard whose body still depends on the instance is
-dropped with the reason, exactly like a hook. Only the method-shorthand form is
-migrated — a function value's `this` is not the receiver the rewrite assumes.
+dropped with the reason, exactly like a hook. Only the method form is migrated —
+a function value's `this` is not the receiver the rewrite assumes — but a quoted
+or bracketed key (`'beforeRouteLeave'() {}`) names the same option and is read as
+such.
+
+Every non-method shape of these two options is reported, including accessors.
+They have no other reporter since they left `UNSUPPORTED_TOP_LEVEL_OPTIONS`, so
+an unreported shape would vanish from the output with no TODO — and
+`--delete-originals` would then remove the source.
 
 The generated calls sit at the end of the hooks region, after the lifecycle
 hooks and before `swDefinePublic({ … })`. The composables register the guard on

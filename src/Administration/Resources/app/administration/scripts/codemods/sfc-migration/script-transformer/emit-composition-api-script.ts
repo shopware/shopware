@@ -16,6 +16,7 @@ import { sanitizeTodoCommentText } from './helpers';
 import { resolveIdentifierNames } from './resolve-identifiers';
 import type { ResolvedIdentifiers } from './resolve-identifiers';
 import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
+import type { UsedComposables } from './types';
 
 export function emitCompositionApiScript(state: CompositionScriptState): string {
     // Every name the component already uses is known before the first line is
@@ -109,11 +110,15 @@ function emitImports(state: CompositionScriptState): string[] {
     if (routerImports.length > 0) {
         lines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
     }
-    if (usedComposables.needsI18n) {
+    if (usesI18n(usedComposables)) {
         lines.push(`import { useI18n } from 'vue-i18n';`);
     }
 
     return lines;
+}
+
+function usesI18n(usedComposables: UsedComposables): boolean {
+    return usedComposables.needsTranslate || usedComposables.needsTranslationExists;
 }
 
 function emitComposableDeclarations(state: CompositionScriptState, names: ResolvedIdentifiers): string[] {
@@ -124,12 +129,22 @@ function emitComposableDeclarations(state: CompositionScriptState, names: Resolv
     if (usedComposables.needsRoute) lines.push(`const ${names.route} = useRoute();`);
     if (usedComposables.needsSlots) lines.push(`const ${names.slots} = useSlots();`);
     if (usedComposables.needsAttrs) lines.push(`const ${names.attrs} = useAttrs();`);
-    // `useI18n()` returns an object, so a renamed `t` needs a destructuring alias.
-    if (usedComposables.needsI18n) {
-        lines.push(names.t === 't' ? 'const { t } = useI18n();' : `const { t: ${names.t} } = useI18n();`);
+    // `useI18n()` returns one composer object, so `t` and `te` are destructured
+    // from a single call, each with an alias when the component took the name.
+    if (usesI18n(usedComposables)) {
+        const members = [
+            usedComposables.needsTranslate ? destructuringEntry('t', names.t) : '',
+            usedComposables.needsTranslationExists ? destructuringEntry('te', names.te) : '',
+        ].filter(Boolean);
+
+        lines.push(`const { ${members.join(', ')} } = useI18n();`);
     }
 
     return lines;
+}
+
+function destructuringEntry(member: string, localName: string): string {
+    return member === localName ? member : `${member}: ${localName}`;
 }
 
 function emitTemplateRefs(state: CompositionScriptState): string[] {

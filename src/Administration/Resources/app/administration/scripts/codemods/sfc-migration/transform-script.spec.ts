@@ -483,6 +483,47 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('rewrites this.$te to the te member of the i18n composer', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                label() {
+                    return this.$te('sw.test.label') ? this.$t('sw.test.label') : 'sw.test.label';
+                },
+            },
+            methods: {
+                hasFallback(key, locale) { return this.$te(key, locale); },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migrated');
+        expect(result.blockers).toEqual([]);
+        expect(result.script).toContain(`import { useI18n } from 'vue-i18n';`);
+        expect(result.script).toContain('const { t, te } = useI18n();');
+        expect(result.script).toContain("return te('sw.test.label') ? t('sw.test.label') : 'sw.test.label';");
+        // The legacy $te(key, locale?) signature is the composer's te signature.
+        expect(result.script).toContain('return te(key, locale);');
+        expect(result.script).not.toMatch(/\bthis\.\$te\b/);
+    });
+
+    // -------------------------------------------------------------------------
+    it('imports useI18n for a component that only checks whether a snippet exists', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            methods: {
+                hasLabel(key) { return this.$te(key); },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migrated');
+        expect(result.script).toContain('const { te } = useI18n();');
+        // `t` is not destructured when nothing translates.
+        expect(result.script).not.toMatch(/const \{ t[,}]/);
+    });
+
+    // -------------------------------------------------------------------------
     describe('instance-api-component: keeps $el as a placeholder and requires manual follow-up', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -1860,6 +1901,41 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('const { t } = useI18n();');
             expect(result.script).not.toContain('const { t: $t } = useI18n();');
             expect(result.script).not.toContain('const { t: translate } = useI18n();');
+        });
+
+        it('destructures t and te from one useI18n() call with independent aliases', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { te: null };
+                },
+                methods: {
+                    getLabel(key) { return this.$te(key) ? this.$t(key) : key; },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const { t, te: $te } = useI18n();');
+            expect(result.script).toContain('return $te(key) ? t(key) : key;');
+            expect(result.script).toContain('const te = ref(null);');
+        });
+
+        it('uses a fallback translation-exists identifier when te and $te are already taken', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { te: null, $te: null };
+                },
+                methods: {
+                    hasLabel(key) { return this.$te(key); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const { te: translationExists } = useI18n();');
+            expect(result.script).toContain('return translationExists(key);');
         });
 
         it('uses a fallback emit identifier when emit is a component public name', () => {

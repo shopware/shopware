@@ -141,7 +141,10 @@ export interface UsedComposables {
     needsRoute: boolean;
     needsNextTick: boolean;
     needsSlots: boolean;
-    needsI18n: boolean;
+    /** `this.$t` / `this.$tc` — the `t` member of the i18n composer. */
+    needsTranslate: boolean;
+    /** `this.$te` — the `te` member of the i18n composer. */
+    needsTranslationExists: boolean;
     needsEmit: boolean;
     needsAttrs: boolean;
 }

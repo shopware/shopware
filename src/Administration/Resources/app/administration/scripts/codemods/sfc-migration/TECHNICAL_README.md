@@ -398,6 +398,7 @@ Common rewrites:
 | `this.$slots` | `slots` from `useSlots()` |
 | `this.$attrs` | `attrs` from `useAttrs()` |
 | `this.$t(...)` / `this.$tc(...)` | `t(...)` from `useI18n()` |
+| `this.$te(...)` | `te(...)` from `useI18n()` |
 | `this.$refs.name` | `name.value` and `const name = ref(null)` |
 
 Risky cases get TODO output instead of pretending the migration is complete:
@@ -407,6 +408,11 @@ Risky cases get TODO output instead of pretending the migration is complete:
 | `this.$el` | `/* TODO: $el */ getCurrentInstance()?.proxy?.$el` |
 | `this.$store` | Throwing TODO expression, so it cannot ship unnoticed. |
 | `this.$parent`, `this.$root`, `$options`, `$forceUpdate` | TODO placeholders. |
+
+`$t`, `$tc`, and `$te` all come from one `useI18n()` call: the composer exposes
+`t` and `te` with the same key/locale signatures the legacy instance properties
+had, so both are destructured from a single `const { t, te } = useI18n();` — each
+with an alias when the component already declares that name.
 
 The rewrite only changes AST property-access nodes. It does not rewrite text in
 strings or comments.

@@ -81,7 +81,8 @@ export function detectUsedComposables(snippets: CodeSnippet[], watchProps: Watch
         needsRoute: watchProps.some((prop) => getWatchRootName(prop.name) === '$route'),
         needsNextTick: false,
         needsSlots: false,
-        needsI18n: false,
+        needsTranslate: false,
+        needsTranslationExists: false,
         needsEmit: false,
         needsAttrs: false,
     };
@@ -103,7 +104,10 @@ export function detectUsedComposables(snippets: CodeSnippet[], watchProps: Watch
                     break;
                 case '$tc':
                 case '$t':
-                    usedComposables.needsI18n = true;
+                    usedComposables.needsTranslate = true;
+                    break;
+                case '$te':
+                    usedComposables.needsTranslationExists = true;
                     break;
                 case '$emit':
                     usedComposables.needsEmit = true;
@@ -164,6 +168,7 @@ function isSupportedThisPropertyName(name: string, ctx: RewriteContext): boolean
         name === '$attrs' ||
         name === '$tc' ||
         name === '$t' ||
+        name === '$te' ||
         name === '$refs' ||
         name === '$el' ||
         name === '$store' ||
@@ -355,6 +360,10 @@ function buildThisReplacement(
         case '$tc':
         case '$t':
             return names.t;
+        case '$te':
+            // The legacy `$te(key, locale?)` maps to the composer's `te` with the
+            // same signature.
+            return names.te;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge. collectPlaceholderApiReasons keeps the

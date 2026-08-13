@@ -70,7 +70,8 @@ my-component/
 | `this.$router` / `this.$route`            | `useRouter()` / `useRoute()`                   |
 | `this.$slots`                             | `useSlots()`                                   |
 | `this.$nextTick`                          | `nextTick(…)`                                  |
-| `this.$tc` / `this.$t`                    | `useI18n().tc` / `.t`                          |
+| `this.$tc` / `this.$t`                    | `t(…)` from `useI18n()`                        |
+| `this.$te`                                | `te(…)` from `useI18n()`                       |
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
 

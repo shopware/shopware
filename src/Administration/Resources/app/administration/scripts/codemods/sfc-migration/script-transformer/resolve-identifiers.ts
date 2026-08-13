@@ -39,6 +39,11 @@ const IDENTIFIER_CANDIDATES = {
         '$t',
         'translate',
     ],
+    te: [
+        'te',
+        '$te',
+        'translationExists',
+    ],
 } as const;
 
 export type ResolvedIdentifiers = Record<keyof typeof IDENTIFIER_CANDIDATES, string>;

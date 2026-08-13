@@ -27,6 +27,8 @@ properties:
     title: "Active category ID"
     description: "Category ID highlighted as the current page. Resolved per request from the layout's category root, so it needs no editorial input. Also read by the navigation data loader via its activeProperty config."
     default: "{{categoryId}}"
+    adminUI:
+      helpText: "Filled automatically from the page you are on — leave this as it is."
 
   navigationMaxDepth:
     type: integer

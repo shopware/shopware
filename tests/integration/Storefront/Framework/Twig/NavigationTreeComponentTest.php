@@ -86,7 +86,11 @@ class NavigationTreeComponentTest extends TestCase
         $activeId = $types->get('Sw:Navigation:Tree')->properties()['activeId']->toSchema();
 
         static::assertSame('{{categoryId}}', $activeId['default']);
-        static::assertNull($activeId['adminUI'], 'The editor must not be asked for a per-request value.');
+
+        // Studio derives a control from the property type, so a primitive is always shown and this
+        // field cannot be hidden declaratively yet. The help text is what keeps an editor from
+        // "correcting" the placeholder it displays.
+        static::assertNotNull($activeId['adminUI']['helpText'] ?? null);
     }
 
     /**

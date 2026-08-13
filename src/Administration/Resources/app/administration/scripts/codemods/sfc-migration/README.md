@@ -61,6 +61,7 @@ my-component/
 | `computed`                                | `computed(…)` in `<script setup>`              |
 | `inject` array/object form                | `inject(…)` in `<script setup>`                |
 | `provide` object / method form            | `provide(key, value)` in `<script setup>`      |
+| `expose: ['a', 'b']`                      | `defineExpose({ a, b })`                       |
 | `watch` method/object/string-handler form | `watch(…)` in `<script setup>`                 |
 | `watch` on a path (`'entity.name'`)       | `watch(() => entity.value?.name, …)`           |
 | `methods`                                 | plain functions in `<script setup>`            |
@@ -91,6 +92,14 @@ because a partially migrated `provide` would change what descendants receive:
   returned promise or generator object, not the listed ones
 - computed keys, shorthand or spread entries, accessors, statements before the `return`
 - a value whose `this` usage cannot be rewritten
+
+`expose` becomes a `defineExpose({ … })` call at the end of the setup block. A `<script setup>`
+component is closed by default, so the explicit list is what keeps the public surface the Options API
+`expose` declared for a parent's template ref. Only the array-of-string-literals form is converted,
+and every listed name must be a migrated `data`, `computed`, `methods`, or `inject` member —
+otherwise the whole option keeps the manual `TODO` naming the entry, because exposing a subset would
+silently shrink that surface. `expose: []` is dropped without a `TODO`: it closes the instance
+completely in the Options API, which is what script setup already does.
 
 A dotted `watch` key is a property path, not a member name: Vue walks the segments and stops as soon
 as an intermediate value is missing. The generated getter reproduces that with optional chaining on
@@ -257,6 +266,7 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | Feature                       | Behavior                                    | How to fix                                              |
 | ----------------------------- | ------------------------------------------- | ------------------------------------------------------- |
 | `provide` (unsupported shape) | Drops the whole option with a TODO comment  | Add `provide(key, value)` calls manually in setup       |
+| `expose` (unsupported shape or an entry that was not migrated) | Drops the whole option with a TODO comment | Add a `defineExpose({ … })` call manually in setup |
 | `components`                  | Drops silently                              | Verify components are globally registered; remove if so |
 | `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |

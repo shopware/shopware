@@ -292,6 +292,7 @@ This keeps "understand the old component" separate from "print the new code".
 | `extract-component-options.ts` | `props`, `emits`, `inheritAttrs`, `name`, blockers, prop names. |
 | `extract-inject.ts` | `inject` array/object syntax, aliases, defaults, factory defaults. |
 | `extract-provide.ts` | `provide` object and method form with static keys. |
+| `extract-expose.ts` | `expose` as an array of string literals. |
 | `extract-data.ts` | `data()` return values into future `ref(...)` declarations. |
 | `extract-computed.ts` | Computed getters and getter/setter objects. |
 | `extract-methods.ts` | Methods and property-assignment methods like debounce wrappers. |
@@ -312,6 +313,7 @@ This keeps "understand the old component" separate from "print the new code".
 7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
    `provide` calls, `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
+9. `defineExpose({ … })`, when the component declared `expose`.
 
 The `provide()` calls sit between the watchers and `created` on purpose: that is
 where Vue's `applyOptions` evaluates the `provide` option — after the watch
@@ -458,6 +460,38 @@ silently change what descendants inject. The TODO carries the reason, including
 the key that could not be translated. Provided keys are not added to
 `swDefinePublic({ … })` either — they are an injection contract, not the public
 override API.
+
+## Expose Conversion
+
+`expose` becomes one `defineExpose({ … })` call, but only from a static list:
+
+| Input | Result |
+| --- | --- |
+| `expose: ['focus', 'isOpen']` | `defineExpose({ focus, isOpen });` |
+| `expose: []` | Nothing — no call, no TODO. |
+| An entry that is not a migrated member | TODO comment for the whole option, naming the entry. |
+| A computed list, or an entry that is not a string literal | TODO comment for the whole option. |
+
+The fallback is all-or-nothing for the same reason `provide` is: Vue reads
+`expose` once per instance, so a list built from the entries that happen to have
+survived would declare a smaller public surface than the component did.
+
+`expose: []` is the one shape that is dropped silently. In the Options API it
+closes the instance completely, and a `<script setup>` component is closed
+already, so emitting anything would only add noise.
+
+The call is emitted last, after `swDefinePublic({ … })`. Both markers declare a
+public surface — the override API and the API a parent reaches through a template
+ref — so they belong together, and the end of the block is the only slot that is
+always past the bindings the object reads. The two lists are independent: a
+member is listed in `swDefinePublic` because it was migrated, and in
+`defineExpose` because the component asked for it.
+
+One nuance of the base lowering: the transform renames every author binding to
+`__swSetupAuthor_<name>` and re-declares the original names from the override
+wrapper in a generated footer, so `defineExpose` hands out the author's own
+binding, not the override-wrapped one. For the `ref`/`computed` objects the
+codemod emits, that is the same object either way.
 
 ## Watch And Lifecycle Conversion
 

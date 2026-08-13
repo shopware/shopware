@@ -190,6 +190,31 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script expose-component: converts the expose option into defineExpose matches the complete converted script snapshot 1`] = `
+"import { ref, computed } from 'vue';
+
+const isOpen = ref(false);
+
+const stateLabel = computed(() => {
+return isOpen.value ? 'open' : 'closed';
+});
+
+const focus = () => {
+isOpen.value = true;
+};
+
+swDefinePublic({
+    isOpen,
+    stateLabel,
+    focus,
+});
+
+defineExpose({
+    focus,
+    isOpen,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script inherit-attrs-component: emits defineOptions({ inheritAttrs: false }) and excludes inheritAttrs from the options object matches the complete converted script snapshot 1`] = `
 "defineOptions({ inheritAttrs: false });
 

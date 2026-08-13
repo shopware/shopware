@@ -44,6 +44,7 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
         emitCreatedHooks(state, names),
         emitRegularHooks(state, names),
         emitSwDefinePublic(state),
+        emitDefineExpose(state),
     ];
 
     return sections
@@ -309,6 +310,32 @@ function emitSwDefinePublic(state: CompositionScriptState): string[] {
     return [
         'swDefinePublic({',
         ...publicNames.map((n) => `    ${n},`),
+        '});',
+    ];
+}
+
+/**
+ * Emitted last, after the `swDefinePublic({ … })` marker. The two markers declare
+ * the component's two public surfaces — the override API and the API a parent
+ * reaches through a template ref — so they belong together, and the end of the
+ * block is the only slot that is always past every binding the object reads.
+ *
+ * A `<script setup>` component is closed by default, so without this list a
+ * parent's template ref would find nothing. The Options API `expose` declared
+ * exactly this set, and repeating it keeps that surface unchanged.
+ */
+function emitDefineExpose(state: CompositionScriptState): string[] {
+    const { exposeNames } = state;
+
+    // `expose: []` closes the instance completely in the Options API, which is
+    // what script setup already does — nothing to emit and nothing to review.
+    if (exposeNames.length === 0) {
+        return [];
+    }
+
+    return [
+        'defineExpose({',
+        ...exposeNames.map((n) => `    ${n},`),
         '});',
     ];
 }

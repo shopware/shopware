@@ -11,6 +11,7 @@ import {
     extractPropsText,
 } from './extract-component-options';
 import { extractDataProps } from './extract-data';
+import { extractExposeNames } from './extract-expose';
 import { extractInjectProps } from './extract-inject';
 import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
@@ -32,6 +33,7 @@ import type {
     ComputedProp,
     DataProp,
     EmitsDefinition,
+    ExtractExposeResult,
     ExtractProvideResult,
     InjectProp,
     LifecycleHook,
@@ -64,6 +66,8 @@ export interface CompositionScriptState {
     usedComposables: UsedComposables;
     templateRefNames: string[];
     publicNames: string[];
+    /** Members listed in `defineExpose({ … })` — empty when the component exposes nothing. */
+    exposeNames: string[];
     vueImports: string[];
     propNames: Set<string>;
     injectNames: Set<string>;
@@ -186,6 +190,12 @@ export function collectCompositionScriptState(
         provideEntries,
     );
     const publicNames = collectPublicNames(supportedMembers);
+    const { exposeNames, unsupportedReason: exposeUnsupportedReason } = collectExposeNames(optionsObj, publicNames);
+
+    if (exposeUnsupportedReason) {
+        pushManualMigration(manualMigrationReasons, todoComments, 'expose', `expose: ${exposeUnsupportedReason}`);
+    }
+
     collectPropShadowingReasons(templateRefNames, propNames, manualMigrationReasons, todoComments);
     const manualFollowUps = collectManualFollowUps(optionsObj, provideUnsupportedReason);
 
@@ -237,6 +247,7 @@ export function collectCompositionScriptState(
         usedComposables,
         templateRefNames,
         publicNames,
+        exposeNames,
         vueImports,
         propNames,
         injectNames,
@@ -481,6 +492,26 @@ function collectProvideEntries(optionsObj: ObjectLiteralExpression, ctx: Rewrite
     return result;
 }
 
+/**
+ * `expose` names the members the Options API kept reachable through a parent's
+ * template ref. A name the codemod did not migrate cannot be listed in
+ * `defineExpose`, and listing the rest would silently shrink that surface, so one
+ * unmigrated entry falls the whole option back to the manual TODO naming it.
+ */
+function collectExposeNames(optionsObj: ObjectLiteralExpression, publicNames: string[]): ExtractExposeResult {
+    const result = extractExposeNames(optionsObj);
+    const unmigrated = result.exposeNames.find((name) => !publicNames.includes(name));
+
+    if (unmigrated) {
+        return {
+            exposeNames: [],
+            unsupportedReason: `'${unmigrated}' is not a migrated data, computed, method, or inject member`,
+        };
+    }
+
+    return result;
+}
+
 function collectManualFollowUps(
     optionsObj: ObjectLiteralExpression,
     provideUnsupportedReason: string | null,
@@ -544,7 +575,6 @@ const UNSUPPORTED_TOP_LEVEL_OPTIONS = [
     'metaInfo',
     'shortcuts',
     'errorCaptured',
-    'expose',
     'extensionApiDevtoolInformation',
     'saveFinish',
 ];

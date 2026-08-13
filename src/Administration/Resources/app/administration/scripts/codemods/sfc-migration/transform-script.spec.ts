@@ -349,6 +349,55 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('expose-component: converts the expose option into defineExpose', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('expose-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        // Script setup is closed by default, so the explicit list is what keeps
+        // the public surface the Options API `expose` declared.
+        it('lists the exposed members in defineExpose', () => {
+            expect(result.script).toContain(
+                [
+                    'defineExpose({',
+                    '    focus,',
+                    '    isOpen,',
+                    '});',
+                ].join('\n'),
+            );
+        });
+
+        it('emits defineExpose after the swDefinePublic marker', () => {
+            expect(result.script).toMatch(/swDefinePublic\(\{[\s\S]*\}\);\n\ndefineExpose\(\{/);
+        });
+
+        // The override API and the template-ref API are different surfaces: a
+        // member can be public without being exposed and the other way round.
+        it('keeps every migrated member in the public override API', () => {
+            expect(result.script).toContain(
+                [
+                    'swDefinePublic({',
+                    '    isOpen,',
+                    '    stateLabel,',
+                    '    focus,',
+                    '});',
+                ].join('\n'),
+            );
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('watch-path-component: converts dotted watch keys into optional-chained getters', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -2568,6 +2617,56 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expectManualFallback(result, 'inheritAttrs');
         });
 
+        // `expose: []` closes the instance in the Options API, and a script setup
+        // component is closed already, so there is nothing to emit or review.
+        it('drops an empty expose array silently instead of emitting defineExpose', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                expose: [],
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+            expect(result.script).not.toContain('defineExpose');
+        });
+
+        it.each([
+            [
+                'a name that was never declared',
+                "expose: ['focus']",
+                "expose: 'focus' is not a migrated data, computed, method, or inject member",
+            ],
+            [
+                'a name that was dropped during the migration',
+                "expose: ['reload']",
+                "expose: 'reload' is not a migrated data, computed, method, or inject member",
+            ],
+            [
+                'a computed list',
+                'expose: buildExposeList()',
+                'expose: only an array of string literals can be mapped to defineExpose({ … })',
+            ],
+            [
+                'an entry that is not a string literal',
+                "expose: ['focus', methodName]",
+                'expose: methodName: unsupported expose entry',
+            ],
+        ])('falls back to a manual TODO for expose with %s', (_case, exposeSource, expectedReason) => {
+            const js = `Shopware.Component.register('sw-test', {
+                ${exposeSource},
+                data() { return { title: 'Title' }; },
+                methods: {
+                    reload() { return this.unknownHelper(); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, expectedReason);
+            // The reason text names the macro, so only a real call is rejected.
+            expect(result.script).not.toMatch(/^defineExpose\(/m);
+        });
+
         it('marks root-level component option spreads as unsupported instead of ignoring hidden options', () => {
             const js = `Shopware.Component.register('sw-test', {
                 ...buildComponentOptions(),
@@ -2706,10 +2805,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             [
                 'errorCaptured',
                 'errorCaptured() { return false; }',
-            ],
-            [
-                'expose',
-                "expose: ['focus']",
             ],
             [
                 'extensionApiDevtoolInformation',

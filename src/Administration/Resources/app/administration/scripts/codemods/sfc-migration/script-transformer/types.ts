@@ -105,6 +105,13 @@ export interface ExtractProvideResult {
     unsupportedReason: string | null;
 }
 
+export interface ExtractExposeResult {
+    /** Member names to list in `defineExpose({ … })` — empty when nothing is exposed. */
+    exposeNames: string[];
+    /** Why a present `expose` option cannot be translated, or null when it can. */
+    unsupportedReason: string | null;
+}
+
 export interface LifecycleHook {
     hookName: string;
     /** null means "run directly in setup" (i.e. created) */

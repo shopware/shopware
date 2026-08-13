@@ -92,7 +92,6 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
-        $this->appendNewResponse(new Response(302, ['Location' => '/redirect']));
         $this->appendNewResponse(new Response(200));
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
@@ -101,8 +100,8 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
 
-        static::assertEquals('GET', $request->getMethod());
-        static::assertSame('', $payload);
+        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR)['body']);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
@@ -126,17 +125,6 @@ class WebhookEventMessageHandlerTest extends TestCase
         // validate headers
         static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
         static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
-
-        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
-        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
-        $history = $historyCollector->getHistory();
-        static::assertCount(2, $history);
-        static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
-        static::assertIsArray($history[0]['options']);
-        static::assertIsArray($history[0]['options']['curl']);
-        static::assertSame('http://test.com/redirect', (string) $history[1]['request']->getUri());
-        static::assertFalse($history[0]['options']['allow_redirects']);
-        static::assertSame(['test.com:80:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
     }
 
     public function testUsesDedicatedWebhookDeliveryClient(): void

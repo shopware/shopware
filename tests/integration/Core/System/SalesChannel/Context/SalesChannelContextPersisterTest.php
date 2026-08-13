@@ -61,24 +61,56 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
-    public function testLoadPromotesCustomerIdFromColumnWhenMissingInPayload(): void
+    public function testSaveWritesCustomerIdIntoPayload(): void
     {
         $token = Random::getAlphanumericString(32);
         $customerId = $this->createCustomer();
 
-        $this->connection->insert('sales_channel_api_context', [
-            'token' => $token,
-            'payload' => json_encode([], \JSON_THROW_ON_ERROR),
-            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'customer_id' => Uuid::fromHexToBytes($customerId),
-            'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $this->contextPersister->save($token, ['key' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+
+        $stored = json_decode(
+            (string) $this->connection->fetchOne(
+                'SELECT payload FROM sales_channel_api_context WHERE token = :token',
+                ['token' => $token]
+            ),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertSame($customerId, $stored[SalesChannelContextService::CUSTOMER_ID]);
 
         $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL);
 
         static::assertSame($customerId, $result[SalesChannelContextService::CUSTOMER_ID]);
         static::assertSame($token, $result['token']);
         static::assertFalse($result['expired']);
+    }
+
+    public function testReplaceInsertsCustomerIdIntoPayload(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $customerId = $this->createCustomer();
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, TestDefaults::SALES_CHANNEL, [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+            ]);
+
+        $newToken = $this->contextPersister->replace($token, $context);
+
+        $stored = json_decode(
+            (string) $this->connection->fetchOne(
+                'SELECT payload FROM sales_channel_api_context WHERE token = :token',
+                ['token' => $newToken]
+            ),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertSame($customerId, $stored[SalesChannelContextService::CUSTOMER_ID]);
+        static::assertSame($customerId, $this->contextPersister->load($newToken, TestDefaults::SALES_CHANNEL)[SalesChannelContextService::CUSTOMER_ID]);
     }
 
     public function testLoadByCustomerId(): void

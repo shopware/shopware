@@ -82,9 +82,9 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ## Core
 
-### Sales channel API context hydrates customer when only `customer_id` column is set
+### Sales channel API context payload now includes `customerId`
 
-`SalesChannelContextPersister::load()` now promotes the `customer_id` database column into the session `customerId` when the JSON payload omits it (for example after `replace()` inserts a row with an empty payload). Store API requests then hydrate `SalesChannelContext::getCustomer()` correctly, so customer-scoped rules and flows no longer run as guest for those tokens.
+`SalesChannelContextPersister::save()` and `replace()` now write `customerId` into the JSON payload whenever a customer is present, instead of only storing it on the `customer_id` column. A one-time migration backfills existing rows that have a column value but no payload key (for example after `replace()` inserted `payload = []`). Store API requests then hydrate `SalesChannelContext::getCustomer()` correctly, so customer-scoped rules and flows no longer run as guest for those tokens.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 

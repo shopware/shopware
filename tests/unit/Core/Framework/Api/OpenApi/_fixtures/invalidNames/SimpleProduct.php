@@ -9,14 +9,14 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
 #[JsonStreamable]
-final class SimpleProduct extends AbstractRequest
+final class SimpleProduct extends AbstractDto
 {
     public function __construct(
         public ?string $id = null,

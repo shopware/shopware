@@ -244,6 +244,68 @@ describe('sw-sales-channel-detail-theme', () => {
         expect(wrapper.vm.pendingTheme).toEqual({ id: 'pending-id', name: 'pending-id' });
     });
 
+    it('does not resume polling when unmounted while a check is in flight', async () => {
+        let resolvePending;
+        const getValues = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    resolvePending = resolve;
+                }),
+        );
+
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'sc', extensions: { themes: [{ id: 'live-id' }] } },
+            getValuesImpl: getValues,
+            salesChannelGet: jest.fn(() => Promise.resolve({ extensions: { themes: [{ id: 'live-id' }] } })),
+            themeRepositoryGet: jest.fn((id) => Promise.resolve({ id, name: id })),
+        });
+
+        // the check started in created() is awaiting getValues; tear the component down first
+        wrapper.unmount();
+
+        // the in-flight read resolves only after unmount and must be discarded
+        resolvePending({ 'storefront.pendingThemeAssignment': 'pending-id' });
+        await flushPromises();
+
+        expect(wrapper.vm.pendingTheme).toBeNull();
+        expect(wrapper.vm.pendingCheckTimeoutId).toBeNull();
+    });
+
+    it('discards a stale in-flight check after the sales channel changes', async () => {
+        let resolveFirst;
+        const getValues = jest
+            .fn()
+            .mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        resolveFirst = resolve;
+                    }),
+            )
+            .mockResolvedValue({ 'storefront.pendingThemeAssignment': 'new-pending' });
+
+        const wrapper = await createWrapper({
+            salesChannel: { id: 'sc', extensions: { themes: [{ id: 'live-id' }] } },
+            getValuesImpl: getValues,
+            salesChannelGet: jest.fn(() => Promise.resolve({ extensions: { themes: [{ id: 'live-id' }] } })),
+            themeRepositoryGet: jest.fn((id) => Promise.resolve({ id, name: id })),
+        });
+
+        // a new sales channel replaces the prop while the first check is still awaiting
+        await wrapper.setProps({ salesChannel: { id: 'sc2', extensions: { themes: [{ id: 'live-id' }] } } });
+        await flushPromises();
+
+        // the second check resolved with the newer pending theme
+        expect(wrapper.vm.pendingTheme.id).toBe('new-pending');
+
+        // the first (stale) check now resolves with a different theme and must be ignored
+        resolveFirst({ 'storefront.pendingThemeAssignment': 'stale-pending' });
+        await flushPromises();
+
+        expect(wrapper.vm.pendingTheme.id).toBe('new-pending');
+
+        wrapper.unmount();
+    });
+
     it('stops polling when the component is destroyed', async () => {
         jest.useFakeTimers();
 

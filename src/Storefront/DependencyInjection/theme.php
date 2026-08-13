@@ -45,6 +45,7 @@ use Shopware\Storefront\Theme\Extension\LanguageExtension;
 use Shopware\Storefront\Theme\Extension\MediaExtension;
 use Shopware\Storefront\Theme\Extension\SalesChannelExtension;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
+use Shopware\Storefront\Theme\Message\CompileThemeFailedSubscriber;
 use Shopware\Storefront\Theme\Message\CompileThemeHandler;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
 use Shopware\Storefront\Theme\ResolvedConfigLoader;
@@ -277,6 +278,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(CompileThemeFailedSubscriber::class)
+        ->args([
+            service(NotificationService::class),
+            service(SystemConfigService::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(UnusedThemeDirectoryDeleter::class)
         ->args([

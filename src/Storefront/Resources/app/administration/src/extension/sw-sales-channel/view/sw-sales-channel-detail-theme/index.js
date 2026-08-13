@@ -38,6 +38,7 @@ export default {
             theme: null,
             pendingTheme: null,
             pendingCheckTimeoutId: null,
+            activeCheckId: 0,
             showThemeSelectionModal: false,
             showChangeModal: false,
             newThemeId: null,
@@ -87,6 +88,8 @@ export default {
     },
 
     beforeUnmount() {
+        // invalidate any in-flight check so a late-resolving read cannot re-schedule polling
+        this.activeCheckId += 1;
         this.clearPendingCheck();
     },
 
@@ -116,6 +119,11 @@ export default {
                 return;
             }
 
+            // Tag this run so a result that resolves after the component unmounted or the sales
+            // channel changed is discarded instead of mutating state or scheduling another poll.
+            this.activeCheckId += 1;
+            const checkId = this.activeCheckId;
+
             try {
                 const [
                     pendingThemeId,
@@ -125,9 +133,17 @@ export default {
                     this.loadLiveThemeId(),
                 ]);
 
+                if (checkId !== this.activeCheckId) {
+                    return;
+                }
+
                 if (pendingThemeId && pendingThemeId !== liveThemeId) {
                     if (this.pendingTheme?.id !== pendingThemeId) {
                         this.pendingTheme = await this.themeRepository.get(pendingThemeId, Shopware.Context.api);
+
+                        if (checkId !== this.activeCheckId) {
+                            return;
+                        }
                     }
 
                     this.schedulePendingCheck();
@@ -142,6 +158,10 @@ export default {
                     await this.getTheme(liveThemeId);
                 }
             } catch {
+                if (checkId !== this.activeCheckId) {
+                    return;
+                }
+
                 // best-effort indicator: on any read error stop polling and hide the spinner
                 this.clearPendingCheck();
                 this.pendingTheme = null;

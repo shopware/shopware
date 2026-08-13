@@ -60,7 +60,26 @@ class SeedingThemePathBuilderTest extends TestCase
         static::assertSame($pathA, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-a'));
     }
 
-    public function testLegacySharedSeedAppliesToAllThemesAndIsKeptAsFallbackAfterMigration(): void
+    public function testSavingSeedForOneThemeDoesNotEraseAConcurrentlySavedSeed(): void
+    {
+        // Each seed is stored under its own key, so a save never has to read-modify-write a shared
+        // map. Two overlapping compilations that persist their seed cannot overwrite each other.
+        $pathBuilder = new SeedingThemePathBuilder(new StaticSystemConfigService());
+
+        $pathBuilder->saveSeed(TestDefaults::SALES_CHANNEL, 'theme-b', 'seed-b');
+        $pathBuilder->saveSeed(TestDefaults::SALES_CHANNEL, 'theme-c', 'seed-c');
+
+        static::assertSame(
+            $pathBuilder->generateNewPath(TestDefaults::SALES_CHANNEL, 'theme-b', 'seed-b'),
+            $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-b'),
+        );
+        static::assertSame(
+            $pathBuilder->generateNewPath(TestDefaults::SALES_CHANNEL, 'theme-c', 'seed-c'),
+            $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-c'),
+        );
+    }
+
+    public function testLegacySharedSeedAppliesToThemesUntilTheyAreRecompiled(): void
     {
         // a pre-existing sales-channel-wide (string) seed, as written by older versions
         $configService = new StaticSystemConfigService([
@@ -74,7 +93,7 @@ class SeedingThemePathBuilderTest extends TestCase
             $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-a'),
         );
 
-        // recompiling theme-b migrates to the per-theme map but keeps the legacy seed as fallback
+        // recompiling theme-b stores a per-theme seed, but the legacy seed stays as fallback
         $pathBuilder->saveSeed(TestDefaults::SALES_CHANNEL, 'theme-b', 'seed-b');
 
         static::assertSame(

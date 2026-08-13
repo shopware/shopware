@@ -55,57 +55,41 @@ final readonly class CompileThemeHandler
             return;
         }
 
-        try {
-            $themeConfig = $this->configLoader->load($message->getThemeId(), $message->getContext());
-            $this->themeCompiler->compileTheme(
-                $message->getSalesChannelId(),
-                $message->getThemeId(),
-                $themeConfig,
-                $this->extensionRegistry->getConfigurations(),
-                $message->isWithAssets(),
-                $message->getContext()
-            );
+        // A compile failure propagates so Messenger can retry and finally dead-letter the message;
+        // the user is then notified once by CompileThemeFailedSubscriber, not on every attempt.
+        $themeConfig = $this->configLoader->load($message->getThemeId(), $message->getContext());
+        $this->themeCompiler->compileTheme(
+            $message->getSalesChannelId(),
+            $message->getThemeId(),
+            $themeConfig,
+            $this->extensionRegistry->getConfigurations(),
+            $message->isWithAssets(),
+            $message->getContext()
+        );
 
-            $this->runtimeConfigService->refreshRuntimeConfig(
-                $message->getThemeId(),
-                $themeConfig,
-                $message->getContext(),
-                false,
-                $this->extensionRegistry->getConfigurations(),
-            );
+        $this->runtimeConfigService->refreshRuntimeConfig(
+            $message->getThemeId(),
+            $themeConfig,
+            $message->getContext(),
+            false,
+            $this->extensionRegistry->getConfigurations(),
+        );
 
-            if ($message->isAssign()) {
-                // Re-check after the (possibly long) compile: a newer switch may have arrived
-                // meanwhile, and it must win. The compiled files stay and are reused if reassigned.
-                if ($this->isSuperseded($message)) {
-                    return;
-                }
-
-                $this->themeSalesChannelRepository->upsert([[
-                    'themeId' => $message->getThemeId(),
-                    'salesChannelId' => $message->getSalesChannelId(),
-                ]], $message->getContext());
-
-                $this->eventDispatcher->dispatch(
-                    new ThemeAssignedEvent($message->getThemeId(), $message->getSalesChannelId(), $message->getContext())
-                );
-            }
-        } catch (\Throwable $e) {
-            // The API already returned and the switch is not applied. Tell the user instead of
-            // failing silently, then rethrow so the messenger can retry or dead-letter it.
-            if ($message->isAssign() && $message->getContext()->getScope() === Context::USER_SCOPE) {
-                $this->notificationService->createNotification(
-                    [
-                        'id' => Uuid::randomHex(),
-                        'status' => 'warning',
-                        'message' => 'sw-theme-manager.detail.asyncCompilation.error',
-                        'requiredPrivileges' => [],
-                    ],
-                    $message->getContext()
-                );
+        if ($message->isAssign()) {
+            // Re-check after the (possibly long) compile: a newer switch may have arrived
+            // meanwhile, and it must win. The compiled files stay and are reused if reassigned.
+            if ($this->isSuperseded($message)) {
+                return;
             }
 
-            throw $e;
+            $this->themeSalesChannelRepository->upsert([[
+                'themeId' => $message->getThemeId(),
+                'salesChannelId' => $message->getSalesChannelId(),
+            ]], $message->getContext());
+
+            $this->eventDispatcher->dispatch(
+                new ThemeAssignedEvent($message->getThemeId(), $message->getSalesChannelId(), $message->getContext())
+            );
         }
 
         if ($message->getContext()->getScope() !== Context::USER_SCOPE) {

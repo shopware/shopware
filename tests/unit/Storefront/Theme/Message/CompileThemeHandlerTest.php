@@ -117,23 +117,20 @@ class CompileThemeHandlerTest extends TestCase
         $handler($message);
     }
 
-    public function testHandleMessageNotifiesUserAndRethrowsWhenCompilationFails(): void
+    public function testHandleMessageRethrowsWhenCompilationFailsWithoutNotifying(): void
     {
         $themeId = Uuid::randomHex();
-        // AdminApiSource -> USER_SCOPE, so the failure notification is created
+        // AdminApiSource -> USER_SCOPE, yet the handler itself must not notify: that happens once on
+        // the terminal failure via CompileThemeFailedSubscriber, not on every retried attempt
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
         $message = new CompileThemeMessage(TestDefaults::SALES_CHANNEL, $themeId, true, $context, true);
 
         $themeCompiler = static::createStub(ThemeCompiler::class);
         $themeCompiler->method('compileTheme')->willThrowException(new \RuntimeException('compile failed'));
 
-        // the user is notified about the failed background compilation ...
+        // no notification is emitted from the handler on a failed compile ...
         $notificationService = $this->createMock(NotificationService::class);
-        $notificationService->expects($this->once())->method('createNotification')->with(
-            static::callback(static fn (array $notification): bool => $notification['status'] === 'warning'
-                && $notification['message'] === 'sw-theme-manager.detail.asyncCompilation.error'),
-            $context
-        );
+        $notificationService->expects($this->never())->method('createNotification');
 
         // ... the assignment must not be applied when the compile failed ...
         $themeSalesChannelRep = $this->createMock(EntityRepository::class);

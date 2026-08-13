@@ -403,6 +403,16 @@ Common rewrites:
 | `this.$t(...)` / `this.$tc(...)` | `t(...)` from `useI18n()` |
 | `this.$te(...)` | `te(...)` from `useI18n()` |
 | `this.$refs.name` | `name.value` and `const name = ref(null)` |
+| `this.$device` | `device` from `const device = getCurrentInstance()?.proxy?.$device;` |
+
+`$device` is the one instance property that is captured rather than imported or
+placeheld. `device-helper.plugin.js` installs it as a global property and keeps
+its `DeviceHelper` singleton in a closure inside `install()`, so no module
+exports the instance. Capturing it in the composable slot is still equivalent:
+`getCurrentInstance()` is non-null there, and every component sees the same
+singleton for its whole lifetime. It is therefore not a manual-migration reason
+and emits no TODO. What still falls back is a method that hands the helper the
+instance (`onResize({ component: this })`) — on the bare `this`, correctly.
 
 Risky cases get TODO output instead of pretending the migration is complete:
 
@@ -442,8 +452,9 @@ text, so extractors pass it alongside the snippet and it is written into the
 parse wrapper.
 
 The bindings `resolve-identifiers.ts` names (`emit`, `router`, `route`, `slots`,
-`attrs`, `t`, `te`) are exempt: they are picked around every binding the module
-declares, parameters included, so nothing in the component can shadow them.
+`attrs`, `t`, `te`, `device`) are exempt: they are picked around every binding
+the module declares, parameters included, so nothing in the component can shadow
+them.
 
 Drops cascade: `composition-script-state.ts` filters inject, data, computed, and
 methods to a fixpoint, so a member referencing one that was dropped in an earlier
@@ -459,8 +470,8 @@ refs, and the module-level code copied in front of all of them. Two of those
 groups can be renamed on collision, the rest cannot.
 
 `resolve-identifiers.ts` owns the renamable half — `emit`, `router`, `route`,
-`slots`, `attrs`, `t`, `te` each pick the first free name from their candidate
-list. Import names cannot be renamed the same way, so collisions with them are
+`slots`, `attrs`, `t`, `te`, `device` each pick the first free name from their
+candidate list. Import names cannot be renamed the same way, so collisions with them are
 resolved by dropping or by not importing:
 
 | Collision | Handling |

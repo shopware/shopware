@@ -234,6 +234,27 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script device-component: binds $device once from the setup instance matches the complete converted script snapshot 1`] = `
+"import { ref, computed, getCurrentInstance, onMounted } from 'vue';
+
+const device = getCurrentInstance()?.proxy?.$device;
+
+const isCompact = ref(false);
+
+const systemKey = computed(() => {
+return device.getSystemKey();
+});
+
+onMounted(() => {
+isCompact.value = device.getViewportWidth() < 500;
+});
+
+swDefinePublic({
+    isCompact,
+    systemKey,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script expose-component: converts the expose option into defineExpose matches the complete converted script snapshot 1`] = `
 "import { ref, computed } from 'vue';
 

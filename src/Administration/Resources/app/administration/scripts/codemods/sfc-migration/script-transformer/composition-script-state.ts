@@ -984,7 +984,9 @@ function collectVueImports(
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');
-    if (hasDirectThisPropertyUsage(allSnippets, '$el')) vueImports.push('getCurrentInstance');
+    if (hasDirectThisPropertyUsage(allSnippets, '$el') || usedComposables.needsDevice) {
+        vueImports.push('getCurrentInstance');
+    }
 
     vueImports.push(...new Set(regularHooks.map((h) => h.compositionName as string)));
 

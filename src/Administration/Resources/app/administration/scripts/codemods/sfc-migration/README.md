@@ -76,7 +76,16 @@ my-component/
 | `this.$tc` / `this.$t`                    | `t(…)` from `useI18n()`                        |
 | `this.$te`                                | `te(…)` from `useI18n()`                       |
 | `this.$refs.name`                         | `const name = ref(null)`                       |
+| `this.$device`                            | `const device = getCurrentInstance()?.proxy?.$device` |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+`this.$device` becomes a binding captured once at the top of the setup block. The device-helper
+plugin installs `$device` as a global property and closes over its `DeviceHelper` singleton inside
+`install()`, so there is nothing to import — but the singleton is the same object for every component
+and never changes, and `getCurrentInstance()` is non-null in the setup body. Reading it once there is
+therefore equivalent, not a placeholder, and produces no `TODO`. A method that also hands the helper
+the instance itself (`onResize({ component: this })`) still falls back — on the bare `this`, which has
+no setup equivalent.
 
 A computed spread hides its keys behind a helper call, so the whole entry used to be a manual `TODO`
 — and every `this.<generatedName>` reading one of those keys then dropped its own member on top.

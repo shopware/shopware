@@ -398,6 +398,83 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('device-component: binds $device once from the setup instance', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('device-component.index.js'));
+        });
+
+        // The DeviceHelper singleton is closed over inside the plugin's
+        // install(), so there is nothing to import — but reading it once during
+        // setup is equivalent, which is why this is not a TODO.
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+            expect(result.script).not.toContain('TODO');
+        });
+
+        it('captures the device helper in the composable slot', () => {
+            expect(result.script).toContain('const device = getCurrentInstance()?.proxy?.$device;');
+            expect(result.script).toContain("import { ref, computed, getCurrentInstance, onMounted } from 'vue';");
+        });
+
+        it('rewrites every this.$device access to the captured binding', () => {
+            expect(result.script).toContain('return device.getSystemKey();');
+            expect(result.script).toContain('isCompact.value = device.getViewportWidth() < 500;');
+            expect(result.script).not.toContain('this.$device');
+        });
+
+        // The captured binding is not part of the migrated Options API surface.
+        it('keeps the device binding out of the public override API', () => {
+            expect(result.publicNames).toEqual([
+                'isCompact',
+                'systemKey',
+            ]);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('$device usage the codemod cannot bind', () => {
+        // `onResize({ component: this })` hands the helper the instance itself,
+        // which has no setup equivalent — so the method stays a manual follow-up
+        // for the bare `this`, not for `$device`.
+        it('still falls back when the method also passes a bare this', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    check() { return true; },
+                    register() {
+                        this.$device.onResize({ listener: this.check, component: this });
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toEqual(['methods: register uses bare this']);
+            expect(result.script).not.toContain('onResize');
+        });
+
+        it('renames the captured binding when the component declares device itself', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { device: 'desktop' }; },
+                methods: {
+                    check() { return this.$device.getViewportWidth() > 500; },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const $device = getCurrentInstance()?.proxy?.$device;');
+            expect(result.script).toContain('return $device.getViewportWidth() > 500;');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('computed-spread-component: expands the statically analysable computed spreads', () => {
         let result: ReturnType<typeof transformScript>;
 

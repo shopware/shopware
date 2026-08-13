@@ -130,6 +130,11 @@ function emitComposableDeclarations(state: CompositionScriptState, names: Resolv
     if (usedComposables.needsRoute) lines.push(`const ${names.route} = useRoute();`);
     if (usedComposables.needsSlots) lines.push(`const ${names.slots} = useSlots();`);
     if (usedComposables.needsAttrs) lines.push(`const ${names.attrs} = useAttrs();`);
+    // `$device` is a global property the device-helper plugin installs, and its
+    // DeviceHelper singleton is closed over inside `install()` — there is nothing
+    // to import. Reading it once here is equivalent: `getCurrentInstance()` is
+    // non-null in the setup body, and the singleton never changes.
+    if (usedComposables.needsDevice) lines.push(`const ${names.device} = getCurrentInstance()?.proxy?.$device;`);
     // `useI18n()` returns one composer object, so `t` and `te` are destructured
     // from a single call, each with an alias when the component took the name.
     if (usesI18n(usedComposables)) {

@@ -165,6 +165,8 @@ export interface UsedComposables {
     needsTranslationExists: boolean;
     needsEmit: boolean;
     needsAttrs: boolean;
+    /** `this.$device` — the device helper reached through the setup instance. */
+    needsDevice: boolean;
 }
 
 export interface UnsupportedInjectAnalysis {

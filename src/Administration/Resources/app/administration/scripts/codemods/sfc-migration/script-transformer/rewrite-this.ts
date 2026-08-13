@@ -90,6 +90,7 @@ export function detectUsedComposables(snippets: CodeSnippet[], watchProps: Watch
         needsTranslationExists: false,
         needsEmit: false,
         needsAttrs: false,
+        needsDevice: false,
     };
 
     for (const snippet of snippets) {
@@ -119,6 +120,9 @@ export function detectUsedComposables(snippets: CodeSnippet[], watchProps: Watch
                     break;
                 case '$attrs':
                     usedComposables.needsAttrs = true;
+                    break;
+                case '$device':
+                    usedComposables.needsDevice = true;
                     break;
                 default:
                     break;
@@ -175,6 +179,7 @@ function isSupportedThisPropertyName(name: string, ctx: RewriteContext): boolean
         name === '$t' ||
         name === '$te' ||
         name === '$refs' ||
+        name === '$device' ||
         name === '$el' ||
         name === '$store' ||
         name === '$parent' ||
@@ -436,6 +441,11 @@ function buildThisReplacement(
             // The legacy `$te(key, locale?)` maps to the composer's `te` with the
             // same signature.
             return names.te;
+        case '$device':
+            // Captured once in the composable slot: the plugin serves one
+            // DeviceHelper singleton to every component, so the binding stays
+            // valid for the component's whole lifetime.
+            return names.device;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge. collectPlaceholderApiReasons keeps the

@@ -44,6 +44,11 @@ const IDENTIFIER_CANDIDATES = {
         '$te',
         'translationExists',
     ],
+    device: [
+        'device',
+        '$device',
+        'deviceHelper',
+    ],
 } as const;
 
 export type ResolvedIdentifiers = Record<keyof typeof IDENTIFIER_CANDIDATES, string>;

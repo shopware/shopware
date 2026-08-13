@@ -142,7 +142,6 @@ final class OpenApiDtoGenerator
     private function generateFilesForSpecification(array $spec): array
     {
         $components = \is_array($spec['components'] ?? null) ? $spec['components'] : [];
-        $componentSpec = ['components' => $components];
 
         // Components can declare their own target namespace via the x-dto-namespace extension.
         // They are shared across APIs (e.g. SuccessResponse), so they are generated once into that
@@ -156,7 +155,7 @@ final class OpenApiDtoGenerator
 
         // 1. Shared components -> their own declared namespace.
         foreach ($componentsWithNamespace as $schemaName => $namespace) {
-            foreach ($this->schemaParser->parseComponents($componentSpec, [$schemaName]) as $definition) {
+            foreach ($this->schemaParser->parseComponents($spec, [$schemaName]) as $definition) {
                 $placements[$definition->name] ??= ['definition' => $definition, 'namespace' => $namespace];
                 $externalNamespaces[$definition->name] = $namespace;
             }

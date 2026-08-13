@@ -220,6 +220,48 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
+    describe('generated import collisions: reported as a reason instead of a transform parse error', () => {
+        // Emitting `import { ref } from 'vue'` next to `const ref = ref('x')`
+        // used to reach the native setup transform, which rejected the whole
+        // component with `Identifier 'ref' has already been declared` — a parse
+        // error pointing at generated code instead of at the member to migrate.
+        it('drops the colliding member and keeps the rest of the component migrated', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-collision">{{ title }}</div>',
+                `Shopware.Component.register('sw-collision', {
+                    data() {
+                        return { ref: 'x', title: 'Title' };
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain("data: ref collides with the generated 'vue' import of the same name");
+            expect(result.blockers.join('\n')).not.toContain('native setup transform');
+            // The import is still needed by the member that survived, which is
+            // what made the collision fatal in the first place.
+            expect(result.sfc).toContain("const title = ref('Title');");
+            expect(result.sfc).not.toContain("const ref = ref('x');");
+        });
+
+        it('accepts a component whose module already imports the name the setup needs', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-preimported">{{ title }}</div>',
+                `import { ref } from 'vue';
+
+                Shopware.Component.register('sw-preimported', {
+                    data() {
+                        return { title: 'Title' };
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+            expect(result.sfc.match(/from 'vue';/gu)).toHaveLength(1);
+        });
+    });
+
     describe('instance-api-component: warnings field reports $el usage', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 

@@ -21,6 +21,9 @@ const MIGRATABLE_HOOK_NAMES = new Set([
     ...Object.keys(LIFECYCLE_MAP),
 ]);
 
+/** The `vue` imports the generated lifecycle hooks can need. */
+export const LIFECYCLE_COMPOSITION_NAMES = [...new Set(Object.values(LIFECYCLE_MAP))];
+
 /**
  * Only method-shorthand hooks (`mounted() {}`) are migrated. Function-valued
  * (`created: function () {}`) or shorthand (`created,`) hooks are dropped by

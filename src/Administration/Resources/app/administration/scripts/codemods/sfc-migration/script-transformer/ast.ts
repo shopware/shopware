@@ -182,6 +182,36 @@ function addBindingNames(nameNode: BindingName, names: Set<string>): void {
     });
 }
 
+/**
+ * Names the module-level code already imports from `vue` under their own name.
+ *
+ * Those import statements are copied into the generated block verbatim, so a
+ * generated specifier for the same name would declare an identical binding a
+ * second time — which the build rejects as a parse error. An aliased import
+ * (`import { ref as vueRef }`) leaves the name free and is not collected, and
+ * neither is a same-name import from another module: skipping the generated
+ * import there would silently bind the generated code to something else.
+ */
+export function collectModuleVueImportNames(sourceFile: SourceFile, registration: ComponentRegistration): Set<string> {
+    const registerPos = registration.call.getStart();
+    const names = new Set<string>();
+
+    for (const importDeclaration of sourceFile.getImportDeclarations()) {
+        // Imports after the registration are not copied into the generated block.
+        if (importDeclaration.getStart() >= registerPos || importDeclaration.getModuleSpecifierValue() !== 'vue') {
+            continue;
+        }
+
+        importDeclaration.getNamedImports().forEach((namedImport) => {
+            if (!namedImport.getAliasNode()) {
+                names.add(namedImport.getName());
+            }
+        });
+    }
+
+    return names;
+}
+
 export function extractModuleLevelCode(sourceFile: SourceFile, registration: ComponentRegistration): string {
     const registerPos = registration.call.getStart();
     const lines: string[] = [];

@@ -433,6 +433,47 @@ round is dropped in the next one. The rewrite context carries every declared
 member name, including the dropped ones, which is what lets each round tell a
 cascade apart from a genuinely unknown property.
 
+## Generated Name Collisions
+
+The generated block declares more than the component's own members: the imports
+the setup needs, the compiler macro results, the composable locals, the template
+refs, and the module-level code copied in front of all of them. Two of those
+groups can be renamed on collision, the rest cannot.
+
+`resolve-identifiers.ts` owns the renamable half — `emit`, `router`, `route`,
+`slots`, `attrs`, `t`, `te` each pick the first free name from their candidate
+list. Import names cannot be renamed the same way, so collisions with them are
+resolved by dropping or by not importing:
+
+| Collision | Handling |
+| --- | --- |
+| A member named like an importable name (`data: { ref }`, `methods: { onMounted }`) | The member is dropped with `<kind>: <name> collides with the generated '<module>' import of the same name`, and the drop cascades like any other. |
+| The module already imports that name from `vue` (`import { computed } from 'vue'`) | The generated specifier is omitted: it is the very same binding, so importing it again would only declare it twice. |
+| The module imports it from `vue` under an alias (`ref as vueRef`) | Nothing to do — the name is still free, so the generated import is emitted. |
+
+The reserved list is static: every name the emitter can import is reserved,
+whether or not this component's output ends up importing it. Whether an import is
+needed depends on which members survive, and dropping a member can remove an
+import's last user, so a set derived per component would chase its own tail. The
+static list only ever drops more than strictly necessary, and measured over the
+whole Administration it drops nothing extra — the only members it hits are the
+ones that were already broken. `LIFECYCLE_COMPOSITION_NAMES` is exported from
+`extract-lifecycle.ts` so the hook names cannot drift out of the list.
+
+Three collision shapes are still not detected up front:
+
+| Shape | Example in the Administration |
+| --- | --- |
+| A member named like an existing module-level import | `sw-hidden-iframes`: a computed `MAIN_HIDDEN` next to `import { MAIN_HIDDEN } from '@shopware-ag/meteor-admin-sdk/es/location'`. |
+| A member and a template ref of the same name | `sw-settings-listing-default-sales-channel`: `data: { visibilityConfig }` and `this.$refs.visibilityConfig`. |
+| A needed `vue` import name bound at module level from another module | Not deduped on purpose — skipping the import would bind the generated code to something else. |
+
+None of them can write a broken file: `generate-sfc.ts` validates every generated
+SFC against the real build-time transform before returning it, so these come back
+as `not-migratable` with a `native setup transform: …` blocker and nothing is
+written to disk. Only the reason is poor — it points at the generated duplicate
+instead of at the member that needs the manual rename.
+
 ## Provide Conversion
 
 `provide` becomes `provide(key, value)` calls, but only while the provided keys

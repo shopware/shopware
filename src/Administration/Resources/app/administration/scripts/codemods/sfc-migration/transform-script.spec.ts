@@ -532,6 +532,50 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('does not re-import a vue binding the module already imports under the same name', () => {
+        const js = `import { computed, ref as vueRef } from 'vue';
+        import template from './sw-test.html.twig';
+
+        const fallbackTitle = vueRef('Fallback');
+
+        Shopware.Component.register('sw-test', {
+            template,
+            data() {
+                return { title: 'Title' };
+            },
+            computed: {
+                upperTitle() { return this.title.toUpperCase(); },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migrated');
+        expect(result.script).toContain(`import { computed, ref as vueRef } from 'vue';`);
+        // `computed` resolves to the module's own import; `ref` is still
+        // generated, because the module only bound it under an alias.
+        expect(result.script).toContain(`import { ref } from 'vue';`);
+        expect(result.script).toContain('const upperTitle = computed(');
+    });
+
+    // -------------------------------------------------------------------------
+    it('emits no vue import at all when the module already imports every needed name', () => {
+        const js = `import { ref } from 'vue';
+        import template from './sw-test.html.twig';
+
+        Shopware.Component.register('sw-test', {
+            template,
+            data() {
+                return { title: 'Title' };
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migrated');
+        expect(result.script.match(/from 'vue';/gu)).toHaveLength(1);
+        expect(result.script).toContain("const title = ref('Title');");
+    });
+
+    // -------------------------------------------------------------------------
     it('rewrites this.$te to the te member of the i18n composer', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
@@ -2615,6 +2659,67 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             const result = transformScript(js);
 
             expectManualFallback(result, 'inheritAttrs');
+        });
+
+        // Emitting both `import { ref } from 'vue'` and `const ref = ref('x')`
+        // was rejected by the build as a parse error long after the codemod
+        // reported the component as migrated.
+        it.each([
+            [
+                'ref',
+                "data() { return { ref: 'x' }; }",
+                "data: ref collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'computed',
+                'computed: { computed() { return 1; } }',
+                "computed: computed collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'watch',
+                'methods: { watch() {} }',
+                "methods: watch collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'onMounted',
+                'methods: { onMounted() {} }',
+                "methods: onMounted collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'unref',
+                'methods: { unref() {} }',
+                "methods: unref collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'nextTick',
+                'methods: { nextTick() {} }',
+                "methods: nextTick collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'provide',
+                "inject: ['provide']",
+                "inject: provide collides with the generated 'vue' import of the same name",
+            ],
+            [
+                'useRouter',
+                'methods: { useRouter() {} }',
+                "methods: useRouter collides with the generated 'vue-router' import of the same name",
+            ],
+            [
+                'useI18n',
+                'methods: { useI18n() {} }',
+                "methods: useI18n collides with the generated 'vue-i18n' import of the same name",
+            ],
+        ])('drops the member named %s instead of declaring a generated import twice', (name, optionSource, reason) => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                ${optionSource},
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain(reason);
+            expect(result.script).not.toMatch(new RegExp(`^const ${name}\\b`, 'mu'));
         });
 
         // `expose: []` closes the instance in the Options API, and a script setup

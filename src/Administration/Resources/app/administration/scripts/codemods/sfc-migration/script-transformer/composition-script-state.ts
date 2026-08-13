@@ -1,6 +1,6 @@
 import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { collectModuleLocalNames, extractModuleLevelCode } from './ast';
+import { collectModuleLocalNames, collectModuleVueImportNames, extractModuleLevelCode } from './ast';
 import { extractComputedProps } from './extract-computed';
 import {
     analyzeEmitsShape,
@@ -13,7 +13,7 @@ import {
 import { extractDataProps } from './extract-data';
 import { extractExposeNames } from './extract-expose';
 import { extractInjectProps } from './extract-inject';
-import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extract-lifecycle';
+import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks, LIFECYCLE_COMPOSITION_NAMES } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
 import { extractProvideEntries } from './extract-provide';
 import { extractWatchProps } from './extract-watch';
@@ -181,6 +181,7 @@ export function collectCompositionScriptState(
             : collectEmittedEventNames(allSnippets);
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
+    const moduleVueImportNames = collectModuleVueImportNames(sourceFile, registration);
     const vueImports = collectVueImports(
         supportedMembers,
         templateRefNames,
@@ -188,7 +189,10 @@ export function collectCompositionScriptState(
         regularHooks,
         allSnippets,
         provideEntries,
-    );
+        // A module that already imports the name from `vue` brings the very same
+        // binding into the generated block, so importing it again would only
+        // declare it twice.
+    ).filter((name) => !moduleVueImportNames.has(name));
     const publicNames = collectPublicNames(supportedMembers);
     const { exposeNames, unsupportedReason: exposeUnsupportedReason } = collectExposeNames(optionsObj, publicNames);
 
@@ -773,17 +777,76 @@ function collectSupportedNamedProps<T>(
     todoComments: string[],
 ): T[] {
     return props.filter((prop) => {
-        const name = getName(prop);
+        const reason = findUnusableMemberNameReason(getName(prop), reasonPrefix);
 
-        if (isSafeIdentifier(name)) {
+        if (reason === null) {
             return true;
         }
 
-        const reason = `${reasonPrefix}: ${name} is not a valid JavaScript identifier`;
         manualMigrationReasons.push(reason);
         todoComments.push(`// TODO: migrate ${todoLabel} manually: ${sanitizeTodoCommentText(reason)}`);
         return false;
     });
+}
+
+/**
+ * Every name the generated setup can import. `emitImports` writes these at the
+ * top of the block, so a member of the same name would emit a second declaration
+ * of it — which the build rejects as `Identifier 'x' has already been declared`,
+ * long after the codemod reported the component as migrated.
+ *
+ * The reservation is static: a name is reserved whether or not this component's
+ * output ends up importing it. Whether an import is needed depends on which
+ * members survive, and dropping a member can remove an import's last user, so a
+ * per-component set would chase its own tail. Reserving up front is stable, only
+ * ever drops more than strictly necessary, and across the whole Administration
+ * the only members it hits are the ones that were broken anyway.
+ *
+ * Keep in sync with `collectVueImports` and `emitImports`.
+ */
+const RESERVED_IMPORT_NAMES = new Map<string, string>([
+    ...[
+        'ref',
+        'computed',
+        'inject',
+        'provide',
+        'watch',
+        'unref',
+        'nextTick',
+        'useSlots',
+        'useAttrs',
+        'getCurrentInstance',
+        ...LIFECYCLE_COMPOSITION_NAMES,
+    ].map((name): [string, string] => [
+        name,
+        'vue',
+    ]),
+    // The bindings these composables are assigned to are renamed on collision by
+    // resolve-identifiers.ts; the imported names themselves cannot be.
+    [
+        'useRouter',
+        'vue-router',
+    ],
+    [
+        'useRoute',
+        'vue-router',
+    ],
+    [
+        'useI18n',
+        'vue-i18n',
+    ],
+]);
+
+function findUnusableMemberNameReason(name: string, reasonPrefix: string): string | null {
+    if (!isSafeIdentifier(name)) {
+        return `${reasonPrefix}: ${name} is not a valid JavaScript identifier`;
+    }
+
+    const moduleSpecifier = RESERVED_IMPORT_NAMES.get(name);
+
+    return moduleSpecifier === undefined
+        ? null
+        : `${reasonPrefix}: ${name} collides with the generated '${moduleSpecifier}' import of the same name`;
 }
 
 function collectUnsupportedEntries(
@@ -813,9 +876,7 @@ function collectSupportedWatchProps(
         const path = parseWatchPath(watchProp.name);
 
         if (!path) {
-            unsupportedWatchEntries.push(
-                `${watchProp.name}: watch path segments must be valid identifiers to be migrated`,
-            );
+            unsupportedWatchEntries.push(`${watchProp.name}: watch path segments must be valid identifiers to be migrated`);
             return false;
         }
 

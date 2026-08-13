@@ -123,6 +123,12 @@ still emitted as `defineOptions({ name })`. With `--delete-originals`, originals
 a warning is printed when the registered component name differs from the directory name, because the
 generated entry point would import the wrong file.
 
+A member named like one of the imports the generated setup writes (`ref`, `computed`, `watch`,
+`onMounted`, `useRouter`, …) cannot be declared next to that import, so it is dropped with a `TODO`
+naming the collision — rename the member and migrate the component again. When the component's own
+module already imports that name from `vue`, no second import is generated instead, because it is
+the same binding.
+
 Template transformation only supports Twig block tags (`{% block %}`, `{% endblock %}`, `{% parent %}`) and Twig comments. Templates containing Twig `{% extends '…' %}` fail the migration and must be handled manually before running the codemod.
 
 ## Migration outcomes
@@ -271,5 +277,6 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |
 | `this.$store`                 | Inserts TODO comment                        | Migrate Vuex access to a composable                     |
+| A member named like a generated import (`ref`, `computed`, `watch`, `onMounted`, `useRouter`, …) | Drops the member with a TODO comment | Rename the member, then migrate again |
 | `this.$parent` / `this.$root` | Inserts TODO comment                        | Refactor to avoid parent traversal                      |
 | Watch path with an undeclared root or a non-identifier segment | Leaves a TODO comment and skips the watcher | Write watcher manually                 |

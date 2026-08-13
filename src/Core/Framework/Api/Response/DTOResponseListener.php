@@ -28,7 +28,11 @@ final class DTOResponseListener
         }
 
         $json = $this->jsonStreamWriter->write($result, Type::object($result::class));
+        $response = new JsonResponse((string) $json, $result->getStatusCode(), $result->getHeaders(), json: true);
+        foreach ($result->getCookies() as $cookie) {
+            $response->headers->setCookie($cookie);
+        }
 
-        $event->setResponse(new JsonResponse((string) $json, json: true));
+        $event->setResponse($response);
     }
 }

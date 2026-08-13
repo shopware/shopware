@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -23,6 +24,7 @@ final readonly class OpenApiDtoDefinition
         public ?string $package = null,
         public array $enumValues = [],
         public ?string $enumType = null,
+        public int $responseStatusCode = Response::HTTP_OK,
     ) {
     }
 }

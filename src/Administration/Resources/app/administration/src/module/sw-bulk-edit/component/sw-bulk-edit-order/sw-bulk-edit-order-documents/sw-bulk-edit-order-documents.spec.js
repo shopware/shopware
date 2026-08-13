@@ -18,12 +18,10 @@ async function createWrapper() {
                         };
                     },
                 },
-                documentV2Service: {
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: { formats: ['pdf'] },
-                            },
+                        documentTypes: {
+                            invoice: { formats: ['pdf'] },
                         },
                     }),
                 },

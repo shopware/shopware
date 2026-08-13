@@ -21,7 +21,7 @@ export default {
     inject: [
         'repositoryFactory',
         'orderDocumentApiService',
-        'documentV2Service',
+        'documentV2ApiService',
         'feature',
     ],
 
@@ -305,19 +305,27 @@ export default {
             this.document[documentType].isDownloading = true;
 
             const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2Service.getDocumentArchive(documentIds)
-                : this.orderDocumentApiService.download(documentIds);
+                ? this.documentV2ApiService.getDocumentArchive(documentIds)
+                : this.orderDocumentApiService.download(documentIds).then((response) => {
+                      if (!response.data) {
+                          return null;
+                      }
+
+                      return {
+                          file: response.data,
+                          fileName: fileReaderUtils.getFilenameFromResponse(response),
+                      };
+                  });
 
             return request
-                .then((response) => {
-                    if (!response.data) {
+                .then((documentFileResponse) => {
+                    if (!documentFileResponse) {
                         return;
                     }
 
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
+                    link.href = URL.createObjectURL(documentFileResponse.file);
+                    link.download = documentFileResponse.fileName;
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 })

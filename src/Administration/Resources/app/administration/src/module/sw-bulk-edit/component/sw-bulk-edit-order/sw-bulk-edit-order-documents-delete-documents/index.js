@@ -12,7 +12,7 @@ export default {
     inject: {
         repositoryFactory: {},
         feature: {},
-        documentV2Service: {},
+        documentV2ApiService: {},
     },
 
     mixins: [
@@ -59,9 +59,9 @@ export default {
             this.isLoading = true;
 
             try {
-                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
-                    const availableTypesResponse = await this.documentV2Service.getAvailableTypes();
-                    const supportedDocumentTypes = availableTypesResponse.data?.documentTypes ?? {};
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
+                    const availableTypesResponse = await this.documentV2ApiService.getAvailableTypes();
+                    const supportedDocumentTypes = availableTypesResponse.documentTypes ?? {};
 
                     // TODO: map technicalName to name
                     this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => ({

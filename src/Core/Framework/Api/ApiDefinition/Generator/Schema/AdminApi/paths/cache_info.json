@@ -16,6 +16,12 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
+                                    "required": [
+                                        "environment",
+                                        "httpCache",
+                                        "cacheAdapter",
+                                        "indexers"
+                                    ],
                                     "properties": {
                                         "environment": {
                                             "description": "The active environment.",

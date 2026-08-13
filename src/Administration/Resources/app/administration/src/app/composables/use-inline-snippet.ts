@@ -12,6 +12,8 @@
  * `swInlineSnippetLocale` computed directly — those keep the Options-API backoff
  * in the codemod).
  *
+ * Keep this and `src/app/mixin/sw-inline-snippet.mixin.ts` in sync — change both together.
+ *
  * @private
  */
 export function useInlineSnippet(): {

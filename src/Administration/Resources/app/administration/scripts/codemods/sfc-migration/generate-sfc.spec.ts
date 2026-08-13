@@ -303,6 +303,22 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.blockers.some((b) => b.startsWith('i18n:'))).toBe(true);
         });
 
+        it('backs off on $t(key, `localeBacktick`) — a backtick locale is still a string 2nd arg', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-demo"></div>',
+                'Shopware.Component.register(\'sw-demo\', {\n' +
+                    '    template,\n' +
+                    '    methods: {\n' +
+                    '        label() { return this.$t(\'sw-demo.label\', `en-GB`); },\n' +
+                    '    },\n' +
+                    '});',
+            );
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.sfc).not.toContain('<script setup>');
+            expect(result.blockers.some((b) => b.startsWith('i18n:'))).toBe(true);
+        });
+
         it('does not back off on the modern $t(key, { named }) signature', () => {
             const result = mergeComponentFiles(
                 '<div class="sw-demo"></div>',

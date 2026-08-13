@@ -40,7 +40,17 @@ export type ComposableTrigger =
     | { type: 'global' }
     // A mixin fires when the component opts into it in `mixins: [...]`, matched by
     // its registered name and/or the module path an imported identifier resolves to.
-    | { type: 'mixin'; mixinNames: readonly string[]; mixinModules?: readonly string[] };
+    // `unmappedMembers` lists members the mixin exposes on `this` that the composable
+    // does NOT provide (e.g. internal computeds); reading one forces the backoff.
+    // `internallyReferencedMembers` lists members the composable calls internally, so
+    // a component override of one cannot take effect and must force the backoff.
+    | {
+          type: 'mixin';
+          mixinNames: readonly string[];
+          mixinModules?: readonly string[];
+          unmappedMembers?: readonly string[];
+          internallyReferencedMembers?: readonly string[];
+      };
 
 export interface ComposableDescriptor {
     id: string;
@@ -129,7 +139,13 @@ function methodMembers(names: readonly string[]): Record<string, ComposableMembe
 
 const notificationDescriptor: ComposableDescriptor = {
     id: 'notification',
-    trigger: { type: 'mixin', mixinNames: ['notification'] },
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['notification'],
+        // The create* helpers call `createNotification` internally, so a component
+        // that overrides it would be silently ignored by the composable.
+        internallyReferencedMembers: ['createNotification'],
+    },
     import: { source: 'src/app/composables/use-notification', name: 'useNotification' },
     declarationStyle: 'destructure',
     members: methodMembers([
@@ -156,18 +172,30 @@ const placeholderDescriptor: ComposableDescriptor = {
 
 const inlineSnippetDescriptor: ComposableDescriptor = {
     id: 'sw-inline-snippet',
-    trigger: { type: 'mixin', mixinNames: ['sw-inline-snippet'] },
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['sw-inline-snippet'],
+        // The mixin's locale computeds have no composable equivalent; a component
+        // that reads them directly must keep the Options-API backoff.
+        unmappedMembers: [
+            'swInlineSnippetLocale',
+            'swInlineSnippetFallbackLocale',
+        ],
+    },
     import: { source: 'src/app/composables/use-inline-snippet', name: 'useInlineSnippet' },
     declarationStyle: 'destructure',
-    // Only the `getInlineSnippet` method is mapped. Components that read the
-    // mixin's `swInlineSnippetLocale` / `swInlineSnippetFallbackLocale` computeds
-    // directly are not covered and keep the Options-API backoff.
     members: methodMembers(['getInlineSnippet']),
 };
 
 const salutationDescriptor: ComposableDescriptor = {
     id: 'salutation',
-    trigger: { type: 'mixin', mixinNames: ['salutation'] },
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['salutation'],
+        // `salutationFilter` is the mixin's internal computed; the composable
+        // inlines it and does not expose it, so a direct read must back off.
+        unmappedMembers: ['salutationFilter'],
+    },
     import: { source: 'src/app/composables/use-salutation', name: 'useSalutation' },
     declarationStyle: 'destructure',
     members: methodMembers(['salutation']),

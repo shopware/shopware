@@ -13,6 +13,8 @@ import type { NotificationType, NotificationVariant } from '../store/notificatio
  * legacy Options API components and this composable is the standalone equivalent
  * for `<script setup>` components (and the SFC migration codemod).
  *
+ * Keep this and `src/app/mixin/notification.mixin.ts` in sync — change both together.
+ *
  * @private
  */
 export function useNotification(): {

@@ -323,9 +323,10 @@ function hasIncompatibleI18nCall(optionsObj: ObjectLiteralExpression): boolean {
         const args = call.getArguments();
 
         // Composition `t(key, defaultMsg)` reads a string second argument as a
-        // default message, not the legacy locale override.
+        // default message, not the legacy locale override. A backtick literal is
+        // just as much a string here as a quoted one.
         if (expression.getName() === '$t') {
-            return args.length >= 2 && Node.isStringLiteral(args[1]);
+            return args.length >= 2 && isStringLiteralArg(args[1]);
         }
 
         // `$tc(key)` and `$tc(key, <number>)` map 1:1; anything else (a values
@@ -336,6 +337,11 @@ function hasIncompatibleI18nCall(optionsObj: ObjectLiteralExpression): boolean {
 
         return false;
     });
+}
+
+/** A quoted or backtick (no-substitution) string literal — both are plain strings. */
+function isStringLiteralArg(node: TsNode): boolean {
+    return Node.isStringLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node);
 }
 
 export function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[] {

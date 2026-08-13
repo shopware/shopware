@@ -12,6 +12,8 @@
  * components. New `<script setup>` components (and the SFC migration codemod)
  * use this composable.
  *
+ * Keep this and `src/app/mixin/placeholder.mixin.ts` in sync — change both together.
+ *
  * @private
  */
 export function usePlaceholder(): {

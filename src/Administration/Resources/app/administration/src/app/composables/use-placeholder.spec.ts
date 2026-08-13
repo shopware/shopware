@@ -1,10 +1,6 @@
 import { usePlaceholder } from './use-placeholder';
 
-type LoosePlaceholder = (
-    entity: Record<string, unknown> | null,
-    field: string,
-    fallbackSnippet: string,
-) => unknown;
+type LoosePlaceholder = (entity: Record<string, unknown> | null, field: string, fallbackSnippet: string) => unknown;
 
 function getPlaceholder(): LoosePlaceholder {
     return usePlaceholder().placeholder as unknown as LoosePlaceholder;

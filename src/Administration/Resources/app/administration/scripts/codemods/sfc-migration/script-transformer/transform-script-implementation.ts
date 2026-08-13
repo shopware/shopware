@@ -25,7 +25,7 @@ export function transformScript(jsContent: string, templateReferences: Set<strin
     }
 
     const blockers = detectBlockers(optionsObj, registration);
-    const mixinResolution = resolveComponentMixins(optionsObj, sourceFile);
+    const mixinResolution = resolveComponentMixins(optionsObj, sourceFile, templateReferences);
     if (mixinResolution.unresolved.length > 0) {
         // All-or-nothing: any mixin the registry can't resolve keeps the whole
         // component on the safe Options-API backoff.

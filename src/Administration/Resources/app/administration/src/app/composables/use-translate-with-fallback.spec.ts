@@ -53,4 +53,18 @@ describe('src/app/composables/use-translate-with-fallback', () => {
         expect(tWithFallback('foo.bar')).toBe('foo.bar');
         expect(t).not.toHaveBeenCalled();
     });
+
+    it('does not consult the fallback locale when none is configured', () => {
+        te.mockReturnValue(false);
+        global.Shopware = {
+            Context: { app: { fallbackLocale: '' } },
+        } as unknown as typeof Shopware;
+        const { tWithFallback } = useTranslateWithFallback();
+
+        expect(tWithFallback('foo.bar')).toBe('foo.bar');
+        // Only the active-locale check runs; the empty fallbackLocale is never probed.
+        expect(te).toHaveBeenCalledTimes(1);
+        expect(te).toHaveBeenCalledWith('foo.bar');
+        expect(t).not.toHaveBeenCalled();
+    });
 });

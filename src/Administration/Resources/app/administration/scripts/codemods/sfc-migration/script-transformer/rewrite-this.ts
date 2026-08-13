@@ -369,8 +369,8 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
     // component-declared member of the same name wins (Vue override semantics).
     const composableMember = ctx.composableMembers.get(name);
     if (composableMember) {
-        // Phase 2 mixin members are all methods/values (bare binding). `ref`-kind
-        // members (`.value`) arrive with the host-coupled mixins in a later phase.
+        // Every mapped mixin member is a method or plain value, so the bare binding
+        // is used as-is; none are reactive refs that would need a `.value` suffix.
         return composableMember.binding;
     }
 

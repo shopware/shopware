@@ -18,6 +18,8 @@ type SalutationFilterEntityType = {
  * Composable alternative to the `salutation` mixin. Duplicated from the mixin;
  * the mixin is kept for legacy Options API components.
  *
+ * Keep this and `src/app/mixin/salutation.mixin.ts` in sync — change both together.
+ *
  * @private
  */
 export function useSalutation(): {

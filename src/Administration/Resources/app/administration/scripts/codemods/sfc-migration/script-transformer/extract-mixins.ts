@@ -1,7 +1,10 @@
 import type { Expression, ObjectLiteralExpression, SourceFile } from 'ts-morph';
-import { Node } from 'ts-morph';
+import { Node, SyntaxKind } from 'ts-morph';
 import type { ComposableDescriptor } from './composable-registry';
 import { findMixinDescriptorByModule, findMixinDescriptorByName } from './composable-registry';
+import { extractPropNamesFromText } from './extract-component-options';
+import { extractDataProps } from './extract-data';
+import { extractInjectProps } from './extract-inject';
 
 export interface MixinResolution {
     /** Whether the component declares a `mixins` option at all. */
@@ -22,7 +25,11 @@ export interface MixinResolution {
  * form) and imported mixin identifiers resolved by their module path. Anything the
  * parser cannot recognise is reported as unresolved rather than silently dropped.
  */
-export function resolveComponentMixins(optionsObj: ObjectLiteralExpression, sourceFile: SourceFile): MixinResolution {
+export function resolveComponentMixins(
+    optionsObj: ObjectLiteralExpression,
+    sourceFile: SourceFile,
+    templateReferences: Set<string> = new Set(),
+): MixinResolution {
     const mixinsProp = optionsObj.getProperty('mixins');
     if (!mixinsProp) {
         return { hasMixins: false, descriptors: [], unresolved: [] };
@@ -49,14 +56,31 @@ export function resolveComponentMixins(optionsObj: ObjectLiteralExpression, sour
         }
     }
 
-    // A component member that shadows a mixin member wins under Vue's override
-    // semantics, but the composable calls its own copy internally, so the
-    // override would silently stop taking effect. Keep the Options-API backoff.
     const ownMemberNames = collectComponentMemberNames(optionsObj);
     for (const descriptor of descriptors) {
-        for (const member of Object.keys(descriptor.members)) {
+        const trigger = descriptor.trigger;
+        if (trigger.type !== 'mixin') {
+            continue;
+        }
+
+        // Overriding a leaf member is fine — the component's version wins and the
+        // composable member is simply dropped. Only a member the composable calls
+        // internally is unsafe: the composable keeps using its own copy, so the
+        // override would silently stop taking effect. Back off for those.
+        for (const member of trigger.internallyReferencedMembers ?? []) {
             if (ownMemberNames.has(member)) {
                 unresolved.push(`mixins: component redefines '${member}' from the '${descriptor.id}' mixin`);
+            }
+        }
+
+        // Members the mixin exposes but the composable does not provide have no
+        // setup binding after migration: a script read drops the member, a
+        // template read resolves to nothing. Back off if any is used.
+        for (const member of trigger.unmappedMembers ?? []) {
+            if (readsThisMember(optionsObj, member) || templateReferences.has(member)) {
+                unresolved.push(
+                    `mixins: reads '${member}' from the '${descriptor.id}' mixin, which the composable does not provide`,
+                );
             }
         }
     }
@@ -64,7 +88,7 @@ export function resolveComponentMixins(optionsObj: ObjectLiteralExpression, sour
     return { hasMixins: true, descriptors, unresolved };
 }
 
-/** Names the component declares in its own `methods` / `computed` options. */
+/** Names the component binds via its own `methods`, `computed`, `props`, `data`, or `inject`. */
 function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<string> {
     const names = new Set<string>();
 
@@ -91,7 +115,21 @@ function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<s
         }
     }
 
+    // props/data/inject bind into the same instance namespace, so a mixin member
+    // one of them shadows is overridden just like a method would be. Mirror the
+    // override set used when the composable members are emitted.
+    extractPropNamesFromText(optionsObj).forEach((name) => names.add(name));
+    extractDataProps(optionsObj).dataProps.forEach((prop) => names.add(prop.name));
+    extractInjectProps(optionsObj).injectProps.forEach((prop) => names.add(prop.localName));
+
     return names;
+}
+
+/** Whether the component reads `this.<name>` anywhere in its options object. */
+function readsThisMember(optionsObj: ObjectLiteralExpression, name: string): boolean {
+    return optionsObj
+        .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
+        .some((access) => access.getExpression().isKind(SyntaxKind.ThisKeyword) && access.getName() === name);
 }
 
 /** Returns the descriptor for a single `mixins` array element, or a reason string. */

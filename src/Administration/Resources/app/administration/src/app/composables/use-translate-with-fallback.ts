@@ -14,6 +14,8 @@ import { useI18n } from 'vue-i18n';
  * The mixin used `this.$te` / `this.$t`; here they come from `useI18n()`. The
  * mixin is kept for legacy Options API components.
  *
+ * Keep this and `src/app/mixin/translate-with-fallback.mixin.ts` in sync — change both together.
+ *
  * @private
  */
 export function useTranslateWithFallback(): {

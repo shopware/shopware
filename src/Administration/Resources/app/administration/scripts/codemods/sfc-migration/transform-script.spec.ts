@@ -354,6 +354,133 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('resolvable mixins: each registered mixin converts to its composable', () => {
+        it('converts the salutation mixin to useSalutation', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('salutation')],
+                    methods: {
+                        label(entity) { return this.salutation(entity, 'fallback'); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("import { useSalutation } from 'src/app/composables/use-salutation';");
+            expect(result.script).toContain('const { salutation } = useSalutation();');
+        });
+
+        it('converts the sw-inline-snippet mixin to useInlineSnippet', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
+                    methods: {
+                        label(config) { return this.getInlineSnippet(config.label); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("import { useInlineSnippet } from 'src/app/composables/use-inline-snippet';");
+            expect(result.script).toContain('const { getInlineSnippet } = useInlineSnippet();');
+        });
+
+        it('converts the translate-with-fallback mixin to useTranslateWithFallback', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('translate-with-fallback')],
+                    methods: {
+                        label() { return this.tWithFallback('sw-demo.label'); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain(
+                "import { useTranslateWithFallback } from 'src/app/composables/use-translate-with-fallback';",
+            );
+            expect(result.script).toContain('const { tWithFallback } = useTranslateWithFallback();');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('unmapped mixin member: backs off when a mixin member has no composable equivalent', () => {
+        it('backs off when a method reads the sw-inline-snippet locale computed', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
+                    methods: {
+                        locale() { return this.swInlineSnippetLocale; },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers.some((b) => b.includes("reads 'swInlineSnippetLocale'"))).toBe(true);
+        });
+
+        it('backs off when the template reads the salutation filter computed', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('salutation')],
+                });`,
+                new Set(['salutationFilter']),
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers.some((b) => b.includes("reads 'salutationFilter'"))).toBe(true);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin member redefinition: only backs off for members the composable calls internally', () => {
+        it('backs off when a data entry shadows the internally-called createNotification', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('notification')],
+                    data() {
+                        return { createNotification: null };
+                    },
+                    methods: {
+                        onSave() { this.createNotificationSuccess({ message: 'Saved' }); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers.some((b) => b.includes("component redefines 'createNotification'"))).toBe(true);
+        });
+
+        it('converts when the component redefines a leaf member the composable never calls', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('notification')],
+                    methods: {
+                        createNotificationError(config) { return config; },
+                        onSave() { this.createNotificationSuccess({ message: 'Saved' }); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.scriptType).toBe('setup');
+            // The component's own createNotificationError wins, so only the used
+            // createNotificationSuccess is sourced from the composable.
+            expect(result.script).toContain('const { createNotificationSuccess } = useNotification();');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('render-component: detects render() as a hard blocker and marks as not-migratable', () => {
         let result: ReturnType<typeof transformScript>;
 

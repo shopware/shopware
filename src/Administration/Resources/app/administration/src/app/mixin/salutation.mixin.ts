@@ -18,6 +18,8 @@ type SalutationFilterEntityType = {
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-salutation`; change both together.
  */
 export default Shopware.Mixin.register(
     'salutation',

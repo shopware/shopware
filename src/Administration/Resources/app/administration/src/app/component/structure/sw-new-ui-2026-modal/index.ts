@@ -7,14 +7,11 @@ import useTheme from 'src/app/composables/use-theme';
 import template from './sw-new-ui-2026-modal.html.twig';
 import './sw-new-ui-2026-modal.scss';
 
-// Both pages share the same imagery; only how much of it is revealed differs.
 type NewUi2026Page = {
     id: string;
     headline: string;
     descriptionKey: string;
-    // Fixes the reveal at one position instead of letting the mouse drive it.
     pinnedSplit?: number;
-    // Set only on pages that let the theme be changed from here.
     hasThemeSelect?: boolean;
     badge?: string;
 };
@@ -23,14 +20,20 @@ const SPLIT_PROPERTY = '--sw-new-ui-2026-modal-split';
 const CENTER_SPLIT_POSITION = 50;
 // Mirrors the transition duration of __compare--eased in the stylesheet.
 const SPLIT_EASE_DURATION = 300;
-// How far the pointer has to travel before a press counts as a drag rather than a click.
-const DRAG_START_THRESHOLD = 3;
+
+// Captured once on the press: moves are applied as deltas to the grabbed position, and the
+// width cannot change mid-drag, so reading it per move would only force a layout pass.
+type DragState = {
+    pointerId: number;
+    originX: number;
+    originOffset: number;
+    width: number;
+    position: number;
+};
 
 // eslint-disable-next-line no-warning-comments
-// @todo PLACEHOLDER DATE - set this to the release that ships the new navigation.
-// Shops first migrated on or after it never ran the old navigation, so they have
-// nothing to compare against. The far future placeholder keeps every existing shop
-// eligible until the real date is known, which also makes the modal easy to try out.
+// @todo PLACEHOLDER DATE - set this to the release that ships the new navigation. The far
+// future placeholder keeps every existing shop eligible until the real date is known.
 const NEW_NAVIGATION_RELEASE_DATE = '2099-01-01';
 
 // eslint-disable-next-line no-warning-comments
@@ -44,9 +47,6 @@ const NEW_NAVIGATION_RELEASE_DATE = '2099-01-01';
 export const IGNORE_SEEN_FLAG = true;
 
 /**
- * user_config key recording that the current user has been shown the modal. Stored
- * server side rather than in the browser, so it follows the account.
- *
  * @private
  */
 export const NEW_UI_2026_SEEN_CONFIG_KEY = 'core.newUi2026ModalSeen';
@@ -54,10 +54,6 @@ export const NEW_UI_2026_SEEN_CONFIG_KEY = 'core.newUi2026ModalSeen';
 type ContextSettings = {
     firstMigrationDate?: string | null;
 };
-
-function assetPath(fileName: string): string {
-    return Shopware.Filter.getByName('asset')(`/administration/administration/static/img/new-ui-2026/${fileName}`);
-}
 
 function isBeforeRelease(value: unknown): boolean {
     if (typeof value !== 'string' || value === '') {
@@ -73,20 +69,14 @@ function isBeforeRelease(value: unknown): boolean {
     return date < new Date(NEW_NAVIGATION_RELEASE_DATE);
 }
 
-/**
- * Only shops that already ran on the previous navigation should be told about the
- * rework, which the date of their very first migration identifies.
- */
+// The date of its very first migration identifies a shop that ran the old navigation.
 function isExistingShop(): boolean {
     const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
 
     return isBeforeRelease(settings?.firstMigrationDate);
 }
 
-/**
- * An old shop can still have brand new admin users, and those never saw the previous
- * navigation either.
- */
+// An old shop can still have brand new admin users, and those never saw it either.
 function isExistingUser(): boolean {
     const currentUser = Shopware.Store.get('session').currentUser as Record<string, unknown> | null;
 
@@ -101,9 +91,6 @@ async function hasSeenModal(): Promise<boolean> {
 }
 
 /**
- * The user config is scoped to the current user by the API, so the flag needs no key of
- * its own to tell accounts apart.
- *
  * @private
  */
 export async function markModalSeen(): Promise<void> {
@@ -147,10 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
         splitPosition: number | null;
         hintHandoffTimeout: number | null;
         isSplitEased: boolean;
-        isDragging: boolean;
-        // Both are only read while a drag is running, so neither is rendered from.
-        draggedPosition: number | null;
-        dragOriginX: number | null;
+        drag: DragState | null;
         hasRecordedSeen: boolean;
     } {
         return {
@@ -159,34 +143,12 @@ export default Shopware.Component.wrapComponentConfig({
             hintHandoffTimeout: null,
             isSplitEased: false,
             splitPosition: null,
-            isDragging: false,
-            draggedPosition: null,
-            dragOriginX: null,
+            drag: null,
             hasRecordedSeen: false,
         };
     },
 
     computed: {
-        backgroundSrc(): string {
-            return assetPath('background-light.jpg');
-        },
-
-        darkBackgroundSrc(): string {
-            return assetPath('background-dark.jpg');
-        },
-
-        beforeSrc(): string {
-            return assetPath('navigation-before.jpg');
-        },
-
-        afterSrc(): string {
-            return assetPath('navigation-after.jpg');
-        },
-
-        darkAfterSrc(): string {
-            return assetPath('navigation-after-dark.jpg');
-        },
-
         pages(): NewUi2026Page[] {
             return [
                 {
@@ -198,7 +160,6 @@ export default Shopware.Component.wrapComponentConfig({
                     id: 'dark-mode',
                     headline: this.$t('sw-new-ui-2026-modal.pages.darkMode.headline'),
                     descriptionKey: 'sw-new-ui-2026-modal.pages.darkMode.description',
-                    // Slides all the way over to the reworked navigation and stays there.
                     pinnedSplit: 100,
                     hasThemeSelect: true,
                     badge: this.$t('sw-new-ui-2026-modal.pages.darkMode.badge'),
@@ -222,6 +183,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.activePage.pinnedSplit !== undefined;
         },
 
+        isDragging(): boolean {
+            return this.drag !== null;
+        },
+
         userTheme: {
             get(): Theme {
                 return useTheme().theme.value;
@@ -231,8 +196,7 @@ export default Shopware.Component.wrapComponentConfig({
             },
         },
 
-        // Only the resting position is bound, so it survives the re-render that paging
-        // causes. The drag itself is written straight to the element, see onDragMove.
+        // Only the resting position is bound; the drag writes straight to the element.
         compareStyle(): Record<string, string> {
             if (this.splitPosition === null) {
                 return {};
@@ -243,10 +207,9 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        // A pinned page slides the reveal over and holds it; any other page hands control
-        // back to the pointer, centered, with the idle hint inviting a drag again. This is
-        // the only thing that re-centers: a dragged position is deliberate and stays put.
+        // Paging is the only thing that re-centers: a dragged position is deliberate.
         currentPage() {
+            this.drag = null;
             this.clearHintHandoff();
 
             const pinnedSplit = this.activePage.pinnedSplit;
@@ -259,9 +222,8 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            // Leaving a pinned page eases the reveal back to the middle. The idle hint can
-            // only take the property over once that has arrived, because an animation wins
-            // against a transition and would cut it short.
+            // The idle hint can only take the property over once the slide back has arrived,
+            // because an animation wins against a transition and would cut it short.
             this.splitPosition = CENTER_SPLIT_POSITION;
 
             this.hintHandoffTimeout = window.setTimeout(() => {
@@ -278,12 +240,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     beforeUnmount() {
         this.clearHintHandoff();
-        this.stopListeningForDrag();
     },
 
     methods: {
-        // The seen flag lives on the server, so the audience can only be settled once the
-        // request comes back.
         async resolveVisibility() {
             if (!isIntendedAudience()) {
                 return;
@@ -300,6 +259,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isOpen = isOpen;
 
             if (!isOpen) {
+                this.drag = null;
                 this.recordSeen();
             }
         },
@@ -336,8 +296,6 @@ export default Shopware.Component.wrapComponentConfig({
             this.recordSeen();
         },
 
-        // Applies straight away and persists to the user config, so there is nothing to
-        // confirm: the modal has no save of its own to hang the change on.
         onThemeChange(theme: Theme) {
             useTheme()
                 .saveUserTheme(theme)
@@ -348,101 +306,69 @@ export default Shopware.Component.wrapComponentConfig({
                 });
         },
 
-        // Only arms the drag: a press on its own never moves the reveal, so clicking the
-        // images cannot yank the seam across and nothing has to be eased to cover a jump.
         onDragStart(event: PointerEvent) {
-            if (this.isSplitPinned) {
+            if (this.drag !== null || event.button !== 0 || this.isSplitPinned) {
                 return;
             }
 
-            // Stops the browser from starting its own drag on the images underneath.
+            const compare = this.$refs.compare as HTMLElement | undefined;
+            const width = compare?.getBoundingClientRect().width ?? 0;
+
+            if (!compare || width === 0) {
+                return;
+            }
+
+            // Stops the browser from starting a text selection alongside the drag.
             event.preventDefault();
 
-            this.isDragging = true;
-            this.dragOriginX = event.clientX;
+            // Routes every pointer event to the handle until release, wherever the pointer
+            // goes, and dies with the element if paging or closing removes it mid-gesture.
+            (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 
-            // On window rather than the element, so the reveal keeps following a pointer that
-            // has been dragged outside the images and still stops on release out there.
-            // Passing the methods unbound is safe: Vue binds options-API methods to the instance.
-            /* eslint-disable @typescript-eslint/unbound-method */
-            window.addEventListener('pointermove', this.onDragMove);
-            window.addEventListener('pointerup', this.onDragEnd);
-            window.addEventListener('pointercancel', this.onDragEnd);
-            /* eslint-enable @typescript-eslint/unbound-method */
+            const position = this.currentSplitOf(compare);
+
+            this.drag = {
+                pointerId: event.pointerId,
+                originX: event.clientX,
+                originOffset: (position / 100) * width,
+                width,
+                position,
+            };
+
+            // Committed through the render, so stopping the idle hint and dropping any easing
+            // land in the same frame as the position: an animation outranks an inline write.
+            this.clearHintHandoff();
+            this.isSplitEased = false;
+            this.splitPosition = position;
         },
 
-        // Written straight to the element rather than through component state, so dragging
-        // does not re-render the modal on every pointer move. Resolved from the ref on every
-        // move rather than captured on press, so it cannot end up writing to a stale node.
+        // Written straight to the element, so dragging does not re-render on every move.
         onDragMove(event: PointerEvent) {
-            const element = this.$refs.compare as HTMLElement | undefined;
-
-            if (!element) {
+            if (this.drag === null || event.pointerId !== this.drag.pointerId) {
                 return;
             }
 
-            // A null dragged position means this drag has not moved anything yet, so the press
-            // is still only a click until the pointer has really travelled.
-            const hasTakenOver = this.draggedPosition !== null;
+            const compare = this.$refs.compare as HTMLElement | undefined;
 
-            if (!hasTakenOver && !this.hasPassedDragThreshold(event)) {
+            if (!compare) {
                 return;
             }
 
-            const position = this.splitPositionOf(event, element);
+            this.drag.position = this.dragPositionOf(event, this.drag);
 
-            if (position === null) {
-                return;
-            }
-
-            // The move that takes the drag over goes through the render, so that stopping the
-            // idle hint and dropping any paging slide land in the same frame as the position.
-            // An inline write cannot do that: an animation outranks it, and a transition still
-            // in effect would ease it. Every later move is written straight to the element,
-            // which is what keeps the drag itself immediate and free of re-renders.
-            if (!hasTakenOver) {
-                this.clearHintHandoff();
-
-                this.isSplitEased = false;
-                this.draggedPosition = position;
-                this.splitPosition = position;
-
-                return;
-            }
-
-            this.draggedPosition = position;
-
-            element.style.setProperty(SPLIT_PROPERTY, `${position}%`);
+            compare.style.setProperty(SPLIT_PROPERTY, `${this.drag.position}%`);
         },
 
-        hasPassedDragThreshold(event: PointerEvent): boolean {
-            if (this.dragOriginX === null) {
-                return true;
+        onDragEnd(event: PointerEvent) {
+            if (this.drag === null || event.pointerId !== this.drag.pointerId) {
+                return;
             }
 
-            return Math.abs(event.clientX - this.dragOriginX) >= DRAG_START_THRESHOLD;
-        },
-
-        // The reveal stays wherever it was let go of; only paging ever re-centers it. A press
-        // that never became a drag leaves everything as it was.
-        onDragEnd() {
-            this.isDragging = false;
-            this.dragOriginX = null;
-
-            if (this.draggedPosition !== null) {
-                this.splitPosition = this.draggedPosition;
-                this.draggedPosition = null;
+            if (!this.isSplitPinned) {
+                this.splitPosition = this.drag.position;
             }
 
-            this.stopListeningForDrag();
-        },
-
-        stopListeningForDrag() {
-            /* eslint-disable @typescript-eslint/unbound-method */
-            window.removeEventListener('pointermove', this.onDragMove);
-            window.removeEventListener('pointerup', this.onDragEnd);
-            window.removeEventListener('pointercancel', this.onDragEnd);
-            /* eslint-enable @typescript-eslint/unbound-method */
+            this.drag = null;
         },
 
         clearHintHandoff() {
@@ -452,18 +378,28 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        // Snapped to whole pixels: a fractional edge only partially covers its boundary
-        // column, which lets the image underneath bleed through the seam.
-        splitPositionOf(event: { clientX: number }, element: HTMLElement): number | null {
-            const { left, width } = element.getBoundingClientRect();
+        // The idle hint and the eased slide animate the property, so grabbing mid-animation
+        // has to read the live value off the computed style rather than the bound state.
+        currentSplitOf(element: HTMLElement): number {
+            const computed = Number.parseFloat(window.getComputedStyle(element).getPropertyValue(SPLIT_PROPERTY));
 
-            if (width === 0) {
-                return null;
+            if (Number.isFinite(computed)) {
+                return computed;
             }
 
-            const offset = Math.min(width, Math.max(0, Math.round(event.clientX - left)));
+            return this.splitPosition ?? CENTER_SPLIT_POSITION;
+        },
 
-            return (offset / width) * 100;
+        // Snapped to whole pixels: a fractional edge only partially covers its boundary
+        // column, which lets the image underneath bleed through the seam.
+        dragPositionOf(event: { clientX: number }, drag: DragState): number {
+            const offset = Math.min(drag.width, Math.max(0, Math.round(drag.originOffset + event.clientX - drag.originX)));
+
+            return (offset * 100) / drag.width;
+        },
+
+        imageSrc(fileName: string): string {
+            return Shopware.Filter.getByName('asset')(`/administration/administration/static/img/new-ui-2026/${fileName}`);
         },
     },
 });

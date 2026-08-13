@@ -15,21 +15,19 @@
             >
                 <img
                     class="sw-new-ui-2026-modal__media-image sw-new-ui-2026-modal__media-image--light"
-                    :src="backgroundSrc"
+                    :src="imageSrc('background-light.jpg')"
                     alt=""
                     aria-hidden="true"
                 >
 
                 <img
                     class="sw-new-ui-2026-modal__media-image sw-new-ui-2026-modal__media-image--dark"
-                    :src="darkBackgroundSrc"
+                    :src="imageSrc('background-dark.jpg')"
                     alt=""
                     aria-hidden="true"
                 >
 
                 <div class="sw-new-ui-2026-modal__glass">
-                    <!-- Decorative: rests at an even split until it is dragged -->
-                    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                     <div
                         ref="compare"
                         class="sw-new-ui-2026-modal__compare"
@@ -40,34 +38,39 @@
                             'sw-new-ui-2026-modal__compare--dragging': isDragging,
                         }"
                         :style="compareStyle"
-                        @pointerdown="onDragStart"
                     >
                         <img
                             class="sw-new-ui-2026-modal__compare-image"
-                            :src="beforeSrc"
+                            :src="imageSrc('navigation-before.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
                         <img
                             class="sw-new-ui-2026-modal__compare-image sw-new-ui-2026-modal__compare-image--after sw-new-ui-2026-modal__compare-image--after-light"
-                            :src="afterSrc"
+                            :src="imageSrc('navigation-after.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
                         <img
                             class="sw-new-ui-2026-modal__compare-image sw-new-ui-2026-modal__compare-image--after sw-new-ui-2026-modal__compare-image--after-dark"
-                            :src="darkAfterSrc"
+                            :src="imageSrc('navigation-after-dark.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
                         {% block sw_new_ui_2026_modal_compare_handle %}
+                        <!-- Decorative pointer affordance; keyboard users page instead of dragging -->
+                        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                         <div
                             v-if="!isSplitPinned"
                             class="sw-new-ui-2026-modal__compare-handle"
                             aria-hidden="true"
+                            @pointerdown="onDragStart"
+                            @pointermove="onDragMove"
+                            @pointerup="onDragEnd"
+                            @pointercancel="onDragEnd"
                         ></div>
                         {% endblock %}
                     </div>

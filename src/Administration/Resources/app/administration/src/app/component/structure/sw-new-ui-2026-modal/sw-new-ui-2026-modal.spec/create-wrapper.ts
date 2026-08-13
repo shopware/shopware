@@ -1,14 +1,15 @@
 /**
  * @sw-package framework
- *
- * Shared mount helper and audience setup for the sw-new-ui-2026-modal specs. Keep it in one
- * place so the split specs cannot drift apart on which audience they mount into.
  */
 
 import { mount, type VueWrapper } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard-dot-navigation';
 import useTheme from 'src/app/composables/use-theme';
 import swNewUi2026Modal from '../index';
+
+// jsdom knows no pointer capture; only real browsers need it to route the moves of a
+// pointer that left the handle back to it.
+window.HTMLElement.prototype.setPointerCapture = () => {};
 
 /**
  * Before NEW_NAVIGATION_RELEASE_DATE, so it marks a shop or user that ran the old navigation.
@@ -18,8 +19,6 @@ import swNewUi2026Modal from '../index';
 export const BEFORE_RELEASE = '2024-01-01T00:00:00.000Z';
 
 /**
- * After NEW_NAVIGATION_RELEASE_DATE, so it marks a shop or user that never saw it.
- *
  * @private
  */
 export const AFTER_RELEASE = '2099-06-01T00:00:00.000Z';
@@ -57,8 +56,8 @@ export function setIntendedAudience() {
     setShopContext();
     setCurrentUser();
 
-    // The app boots the theme singleton in theme.init, so create it outside of any
-    // component here too, otherwise its lifecycle hooks land on the modal.
+    // Created outside of any component, as theme.init does, otherwise its lifecycle hooks
+    // land on the modal.
     useTheme();
     useTheme().setTheme('light');
 }

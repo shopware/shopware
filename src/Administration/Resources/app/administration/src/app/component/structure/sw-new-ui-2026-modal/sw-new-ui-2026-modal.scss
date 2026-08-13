@@ -1,17 +1,16 @@
-// The images show the sidebar at its real width; the glass adds its border around it.
 $compare-max-width: 300px;
 $glass-padding: 16px;
 $glass-border-width: 2px;
 $glass-max-width: $compare-max-width + 2 * ($glass-padding + $glass-border-width);
+$compare-radius: 16px;
+$handle-width: 3px;
+$handle-resting-scale: 0.5;
+
+// Wide enough that the seam can be grabbed without pixel hunting.
+$handle-hit-width: 32px;
 
 // Concentric corners: the outer radius has to grow by the gap between the two edges,
 // otherwise the curves are not parallel.
-$compare-radius: 16px;
-
-// The seam line that marks the reveal as draggable. It thins out while hidden, so appearing
-// grows it back to full width.
-$handle-width: 3px;
-$handle-resting-scale: 0.5;
 $glass-radius: $compare-radius + $glass-padding;
 $glass-gradient: linear-gradient(
     79.32deg,
@@ -20,8 +19,7 @@ $glass-gradient: linear-gradient(
     rgba(255, 255, 255, 25%) 60.183%
 );
 
-// Registered so the idle hint below can interpolate it; the component writes the
-// same property directly on the element while the seam is being dragged.
+// Registered so the idle hint and the eased slide can interpolate it.
 @property --sw-new-ui-2026-modal-split {
     syntax: "<percentage>";
     inherits: true;
@@ -51,7 +49,8 @@ $glass-gradient: linear-gradient(
         overflow: hidden;
     }
 
-    &__media-image {
+    &__media-image,
+    &__compare-image {
         position: absolute;
         inset: 0;
         display: block;
@@ -62,8 +61,6 @@ $glass-gradient: linear-gradient(
         pointer-events: none;
     }
 
-    // Inset from the background on three sides and flush to the bottom, centred by the
-    // auto margins once the max width kicks in.
     &__glass {
         position: absolute;
         inset: 32px 20px 0;
@@ -86,15 +83,12 @@ $glass-gradient: linear-gradient(
         width: 100%;
         max-width: $compare-max-width;
         border-radius: $compare-radius $compare-radius 0 0;
-        background: #fff;
+        background: var(--color-static-white);
         box-shadow: 0 0 16px rgba(94, 24, 16, 5%);
         overflow: hidden;
-        cursor: ew-resize;
 
-        // The reveal is dragged, so neither the images nor a text selection may take over
-        // the gesture, and touch must not scroll the modal instead.
+        // A selection sweeping across the images must not highlight them mid-drag.
         user-select: none;
-        touch-action: none;
 
         // Runs once as an invitation rather than looping: it replays whenever the reveal is
         // handed back, which is the only time the offer needs making again.
@@ -105,31 +99,35 @@ $glass-gradient: linear-gradient(
         }
     }
 
-    // Once the mouse has set a position the hint must not fight it for the property.
+    // Once a position has been set the hint must not fight it for the property.
     &__compare--settled {
         animation: none;
     }
 
-    // Held at one position, so there is nothing to drag.
-    &__compare--pinned {
-        cursor: default;
-    }
-
-    // Sits on the seam and rides the same property the reveal is clipped by, so it also
-    // follows the idle hint. Pointer events stay with the images, which take a press
-    // anywhere rather than only on the handle.
+    // The grabbable strip on the seam: only it takes the pointer, not the images.
     &__compare-handle {
         position: absolute;
         top: 0;
         bottom: 0;
+        left: calc(var(--sw-new-ui-2026-modal-split, 50%) - #{$handle-hit-width * 0.5});
+        width: $handle-hit-width;
+        cursor: ew-resize;
 
-        // Centred on the seam by the offset alone, so transform is left free for the reveal
-        // below. Doing both would move it half its width off the seam.
-        left: calc(var(--sw-new-ui-2026-modal-split, 50%) - #{$handle-width * 0.5});
+        // A touch drag must move the seam, not scroll the modal.
+        touch-action: none;
+    }
+
+    // The visible seam line, centred by the offset alone so transform is left free for the
+    // thinning below. Doing both would move it half its width off the seam.
+    &__compare-handle::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(50% - #{$handle-width * 0.5});
         width: $handle-width;
         background: var(--color-static-white);
         box-shadow: 0 0 4px rgba(0, 0, 0, 25%);
-        pointer-events: none;
         opacity: 0;
         transform: scaleX($handle-resting-scale);
         transform-origin: center;
@@ -142,15 +140,14 @@ $glass-gradient: linear-gradient(
         }
     }
 
-    // Only offered once the pointer is on the images, and held for the whole drag: the
-    // pointer is free to leave them while dragging.
-    &__compare:hover &__compare-handle,
-    &__compare--dragging &__compare-handle {
+    // Held for the whole drag, so the pointer is free to leave the images while dragging.
+    &__compare:hover &__compare-handle::before,
+    &__compare--dragging &__compare-handle::before {
         opacity: 1;
         transform: scaleX(1);
     }
 
-    // The eased slide and the idle return use it; following the cursor stays immediate.
+    // Paging eases the reveal; dragging stays immediate.
     &__compare--eased {
         // The disable is a false positive: this names the property, it does not read it.
         /* stylelint-disable-next-line custom-property-no-missing-var-function */
@@ -161,23 +158,11 @@ $glass-gradient: linear-gradient(
         }
     }
 
-    &__compare-image {
-        position: absolute;
-        inset: 0;
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: top center;
-        pointer-events: none;
-    }
-
     // Revealed from the left edge, so moving right slides the new UI in over the old one.
     &__compare-image--after {
         clip-path: inset(0 calc(100% - var(--sw-new-ui-2026-modal-split, 50%)) 0 0);
     }
 
-    // The dark variants only ever appear through the rule below.
     &__media-image--dark,
     &__compare-image--after-dark {
         display: none;
@@ -232,8 +217,8 @@ $glass-gradient: linear-gradient(
     }
 }
 
-// The attribute sits on the document element, which the teleported modal is a descendant
-// of. The backdrop follows the theme on every page.
+// Unnested: the attribute sits on the document element, which the teleported modal is a
+// descendant of.
 [data-theme="dark"] .sw-new-ui-2026-modal__media-image--light {
     display: none;
 }
@@ -242,7 +227,7 @@ $glass-gradient: linear-gradient(
     display: block;
 }
 
-// The sidebar shot only follows it on the page announcing the appearance.
+// The sidebar shot only follows the theme on the page announcing it.
 [data-theme="dark"] .sw-new-ui-2026-modal__media--dark-mode {
     .sw-new-ui-2026-modal__compare-image--after-light {
         display: none;

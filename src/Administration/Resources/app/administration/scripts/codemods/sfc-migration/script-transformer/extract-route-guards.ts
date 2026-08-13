@@ -1,5 +1,5 @@
-import type { ObjectLiteralExpression } from 'ts-morph';
-import { SyntaxKind } from 'ts-morph';
+import type { ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
+import { Node, SyntaxKind } from 'ts-morph';
 import type { ExtractRouteGuardsResult, RouteGuard } from './types';
 
 /**
@@ -31,36 +31,58 @@ export function extractRouteGuards(optionsObj: ObjectLiteralExpression): Extract
     const unsupportedEntries: string[] = [];
 
     for (const prop of optionsObj.getProperties()) {
+        // A quoted or bracketed key names the same option as the shorthand does,
+        // so it is read the same way here rather than through `getName()`.
+        const name = readPropertyName(prop);
+
+        if (!name || !isRouteGuardOptionName(name)) {
+            continue;
+        }
+
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
             const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
-            const composableName = ROUTE_GUARD_COMPOSABLES[method.getName()];
 
-            if (composableName) {
-                routeGuards.push({
-                    optionName: method.getName(),
-                    composableName,
-                    paramsText: method
-                        .getParameters()
-                        .map((param) => param.getText())
-                        .join(', '),
-                    bodyText: method.getBodyText() ?? '',
-                    isAsync: method.isAsync(),
-                });
-            }
+            routeGuards.push({
+                optionName: name,
+                composableName: ROUTE_GUARD_COMPOSABLES[name],
+                paramsText: method
+                    .getParameters()
+                    .map((param) => param.getText())
+                    .join(', '),
+                bodyText: method.getBodyText() ?? '',
+                isAsync: method.isAsync(),
+            });
 
             continue;
         }
 
-        const name = prop.isKind(SyntaxKind.PropertyAssignment)
-            ? prop.asKindOrThrow(SyntaxKind.PropertyAssignment).getName()
-            : prop.isKind(SyntaxKind.ShorthandPropertyAssignment)
-              ? prop.asKindOrThrow(SyntaxKind.ShorthandPropertyAssignment).getName()
-              : undefined;
-
-        if (name && isRouteGuardOptionName(name)) {
-            unsupportedEntries.push(`${name}: route guard must be defined as a method to be migrated`);
-        }
+        // Every other shape is reported, not only the property assignment and the
+        // shorthand: these two options were taken off the unsupported top-level
+        // list, so nothing else reports them, and an accessor
+        // (`get beforeRouteLeave()`) would otherwise vanish from the output with
+        // no TODO at all — and `--delete-originals` would then remove the source.
+        unsupportedEntries.push(`${name}: route guard must be defined as a method to be migrated`);
     }
 
     return { routeGuards, unsupportedEntries };
+}
+
+function readPropertyName(prop: ObjectLiteralElementLike): string | undefined {
+    if (prop.isKind(SyntaxKind.SpreadAssignment)) {
+        return undefined;
+    }
+
+    const nameNode = prop.getNameNode();
+
+    if (Node.isStringLiteral(nameNode) || Node.isNumericLiteral(nameNode)) {
+        return nameNode.getLiteralText();
+    }
+
+    if (Node.isComputedPropertyName(nameNode)) {
+        const expression = nameNode.getExpression();
+
+        return expression.isKind(SyntaxKind.StringLiteral) ? expression.getLiteralValue() : undefined;
+    }
+
+    return nameNode.getText();
 }

@@ -421,7 +421,7 @@ swDefinePublic({
 `;
 
 exports[`scripts/codemods/sfc-migration/transform-script route-guard-component: registers the in-component guards with their composables matches the complete converted script snapshot 1`] = `
-"import { ref, nextTick } from 'vue';
+"import { ref, nextTick, onMounted } from 'vue';
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
 
 const isDirty = ref(false);
@@ -429,6 +429,10 @@ const isDirty = ref(false);
 const confirmLeave = () => {
 return window.confirm('Discard changes?');
 };
+
+onMounted(() => {
+isDirty.value = false;
+});
 
 onBeforeRouteLeave((to, from, next) => {
 if (isDirty.value && !confirmLeave()) {

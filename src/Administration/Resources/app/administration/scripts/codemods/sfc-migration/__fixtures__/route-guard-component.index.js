@@ -15,6 +15,10 @@ Shopware.Component.register('sw-route-guard-page', {
         },
     },
 
+    mounted() {
+        this.isDirty = false;
+    },
+
     beforeRouteLeave(to, from, next) {
         if (this.isDirty && !this.confirmLeave()) {
             next(false);

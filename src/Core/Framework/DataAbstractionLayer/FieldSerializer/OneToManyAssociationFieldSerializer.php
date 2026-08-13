@@ -49,6 +49,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 
         // allows to reset the association for a none cascade delete
         $fk = $fkField->getPropertyName();
+        $fkVersionField = $reference->getField($parameters->getDefinition()->getEntityName() . 'VersionId');
 
         foreach ($value as $keyValue => $subresources) {
             $currentId = $id;
@@ -67,8 +68,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
                 $parameters->getPath() . '/' . $key
             );
 
-            $fkVersionField = $reference->getField($parameters->getDefinition()->getEntityName() . 'VersionId');
-            if ($fkVersionField !== null) {
+            if ($fkVersionField instanceof Field) {
                 $subresources = $fkVersionField->getSerializer()->normalize($fkVersionField, $subresources, $clonedParams);
             }
             $subresources = $this->writeExtractor->normalizeSingle($reference, $subresources, $clonedParams);

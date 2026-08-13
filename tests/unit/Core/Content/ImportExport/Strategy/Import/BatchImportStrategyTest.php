@@ -40,6 +40,9 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
         $config = new Config([], [], []);
 
+        $this->repository->expects($this->never())->method('upsert');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $result = $this->strategy->import(['some' => 'data'], [], $config, $progress, $context);
 
         static::assertSame([], $result->results);

@@ -313,7 +313,7 @@ type CheckedPullRequest = { number: number; baseRefName: string; labels: string[
  * so commits are resolved back to their PRs. The ref-named PR is always included so
  * a failed lookup cannot silently pass it.
  */
-async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
+export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
     const numbers = new Set<number>();
 
     const named = MERGE_GROUP_REF_PATTERN.exec(mergeGroup.head_ref)?.[1];
@@ -422,7 +422,7 @@ async function postVerdictStatus(toolkit: Toolkit, state: 'success' | 'failure',
 
 /**
  * `merge_group` is the gate that matters: it is always evaluated against the final
- * base, while the `pull_request` run can be green from before a silent retarget.
+ * base, while the pull-request-level run can be green from before a silent retarget.
  */
 export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
     const { github, core, context } = toolkit;

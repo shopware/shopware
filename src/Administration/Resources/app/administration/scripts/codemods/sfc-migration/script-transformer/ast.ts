@@ -63,7 +63,12 @@ export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
             add(node.getNameNode(), node.getParent());
         } else if (Node.isVariableDeclaration(node)) {
             // `var` is function-scoped and hoists out of any block it sits in.
-            const isFunctionScoped = node.getVariableStatement()?.getDeclarationKind() === VariableDeclarationKind.Var;
+            // The kind is read off the declaration list, not off a variable
+            // statement: a `for (var i = 0; …)` initializer has a list but no
+            // statement, and a catch clause variable has neither.
+            const isFunctionScoped =
+                node.getParent()?.asKind(SyntaxKind.VariableDeclarationList)?.getDeclarationKind() ===
+                VariableDeclarationKind.Var;
 
             add(node.getNameNode(), findEnclosingScope(node, rootNode, isFunctionScoped));
         } else if (Node.isFunctionDeclaration(node) || Node.isClassDeclaration(node)) {

@@ -481,6 +481,16 @@ describe('scripts/codemods/sfc-migration/transform-template root element anchor'
             '<div :class="{ small: width < 10 }" class="sw-item">text</div>',
             '<div ref="rootEl" :class="{ small: width < 10 }"',
         ],
+        [
+            'a single root that nests an element of its own tag name',
+            '{% block sw_item %}\n<div class="outer"><div class="inner"></div></div>\n{% endblock %}',
+            '<div ref="rootEl" class="outer">',
+        ],
+        [
+            'a single root that contains a void element',
+            '{% block sw_item %}\n<div class="sw-item"><input class="item" /><br></div>\n{% endblock %}',
+            '<div ref="rootEl" class="sw-item">',
+        ],
     ])('offers %s as the anchor', (_case, twigContent, expected) => {
         expect(insertRef(twigContent)).toContain(expected);
     });
@@ -523,6 +533,40 @@ describe('scripts/codemods/sfc-migration/transform-template root element anchor'
         [
             'text before the first element',
             '{% block sw_item %}\nplain text\n<div>text</div>\n{% endblock %}',
+        ],
+        // A multi-root component renders a Fragment, and its `$el` is the
+        // Fragment's empty start anchor — not the first element. A ref there
+        // would flip what `event.target !== this.$el` answers.
+        [
+            'a sibling element after the first one',
+            '{% block sw_item %}\n<div class="one"></div>\n<div class="two"></div>\n{% endblock %}',
+        ],
+        [
+            'a sibling element outside the root block',
+            '{% block sw_item %}\n<div class="one"></div>\n{% endblock %}\n<div class="two"></div>',
+        ],
+        [
+            'a second root block',
+            '{% block sw_first %}\n<div class="one"></div>\n{% endblock %}\n{% block sw_second %}\n<div class="two"></div>\n{% endblock %}',
+        ],
+        [
+            'text after the first element',
+            '{% block sw_item %}\n<div class="one"></div>\ntrailing text\n{% endblock %}',
+        ],
+        [
+            'a void root element followed by a sibling',
+            '{% block sw_item %}\n<input class="one" />\n<div class="two"></div>\n{% endblock %}',
+        ],
+        // Block-less templates skip the Vue parse in
+        // normalizeCrossBlockConditionals, so markup the scan cannot read
+        // reaches it and has to be given up rather than guessed at.
+        [
+            'an unclosed root element',
+            '<div class="one">',
+        ],
+        [
+            'a stray angle bracket the scan cannot read',
+            '<div class="one">{{ a < b }}</div>',
         ],
     ])('offers no anchor for %s', (_case, twigContent) => {
         expect(transformTemplate(twigContent).rootElementRefInsertAt).toBeNull();

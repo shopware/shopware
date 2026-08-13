@@ -560,6 +560,7 @@ placeholder, the TODO, and the `⚠` warning — for:
 | `<template>`, `<slot>`, `<component>`, `<transition>`, `<teleport>`, `<suspense>` | Compiler constructs, not DOM elements. |
 | `v-if` / `v-else-if` / `v-else` / `v-for` on the element | It may not be rendered at all, so the ref would be `null`. |
 | An element that already carries `ref`, `:ref`, or `v-bind:ref` | A second `ref` attribute is not valid. |
+| A second root node — a sibling element, trailing text, or a second root block | The component renders a Fragment, whose `$el` is the empty start-anchor text node, not the first element. `querySelector` was already broken there, but `event.target !== this.$el` would flip from always-true to sometimes-false. |
 | `<sw-block-parent/>`, text, or anything unparsable first | Nothing the scan can prove is the old `$el`. |
 
 Semantics: like `$el`, the ref is `null` before mount. Every site the codemod

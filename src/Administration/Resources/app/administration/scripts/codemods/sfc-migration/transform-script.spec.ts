@@ -2639,6 +2639,62 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expectManualFallback(result, "methods: recalculate uses rewrite target 'total' is shadowed by a local binding");
         });
 
+        // `var` hoists to the enclosing function, so the loop variable is still
+        // in scope after the loop — where `this.action` would be rewritten to it.
+        it('drops a member whose rewrite target is shadowed by a for-initializer var', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { action: 1 }; },
+                methods: {
+                    run() {
+                        for (var action = 0; action < 3; action++) {}
+
+                        this.action = 5;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, "methods: run uses rewrite target 'action' is shadowed by a local binding");
+            expect(result.script).not.toContain('action.value = 5');
+        });
+
+        it('drops a member whose rewrite target is shadowed by a var in the function body', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { action: 1 }; },
+                methods: {
+                    run() {
+                        if (Date.now()) {
+                            var action = 0;
+                        }
+
+                        this.action = action;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, "methods: run uses rewrite target 'action' is shadowed by a local binding");
+        });
+
+        // `let` in a for-initializer is scoped to the loop, so an access after it
+        // reads the setup binding and the member still migrates.
+        it('keeps a member whose for-initializer let leaves the access alone', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { action: 1 }; },
+                methods: {
+                    run() {
+                        for (let action = 0; action < 3; action++) {}
+
+                        this.action = 5;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('action.value = 5;');
+        });
+
         // A binding only shadows the accesses inside its own scope, so a member
         // that never reads through it still migrates.
         it('keeps a member whose same-named local sits in a sibling scope', () => {

@@ -104,7 +104,9 @@ usage site the codemod migrates (`mounted`, `updated`, methods) runs after that.
 
 The element has to provably be the one `$el` pointed at, so the placeholder stays for a component-tag
 root (its `$el` is the child's root element), a `v-if`/`v-for` root (it may not render), an element
-that already carries a `ref`, a `<template>` root, and anything else the scan cannot read. The ref is
+that already carries a `ref`, a `<template>` root, a template with a **second root node** (the
+component renders a Fragment, whose `$el` is an empty anchor text node rather than any element), and
+anything else the scan cannot read. The ref is
 never placed on `<sw-block>` itself: the build transform owns its attributes and rejects an authored
 one, and the block renders a Fragment anyway — which is exactly why
 `getCurrentInstance()?.proxy?.$el` is only a placeholder after migration.

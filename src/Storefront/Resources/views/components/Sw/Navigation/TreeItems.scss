@@ -1,0 +1,46 @@
+.sw-navigation-tree-items {
+    --bs-nav-link-color: var(--bs-body-color);
+    --bs-nav-link-hover-color: var(--bs-primary);
+}
+
+// Defaults live on the root list only, so an override on any ancestor is not
+// shadowed again by every nested list.
+.sw-navigation-tree-items.is--root {
+    --sw-navigation-tree-items-indent: var(--spacer-md);
+    --sw-navigation-tree-items-stripe-width: var(--bs-border-width);
+    --sw-navigation-tree-items-stripe-color: var(--bs-border-color);
+}
+
+// The level custom property is deliberately not registered with
+// `inherits: false`: inheritance from the nearest list is how the level
+// reaches the link, and each nested list overrides it inline.
+.sw-navigation-tree-items__link,
+.sw-navigation-tree-items__folder {
+    border-top: var(--sw-navigation-tree-items-stripe-width) solid var(--sw-navigation-tree-items-stripe-color);
+    padding-left: calc(var(--bs-nav-link-padding-x) + (var(--sw-navigation-tree-items-level, 1) - 1) * var(--sw-navigation-tree-items-indent));
+}
+
+.sw-navigation-tree-items.is--root > .sw-navigation-tree-items__item:first-child > .sw-navigation-tree-items__link,
+.sw-navigation-tree-items.is--root > .sw-navigation-tree-items__item:first-child > .sw-navigation-tree-items__folder {
+    border-top: 0;
+}
+
+.sw-navigation-tree-items__link.active {
+    color: var(--bs-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+// Ancestors of the current page get the weight but not the colour, so the current page stays the
+// only primary-coloured item while the trail leading to it is still visible.
+.sw-navigation-tree-items__link.is--in-path {
+    font-weight: var(--font-weight-semibold);
+}
+
+.sw-navigation-tree-items__folder {
+    color: var(--bs-secondary-color);
+}
+
+// Bootstrap's `.nav-link:hover` also matches the folder span.
+.sw-navigation-tree-items__folder:hover {
+    color: var(--bs-secondary-color);
+}

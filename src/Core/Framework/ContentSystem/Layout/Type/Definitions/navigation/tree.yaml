@@ -1,0 +1,86 @@
+meta:
+  label: "Navigation Tree"
+  description: "Renders a category navigation tree with links, folders and active item highlighting."
+  icon: "regular-sitemap"
+  category: "content"
+  copilot:
+    summary: "Category navigation tree element."
+    hints:
+      - "Add a navigationTree data requirement with source 'navigation' to load the tree."
+      - "The highlighted category follows the page, no configuration needed."
+      - "Pick the service or footer binding to render one of the other navigation roots."
+
+properties:
+  navigationTree:
+    type: Shopware\Core\Content\Category\Tree\Tree
+    required: true
+    title: "Navigation Tree"
+    description: "Hydrated navigation tree provided by the navigation data loader."
+    # Tier B: Tree subclasses neither Entity nor EntityCollection, so the bare-string
+    # shorthand has no built-in loader branch and the loader must be named explicitly.
+    resolvedBy:
+      navigation:
+        rootId: main-navigation
+
+  activeId:
+    type: string
+    title: "Active category ID"
+    description: "Category ID highlighted as the current page. Resolved per request from the layout's category root, so it needs no editorial input. Also read by the navigation data loader via its activeProperty config."
+    default: "{{categoryId}}"
+
+  navigationMaxDepth:
+    type: integer
+    title: "Maximum depth"
+    description: "Number of tree levels to render. Follows the sales channel's navigation depth when unset."
+    adminUI:
+      component: "number"
+      helpText: "Leave empty to follow the navigation depth configured on the sales channel."
+      # Without an explicit step the input falls back to "any" and the arrows produce fractions.
+      props:
+        min: 1
+        step: 1
+
+  expandAll:
+    type: boolean
+    title: "Expand all"
+    description: "Render all children instead of only the branch containing the active category."
+    default: false
+    adminUI:
+      helpText: "When off, only the branch leading to the current category is expanded."
+
+  ariaLabel:
+    type: string
+    translatable: true
+    title: "Accessible label"
+    description: "Label of the navigation landmark for assistive technology."
+    adminUI:
+      helpText: "Helps screen reader users tell this navigation apart from others on the page."
+
+# The main navigation is the synthesized default, named after the type. Both roots below are
+# optional on a sales channel; the loader yields no data when one is not configured.
+#
+# Each carries its own accessible label: a page showing two of these trees would otherwise
+# announce both landmarks as "Categories", which is what the label exists to prevent. An
+# editor's own value still wins, the seeding only fills an unset property.
+bindings:
+  service-navigation:
+    label: "Service navigation"
+    inputs:
+      ariaLabel:
+        default: "Service navigation"
+    resolves:
+      navigationTree:
+        loader: navigation
+        config:
+          rootId: service-navigation
+
+  footer-navigation:
+    label: "Footer navigation"
+    inputs:
+      ariaLabel:
+        default: "Footer navigation"
+    resolves:
+      navigationTree:
+        loader: navigation
+        config:
+          rootId: footer-navigation

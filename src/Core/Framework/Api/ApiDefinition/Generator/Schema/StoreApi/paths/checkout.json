@@ -211,14 +211,7 @@
                 "operationId": "deleteCart",
                 "responses": {
                     "204": {
-                        "description": "Successfully deleted the cart",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "description": "Successfully deleted the cart"
                     },
                     "401": {
                         "$ref": "#/components/responses/401",

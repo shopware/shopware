@@ -1455,15 +1455,15 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
                 },
             });`;
             const result = transformScript(js);
-            const provideIndex = result.script.indexOf("provide('registerItem'");
 
             expect(result.status).toBe('fully-migrated');
             // Options API order: the watch options are applied before provide, and
             // created runs after it. The methods are `const` declarations, so the
             // slot also keeps the provided value out of their temporal dead zone.
-            expect(result.script.indexOf('const registerItem =')).toBeLessThan(provideIndex);
-            expect(result.script.indexOf('watch(() =>')).toBeLessThan(provideIndex);
-            expect(provideIndex).toBeLessThan(result.script.indexOf('registerItem(1);'));
+            // One regex so a missing marker fails instead of passing via indexOf(-1).
+            expect(result.script).toMatch(
+                /const registerItem =[\s\S]*watch\(\(\) =>[\s\S]*provide\('registerItem'[\s\S]*registerItem\(1\);/,
+            );
         });
 
         it('migrates a function-expression provide, which does receive the instance', () => {

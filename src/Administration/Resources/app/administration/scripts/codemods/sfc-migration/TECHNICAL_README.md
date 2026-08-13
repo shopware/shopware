@@ -217,8 +217,6 @@ to a line that was migrated.
 
 Entry file: `transform-script.ts`
 
-Implementation file: `script-transformer/transform-script-implementation.ts`
-
 The script transformer uses `ts-morph` to parse the component JavaScript as an
 AST. The main decision tree is:
 
@@ -446,11 +444,10 @@ timing does not map cleanly to generated setup code.
 | `run-sfc-migration.ts` | CLI, scanning, writing, reporting. |
 | `generate-sfc.ts` | Merges template and script transformation results, then validates the SFC against the real build-time transform. |
 | `transform-template.ts` | Converts supported Twig syntax. |
-| `transform-script.ts` | Public export for the script transformer. |
+| `transform-script.ts` | Script transformation decision tree. |
 | `types.ts` | Shared status types. |
 | `string-literals.ts` | Safe JS string quoting helper. |
 | `script-transformer/ast.ts` | AST helpers and component registration detection. |
-| `script-transformer/transform-script-implementation.ts` | Script transformation decision tree. |
 | `script-transformer/composition-script-state.ts` | Collects all data needed to print setup code. |
 | `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`: macros, imports, composables, template refs. |
 | `script-transformer/emit-native-setup.ts` | Emits the migrated setup body and the `swDefinePublic({ … })` marker (replaces the former `emit-create-extendable-setup.ts`). |

@@ -1571,9 +1571,15 @@ export default {
         },
 
         async getPreferredMeasurementUnits() {
-            return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
-                'measurement.preferenceUnits'
-            ];
+            try {
+                return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
+                    'measurement.preferenceUnits'
+                ];
+            } catch {
+                // the product must not stay in its loading state when the preferences cannot be read,
+                // initProductMeasurementUnits() falls back to the default units instead
+                return null;
+            }
         },
 
         savePreferenceUnits() {

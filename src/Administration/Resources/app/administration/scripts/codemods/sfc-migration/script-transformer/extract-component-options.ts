@@ -298,7 +298,44 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
         blockers.push('watch: watcher parameters must be migrated manually');
     }
 
+    if (hasIncompatibleI18nCall(optionsObj)) {
+        blockers.push('i18n: $t/$tc call uses a legacy signature (locale or reordered arguments)');
+    }
+
     return blockers;
+}
+
+/**
+ * The codemod rewrites `this.$t`/`this.$tc` to vue-i18n's Composition `t()` by a
+ * plain rename. That is only equivalent for the modern signatures — a legacy
+ * locale argument (`$t(key, 'en-GB')`, which Composition `t` reads as a default
+ * message) or `$tc`'s reordered `(key, choice, values)` would translate wrong.
+ * These shapes are effectively unused today but must stay safe for extension
+ * authors, so the whole component keeps the Options-API backoff.
+ */
+function hasIncompatibleI18nCall(optionsObj: ObjectLiteralExpression): boolean {
+    return optionsObj.getDescendantsOfKind(SyntaxKind.CallExpression).some((call) => {
+        const expression = call.getExpression();
+        if (!Node.isPropertyAccessExpression(expression) || !expression.getExpression().isKind(SyntaxKind.ThisKeyword)) {
+            return false;
+        }
+
+        const args = call.getArguments();
+
+        // Composition `t(key, defaultMsg)` reads a string second argument as a
+        // default message, not the legacy locale override.
+        if (expression.getName() === '$t') {
+            return args.length >= 2 && Node.isStringLiteral(args[1]);
+        }
+
+        // `$tc(key)` and `$tc(key, <number>)` map 1:1; anything else (a values
+        // object, a locale, or the three-argument form) needs a reorder.
+        if (expression.getName() === '$tc') {
+            return args.length >= 3 || (args.length === 2 && !Node.isNumericLiteral(args[1]));
+        }
+
+        return false;
+    });
 }
 
 export function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[] {

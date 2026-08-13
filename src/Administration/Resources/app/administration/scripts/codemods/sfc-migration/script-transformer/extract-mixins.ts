@@ -49,7 +49,49 @@ export function resolveComponentMixins(optionsObj: ObjectLiteralExpression, sour
         }
     }
 
+    // A component member that shadows a mixin member wins under Vue's override
+    // semantics, but the composable calls its own copy internally, so the
+    // override would silently stop taking effect. Keep the Options-API backoff.
+    const ownMemberNames = collectComponentMemberNames(optionsObj);
+    for (const descriptor of descriptors) {
+        for (const member of Object.keys(descriptor.members)) {
+            if (ownMemberNames.has(member)) {
+                unresolved.push(`mixins: component redefines '${member}' from the '${descriptor.id}' mixin`);
+            }
+        }
+    }
+
     return { hasMixins: true, descriptors, unresolved };
+}
+
+/** Names the component declares in its own `methods` / `computed` options. */
+function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<string> {
+    const names = new Set<string>();
+
+    for (const option of [
+        'methods',
+        'computed',
+    ]) {
+        const prop = optionsObj.getProperty(option);
+        const initializer = prop && Node.isPropertyAssignment(prop) ? prop.getInitializer() : undefined;
+        if (!initializer || !Node.isObjectLiteralExpression(initializer)) {
+            continue;
+        }
+
+        for (const member of initializer.getProperties()) {
+            if (
+                Node.isPropertyAssignment(member) ||
+                Node.isMethodDeclaration(member) ||
+                Node.isGetAccessorDeclaration(member) ||
+                Node.isSetAccessorDeclaration(member) ||
+                Node.isShorthandPropertyAssignment(member)
+            ) {
+                names.add(member.getName());
+            }
+        }
+    }
+
+    return names;
 }
 
 /** Returns the descriptor for a single `mixins` array element, or a reason string. */

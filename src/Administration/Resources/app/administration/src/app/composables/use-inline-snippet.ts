@@ -29,11 +29,15 @@ export function useInlineSnippet(): {
         if (Shopware.Utils.types.isEmpty(value)) {
             return '';
         }
-        if (value[currentLocale()]) {
-            return value[currentLocale()];
+
+        const current = currentLocale();
+        if (value[current]) {
+            return value[current];
         }
-        if (value[fallbackLocale()]) {
-            return value[fallbackLocale()];
+
+        const fallback = fallbackLocale();
+        if (value[fallback]) {
+            return value[fallback];
         }
         if (Shopware.Utils.types.isObject(value)) {
             const locale = Object.keys(value).find((key) => {

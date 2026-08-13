@@ -6,7 +6,7 @@ import { analyzeUnsupportedInjectEntries } from './extract-inject';
 import { resolveComponentMixins } from './extract-mixins';
 import type { TransformScriptResult } from './types';
 
-export function transformScript(jsContent: string): TransformScriptResult {
+export function transformScript(jsContent: string, templateReferences: Set<string> = new Set()): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
     const registration = findComponentRegistration(sourceFile);
     const optionsObj = registration?.optionsObject;
@@ -57,12 +57,28 @@ export function transformScript(jsContent: string): TransformScriptResult {
         };
     }
 
-    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(
+    const { script, publicNames, manualMigrationReasons, backoffReasons } = buildCompositionApiScript(
         optionsObj,
         registration,
         sourceFile,
         mixinResolution.descriptors,
+        templateReferences,
     );
+
+    if (backoffReasons.length > 0) {
+        // The generated setup would reference a renamed composable binding that
+        // the template still calls by its original name. The codemod cannot
+        // rewrite the template, so keep the safe Options-API backoff.
+        return {
+            script: buildOptionsApiBackoff(sourceFile),
+            scriptType: 'options',
+            status: 'partially-migratable',
+            blockers: backoffReasons,
+            publicNames: [],
+            componentName,
+        };
+    }
+
     return {
         script,
         scriptType: 'setup',

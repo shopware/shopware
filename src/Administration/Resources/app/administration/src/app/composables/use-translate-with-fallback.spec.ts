@@ -34,10 +34,16 @@ describe('src/app/composables/use-translate-with-fallback', () => {
 
     it('falls back to the fallback locale when the key only exists there', () => {
         te.mockImplementation((_key: string, locale?: string) => locale === 'en-GB');
+        // Resolve only when the fallback locale is passed through TranslateOptions,
+        // mirroring vue-i18n: a positional `t(key, 'en-GB')` hits the defaultMsg
+        // overload and returns the literal locale instead of the translation.
+        t.mockImplementation((key: string, _named: unknown, options?: { locale?: string }) =>
+            options?.locale === 'en-GB' ? `translated:${key}` : key,
+        );
         const { tWithFallback } = useTranslateWithFallback();
 
         expect(tWithFallback('foo.bar')).toBe('translated:foo.bar');
-        expect(t).toHaveBeenCalledWith('foo.bar', 'en-GB');
+        expect(t).toHaveBeenCalledWith('foo.bar', {}, { locale: 'en-GB' });
     });
 
     it('returns the raw key when it exists in no locale', () => {

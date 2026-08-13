@@ -1,5 +1,6 @@
 import { TemplateTransformError, transformTemplate } from './transform-template';
 import { transformScript } from './transform-script';
+import { collectTemplateReferenceNames } from './collect-template-references';
 import type { MergeStatus } from './types';
 
 // ---------------------------------------------------------------------------
@@ -50,7 +51,11 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         throw err;
     }
 
-    const scriptResult = transformScript(jsContent);
+    // Names the template reads decide which mixin composables are needed even
+    // when a member is used only in the template, never via `this.` in script.
+    const templateReferences = collectTemplateReferenceNames(templateSection);
+
+    const scriptResult = transformScript(jsContent, templateReferences);
     const { componentName } = scriptResult;
 
     if (scriptResult.status === 'not-migratable') {

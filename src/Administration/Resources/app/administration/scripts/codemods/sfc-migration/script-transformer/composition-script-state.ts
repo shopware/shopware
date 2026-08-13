@@ -68,6 +68,8 @@ export interface CompositionScriptState {
     propNames: Set<string>;
     injectNames: Set<string>;
     manualMigrationReasons: string[];
+    /** Template-read composable members whose binding would be renamed on collision. */
+    templateBindingCollisions: string[];
     existingBindingNames: Set<string>;
 }
 
@@ -98,6 +100,7 @@ export function collectCompositionScriptState(
     registration: ComponentRegistration,
     sourceFile: SourceFile,
     mixinDescriptors: ComposableDescriptor[] = [],
+    templateReferences: Set<string> = new Set(),
 ): CompositionScriptState {
     const composableMembers = buildComposableMemberMap(mixinDescriptors);
     let lifecycleHooks = extractLifecycleHooks(optionsObj);
@@ -150,13 +153,18 @@ export function collectCompositionScriptState(
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const activeComposables = [
         ...collectActiveGlobalComposables(usedComposables),
-        ...collectActiveMixinComposables(mixinDescriptors, allSnippets, {
-            propNames,
-            dataNames,
-            computedNames,
-            methodNames,
-            injectNames,
-        }),
+        ...collectActiveMixinComposables(
+            mixinDescriptors,
+            allSnippets,
+            {
+                propNames,
+                dataNames,
+                computedNames,
+                methodNames,
+                injectNames,
+            },
+            templateReferences,
+        ),
     ];
     const templateRefNames = collectThisRefNames(allSnippets);
 
@@ -198,6 +206,18 @@ export function collectCompositionScriptState(
         );
     }
 
+    const existingBindingNames = collectExistingBindingNames(sourceFile);
+    const templateBindingCollisions = collectTemplateBindingCollisions(
+        activeComposables,
+        templateReferences,
+        new Set([
+            ...existingBindingNames,
+            ...publicNames,
+            ...templateRefNames,
+            'props',
+        ]),
+    );
+
     return {
         registration,
         ctx,
@@ -224,8 +244,27 @@ export function collectCompositionScriptState(
         propNames,
         injectNames,
         manualMigrationReasons,
-        existingBindingNames: collectExistingBindingNames(sourceFile),
+        templateBindingCollisions,
+        existingBindingNames,
     };
+}
+
+/**
+ * A composable member read by the template must keep its exact name — the
+ * codemod rewrites `this.<member>` in the script but cannot rewrite the template.
+ * When the member's binding would be renamed to dodge a collision (its name is
+ * already taken), the template reference would resolve to the wrong binding, so
+ * the whole component must keep the Options-API backoff instead.
+ */
+function collectTemplateBindingCollisions(
+    activeComposables: ActiveComposable[],
+    templateReferences: Set<string>,
+    takenNames: Set<string>,
+): string[] {
+    return activeComposables
+        .filter(({ descriptor }) => descriptor.trigger.type === 'mixin')
+        .flatMap(({ memberKeys }) => memberKeys)
+        .filter((key) => templateReferences.has(key) && takenNames.has(key));
 }
 
 function collectSupportedCompositionMembers(
@@ -857,6 +896,7 @@ function collectActiveMixinComposables(
     mixinDescriptors: ComposableDescriptor[],
     snippets: CodeSnippet[],
     componentMembers: ComponentMemberNames,
+    templateReferences: Set<string>,
 ): ActiveComposable[] {
     const overriding = new Set<string>([
         ...componentMembers.propNames,
@@ -866,11 +906,16 @@ function collectActiveMixinComposables(
         ...componentMembers.injectNames,
     ]);
 
+    // A member counts as used when accessed via `this` in the script or read as
+    // a binding in the template (e.g. `placeholder(...)` in a `{{ }}`), so a
+    // template-only helper still gets its composable imported and declared.
     return mixinDescriptors
         .map((descriptor) => ({
             descriptor,
             memberKeys: Object.keys(descriptor.members).filter(
-                (key) => !overriding.has(key) && hasDirectThisPropertyUsage(snippets, key),
+                (key) =>
+                    !overriding.has(key) &&
+                    (hasDirectThisPropertyUsage(snippets, key) || templateReferences.has(key)),
             ),
         }))
         .filter((active) => active.memberKeys.length > 0);

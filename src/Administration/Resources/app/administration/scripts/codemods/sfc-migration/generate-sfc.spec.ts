@@ -199,6 +199,158 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
+    describe('template-only mixin member: the composable must still be imported and declared', () => {
+        // A component that opts into the `placeholder` mixin but only calls
+        // `placeholder(...)` in its template (never `this.placeholder` in the
+        // script). The migrated <script setup> must still declare the binding,
+        // otherwise the template references an undefined `placeholder`.
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                `<div class="sw-country-name">{{ placeholder(country, 'name', 'fallback') }}</div>`,
+                `Shopware.Component.register('sw-country-name', {
+                    template,
+                    mixins: [
+                        Shopware.Mixin.getByName('placeholder'),
+                    ],
+                    props: {
+                        country: { type: Object, required: true },
+                    },
+                });`,
+            );
+        });
+
+        it('imports usePlaceholder for the template-only usage', () => {
+            expect(result.sfc).toContain(
+                "import { usePlaceholder } from 'src/app/composables/use-placeholder';",
+            );
+        });
+
+        it('declares the placeholder binding used by the template', () => {
+            expect(result.sfc).toContain('const { placeholder } = usePlaceholder();');
+        });
+    });
+
+    describe('mixin member override: backs off when the component redefines a mixin member', () => {
+        // The component redefines `createNotification`, a member the notification
+        // mixin provides. A component member wins under Vue override semantics, but
+        // the composable calls its own copy internally, so migrating would silently
+        // drop the override. The whole component keeps the Options-API backoff.
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                '<div class="sw-demo"></div>',
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [
+                        Shopware.Mixin.getByName('notification'),
+                    ],
+                    methods: {
+                        createNotification(config) {
+                            return Shopware.Store.get('notification').createNotification({ ...config, growl: false });
+                        },
+                        onSave() {
+                            this.createNotificationSuccess({ message: 'Saved' });
+                        },
+                    },
+                });`,
+            );
+        });
+
+        it('keeps the Options API backoff (plain <script>, not <script setup>)', () => {
+            expect(result.status).toBe('partially-migrated');
+            expect(result.sfc).not.toContain('<script setup>');
+        });
+
+        it('reports the redefined mixin member as the blocker', () => {
+            expect(
+                result.blockers.some((blocker) => blocker.includes("component redefines 'createNotification'")),
+            ).toBe(true);
+        });
+    });
+
+    describe('legacy i18n signature: backs off instead of renaming to an incompatible t() call', () => {
+        it('backs off on $t(key, localeLiteral) — a string 2nd arg Composition t treats as a default message', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-demo"></div>',
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    methods: {
+                        label() { return this.$t('sw-demo.label', 'en-GB'); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.sfc).not.toContain('<script setup>');
+            expect(result.blockers.some((b) => b.startsWith('i18n:'))).toBe(true);
+        });
+
+        it('backs off on $tc(key, choice, values) — the reordered legacy signature', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-demo"></div>',
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    methods: {
+                        count() { return this.$tc('sw-demo.count', 2, { name: 'x' }); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers.some((b) => b.startsWith('i18n:'))).toBe(true);
+        });
+
+        it('does not back off on the modern $t(key, { named }) signature', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-demo"></div>',
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    methods: {
+                        label() { return this.$t('sw-demo.label', { name: 'x' }); },
+                    },
+                });`,
+            );
+
+            expect(result.blockers.some((b) => b.startsWith('i18n:'))).toBe(false);
+        });
+    });
+
+    describe('template binding collision: backs off when a template-read mixin member cannot keep its name', () => {
+        // The template reads `placeholder(...)`, but the module already binds the
+        // name `placeholder`, so the composable destructure would be renamed. The
+        // codemod cannot rewrite the template, so it keeps the Options-API backoff.
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                `<div class="sw-demo">{{ placeholder(country, 'name', 'fallback') }}</div>`,
+                `import placeholder from './external-placeholder';
+
+                Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [
+                        Shopware.Mixin.getByName('placeholder'),
+                    ],
+                    props: {
+                        country: { type: Object, required: true },
+                    },
+                });`,
+            );
+        });
+
+        it('keeps the Options API backoff (plain <script>, not <script setup>)', () => {
+            expect(result.status).toBe('partially-migrated');
+            expect(result.sfc).not.toContain('<script setup>');
+        });
+
+        it('reports the colliding template binding as the blocker', () => {
+            expect(result.blockers.some((b) => b.includes("template reads 'placeholder'"))).toBe(true);
+        });
+    });
+
     describe('instance-api-component: warnings field reports $el usage', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 

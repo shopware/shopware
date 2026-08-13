@@ -34,7 +34,10 @@ export function useTranslateWithFallback(): {
 
         const fallbackLocale = Shopware.Context.app.fallbackLocale;
         if (fallbackLocale && i18n.te(key, fallbackLocale)) {
-            return i18n.t(key, fallbackLocale);
+            // The locale must go through TranslateOptions. A positional second
+            // string argument binds to the `t(key, defaultMsg)` overload, so
+            // `t(key, fallbackLocale)` would return the literal locale string.
+            return i18n.t(key, {}, { locale: fallbackLocale });
         }
 
         return key;

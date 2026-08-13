@@ -9,12 +9,23 @@ export function buildCompositionApiScript(
     registration: ComponentRegistration,
     sourceFile: SourceFile,
     mixinDescriptors: ComposableDescriptor[] = [],
-): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
-    const state = collectCompositionScriptState(optionsObj, registration, sourceFile, mixinDescriptors);
+    templateReferences: Set<string> = new Set(),
+): { script: string; publicNames: string[]; manualMigrationReasons: string[]; backoffReasons: string[] } {
+    const state = collectCompositionScriptState(
+        optionsObj,
+        registration,
+        sourceFile,
+        mixinDescriptors,
+        templateReferences,
+    );
 
     return {
         script: emitCompositionApiScript(state),
         publicNames: state.publicNames,
         manualMigrationReasons: [...new Set(state.manualMigrationReasons)],
+        backoffReasons: state.templateBindingCollisions.map(
+            (member) =>
+                `mixins: template reads '${member}' but its composable binding collides with an existing name and cannot be renamed in the template`,
+        ),
     };
 }

@@ -4,7 +4,7 @@ What a binding specification declares, what it is deliberately not, and why the 
 
 ## Not a Root Source
 
-"Binding" names a different relationship than "root source" (`Adapter/RootSourceRegistry`): a root source is the registered origin of a layout's root-ambient context (an entity type, a section, or "none"); a binding is the relationship between one reference property and the source that fills it — the sense `Diagnostics/ViolationScope::Binding` already carries. A `BindingSpecification` authors such a binding for one element type; it says nothing about what a layout's root is bound to. See `../../NAMING.md`.
+"Binding" names a different relationship than "root source" (`Adapter/RootSourceRegistry`): a root source is the registered origin of a layout's root-ambient context (an entity type, a section, or "none"); a binding is the relationship between one reference property and the source that fills it — the sense `Diagnostics/ViolationScope::Binding` already carries. A `BindingSpecification` authors such a binding for one element type; it says nothing about what a layout's root is bound to. See [NAMING.md](../../NAMING.md).
 
 ## The Specification Model
 

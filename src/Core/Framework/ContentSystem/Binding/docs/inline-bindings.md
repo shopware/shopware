@@ -8,7 +8,7 @@ A binding specification is authored inline in its element type's YAML file, so a
 - Each entry is fed through the **same denormalize → canonicalize → validate path** (`['type' => <implicit>] + <entry>`), so the sugar tiers and every other facet behave the same for every entry. A `bindings:` value that is not a map, or an entry that is not a map, is a hard load error (`bindingSpecificationLoadFailed`) naming the file. Files without a `bindings:` key are skipped.
 - **Uniqueness stays bare-id-per-source** (a flat namespace across all of a source's types): two inline entries with the same id, whether in one type file or across two type files of one source, throw `bindingSpecificationDuplicate`. Two different sources may still each ship the same bare id.
 
-The **YAML authoring key is `bindings:`** (shorthand inside the type file); the introspection **wire key is `bindingSpecifications`** (the folded catalog on `content-system-element-types.json`). The entries are specifications, not bindings — a type has no bindings, its elements do; see the naming note in `../../NAMING.md`.
+The **YAML authoring key is `bindings:`** (shorthand inside the type file); the introspection **wire key is `bindingSpecifications`** (the folded catalog on `content-system-element-types.json`). The entries are specifications, not bindings — a type has no bindings, its elements do; see the naming note in [NAMING.md](../../NAMING.md).
 
 ## Inline bindings in an app: the type overlay
 

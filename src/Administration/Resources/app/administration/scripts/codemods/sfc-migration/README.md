@@ -76,6 +76,25 @@ my-component/
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
 
+`defineProps` and `defineEmits` are hoisted above every module-level local, so a definition naming
+one cannot be emitted into the macro. Most of those names are only a shorthand for a global, though,
+and the codemod writes the global path back out instead of backing off: a module-level `const` whose
+initializer resolves to a path rooted in `Shopware`, `window`, or `document` — including an alias of
+an alias — is expanded at every value position in the definition.
+
+```js
+const { Criteria } = Shopware.Data; // →  type: Shopware.Data.Criteria
+const utils = Shopware.Utils;
+const { types } = utils; //             →  types.isObject  →  Shopware.Utils.types.isObject
+```
+
+The alias declarations themselves stay in the generated block for the rest of the setup body. What
+keeps the blocker: `let`/`var` (reassignable between declaration and read), array destructuring or a
+destructuring default, an initializer that is not global-rooted (an array literal, a local factory),
+and a shorthand entry (`{ Criteria }`) — a path cannot be written in shorthand position. A name a
+local binding inside the definition shadows is not a reference to the alias at all: it is neither
+expanded nor blocking.
+
 `provide` is converted when its keys are static: a `provide()` method — also as a `function` value —
 whose body is exactly one `return` of an object literal, or a plain `provide: { … }` object, in both
 cases with identifier or string-literal keys. The generated `provide(key, value)` calls are emitted

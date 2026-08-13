@@ -398,6 +398,42 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('global-alias-component: expands module-local aliases of globals in props and emits', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('global-alias-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        // defineProps is hoisted above the module-level code the codemod copies
+        // in, so the alias itself cannot be read there — but the global path it
+        // stands for can.
+        it('writes the global path instead of the destructured alias in defineProps', () => {
+            expect(result.script).toContain('type: Shopware.Data.Criteria,');
+            expect(result.script).toContain('default: Shopware.Context.app.adminEsEnable ?? false,');
+        });
+
+        it('resolves an alias of an alias to the full path in defineEmits', () => {
+            expect(result.script).toContain('save: (payload) => Shopware.Utils.types.isObject(payload),');
+        });
+
+        // The aliases stay declared for the rest of the setup body; only the
+        // hoisted macros must not depend on them.
+        it('keeps the module-level alias declarations', () => {
+            expect(result.script).toContain('const { Criteria } = Shopware.Data;');
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('watch-path-component: converts dotted watch keys into optional-chained getters', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -3227,8 +3263,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.blockers.join('\n')).not.toContain('dropped member');
         });
 
-        it('marks props that reference a destructured module-local declaration as unsupported', () => {
-            const js = `const { propConfig } = Shopware.Utils;
+        it('marks props that reference a module-local declaration of its own as unsupported', () => {
+            const js = `const propConfig = { type: String, required: true };
 
             Shopware.Component.register('sw-test', {
                 props: {
@@ -3241,8 +3277,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('defineProps({');
         });
 
-        it('marks emits that reference a destructured module-local declaration as unsupported', () => {
-            const js = `const { onSave } = Shopware.Utils;
+        it('marks emits that reference a module-local declaration of its own as unsupported', () => {
+            const js = `function onSave(payload) { return Boolean(payload); }
 
             Shopware.Component.register('sw-test', {
                 emits: {
@@ -3258,6 +3294,62 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
             expectManualFallback(result, 'emits');
             expect(result.script).not.toContain('defineEmits({');
+        });
+
+        // `let` can be reassigned between the declaration and the read, so the
+        // path it held at declaration time is not what the macro would see.
+        it('marks props referencing a let alias of a global as unsupported', () => {
+            const js = `let Criteria = Shopware.Data.Criteria;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    criteria: { type: Criteria, required: false, default: null },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+            expect(result.script).not.toContain('Shopware.Data.Criteria,');
+        });
+
+        // A shorthand entry cannot carry a path: `{ Shopware.Data.Criteria }` is
+        // not valid syntax, so the definition keeps the backoff.
+        it('marks a shorthand global alias entry in props as unsupported', () => {
+            const js = `const { Criteria } = Shopware.Data;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    criteria: { type: Object, required: false, default: () => ({ Criteria }) },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, 'props');
+        });
+
+        // A local of the same name is not a reference to the module-level alias,
+        // so it neither blocks the migration nor gets rewritten.
+        it('leaves a global alias name that a props default shadows untouched', () => {
+            const js = `const { Criteria } = Shopware.Data;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    criteria: {
+                        type: Object,
+                        required: false,
+                        default() {
+                            const Criteria = { limit: 1 };
+
+                            return Criteria;
+                        },
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('return Criteria;');
+            expect(result.script).not.toContain('return Shopware.Data.Criteria;');
         });
 
         it('does not back off when an emits validator parameter matches an unrelated module-local name', () => {

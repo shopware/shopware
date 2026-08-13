@@ -215,6 +215,37 @@ defineExpose({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script global-alias-component: expands module-local aliases of globals in props and emits matches the complete converted script snapshot 1`] = `
+"const { Context } = Shopware;
+const { Criteria } = Shopware.Data;
+const utils = Shopware.Utils;
+const { types } = utils;
+
+const props = defineProps({
+        criteria: {
+            type: Shopware.Data.Criteria,
+            required: false,
+            default: null,
+        },
+        esEnabled: {
+            type: Boolean,
+            required: false,
+            default: Shopware.Context.app.adminEsEnable ?? false,
+        },
+    });
+const emit = defineEmits({
+        save: (payload) => Shopware.Utils.types.isObject(payload),
+    });
+
+const save = (payload) => {
+emit('save', payload);
+};
+
+swDefinePublic({
+    save,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script inherit-attrs-component: emits defineOptions({ inheritAttrs: false }) and excludes inheritAttrs from the options object matches the complete converted script snapshot 1`] = `
 "defineOptions({ inheritAttrs: false });
 

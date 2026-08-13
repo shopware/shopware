@@ -491,6 +491,47 @@ as `not-migratable` with a `native setup transform: …` blocker and nothing is
 written to disk. Only the reason is poor — it points at the generated duplicate
 instead of at the member that needs the manual rename.
 
+## Props And Emits: Global Alias Expansion
+
+`defineProps`/`defineEmits` are compiler macros: Vue hoists them above the rest
+of the setup block, so a definition that reads a module-level local would run
+inside that local's temporal dead zone. `analyzeObjectOrArrayOption` therefore
+backs the whole component off to the Options API when the definition references
+one.
+
+Most Administration components only alias a global there
+(`const { Criteria } = Shopware.Data;`), and the global path is readable
+wherever the alias was. `collectGlobalAliasPaths` in `ast.ts` walks the
+module-level `const` declarations before the registration, in source order, and
+maps each binding to the path its initializer resolves to:
+
+| Declaration | Mapping |
+| --- | --- |
+| `const Criteria = Shopware.Data.Criteria;` | `Criteria → Shopware.Data.Criteria` |
+| `const { Criteria } = Shopware.Data;` | `Criteria → Shopware.Data.Criteria` |
+| `const { Criteria: Crit } = Shopware.Data;` | `Crit → Shopware.Data.Criteria` |
+| `const utils = Shopware.Utils;` then `const { types } = utils;` | `types → Shopware.Utils.types` |
+
+Roots are `Shopware`, `window`, and `document` — objects that exist before any
+module code runs. `expandGlobalAliases` then rewrites every mapped name in a
+value position of the definition, and `referencesModuleLocal` stops counting
+those names as blockers. Both use the same predicate, so they cannot disagree
+about a name.
+
+What is deliberately not mapped:
+
+| Shape | Why |
+| --- | --- |
+| `let` / `var` | Reassignable between declaration and read, so the path is not what the macro would see. |
+| Array destructuring, a destructuring default, a rest element | Reading by index, or falling back to a default, is not a property path. |
+| An initializer that is not global-rooted | There is no path to write; the backoff is correct. |
+| `a?.b` in the initializer | Cannot be re-emitted as `a.b`. |
+| A shorthand entry (`{ Criteria }`) | `{ Shopware.Data.Criteria }` is not valid syntax, so the entry keeps the backoff. |
+| A name a binding inside the definition shadows | Not a reference to the alias — neither expanded nor blocking. |
+
+The alias declarations stay in the copied module-level code; only the hoisted
+macros are made independent of them.
+
 ## Provide Conversion
 
 `provide` becomes `provide(key, value)` calls, but only while the provided keys

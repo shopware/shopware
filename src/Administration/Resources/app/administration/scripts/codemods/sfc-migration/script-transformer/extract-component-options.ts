@@ -1,6 +1,7 @@
-import type { BindingName, Node as TsNode, ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
+import type { Node as TsNode, ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { collectModuleLocalNames } from './ast';
+import type { LocalBindingScope } from './ast';
+import { collectGlobalAliasPaths, collectLocalBindingScopes, collectModuleLocalNames, isCoveredByBindingScope } from './ast';
 import { hasUnsupportedWatchParameterShape } from './extract-watch';
 import { getPropertyName } from './helpers';
 import type { ComponentRegistration, EmitsDefinition } from './types';
@@ -54,14 +55,63 @@ function classifyRootProperty(prop: ObjectLiteralElementLike): RootPropertyClass
     return { kind: 'named', name: nameNode.getText() };
 }
 
-function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>): boolean {
+/**
+ * A module-local name the option really reads, and that cannot be replaced by a
+ * global path. Those are what force the Options API backoff — the ones
+ * `expandGlobalAliases` can rewrite are not blockers.
+ */
+function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>, globalAliases: Map<string, string>): boolean {
     if (moduleLocalNames.size === 0) {
         return false;
     }
 
+    return collectOptionValueReferences(node).some(
+        (identifier) => moduleLocalNames.has(identifier.getText()) && !isExpandableAlias(identifier, globalAliases),
+    );
+}
+
+/**
+ * The option text with every expandable global alias replaced by the path it
+ * stands for, so the definition can be emitted into the hoisted compiler macro.
+ */
+function expandGlobalAliases(node: TsNode, globalAliases: Map<string, string>): string {
+    const text = node.getText();
+
+    if (globalAliases.size === 0) {
+        return text;
+    }
+
+    const nodeStart = node.getStart();
+
+    // Identifiers never nest, so replacing from the back keeps every earlier
+    // offset valid.
+    return collectOptionValueReferences(node)
+        .filter((identifier) => isExpandableAlias(identifier, globalAliases))
+        .map((identifier) => ({
+            start: identifier.getStart() - nodeStart,
+            end: identifier.getEnd() - nodeStart,
+            path: globalAliases.get(identifier.getText()) as string,
+        }))
+        .sort((a, b) => b.start - a.start)
+        .reduce((result, { start, end, path }) => result.slice(0, start) + path + result.slice(end), text);
+}
+
+/**
+ * A shorthand entry (`{ Criteria }`) is a value reference, but replacing it with
+ * a path would produce `{ Shopware.Data.Criteria }` — not valid syntax — so it
+ * stays a blocker instead. `referencesModuleLocal` and `expandGlobalAliases`
+ * share this predicate so the two can never disagree about a name.
+ */
+function isExpandableAlias(identifier: TsNode, globalAliases: Map<string, string>): boolean {
+    return globalAliases.has(identifier.getText()) && !Node.isShorthandPropertyAssignment(identifier.getParent());
+}
+
+function collectOptionValueReferences(node: TsNode): TsNode[] {
+    const bindingScopes = collectLocalBindingScopes(node);
+
     return node
         .getDescendantsOfKind(SyntaxKind.Identifier)
-        .some((identifier) => moduleLocalNames.has(identifier.getText()) && isValueReference(identifier, node));
+        .filter((identifier) => isValueReference(identifier, bindingScopes));
 }
 
 /**
@@ -70,8 +120,11 @@ function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>): boo
  * positions count, so those static names must be excluded to avoid false
  * Options API backoffs. Shorthand entries (`{ label }`) are references.
  */
-function isValueReference(identifier: TsNode, rootNode: TsNode): boolean {
-    if (isDeclarationIdentifier(identifier) || isShadowedByLocalBinding(identifier, rootNode)) {
+function isValueReference(identifier: TsNode, bindingScopes: LocalBindingScope[]): boolean {
+    if (
+        isDeclarationIdentifier(identifier) ||
+        isCoveredByBindingScope(bindingScopes, identifier.getText(), identifier.getStart(), identifier.getEnd())
+    ) {
         return false;
     }
 
@@ -110,42 +163,11 @@ function isDeclarationIdentifier(identifier: TsNode): boolean {
     return false;
 }
 
-function isShadowedByLocalBinding(identifier: TsNode, rootNode: TsNode): boolean {
-    const name = identifier.getText();
-    let current = identifier.getParent();
-
-    while (current && current !== rootNode) {
-        if (
-            Node.isMethodDeclaration(current) ||
-            Node.isFunctionDeclaration(current) ||
-            Node.isFunctionExpression(current) ||
-            Node.isArrowFunction(current)
-        ) {
-            if (current.getParameters().some((param) => bindingNameContains(param.getNameNode(), name))) {
-                return true;
-            }
-        }
-
-        current = current.getParent();
-    }
-
-    return false;
-}
-
-function bindingNameContains(nameNode: BindingName, name: string): boolean {
-    if (Node.isIdentifier(nameNode)) {
-        return nameNode.getText() === name;
-    }
-
-    return nameNode
-        .getElements()
-        .some((element) => Node.isBindingElement(element) && bindingNameContains(element.getNameNode(), name));
-}
-
 function analyzeObjectOrArrayOption(
     optionsObj: ObjectLiteralExpression,
     optionName: 'props' | 'emits',
     moduleLocalNames: Set<string>,
+    globalAliases: Map<string, string>,
 ): OptionShapeIssue | null {
     const prop = optionsObj.getProperty(optionName);
     if (!prop) {
@@ -167,7 +189,7 @@ function analyzeObjectOrArrayOption(
 
     const objectInit = initializer?.asKind(SyntaxKind.ObjectLiteralExpression);
     if (objectInit) {
-        if (referencesModuleLocal(objectInit, moduleLocalNames)) {
+        if (referencesModuleLocal(objectInit, moduleLocalNames, globalAliases)) {
             return { reason: `${optionName}: definition references a module-local declaration`, backoff: true };
         }
 
@@ -184,18 +206,20 @@ function analyzeObjectOrArrayOption(
 export function analyzePropsShape(
     optionsObj: ObjectLiteralExpression,
     moduleLocalNames: Set<string>,
+    globalAliases: Map<string, string>,
 ): OptionShapeIssue | null {
-    return analyzeObjectOrArrayOption(optionsObj, 'props', moduleLocalNames);
+    return analyzeObjectOrArrayOption(optionsObj, 'props', moduleLocalNames, globalAliases);
 }
 
 export function analyzeEmitsShape(
     optionsObj: ObjectLiteralExpression,
     moduleLocalNames: Set<string>,
+    globalAliases: Map<string, string>,
 ): OptionShapeIssue | null {
-    return analyzeObjectOrArrayOption(optionsObj, 'emits', moduleLocalNames);
+    return analyzeObjectOrArrayOption(optionsObj, 'emits', moduleLocalNames, globalAliases);
 }
 
-export function extractPropsText(optionsObj: ObjectLiteralExpression): string | null {
+export function extractPropsText(optionsObj: ObjectLiteralExpression, globalAliases: Map<string, string>): string | null {
     const prop = optionsObj.getProperty('props');
     // Unsupported props shapes (shorthand, spreads, computed keys, non-literal)
     // are surfaced by analyzePropsShape, which suppresses this text to an empty
@@ -203,10 +227,13 @@ export function extractPropsText(optionsObj: ObjectLiteralExpression): string | 
     if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return null;
 
     const initializer = prop.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
-    return initializer?.getText() ?? null;
+    return initializer ? expandGlobalAliases(initializer, globalAliases) : null;
 }
 
-export function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): EmitsDefinition {
+export function extractEmitsDefinition(
+    optionsObj: ObjectLiteralExpression,
+    globalAliases: Map<string, string>,
+): EmitsDefinition {
     const prop = optionsObj.getProperty('emits');
     // Unsupported emits shapes are surfaced by analyzeEmitsShape, which suppresses
     // this definition to inferred `$emit()` names when it cannot be emitted safely.
@@ -239,7 +266,7 @@ export function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): Emi
                         ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
                         : p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName(),
                 ),
-            objectText: objInit.getText(),
+            objectText: expandGlobalAliases(objInit, globalAliases),
         };
     }
 
@@ -284,10 +311,12 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
         }
     }
 
-    const moduleLocalNames = collectModuleLocalNames(registration.call.getSourceFile(), registration);
-    const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames);
+    const sourceFile = registration.call.getSourceFile();
+    const moduleLocalNames = collectModuleLocalNames(sourceFile, registration);
+    const globalAliases = collectGlobalAliasPaths(sourceFile, registration);
+    const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames, globalAliases);
     if (propsIssue?.backoff) blockers.push(propsIssue.reason);
-    const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames);
+    const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames, globalAliases);
     if (emitsIssue?.backoff) blockers.push(emitsIssue.reason);
 
     // A watcher signature that cannot be re-emitted equivalently would corrupt

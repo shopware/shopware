@@ -1,6 +1,11 @@
 import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { collectModuleLocalNames, collectModuleVueImportNames, extractModuleLevelCode } from './ast';
+import {
+    collectGlobalAliasPaths,
+    collectModuleLocalNames,
+    collectModuleVueImportNames,
+    extractModuleLevelCode,
+} from './ast';
 import { extractComputedProps } from './extract-computed';
 import {
     analyzeEmitsShape,
@@ -107,6 +112,7 @@ export function collectCompositionScriptState(
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
     const moduleLocalNames = collectModuleLocalNames(sourceFile, registration);
+    const globalAliases = collectGlobalAliasPaths(sourceFile, registration);
 
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
@@ -114,15 +120,17 @@ export function collectCompositionScriptState(
     // Unsupported props/emits shapes are suppressed to empty compiler macros so
     // no non-equivalent defineProps/defineEmits leaks; methods that depended on
     // the dropped members then surface as unresolved `this.<name>` follow-ups.
-    const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames);
-    const propsText = propsIssue && !propsIssue.backoff ? null : extractPropsText(optionsObj);
+    const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames, globalAliases);
+    const propsText = propsIssue && !propsIssue.backoff ? null : extractPropsText(optionsObj, globalAliases);
     if (propsIssue && !propsIssue.backoff) {
         pushManualMigration(manualMigrationReasons, todoComments, 'props', propsIssue.reason);
     }
 
-    const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames);
+    const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames, globalAliases);
     const emitsDefinition =
-        emitsIssue && !emitsIssue.backoff ? { keys: [], objectText: null } : extractEmitsDefinition(optionsObj);
+        emitsIssue && !emitsIssue.backoff
+            ? { keys: [], objectText: null }
+            : extractEmitsDefinition(optionsObj, globalAliases);
     if (emitsIssue && !emitsIssue.backoff) {
         pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
     }

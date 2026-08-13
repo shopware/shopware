@@ -10,6 +10,7 @@ import {
     getSnippetCallExpressions,
     getSnippetPropertyAccesses,
     getThisRefName,
+    isCoveredByBindingScope,
     isNodeInsideSnippet,
 } from './ast';
 import { buildPropertyAccess, getWatchRootName, isDefined, parseWatchPath } from './helpers';
@@ -329,11 +330,7 @@ function findShadowedRewriteRoot(
         return null;
     }
 
-    const start = node.getStart();
-    const end = node.getEnd();
-    const isShadowed = bindingScopes.some((scope) => scope.name === rootName && scope.start <= start && scope.end >= end);
-
-    return isShadowed ? rootName : null;
+    return isCoveredByBindingScope(bindingScopes, rootName, node.getStart(), node.getEnd()) ? rootName : null;
 }
 
 /** true when the `this` keyword is the object of a `this.<name>` access. */

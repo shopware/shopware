@@ -554,6 +554,8 @@ App-declared admin modules are now persisted through the generic app feature sto
 
 `AppEntity::getModules()`, `getMainModule()` and their setters are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes the fields; modules are served through `ModuleLoader`.
 
+Apps without an app secret are now omitted from the admin module list instead of raising `AppException::appSecretMissing`. Their module sources could never be signed and were therefore not callable; previously a single such app made the whole module list fail.
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout

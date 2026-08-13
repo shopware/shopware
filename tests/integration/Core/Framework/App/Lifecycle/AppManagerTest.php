@@ -825,6 +825,7 @@ class AppManagerTest extends TestCase
         );
 
         static::assertSame([], $features);
+        static::assertEmpty($this->loadApp($app->getId())->getCookies());
     }
 
     public function testDelete(): void

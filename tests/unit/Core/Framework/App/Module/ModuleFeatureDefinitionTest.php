@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Module\MainModule;
 use Shopware\Core\Framework\App\Module\Module;
 use Shopware\Core\Framework\App\Module\ModuleConfig;
@@ -40,6 +41,18 @@ class ModuleFeatureDefinitionTest extends TestCase
             new Filesystem(__DIR__),
             'en-GB',
         ));
+    }
+
+    public function testFromAppReturnsEmptyWhenTheAdminSectionDeclaresNoModules(): void
+    {
+        $admin = static::createStub(Admin::class);
+        $admin->method('getModules')->willReturn([]);
+        $admin->method('getMainModule')->willReturn(null);
+
+        $manifest = static::createStub(Manifest::class);
+        $manifest->method('getAdmin')->willReturn($admin);
+
+        static::assertSame([], $this->definition->fromApp($manifest, new Filesystem(__DIR__), 'en-GB'));
     }
 
     public function testFromAppReadsModulesAndMainModule(): void

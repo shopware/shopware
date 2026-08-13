@@ -52,6 +52,10 @@ class ModuleFeatureDefinition implements AppFeatureDefinition
             ? new MainModule($admin->getMainModule()->getSource())
             : null;
 
+        if ($modules === [] && $mainModule === null) {
+            return [];
+        }
+
         return [new ModuleConfig($modules, $mainModule)];
     }
 

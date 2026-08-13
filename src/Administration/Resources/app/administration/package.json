@@ -210,7 +210,7 @@
     "prettier": "3.6.2",
     "prettier-plugin-multiline-arrays": "3.0.6",
     "prismjs": "1.30.0",
-    "puppeteer": "25.6.0",
+    "puppeteer": "24.33.0",
     "sass": "1.77.6",
     "semver": "7.6.3",
     "stylelint": "14.16.1",

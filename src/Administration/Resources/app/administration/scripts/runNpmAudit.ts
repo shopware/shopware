@@ -31,6 +31,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-gcfj-64vw-6mp9', // axios v0 inherited proxy use, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-hcpx-6fm6-wx23', // axios v0 form serializer maxDepth bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-7q8q-rj6j-mhjq', // axios v0 nested option prototype pollution, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
-        'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal, high severity, dev-only via @lhci/cli>lighthouse>puppeteer-core; only extracts official Chrome downloads, no fix in pinned lighthouse tree (puppeteer-core ^24 pins @puppeteer/browsers 2.11.0)
+        'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal, high severity, dev-only via puppeteer and @lhci/cli>lighthouse>puppeteer-core; only extracts official Chrome downloads. The fix (@puppeteer/browsers 3.x dropped extract-zip) requires node >=22.12.0, outside this package's declared engines (^20 || ^21 || ^22 ...), so we cannot bump without narrowing Node support
     ],
 });

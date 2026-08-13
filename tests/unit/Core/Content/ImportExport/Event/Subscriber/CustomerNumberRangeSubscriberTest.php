@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordsEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\CustomerNumberRangeSubscriber;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -55,6 +56,34 @@ class CustomerNumberRangeSubscriberTest extends TestCase
             CustomerDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_INSERT,
         )));
+    }
+
+    public function testSynchronizesInsertedCustomerNumberAfterOneByOneImport(): void
+    {
+        $context = Context::createDefaultContext();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('executeStatement');
+        $clock = static::createStub(ClockInterface::class);
+        $clock->method('now')->willReturn(new \DateTimeImmutable('2026-01-01 00:00:00'));
+
+        $subscriber = new CustomerNumberRangeSubscriber(
+            $this->createPatternConfigService(),
+            $connection,
+            $clock,
+            StaticEntityRepository::of(CustomerCollection::class, [[]]),
+        );
+        $batchEvent = $this->createBatchEvent($context, new EntityWriteResult(
+            'customer-id',
+            ['customerNumber' => '100014'],
+            CustomerDefinition::ENTITY_NAME,
+            EntityWriteResult::OPERATION_INSERT,
+        ));
+
+        $subscriber->onAfterImportRecords(new ImportExportAfterImportRecordsEvent(
+            $batchEvent->getConfig(),
+            $context,
+            $batchEvent->getResult(),
+        ));
     }
 
     public function testDoesNotSynchronizeUpdatedCustomer(): void

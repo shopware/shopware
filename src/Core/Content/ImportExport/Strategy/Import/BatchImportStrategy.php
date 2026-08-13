@@ -128,5 +128,6 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
     public function reset(): void
     {
         $this->toImport = [];
+        parent::reset();
     }
 }

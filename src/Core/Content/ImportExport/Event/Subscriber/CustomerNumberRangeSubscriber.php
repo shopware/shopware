@@ -7,10 +7,14 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordsEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
+use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,6 +50,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         return [
             ImportExportBeforeImportRecordEvent::class => 'onBeforeImportRecord',
             ImportExportAfterImportBatchEvent::class => 'onAfterImportBatch',
+            ImportExportAfterImportRecordsEvent::class => 'onAfterImportRecords',
         ];
     }
 
@@ -101,15 +106,25 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
 
     public function onAfterImportBatch(ImportExportAfterImportBatchEvent $event): void
     {
-        if (!$this->isCustomerEntity($event)) {
+        $this->processAfterImport($event->getConfig(), $event->getContext(), $event->getResult());
+    }
+
+    public function onAfterImportRecords(ImportExportAfterImportRecordsEvent $event): void
+    {
+        $this->processAfterImport($event->getConfig(), $event->getContext(), $event->getResult());
+    }
+
+    private function processAfterImport(Config $config, Context $context, ImportResult $result): void
+    {
+        if ($config->get('sourceEntity') !== CustomerDefinition::ENTITY_NAME) {
             return;
         }
 
         /** @var array<string, int> $highestIncrements */
         $highestIncrements = [];
-        $salesChannelIdsForUpdatedCustomers = $this->getSalesChannelIdsForUpdatedCustomers($event);
+        $salesChannelIdsForUpdatedCustomers = $this->getSalesChannelIdsForUpdatedCustomers($result, $context);
 
-        foreach ($event->getResult()->results as $writtenContainerEvent) {
+        foreach ($result->results as $writtenContainerEvent) {
             $nestedEvents = $writtenContainerEvent->getEvents();
             if ($nestedEvents === null) {
                 continue;
@@ -173,11 +188,11 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
     /**
      * @return array<string, string|null>
      */
-    private function getSalesChannelIdsForUpdatedCustomers(ImportExportAfterImportBatchEvent $event): array
+    private function getSalesChannelIdsForUpdatedCustomers(ImportResult $result, Context $context): array
     {
         $customerIds = [];
 
-        foreach ($event->getResult()->results as $writtenContainerEvent) {
+        foreach ($result->results as $writtenContainerEvent) {
             $nestedEvents = $writtenContainerEvent->getEvents();
             if ($nestedEvents === null) {
                 continue;
@@ -208,7 +223,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $customerIds));
-        $customers = $this->customerRepository->search($criteria, $event->getContext())->getEntities();
+        $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 
         $salesChannelIdsByCustomerId = [];
         foreach ($customers as $customer) {
@@ -218,7 +233,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         return $salesChannelIdsByCustomerId;
     }
 
-    private function isCustomerEntity(ImportExportBeforeImportRecordEvent|ImportExportAfterImportBatchEvent $event): bool
+    private function isCustomerEntity(ImportExportBeforeImportRecordEvent $event): bool
     {
         return $event->getConfig()->get('sourceEntity') === CustomerDefinition::ENTITY_NAME;
     }

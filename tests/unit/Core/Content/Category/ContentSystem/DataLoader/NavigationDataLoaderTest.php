@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(NavigationDataLoader::class)]
 class NavigationDataLoaderTest extends TestCase
 {
@@ -252,6 +252,105 @@ class NavigationDataLoaderTest extends TestCase
 
         static::assertTrue($resultEmpty->hasData());
         static::assertSame($tree, $resultEmpty->data);
+    }
+
+    #[TestDox('falls back to the sales channel navigation depth when the config declares none')]
+    public function testLoadFallsBackToSalesChannelDepthWhenConfigDeclaresNone(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
+        $config = new NavigationLoaderConfig(rootId: $rootId);
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryDepth(4);
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 4)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('an explicitly configured depth still wins over the sales channel setting')]
+    public function testLoadPrefersConfiguredDepthOverSalesChannelDepth(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
+        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 1);
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryDepth(4);
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 1)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('falls back to the root when the activeId placeholder was not resolved')]
+    public function testLoadFallsBackToRootWhenActiveIdIsAnUnresolvedPlaceholder(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        // A layout that is not rooted on a category leaves "{{categoryId}}" in place.
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => '{{categoryId}}']);
+        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+        $context = Generator::generateSalesChannelContext();
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 2)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('returns notFound result when an alias does not resolve because the sales channel has no such category')]
+    public function testLoadReturnsNotFoundWhenAliasDoesNotResolve(): void
+    {
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
+        $config = new NavigationLoaderConfig(rootId: 'service-navigation', depth: 2, activeProperty: 'activeId');
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+
+        $context = Generator::generateSalesChannelContext();
+        static::assertNull($context->getSalesChannel()->getServiceCategoryId());
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
+
+        // All three together pin notFound() rather than uncacheable(), which differs only in its tags.
+        static::assertFalse($result->hasData());
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('returns notFound result when config is not a NavigationLoaderConfig instance')]

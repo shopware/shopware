@@ -101,6 +101,17 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(mock).toHaveBeenCalledTimes(1);
     });
 
+    it('should clear the selected indexers', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.changeSelection(true, 'category.indexer');
+
+        await wrapper.findComponent('.sw-settings-cache__indexers-select').vm.$emit('clear');
+
+        expect(wrapper.vm.indexerSelection).toEqual([]);
+    });
+
     it('should send different values for skip and only on reindex', async () => {
         const indexMock = jest.fn(() => Promise.resolve());
 

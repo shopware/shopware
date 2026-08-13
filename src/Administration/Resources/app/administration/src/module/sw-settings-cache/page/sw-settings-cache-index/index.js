@@ -237,6 +237,10 @@ export default {
             }
         },
 
+        clearIndexerSelection() {
+            this.indexerSelection = [];
+        },
+
         createOnlySelection(only) {
             for (const indexerName of Object.keys(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {

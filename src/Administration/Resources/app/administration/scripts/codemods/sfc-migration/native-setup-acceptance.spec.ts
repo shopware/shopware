@@ -82,10 +82,6 @@ describe('scripts/codemods/sfc-migration native setup acceptance', () => {
             return;
         }
 
-        it('is accepted by the build-time native setup transform', () => {
-            expect(() => transformShopwareSetupSfc(result.sfc, fileName)).not.toThrow();
-        });
-
         it('is lowered into the extension runtime with the compile-time marker consumed', () => {
             const transformed = transformShopwareSetupSfc(result.sfc, fileName);
 

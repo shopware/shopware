@@ -465,10 +465,8 @@ describe('runMigration — filesystem errors', () => {
 
         jest.spyOn(fs, 'readdirSync').mockImplementation(((...args: unknown[]) => {
             const [dir] = args;
-            const isComponentDir = typeof dir === 'string' && dir === componentDir;
-            const isSelectTwigFileCall = new Error().stack?.includes('selectTwigFile') ?? false;
 
-            if (isComponentDir && isSelectTwigFileCall) {
+            if (dir === componentDir) {
                 throw new Error('EACCES: permission denied, scandir');
             }
 

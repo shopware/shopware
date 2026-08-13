@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -85,6 +86,14 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $this->eventDispatcher->dispatch($afterRecord);
             }
 
+            $this->eventDispatcher->dispatch(
+                new ImportExportAfterImportBatchEvent(
+                    $config,
+                    $context,
+                    new ImportResult([$result], []),
+                )
+            );
+
             $progress->addProcessedRecords(\count($this->toImport));
 
             $this->reset();
@@ -101,6 +110,14 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $results = array_merge($results, $importResult->results);
                 $failedRecords = array_merge($failedRecords, $importResult->failedRecords);
             }
+
+            $this->eventDispatcher->dispatch(
+                new ImportExportAfterImportBatchEvent(
+                    $config,
+                    $context,
+                    new ImportResult($results, $failedRecords),
+                )
+            );
 
             $this->reset();
 

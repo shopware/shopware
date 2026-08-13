@@ -29,6 +29,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKe
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\CategoryCriteriaSubscriber;
+use Shopware\Core\Content\ImportExport\Event\Subscriber\CustomerNumberRangeSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\FileDeletedSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber;
@@ -43,6 +44,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -91,6 +93,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangeSubscriber::class)
+        ->args([
+            service(CustomerNumberRangeConfigService::class),
+            service(Connection::class),
+            service(ClockInterface::class),
+            service('customer.repository'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangeConfigService::class)
+        ->args([
+            service(Connection::class),
+        ]);
 
     $services->set(ImportExportService::class)
         ->args([

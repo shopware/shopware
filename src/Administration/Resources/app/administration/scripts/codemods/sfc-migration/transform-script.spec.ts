@@ -3986,30 +3986,52 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expectManualFallback(result, 'props');
         });
 
-        // A named function expression binds its own name inside itself, so the
-        // body reads the function — not the alias. Expanding it would emit
-        // `function Shopware.Data.Criteria()`, which does not even parse.
+        // JavaScript reads the name as the function, so substituting the path
+        // would change what the code means. Vue's macro scope tracker does not
+        // count the self-binding, so it reads the module-local and rejects the
+        // macro. Both are honoured by keeping the Options API backoff.
         it.each([
             [
                 'a named function expression',
-                'default: function Criteria() { return Criteria; }',
+                'props',
+                'props: { criteria: { type: Object, required: false, default: function Criteria() { return Criteria; } } }',
             ],
             [
                 'a named class expression',
-                'default: () => class Criteria { static of() { return Criteria; } }',
+                'props',
+                'props: { criteria: { type: Object, required: false, default: () => class Criteria { static of() { return Criteria; } } } }',
             ],
-        ])('leaves a global alias name that %s binds untouched', (_case, defaultSource) => {
+            [
+                'a named function expression in an emits validator',
+                'emits',
+                'emits: { save: function Criteria(payload) { return Criteria.length + payload; } }',
+            ],
+        ])('blocks a definition where %s binds a global alias name', (_case, optionName, optionSource) => {
+            const js = `const { Criteria } = Shopware.Data;
+
+            Shopware.Component.register('sw-test', {
+                ${optionSource},
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain(`${optionName}: definition references a module-local declaration`);
+        });
+
+        // Only the shadowed name blocks; the alias elsewhere in the same
+        // definition still expands.
+        it('keeps expanding an alias next to an unrelated named function expression', () => {
             const js = `const { Criteria } = Shopware.Data;
 
             Shopware.Component.register('sw-test', {
                 props: {
-                    criteria: { type: Object, required: false, ${defaultSource} },
+                    criteria: { type: Criteria, required: false, default: function makeIt() { return null; } },
                 },
             });`;
             const result = transformScript(js);
 
             expect(result.status).toBe('fully-migrated');
-            expect(result.script).not.toContain('Shopware.Data.Criteria');
+            expect(result.script).toContain('type: Shopware.Data.Criteria,');
         });
 
         // Writing the path back out would read the module's own binding, not the

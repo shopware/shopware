@@ -65,8 +65,12 @@ function referencesModuleLocal(node: TsNode, moduleLocalNames: Set<string>, glob
         return false;
     }
 
-    return collectOptionValueReferences(node).some(
-        (identifier) => moduleLocalNames.has(identifier.getText()) && !isExpandableAlias(identifier, globalAliases),
+    const { references, namedExpressionScopes } = readOptionAliasContext(node);
+
+    return references.some(
+        (identifier) =>
+            moduleLocalNames.has(identifier.getText()) &&
+            !isExpandableAlias(identifier, globalAliases, namedExpressionScopes),
     );
 }
 
@@ -82,11 +86,12 @@ function expandGlobalAliases(node: TsNode, globalAliases: Map<string, string>): 
     }
 
     const nodeStart = node.getStart();
+    const { references, namedExpressionScopes } = readOptionAliasContext(node);
 
     // Identifiers never nest, so replacing from the back keeps every earlier
     // offset valid.
-    return collectOptionValueReferences(node)
-        .filter((identifier) => isExpandableAlias(identifier, globalAliases))
+    return references
+        .filter((identifier) => isExpandableAlias(identifier, globalAliases, namedExpressionScopes))
         .map((identifier) => ({
             start: identifier.getStart() - nodeStart,
             end: identifier.getEnd() - nodeStart,
@@ -97,21 +102,59 @@ function expandGlobalAliases(node: TsNode, globalAliases: Map<string, string>): 
 }
 
 /**
- * A shorthand entry (`{ Criteria }`) is a value reference, but replacing it with
- * a path would produce `{ Shopware.Data.Criteria }` — not valid syntax — so it
- * stays a blocker instead. `referencesModuleLocal` and `expandGlobalAliases`
- * share this predicate so the two can never disagree about a name.
+ * Two things stop an alias from being written out as its global path, and both
+ * leave the definition on the Options API backoff instead:
+ *
+ * - a shorthand entry (`{ Criteria }`), because `{ Shopware.Data.Criteria }` is
+ *   not valid syntax;
+ * - a name a named function or class expression binds, because in JavaScript
+ *   that name is the function, not the alias.
+ *
+ * `referencesModuleLocal` and `expandGlobalAliases` share this predicate so the
+ * two can never disagree about a name.
  */
-function isExpandableAlias(identifier: TsNode, globalAliases: Map<string, string>): boolean {
-    return globalAliases.has(identifier.getText()) && !Node.isShorthandPropertyAssignment(identifier.getParent());
+function isExpandableAlias(
+    identifier: TsNode,
+    globalAliases: Map<string, string>,
+    namedExpressionScopes: LocalBindingScope[],
+): boolean {
+    return (
+        globalAliases.has(identifier.getText()) &&
+        !Node.isShorthandPropertyAssignment(identifier.getParent()) &&
+        !isCoveredByBindingScope(
+            namedExpressionScopes,
+            identifier.getText(),
+            identifier.getStart(),
+            identifier.getEnd(),
+        )
+    );
 }
 
-function collectOptionValueReferences(node: TsNode): TsNode[] {
+/**
+ * The identifiers of an option definition that read an outer binding, plus the
+ * self-bindings of the named function and class expressions inside it.
+ *
+ * The two are separated because Vue and JavaScript disagree about exactly those
+ * self-bindings: Vue's compiler-macro scope tracker does not count them, so a
+ * name one shadows still reads to Vue as a reference to the module-local — and
+ * Vue's model is the one that decides whether the file builds. JavaScript's
+ * model is the one that decides what a substitution would mean. Honouring both
+ * gives the honest Options API backoff: reported as a reference, never rewritten.
+ *
+ * Parameters and block-scoped locals need none of this — both models agree, and
+ * both were verified to compile.
+ */
+function readOptionAliasContext(node: TsNode): { references: TsNode[]; namedExpressionScopes: LocalBindingScope[] } {
     const bindingScopes = collectLocalBindingScopes(node);
+    const namedExpressionScopes = bindingScopes.filter((scope) => scope.fromNamedExpression);
+    const vueVisibleScopes = bindingScopes.filter((scope) => !scope.fromNamedExpression);
 
-    return node
-        .getDescendantsOfKind(SyntaxKind.Identifier)
-        .filter((identifier) => isValueReference(identifier, bindingScopes));
+    return {
+        references: node
+            .getDescendantsOfKind(SyntaxKind.Identifier)
+            .filter((identifier) => isValueReference(identifier, vueVisibleScopes)),
+        namedExpressionScopes,
+    };
 }
 
 /**

@@ -33,6 +33,13 @@ export interface LocalBindingScope {
     /** Source range of the scope node the binding is visible in. */
     start: number;
     end: number;
+    /**
+     * true for the self-binding of a named function or class expression. It is a
+     * real JavaScript binding, but Vue's compiler-macro scope tracker does not
+     * count it, so callers that have to predict what Vue will accept filter it
+     * out — see `extract-component-options.ts`.
+     */
+    fromNamedExpression?: boolean;
 }
 
 /**
@@ -48,14 +55,16 @@ export interface LocalBindingScope {
  */
 export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
     const scopes: LocalBindingScope[] = [];
-    const add = (nameNode: BindingName, scope: Node | undefined): void => {
+    const add = (nameNode: BindingName, scope: Node | undefined, fromNamedExpression = false): void => {
         if (!scope) {
             return;
         }
 
         const names = new Set<string>();
         addBindingNames(nameNode, names);
-        names.forEach((name) => scopes.push({ name, start: scope.getStart(), end: scope.getEnd() }));
+        names.forEach((name) =>
+            scopes.push({ name, start: scope.getStart(), end: scope.getEnd(), fromNamedExpression }),
+        );
     };
 
     for (const node of rootNode.getDescendants()) {
@@ -84,7 +93,7 @@ export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
             // itself — `function Criteria() { return Criteria; }` reads the
             // function, not any outer binding of that name.
             if (nameNode) {
-                add(nameNode, node);
+                add(nameNode, node, true);
             }
         }
     }

@@ -61,6 +61,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(validator('default')).toBe(true);
         expect(validator('small')).toBe(true);
         expect(validator('large')).toBe(true);
+        expect(validator('x-large')).toBe(true);
         expect(validator('full')).toBe(true);
         expect(validator('not-existing')).toBe(false);
     });
@@ -69,6 +70,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         'default',
         'small',
         'large',
+        'x-large',
         'full',
     ])('should set correct variant class for %s', async (variant) => {
         await wrapper.setProps({
@@ -76,6 +78,14 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal').classes(`sw-modal--${variant}`)).toBe(true);
+    });
+
+    it('should apply a custom z-index to the modal', async () => {
+        await wrapper.setProps({
+            zIndex: 2000,
+        });
+
+        expect(wrapper.get('.sw-modal').element.style.zIndex).toBe('2000');
     });
 
     it('should have has--header class if showHeader option is true', async () => {

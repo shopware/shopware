@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\JsonStreamer\StreamWriterInterface;
+use Symfony\Component\TypeInfo\Type;
 
 /**
  * @internal
@@ -12,6 +14,11 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
 #[Package('framework')]
 final class DTOResponseListener
 {
+    public function __construct(
+        private readonly StreamWriterInterface $jsonStreamWriter,
+    ) {
+    }
+
     public function __invoke(ViewEvent $event): void
     {
         $result = $event->getControllerResult();
@@ -20,13 +27,8 @@ final class DTOResponseListener
             return;
         }
 
-        $data = get_object_vars($result);
+        $json = $this->jsonStreamWriter->write($result, Type::object($result::class));
 
-        $extensions = $result->getExtensions();
-        if ($extensions !== []) {
-            $data['extensions'] = $extensions;
-        }
-
-        $event->setResponse(new JsonResponse($data));
+        $event->setResponse(new JsonResponse((string) $json, json: true));
     }
 }

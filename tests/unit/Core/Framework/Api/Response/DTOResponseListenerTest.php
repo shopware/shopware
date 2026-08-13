@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
+use Symfony\Component\JsonStreamer\JsonStreamWriter;
 
 /**
  * @internal
@@ -21,13 +23,13 @@ class DTOResponseListenerTest extends TestCase
 {
     public function testConvertsResponseDtoToJsonResponse(): void
     {
-        $event = $this->createViewEvent(new class extends AbstractResponse {
+        $event = $this->createViewEvent(new #[JsonStreamable] class extends AbstractResponse {
             public string $status = 'optIn';
 
             public string $apiAlias = 'account_newsletter_recipient';
         });
 
-        (new DTOResponseListener())($event);
+        $this->listener()($event);
 
         static::assertInstanceOf(JsonResponse::class, $event->getResponse());
         static::assertSame(
@@ -40,17 +42,17 @@ class DTOResponseListenerTest extends TestCase
     {
         $event = $this->createViewEvent(new \stdClass());
 
-        (new DTOResponseListener())($event);
+        $this->listener()($event);
 
         static::assertNull($event->getResponse());
     }
 
     public function testConvertsResponseDtoWithNestedObjectsToJsonResponse(): void
     {
-        $nestedAddress = new class {
+        $nestedAddress = new #[JsonStreamable] class {
             public string $city = 'Berlin';
         };
-        $response = new class($nestedAddress) extends AbstractResponse {
+        $response = new #[JsonStreamable] class($nestedAddress) extends AbstractResponse {
             public function __construct(public object $address)
             {
             }
@@ -64,7 +66,7 @@ class DTOResponseListenerTest extends TestCase
 
         $event = $this->createViewEvent($response);
 
-        (new DTOResponseListener())($event);
+        $this->listener()($event);
 
         static::assertSame(
             '{"address":{"city":"Berlin"},"relatedAddresses":[{"city":"Berlin"}]}',
@@ -74,15 +76,28 @@ class DTOResponseListenerTest extends TestCase
 
     public function testConvertsResponseDtoExtensionsToJsonResponse(): void
     {
-        $response = new class extends AbstractResponse {
+        $response = new #[JsonStreamable] class extends AbstractResponse {
         };
         $response->addExtension('customData', ['value' => 'test']);
 
         $event = $this->createViewEvent($response);
 
-        (new DTOResponseListener())($event);
+        $this->listener()($event);
 
         static::assertSame('{"extensions":{"customData":{"value":"test"}}}', $event->getResponse()?->getContent());
+    }
+
+    public function testOmitsNullNullableResponseProperty(): void
+    {
+        $response = new #[JsonStreamable] class extends AbstractResponse {
+            public ?string $message = null;
+        };
+
+        $event = $this->createViewEvent($response);
+
+        $this->listener()($event);
+
+        static::assertSame('{}', $event->getResponse()?->getContent());
     }
 
     private function createViewEvent(object $result): ViewEvent
@@ -93,5 +108,10 @@ class DTOResponseListenerTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST,
             $result,
         );
+    }
+
+    private function listener(): DTOResponseListener
+    {
+        return new DTOResponseListener(JsonStreamWriter::create());
     }
 }

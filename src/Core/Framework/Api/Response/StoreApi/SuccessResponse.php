@@ -4,18 +4,20 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-12 14:36:20
+ * Last generated: 2026-08-13 12:40:10
  */
 
 namespace Shopware\Core\Framework\Api\Response\StoreApi;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('framework')]
+#[JsonStreamable]
 final class SuccessResponse extends AbstractResponse
 {
     public function __construct(

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @internal
@@ -79,6 +80,8 @@ final class OpenApiDtoClassRenderer
         if ($definition->package !== null) {
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
+
+        $lines[] = '#[JsonStreamable]';
 
         $baseClass = $this->isResponse($definition) ? AbstractResponse::class : AbstractRequest::class;
         $classDeclaration = 'final class ' . $definition->name . ' extends ' . $this->shortClassName($baseClass);
@@ -424,6 +427,7 @@ final class OpenApiDtoClassRenderer
         if ($definition->package !== null) {
             $imports[Package::class] = true;
         }
+        $imports[JsonStreamable::class] = true;
 
         foreach ($definition->properties as $property) {
             foreach ([$property->phpType, $property->arrayItemType, $property->arrayMapValueType] as $type) {

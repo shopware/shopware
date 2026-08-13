@@ -10,12 +10,14 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Customer group of the current user
  *
  * @codeCoverageIgnore
  */
+#[JsonStreamable]
 final class SalesChannelContextCurrentCustomerGroup extends AbstractRequest
 {
     public function __construct(

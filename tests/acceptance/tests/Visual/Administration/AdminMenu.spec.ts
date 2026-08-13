@@ -1,6 +1,5 @@
 import { test, setViewport, hideElements, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
-// eslint-disable-next-line playwright/no-skipped-test
-test.skip('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
+test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
     await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
         await AdminDashboard.adminMenuCatalog.click();
@@ -8,11 +7,12 @@ test.skip('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin,
         await AdminDashboard.adminMenuCustomer.click();
         await AdminDashboard.adminMenuContent.click();
         await AdminDashboard.adminMenuMarketing.click();
+        await AdminDashboard.adminMenuAutomation.click();
         await AdminDashboard.adminMenuExtension.click();
         await AdminDashboard.adminMenuUserChevron.click();
 
         await setViewport(AdminDashboard.page, {
-            contentHeight: 1796,
+            contentHeight: 1880,
         });
         await hideElements(AdminDashboard.page, [AdminDashboard.adminMenuUserIcon]);
         await replaceElements(AdminDashboard.page, [AdminDashboard.adminMenuUserName]);

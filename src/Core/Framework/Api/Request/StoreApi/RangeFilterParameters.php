@@ -4,12 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 12:40:10
+ * Last generated: 2026-08-13 14:36:46
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
@@ -18,7 +18,7 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
  */
 #[Package('framework')]
 #[JsonStreamable]
-final class RangeFilterParameters extends AbstractRequest
+final class RangeFilterParameters extends AbstractDto
 {
     public function __construct(
         public ?float $gte = null,

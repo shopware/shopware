@@ -25,6 +25,7 @@ final readonly class OpenApiDtoDefinition
         public array $enumValues = [],
         public ?string $enumType = null,
         public int $responseStatusCode = Response::HTTP_OK,
+        public OpenApiDtoType $type = OpenApiDtoType::Nested,
     ) {
     }
 }

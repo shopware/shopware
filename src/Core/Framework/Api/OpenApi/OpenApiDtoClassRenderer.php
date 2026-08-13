@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\OpenApi;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\FrameworkException;
@@ -17,11 +18,6 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[Package('framework')]
 final class OpenApiDtoClassRenderer
 {
-    /**
-     * Class name suffix that marks a generated DTO as a response.
-     */
-    private const RESPONSE_CLASS_SUFFIX = 'Response';
-
     /**
      * @var array<string, string>
      */
@@ -84,7 +80,7 @@ final class OpenApiDtoClassRenderer
 
         $lines[] = '#[JsonStreamable]';
 
-        $baseClass = $this->isResponse($definition) ? AbstractResponse::class : AbstractRequest::class;
+        $baseClass = $this->baseClass($definition);
         $classDeclaration = 'final class ' . $definition->name . ' extends ' . $this->shortClassName($baseClass);
         $lines[] = $classDeclaration;
         $lines[] = '{';
@@ -100,7 +96,7 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = '    ) {';
-        if ($this->isResponse($definition) && $definition->responseStatusCode !== Response::HTTP_OK) {
+        if ($definition->type === OpenApiDtoType::Response && $definition->responseStatusCode !== Response::HTTP_OK) {
             $lines[] = '        parent::__construct(statusCode: ' . $this->responseStatusConstant($definition->responseStatusCode) . ');';
         }
         $lines[] = '    }';
@@ -417,7 +413,7 @@ final class OpenApiDtoClassRenderer
         $current = $namespace !== null ? trim($namespace, '\\') : '';
 
         $imports = [];
-        $baseClass = $this->isResponse($definition) ? AbstractResponse::class : AbstractRequest::class;
+        $baseClass = $this->baseClass($definition);
         $baseClassNamespace = substr($baseClass, 0, (int) strrpos($baseClass, '\\'));
         if ($baseClassNamespace !== $current) {
             $imports[$baseClass] = true;
@@ -431,7 +427,7 @@ final class OpenApiDtoClassRenderer
         if ($definition->package !== null) {
             $imports[Package::class] = true;
         }
-        if ($this->isResponse($definition) && $definition->responseStatusCode !== Response::HTTP_OK) {
+        if ($definition->type === OpenApiDtoType::Response && $definition->responseStatusCode !== Response::HTTP_OK) {
             $imports[Response::class] = true;
         }
         $imports[JsonStreamable::class] = true;
@@ -501,9 +497,18 @@ final class OpenApiDtoClassRenderer
         return false;
     }
 
-    private function isResponse(OpenApiDtoDefinition $definition): bool
+    /**
+     * @param OpenApiDtoDefinition $definition
+     *
+     * @return class-string<AbstractDto>
+     */
+    private function baseClass(OpenApiDtoDefinition $definition): string
     {
-        return str_ends_with($definition->name, self::RESPONSE_CLASS_SUFFIX);
+        return match ($definition->type) {
+            OpenApiDtoType::Request => AbstractRequest::class,
+            OpenApiDtoType::Response => AbstractResponse::class,
+            OpenApiDtoType::Nested => AbstractDto::class,
+        };
     }
 
     private function shortClassName(string $fqcn): string

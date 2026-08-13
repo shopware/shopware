@@ -1,21 +1,25 @@
-import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
-import {
-    computed,
-    getCurrentInstance as vueGetCurrentInstance,
-    isReactive,
-    isReadonly,
-    isRef,
-    reactive,
-    toRefs,
-    watch,
-} from 'vue';
+import type { ComputedRef, Ref } from 'vue';
+import { computed, getCurrentInstance as vueGetCurrentInstance, isReactive, isReadonly, isRef, reactive, watch } from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
-import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
-import type { OverrideFn } from './options-composition-shim';
+import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
+import type { OverrideFn } from '../options-composition-shim';
+import {
+    createDataScope,
+    createOverrideLocalState,
+    exposeOverrideLocalState,
+    getOverrideLocalState,
+    isOverrideLocalStateKey,
+    mergeOverrideState,
+    setDataScopeForInstance,
+} from './data-scope-helper';
+import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+
+/** @private */
+export { getScriptSetupDataScope } from './data-scope-helper';
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @private
  * @sw-package framework
  *
  * Extendable Setup Utility for Vue Components
@@ -43,11 +47,15 @@ import type { OverrideFn } from './options-composition-shim';
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 declare global {
     /**
-     * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+     * @private
      *
-     * This interface defines the public API mapping for each component that can be extended.
-     * It will be used to get the correct types for the overrides and to ensure that the
-     * overrides are compatible with the original component's public API.
+     * Maps an extendable component name to the shape of its public setup state, so the extension
+     * system's own signatures can name it.
+     *
+     * Not an author-facing surface: the index-signature fallback below resolves every real component to
+     * `{ [key: string]: any }`, so hand-declaring an entry is the only way to get any checking - and
+     * generated code never passes the type argument that would use it. Per-SFC types will be generated
+     * from the native setup transform instead, at which point this goes away.
      */
     interface ComponentPublicApiMapping {
         _internal_test_component: {
@@ -170,8 +178,71 @@ const getComponentContext = (): SetupContext => {
 type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends never ? T : never) : never;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
- * Main function to extend the setup of a component
+ * Describes the state shape passed to an override callback.
+ *
+ * Public setup values stay at the top level, while private setup values are grouped under `_private`.
+ *
+ * @example
+ * override(({ headline, _private }) => ({ headline: ref(`${headline.value}!`) }));
+ */
+type PreviousStateForOverride<TPublicState extends object, TPrivateState extends object> = TPublicState & {
+    _private: TPrivateState;
+};
+
+/**
+ * Lists setup-state keys that should be visible to override callbacks.
+ *
+ * Use this before building the previous-state snapshot so hidden override-local fields stay internal.
+ *
+ * @example
+ * const keys = getOverrideVisibleStateKeys(setupState);
+ */
+const getOverrideVisibleStateKeys = (state: object): string[] => {
+    return Object.keys(state).filter((key) => !isOverrideLocalStateKey(key));
+};
+
+/**
+ * Builds the previous-state snapshot passed to one override callback.
+ *
+ * This filters setup state to only include the public setup result at the top level, adds private setup values under
+ * `_private`, and leaves hidden override-local fields out of the callback payload.
+ *
+ * @example
+ * const previousState = createPreviousStateForOverride(setupState, publicSetupState);
+ */
+const createPreviousStateForOverride = <TPublicState extends object, TPrivateState extends object>(
+    setupState: TPublicState & TPrivateState,
+    publicState: TPublicState,
+): PreviousStateForOverride<TPublicState, TPrivateState> => {
+    const setupStateAsRecord = setupState as Record<string, unknown>;
+    const publicStateKeys = Object.keys(publicState);
+
+    return getOverrideVisibleStateKeys(setupState).reduce<PreviousStateForOverride<TPublicState, TPrivateState>>(
+        (previousState, key) => {
+            if (publicStateKeys.includes(key)) {
+                (previousState as Record<string, unknown>)[key] = setupStateAsRecord[key];
+                return previousState;
+            }
+
+            (previousState._private as Record<string, unknown>)[key] = setupStateAsRecord[key];
+            return previousState;
+        },
+        { _private: {} as TPrivateState } as PreviousStateForOverride<TPublicState, TPrivateState>,
+    );
+};
+
+/**
+ * @private
+ *
+ * Creates the runtime setup wrapper used by compiled base setup components.
+ *
+ * Not a public entry point: authors write native setup SFCs and the compiler pass emits the calls into
+ * this module for them. Reachable on the `Shopware.Component` global only because generated code has to
+ * resolve it at runtime.
+ *
+ * The wrapper separates public and private setup state, applies all registered Composition API and
+ * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
+ * rendering.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createExtendableSetup<
@@ -193,7 +264,7 @@ export function createExtendableSetup<
         public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
         private?: TPrivateSetupResult;
     },
-): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+): ExtendableSetupState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
     const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     // Call the original setup function
     const originalSetupResultRaw = originalSetup(options.props, componentContext);
@@ -214,25 +285,27 @@ export function createExtendableSetup<
         }
     });
 
-    const originalSetupResultPublic =
+    const publicSetupState =
         originalSetupResultRaw.public ?? ({} as Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>);
-    const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as TPrivateSetupResult);
+    const privateSetupState = originalSetupResultRaw.private ?? ({} as TPrivateSetupResult);
 
     // Merge public and private properties
-    const originalSetupResult: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
-        ...originalSetupResultPublic,
-        ...originalSetupResultPrivate,
+    const setupState: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
+        ...publicSetupState,
+        ...privateSetupState,
     };
+    const overrideLocalState = createOverrideLocalState();
+    exposeOverrideLocalState(setupState, overrideLocalState);
 
     // Check if any prop value was returned from the original setup
     Object.keys(options.props).forEach((key) => {
-        if (Object.keys(originalSetupResult).includes(key)) {
+        if (Object.keys(setupState).includes(key)) {
             console.error(
                 `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
             );
 
             // Delete the prop values from the original setup result
-            delete originalSetupResult[key];
+            delete setupState[key];
         }
     });
 
@@ -272,54 +345,31 @@ export function createExtendableSetup<
         }
     })();
 
-    const overrides = _overridesMap[options.name];
+    const registeredOverrides = _overridesMap[options.name];
 
     // Create a reactive wrapper for the original setup result
-    const wrappedState = originalSetupResult;
-    const reactiveWrappedState = reactive(wrappedState);
+    const reactiveSetupState = reactive(setupState);
 
     // Keep track of applied overrides to avoid duplicates
     const appliedOverrides = reactive<OverrideFn[]>([]);
 
     // Function to apply overrides
     const applyOverrides = () => {
-        overrides.forEach((override) => {
+        registeredOverrides.forEach((override) => {
             // Skip if this override has already been applied
             if (appliedOverrides.includes(override)) {
                 return;
             }
 
-            /**
-             *  Filter the wrappedState to only include public setup result
-             *  and add the private ones in the "_private" property
-             */
-            type PreviousStateResultForExtensions = Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & {
-                _private: TPrivateSetupResult;
-            };
-
-            const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
-            const publicStateKeys = Object.keys(originalSetupResultPublic);
-
-            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<PreviousStateResultForExtensions>(
-                (acc, key) => {
-                    if (publicStateKeys.includes(key)) {
-                        (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                    }
-                    return acc;
-                },
-                { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
-            );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>((acc, key) => {
-                if (!publicStateKeys.includes(key)) {
-                    (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                }
-                return acc;
-            }, {} as TPrivateSetupResult);
+            const previousStateForOverride = createPreviousStateForOverride<
+                Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>,
+                TPrivateSetupResult
+            >(setupState, publicSetupState);
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;
             try {
-                overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
+                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext);
             } catch (e) {
                 // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
                 // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
@@ -329,6 +379,11 @@ export function createExtendableSetup<
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {
+                if (isOverrideLocalStateKey(key)) {
+                    mergeOverrideState(getOverrideLocalState(reactiveSetupState), overrideResult[key] as OverrideLocalState);
+                    return;
+                }
+
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
                     console.error(
@@ -344,20 +399,20 @@ export function createExtendableSetup<
                     // @ts-expect-error - "effect" is not part of the Ref type
                     !resultValue?.effect
                 ) {
-                    if (wrappedState[key] !== undefined && isRef(wrappedState[key])) {
+                    if (setupState[key] !== undefined && isRef(setupState[key])) {
                         // Handle normal ref values with 2-Way sync
-                        syncRef(resultValue, wrappedState[key]);
+                        syncRef(resultValue, setupState[key]);
                     } else {
                         // New property from override (e.g. Options API shim data), add directly
-                        reactiveWrappedState[key] = resultValue;
+                        reactiveSetupState[key] = resultValue;
                     }
                 } else if (isReadonly(resultValue) && isRef(resultValue)) {
                     // Handle readonly computed values
-                    reactiveWrappedState[key] = resultValue;
+                    reactiveSetupState[key] = resultValue;
                     // @ts-expect-error - "effect" is part of a writable computed value
                 } else if (!isReadonly(resultValue) && isRef(resultValue) && resultValue?.effect) {
                     // Handle writable computed values, create a new computed property with getter and setter
-                    reactiveWrappedState[key] = computed({
+                    reactiveSetupState[key] = computed({
                         get: () => resultValue.value,
                         set: (value) => {
                             resultValue.value = value;
@@ -366,7 +421,7 @@ export function createExtendableSetup<
                 } else if (isReactive(resultValue)) {
                     // Check if new structure contains at least all keys of the old structure (nested)
                     const validationResult = checkNestedStructure({
-                        oldObj: reactiveWrappedState[key] as Record<string, unknown>,
+                        oldObj: reactiveSetupState[key] as Record<string, unknown>,
                         newObj: resultValue as Record<string, unknown>,
                         componentName: options.name as string,
                         path: key,
@@ -378,10 +433,10 @@ export function createExtendableSetup<
                     }
 
                     // Assign reactive objects directly
-                    Object.assign(reactiveWrappedState[key], resultValue);
+                    Object.assign(reactiveSetupState[key], resultValue);
                 } else if (typeof resultValue === 'function') {
                     // Handle functions, assign directly
-                    reactiveWrappedState[key] = resultValue;
+                    reactiveSetupState[key] = resultValue;
                 } else {
                     // Log an error for unhandled types
                     console.error(
@@ -398,13 +453,23 @@ export function createExtendableSetup<
     };
 
     // Watch for changes in the overrides array and reapply overrides when changed
-    watch(overrides, applyOverrides, { deep: true, immediate: true });
+    watch(registeredOverrides, applyOverrides, { deep: true, immediate: true });
 
-    return toRefs(reactiveWrappedState);
+    const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
+        reactiveSetupState,
+    );
+
+    const instance = getCurrentInstance();
+
+    if (instance) {
+        setDataScopeForInstance(instance, state);
+    }
+
+    return state;
 }
 
 /**
- * Types for extracting the props of a component
+ * Extracts runtime component props without Vue's framework-level public props.
  */
 type InferComponentProps<T> = T extends new () => { $props: infer P } ? P : never;
 type ExtractedProps<T> = Omit<
@@ -415,8 +480,12 @@ type ExtractedProps<T> = Omit<
 >;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
- * Function to add an override for a specific component
+ * @private
+ *
+ * Registers a setup override callback for one extendable component.
+ *
+ * Generated override SFCs call this during their hidden component setup so the base component can
+ * apply replacement bindings when its own extendable setup wrapper runs.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function overrideComponentSetup<TOriginalComponent>() {
@@ -436,4 +505,38 @@ export function overrideComponentSetup<TOriginalComponent>() {
         // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
         _overridesMap[componentName].push(override as unknown as OverrideFn);
     };
+}
+
+/**
+ * @private
+ *
+ * Hooks the override machinery into an already-executed native
+ * `<script setup>` body. The author's code runs natively (no hoisting, macros in place); the
+ * generated footer passes the finished bindings here, and this delegates to createExtendableSetup()
+ * with a callback that just returns them - all override application, previous-state, effect-scope,
+ * and data-scope semantics are reused unchanged.
+ *
+ * The props object handed to override callbacks is read from the current instance, so the generated
+ * footer never has to thread a props binding through (and destructured `defineProps()` works too).
+ */
+export function attachOverrides<TComponentName extends keyof ComponentPublicApiMapping>(options: {
+    name: TComponentName;
+    public?: Record<string, unknown>;
+    private?: Record<string, unknown>;
+}): ExtendableSetupState<Record<string, unknown>> {
+    const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
+
+    // No `context` is threaded through: createExtendableSetup() falls back to getComponentContext(),
+    // and the generated footer has no context binding to pass anyway.
+    return createExtendableSetup(
+        {
+            name: options.name,
+            props: props as never,
+        },
+        () =>
+            ({
+                public: options.public ?? {},
+                private: options.private ?? {},
+            }) as never,
+    );
 }

@@ -23,9 +23,6 @@ final class ShopGeneralSettings extends Struct
         public readonly string $metaAuthor,
         public readonly string $metaRobots,
         public readonly bool $familyFriendly,
-        public readonly bool $firstNameFieldRequired,
-        public readonly bool $lastNameFieldRequired,
-        public readonly bool $phoneNumberFieldRequired,
         public readonly bool $showRevocationButton,
     ) {
     }
@@ -42,9 +39,6 @@ final class ShopGeneralSettings extends Struct
             metaAuthor: self::stringValue($config, 'metaAuthor'),
             metaRobots: self::stringValue($config, 'metaRobots'),
             familyFriendly: self::boolValue($config, 'familyFriendly'),
-            firstNameFieldRequired: self::boolValue($config, 'firstNameFieldRequired'),
-            lastNameFieldRequired: self::boolValue($config, 'lastNameFieldRequired'),
-            phoneNumberFieldRequired: self::boolValue($config, 'phoneNumberFieldRequired'),
             showRevocationButton: self::boolValue($config, 'showRevocationButton'),
         );
     }

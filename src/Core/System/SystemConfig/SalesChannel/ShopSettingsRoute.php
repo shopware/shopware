@@ -37,8 +37,11 @@ class ShopSettingsRoute extends AbstractShopSettingsRoute
     {
         $salesChannelId = $context->getSalesChannelId();
 
+        $basicInformation = $this->loadDomain('core.basicInformation', $salesChannelId);
+
         $settings = new ShopSettings(
-            general: ShopGeneralSettings::fromConfig($this->loadDomain('core.basicInformation', $salesChannelId)),
+            general: ShopGeneralSettings::fromConfig($basicInformation),
+            contactForm: ShopContactFormSettings::fromConfig($basicInformation),
             loginRegistration: ShopLoginRegistrationSettings::fromConfig($this->loadDomain('core.loginRegistration', $salesChannelId)),
             cart: ShopCartSettings::fromConfig($this->loadDomain('core.cart', $salesChannelId)),
             listing: ShopListingSettings::fromConfig($this->loadDomain('core.listing', $salesChannelId)),

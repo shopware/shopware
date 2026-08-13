@@ -93,10 +93,12 @@ class ShopSettingsRouteTest extends TestCase
         static::assertSame('shopware AG', $general->metaAuthor);
         static::assertSame('index,follow', $general->metaRobots);
         static::assertTrue($general->familyFriendly);
-        static::assertTrue($general->firstNameFieldRequired);
-        static::assertTrue($general->lastNameFieldRequired);
-        static::assertTrue($general->phoneNumberFieldRequired);
         static::assertTrue($general->showRevocationButton);
+
+        $contactForm = $settings->contactForm;
+        static::assertTrue($contactForm->firstNameFieldRequired);
+        static::assertTrue($contactForm->lastNameFieldRequired);
+        static::assertTrue($contactForm->phoneNumberFieldRequired);
 
         $loginRegistration = $settings->loginRegistration;
         static::assertSame(12, $loginRegistration->passwordMinLength);
@@ -161,6 +163,10 @@ class ShopSettingsRouteTest extends TestCase
         static::assertSame('', $settings->general->shopName);
         static::assertSame('', $settings->general->metaRobots);
         static::assertFalse($settings->general->familyFriendly);
+
+        static::assertFalse($settings->contactForm->firstNameFieldRequired);
+        static::assertFalse($settings->contactForm->lastNameFieldRequired);
+        static::assertFalse($settings->contactForm->phoneNumberFieldRequired);
 
         static::assertSame(0, $settings->loginRegistration->passwordMinLength);
         static::assertFalse($settings->loginRegistration->showSalutation);

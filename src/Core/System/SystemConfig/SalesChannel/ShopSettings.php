@@ -20,6 +20,7 @@ final class ShopSettings extends Struct
      */
     public function __construct(
         public readonly ShopGeneralSettings $general,
+        public readonly ShopContactFormSettings $contactForm,
         public readonly ShopLoginRegistrationSettings $loginRegistration,
         public readonly ShopCartSettings $cart,
         public readonly ShopListingSettings $listing,

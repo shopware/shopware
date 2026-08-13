@@ -88,12 +88,20 @@ the end of the hooks region, after the lifecycle hooks, and in the source order 
 setup call to register it from and vue-router ships no composable for it. A guard that is not written
 as a method, or whose body still depends on the instance, is dropped with the reason named.
 
+Two things change with the swap, both properties of vue-router rather than of the codemod. The
+Options API only ever called these guards on **route components**, while the composables fire from
+any component in the `<router-view>` subtree — so a `beforeRouteLeave` on a non-route component was
+dead code before and becomes live after. And during a **partial** migration, vue-router runs every
+option-based guard before any composable-registered one, so a migrated guard moves behind the
+un-migrated ones on the same route until they are migrated too.
+
 A `methods` entry whose value is a bare identifier (`getKey: get`) is re-declared as
-`const getKey = get;` when that identifier is a module-level import or `const` declared before the
-registration — the Options API resolved it in module scope too, and the generated block inherits the
-very same binding. It joins the public override API like any other method. An identifier the module
-never binds keeps the `method value must be an inline function` fallback, because nothing in the
-generated block would declare it.
+`const getKey = get;` when that identifier is a module-level import, `const`, `function`, or `class`
+declared before the registration — the Options API resolved it in module scope too, and the generated
+block inherits the very same binding. It joins the public override API like any other method. An
+identifier the module never binds keeps the `method value must be an inline function` fallback,
+because nothing in the generated block would declare it; so does a `let` or `var`, which could be
+reassigned between the moment the Options API captured the value and the moment setup reads it.
 
 `this.$el` becomes a real template ref whenever the template offers an element to put it on. The
 codemod inserts `ref="rootEl"` on the first element inside the root `<sw-block>`, declares
@@ -141,9 +149,14 @@ is left alone, as is any same-named helper of your own.
 
 Everything else keeps the `TODO`: `mapPageErrors` (its argument is a cross-module config object), the
 `mapState` object form (it renames keys), a block-bodied or parameterised arrow, a `mapState` without
-a key list (Pinia throws on it — it has no `[]` default, unlike the two error helpers), non-literal
-arguments, an optional call (`helper?.(…)`), an unknown helper, and a helper reached through a member
-expression rather than a plain identifier.
+a key list (Pinia throws on it — it has no `[]` default, unlike the two error helpers), a store
+expression reading a name the generated block does not inherit (anything declared after the
+registration call), non-literal arguments, an optional call (`helper?.(…)`), an unknown helper, and a
+helper reached through a member expression rather than a plain identifier.
+
+When an expanded name collides — a property listed twice, or a hand-written entry of the same name —
+source order decides, exactly as it did in the object literal the Options API built. That is what
+makes the usual "spread, then override one entry" pattern survive the migration intact.
 
 `defineProps` and `defineEmits` are hoisted above every module-level local, so a definition naming
 one cannot be emitted into the macro. Most of those names are only a shorthand for a global, though,
@@ -161,9 +174,11 @@ The alias declarations themselves stay in the generated block for the rest of th
 keeps the blocker: `let`/`var` (reassignable between declaration and read), array destructuring or a
 destructuring default, an initializer that is not global-rooted (an array literal, a local factory),
 a root the module declares itself (`const Shopware = …` shadows the global), and a shorthand entry
-(`{ Criteria }`) — a path cannot be written in shorthand position. A name a local binding inside the
-definition shadows — including a named function or class expression, which binds its own name — is
-not a reference to the alias at all: it is neither expanded nor blocking.
+(`{ Criteria }`) — a path cannot be written in shorthand position. A name a **parameter or block
+local** inside the definition shadows is not a reference to the alias at all: neither expanded nor
+blocking. A name a **named function or class expression** binds is the one case where JavaScript and
+Vue disagree — JavaScript reads it as the function, Vue's macro scope tracker reads it as the
+module-local and rejects the macro — so it is never substituted *and* keeps the blocker.
 
 `provide` is converted when its keys are static: a `provide()` method — also as a `function` value —
 whose body is exactly one `return` of an object literal, or a plain `provide: { … }` object, in both

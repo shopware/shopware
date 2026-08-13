@@ -499,6 +499,14 @@ Three collision shapes are still not detected up front:
 | A member named like an existing module-level import | `sw-hidden-iframes`: a computed `MAIN_HIDDEN` next to `import { MAIN_HIDDEN } from '@shopware-ag/meteor-admin-sdk/es/location'`. |
 | A member and a template ref of the same name | `sw-settings-listing-default-sales-channel`: `data: { visibilityConfig }` and `this.$refs.visibilityConfig`. |
 | A needed `vue` import name bound at module level from another module | Not deduped on purpose — skipping the import would bind the generated code to something else. |
+| A member named like a module-level local | `const foo = () => 1;` before the registration plus a `methods: { foo() {} }` emits two `const foo` in one scope. Reaches the same guard through a method value too (`methods: { foo() {}, bar: foo }`). |
+
+The module-local shape is the same family as the import collisions above and
+predates every feature in this file: `RESERVED_IMPORT_NAMES` covers the names the
+emitter can import, not the names the component's own module already declares.
+Detecting it properly means a second reservation channel fed by
+`collectModuleLocalNames`, which is a change of its own rather than a fix to any
+of the conversions here.
 
 None of them can write a broken file: `generate-sfc.ts` validates every generated
 SFC against the real build-time transform before returning it, so these come back
@@ -518,7 +526,11 @@ and `const`s before the registration) in front of the setup body. So when
 
 Any other bare identifier keeps the fallback: nothing in the generated block
 would declare it, so re-declaring the alias would emit a reference to something
-that does not exist. The Twig import is excluded from the binding set for the
+that does not exist. `let` and `var` are excluded as well — the Options API
+captured the value when the options object was built, the generated block reads
+the binding when setup runs, and a reassignment between the two makes those
+differ, which is the same reason `collectGlobalAliasPaths` takes only `const`.
+The Twig import is excluded from the binding set for the
 same reason — it is dropped on the way out, and `--delete-originals` removes the
 file. Both that exclusion and the drop itself key on the `.twig` module
 specifier, not on the local name: `import tpl from './x.html.twig'` is the same
@@ -605,6 +617,22 @@ expression-bodied arrow (`() => Store.get('x')` → `Store.get('x')`) and an
 identifier (`useX` → `useX()`). The expression is re-evaluated per getter,
 exactly as Pinia does. A string first argument is *not* supported — Pinia would
 call it and throw, so there is no correct expansion to emit.
+
+Whatever is re-emitted must also still resolve where it lands. The generated
+block only inherits the module code *before* the registration call, so
+`collectFreeIdentifierNames` checks the store expression's free names against
+`collectModuleBindingNames` and the global roots; a store declared after the
+registration keeps the TODO instead of becoming a `ReferenceError` in a file
+reported as fully migrated.
+
+A name an expansion produces can collide with another expanded name or with an
+entry the author wrote. An object literal keeps the last value written for a
+key, and a spread writes its keys where it stands, so those are resolved by
+source order — which is what the idiomatic "spread, then override one entry"
+pattern relies on. Emitting both would instead send them to
+`dropDuplicatePublicNames`, which deletes *every* member of a colliding name,
+the author's included. Two entries the author wrote by hand still go there: that
+is a mistake, not a pattern.
 
 ### Provenance
 
@@ -836,7 +864,30 @@ The generated calls sit at the end of the hooks region, after the lifecycle
 hooks and before `swDefinePublic({ … })`. The composables register the guard on
 the matching route record when setup runs, so the slot only has to be past every
 `const` a guard body reads. Source order between the two guards is preserved,
-because guards of one component run in registration order.
+because guards of one component run in registration order. A repeated guard
+option is one guard, not two — an object literal keeps the last method written
+for a key — so it is deduped last-wins before emission.
+
+### Two behaviour changes the swap carries
+
+These are properties of vue-router, not of the codemod, but the migration is
+what makes them visible. Both verified against the vendored vue-router 4.5.0.
+
+**Scope widens.** The Options API guards are read off `record.components[name]`
+by `extractComponentsGuards` (`dist/vue-router.mjs:2142`), so only a component
+registered *as a route component* ever had its `beforeRouteLeave` called.
+`onBeforeRouteLeave` registers on the nearest matched record through
+`inject(matchedRouteKey)`, so it fires from any component in the
+`<router-view>` subtree. A `beforeRouteLeave` written on a non-route component
+was dead code before migration and becomes live after it — which is usually what
+the author meant, but it is a behaviour change and worth reviewing.
+
+**Relative order flips during a partial migration.** In `navigate()`
+(`dist/vue-router.mjs:3388`) every option-based guard runs before any
+`record.leaveGuards`. So while some components on a route are migrated and
+others are not, a migrated guard runs after every un-migrated one, regardless of
+component nesting. Within one fully migrated route the order is the registration
+order and matches what the options gave.
 
 ## File Map
 

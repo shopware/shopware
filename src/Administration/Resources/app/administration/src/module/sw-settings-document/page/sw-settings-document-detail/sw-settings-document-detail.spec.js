@@ -121,16 +121,14 @@ const documentBaseConfigSalesChannelsRepositoryMock = {
 const documentV2ApiServiceMock = {
     getAvailableTypes: jest.fn(() =>
         Promise.resolve({
-            data: {
-                documentTypes: {
-                    invoice: {
-                        formats: [
-                            'html',
-                            'pdf',
-                            'zugferd_xml',
-                            'zugferd_embedded_pdf',
-                        ],
-                    },
+            documentTypes: {
+                invoice: {
+                    formats: [
+                        'html',
+                        'pdf',
+                        'zugferd_xml',
+                        'zugferd_embedded_pdf',
+                    ],
                 },
             },
         }),
@@ -731,6 +729,15 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(infixHeadline.text()).toContain('sw-settings-document.detail.filenameInfixHeadline');
         expect(infixHeadline.find('.sw-help-text').exists()).toBe(true);
+    });
+
+    it('should not render the filename infix headline or fields for a new document without a selected document type', async () => {
+        const wrapper = await createWrapper({}, [], true);
+        await flushPromises();
+
+        expect(wrapper.vm.supportedFormats).toEqual([]);
+        expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
     });
 
     it('should not render the filename pattern or infix headline when DOCUMENT_GENERATION_REWORK is inactive', async () => {

@@ -626,7 +626,7 @@ export default {
         async loadAvailableDocumentTypes() {
             const response = await this.documentV2ApiService.getAvailableTypes();
 
-            this.availableDocumentTypes = response.data.documentTypes;
+            this.availableDocumentTypes = response.documentTypes;
         },
 
         async onChangeType(documentType) {

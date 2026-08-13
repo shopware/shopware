@@ -49,11 +49,21 @@
         color: var(--color-text-secondary-default);
     }
 
+    &__filename_card-form {
+        > * {
+            margin-bottom: 0;
+
+            .mt-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+
     &__filename_infix_headline {
         display: flex;
         align-items: center;
         gap: var(--scale-size-4);
-        margin: 0 0 var(--scale-size-20);
+        margin: var(--scale-size-20) 0;
     }
 
     &__filename_infix_fields {

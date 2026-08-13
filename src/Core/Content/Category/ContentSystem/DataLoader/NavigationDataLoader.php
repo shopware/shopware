@@ -63,7 +63,6 @@ class NavigationDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        // Resolve root ID from config or use sales channel's navigation category
         $rootId = $config->rootId ?? 'main-navigation';
         $rootId = $this->aliasResolver->resolve($rootId, $context);
 
@@ -84,13 +83,10 @@ class NavigationDataLoader extends AbstractContentDataLoader
             $activeId = $rootId;
         }
 
-        // Depth is operator territory, so an unconfigured one follows the sales channel — the single
-        // source the predecessor CMS element used.
         $depth = $config->depth ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
         $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
 
-        // NavigationLoader handles its own caching internally
         return ContentDataLoaderResult::cachedExternally($tree);
     }
 }

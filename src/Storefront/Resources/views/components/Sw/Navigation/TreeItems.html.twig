@@ -33,8 +33,8 @@
         {% set isInPath = category.id in activePath %}
         {% set onActivePath = isActive or isInPath %}
 
-        {# The depth limit must not reach the active path: the route loads that path beyond the
-           requested depth on purpose, and clipping it would drop the item carrying aria-current. #}
+        {# NavigationRoute loads the active path beyond the requested depth on purpose, so the limit
+           must not reach it — clipping it would drop the item carrying aria-current. #}
         {% set showChildren = treeItem.children|length > 0
             and (onActivePath or (expandAll and navigationLevel < navigationMaxDepth)) %}
 

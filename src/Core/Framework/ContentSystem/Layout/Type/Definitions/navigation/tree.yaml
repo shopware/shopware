@@ -16,8 +16,6 @@ properties:
     required: true
     title: "Navigation Tree"
     description: "Hydrated navigation tree provided by the navigation data loader."
-    # Tier B: Tree subclasses neither Entity nor EntityCollection, so the bare-string
-    # shorthand has no built-in loader branch and the loader must be named explicitly.
     resolvedBy:
       navigation:
         rootId: main-navigation
@@ -46,12 +44,9 @@ properties:
     adminUI:
       helpText: "Helps screen reader users tell this navigation apart from others on the page."
 
-# The main navigation is the synthesized default, named after the type. Both roots below are
-# optional on a sales channel; the loader yields no data when one is not configured.
-#
-# Each carries its own accessible label: a page showing two of these trees would otherwise
-# announce both landmarks as "Categories", which is what the label exists to prevent. An
-# editor's own value still wins, the seeding only fills an unset property.
+# Each binding seeds its own accessible label: a page showing two of these trees would otherwise
+# announce both landmarks as "Categories", which is what the label exists to prevent. An editor's
+# own value still wins — seeding only fills an unset property.
 bindings:
   service-navigation:
     label: "Service navigation"

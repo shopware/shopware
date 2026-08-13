@@ -17,8 +17,8 @@
     base: 'sw-navigation-tree',
 }) %}
 
-{# `default` rather than a prop default: a stored empty label must not win, because an unnamed
-   landmark beats a blank-named one. #}
+{# `default` rather than a prop default: a stored empty label must not win, because a landmark
+   announced with no name at all beats one announced with a blank one. #}
 {% set attributeDefaults = {
     class: treeCVA.apply({}),
     'aria-label': ariaLabel|default('general.categories'|trans)|striptags,

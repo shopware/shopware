@@ -43,6 +43,7 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
         emitProvideEntries(state, names),
         emitCreatedHooks(state, names),
         emitRegularHooks(state, names),
+        emitRouteGuards(state, names),
         emitSwDefinePublic(state),
         emitDefineExpose(state),
     ];
@@ -108,6 +109,7 @@ function emitImports(state: CompositionScriptState): string[] {
     const routerImports: string[] = [];
     if (usedComposables.needsRouter) routerImports.push('useRouter');
     if (usedComposables.needsRoute) routerImports.push('useRoute');
+    routerImports.push(...new Set(state.routeGuards.map((guard) => guard.composableName)));
     if (routerImports.length > 0) {
         lines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
     }
@@ -311,6 +313,24 @@ function emitRegularHooks(state: CompositionScriptState, names: ResolvedIdentifi
         const asyncPrefix = isAsync ? 'async ' : '';
 
         return `${compositionName}(${asyncPrefix}() => {\n${body}\n});`;
+    });
+}
+
+/**
+ * Emitted last in the hooks region, after the lifecycle hooks. The composables
+ * register the guard on the matching route record when setup runs, so the slot
+ * only has to be past every `const` a guard body reads — which the end of the
+ * hooks region is. Guards of one component run in registration order, and the
+ * source order of the options is preserved here.
+ */
+function emitRouteGuards(state: CompositionScriptState, names: ResolvedIdentifiers): string[] {
+    const { ctx, routeGuards } = state;
+
+    return routeGuards.map(({ composableName, paramsText, bodyText, isAsync }) => {
+        const body = rewriteThisInBody(bodyText, ctx, names);
+        const asyncPrefix = isAsync ? 'async ' : '';
+
+        return `${composableName}(${asyncPrefix}(${paramsText}) => {\n${body}\n});`;
     });
 }
 

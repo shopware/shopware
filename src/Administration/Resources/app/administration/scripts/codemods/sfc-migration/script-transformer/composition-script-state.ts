@@ -22,6 +22,7 @@ import { extractInjectProps } from './extract-inject';
 import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks, LIFECYCLE_COMPOSITION_NAMES } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
 import { extractProvideEntries } from './extract-provide';
+import { extractRouteGuards, ROUTE_GUARD_COMPOSABLE_NAMES } from './extract-route-guards';
 import { extractWatchProps } from './extract-watch';
 import type { WatchPath } from './helpers';
 import { getWatchRootName, isDefined, isSafeIdentifier, parseWatchPath, sanitizeTodoCommentText } from './helpers';
@@ -48,6 +49,7 @@ import type {
     MethodProp,
     ProvideEntry,
     RewriteContext,
+    RouteGuard,
     UsedComposables,
     WatchProp,
 } from './types';
@@ -71,6 +73,7 @@ export interface CompositionScriptState {
     provideEntries: ProvideEntry[];
     lifecycleHooks: LifecycleHook[];
     regularHooks: LifecycleHook[];
+    routeGuards: RouteGuard[];
     usedComposables: UsedComposables;
     templateRefNames: string[];
     publicNames: string[];
@@ -196,8 +199,22 @@ export function collectCompositionScriptState(
         (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'lifecycle hook', reason),
     );
 
+    const { routeGuards: extractedRouteGuards, unsupportedEntries: unsupportedRouteGuards } = extractRouteGuards(optionsObj);
+    unsupportedRouteGuards.forEach((reason) => {
+        pushManualMigration(manualMigrationReasons, todoComments, 'route guard', reason);
+    });
+    const routeGuards = filterSupported(
+        extractedRouteGuards,
+        ({ optionName, paramsText, bodyText }) => {
+            const unsupportedThis = findUnsupportedSnippet([{ text: bodyText, kind: 'body', paramsText }], ctx);
+
+            return unsupportedThis === null ? null : `${optionName}: route guard uses ${unsupportedThis}`;
+        },
+        (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'route guard', reason),
+    );
+
     const { provideEntries, unsupportedReason: provideUnsupportedReason } = collectProvideEntries(optionsObj, ctx);
-    const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks, provideEntries);
+    const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks, provideEntries, routeGuards);
 
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const templateRefNames = collectThisRefNames(allSnippets);
@@ -290,6 +307,7 @@ export function collectCompositionScriptState(
         provideEntries,
         lifecycleHooks,
         regularHooks,
+        routeGuards,
         usedComposables,
         templateRefNames,
         publicNames,
@@ -626,9 +644,10 @@ function collectManualFollowUps(
 }
 
 const UNSUPPORTED_TOP_LEVEL_OPTIONS = [
+    // `beforeRouteLeave` and `beforeRouteUpdate` have composables and are
+    // migrated; `beforeRouteEnter` runs before the instance exists, so there is
+    // no setup call to register it from.
     'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
     'metaInfo',
     'shortcuts',
     'errorCaptured',
@@ -887,14 +906,14 @@ const RESERVED_IMPORT_NAMES = new Map<string, string>([
     ]),
     // The bindings these composables are assigned to are renamed on collision by
     // resolve-identifiers.ts; the imported names themselves cannot be.
-    [
+    ...[
         'useRouter',
-        'vue-router',
-    ],
-    [
         'useRoute',
+        ...ROUTE_GUARD_COMPOSABLE_NAMES,
+    ].map((name): [string, string] => [
+        name,
         'vue-router',
-    ],
+    ]),
     [
         'useI18n',
         'vue-i18n',
@@ -984,6 +1003,7 @@ function collectSetupSnippets(
     supportedMembers: SupportedCompositionMembers,
     lifecycleHooks: LifecycleHook[],
     provideEntries: ProvideEntry[],
+    routeGuards: RouteGuard[],
 ): CodeSnippet[] {
     const { supportedDataProps, supportedComputedProps, supportedMethodProps, supportedWatchProps } = supportedMembers;
 
@@ -1010,6 +1030,7 @@ function collectSetupSnippets(
         })),
         ...lifecycleHooks.map((h) => ({ text: h.bodyText, kind: 'body' as const })),
         ...provideEntries.map((entry) => ({ text: entry.valueText, kind: 'expression' as const })),
+        ...routeGuards.map((guard) => ({ text: guard.bodyText, kind: 'body' as const, paramsText: guard.paramsText })),
     ].filter(isDefined);
 }
 

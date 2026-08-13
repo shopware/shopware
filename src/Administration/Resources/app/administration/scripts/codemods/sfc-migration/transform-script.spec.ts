@@ -398,6 +398,94 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('route-guard-component: registers the in-component guards with their composables', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('route-guard-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('imports the guard composables from vue-router', () => {
+            expect(result.script).toContain("import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';");
+        });
+
+        it('keeps the guard signature and rewrites the body', () => {
+            expect(result.script).toContain('onBeforeRouteLeave((to, from, next) => {');
+            expect(result.script).toContain('if (isDirty.value && !confirmLeave()) {');
+        });
+
+        it('keeps an async guard async', () => {
+            expect(result.script).toContain('onBeforeRouteUpdate(async (to, from, next) => {');
+            expect(result.script).toContain('await nextTick();');
+        });
+
+        // The guards register on the route record; they are not members a plugin
+        // overrides.
+        it('keeps the guards out of the public override API', () => {
+            expect(result.publicNames).toEqual([
+                'isDirty',
+                'confirmLeave',
+            ]);
+        });
+
+        // The composables run during setup, so the slot only has to be past the
+        // bindings a guard body reads.
+        it('emits the guards after the lifecycle hooks and before swDefinePublic', () => {
+            expect(result.script).toMatch(/onBeforeRouteUpdate\([\s\S]*\n\nswDefinePublic\(\{/u);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('route guards the codemod cannot register', () => {
+        it('keeps the TODO for beforeRouteEnter, which has no composable', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                beforeRouteEnter(to, from, next) { next(); },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toEqual([
+                'beforeRouteEnter: option is not supported by the SFC migration and requires manual migration',
+            ]);
+            expect(result.script).not.toContain('onBeforeRouteEnter');
+        });
+
+        it('drops a guard whose body still depends on the instance', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                beforeRouteLeave(to, from, next) {
+                    next(this.unknownHelper());
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toEqual([
+                "beforeRouteLeave: route guard uses unknown this property 'unknownHelper'",
+            ]);
+            expect(result.script).not.toContain('onBeforeRouteLeave');
+        });
+
+        // A function value's `this` is not the receiver the rewrite assumes, the
+        // same reason lifecycle hooks only migrate in method form.
+        it('drops a guard that is not defined as a method', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                beforeRouteUpdate: function (to, from, next) { next(); },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toEqual(['beforeRouteUpdate: route guard must be defined as a method to be migrated']);
+            expect(result.script).not.toContain('onBeforeRouteUpdate');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('methods with an identifier value', () => {
         // `{ getKey: get }` resolves `get` in module scope, never on the
         // instance, and the generated block inherits that binding unchanged.
@@ -3376,14 +3464,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             [
                 'beforeRouteEnter',
                 'beforeRouteEnter(to, from, next) { next(); }',
-            ],
-            [
-                'beforeRouteLeave',
-                'beforeRouteLeave(to, from, next) { next(); }',
-            ],
-            [
-                'beforeRouteUpdate',
-                'beforeRouteUpdate(to, from, next) { next(); }',
             ],
             [
                 'metaInfo',

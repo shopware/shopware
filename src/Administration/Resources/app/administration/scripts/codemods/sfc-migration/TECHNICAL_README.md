@@ -301,6 +301,7 @@ This keeps "understand the old component" separate from "print the new code".
 | `extract-methods.ts` | Methods, property-assignment methods like debounce wrappers, and module-binding aliases. |
 | `extract-watch.ts` | Watchers, string handlers, object handlers, `deep`, `immediate`. |
 | `extract-lifecycle.ts` | Lifecycle hooks and their Composition API equivalents. |
+| `extract-route-guards.ts` | `beforeRouteLeave` / `beforeRouteUpdate` and their vue-router composables. |
 | `rewrite-this.ts` | Rewrites known `this.*` accesses. |
 
 ### Generated Script Shape
@@ -314,7 +315,7 @@ This keeps "understand the old component" separate from "print the new code".
 5. Composable declarations such as `const router = useRouter()`.
 6. Template refs: the generated root ref for `$el`, then the ones from `this.$refs`.
 7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
-   `provide` calls, `created`, other lifecycle hooks.
+   `provide` calls, `created`, other lifecycle hooks, route guards.
 8. The `swDefinePublic({ … })` marker.
 9. `defineExpose({ … })`, when the component declared `expose`.
 
@@ -766,6 +767,26 @@ Lifecycle hooks are mapped like this:
 
 `beforeCreate()` is not converted automatically. It gets a TODO because its
 timing does not map cleanly to generated setup code.
+
+The in-component navigation guards vue-router also ships as composables are
+migrated the same way as lifecycle hooks:
+
+| Options API | Composition API |
+| --- | --- |
+| `beforeRouteLeave(to, from, next)` | `onBeforeRouteLeave((to, from, next) => …)` |
+| `beforeRouteUpdate(to, from, next)` | `onBeforeRouteUpdate((to, from, next) => …)` |
+| `beforeRouteEnter` | TODO — it runs before the instance exists, so there is no setup call to register it from and vue-router ships no composable. |
+
+The signature is preserved, `async` is preserved, and the body goes through the
+same `this` rewriting; a guard whose body still depends on the instance is
+dropped with the reason, exactly like a hook. Only the method-shorthand form is
+migrated — a function value's `this` is not the receiver the rewrite assumes.
+
+The generated calls sit at the end of the hooks region, after the lifecycle
+hooks and before `swDefinePublic({ … })`. The composables register the guard on
+the matching route record when setup runs, so the slot only has to be past every
+`const` a guard body reads. Source order between the two guards is preserved,
+because guards of one component run in registration order.
 
 ## File Map
 

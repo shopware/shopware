@@ -130,6 +130,21 @@ export interface LifecycleHook {
     isAsync: boolean;
 }
 
+export interface RouteGuard {
+    /** `beforeRouteLeave` or `beforeRouteUpdate`. */
+    optionName: string;
+    /** The vue-router composable that registers it — `onBeforeRouteLeave`, … */
+    composableName: string;
+    paramsText: string;
+    bodyText: string;
+    isAsync: boolean;
+}
+
+export interface ExtractRouteGuardsResult {
+    routeGuards: RouteGuard[];
+    unsupportedEntries: string[];
+}
+
 export type RewriteSnippetKind = 'body' | 'expression';
 
 export interface CodeSnippet {

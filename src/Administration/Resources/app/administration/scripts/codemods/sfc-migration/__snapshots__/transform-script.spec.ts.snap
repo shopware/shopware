@@ -420,6 +420,38 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script route-guard-component: registers the in-component guards with their composables matches the complete converted script snapshot 1`] = `
+"import { ref, nextTick } from 'vue';
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
+
+const isDirty = ref(false);
+
+const confirmLeave = () => {
+return window.confirm('Discard changes?');
+};
+
+onBeforeRouteLeave((to, from, next) => {
+if (isDirty.value && !confirmLeave()) {
+            next(false);
+
+            return;
+        }
+
+        next();
+});
+onBeforeRouteUpdate(async (to, from, next) => {
+await nextTick();
+
+        isDirty.value = false;
+        next();
+});
+
+swDefinePublic({
+    isDirty,
+    confirmLeave,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
 "const emit = defineEmits(['save']);
 

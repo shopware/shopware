@@ -70,6 +70,7 @@ my-component/
 | `methods: { getKey: get }` (module binding) | `const getKey = get;`                        |
 | `created`                                 | runs directly in setup (equivalent behaviour)  |
 | other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
+| `beforeRouteLeave` / `beforeRouteUpdate`  | `onBeforeRouteLeave(…)` / `onBeforeRouteUpdate(…)` |
 | `this.$emit`                              | `emit(…)`                                      |
 | `this.$router` / `this.$route`            | `useRouter()` / `useRoute()`                   |
 | `this.$slots`                             | `useSlots()`                                   |
@@ -79,6 +80,13 @@ my-component/
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | `this.$device`                            | `const device = getCurrentInstance()?.proxy?.$device` |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+`beforeRouteLeave` and `beforeRouteUpdate` are re-registered with the vue-router composables of the
+same name, keeping the `(to, from, next)` signature and `async` where it was one. They are emitted at
+the end of the hooks region, after the lifecycle hooks, and in the source order of the options.
+`beforeRouteEnter` keeps its `TODO`: it runs before the component instance exists, so there is no
+setup call to register it from and vue-router ships no composable for it. A guard that is not written
+as a method, or whose body still depends on the instance, is dropped with the reason named.
 
 A `methods` entry whose value is a bare identifier (`getKey: get`) is re-declared as
 `const getKey = get;` when that identifier is a module-level import or `const` declared before the

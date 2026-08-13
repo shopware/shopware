@@ -372,7 +372,7 @@ final class OpenApiDtoSchemaParser
                     continue;
                 }
 
-                $responseSchema = $this->arrayAtPath($response, ['content', 'application/json', 'schema']);
+                $responseSchema = $this->arrayAtPath($response['response'], ['content', 'application/json', 'schema']);
                 if ($responseSchema === null) {
                     continue;
                 }
@@ -388,8 +388,9 @@ final class OpenApiDtoSchemaParser
                 $definitions[] = new OpenApiDtoDefinition(
                     $dtoName,
                     $extracted['properties'],
-                    $this->stringOrNull($response['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
+                    $this->stringOrNull($response['response']['description'] ?? null) ?? $this->stringOrNull($operation['description'] ?? null),
                     $this->packageFromSchema($resolvedResponseSchema) ?? $this->packageFromSchema($operation),
+                    responseStatusCode: $response['statusCode'],
                 );
                 $definitions = [...$definitions, ...$extracted['nestedDefinitions']];
             }
@@ -926,7 +927,7 @@ final class OpenApiDtoSchemaParser
      * @param array<string, mixed> $operation
      * @param array<string, array<string, mixed>> $responseRegistry
      *
-     * @return array<string, mixed>|null
+     * @return array{response: array<string, mixed>, statusCode: int}|null
      */
     private function successResponse(array $operation, array $responseRegistry): ?array
     {
@@ -935,7 +936,12 @@ final class OpenApiDtoSchemaParser
             return null;
         }
 
-        foreach (['200', '201'] as $statusCode) {
+        foreach (array_keys($responses) as $statusCode) {
+            $statusCode = (string) $statusCode;
+            if (!preg_match('/^2\\d{2}$/', $statusCode)) {
+                continue;
+            }
+
             $response = $this->schemaAtKey($responses, $statusCode);
             if ($response === null) {
                 continue;
@@ -943,10 +949,13 @@ final class OpenApiDtoSchemaParser
 
             $ref = $this->stringOrNull($response['$ref'] ?? null);
             if ($ref !== null) {
-                return $responseRegistry[$this->resolveRefName($ref)] ?? $response;
+                return [
+                    'response' => $responseRegistry[$this->resolveRefName($ref)] ?? $response,
+                    'statusCode' => (int) $statusCode,
+                ];
             }
 
-            return $response;
+            return ['response' => $response, 'statusCode' => (int) $statusCode];
         }
 
         return null;

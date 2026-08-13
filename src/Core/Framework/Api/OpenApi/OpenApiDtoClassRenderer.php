@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Request\AbstractRequest;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
@@ -99,6 +100,9 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = '    ) {';
+        if ($this->isResponse($definition) && $definition->responseStatusCode !== Response::HTTP_OK) {
+            $lines[] = '        parent::__construct(statusCode: ' . $this->responseStatusConstant($definition->responseStatusCode) . ');';
+        }
         $lines[] = '    }';
         $lines[] = '}';
         $lines[] = '';
@@ -427,6 +431,9 @@ final class OpenApiDtoClassRenderer
         if ($definition->package !== null) {
             $imports[Package::class] = true;
         }
+        if ($this->isResponse($definition) && $definition->responseStatusCode !== Response::HTTP_OK) {
+            $imports[Response::class] = true;
+        }
         $imports[JsonStreamable::class] = true;
 
         foreach ($definition->properties as $property) {
@@ -456,6 +463,20 @@ final class OpenApiDtoClassRenderer
         }
 
         return array_keys($imports);
+    }
+
+    private function responseStatusConstant(int $statusCode): string
+    {
+        return match ($statusCode) {
+            Response::HTTP_OK => 'Response::HTTP_OK',
+            Response::HTTP_CREATED => 'Response::HTTP_CREATED',
+            Response::HTTP_ACCEPTED => 'Response::HTTP_ACCEPTED',
+            Response::HTTP_NON_AUTHORITATIVE_INFORMATION => 'Response::HTTP_NON_AUTHORITATIVE_INFORMATION',
+            Response::HTTP_NO_CONTENT => 'Response::HTTP_NO_CONTENT',
+            Response::HTTP_RESET_CONTENT => 'Response::HTTP_RESET_CONTENT',
+            Response::HTTP_PARTIAL_CONTENT => 'Response::HTTP_PARTIAL_CONTENT',
+            default => (string) $statusCode,
+        };
     }
 
     private function needsAssertImport(OpenApiDtoDefinition $definition): bool

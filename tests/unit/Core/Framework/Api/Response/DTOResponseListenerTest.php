@@ -7,8 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Api\Response\DTOResponseListener;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
@@ -98,6 +100,47 @@ class DTOResponseListenerTest extends TestCase
         $this->listener()($event);
 
         static::assertSame('{}', $event->getResponse()?->getContent());
+    }
+
+    public function testPreservesSchemaStatusAndResponseMetadata(): void
+    {
+        $response = new #[JsonStreamable] class extends AbstractResponse {
+            public function __construct()
+            {
+                parent::__construct(statusCode: Response::HTTP_CREATED);
+            }
+
+            public string $id = 'test';
+        };
+        $response->setHeader('X-Test', 'value');
+        $response->addCookie(new Cookie('test', 'value'));
+        $response->setHeader('Cache-Control', 'max-age=60, public');
+        $event = $this->createViewEvent($response);
+
+        $this->listener()($event);
+
+        static::assertSame(Response::HTTP_CREATED, $event->getResponse()?->getStatusCode());
+        static::assertSame('application/json', $event->getResponse()->headers->get('Content-Type'));
+        static::assertSame('value', $event->getResponse()->headers->get('X-Test'));
+        static::assertNotEmpty($event->getResponse()->headers->getCookies());
+        static::assertSame('max-age=60, public', $event->getResponse()->headers->get('Cache-Control'));
+    }
+
+    public function testAllowsExtensionToChangeResponseStatus(): void
+    {
+        $response = new #[JsonStreamable] class extends AbstractResponse {
+            public function __construct()
+            {
+                parent::__construct(statusCode: Response::HTTP_CREATED);
+            }
+        };
+        $response->setStatusCode(Response::HTTP_ACCEPTED);
+
+        $event = $this->createViewEvent($response);
+
+        $this->listener()($event);
+
+        static::assertSame(Response::HTTP_ACCEPTED, $event->getResponse()?->getStatusCode());
     }
 
     private function createViewEvent(object $result): ViewEvent

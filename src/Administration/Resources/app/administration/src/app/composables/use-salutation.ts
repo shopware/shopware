@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-type SalutationFilterEntityType = {
+/** @private */
+export type SalutationFilterEntityType = {
     salutation: {
         id: string;
         salutationKey: string;

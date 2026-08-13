@@ -478,6 +478,53 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             // createNotificationSuccess is sourced from the composable.
             expect(result.script).toContain('const { createNotificationSuccess } = useNotification();');
         });
+
+        it('does not swap in the composable when the redefining member is dropped as unsupported', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('notification')],
+                    methods: {
+                        createNotificationError() { return this.somethingUnknown.x; },
+                        onSave() { this.createNotificationError({ message: 'x' }); },
+                    },
+                });`,
+            );
+
+            // The component redefines createNotificationError, so it shadows the
+            // composable member even though its body is unsupported and gets
+            // dropped. The composable must not be silently substituted for it.
+            expect(result.status).toBe('partially-migratable');
+            expect(result.script).not.toContain('useNotification');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin member name collision: renames the script-only composable binding', () => {
+        it('renames a mixin member whose name collides with a module import used only in script', () => {
+            const result = transformScript(
+                `import placeholder from './external-placeholder';
+
+                Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('placeholder')],
+                    props: { country: { type: Object, required: true } },
+                    methods: {
+                        label() { return this.placeholder(this.country, 'name', 'fallback'); },
+                    },
+                });`,
+            );
+
+            // The module already binds `placeholder`, so the composable member is
+            // renamed on destructure and every this.placeholder rewrite follows the
+            // renamed binding. (Template collisions back off instead — see generate-sfc.)
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toMatch(/const \{ placeholder: (\w+) \} = usePlaceholder\(\);/);
+            const [, renamed] = result.script.match(/const \{ placeholder: (\w+) \} = usePlaceholder\(\);/) ?? [];
+            expect(renamed).toBeDefined();
+            expect(result.script).toContain(`${renamed}(props.country, 'name', 'fallback')`);
+            expect(result.script).not.toContain('const { placeholder }');
+        });
     });
 
     // -------------------------------------------------------------------------

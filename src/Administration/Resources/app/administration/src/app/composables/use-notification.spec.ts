@@ -1,5 +1,5 @@
 import { useNotification } from './use-notification';
-import type { NotificationType, NotificationVariant } from '../store/notification.store';
+import type { NotificationType } from '../store/notification.store';
 
 type NotificationApi = ReturnType<typeof useNotification>;
 type VoidNotificationMethod = Exclude<keyof NotificationApi, 'createNotification'>;
@@ -9,7 +9,7 @@ describe('src/app/composables/use-notification', () => {
 
     beforeEach(() => {
         createNotification = jest.fn().mockReturnValue('notification-id');
-        global.Shopware = {
+        window.Shopware = {
             Store: {
                 get: jest.fn().mockReturnValue({ createNotification }),
             },
@@ -24,7 +24,7 @@ describe('src/app/composables/use-notification', () => {
         expect(createNotification).toHaveBeenCalledWith(notification);
     });
 
-    it.each<[VoidNotificationMethod, NotificationType]>([
+    it.each<[VoidNotificationMethod, { variant: string; title: string }]>([
         [
             'createNotificationSuccess',
             { variant: 'success', title: 'global.default.success' },
@@ -49,7 +49,7 @@ describe('src/app/composables/use-notification', () => {
         expect(createNotification).toHaveBeenCalledWith({ ...defaults, message: 'body' });
     });
 
-    it.each<[VoidNotificationMethod, NotificationVariant]>([
+    it.each<[VoidNotificationMethod, string]>([
         [
             'createSystemNotificationSuccess',
             'success',

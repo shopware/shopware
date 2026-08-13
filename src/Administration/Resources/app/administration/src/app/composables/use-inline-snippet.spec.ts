@@ -1,7 +1,7 @@
 import { useInlineSnippet } from './use-inline-snippet';
 
 function stubShopware(currentLocale: string, fallbackLocale: string): void {
-    global.Shopware = {
+    window.Shopware = {
         Store: { get: jest.fn().mockReturnValue({ currentLocale }) },
         Context: { app: { fallbackLocale } },
         Utils: {

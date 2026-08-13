@@ -5,7 +5,7 @@ describe('src/app/composables/use-salutation', () => {
 
     beforeEach(() => {
         filter = jest.fn().mockReturnValue('Mr John Doe');
-        global.Shopware = {
+        window.Shopware = {
             Filter: { getByName: jest.fn().mockReturnValue(filter) },
         } as unknown as typeof Shopware;
     });

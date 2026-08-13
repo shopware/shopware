@@ -41,6 +41,7 @@ import type {
 } from './types';
 import type { ComposableDescriptor } from './composable-registry';
 import { GLOBAL_DESCRIPTORS } from './composable-registry';
+import { collectComponentMemberNames } from './extract-mixins';
 
 export interface CompositionScriptState {
     registration: ComponentRegistration;
@@ -102,7 +103,12 @@ export function collectCompositionScriptState(
     mixinDescriptors: ComposableDescriptor[] = [],
     templateReferences: Set<string> = new Set(),
 ): CompositionScriptState {
-    const composableMembers = buildComposableMemberMap(mixinDescriptors);
+    // All names the component declares, including members later dropped as
+    // unsupported. A same-name component member shadows the composable member
+    // (Vue override semantics), so a dropped override must not silently fall back
+    // to the composable's version.
+    const ownMemberNames = collectComponentMemberNames(optionsObj);
+    const composableMembers = buildComposableMemberMap(mixinDescriptors, ownMemberNames);
     let lifecycleHooks = extractLifecycleHooks(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
@@ -153,18 +159,7 @@ export function collectCompositionScriptState(
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const activeComposables = [
         ...collectActiveGlobalComposables(usedComposables),
-        ...collectActiveMixinComposables(
-            mixinDescriptors,
-            allSnippets,
-            {
-                propNames,
-                dataNames,
-                computedNames,
-                methodNames,
-                injectNames,
-            },
-            templateReferences,
-        ),
+        ...collectActiveMixinComposables(mixinDescriptors, allSnippets, ownMemberNames, templateReferences),
     ];
     const templateRefNames = collectThisRefNames(allSnippets);
 
@@ -864,25 +859,27 @@ function collectActiveGlobalComposables(usedComposables: UsedComposables): Activ
     }));
 }
 
-/** Flattens every mixin descriptor's members into a `this.<key>` → binding map. */
-function buildComposableMemberMap(mixinDescriptors: ComposableDescriptor[]): Map<string, ComposableMemberRewrite> {
+/**
+ * Flattens every mixin descriptor's members into a `this.<key>` → binding map,
+ * skipping any member the component declares itself so a same-name component
+ * member shadows the composable rather than being rewritten to it.
+ */
+function buildComposableMemberMap(
+    mixinDescriptors: ComposableDescriptor[],
+    ownMemberNames: Set<string>,
+): Map<string, ComposableMemberRewrite> {
     const map = new Map<string, ComposableMemberRewrite>();
 
     for (const descriptor of mixinDescriptors) {
         for (const [key, member] of Object.entries(descriptor.members)) {
+            if (ownMemberNames.has(key)) {
+                continue;
+            }
             map.set(key, { binding: member.ident, kind: member.kind });
         }
     }
 
     return map;
-}
-
-interface ComponentMemberNames {
-    propNames: Set<string>;
-    dataNames: Set<string>;
-    computedNames: Set<string>;
-    methodNames: Set<string>;
-    injectNames: Set<string>;
 }
 
 /**
@@ -895,17 +892,9 @@ interface ComponentMemberNames {
 function collectActiveMixinComposables(
     mixinDescriptors: ComposableDescriptor[],
     snippets: CodeSnippet[],
-    componentMembers: ComponentMemberNames,
+    ownMemberNames: Set<string>,
     templateReferences: Set<string>,
 ): ActiveComposable[] {
-    const overriding = new Set<string>([
-        ...componentMembers.propNames,
-        ...componentMembers.dataNames,
-        ...componentMembers.computedNames,
-        ...componentMembers.methodNames,
-        ...componentMembers.injectNames,
-    ]);
-
     // A member counts as used when accessed via `this` in the script or read as
     // a binding in the template (e.g. `placeholder(...)` in a `{{ }}`), so a
     // template-only helper still gets its composable imported and declared.
@@ -914,7 +903,7 @@ function collectActiveMixinComposables(
             descriptor,
             memberKeys: Object.keys(descriptor.members).filter(
                 (key) =>
-                    !overriding.has(key) &&
+                    !ownMemberNames.has(key) &&
                     (hasDirectThisPropertyUsage(snippets, key) || templateReferences.has(key)),
             ),
         }))

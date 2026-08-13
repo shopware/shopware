@@ -8,7 +8,7 @@ function getPlaceholder(): LoosePlaceholder {
 
 describe('src/app/composables/use-placeholder', () => {
     beforeEach(() => {
-        global.Shopware = {
+        window.Shopware = {
             Utils: { types: { isString: (value: unknown) => typeof value === 'string' } },
             Context: { api: { language: { parentId: 'parent-id' } } },
         } as unknown as typeof Shopware;

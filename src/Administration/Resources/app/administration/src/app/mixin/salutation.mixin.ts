@@ -3,18 +3,7 @@
  */
 
 import { defineComponent } from 'vue';
-
-type SalutationFilterEntityType = {
-    salutation: {
-        id: string;
-        salutationKey: string;
-        displayName: string;
-    };
-    title: string;
-    firstName: string;
-    lastName: string;
-    [key: string]: unknown;
-};
+import type { SalutationFilterEntityType } from '../composables/use-salutation';
 
 /**
  * @private

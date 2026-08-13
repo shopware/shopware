@@ -12,7 +12,7 @@ describe('src/app/composables/use-translate-with-fallback', () => {
         t.mockReset();
         te.mockReset();
         t.mockImplementation((key: string) => `translated:${key}`);
-        global.Shopware = {
+        window.Shopware = {
             Context: { app: { fallbackLocale: 'en-GB' } },
         } as unknown as typeof Shopware;
     });
@@ -56,7 +56,7 @@ describe('src/app/composables/use-translate-with-fallback', () => {
 
     it('does not consult the fallback locale when none is configured', () => {
         te.mockReturnValue(false);
-        global.Shopware = {
+        window.Shopware = {
             Context: { app: { fallbackLocale: '' } },
         } as unknown as typeof Shopware;
         const { tWithFallback } = useTranslateWithFallback();

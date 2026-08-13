@@ -1,7 +1,7 @@
 import type { Expression, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import type { ComposableDescriptor } from './composable-registry';
-import { findMixinDescriptorByModule, findMixinDescriptorByName } from './composable-registry';
+import { findMixinDescriptorByName } from './composable-registry';
 import { extractPropNamesFromText } from './extract-component-options';
 import { extractDataProps } from './extract-data';
 import { extractInjectProps } from './extract-inject';
@@ -89,7 +89,7 @@ export function resolveComponentMixins(
 }
 
 /** Names the component binds via its own `methods`, `computed`, `props`, `data`, or `inject`. */
-function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<string> {
+export function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<string> {
     const names = new Set<string>();
 
     for (const option of [
@@ -144,15 +144,14 @@ function resolveMixinElement(element: Expression, sourceFile: SourceFile): Compo
     }
 
     if (Node.isIdentifier(element)) {
+        // Imported mixin identifiers are never converted (no registry entry maps a
+        // module path); report the module so the backoff reason is actionable.
         const moduleSpecifier = resolveImportedIdentifierModule(element, sourceFile);
         if (moduleSpecifier === undefined) {
             return `mixins: could not resolve imported mixin '${element.getText()}'`;
         }
 
-        return (
-            findMixinDescriptorByModule(moduleSpecifier) ??
-            `mixins: no composable registered for mixin module '${moduleSpecifier}'`
-        );
+        return `mixins: no composable registered for mixin module '${moduleSpecifier}'`;
     }
 
     return `mixins: unsupported mixin element '${element.getText()}'`;

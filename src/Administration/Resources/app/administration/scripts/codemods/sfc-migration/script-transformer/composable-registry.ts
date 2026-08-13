@@ -39,15 +39,14 @@ export type ComposableTrigger =
     // A global fires whenever any of its member keys is accessed via `this`.
     | { type: 'global' }
     // A mixin fires when the component opts into it in `mixins: [...]`, matched by
-    // its registered name and/or the module path an imported identifier resolves to.
-    // `unmappedMembers` lists members the mixin exposes on `this` that the composable
-    // does NOT provide (e.g. internal computeds); reading one forces the backoff.
-    // `internallyReferencedMembers` lists members the composable calls internally, so
-    // a component override of one cannot take effect and must force the backoff.
+    // its registered name. `unmappedMembers` lists members the mixin exposes on
+    // `this` that the composable does NOT provide (e.g. internal computeds); reading
+    // one forces the backoff. `internallyReferencedMembers` lists members the
+    // composable calls internally, so a component override of one cannot take effect
+    // and must force the backoff.
     | {
           type: 'mixin';
           mixinNames: readonly string[];
-          mixinModules?: readonly string[];
           unmappedMembers?: readonly string[];
           internallyReferencedMembers?: readonly string[];
       };
@@ -127,8 +126,7 @@ export const GLOBAL_DESCRIPTORS: readonly ComposableDescriptor[] = [
 // --- Mixins ------------------------------------------------------------------
 // A mixin descriptor lists the members the mixin exposes on `this`, each mapped
 // to a destructured binding from the composable. `mixinNames` matches
-// `Shopware.Mixin.getByName('<name>')`; `mixinModules` matches an imported mixin
-// identifier by the module path it resolves to.
+// `Shopware.Mixin.getByName('<name>')`.
 
 /** Build a destructured-members map from a list of pure-method member names. */
 function methodMembers(names: readonly string[]): Record<string, ComposableMemberBinding> {
@@ -236,15 +234,5 @@ export function globalThisKeys(): string[] {
 export function findMixinDescriptorByName(name: string): ComposableDescriptor | undefined {
     return MIXIN_DESCRIPTORS.find(
         (descriptor) => descriptor.trigger.type === 'mixin' && descriptor.trigger.mixinNames.includes(name),
-    );
-}
-
-/**
- * The mixin descriptor whose `mixinModules` matches the module an imported mixin
- * identifier resolves to (e.g. `import listingMixin from 'src/app/mixin/listing.mixin'`).
- */
-export function findMixinDescriptorByModule(moduleSpecifier: string): ComposableDescriptor | undefined {
-    return MIXIN_DESCRIPTORS.find(
-        (descriptor) => descriptor.trigger.type === 'mixin' && (descriptor.trigger.mixinModules ?? []).includes(moduleSpecifier),
     );
 }

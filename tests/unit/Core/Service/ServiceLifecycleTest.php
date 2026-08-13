@@ -359,7 +359,11 @@ class ServiceLifecycleTest extends TestCase
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
-        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', $context);
+        // update() looks the service up, then uninstall() looks it up again by name
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+
+        $this->createLifecycle($appRepo)->update('MyCoolService', $context);
     }
 
     public function testUpdateDoesNothingWhenTheServiceCannotBeFetched(): void
@@ -379,10 +383,11 @@ class ServiceLifecycleTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.6.0.0-a1bcd']);
         $this->registryReturnsEntry();
         $this->fetchReturnsAppInfo();
-        $this->requirementsMet(true);
 
+        $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
+        $this->appManager->expects($this->never())->method('uninstall');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
         $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
         $this->logger->expects($this->never())->method('warning');

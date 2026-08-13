@@ -45,7 +45,8 @@ class Criteria extends Struct implements \Stringable
     final public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
-     * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
+     * fetches limit * 6 + 1 rows and returns a bounded lookahead count. Should be used if pagination
+     * can work with "next page exists" (fast), but does not need an exact total.
      */
     final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
@@ -162,6 +163,14 @@ class Criteria extends Struct implements \Stringable
     public function getLimit(): ?int
     {
         return $this->limit;
+    }
+
+    public function getNextPagesLimit(): int
+    {
+        // Fetch the current page and the next five pages so pagination can render a bounded six-page
+        // window without an exact COUNT query. The additional row is a sentinel: its presence means
+        // there are results beyond that window, so the exact last page is unknown.
+        return (int) $this->limit * 6 + 1;
     }
 
     public function getTotalCountMode(): int

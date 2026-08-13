@@ -135,6 +135,7 @@ use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
+use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -493,6 +494,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             param('kernel.shopware_version'),
             service(ClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -504,6 +506,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
+            service(DeletedAppsGateway::class),
         ]);
 
     $services->set(AppFeatureValidator::class)
@@ -552,6 +555,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
         ]);
+
+    $services->set(DiscardUnconfirmedAppSecretsListener::class)
+        ->args([
+            service('app.repository'),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(AppLifecycle::class)
         ->args([

@@ -326,7 +326,6 @@ class ProductExportGeneratorTest extends TestCase
             ->with("{\"url\":\"https://example.com/product/1\",\"title\":\"Product\"}\n", '', $context)
             ->willReturnArgument(0);
 
-        $this->productExportValidator = $this->createMock(ProductExportValidatorInterface::class);
         $this->productExportValidator->expects($this->once())
             ->method('validate')
             ->with($productExport, "{\"url\":\"https://example.com/product/1\",\"title\":\"Product\"}\n")
@@ -392,7 +391,6 @@ class ProductExportGeneratorTest extends TestCase
             ->with($expectedNormalized, '', $context)
             ->willReturnArgument(0);
 
-        $this->productExportValidator = $this->createMock(ProductExportValidatorInterface::class);
         $this->productExportValidator->expects($this->once())
             ->method('validate')
             ->with($productExport, $expectedNormalized)

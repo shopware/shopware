@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -17,6 +18,38 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    public function testComponentReferencedByResponseIsClassifiedAsResponse(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parseComponents([
+            'paths' => [
+                '/success' => [
+                    'get' => [
+                        'responses' => [
+                            '200' => [
+                                'content' => [
+                                    'application/json' => [
+                                        'schema' => ['$ref' => '#/components/schemas/SuccessResponse'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'components' => [
+                'schemas' => [
+                    'SuccessResponse' => [
+                        'type' => 'object',
+                        'properties' => ['success' => ['type' => 'boolean']],
+                    ],
+                ],
+            ],
+        ], ['SuccessResponse']);
+
+        static::assertCount(1, $definitions);
+        static::assertSame(OpenApiDtoType::Response, $definitions[0]->type);
+    }
+
     public function testOpenApiFixturesProduceAdjacentDtoDefinitions(): void
     {
         $parser = new OpenApiDtoSchemaParser();

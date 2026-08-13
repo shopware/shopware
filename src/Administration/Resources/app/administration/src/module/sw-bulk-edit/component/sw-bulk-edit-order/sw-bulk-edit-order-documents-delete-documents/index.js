@@ -60,7 +60,10 @@ export default {
 
             try {
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
-                    const [availableTypesResponse, documentTypeCollection] = await Promise.all([
+                    const [
+                        availableTypesResponse,
+                        documentTypeCollection,
+                    ] = await Promise.all([
                         this.documentV2ApiService.getAvailableTypes(),
                         this.documentTypeRepository.search(this.documentTypeCriteria),
                     ]);

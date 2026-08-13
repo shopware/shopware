@@ -398,6 +398,145 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('computed-spread-component: expands the statically analysable computed spreads', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('computed-spread-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        // The names are the ones map-errors.service.ts derives, so an override
+        // or a template written against the Options API keeps working.
+        it('names the error entries like the service does', () => {
+            expect(result.script).toContain('const productNameError = computed(() => {');
+            expect(result.script).toContain('const productStockError = computed(() => {');
+            expect(result.script).toContain('const lineItemsQuantityError = computed(() => {');
+        });
+
+        it('ports the entity error getter, reading the entity through the rewritten member', () => {
+            expect(result.script).toContain('const entity = product.value;');
+            expect(result.script).toContain("return Shopware.Store.get('error').getApiError(entity, 'name');");
+        });
+
+        it('ports the collection error getter', () => {
+            expect(result.script).toContain('const entityCollection = lineItems.value;');
+            expect(result.script).toContain('if (!Array.isArray(entityCollection)) { return null; }');
+        });
+
+        it('reads the mapped store key off the store expression the spread named', () => {
+            expect(result.script).toContain("return Store.get('swProductDetail').loading;");
+        });
+
+        // The entries have no counterpart in the source file, so the reader is
+        // told where each one came from.
+        it('marks every generated entry with the spread it came from', () => {
+            expect(result.script).toContain("// from the ...mapPropertyErrors('product', …) computed spread");
+            expect(result.script).toContain("// from the ...mapCollectionPropertyErrors('lineItems', …) computed spread");
+            expect(result.script).toContain(
+                "// from the ...mapState(() => Store.get('swProductDetail'), …) computed spread",
+            );
+        });
+
+        it('lists the expanded entries in the public override API', () => {
+            expect(result.publicNames).toEqual(
+                expect.arrayContaining([
+                    'productNameError',
+                    'productStockError',
+                    'lineItemsQuantityError',
+                    'loading',
+                ]),
+            );
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('computed spread shapes', () => {
+        function transformComputedSpread(spreadSource: string): ReturnType<typeof transformScript> {
+            return transformScript(`Shopware.Component.register('sw-test', {
+                data() { return { product: null }; },
+                computed: {
+                    ${spreadSource},
+                },
+            });`);
+        }
+
+        it.each([
+            [
+                'a store id string literal',
+                "...mapState('swProductDetail', ['loading'])",
+                "return Shopware.Store.get('swProductDetail').loading;",
+            ],
+            [
+                'a store composable identifier',
+                "...mapState(useProductDetailStore, ['loading'])",
+                'return useProductDetailStore().loading;',
+            ],
+            [
+                'an expression-bodied arrow',
+                "...mapState(() => Shopware.Store.get('swProductDetail'), ['loading'])",
+                "return Shopware.Store.get('swProductDetail').loading;",
+            ],
+        ])('resolves the mapState store from %s', (_case, spreadSource, expectedBody) => {
+            const result = transformComputedSpread(spreadSource);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain(expectedBody);
+        });
+
+        // Every shape below hides its keys or its store behind runtime state, so
+        // the entry keeps the manual TODO it had before spreads were expanded.
+        it.each([
+            [
+                'mapPageErrors, whose argument is a cross-module config object',
+                "...mapPageErrors({ 'sw-product.detail': { product: ['name'] } })",
+            ],
+            [
+                'a mapState object form, which renames the keys',
+                "...mapState(() => Shopware.Store.get('swProductDetail'), { isLoading: 'loading' })",
+            ],
+            [
+                'a block-bodied mapState arrow, which can run statements first',
+                "...mapState(() => { return Shopware.Store.get('swProductDetail'); }, ['loading'])",
+            ],
+            [
+                'a non-literal property list',
+                '...mapPropertyErrors(entityName, propertyNames)',
+            ],
+            [
+                'an unknown helper',
+                "...mapSomethingElse('product', ['name'])",
+            ],
+            [
+                'a helper reached through a member expression',
+                "...helpers.mapPropertyErrors('product', ['name'])",
+            ],
+        ])('keeps the manual TODO for %s', (_case, spreadSource) => {
+            const result = transformComputedSpread(spreadSource);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers.join('\n')).toContain('unsupported computed entry');
+        });
+
+        // The helper itself returns an empty object for a missing list, so the
+        // spread contributes nothing — that is an expansion, not a failure.
+        it('expands a property-error helper without properties into no entry at all', () => {
+            const result = transformComputedSpread("...mapPropertyErrors('product')");
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).not.toContain('computed(');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('global-alias-component: expands module-local aliases of globals in props and emits', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -1812,7 +1951,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             computed: {
-                ...mapPropertyErrors('product', ['name']),
+                ...mapPageErrors({ 'sw-product.detail': { product: ['name'] } }),
                 title() {
                     return 'Title';
                 },
@@ -1821,11 +1960,30 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const result = transformScript(js);
 
         expect(result.status).toBe('partially-migrated');
-        expect(result.blockers).toContain("computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.blockers).toContain(
+            "computed: ...mapPageErrors({ 'sw-product.detail': { product: ['name'] } }): unsupported computed entry",
+        );
         expect(result.script).toContain(
-            "TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry",
+            "TODO: migrate computed entry manually: computed: ...mapPageErrors({ 'sw-product.detail': { product: ['name'] } }): unsupported computed entry",
         );
         expect(result.script).toContain('const title = computed(() => {');
+    });
+
+    // -------------------------------------------------------------------------
+    // An expanded getter reads `this.<entity>`, so an entity the component does
+    // not declare drops the entry with the reason instead of expanding into a
+    // getter that reads nothing.
+    it('drops an expanded error entry whose entity is not a migrated member', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                ...mapPropertyErrors('product', ['name']),
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migrated');
+        expect(result.blockers).toContain("computed: productNameError uses unknown this property 'product'");
     });
 
     // -------------------------------------------------------------------------

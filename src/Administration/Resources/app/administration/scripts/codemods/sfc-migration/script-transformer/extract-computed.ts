@@ -1,5 +1,6 @@
 import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
+import { expandComputedSpread } from './expand-computed-spread';
 import { extractInlineFunctionHandler } from './extract-function-handler';
 import { isSimpleParameter } from './helpers';
 import type { ComputedProp, ExtractComputedPropsResult } from './types';
@@ -24,6 +25,19 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
     const unsupportedEntries: string[] = [];
 
     for (const prop of computedObj.getProperties()) {
+        // Example: `{ computed: { ...mapPropertyErrors('product', ['name']) } }`
+        if (prop.isKind(SyntaxKind.SpreadAssignment)) {
+            const expanded = expandComputedSpread(prop.asKindOrThrow(SyntaxKind.SpreadAssignment));
+
+            if (expanded === null) {
+                unsupportedEntries.push(`${prop.getText()}: unsupported computed entry`);
+            } else {
+                result.push(...expanded);
+            }
+
+            continue;
+        }
+
         // Example: `{ computed: { productName() { return this.product.name; } } }`
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
             const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);

@@ -45,9 +45,14 @@ export interface ComponentRegistration {
     parentComponentName: string | null;
 }
 
-export type ComputedProp =
-    | { name: string; kind: 'getter'; bodyText: string }
-    | { name: string; kind: 'getter-setter'; getterBodyText: string; setterParam: string; setterBodyText: string };
+export type ComputedProp = {
+    name: string;
+    /** Explanatory line emitted above the entry, e.g. the spread it was expanded from. */
+    comment?: string;
+} & (
+    | { kind: 'getter'; bodyText: string }
+    | { kind: 'getter-setter'; getterBodyText: string; setterParam: string; setterBodyText: string }
+);
 
 export interface ExtractComputedPropsResult {
     computedProps: ComputedProp[];

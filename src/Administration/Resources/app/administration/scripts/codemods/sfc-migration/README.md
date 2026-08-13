@@ -59,6 +59,8 @@ my-component/
 | `name` differing from the registered name | `defineOptions({ name })`                      |
 | `data()` / `data: () => ({ … })`          | `ref(…)` in `<script setup>`                   |
 | `computed`                                | `computed(…)` in `<script setup>`              |
+| `...mapPropertyErrors(…)` / `...mapCollectionPropertyErrors(…)` | one named `computed(…)` per property |
+| `...mapState(store, ['a', 'b'])`          | one named `computed(…)` per key                |
 | `inject` array/object form                | `inject(…)` in `<script setup>`                |
 | `provide` object / method form            | `provide(key, value)` in `<script setup>`      |
 | `expose: ['a', 'b']`                      | `defineExpose({ a, b })`                       |
@@ -75,6 +77,25 @@ my-component/
 | `this.$te`                                | `te(…)` from `useI18n()`                       |
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+A computed spread hides its keys behind a helper call, so the whole entry used to be a manual `TODO`
+— and every `this.<generatedName>` reading one of those keys then dropped its own member on top.
+Three helpers build their getters from literal arguments only, so the codemod writes those getters
+out as explicit named entries, each with a comment naming the spread it came from:
+
+- `...mapPropertyErrors(entity, [props])` and `...mapCollectionPropertyErrors(collection, [props])` —
+  one getter per property, named exactly as `map-errors.service.ts` names it
+  (`camelCase('<entity>.<prop>.error')`), with the service's own body ported literally. The getter
+  reads `this.<entity>`, so an entity the component does not declare drops the entry with a reason
+  rather than reading nothing.
+- `...mapState(store, ['a', 'b'])` — one getter per key, `return <store>.<key>;`. The store comes
+  from an expression-bodied arrow (`() => Store.get('x')` → `Store.get('x')`), a string literal
+  (`'x'` → `Shopware.Store.get('x')`), or an identifier (`useX` → `useX()`).
+
+Everything else keeps the `TODO`: `mapPageErrors` (its argument is a cross-module config object),
+the `mapState` object form (it renames keys), a block-bodied arrow (it can run statements before
+returning the store), non-literal arguments, an unknown helper, and a helper reached through a
+member expression rather than a plain identifier.
 
 `defineProps` and `defineEmits` are hoisted above every module-level local, so a definition naming
 one cannot be emitted into the macro. Most of those names are only a shorthand for a global, though,
@@ -236,7 +257,7 @@ After running the codemod, search for `TODO` comments in the generated files:
   was dropped first. Migrate the named member by hand and re-run the codemod; the reference usually
   converts on its own afterwards. `unknown this property '<name>'` means the opposite: the codemod
   saw no declaration it could parse — a mixin, a plugin, a global helper, or an option entry whose
-  shape it does not support (a `...mapPropertyErrors(…)` computed spread, for example).
+  shape it does not support (a `...mapPageErrors(…)` computed spread, for example).
 
 - **Mixins and `Shopware.Component.extend()`** — must be manually inlined
 - **Render functions** — must be rewritten as templates by hand

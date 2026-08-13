@@ -184,16 +184,20 @@ function emitComputedProps(state: CompositionScriptState, names: ResolvedIdentif
     const { ctx, supportedComputedProps } = state;
 
     return supportedComputedProps.map((prop) => {
+        // An expanded entry has no counterpart in the source, so the comment
+        // names where it came from.
+        const commentLine = prop.comment ? `// ${sanitizeTodoCommentText(prop.comment)}\n` : '';
+
         if (prop.kind === 'getter') {
             const body = rewriteThisInBody(prop.bodyText, ctx, names);
 
-            return `const ${prop.name} = computed(() => {\n${body}\n});`;
+            return `${commentLine}const ${prop.name} = computed(() => {\n${body}\n});`;
         }
 
         const getterBody = rewriteThisInBody(prop.getterBodyText, ctx, names);
         const setterBody = rewriteThisInBody(prop.setterBodyText, ctx, names);
 
-        return `const ${prop.name} = computed({\nget: () => {\n${getterBody}\n},\nset: (${prop.setterParam}) => {\n${setterBody}\n},\n});`;
+        return `${commentLine}const ${prop.name} = computed({\nget: () => {\n${getterBody}\n},\nset: (${prop.setterParam}) => {\n${setterBody}\n},\n});`;
     });
 }
 

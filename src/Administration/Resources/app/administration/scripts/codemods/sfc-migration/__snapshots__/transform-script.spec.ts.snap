@@ -124,6 +124,50 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script computed-spread-component: expands the statically analysable computed spreads matches the complete converted script snapshot 1`] = `
+"const { Store } = Shopware;
+const { mapPropertyErrors, mapCollectionPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
+
+import { ref, computed } from 'vue';
+
+const product = ref(null);
+const lineItems = ref([]);
+
+// from the ...mapPropertyErrors('product', …) computed spread
+const productNameError = computed(() => {
+const entity = product.value;
+const isEntity = entity && typeof entity.getEntityName === 'function';
+if (!isEntity) { return null; }
+return Shopware.Store.get('error').getApiError(entity, 'name');
+});
+// from the ...mapPropertyErrors('product', …) computed spread
+const productStockError = computed(() => {
+const entity = product.value;
+const isEntity = entity && typeof entity.getEntityName === 'function';
+if (!isEntity) { return null; }
+return Shopware.Store.get('error').getApiError(entity, 'stock');
+});
+// from the ...mapCollectionPropertyErrors('lineItems', …) computed spread
+const lineItemsQuantityError = computed(() => {
+const entityCollection = lineItems.value;
+if (!Array.isArray(entityCollection)) { return null; }
+return entityCollection.map((entity) => Shopware.Store.get('error').getApiError(entity, 'quantity'));
+});
+// from the ...mapState(() => Store.get('swProductDetail'), …) computed spread
+const loading = computed(() => {
+return Store.get('swProductDetail').loading;
+});
+
+swDefinePublic({
+    product,
+    lineItems,
+    productNameError,
+    productStockError,
+    lineItemsQuantityError,
+    loading,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script created-component: created() runs as direct setup code; beforeUnmount/unmounted use correct hooks matches the complete converted script snapshot 1`] = `
 "const props = defineProps({
         selector: {

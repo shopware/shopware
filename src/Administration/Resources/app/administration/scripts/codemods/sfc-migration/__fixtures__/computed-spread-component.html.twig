@@ -1,0 +1,6 @@
+{% block sw_computed_spread_card %}
+    <div class="sw-computed-spread-card">
+        <span v-if="productNameError">{{ productNameError.detail }}</span>
+        <span v-if="loading">…</span>
+    </div>
+{% endblock %}

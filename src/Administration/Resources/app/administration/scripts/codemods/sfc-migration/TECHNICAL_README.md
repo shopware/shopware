@@ -295,6 +295,7 @@ This keeps "understand the old component" separate from "print the new code".
 | `extract-expose.ts` | `expose` as an array of string literals. |
 | `extract-data.ts` | `data()` return values into future `ref(...)` declarations. |
 | `extract-computed.ts` | Computed getters and getter/setter objects. |
+| `expand-computed-spread.ts` | `...mapPropertyErrors` / `...mapCollectionPropertyErrors` / `...mapState` spreads. |
 | `extract-methods.ts` | Methods and property-assignment methods like debounce wrappers. |
 | `extract-watch.ts` | Watchers, string handlers, object handlers, `deep`, `immediate`. |
 | `extract-lifecycle.ts` | Lifecycle hooks and their Composition API equivalents. |
@@ -425,7 +426,7 @@ reports why. Two reasons are distinguished, because they need different fixes:
 | Reason | Meaning |
 | --- | --- |
 | `dropped member '<name>'` | The component declares `<name>`, but the codemod dropped it earlier. Migrate that member first. |
-| `unknown this property '<name>'` | The codemod saw no declaration of `<name>` it could parse: a mixin, a plugin, a global helper, or an option entry whose shape an extractor rejected (e.g. a `...mapPropertyErrors(…)` computed spread, which never becomes a declared member name). |
+| `unknown this property '<name>'` | The codemod saw no declaration of `<name>` it could parse: a mixin, a plugin, a global helper, or an option entry whose shape an extractor rejected (e.g. a `...mapPageErrors(…)` computed spread, which never becomes a declared member name). |
 | `rewrite target '<name>' is shadowed by a local binding` | The rewrite would emit a bare `<name>` (or `props`) at a place where a parameter or local of that name is in scope, so the generated code would read the local instead of the setup binding. Rename the local, then migrate again. |
 
 `this.<name>` becomes a bare identifier, and a bare identifier resolves in the
@@ -490,6 +491,50 @@ SFC against the real build-time transform before returning it, so these come bac
 as `not-migratable` with a `native setup transform: …` blocker and nothing is
 written to disk. Only the reason is poor — it points at the generated duplicate
 instead of at the member that needs the manual rename.
+
+## Computed Spread Expansion
+
+Main file: `script-transformer/expand-computed-spread.ts`
+
+A `...helper(…)` entry in `computed` names no keys, so it cannot be migrated as
+written — and the cost is not only the entry itself: every `this.<generatedKey>`
+elsewhere in the component then reads a name the codemod never declared and
+drops its own member as `unknown this property`.
+
+Three helpers derive their getters from literal arguments only, so the same
+getters can be written out here:
+
+| Spread | Generated entries |
+| --- | --- |
+| `...mapPropertyErrors('product', ['name'])` | `productNameError` — the service's entity getter, ported |
+| `...mapCollectionPropertyErrors('lineItems', ['quantity'])` | `lineItemsQuantityError` — the collection getter, ported |
+| `...mapState(store, ['loading'])` | `loading` — `return <store>.loading;` |
+
+The error-entry names are `camelCase('<entity>.<property>.error')`, the same
+expression `map-errors.service.ts` uses, so overrides and templates written
+against the Options API names keep working. The bodies are a hand-written port
+of that service, which can drift from it silently — `expand-computed-spread.spec.ts`
+therefore imports the real service, runs both getters against the same receiver
+and a seeded error store, and compares the results.
+
+The generated getter reads `this.<entity>`, deliberately: the normal rewrite
+resolves it, and drops the entry with a reason when the entity is not a migrated
+member. That is the honest outcome, not a getter that silently reads nothing.
+
+`mapState` is Pinia's. Its store argument is resolved from an expression-bodied
+arrow (`() => Store.get('x')` → `Store.get('x')`), a string literal
+(`'x'` → `Shopware.Store.get('x')`), or an identifier (`useX` → `useX()`), and
+re-evaluated per getter exactly as Pinia does.
+
+Not expanded, and therefore unchanged manual TODOs: `mapPageErrors` (a
+cross-module config object), the `mapState` object form (it renames keys), a
+block-bodied arrow (it can run statements before returning the store),
+non-literal arguments, an unknown helper, and a callee that is not a plain
+identifier — matching on the trailing name of an arbitrary expression would
+claim unrelated functions.
+
+Every generated entry carries a comment naming the spread it came from, because
+it has no counterpart in the source file.
 
 ## Props And Emits: Global Alias Expansion
 
@@ -668,6 +713,7 @@ timing does not map cleanly to generated setup code.
 | `script-transformer/rewrite-this.ts` | Rewrites known `this.*` references. |
 | `script-transformer/resolve-identifiers.ts` | Picks the names of the generated bindings (`emit`, `slots`, `t`, …) so they never collide with the component's own. |
 | `script-transformer/extract-*.ts` | Focused extractors for Options API sections. |
+| `script-transformer/expand-computed-spread.ts` | Expands the statically analysable `computed` spreads into named entries. |
 | `__fixtures__/` | Input examples used by tests. |
 | `__snapshots__/` | Expected generated output snapshots. |
 | `*.spec.ts` | Tests for runner behavior, template conversion, script conversion, and final SFC output. |

@@ -109,6 +109,11 @@ Product specific line item rule conditions (manufacturer, category, tags, proper
 `EntitySearchResult` keeps the `$entity` constructor argument, property, and `getEntity()` method in v6.8.0. Removing the constructor argument would not have provided a forward-compatible migration path: extensions could not construct a result today that also works after the major update. The required call-site changes were therefore disproportionate to the benefit.
 
 The property becomes `readonly`; use the constructor rather than the deprecated `setEntity()` method to provide the entity name. For a non-empty collection, the constructor asserts that the supplied entity name matches the collection's entity name.
+
+### Essential characteristics show custom field labels in the language of the context
+
+The `features` line item payload resolves a custom field's label for the language of the sales channel context instead of always using the system language. Store API consumers and templates that render `features[].label` now receive the translated label. Labels the merchant left empty inherit along the language chain, from the parent language and finally from the system language, the same way translated entity fields resolve. A custom field whose label is empty for every language of the chain is omitted from `features` instead of being rendered without a label.
+
 ### Media path cache busting is configurable
 
 The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving timestamped media paths. Set it to `false` to keep paths stable for future media uploads and replacements while retaining `?ts=` query-string cache busting. Configure the CDN to include query strings in its cache key. Existing media paths are not migrated.

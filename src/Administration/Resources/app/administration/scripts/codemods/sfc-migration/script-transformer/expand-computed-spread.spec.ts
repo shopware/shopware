@@ -24,6 +24,7 @@ function extractComputed(computedSource: string): ComputedProp[] {
             'mapPropertyErrors',
             'mapCollectionPropertyErrors',
         ]),
+        new Set(),
     ).computedProps;
 }
 

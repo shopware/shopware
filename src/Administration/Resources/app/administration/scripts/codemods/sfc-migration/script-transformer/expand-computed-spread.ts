@@ -12,6 +12,7 @@ import type { ArrayLiteralExpression, CallExpression, Node as TsNode, SpreadAssi
 import { Node, SyntaxKind } from 'ts-morph';
 import camelCase from 'lodash/camelCase';
 import { quoteJsString } from '../string-literals';
+import { collectFreeIdentifierNames, GLOBAL_ALIAS_ROOTS } from './ast';
 import { buildPropertyAccess, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
 import type { ComputedProp } from './types';
 
@@ -26,7 +27,11 @@ import type { ComputedProp } from './types';
  * `pinia`, or `map-errors.service`. Without it a `mapState` imported from `vuex`
  * — whose getters read `this.$store` — would be ported with Pinia semantics.
  */
-export function expandComputedSpread(spread: SpreadAssignment, trustedHelperNames: Set<string>): ComputedProp[] | null {
+export function expandComputedSpread(
+    spread: SpreadAssignment,
+    trustedHelperNames: Set<string>,
+    moduleBindingNames: Set<string>,
+): ComputedProp[] | null {
     const call = spread.getExpression().asKind(SyntaxKind.CallExpression);
     // Only a bare, unconditionally called identifier is matched: the helpers are
     // destructured into a module local first, and `helper?.(…)` may not be a call
@@ -43,7 +48,7 @@ export function expandComputedSpread(spread: SpreadAssignment, trustedHelperName
         case 'mapCollectionPropertyErrors':
             return expandPropertyErrors(call, callee, 'collection');
         case 'mapState':
-            return expandMapState(call, callee);
+            return expandMapState(call, callee, moduleBindingNames);
         default:
             // mapPageErrors takes cross-module config objects, and any other
             // helper is unknown — both keep the manual TODO.
@@ -92,9 +97,10 @@ function expandPropertyErrors(call: CallExpression, callee: string, shape: 'enti
  * that resolves the store and reads the key off it. The store expression is
  * re-evaluated per getter, exactly as Pinia does.
  */
-function expandMapState(call: CallExpression, callee: string): ComputedProp[] | null {
+function expandMapState(call: CallExpression, callee: string, moduleBindingNames: Set<string>): ComputedProp[] | null {
+    const storeArgument = call.getArguments()[0];
     const keysArgument = call.getArguments()[1];
-    const storeExpression = readStoreExpression(call.getArguments()[0]);
+    const storeExpression = readStoreExpression(storeArgument, moduleBindingNames);
     const keys = keysArgument === undefined ? null : readStringLiteralArray(keysArgument);
 
     // The object form (`mapState(store, { alias: 'key' })`) renames keys and is
@@ -118,8 +124,13 @@ function expandMapState(call: CallExpression, callee: string): ComputedProp[] | 
  * expression. A parameterised arrow (`(state) => state.swProductDetail`) cannot:
  * its body reads a name that only exists inside the arrow, and copying the body
  * out would emit an unbound identifier that compiles and then throws.
+ *
+ * Whatever is re-emitted also has to still resolve where it lands. The generated
+ * block only inherits the module code before the registration call, so a store
+ * declared after it — or anywhere else the codemod does not copy — would be an
+ * unbound identifier just the same.
  */
-function readStoreExpression(argument: TsNode | undefined): string | null {
+function readStoreExpression(argument: TsNode | undefined, moduleBindingNames: Set<string>): string | null {
     if (!argument) {
         return null;
     }
@@ -130,13 +141,28 @@ function readStoreExpression(argument: TsNode | undefined): string | null {
         const body = arrow.getBody();
 
         // A block-bodied arrow can run statements before returning the store.
-        return arrow.getParameters().length > 0 || Node.isBlock(body) ? null : body.getText();
+        if (arrow.getParameters().length > 0 || Node.isBlock(body)) {
+            return null;
+        }
+
+        return isResolvableInSetup(body, moduleBindingNames) ? body.getText() : null;
     }
 
     // Example: `mapState(useShopwareServicesStore, […])`
     const useStore = argument.asKind(SyntaxKind.Identifier);
 
-    return useStore ? `${useStore.getText()}()` : null;
+    if (!useStore || !isResolvableInSetup(useStore, moduleBindingNames)) {
+        return null;
+    }
+
+    return `${useStore.getText()}()`;
+}
+
+/** true when every name the expression reads exists in the generated block. */
+function isResolvableInSetup(node: TsNode, moduleBindingNames: Set<string>): boolean {
+    return [...collectFreeIdentifierNames(node)].every(
+        (name) => moduleBindingNames.has(name) || GLOBAL_ALIAS_ROOTS.has(name),
+    );
 }
 
 function readStringLiteral(argument: TsNode | undefined): string | null {

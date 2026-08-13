@@ -121,12 +121,7 @@ function isExpandableAlias(
     return (
         globalAliases.has(identifier.getText()) &&
         !Node.isShorthandPropertyAssignment(identifier.getParent()) &&
-        !isCoveredByBindingScope(
-            namedExpressionScopes,
-            identifier.getText(),
-            identifier.getStart(),
-            identifier.getEnd(),
-        )
+        !isCoveredByBindingScope(namedExpressionScopes, identifier.getText(), identifier.getStart(), identifier.getEnd())
     );
 }
 

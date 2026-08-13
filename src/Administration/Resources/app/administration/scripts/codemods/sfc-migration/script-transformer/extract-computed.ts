@@ -5,9 +5,34 @@ import { extractInlineFunctionHandler } from './extract-function-handler';
 import { isSimpleParameter } from './helpers';
 import type { ComputedProp, ExtractComputedPropsResult } from './types';
 
+/**
+ * An object literal keeps the last value written for a key, and a spread writes
+ * its keys where it stands. So a name an expansion produces and a name the
+ * author wrote can collide, and the Options API resolved that by source order —
+ * which is what the idiomatic "spread, then override one entry" pattern relies
+ * on. Emitting both would instead make `dropDuplicatePublicNames` delete the
+ * author's entry along with the generated one.
+ *
+ * Only collisions involving an expansion are resolved here. Two entries the
+ * author wrote by hand are almost certainly a mistake, and stay loud.
+ */
+function resolveExpandedCollisions(entries: { prop: ComputedProp; isExpanded: boolean }[]): ComputedProp[] {
+    const lastIndexByName = new Map<string, number>();
+    entries.forEach(({ prop }, index) => lastIndexByName.set(prop.name, index));
+
+    return entries
+        .filter(({ prop, isExpanded }, index) => {
+            const isShadowed = lastIndexByName.get(prop.name) !== index;
+
+            return !isShadowed || !(isExpanded || entries[lastIndexByName.get(prop.name) as number].isExpanded);
+        })
+        .map(({ prop }) => prop);
+}
+
 export function extractComputedProps(
     optionsObj: ObjectLiteralExpression,
     trustedHelperNames: Set<string>,
+    moduleBindingNames: Set<string>,
 ): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
     if (!computedProp) return { computedProps: [], unsupportedEntries: [] };
@@ -24,18 +49,25 @@ export function extractComputedProps(
         return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
     }
 
-    const result: ComputedProp[] = [];
+    const entries: { prop: ComputedProp; isExpanded: boolean }[] = [];
     const unsupportedEntries: string[] = [];
+    const declare = (prop: ComputedProp, isExpanded = false): void => {
+        entries.push({ prop, isExpanded });
+    };
 
     for (const prop of computedObj.getProperties()) {
         // Example: `{ computed: { ...mapPropertyErrors('product', ['name']) } }`
         if (prop.isKind(SyntaxKind.SpreadAssignment)) {
-            const expanded = expandComputedSpread(prop.asKindOrThrow(SyntaxKind.SpreadAssignment), trustedHelperNames);
+            const expanded = expandComputedSpread(
+                prop.asKindOrThrow(SyntaxKind.SpreadAssignment),
+                trustedHelperNames,
+                moduleBindingNames,
+            );
 
             if (expanded === null) {
                 unsupportedEntries.push(`${prop.getText()}: unsupported computed entry`);
             } else {
-                result.push(...expanded);
+                expanded.forEach((entry) => declare(entry, true));
             }
 
             continue;
@@ -44,7 +76,7 @@ export function extractComputedProps(
         // Example: `{ computed: { productName() { return this.product.name; } } }`
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
             const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
-            result.push({ name: method.getName(), kind: 'getter', bodyText: method.getBodyText() ?? '' });
+            declare({ name: method.getName(), kind: 'getter', bodyText: method.getBodyText() ?? '' });
             continue;
         }
 
@@ -55,7 +87,7 @@ export function extractComputedProps(
             // Examples: `{ computed: { productName: function () {} } }` and `{ productName: () => '' }`
             if (initializer?.isKind(SyntaxKind.FunctionExpression) || initializer?.isKind(SyntaxKind.ArrowFunction)) {
                 const { bodyText } = extractInlineFunctionHandler(initializer);
-                result.push({ name: pa.getName(), kind: 'getter', bodyText });
+                declare({ name: pa.getName(), kind: 'getter', bodyText });
                 continue;
             }
 
@@ -83,7 +115,7 @@ export function extractComputedProps(
                     continue;
                 }
 
-                result.push({
+                declare({
                     name: pa.getName(),
                     kind: 'getter-setter',
                     getterBodyText: getter.getBodyText() ?? '',
@@ -92,7 +124,7 @@ export function extractComputedProps(
                 });
             } else if (getterProp?.isKind(SyntaxKind.MethodDeclaration)) {
                 const getter = getterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
-                result.push({
+                declare({
                     name: pa.getName(),
                     kind: 'getter',
                     bodyText: getter.getBodyText() ?? '',
@@ -107,5 +139,5 @@ export function extractComputedProps(
         unsupportedEntries.push(`${prop.getText()}: unsupported computed entry`);
     }
 
-    return { computedProps: result, unsupportedEntries };
+    return { computedProps: resolveExpandedCollisions(entries), unsupportedEntries };
 }

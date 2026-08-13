@@ -335,6 +335,7 @@ function collectSupportedCompositionMembers(
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(
         optionsObj,
         trustedHelperNames,
+        moduleBindingNames,
     );
     const { watchProps, unsupportedEntries } = extractWatchProps(optionsObj);
     const unsupportedWatchEntries = [...unsupportedEntries];

@@ -512,6 +512,21 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('onBeforeRoute');
         });
 
+        // An object literal keeps the last method written for a key, so this is
+        // one guard, not two — emitting both would register a guard the
+        // component never had.
+        it('registers a repeated guard option once, keeping the last one', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                beforeRouteLeave(to, from, next) { next(1); },
+                beforeRouteLeave(to, from, next) { next(2); },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script.match(/onBeforeRouteLeave\(/gu)).toHaveLength(1);
+            expect(result.script).toContain('next(2);');
+        });
+
         // A quoted or bracketed key names the same option, so it is migrated
         // rather than dropped — these were silently lost before.
         it.each([
@@ -538,12 +553,38 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     describe('methods with an identifier value', () => {
         // `{ getKey: get }` resolves `get` in module scope, never on the
         // instance, and the generated block inherits that binding unchanged.
+        // The Options API captured the value when the options object was built;
+        // the generated block reads the binding when setup runs. A reassignment
+        // between the two makes those differ, so only non-reassignable bindings
+        // are accepted — the same rule the props alias expansion uses.
+        it.each([
+            ['let'],
+            ['var'],
+        ])('keeps the fallback for a %s module binding', (declarationKind) => {
+            const js = `${declarationKind} mutable = () => 1;
+
+            Shopware.Component.register('sw-test', {
+                methods: { f: mutable },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('methods: f: method value must be an inline function');
+            expect(result.script).not.toContain('const f = mutable;');
+        });
+
         it.each([
             [
                 'a destructured module-level const',
                 'const { get } = Shopware.Utils;',
                 'getKey: get',
                 'const getKey = get;',
+            ],
+            [
+                'a module-level function declaration',
+                'function formatKey(value) { return value; }',
+                'getKey: formatKey',
+                'const getKey = formatKey;',
             ],
             [
                 'a default import',
@@ -772,8 +813,13 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
     // -------------------------------------------------------------------------
     describe('computed spread shapes', () => {
-        const HELPER_SOURCE =
-            'const { mapPropertyErrors, mapCollectionPropertyErrors, mapState, mapPageErrors } = Shopware.Component.getComponentHelper();';
+        // The store composable has to be a module binding the generated block
+        // inherits, or the expansion would emit a name that is not declared
+        // there.
+        const HELPER_SOURCE = [
+            "import { useProductDetailStore } from './store';",
+            'const { mapPropertyErrors, mapCollectionPropertyErrors, mapState, mapPageErrors } = Shopware.Component.getComponentHelper();',
+        ].join('\n');
 
         function transformComputedSpread(spreadSource: string, moduleSource = HELPER_SOURCE) {
             return transformScript(`${moduleSource}
@@ -910,11 +956,97 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         it('expands mapState imported from pinia', () => {
             const result = transformComputedSpread(
                 "...mapState(useProductDetailStore, ['loading'])",
-                "import { mapState } from 'pinia';",
+                "import { mapState } from 'pinia';\nimport { useProductDetailStore } from './store';",
             );
 
             expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('return useProductDetailStore().loading;');
+        });
+
+        // The generated block only inherits the module code before the
+        // registration, so a store declared after it is an unbound identifier
+        // there — the same check A6 runs on a method value.
+        it.each([
+            [
+                'an identifier declared after the registration',
+                "...mapState(useLateStore, ['a'])",
+                'const useLateStore = () => ({ a: 1 });',
+            ],
+            [
+                'an arrow reading a name declared after the registration',
+                "...mapState(() => lateStore.get('swX'), ['a'])",
+                'const lateStore = { get: () => ({ a: 1 }) };',
+            ],
+        ])('keeps the manual TODO for a mapState store from %s', (_case, spreadSource, trailingSource) => {
+            const result = transformScript(`${HELPER_SOURCE}
+
+            Shopware.Component.register('sw-test', {
+                computed: { ${spreadSource} },
+            });
+
+            ${trailingSource}`);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers.join('\n')).toContain('unsupported computed entry');
+        });
+
+        it.each([
+            [
+                'a global root',
+                "...mapState(() => Shopware.Store.get('swX'), ['a'])",
+                '',
+            ],
+            [
+                'a module-level alias declared before the registration',
+                "...mapState(() => Store.get('swX'), ['a'])",
+                'const { Store } = Shopware;',
+            ],
+            [
+                'a store composable imported before the registration',
+                "...mapState(useEarlyStore, ['a'])",
+                "import { useEarlyStore } from './store';",
+            ],
+        ])('expands a mapState store reading %s', (_case, spreadSource, extraModuleSource) => {
+            const result = transformScript(`${extraModuleSource}
+            ${HELPER_SOURCE}
+
+            Shopware.Component.register('sw-test', {
+                computed: { ${spreadSource} },
+            });`);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const a = computed(() => {');
+        });
+
+        // An object literal keeps the last value written for a key, so the
+        // Options API resolved these by source order. Emitting both entries made
+        // dropDuplicatePublicNames delete the author's along with the generated
+        // one.
+        it('emits a repeated expanded property once', () => {
+            const result = transformComputedSpread("...mapPropertyErrors('product', ['name', 'name'])");
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script.match(/const productNameError = computed\(/gu)).toHaveLength(1);
+        });
+
+        it('lets a hand-written entry after the spread win, keeping it', () => {
+            const result = transformComputedSpread(
+                "...mapPropertyErrors('product', ['name']), productNameError() { return 'custom'; }",
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain("return 'custom';");
+            expect(result.script).not.toContain('computed spread');
+        });
+
+        it('lets the spread win when it comes after the hand-written entry', () => {
+            const result = transformComputedSpread(
+                "productNameError() { return 'custom'; }, ...mapPropertyErrors('product', ['name'])",
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).not.toContain("return 'custom';");
+            expect(result.script).toContain("getApiError(entity, 'name')");
         });
 
         // The helper itself returns an empty object for a missing list, so the

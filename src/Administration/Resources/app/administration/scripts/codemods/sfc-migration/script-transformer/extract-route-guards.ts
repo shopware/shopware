@@ -64,7 +64,21 @@ export function extractRouteGuards(optionsObj: ObjectLiteralExpression): Extract
         unsupportedEntries.push(`${name}: route guard must be defined as a method to be migrated`);
     }
 
-    return { routeGuards, unsupportedEntries };
+    // An object literal keeps the last method written for a key, so two
+    // `beforeRouteLeave` methods are one guard — the second. Emitting both
+    // composables would register a guard the component never had. Same rule the
+    // computed expansion uses for a repeated key.
+    const lastByOptionName = new Map(
+        routeGuards.map((guard, index) => [
+            guard.optionName,
+            index,
+        ]),
+    );
+
+    return {
+        routeGuards: routeGuards.filter((guard, index) => lastByOptionName.get(guard.optionName) === index),
+        unsupportedEntries,
+    };
 }
 
 function readPropertyName(prop: ObjectLiteralElementLike): string | undefined {

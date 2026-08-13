@@ -62,9 +62,7 @@ export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
 
         const names = new Set<string>();
         addBindingNames(nameNode, names);
-        names.forEach((name) =>
-            scopes.push({ name, start: scope.getStart(), end: scope.getEnd(), fromNamedExpression }),
-        );
+        names.forEach((name) => scopes.push({ name, start: scope.getStart(), end: scope.getEnd(), fromNamedExpression }));
     };
 
     for (const node of rootNode.getDescendants()) {
@@ -99,6 +97,41 @@ export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
     }
 
     return scopes;
+}
+
+/**
+ * The names an expression reads from outside itself. Property names and keys are
+ * not reads, and anything the expression binds itself is not one either.
+ *
+ * Used to check that an expression the codemod copies into the generated block
+ * will still resolve there: the block only inherits the module code that sits
+ * before the registration call.
+ */
+export function collectFreeIdentifierNames(rootNode: Node): Set<string> {
+    if (Node.isIdentifier(rootNode)) {
+        return new Set([rootNode.getText()]);
+    }
+
+    const scopes = collectLocalBindingScopes(rootNode);
+    const names = new Set<string>();
+
+    for (const identifier of rootNode.getDescendantsOfKind(SyntaxKind.Identifier)) {
+        const parent = identifier.getParent();
+        const isName =
+            (Node.isPropertyAccessExpression(parent) ||
+                Node.isPropertyAssignment(parent) ||
+                Node.isMethodDeclaration(parent) ||
+                Node.isBindingElement(parent)) &&
+            parent.getNameNode()?.getStart() === identifier.getStart();
+
+        if (isName || isCoveredByBindingScope(scopes, identifier.getText(), identifier.getStart(), identifier.getEnd())) {
+            continue;
+        }
+
+        names.add(identifier.getText());
+    }
+
+    return names;
 }
 
 /** true when a binding of `name` is visible at the given source range. */
@@ -286,16 +319,22 @@ export function collectModuleLocalNames(sourceFile: SourceFile, registration: Co
 }
 
 /**
- * Every value binding the generated block inherits from the module: the imports
- * and the locals declared before the registration, which `extractModuleLevelCode`
+ * Every value binding the generated block inherits from the module and can still
+ * be trusted to hold the same value: the imports and the `const`, `function`, and
+ * `class` declarations before the registration, which `extractModuleLevelCode`
  * copies in front of the setup body.
  *
  * An options entry whose value is one of these names reads the module binding,
  * not the component instance, so it survives the move into setup unchanged.
+ *
+ * `let` and `var` are excluded for the reason `collectGlobalAliasPaths` excludes
+ * them: the Options API captured the value when the options object was built,
+ * the generated block reads the binding when setup runs, and a reassignment
+ * between the two makes those differ.
  */
 export function collectModuleBindingNames(sourceFile: SourceFile, registration: ComponentRegistration): Set<string> {
     const registerPos = registration.call.getStart();
-    const names = collectModuleLocalNames(sourceFile, registration);
+    const names = collectImmutableModuleLocalNames(sourceFile, registerPos);
 
     for (const importDeclaration of sourceFile.getImportDeclarations()) {
         if (importDeclaration.getStart() >= registerPos) {
@@ -325,6 +364,34 @@ export function collectModuleBindingNames(sourceFile: SourceFile, registration: 
         importDeclaration.getNamedImports().forEach((namedImport) => {
             names.add(namedImport.getAliasNode()?.getText() ?? namedImport.getName());
         });
+    }
+
+    return names;
+}
+
+function collectImmutableModuleLocalNames(sourceFile: SourceFile, registerPos: number): Set<string> {
+    const names = new Set<string>();
+
+    for (const stmt of sourceFile.getStatements()) {
+        if (stmt.getStart() >= registerPos) break;
+
+        if (stmt.isKind(SyntaxKind.VariableStatement)) {
+            const declarationList = stmt.asKindOrThrow(SyntaxKind.VariableStatement).getDeclarationList();
+
+            if (declarationList.getDeclarationKind() === VariableDeclarationKind.Const) {
+                declarationList
+                    .getDeclarations()
+                    .forEach((declaration) => addBindingNames(declaration.getNameNode(), names));
+            }
+        } else if (stmt.isKind(SyntaxKind.FunctionDeclaration) || stmt.isKind(SyntaxKind.ClassDeclaration)) {
+            const name =
+                stmt.asKind(SyntaxKind.FunctionDeclaration)?.getName() ??
+                stmt.asKind(SyntaxKind.ClassDeclaration)?.getName();
+
+            if (name) {
+                names.add(name);
+            }
+        }
     }
 
     return names;
@@ -422,7 +489,7 @@ function isComponentHelperCall(initializer: Node | undefined, globalAliases: Map
  * one of them can be written wherever the alias was readable — including inside
  * a hoisted compiler macro.
  */
-const GLOBAL_ALIAS_ROOTS = new Set([
+export const GLOBAL_ALIAS_ROOTS = new Set([
     'Shopware',
     'window',
     'document',

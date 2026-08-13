@@ -2161,7 +2161,10 @@ npm run codemod:sfc-migration -- --write <target-directory> # write .vue files
 ```
 
 The codemod converts Options API to Composition API (`data` → `ref`, `computed`, `watch`, `methods`, lifecycle hooks), rewrites Twig block syntax to `<sw-block>` elements, and merges template + script into a single `.vue` file.
-Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
+
+Generated components use native setup syntax: the migrated state lives at the top level of `<script setup>` and the public override API is declared with `swDefinePublic({ … })`. The overridable name comes from the `.vue` filename, so the file is named after the registered component.
+
+Components that cannot become a native setup component are reported with their blockers and no file is written for them — `render()` functions, `mixins`, `Shopware.Component.extend()`, and unsupported `inject` shapes. Prepare those by hand and run the codemod again. Written files are formatted with the Administration prettier configuration.
 
 See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
 

@@ -27,9 +27,9 @@ import { dirname, join, relative, resolve } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import getUsage from 'command-line-usage';
 import { globSync } from 'glob';
-import { Project, ScriptKind } from 'ts-morph';
 import type { MergeResult } from './generate-sfc';
 import { mergeComponentFiles } from './generate-sfc';
+import { parseSource } from './script-transformer/ast';
 import { quoteJsString } from './string-literals';
 import { UNKNOWN_COMPONENT_NAME } from './types';
 
@@ -191,12 +191,7 @@ export function findTwigFile(dir: string, componentName: string): string | null 
  * statement, avoiding false matches on other `};` patterns in the file.
  */
 export function normaliseJsContent(jsContent: string, componentName: string): string {
-    const project = new Project({
-        useInMemoryFileSystem: true,
-        compilerOptions: { allowJs: true },
-        skipAddingFilesFromTsConfig: true,
-    });
-    const sourceFile = project.createSourceFile('component.js', jsContent, { scriptKind: ScriptKind.JS });
+    const sourceFile = parseSource(jsContent);
 
     const exportDefault = sourceFile.getExportAssignment((e) => !e.isExportEquals());
     if (!exportDefault) {

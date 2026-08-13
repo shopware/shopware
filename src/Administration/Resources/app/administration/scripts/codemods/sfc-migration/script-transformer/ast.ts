@@ -12,16 +12,11 @@ export function createWrappedSnippetSource(
     text: string,
     kind: RewriteSnippetKind,
 ): { sourceFile: SourceFile; snippetStart: number; snippetEnd: number } {
-    const project = new Project({
-        useInMemoryFileSystem: true,
-        compilerOptions: { allowJs: true },
-        skipAddingFilesFromTsConfig: true,
-    });
     const prefix = kind === 'body' ? 'function __rewrite__() {\n' : 'const __rewrite__ = (';
     const suffix = kind === 'body' ? '\n}' : ');';
 
     return {
-        sourceFile: project.createSourceFile('snippet.js', `${prefix}${text}${suffix}`, { scriptKind: ScriptKind.JS }),
+        sourceFile: parseSource(`${prefix}${text}${suffix}`),
         snippetStart: prefix.length,
         snippetEnd: prefix.length + text.length,
     };

@@ -161,7 +161,7 @@ class ThemeServiceTest extends TestCase
             false,
         );
 
-        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus = static::createStub(MessageBus::class);
         $messageBus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
 
         $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
@@ -182,7 +182,7 @@ class ThemeServiceTest extends TestCase
             TestDefaults::SALES_CHANNEL => [ThemeService::CONFIG_KEY_PENDING_THEME => $previousThemeId],
         ]);
 
-        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus = static::createStub(MessageBus::class);
         $messageBus->method('dispatch')->willThrowException(new \RuntimeException('transport down'));
 
         $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);

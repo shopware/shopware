@@ -136,7 +136,15 @@ export function collectCompositionScriptState(
     } = supportedMembers;
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
-    lifecycleHooks = filterInstanceDependentLifecycleHooks(lifecycleHooks, ctx, manualMigrationReasons, todoComments);
+    lifecycleHooks = filterSupported(
+        lifecycleHooks,
+        ({ hookName, bodyText }) => {
+            const unsupportedThis = findUnsupportedSnippet([{ text: bodyText, kind: 'body' }], ctx);
+
+            return unsupportedThis === null ? null : `${hookName}: lifecycle hook uses ${unsupportedThis}`;
+        },
+        (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'lifecycle hook', reason),
+    );
 
     const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks);
 
@@ -285,23 +293,50 @@ function collectSupportedCompositionMembers(
 
     for (;;) {
         const ctx = buildMemberContext(members, propNames);
-        const filteredData = filterInstanceDependentData(
+        const filteredData = filterSupported(
             members.supportedDataProps,
-            ctx,
-            manualMigrationReasons,
-            todoComments,
+            ({ name, valueText }) => {
+                // Methods become `const` declarations emitted after the data refs, so a
+                // data initializer that calls one would hit a temporal-dead-zone error.
+                const calledMethod = findDataInitializerMethodCall(valueText, ctx.methodNames);
+
+                if (calledMethod) {
+                    return `data: ${name} initializer calls component method '${calledMethod}'`;
+                }
+
+                const unsupportedThis = findUnsupportedSnippet([{ text: valueText, kind: 'expression' }], ctx);
+
+                return unsupportedThis === null ? null : `data: ${name} initializer uses ${unsupportedThis}`;
+            },
+            (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'data entry', reason),
         );
-        const filteredComputed = filterInstanceDependentComputed(
+        const filteredComputed = filterSupported(
             members.supportedComputedProps,
-            ctx,
-            manualMigrationReasons,
-            todoComments,
+            (prop) => {
+                const snippets: CodeSnippet[] =
+                    prop.kind === 'getter'
+                        ? [{ text: prop.bodyText, kind: 'body' }]
+                        : [
+                              { text: prop.getterBodyText, kind: 'body' },
+                              { text: prop.setterBodyText, kind: 'body' },
+                          ];
+                const unsupportedThis = findUnsupportedSnippet(snippets, ctx);
+
+                return unsupportedThis === null ? null : `computed: ${prop.name} uses ${unsupportedThis}`;
+            },
+            (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'computed entry', reason),
         );
-        const filteredMethods = filterInstanceDependentMethods(
+        const filteredMethods = filterSupported(
             members.supportedMethodProps,
-            ctx,
-            manualMigrationReasons,
-            todoComments,
+            ({ name, bodyText, rawText }) => {
+                const unsupportedThis = findUnsupportedSnippet(
+                    [{ text: rawText ?? bodyText, kind: rawText === undefined ? 'body' : 'expression' }],
+                    ctx,
+                );
+
+                return unsupportedThis === null ? null : `methods: ${name} uses ${unsupportedThis}`;
+            },
+            (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'method', reason),
         );
         const deduped = dropDuplicatePublicNames(
             {
@@ -331,7 +366,8 @@ function collectSupportedCompositionMembers(
     const computedNames = new Set(members.supportedComputedProps.map((p) => p.name));
     const methodNames = new Set(members.supportedMethodProps.map((p) => p.name));
 
-    const supportedWatchProps = filterInstanceDependentWatchProps(
+    const watchCtx = buildMemberContext(members, propNames);
+    const supportedWatchProps = filterSupported(
         collectSupportedWatchProps(
             watchProps,
             unsupportedWatchEntries,
@@ -341,8 +377,19 @@ function collectSupportedCompositionMembers(
             methodNames,
             injectNames,
         ),
-        buildMemberContext(members, propNames),
-        unsupportedWatchEntries,
+        ({ name, bodyText }) => {
+            // A watcher that only names a handler has no body of its own to check.
+            if (!bodyText) {
+                return null;
+            }
+
+            const unsupportedThis = findUnsupportedSnippet([{ text: bodyText, kind: 'body' }], watchCtx);
+
+            return unsupportedThis === null ? null : `${name}: watcher uses ${unsupportedThis}`;
+        },
+        (reason) => {
+            unsupportedWatchEntries.push(reason);
+        },
     );
 
     return {
@@ -469,118 +516,36 @@ function collectPropShadowingReasons(
         });
 }
 
-function filterInstanceDependentData(
-    dataProps: DataProp[],
-    ctx: RewriteContext,
-    reasons: string[],
-    todoComments: string[],
-): DataProp[] {
-    return dataProps.filter(({ name, valueText }) => {
-        // Methods become `const` declarations emitted after the data refs, so a
-        // data initializer that calls one would hit a temporal-dead-zone error.
-        const calledMethod = findDataInitializerMethodCall(valueText, ctx.methodNames);
-        if (calledMethod) {
-            pushManualMigration(
-                reasons,
-                todoComments,
-                'data entry',
-                `data: ${name} initializer calls component method '${calledMethod}'`,
-            );
-            return false;
-        }
+/**
+ * Drops every item whose snippet still depends on the Options API instance in a
+ * way that cannot be rewritten into setup, and reports the reason instead of
+ * emitting non-equivalent code. `findReason` returns the finished report line,
+ * so a member can weigh several kinds of dependency in its own order.
+ */
+function filterSupported<T>(items: T[], findReason: (item: T) => string | null, report: (reason: string) => void): T[] {
+    return items.filter((item) => {
+        const reason = findReason(item);
 
-        const unsupportedThis = findUnsupportedThisUsage({ text: valueText, kind: 'expression' }, ctx);
-        if (unsupportedThis) {
-            pushManualMigration(reasons, todoComments, 'data entry', `data: ${name} initializer uses ${unsupportedThis}`);
-            return false;
-        }
-
-        return true;
-    });
-}
-
-function filterInstanceDependentComputed(
-    computedProps: ComputedProp[],
-    ctx: RewriteContext,
-    reasons: string[],
-    todoComments: string[],
-): ComputedProp[] {
-    return computedProps.filter((prop) => {
-        const unsupportedThis =
-            prop.kind === 'getter'
-                ? findUnsupportedThisUsage({ text: prop.bodyText, kind: 'body' }, ctx)
-                : (findUnsupportedThisUsage({ text: prop.getterBodyText, kind: 'body' }, ctx) ??
-                  findUnsupportedThisUsage({ text: prop.setterBodyText, kind: 'body' }, ctx));
-
-        if (unsupportedThis) {
-            pushManualMigration(reasons, todoComments, 'computed entry', `computed: ${prop.name} uses ${unsupportedThis}`);
-            return false;
-        }
-
-        return true;
-    });
-}
-
-function filterInstanceDependentMethods(
-    methodProps: MethodProp[],
-    ctx: RewriteContext,
-    reasons: string[],
-    todoComments: string[],
-): MethodProp[] {
-    return methodProps.filter(({ name, bodyText, rawText }) => {
-        const unsupportedThis = findUnsupportedThisUsage(
-            { text: rawText ?? bodyText, kind: rawText === undefined ? 'body' : 'expression' },
-            ctx,
-        );
-        if (unsupportedThis) {
-            pushManualMigration(reasons, todoComments, 'method', `methods: ${name} uses ${unsupportedThis}`);
-            return false;
-        }
-
-        return true;
-    });
-}
-
-function filterInstanceDependentWatchProps(
-    watchProps: WatchProp[],
-    ctx: RewriteContext,
-    unsupportedWatchEntries: string[],
-): WatchProp[] {
-    return watchProps.filter(({ name, bodyText }) => {
-        if (!bodyText) {
+        if (reason === null) {
             return true;
         }
 
-        const unsupportedThis = findUnsupportedThisUsage({ text: bodyText, kind: 'body' }, ctx);
-        if (unsupportedThis) {
-            unsupportedWatchEntries.push(`${name}: watcher uses ${unsupportedThis}`);
-            return false;
-        }
+        report(reason);
 
-        return true;
+        return false;
     });
 }
 
-function filterInstanceDependentLifecycleHooks(
-    lifecycleHooks: LifecycleHook[],
-    ctx: RewriteContext,
-    reasons: string[],
-    todoComments: string[],
-): LifecycleHook[] {
-    return lifecycleHooks.filter(({ hookName, bodyText }) => {
-        const unsupportedThis = findUnsupportedThisUsage({ text: bodyText, kind: 'body' }, ctx);
-        if (unsupportedThis) {
-            pushManualMigration(
-                reasons,
-                todoComments,
-                'lifecycle hook',
-                `${hookName}: lifecycle hook uses ${unsupportedThis}`,
-            );
-            return false;
-        }
+function findUnsupportedSnippet(snippets: CodeSnippet[], ctx: RewriteContext): string | null {
+    for (const snippet of snippets) {
+        const unsupportedThis = findUnsupportedThisUsage(snippet, ctx);
 
-        return true;
-    });
+        if (unsupportedThis) {
+            return unsupportedThis;
+        }
+    }
+
+    return null;
 }
 
 interface SupportedPublicMembers {

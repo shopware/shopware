@@ -160,6 +160,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
+        $isSalesChannelSource = $event->getContext()->getSource() instanceof SalesChannelApiSource;
+
         foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
@@ -172,7 +174,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
 
             // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
-            if ($event->getContext()->getSource() instanceof SalesChannelApiSource) {
+            if ($isSalesChannelSource) {
                 $this->queue->dispatch($msg);
 
                 continue;

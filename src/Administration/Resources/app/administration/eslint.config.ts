@@ -2,9 +2,17 @@
  * @sw-package admin
  */
 
+/**
+ * ESLint flat-config entrypoint for Administration and Storefront administration sources.
+ *
+ * The config keeps legacy Shopware rule behavior while running on ESLint 9, including compatibility
+ * patches for plugins that still expose pre-flat-config rule metadata.
+ */
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
 import importX from 'eslint-plugin-import-x';
 import jestPlugin from 'eslint-plugin-jest';
@@ -61,6 +69,12 @@ const filenameRulesPatched = {
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
+/**
+ * Shared rule policy applied to normal source files and TypeScript-specific overrides.
+ *
+ * Keep cross-cutting Shopware rules here so JS, TS, Vue, and Twig sections only override parser or
+ * file-type-specific behavior.
+ */
 const baseRules = {
     'file-progress/activate': 0,
     'max-len': [
@@ -69,6 +83,8 @@ const baseRules = {
         { ignoreRegExpLiterals: true },
     ],
     'import/no-useless-path-segments': 0,
+    // `.vue` needs the explicit extension (js/ts/tsx don't): nothing resolves `./sw-thing` to
+    // `./sw-thing.vue` - not TypeScript's `*.vue` shim, not Vite's default `resolve.extensions`.
     'import/extensions': [
         'error',
         'ignorePackages',
@@ -76,7 +92,7 @@ const baseRules = {
             js: 'never',
             ts: 'never',
             tsx: 'never',
-            vue: 'never',
+            vue: 'always',
         },
     ],
     'no-console': [
@@ -110,16 +126,24 @@ const baseRules = {
     ],
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
+    'sw-core-rules/valid-shopware-setup': 'error',
+    // Must be an error: this is the only check on a directory-derived component name, and `npm run lint`
+    // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
+    'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
-        /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/,
+        /^.*(?:\.js|\.ts|\.vue|\.html|\.html\.twig)$/,
     ],
     'vue/multi-word-component-names': [
         'error',
         {
-            ignores: ['index.html'],
+            // Support for our `sw-some-component/index.vue` convention
+            ignores: [
+                'index.html',
+                'index',
+            ],
         },
     ],
     'func-names': 'off',
@@ -193,8 +217,12 @@ export default [
             'extension-tooling/spec-types.d.ts',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
+            'build/vue-setup-transform/**/*.d.ts',
+            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
-            'src/app/adapter/_mocks_/example-extendable-script-setup-component.vue',
+            // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
+            // .ts of the same name shadows them), so the typed parser cannot resolve them.
+            'build/**/*.d.ts',
         ],
     },
 
@@ -304,6 +332,48 @@ export default [
         },
         rules: {
             ...baseRules,
+        },
+    },
+
+    {
+        files: ['**/*.vue'],
+        languageOptions: {
+            parser: vueParser,
+            parserOptions: {
+                parser: {
+                    ts: tseslint.parser,
+                    tsx: tseslint.parser,
+                },
+                extraFileExtensions: ['.vue'],
+                sourceType: 'module',
+            },
+            globals: {
+                swDefinePublic: 'readonly',
+                swDefineOverride: 'readonly',
+                useSwPreviousState: 'readonly',
+                useSwProps: 'readonly',
+                useSwContext: 'readonly',
+            },
+        },
+        rules: {
+            // typescript-eslint's projectService cannot resolve Vue script-setup macros (defineProps,
+            // swDefinePublic, useSwPreviousState, ...), so its type-aware rules report only false
+            // `no-unsafe`/error-typed positives on .vue - turn them off. This removes noise, not
+            // coverage: `lint:types` is plain tsc, which does not type-check .vue at all, and vue-tsc
+            // is not wired into CI; .vue type safety is an editor-time concern (Volar) today.
+            ...tseslint.configs.disableTypeChecked.rules,
+            // no-unused-vars (base AND typed) stays OFF for .vue. With <script setup lang="ts"> the TS
+            // sub-parser severs vue-eslint-parser's template->script reference linking, so a binding
+            // used only in <template> reads as unused (verified: plain <script setup> tracks it,
+            // lang="ts" does not). Neither rule can tell template-used from truly-unused here, so both
+            // would false-positive on ordinary components. Unused-var coverage for .vue belongs to
+            // vue-tsc, which is not yet wired into CI - so .vue has no CI unused-var gate today (Volar
+            // covers it in the editor only).
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            'vue/script-setup-uses-vars': 'error',
+            // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
+            'vue/no-dupe-keys': 'error',
         },
     },
 
@@ -651,6 +721,13 @@ export default [
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
+
+    {
+        files: ['build/vue-setup-transform/**/*.ts'],
+        rules: {
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
     {
         ...prettier,
         files: [
@@ -661,7 +738,10 @@ export default [
         ],
     },
     {
-        files: ['extension-tooling/**/*.mjs', 'scripts/extensionTooling/**/*.ts'],
+        files: [
+            'extension-tooling/**/*.mjs',
+            'scripts/extensionTooling/**/*.ts',
+        ],
         rules: {
             'filename-rules/match': 'off',
             'import/extensions': 'off',

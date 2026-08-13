@@ -26,7 +26,14 @@ import { extractProvideEntries } from './extract-provide';
 import { extractRouteGuards, ROUTE_GUARD_COMPOSABLE_NAMES } from './extract-route-guards';
 import { extractWatchProps } from './extract-watch';
 import type { WatchPath } from './helpers';
-import { getWatchRootName, isDefined, isSafeIdentifier, parseWatchPath, sanitizeTodoCommentText } from './helpers';
+import {
+    getWatchRootName,
+    isDefined,
+    isSafeIdentifier,
+    parseWatchPath,
+    readOptionName,
+    sanitizeTodoCommentText,
+} from './helpers';
 import type { ResolvedIdentifiers } from './resolve-identifiers';
 import { resolveIdentifierNames } from './resolve-identifiers';
 import {
@@ -600,6 +607,10 @@ function collectManualFollowUps(
 ): ManualMigrationCollection {
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
+    // `getProperty(name)` does not find a quoted or bracketed key, and every
+    // option below is only ever reported from here — so a missed one is dropped
+    // from the output silently, and `--delete-originals` then deletes its source.
+    const declaredOptions = new Set(optionsObj.getProperties().map(readOptionName).filter(isDefined));
 
     // These options can affect runtime registration or lifecycle order. The
     // generated setup code is still useful, but a successful-looking migration
@@ -607,15 +618,15 @@ function collectManualFollowUps(
     if (provideUnsupportedReason) {
         pushManualMigration(manualMigrationReasons, todoComments, 'provide', `provide: ${provideUnsupportedReason}`);
     }
-    if (optionsObj.getProperty('components')) {
+    if (declaredOptions.has('components')) {
         manualMigrationReasons.push('components option requires manual verification');
         todoComments.push('// TODO: verify local component registrations in `components:` — remove if globally registered');
     }
-    if (optionsObj.getProperty('directives')) {
+    if (declaredOptions.has('directives')) {
         manualMigrationReasons.push('directives option requires manual migration');
         todoComments.push('// TODO: migrate `directives` manually');
     }
-    if (optionsObj.getProperty('beforeCreate')) {
+    if (declaredOptions.has('beforeCreate')) {
         manualMigrationReasons.push('beforeCreate hook requires manual migration');
         todoComments.push('// TODO: `beforeCreate` was dropped — move logic to top of setup if needed');
     }
@@ -623,7 +634,7 @@ function collectManualFollowUps(
     // Runtime-relevant options that the codemod cannot translate and would
     // otherwise drop silently while reporting a successful migration.
     for (const option of UNSUPPORTED_TOP_LEVEL_OPTIONS) {
-        if (optionsObj.getProperty(option)) {
+        if (declaredOptions.has(option)) {
             pushManualMigration(
                 manualMigrationReasons,
                 todoComments,

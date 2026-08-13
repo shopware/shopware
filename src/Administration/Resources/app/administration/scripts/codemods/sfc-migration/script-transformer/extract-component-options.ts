@@ -334,7 +334,6 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
             registration.parentComponentName ? `extends (parent: ${registration.parentComponentName})` : 'extends',
         );
     }
-    if (optionsObj.getProperty('mixins')) blockers.push('mixins');
     if (!registration.componentNameIsLiteral) {
         blockers.push('component name: non-literal component name requires manual migration');
     }
@@ -342,6 +341,10 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
     // Root option spreads and dynamic option keys can hide arbitrary options
     // (including render), and a `render` key owns the component output; all
     // three make a partial conversion unsafe, so back off to the Options API.
+    // `mixins` is read from the same classification rather than through
+    // `getProperty`, which does not find a quoted key — and a component that
+    // slipped that blocker would migrate without the half of it that lives in
+    // the mixin.
     for (const prop of optionsObj.getProperties()) {
         const classification = classifyRootProperty(prop);
 
@@ -351,6 +354,8 @@ export function detectBlockers(optionsObj: ObjectLiteralExpression, registration
             blockers.push('dynamic option key requires manual migration');
         } else if (classification.name === 'render') {
             blockers.push('render function');
+        } else if (classification.name === 'mixins') {
+            blockers.push('mixins');
         }
     }
 

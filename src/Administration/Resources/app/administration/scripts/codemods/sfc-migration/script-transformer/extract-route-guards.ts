@@ -1,5 +1,6 @@
 import type { ObjectLiteralElementLike, ObjectLiteralExpression } from 'ts-morph';
-import { Node, SyntaxKind } from 'ts-morph';
+import { SyntaxKind } from 'ts-morph';
+import { readOptionName } from './helpers';
 import type { ExtractRouteGuardsResult, RouteGuard } from './types';
 
 /**
@@ -27,21 +28,32 @@ export function isRouteGuardOptionName(name: string): boolean {
  * the rewrite assumes.
  */
 export function extractRouteGuards(optionsObj: ObjectLiteralExpression): ExtractRouteGuardsResult {
-    const routeGuards: RouteGuard[] = [];
     const unsupportedEntries: string[] = [];
+    // An object literal keeps the last entry written for a key, whatever shape
+    // each one has — so a getter after a method means there is no method guard
+    // at all. Collecting per name first, then classifying the survivor, is the
+    // only order that reproduces that.
+    const lastByOptionName = new Map<string, ObjectLiteralElementLike>();
 
     for (const prop of optionsObj.getProperties()) {
         // A quoted or bracketed key names the same option as the shorthand does,
         // so it is read the same way here rather than through `getName()`.
-        const name = readPropertyName(prop);
+        const name = readOptionName(prop);
 
-        if (!name || !isRouteGuardOptionName(name)) {
-            continue;
+        if (name !== undefined && isRouteGuardOptionName(name)) {
+            lastByOptionName.set(name, prop);
         }
+    }
 
-        if (prop.isKind(SyntaxKind.MethodDeclaration)) {
-            const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
+    const routeGuards: RouteGuard[] = [];
 
+    for (const [
+        name,
+        prop,
+    ] of lastByOptionName) {
+        const method = prop.asKind(SyntaxKind.MethodDeclaration);
+
+        if (method) {
             routeGuards.push({
                 optionName: name,
                 composableName: ROUTE_GUARD_COMPOSABLES[name],
@@ -64,39 +76,5 @@ export function extractRouteGuards(optionsObj: ObjectLiteralExpression): Extract
         unsupportedEntries.push(`${name}: route guard must be defined as a method to be migrated`);
     }
 
-    // An object literal keeps the last method written for a key, so two
-    // `beforeRouteLeave` methods are one guard — the second. Emitting both
-    // composables would register a guard the component never had. Same rule the
-    // computed expansion uses for a repeated key.
-    const lastByOptionName = new Map(
-        routeGuards.map((guard, index) => [
-            guard.optionName,
-            index,
-        ]),
-    );
-
-    return {
-        routeGuards: routeGuards.filter((guard, index) => lastByOptionName.get(guard.optionName) === index),
-        unsupportedEntries,
-    };
-}
-
-function readPropertyName(prop: ObjectLiteralElementLike): string | undefined {
-    if (prop.isKind(SyntaxKind.SpreadAssignment)) {
-        return undefined;
-    }
-
-    const nameNode = prop.getNameNode();
-
-    if (Node.isStringLiteral(nameNode) || Node.isNumericLiteral(nameNode)) {
-        return nameNode.getLiteralText();
-    }
-
-    if (Node.isComputedPropertyName(nameNode)) {
-        const expression = nameNode.getExpression();
-
-        return expression.isKind(SyntaxKind.StringLiteral) ? expression.getLiteralValue() : undefined;
-    }
-
-    return nameNode.getText();
+    return { routeGuards, unsupportedEntries };
 }

@@ -68,9 +68,12 @@ job") — the keyword table is a shortcut, not a requirement.
 
 ## Slack message style
 
-When drafting a message about a failure for `#product-operations` or
-`#product-qops-nightly`, match the channels' real tone — short, low-fluff, not
-a formal report:
+Two different message shapes, for two different situations — don't mix
+them up.
+
+**Ad-hoc single-finding alert** (drafted by hand for `#product-operations`
+or `#product-qops-nightly` when you spot one specific thing worth flagging):
+match the channels' real tone — short, low-fluff, not a formal report.
 
 - Casual greeting if any (`Hi team :wave:`), often skipped for pure FYI notes.
 - State the problem in 1-2 sentences: what's failing, which job/workflow,
@@ -81,6 +84,36 @@ a formal report:
   that belongs in the fuller summary above, not the Slack message.
 - Short, polite ask to close ("could someone take a look?").
 - No headers, no bullet-point reports, no signature.
+
+**Automated nightly digest** (the `text` field the unattended workflow
+writes, addressed to whoever's on rotation that week): a fixed opening,
+then one short bullet per pipeline — bullets are fine here, unlike the
+ad-hoc style above, but each one stays conversational, not a formal report
+line.
+
+```
+Hey, this week's Success Manager 👋 — following the Success Manager
+responsibilities outlined in the QOps Responsibilities document, I
+reviewed last night's workflows for you.
+
+Here's a quick summary of the results:
+
+- Platform trunk: red — `PHP blue green 6.6->6.7->6.6` is the known
+  recurring issue, but `8.2 Storefront mariadb:11` is new, first seen
+  today. https://github.com/shopware/shopware/actions/runs/31554041580
+- Platform 6.6.x: green, clean for 10+ days.
+```
+
+- Keep the opening two lines fixed (the greeting + "Here's a quick summary
+  of the results:") — don't reword them per run.
+- One bullet per pipeline, in the same order as the pipeline table above.
+- A failing pipeline's bullet names the known-recurring job(s) and the
+  new one(s) (if any) in one short sentence, and ends with that pipeline's
+  own run URL inline — not a single link at the end for the whole message.
+- A green pipeline's bullet is one short clause ("green, clean for N days")
+  — no link needed since there's nothing to look at.
+- Still no formal headers or a closing signature — the bullets are the
+  only structure, everything else reads like a sentence.
 
 ## Notes
 

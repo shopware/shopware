@@ -171,21 +171,22 @@ workflow, pipeline table, and Slack message style. Unattended-run specifics:
    text when they're relevant, the way the interactive skill's step 5
    already asks for evidence to be visible rather than asserted.
 2. Write the result to `qops-success-manager-summary.json` in the current
-   working directory, with at minimum a `text` field: a short, Slack-ready
-   plain-text summary covering every pipeline checked (green/known/new
-   classification, one line each, with the evidence the skill's workflow
-   step 5 requires). Keep it concise — this posts directly to Slack.
+   working directory, with at minimum a `text` field: the message that
+   gets posted to Slack as-is.
 
-   **The `text` field specifically must follow the skill's "Slack message
-   style" section, not the structured/bulleted style that's fine for the
-   rest of this JSON file.** A prior run wrote `text` as a multi-line
-   report with `•` bullets per pipeline — readable, but not what that
-   section asks for. Plain conversational sentences, no bullets, no
-   headers — e.g. "Platform trunk is red tonight: the usual PHP blue-green
-   job plus a new one, `8.2 Storefront mariadb:11`, first seen today.
-   6.6.x is green." rather than a bulleted per-job breakdown. The detailed
-   per-job breakdown belongs in the `pipelines` object above, which is for
-   the record, not for Slack.
+   **The `text` field must follow the skill's "Slack message style"
+   section — specifically the "Automated nightly digest" shape, not the
+   ad-hoc one.** Use its fixed opening verbatim (the greeting + "Here's a
+   quick summary of the results:"), then exactly one short bullet per
+   pipeline checked, in pipeline-table order. A failing pipeline's bullet
+   names the known-recurring and new job(s) in one sentence and ends with
+   that pipeline's own run URL inline; a green pipeline's bullet is a
+   short clause with no link. Don't invent a different opening, don't put
+   all findings in one paragraph, and don't put a single link at the end
+   for the whole message — see the skill section for the exact template
+   and a full example. The detailed per-job breakdown still belongs in the
+   `pipelines` object above, not in `text` — `text` is only ever the
+   greeting + one bullet per pipeline.
 3. Do not take any write action beyond producing this file — no issue
    creation, no comments, no repo writes anywhere. This workflow is
    read-only end to end; the only side effect is the Slack post handled by

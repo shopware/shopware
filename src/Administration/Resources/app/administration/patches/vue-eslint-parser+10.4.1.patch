@@ -1,0 +1,156 @@
+diff --git a/node_modules/vue-eslint-parser/dist/index.cjs b/node_modules/vue-eslint-parser/dist/index.cjs
+index 8801806..416ddfb 100644
+--- a/node_modules/vue-eslint-parser/dist/index.cjs
++++ b/node_modules/vue-eslint-parser/dist/index.cjs
+@@ -705,7 +705,7 @@ function isBasicParserObject(value) {
+ //#region src/common/parser-options.ts
+ function isSFCFile(parserOptions) {
+ 	if (parserOptions.filePath === "<input>") return true;
+-	return path.extname(parserOptions.filePath || "unknown.vue") === ".vue";
++	return [".vue", ".twig"].includes(path.extname(parserOptions.filePath || "unknown.vue"));
+ }
+ /**
+ * Gets the script parser name from the given parser lang.
+@@ -2817,6 +2817,7 @@ var IntermediateTokenizer = class {
+ 	expressionTokens;
+ 	tokens;
+ 	comments;
++	twigExpressions;
+ 	/**
+ 	* The source code text.
+ 	*/
+@@ -2869,6 +2870,7 @@ var IntermediateTokenizer = class {
+ 		this.expressionTokens = [];
+ 		this.tokens = [];
+ 		this.comments = [];
++		this.twigExpressions = [];
+ 	}
+ 	/**
+ 	* Get the next intermediate token.
+@@ -2931,6 +2933,15 @@ var IntermediateTokenizer = class {
+ 		return null;
+ 	}
+ 	/**
++	* Process the given Twig expression token ({% ... %}).
++	* @param token The Twig expression token to process.
++	*/
++	processTwigExpression(token) {
++		this.twigExpressions.push(token);
++		if (this.currentToken != null && this.currentToken.type === "Text") return this.commit();
++		return null;
++	}
++	/**
+ 	* Process the given text token.
+ 	* @param token The text token to process.
+ 	*/
+@@ -3001,6 +3012,13 @@ var IntermediateTokenizer = class {
+ 		return this.processComment(token);
+ 	}
+ 	/**
++	* Process a TwigExpression token.
++	* @param token The token to process.
++	*/
++	TwigExpression(token) {
++		return this.processTwigExpression(token);
++	}
++	/**
+ 	* Process a HTMLEndTagOpen token.
+ 	* @param token The token to process.
+ 	*/
+@@ -3322,6 +3340,12 @@ var Parser = class {
+ 		return this.tokenizer.comments;
+ 	}
+ 	/**
++	* The Twig expressions ({% ... %}) collected while parsing.
++	*/
++	get twigExpressions() {
++		return this.tokenizer.twigExpressions;
++	}
++	/**
+ 	* The syntax errors which are found in this parsing.
+ 	*/
+ 	get errors() {
+@@ -3384,6 +3408,7 @@ var Parser = class {
+ 			children: [],
+ 			tokens: this.tokens,
+ 			comments: this.comments,
++			twigExpressions: this.twigExpressions,
+ 			errors: this.errors
+ 		};
+ 		this.elementStack = [];
+@@ -6114,6 +6139,7 @@ const SPACE = 32;
+ const EXCLAMATION_MARK = 33;
+ const QUOTATION_MARK = 34;
+ const NUMBER_SIGN = 35;
++const PERCENT = 37;
+ const AMPERSAND = 38;
+ const APOSTROPHE = 39;
+ const LEFT_PARENTHESIS = 40;
+@@ -6582,6 +6608,11 @@ var Tokenizer = class {
+ 				this.setStartTokenMark();
+ 				return "TAG_OPEN";
+ 			}
++			if (cp === LEFT_CURLY_BRACKET && this.text[this.offset + 1] === "%") {
++				this.setStartTokenMark();
++				this.returnState = "DATA";
++				return "TWIG_EXPRESSION";
++			}
+ 			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "DATA";
+@@ -6896,6 +6927,11 @@ var Tokenizer = class {
+ 			this.appendTokenValue(cp, "HTMLIdentifier");
+ 			return "ATTRIBUTE_NAME";
+ 		}
++		if (cp === LEFT_CURLY_BRACKET && this.text[this.offset + 1] === "%") {
++			this.setStartTokenMark();
++			this.returnState = "BEFORE_ATTRIBUTE_NAME";
++			return "TWIG_EXPRESSION";
++		}
+ 		this.startToken("HTMLIdentifier");
+ 		return this.reconsumeAs("ATTRIBUTE_NAME");
+ 	}
+@@ -6946,6 +6982,11 @@ var Tokenizer = class {
+ 			this.reportParseError("eof-in-tag");
+ 			return "DATA";
+ 		}
++		if (cp === LEFT_CURLY_BRACKET && this.text[this.offset + 1] === "%") {
++			this.setStartTokenMark();
++			this.returnState = "AFTER_ATTRIBUTE_NAME";
++			return "TWIG_EXPRESSION";
++		}
+ 		this.startToken("HTMLIdentifier");
+ 		return this.reconsumeAs("ATTRIBUTE_NAME");
+ 	}
+@@ -7571,6 +7612,31 @@ var Tokenizer = class {
+ 		this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
+ 		return this.reconsumeAs(this.returnState);
+ 	}
++	/**
++	* Tokenize a Twig expression ({% ... %}). Entered from DATA and the
++	* attribute-name states only when the character after "{" is "%", so Vue
++	* mustache ({{ }}) is left untouched.
++	* @param cp The current code point (the "%" following "{").
++	* @returns The next state.
++	*/
++	TWIG_EXPRESSION(cp) {
++		if (cp !== PERCENT) {
++			this.appendTokenValue(LEFT_CURLY_BRACKET, null);
++			return this.reconsumeAs(this.returnState);
++		}
++		this.startToken("TwigExpression");
++		this.appendTokenValue(LEFT_CURLY_BRACKET, null);
++		this.appendTokenValue(PERCENT, null);
++		cp = this.consumeNextCodePoint();
++		while (cp !== PERCENT && cp !== EOF) {
++			this.appendTokenValue(cp, null);
++			cp = this.consumeNextCodePoint();
++		}
++		cp = this.consumeNextCodePoint();
++		this.appendTokenValue(PERCENT, null);
++		this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
++		return this.returnState;
++	}
+ };
+ 
+ //#endregion

@@ -102,16 +102,16 @@
                     >
                         <template v-if="deprecation.replacement">
                             {{ $t('sw-flow.modals.rule.deprecatedConditionWarning', {
-                            label: $t(deprecation.label),
-                            version: deprecation.version,
-                            replacement: $t(deprecation.replacement.label),
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
+                                replacement: $t(deprecation.replacement.label),
                             }) }}
                         </template>
 
                         <template v-else>
                             {{ $t('sw-flow.modals.rule.deprecatedConditionWarningNoReplacement', {
-                            label: $t(deprecation.label),
-                            version: deprecation.version,
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
                             }) }}
                         </template>
                     </span>
@@ -252,16 +252,16 @@
                             >
                                 <template v-if="deprecation.replacement">
                                     {{ $t('sw-flow.modals.rule.deprecatedConditionWarning', {
-                                    label: $t(deprecation.label),
-                                    version: deprecation.version,
-                                    replacement: $t(deprecation.replacement.label),
+                                        label: $t(deprecation.label),
+                                        version: deprecation.version,
+                                        replacement: $t(deprecation.replacement.label),
                                     }) }}
                                 </template>
 
                                 <template v-else>
                                     {{ $t('sw-flow.modals.rule.deprecatedConditionWarningNoReplacement', {
-                                    label: $t(deprecation.label),
-                                    version: deprecation.version,
+                                        label: $t(deprecation.label),
+                                        version: deprecation.version,
                                     }) }}
                                 </template>
                             </span>

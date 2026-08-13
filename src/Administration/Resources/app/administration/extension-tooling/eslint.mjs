@@ -258,42 +258,24 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
             },
         },
-        // TypeScript's project service cannot type-check `.vue` SFCs — it does
-        // not run the Vue language plugin — so on a `.vue` it resolves the
-        // script to `any`. That makes every type-aware rule useless there: the
-        // `no-unsafe-*` family floods correct components with false positives,
-        // and `@typescript-eslint/no-deprecated` cannot resolve a symbol to read
-        // its `@deprecated` tag in the first place. They cannot be kept on
-        // selectively either — with the type program off (needed to stop the
-        // flood) any surviving type-aware rule throws "requires type
-        // information". `vue-tsc` is the real type-checker for `.vue` (the check
-        // runs it separately); the AST-based template rules (e.g.
-        // sw-deprecation-rules for deprecated components) stay on via the blocks
-        // above. Same reasoning as the spec-files block; placed last so it
-        // overrides the type-aware rules the earlier `.vue` blocks turned on.
+        // typescript-eslint types `.vue` SFCs only partially — without the Vue
+        // language service the program falls back to `any` for some Vue surfaces
+        // (component instances, `defineExpose`/`useTemplateRef`, async components),
+        // which makes the `no-unsafe-*` family fire on idiomatic Vue. Turn just
+        // those five off for `.vue`, after the `vue-typescript` block so this
+        // overrides the entries `recommendedTypeChecked` set there — the same
+        // trade-off `@vue/eslint-config-typescript` makes via its
+        // `allowComponentTypeUnsafety` default. The resolvable type-aware rules
+        // (no-deprecated, no-floating-promises) and no-unused-vars stay on.
         {
-            ...tseslint.configs.disableTypeChecked,
-            name: 'shopware/admin-extension/vue-untyped',
-            files: scope(vueFilePatterns),
-        },
-        {
-            // The parser does not link `{{ }}` template interpolations back to
-            // the `<script setup>` bindings they read (directive and attribute
-            // usage is linked; interpolation is not — not even with
-            // vue/script-setup-uses-vars), so no-unused-vars false-positives on
-            // any binding used only in an interpolation — most of them. Nothing
-            // separates that from a genuinely unused binding, so the rule is off
-            // for `.vue`. This does drop unused-binding coverage there: the
-            // editor (Volar) still greys unused setup bindings, but the tooling's
-            // own check does not flag them, and vue-tsc cannot stand in because
-            // the injected host type surface forbids enabling its
-            // `noUnusedLocals`. Restoring it properly needs the same SFC type
-            // support the type-aware rules await.
-            name: 'shopware/admin-extension/vue-template-usage',
+            name: 'shopware/admin-extension/vue-component-type-unsafety',
             files: scope(vueFilePatterns),
             rules: {
-                'no-unused-vars': 'off',
-                '@typescript-eslint/no-unused-vars': 'off',
+                '@typescript-eslint/no-unsafe-argument': 'off',
+                '@typescript-eslint/no-unsafe-assignment': 'off',
+                '@typescript-eslint/no-unsafe-call': 'off',
+                '@typescript-eslint/no-unsafe-member-access': 'off',
+                '@typescript-eslint/no-unsafe-return': 'off',
             },
         },
         ...(specFiles === 'typed' ? [] : [specFilesConfig]),

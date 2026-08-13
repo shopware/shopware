@@ -32,8 +32,8 @@
         {% block sw_bulk_edit_product_smart_bar_header_title %}
         <h2>
             {{ isChild
-            ? $t('sw-bulk-edit.variant.textTitle', { variantTotal: selectedIds.length }, selectedIds.length)
-            : $t('sw-bulk-edit.product.textTitle', { productTotal: selectedIds.length }, selectedIds.length)
+                ? $t('sw-bulk-edit.variant.textTitle', { variantTotal: selectedIds.length }, selectedIds.length)
+                : $t('sw-bulk-edit.product.textTitle', { productTotal: selectedIds.length }, selectedIds.length)
             }}
         </h2>
         {% endblock %}

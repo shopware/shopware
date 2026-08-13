@@ -132,7 +132,7 @@
         >
             <mt-banner variant="info">
                 {{ $t('sw-settings-rule.detail.flowOnlyConditionsWarning', {
-                conditions: flowOnlyConditionLabels.join(', '),
+                    conditions: flowOnlyConditionLabels.join(', '),
                 }) }}
             </mt-banner>
         </div>
@@ -148,16 +148,16 @@
                 >
                     <template v-if="deprecation.replacement">
                         {{ $t('sw-settings-rule.detail.deprecatedConditionWarning', {
-                        label: $t(deprecation.label),
-                        version: deprecation.version,
-                        replacement: $t(deprecation.replacement.label),
+                            label: $t(deprecation.label),
+                            version: deprecation.version,
+                            replacement: $t(deprecation.replacement.label),
                         }) }}
                     </template>
 
                     <template v-else>
                         {{ $t('sw-settings-rule.detail.deprecatedConditionWarningNoReplacement', {
-                        label: $t(deprecation.label),
-                        version: deprecation.version,
+                            label: $t(deprecation.label),
+                            version: deprecation.version,
                         }) }}
                     </template>
                 </span>

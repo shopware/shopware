@@ -62,6 +62,7 @@ my-component/
 | `inject` array/object form                | `inject(…)` in `<script setup>`                |
 | `provide` object / method form            | `provide(key, value)` in `<script setup>`      |
 | `watch` method/object/string-handler form | `watch(…)` in `<script setup>`                 |
+| `watch` on a path (`'entity.name'`)       | `watch(() => entity.value?.name, …)`           |
 | `methods`                                 | plain functions in `<script setup>`            |
 | `created`                                 | runs directly in setup (equivalent behaviour)  |
 | other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
@@ -89,6 +90,13 @@ because a partially migrated `provide` would change what descendants receive:
   returned promise or generator object, not the listed ones
 - computed keys, shorthand or spread entries, accessors, statements before the `return`
 - a value whose `this` usage cannot be rewritten
+
+A dotted `watch` key is a property path, not a member name: Vue walks the segments and stops as soon
+as an intermediate value is missing. The generated getter reproduces that with optional chaining on
+every step below the root — `'item.price.net'` becomes `watch(() => props.item?.price?.net, …)` — and
+the root segment resolves like any other watch target (prop, data, computed, or inject). Paths with
+a segment that is not an identifier (brackets, spaces, reserved words) and paths whose root is not a
+declared member keep the manual `TODO`.
 
 Every converted `inject`, `data`, `computed`, and `methods` name is additionally listed in a
 `swDefinePublic({ … })` marker at the end of the setup block — that is the public override API a
@@ -253,4 +261,4 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |
 | `this.$store`                 | Inserts TODO comment                        | Migrate Vuex access to a composable                     |
 | `this.$parent` / `this.$root` | Inserts TODO comment                        | Refactor to avoid parent traversal                      |
-| Nested watch path `'a.b'`     | Leaves a TODO comment and skips the watcher | Write watcher manually                                  |
+| Watch path with an undeclared root or a non-identifier segment | Leaves a TODO comment and skips the watcher | Write watcher manually                 |

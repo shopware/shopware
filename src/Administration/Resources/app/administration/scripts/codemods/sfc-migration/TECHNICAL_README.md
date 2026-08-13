@@ -463,11 +463,31 @@ Watchers are generated only when the source is clear:
 | Data/computed | `() => name.value` |
 | Inject | `() => unref(name)` |
 | `$route` | A route snapshot getter based on `route`, `params`, and `query`. |
+| Path (`'item.price.net'`) | `() => props.item?.price?.net` — the root resolves as above, every step below it is optional. |
+
+A watch key containing a dot is a property path in the Options API, never a
+member of that literal name: Vue applies it with `createPathGetter`, which splits
+the key on `.` and walks the segments, stopping as soon as an intermediate value
+is missing. The optional chaining below the root reproduces that stop, so the
+generated getter yields `undefined` exactly where the Options API watcher did.
+Only the nullish case is reproduced literally — Vue's walk also stops on a falsy
+intermediate value such as `0` and then yields that value, where the generated
+getter reads through it. Reaching a property off a number or an empty string is
+not a shape real components watch, and matching it would cost a repeated
+`a && a.b && a.b.c` chain in every generated getter.
+
+A `$route` path is the one root that does not reuse the snapshot getter. The
+snapshot exists because the route object keeps its identity across navigations,
+so watching it directly would never trigger; a path watcher reads a value out of
+the current route, which changes on its own, and `() => route?.name` is both
+equivalent and readable.
 
 Unsupported watcher shapes become TODO comments and make the result
-`partially-migrated`. Examples are nested paths like `'settings.count'`,
-undeclared targets, missing string-handler methods, and non-literal `deep` or
-`immediate` options.
+`partially-migrated`. Examples are paths whose root is not a declared member
+(`'settings.count'` without a `settings` member), paths with a segment that is
+not an identifier (`'items[0].label'` — the same shapes Vue's own `bailRE`
+rejects, plus reserved words), undeclared targets, missing string-handler
+methods, and non-literal `deep` or `immediate` options.
 
 Lifecycle hooks are mapped like this:
 

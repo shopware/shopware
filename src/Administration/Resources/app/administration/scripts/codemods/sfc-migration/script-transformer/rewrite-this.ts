@@ -10,10 +10,28 @@ import {
     getThisRefName,
     isNodeInsideSnippet,
 } from './ast';
-import { buildPropertyAccess, isDefined } from './helpers';
+import { buildPropertyAccess, getWatchRootName, isDefined, parseWatchPath } from './helpers';
 
 export function buildWatchSource(
     name: string,
+    propNames: Set<string>,
+    injectNames: Set<string>,
+    names: ResolvedIdentifiers,
+): string {
+    // Keys whose segments cannot be written as a property access never reach the
+    // emitter — collectSupportedWatchProps drops them — so an unparsable key here
+    // can only be a plain member name.
+    const { root, propertyPath } = parseWatchPath(name) ?? { root: name, propertyPath: [] };
+    const rootSource = buildWatchRootSource(root, propertyPath.length > 0, propNames, injectNames, names);
+
+    // Vue's path getter stops walking as soon as an intermediate value is
+    // missing, so every step below the root is optional.
+    return propertyPath.reduce((source, segment) => `${source}?.${segment}`, rootSource);
+}
+
+function buildWatchRootSource(
+    name: string,
+    isPathWatcher: boolean,
     propNames: Set<string>,
     injectNames: Set<string>,
     names: ResolvedIdentifiers,
@@ -25,8 +43,11 @@ export function buildWatchSource(
     if (name === '$route') {
         // The route object keeps its identity across navigations. Watch a
         // snapshot so changes trigger and Vue still provides distinct to/from
-        // values to the handler.
-        return `({ ...${names.route}, params: { ...${names.route}.params }, query: { ...${names.route}.query } })`;
+        // values to the handler. A path watcher reads a value out of the current
+        // route instead, which changes on its own.
+        return isPathWatcher
+            ? names.route
+            : `({ ...${names.route}, params: { ...${names.route}.params }, query: { ...${names.route}.query } })`;
     }
 
     if (injectNames.has(name)) {
@@ -57,7 +78,7 @@ export function collectThisRefNames(snippets: CodeSnippet[]): string[] {
 export function detectUsedComposables(snippets: CodeSnippet[], watchProps: WatchProp[]): UsedComposables {
     const usedComposables: UsedComposables = {
         needsRouter: false,
-        needsRoute: watchProps.some((prop) => prop.name === '$route'),
+        needsRoute: watchProps.some((prop) => getWatchRootName(prop.name) === '$route'),
         needsNextTick: false,
         needsSlots: false,
         needsI18n: false,

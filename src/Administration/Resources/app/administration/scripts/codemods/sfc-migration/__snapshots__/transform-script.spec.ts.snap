@@ -294,3 +294,43 @@ swDefinePublic({
     onSave,
 });"
 `;
+
+exports[`scripts/codemods/sfc-migration/transform-script watch-path-component: converts dotted watch keys into optional-chained getters matches the complete converted script snapshot 1`] = `
+"const props = defineProps({
+        item: {
+            type: Object,
+            required: true,
+        },
+    });
+
+import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+const entity = ref(null);
+const netPrice = ref(0);
+const label = ref('');
+
+const applyLabel = (name) => {
+label.value = name ?? '';
+};
+
+watch(() => props.item?.price?.net, (value) => {
+netPrice.value = value;
+});
+watch(() => entity.value?.name, (...args) => applyLabel(...args), { immediate: true });
+watch(() => entity.value?.customFields, (value) => {
+label.value = value?.title ?? '';
+}, { deep: true });
+watch(() => route?.name, () => {
+label.value = '';
+});
+
+swDefinePublic({
+    entity,
+    netPrice,
+    label,
+    applyLabel,
+});"
+`;

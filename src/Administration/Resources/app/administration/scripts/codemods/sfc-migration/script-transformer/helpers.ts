@@ -70,6 +70,40 @@ export function buildPropertyAccess(target: string, name: string): string {
     return isSafeIdentifier(name) ? `${target}.${name}` : `${target}[${quoteJsString(name)}]`;
 }
 
+export interface WatchPath {
+    /** The member the key starts at — `entity` for `'entity.name'`. */
+    root: string;
+    /** The property names below the root — `['name']` for `'entity.name'`. */
+    propertyPath: string[];
+}
+
+/**
+ * Reads an Options API watch key. Vue applies a key containing a dot with
+ * `createPathGetter`, which splits on '.' and walks the segments, so
+ * `'entity.name'` always watches the `name` property of the `entity` member and
+ * never a member of that literal name. A key without a dot is the member name
+ * itself and is returned unchanged, including quoted forms that are not
+ * identifiers.
+ *
+ * Returns null for a path with a segment that cannot be written as a property
+ * access — everything Vue's own `bailRE` (`/[^\w.$]/`) rejects, plus reserved
+ * words — so those keep the manual fallback.
+ */
+export function parseWatchPath(name: string): WatchPath | null {
+    if (!name.includes('.')) {
+        return { root: name, propertyPath: [] };
+    }
+
+    const segments = name.split('.');
+
+    return segments.every(isSafeIdentifier) ? { root: segments[0], propertyPath: segments.slice(1) } : null;
+}
+
+/** The member a watch key starts at — `entity` for `'entity.name'`. */
+export function getWatchRootName(name: string): string {
+    return parseWatchPath(name)?.root ?? name;
+}
+
 export function serializeMethodLikeFunction(method: MethodDeclaration): string {
     const asyncPrefix = method.isAsync() ? 'async ' : '';
     const paramsText = method

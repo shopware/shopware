@@ -209,11 +209,13 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             );
 
             expect(result.status).toBe('partially-migrated');
-            expect(result.blockers).toContain('watch: settings.count: nested watch paths are not supported');
+            expect(result.blockers).toContain(
+                "watch: settings.count: watch path root 'settings' is not declared in props, data, computed, or inject",
+            );
             expect(result.sfc).toContain('<script setup>');
             expect(result.sfc).not.toContain('<script>');
             expect(result.sfc).toContain(
-                'TODO: migrate watch entry manually: settings.count: nested watch paths are not supported',
+                "TODO: migrate watch entry manually: settings.count: watch path root 'settings' is not declared in props, data, computed, or inject",
             );
         });
     });

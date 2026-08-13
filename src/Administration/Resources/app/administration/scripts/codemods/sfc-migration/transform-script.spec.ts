@@ -349,6 +349,46 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('watch-path-component: converts dotted watch keys into optional-chained getters', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('watch-path-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        // Vue's path getter stops walking as soon as an intermediate value is
+        // missing, which is what the optional chaining reproduces.
+        it('resolves the root segment like a plain watch target and chains the rest optionally', () => {
+            expect(result.script).toContain('watch(() => props.item?.price?.net, (value) => {');
+            expect(result.script).toContain('watch(() => entity.value?.customFields,');
+        });
+
+        it('keeps the handler name, deep, and immediate options of a dotted watcher', () => {
+            expect(result.script).toContain(
+                'watch(() => entity.value?.name, (...args) => applyLabel(...args), { immediate: true });',
+            );
+            expect(result.script).toContain('}, { deep: true });');
+        });
+
+        // The snapshot getter only exists so that watching the route object
+        // itself triggers; a path watcher reads a value that changes on its own.
+        it('watches a $route path through the route object without the snapshot getter', () => {
+            expect(result.script).toContain('watch(() => route?.name, () => {');
+            expect(result.script).toContain('const route = useRoute();');
+            expect(result.script).not.toContain('...route, params:');
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('mixin-component: detects mixins as a blocker', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -815,7 +855,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    it('surfaces nested watch paths with a TODO comment instead of generating an invalid source', () => {
+    it('surfaces a watch path whose root is not a declared member with a TODO comment', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             watch: {
@@ -828,9 +868,31 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const result = transformScript(js);
 
         expect(result.script).toContain(
-            'TODO: migrate watch entry manually: items.length: nested watch paths are not supported',
+            "TODO: migrate watch entry manually: items.length: watch path root 'items' is not declared in props, data, computed, or inject",
         );
-        expect(result.script).not.toContain('watch(() => items.length.value');
+        expect(result.script).not.toContain('watch(() => items');
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces a watch path with a segment that is not an identifier with a TODO comment', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() {
+                return { items: [] };
+            },
+            watch: {
+                'items[0].label': 'updateCount'
+            },
+            methods: {
+                updateCount() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain(
+            'TODO: migrate watch entry manually: items[0].label: watch path segments must be valid identifiers to be migrated',
+        );
+        expect(result.script).not.toContain('watch(() => items');
     });
 
     // -------------------------------------------------------------------------

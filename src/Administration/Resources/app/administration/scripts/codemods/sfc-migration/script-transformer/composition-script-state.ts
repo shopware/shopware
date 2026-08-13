@@ -16,7 +16,8 @@ import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extra
 import { extractMethodProps } from './extract-methods';
 import { extractProvideEntries } from './extract-provide';
 import { extractWatchProps } from './extract-watch';
-import { isDefined, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
+import type { WatchPath } from './helpers';
+import { getWatchRootName, isDefined, isSafeIdentifier, parseWatchPath, sanitizeTodoCommentText } from './helpers';
 import {
     collectEmittedEventNames,
     collectThisRefNames,
@@ -779,30 +780,26 @@ function collectSupportedWatchProps(
     injectNames: Set<string>,
 ): WatchProp[] {
     return watchProps.filter((watchProp) => {
-        if (watchProp.name.includes('.')) {
-            unsupportedWatchEntries.push(`${watchProp.name}: nested watch paths are not supported`);
+        const path = parseWatchPath(watchProp.name);
+
+        if (!path) {
+            unsupportedWatchEntries.push(
+                `${watchProp.name}: watch path segments must be valid identifiers to be migrated`,
+            );
             return false;
         }
 
         // Vue 2 accepted string paths in watch definitions. In Composition API
-        // we can only generate a safe source when that path maps to a prop,
+        // we can only generate a safe source when that path starts at a prop,
         // data ref, computed ref, or inject declared by this codemod.
         const isKnownWatchTarget =
-            propNames.has(watchProp.name) ||
-            dataNames.has(watchProp.name) ||
-            computedNames.has(watchProp.name) ||
-            injectNames.has(watchProp.name);
+            propNames.has(path.root) ||
+            dataNames.has(path.root) ||
+            computedNames.has(path.root) ||
+            injectNames.has(path.root);
 
-        if (watchProp.name !== '$route' && !isKnownWatchTarget) {
-            if (!isSafeIdentifier(watchProp.name)) {
-                unsupportedWatchEntries.push(
-                    `${watchProp.name}: watch targets that are not valid identifiers must be migrated manually`,
-                );
-            } else {
-                unsupportedWatchEntries.push(
-                    `${watchProp.name}: watch target is not declared in props, data, computed, or inject`,
-                );
-            }
+        if (path.root !== '$route' && !isKnownWatchTarget) {
+            unsupportedWatchEntries.push(`${watchProp.name}: ${describeUndeclaredWatchTarget(path)}`);
 
             return false;
         }
@@ -816,6 +813,16 @@ function collectSupportedWatchProps(
 
         return true;
     });
+}
+
+function describeUndeclaredWatchTarget({ root, propertyPath }: WatchPath): string {
+    if (propertyPath.length > 0) {
+        return `watch path root '${root}' is not declared in props, data, computed, or inject`;
+    }
+
+    return isSafeIdentifier(root)
+        ? 'watch target is not declared in props, data, computed, or inject'
+        : 'watch targets that are not valid identifiers must be migrated manually';
 }
 
 function collectSetupSnippets(
@@ -865,7 +872,7 @@ function collectVueImports(
     if (supportedInjectProps.length > 0) vueImports.push('inject');
     if (provideEntries.length > 0) vueImports.push('provide');
     if (supportedWatchProps.length > 0) vueImports.push('watch');
-    if (supportedWatchProps.some(({ name }) => injectNames.has(name))) vueImports.push('unref');
+    if (supportedWatchProps.some(({ name }) => injectNames.has(getWatchRootName(name)))) vueImports.push('unref');
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');

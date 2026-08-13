@@ -9,7 +9,7 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[JsonStreamable]
-final class SalesChannelContextContext extends AbstractRequest
+final class SalesChannelContextContext extends AbstractDto
 {
     public function __construct(
         public ?string $versionId = null,

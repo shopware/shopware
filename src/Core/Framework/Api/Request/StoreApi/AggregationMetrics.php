@@ -4,12 +4,12 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 12:40:10
+ * Last generated: 2026-08-13 14:36:46
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Package('framework')]
 #[JsonStreamable]
-final class AggregationMetrics extends AbstractRequest
+final class AggregationMetrics extends AbstractDto
 {
     public function __construct(
         #[Assert\NotBlank]

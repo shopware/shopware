@@ -14,17 +14,25 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Built-in Loaders
 
-- **EntityLoader** (`entity`) — Single entity by ID
-- **EntityCollectionLoader** (`entity_collection`) — Multiple entities by IDs
-- **ProductListingDataLoader** (`product_listing`) — Product listings with filters, sorting, pagination
-- **NavigationDataLoader** (`navigation`) — Navigation tree; aliases: `main-navigation`, `service-navigation`, `footer-navigation`
+- [**EntityLoader** (`entity`)](docs/entity.md) — Single entity by ID
+- [**EntityCollectionLoader** (`entity_collection`)](docs/entity_collection.md) — Multiple entities by IDs
+- [**ProductListingDataLoader** (`product_listing`)](docs/product_listing.md) — Product listings with filters, sorting, pagination
+- [**NavigationDataLoader** (`navigation`)](docs/navigation.md) — Navigation tree; aliases: `main-navigation`, `service-navigation`, `footer-navigation`
 - **ServiceMenuDataLoader** (`service_menu`) — Service menu navigation
 - **CrossSellingDataLoader** (`cross_selling`) — Cross-selling product sets
 - **ProductReviewDataLoader** (`product_review`) — Product reviews
 - **ProductSearchDataLoader** (`product_search`) — Product search results
 - **ProductSuggestDataLoader** (`product_suggest`) — Product search suggestions
 - **BreadcrumbDataLoader** (`breadcrumb`) — Breadcrumb trail
-- **LanguageDataLoader** (`language`), **CurrencyDataLoader** (`currency`), **PaymentMethodDataLoader** (`payment_method`), **ShippingMethodDataLoader** (`shipping_method`)
+- [**LanguageDataLoader** (`language`)](docs/language.md), [**CurrencyDataLoader** (`currency`)](docs/currency.md), [**PaymentMethodDataLoader** (`payment_method`)](docs/payment_method.md), [**ShippingMethodDataLoader** (`shipping_method`)](docs/shipping_method.md)
+
+The six unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
+
+## Guides
+
+- [docs/data-requirements.md](docs/data-requirements.md) - What a `dataRequirements` entry declares, when to use one, and its fields.
+- [docs/custom-loaders.md](docs/custom-loaders.md) - Registering a new data source: config, serializer, loader, and cache behavior.
+- [docs/introspection.md](docs/introspection.md) - The Admin API surface clients read to discover available sources and their config keys.
 
 ## Extension Point
 

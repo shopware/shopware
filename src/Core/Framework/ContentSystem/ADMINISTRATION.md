@@ -1,8 +1,8 @@
 # Administration Integration
 
-Admin API introspection over the content system's registered building blocks: which element types may be placed in a layout, which data loaders a `dataRequirements` entry may use, which entity types a layout can be assigned to, and which universal style options exist. These are the `GET /api/_info/content-system-*.json` endpoints the Administration (and admin API clients such as AI-assisted layout generators) read before assembling a layout.
+Admin API introspection over the content system's registered building blocks: which element types may be placed in a layout, which entity types a layout can be assigned to, and which universal style options exist. These are the `GET /api/_info/content-system-*.json` endpoints the Administration (and admin API clients such as AI-assisted layout generators) read before assembling a layout.
 
-**Scope:** the Admin API introspection endpoints only. The preview, resolve-and-diagnose, mutation, and persisted mutation endpoints — their request/response contract and error model — are indexed in [Api/README.md](Api/README.md). Store API rendering routes (`/store-api/content*`) are covered in [USAGE.md](USAGE.md) and [SalesChannel/README.md](SalesChannel/README.md). Registering new building blocks (element types, data loaders, specification sources) is covered in [EXTENSION.md](EXTENSION.md). The `bindingSpecifications` fold each type entry carries is documented in [Binding/README.md](Binding/README.md).
+**Scope:** the Admin API introspection endpoints only, minus the data-loader catalog (`content-system-data-loaders.json`), which is documented in [Hydration/DataLoader/README.md](Hydration/DataLoader/README.md). The preview, resolve-and-diagnose, mutation, and persisted mutation endpoints — their request/response contract and error model — are indexed in [Api/README.md](Api/README.md). Store API rendering routes (`/store-api/content*`) are covered in [USAGE.md](USAGE.md) and [SalesChannel/README.md](SalesChannel/README.md). Registering new element types, style options, specification sources, and event listeners is covered in [EXTENSION.md](EXTENSION.md); data loaders are covered in [Hydration/DataLoader/docs/custom-loaders.md](Hydration/DataLoader/docs/custom-loaders.md), and binding specifications in [Binding/README.md](Binding/README.md). The `bindingSpecifications` fold each type entry carries is documented in [Binding/README.md](Binding/README.md).
 
 ## Introspection Endpoints
 
@@ -54,41 +54,6 @@ Response:
 Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
 A custom element type registered by a plugin or app ([EXTENSION.md → Custom Element Types](EXTENSION.md#custom-element-types)) appears here once registered.
-
-### Data loaders
-
-`GET /api/_info/content-system-data-loaders.json`
-
-The data sources a `dataRequirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each with its declared config keys and the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderMapResolver` from each loader's `configSpecification()` and `producibleTypes()`.
-
-Response:
-
-```json
-{
-  "sources": {
-    "<source>": {
-      "configKeys": [
-        { "name": "entity", "kind": "entityName", "type": "string", "required": true },
-        { "name": "property", "kind": "propertyReference", "type": "string", "required": true },
-        { "name": "associations", "kind": "literal", "type": "list<string>", "required": false, "default": [] }
-      ],
-      "types": [
-        {
-          "producedType": "<FQCN>",
-          "configTemplate": { "entity": "product" },
-          "genericParameters": ["<FQCN>"]
-        }
-      ]
-    }
-  }
-}
-```
-
-`<source>` is the `dataRequirements` source value (`entity`, `product_listing`, …). `configKeys` is the source's declared `LoaderConfigSpecification`, in declaration order: `kind` names what the stored value means (`literal`, `propertyReference`, an element property whose stored value feeds the loader, or `entityName`, a registered DAL entity), `required` is intrinsic requiredness, and `default` is present only when the key declares one (a declared default may itself be `null`, distinct from no default at all). `types` pairs each produced type (the sales-channel class where one exists) with the `configTemplate` needed to produce it — the inferable config keys. The keys a caller must still supply for a given capability (the completion residue) are the required `configKeys` names minus the keys already covered by that capability's `configTemplate`; a client derives this the same way `ContentSystemDataLoaderMap::residualConfigKeysFor()` does on the kernel side, not carried directly in this response.
-
-Full field-level schema: [content-system-data-loaders.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-data-loaders.json).
-
-A custom data loader ([EXTENSION.md → Custom Data Loaders](EXTENSION.md#custom-data-loaders)) appears here. Wildcard loaders (`entity`, `entity_collection`) enumerate the live definition registry inside `producibleTypes()`.
 
 ### Entity types
 

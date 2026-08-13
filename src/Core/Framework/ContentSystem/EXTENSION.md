@@ -8,10 +8,9 @@ Plugins extend the ContentSystem through six mechanisms.
 2. [Custom Element Types](#custom-element-types)
 3. [Custom Style Options](#custom-style-options)
 4. [Custom Specification Sources](#custom-specification-sources)
-5. [Custom Data Loaders](#custom-data-loaders)
-6. [Event Listeners](#event-listeners)
-7. [Service Tags](#service-tag-reference)
-8. [Type Reference](#type-reference)
+5. [Event Listeners](#event-listeners)
+6. [Service Tags](#service-tag-reference)
+7. [Type Reference](#type-reference)
 
 ## Extension Model
 
@@ -21,7 +20,7 @@ Plugins extend the ContentSystem through six mechanisms.
 | **Style Options**         | New universal per-breakpoint presentation attributes for every element |
 | **Binding Specifications** | Pre-validated data wirings for an element type, applied in one action — authored per [Binding/README.md](Binding/README.md), not covered here |
 | **Specification Sources** | New URL patterns, entity types                                         |
-| **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
+| **Data Loaders**          | External APIs, calculations, aggregated data (with cache control) — authored per [Hydration/DataLoader/docs/custom-loaders.md](Hydration/DataLoader/docs/custom-loaders.md), not covered here |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
 
 ---
@@ -271,123 +270,6 @@ Reference: `src/Core/Content/Product/Aggregate/ProductContentLayout/ProductSpeci
 ### Assignment-Free Resolution (Preview Support)
 
 The steps above resolve a layout from a path for the Store API. To also let the Admin preview and diagnose actions work against an entity that has no assignment yet, an entity-backed source overrides three more methods: `supportsEntityType(string $entityType): bool` (match the source's content-layout entity type), `resolveSpecificationDataForEntity(string $entityId, Request, SalesChannelContext): SpecificationData` (build the spec data from the entity id directly, with no assignment lookup), and `providedRootContext(Context $context): list<ProvidedContext>` (the root-ambient context the source supplies to the layout's top-level elements; default `[]`). The diagnose route (`POST /api/_action/content-system/layout/diagnose`) resolves its request `rootSource` through `Adapter/RootSourceRegistry`, which calls `providedRootContext()` on the matching source to run its binding-resolvability checks — a source that leaves it at the default exposes no root context, so those checks have nothing to bind against. An assignable entity type registered this way also appears in `GET /api/_info/content-system-entity-types.json`. See `ADMINISTRATION.md`.
-
----
-
-## Custom Data Loaders
-
-Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; other built-in loaders handle known data structures like product listing, navigation, language, currency, payment method, and shipping method.
-
-A data loader consists of three classes:
-
-| Component  | Base Class                                  | Service Tag                        | Purpose                |
-|------------|---------------------------------------------|------------------------------------|------------------------|
-| Config     | `AbstractContentDataLoaderConfig`           | (none)                             | Hold loader parameters |
-| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config   |
-| Loader     | `AbstractContentDataLoader`                 | `content_system.data_loader`       | Fetch the data         |
-
-Define array shapes with `@phpstan-type ConfigData array{field?: type}` in the Config class, then import with `@phpstan-import-type ConfigData from ConfigClass` in the Serializer. Annotate `encode()` with `@return ConfigData` for type-safe serialization.
-
-### Example: Weather Data Loader
-
-The `source` value (`weather`) links all three components.
-
-**Config:**
-
-```php
-final readonly class WeatherLoaderConfig extends AbstractContentDataLoaderConfig
-{
-    public function __construct(
-        public string $location,
-        public string $units = 'metric',
-    ) {}
-}
-```
-
-**Serializer:**
-
-```php
-final class WeatherLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
-{
-    public static function getSource(): string
-    { return 'weather'; /* Must match loader's getRequirementType() */ }
-
-    public function decode(array $data): AbstractContentDataLoaderConfig
-    { /* Convert array to WeatherLoaderConfig */ }
-
-    public function encode(AbstractContentDataLoaderConfig $config): array
-    { /* Convert WeatherLoaderConfig to array */ }
-}
-```
-
-**Loader:**
-
-```php
-/**
- * @extends AbstractContentDataLoader<WeatherStruct>
- */
-final class WeatherLoader extends AbstractContentDataLoader
-{
-    public function __construct(private readonly WeatherApiClient $weatherClient) {}
-
-    public static function getRequirementType(): string
-    { return 'weather'; /* Must match serializer's getSource() */ }
-
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
-    {
-        $config = $requirement->config;
-        \assert($config instanceof WeatherLoaderConfig);
-
-        $weather = $this->weatherClient->fetch($config->location);
-        if ($weather === null) {
-            return ContentDataLoaderResult::notFound();
-        }
-        // External API - cannot track for invalidation
-        return ContentDataLoaderResult::uncacheable($weather);
-    }
-}
-```
-
-**Service registration:**
-
-```xml
-<service id="MyPlugin\ContentSystem\Weather\WeatherLoaderConfigSerializer">
-    <tag name="content_system.config_serializer"/>
-</service>
-
-<service id="MyPlugin\ContentSystem\Weather\WeatherLoader">
-    <argument type="service" id="MyPlugin\Service\WeatherApiClient"/>
-    <tag name="content_system.data_loader"/>
-</service>
-```
-
-### Cache Awareness
-
-All data loaders must return `ContentDataLoaderResult` to indicate cache behavior:
-
-| Factory Method            | When to Use                                               |
-|---------------------------|-----------------------------------------------------------|
-| `notFound()`              | Data not found, page remains cacheable                    |
-| `cached($data, ...$tags)` | Data with invalidation tags (e.g., `'product-' . $id`)    |
-| `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
-| `uncacheable($data)`      | External APIs or data that cannot be cache-tracked        |
-
-If any loader returns uncacheable data, the entire page becomes uncacheable.
-
-For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
-
-```php
-// Use tag patterns matching Shopware's cache invalidation system:
-// product → 'product-{id}', category → 'category-route-{id}',
-// landing_page → 'landing-page-route-{id}', cms_page → 'cms-page-{id}'
-return ContentDataLoaderResult::cached($entity, 'product-' . $entityId);
-```
-
-Reference: `Hydration/DataLoader/EntityLoader/`
-
-### Discoverability
-
-A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See `ADMINISTRATION.md`.
 
 ---
 

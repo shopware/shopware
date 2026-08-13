@@ -1,24 +1,26 @@
 import type { CompositionScriptState } from './composition-script-state';
 import { emitNativeSetup } from './emit-native-setup';
-import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
-import { IDENTIFIER_TEMPLATE_MARKER, identTemplate, renderIdentifierTemplates } from './identifier-template';
-import type { IdentifierTemplate, IdentifierToken, ScriptLine } from './identifier-template';
+import { resolveIdentifierNames } from './resolve-identifiers';
+import type { ResolvedIdentifiers } from './resolve-identifiers';
 
 export function emitCompositionApiScript(state: CompositionScriptState): string {
-    const lines: ScriptLine[] = [];
+    const lines: string[] = [];
+    // Every name the component already uses is known before the first line is
+    // emitted, so the names of the generated bindings are resolved once here.
+    const names = resolveIdentifierNames(collectTakenNames(state));
 
     emitTodoComments(lines, state);
     emitModuleLevelCode(lines, state);
-    emitCompilerMacros(lines, state);
+    emitCompilerMacros(lines, state, names);
     emitImports(lines, state);
-    emitComposableDeclarations(lines, state);
+    emitComposableDeclarations(lines, state, names);
     emitTemplateRefs(lines, state);
-    emitNativeSetup(lines, state);
+    emitNativeSetup(lines, state, names);
 
-    return renderIdentifierTemplates(lines, collectTakenNames(state)).join('\n');
+    return lines.join('\n');
 }
 
-function emitTodoComments(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitTodoComments(lines: string[], state: CompositionScriptState): void {
     const { todoComments } = state;
 
     if (todoComments.length > 0) {
@@ -27,7 +29,7 @@ function emitTodoComments(lines: ScriptLine[], state: CompositionScriptState): v
     }
 }
 
-function emitModuleLevelCode(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitModuleLevelCode(lines: string[], state: CompositionScriptState): void {
     const { moduleLevelCode } = state;
 
     if (moduleLevelCode) {
@@ -36,7 +38,7 @@ function emitModuleLevelCode(lines: ScriptLine[], state: CompositionScriptState)
     }
 }
 
-function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitCompilerMacros(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { componentNameValue, effectiveEmitsKeys, emitsDefinition, inheritAttrs, propsText, usedComposables } = state;
     const defineOptionsArgs = [
         !inheritAttrs ? 'inheritAttrs: false' : '',
@@ -47,7 +49,7 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
         lines.push('');
     }
 
-    const declarationLines: ScriptLine[] = [];
+    const declarationLines: string[] = [];
 
     // An empty defineProps({}) would only add an unused `props` binding to the
     // component state, so the macro is emitted for real props definitions only.
@@ -56,12 +58,12 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
     }
 
     if (emitsDefinition.objectText !== null) {
-        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits(${emitsDefinition.objectText});`);
+        declarationLines.push(`const ${names.emit} = defineEmits(${emitsDefinition.objectText});`);
     } else if (effectiveEmitsKeys.length > 0) {
         const emitsList = effectiveEmitsKeys.map((k) => `'${k}'`).join(', ');
-        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits([${emitsList}]);`);
+        declarationLines.push(`const ${names.emit} = defineEmits([${emitsList}]);`);
     } else if (usedComposables.needsEmit) {
-        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits([]);`);
+        declarationLines.push(`const ${names.emit} = defineEmits([]);`);
     }
 
     if (declarationLines.length === 0) {
@@ -72,7 +74,7 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
     lines.push('');
 }
 
-function emitImports(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitImports(lines: string[], state: CompositionScriptState): void {
     const { usedComposables, vueImports } = state;
 
     const importLines: string[] = [];
@@ -99,14 +101,17 @@ function emitImports(lines: ScriptLine[], state: CompositionScriptState): void {
     lines.push('');
 }
 
-function emitComposableDeclarations(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitComposableDeclarations(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { usedComposables } = state;
 
-    if (usedComposables.needsRouter) lines.push(identTemplate`const ${routerIdent} = useRouter();`);
-    if (usedComposables.needsRoute) lines.push(identTemplate`const ${routeIdent} = useRoute();`);
-    if (usedComposables.needsSlots) lines.push(identTemplate`const ${slotsIdent} = useSlots();`);
-    if (usedComposables.needsAttrs) lines.push(identTemplate`const ${attrsIdent} = useAttrs();`);
-    if (usedComposables.needsI18n) lines.push(createI18nDeclarationTemplate());
+    if (usedComposables.needsRouter) lines.push(`const ${names.router} = useRouter();`);
+    if (usedComposables.needsRoute) lines.push(`const ${names.route} = useRoute();`);
+    if (usedComposables.needsSlots) lines.push(`const ${names.slots} = useSlots();`);
+    if (usedComposables.needsAttrs) lines.push(`const ${names.attrs} = useAttrs();`);
+    // `useI18n()` returns an object, so a renamed `t` needs a destructuring alias.
+    if (usedComposables.needsI18n) {
+        lines.push(names.t === 't' ? 'const { t } = useI18n();' : `const { t: ${names.t} } = useI18n();`);
+    }
     const hasComposableDeclarations =
         usedComposables.needsRouter ||
         usedComposables.needsRoute ||
@@ -118,7 +123,7 @@ function emitComposableDeclarations(lines: ScriptLine[], state: CompositionScrip
     }
 }
 
-function emitTemplateRefs(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitTemplateRefs(lines: string[], state: CompositionScriptState): void {
     const { templateRefNames } = state;
 
     for (const refName of templateRefNames) {
@@ -138,18 +143,4 @@ function collectTakenNames(state: CompositionScriptState): Set<string> {
         ...state.propNames,
         'props',
     ]);
-}
-
-function createI18nDeclarationTemplate(): IdentifierTemplate {
-    return {
-        [IDENTIFIER_TEMPLATE_MARKER]: true,
-        getIdentifierTokens(): IdentifierToken[] {
-            return [tIdent];
-        },
-        render(resolve: (token: IdentifierToken) => string): string {
-            const resolvedName = resolve(tIdent);
-
-            return resolvedName === 't' ? 'const { t } = useI18n();' : `const { t: ${resolvedName} } = useI18n();`;
-        },
-    };
 }

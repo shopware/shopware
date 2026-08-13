@@ -455,6 +455,7 @@ timing does not map cleanly to generated setup code.
 | `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`: macros, imports, composables, template refs. |
 | `script-transformer/emit-native-setup.ts` | Emits the migrated setup body and the `swDefinePublic({ … })` marker (replaces the former `emit-create-extendable-setup.ts`). |
 | `script-transformer/rewrite-this.ts` | Rewrites known `this.*` references. |
+| `script-transformer/resolve-identifiers.ts` | Picks the names of the generated bindings (`emit`, `slots`, `t`, …) so they never collide with the component's own. |
 | `script-transformer/extract-*.ts` | Focused extractors for Options API sections. |
 | `__fixtures__/` | Input examples used by tests. |
 | `__snapshots__/` | Expected generated output snapshots. |

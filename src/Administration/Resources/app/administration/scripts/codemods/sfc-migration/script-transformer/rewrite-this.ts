@@ -1,8 +1,6 @@
 import type { Node as TsNode, PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
-import { createIdentifierTemplate, identTemplate, isIdentifierToken } from './identifier-template';
-import type { IdentifierTemplateValue, IdentifierToken, ScriptSnippet } from './identifier-template';
+import type { ResolvedIdentifiers } from './resolve-identifiers';
 import type { CodeSnippet, RewriteContext, RewriteSnippetKind, UsedComposables, WatchProp } from './types';
 import {
     createWrappedSnippetSource,
@@ -14,7 +12,12 @@ import {
 } from './ast';
 import { buildPropertyAccess, isDefined } from './helpers';
 
-export function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set<string>): ScriptSnippet {
+export function buildWatchSource(
+    name: string,
+    propNames: Set<string>,
+    injectNames: Set<string>,
+    names: ResolvedIdentifiers,
+): string {
     if (propNames.has(name)) {
         return buildPropertyAccess('props', name);
     }
@@ -23,7 +26,7 @@ export function buildWatchSource(name: string, propNames: Set<string>, injectNam
         // The route object keeps its identity across navigations. Watch a
         // snapshot so changes trigger and Vue still provides distinct to/from
         // values to the handler.
-        return identTemplate`({ ...${routeIdent}, params: { ...${routeIdent}.params }, query: { ...${routeIdent}.query } })`;
+        return `({ ...${names.route}, params: { ...${names.route}.params }, query: { ...${names.route}.query } })`;
     }
 
     if (injectNames.has(name)) {
@@ -232,7 +235,12 @@ function isThisPropertyObject(thisNode: TsNode): boolean {
     return Node.isPropertyAccessExpression(parent) && parent.getExpression().getStart() === thisNode.getStart();
 }
 
-export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): ScriptSnippet {
+export function rewriteThisInBody(
+    bodyText: string,
+    ctx: RewriteContext,
+    names: ResolvedIdentifiers,
+    kind: RewriteSnippetKind = 'body',
+): string {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, kind);
     // Only property accesses are rewritten here; instance dependencies that
     // cannot be rewritten (bare `this`, `this[key]`, unknown `this.<name>`) are
@@ -242,7 +250,7 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
         .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
         .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
         .map((node) => {
-            const replacement = buildThisReplacement(node, ctx);
+            const replacement = buildThisReplacement(node, ctx, names);
 
             if (!replacement) {
                 return undefined;
@@ -273,38 +281,22 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
         lastReplacedStart = start;
     }
 
-    if (!acceptedReplacements.some(({ replacement }) => isIdentifierToken(replacement))) {
-        let result = bodyText;
+    // Accepted replacements are ordered longest-first, so splicing them in that
+    // order keeps every earlier offset valid.
+    let result = bodyText;
 
-        for (const { start, end, replacement } of acceptedReplacements) {
-            result = result.slice(0, start) + replacement + result.slice(end);
-        }
-
-        return result;
+    for (const { start, end, replacement } of acceptedReplacements) {
+        result = result.slice(0, start) + replacement + result.slice(end);
     }
 
-    const parts: IdentifierTemplateValue[] = [];
-    let cursor = 0;
-
-    acceptedReplacements
-        .sort((a, b) => a.start - b.start)
-        .forEach(({ start, end, replacement }) => {
-            if (start > cursor) {
-                parts.push(bodyText.slice(cursor, start));
-            }
-
-            parts.push(replacement);
-            cursor = end;
-        });
-
-    if (cursor < bodyText.length) {
-        parts.push(bodyText.slice(cursor));
-    }
-
-    return createIdentifierTemplate(parts);
+    return result;
 }
 
-function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContext): string | IdentifierToken | null {
+function buildThisReplacement(
+    node: PropertyAccessExpression,
+    ctx: RewriteContext,
+    names: ResolvedIdentifiers,
+): string | null {
     const refName = getThisRefName(node);
 
     if (refName) {
@@ -319,22 +311,22 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
 
     switch (name) {
         case '$emit':
-            return emitIdent;
+            return names.emit;
         case '$router':
-            return routerIdent;
+            return names.router;
         case '$route':
-            return routeIdent;
+            return names.route;
         case '$nextTick':
             return 'nextTick';
         case '$slots':
-            return slotsIdent;
+            return names.slots;
         case '$props':
             return 'props';
         case '$attrs':
-            return attrsIdent;
+            return names.attrs;
         case '$tc':
         case '$t':
-            return tIdent;
+            return names.t;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge. collectPlaceholderApiReasons keeps the

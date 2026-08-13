@@ -2,8 +2,7 @@ import { quoteJsString } from '../string-literals';
 import { hasTopLevelReturn } from './ast';
 import type { CompositionScriptState } from './composition-script-state';
 import { sanitizeTodoCommentText } from './helpers';
-import { identTemplate } from './identifier-template';
-import type { ScriptLine } from './identifier-template';
+import type { ResolvedIdentifiers } from './resolve-identifiers';
 import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
 
 /**
@@ -17,19 +16,19 @@ import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
  *
  * See `technical-docs/03-extensibility/07-native-setup-authoring.md`.
  */
-export function emitNativeSetup(lines: ScriptLine[], state: CompositionScriptState): void {
+export function emitNativeSetup(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     emitSupportedInjectProps(lines, state);
-    emitSupportedDataProps(lines, state);
-    emitSupportedComputedProps(lines, state);
-    emitSupportedMethodProps(lines, state);
+    emitSupportedDataProps(lines, state, names);
+    emitSupportedComputedProps(lines, state, names);
+    emitSupportedMethodProps(lines, state, names);
     emitUnsupportedWatchEntries(lines, state);
-    emitSupportedWatchProps(lines, state);
-    emitCreatedHooks(lines, state);
-    emitRegularHooks(lines, state);
+    emitSupportedWatchProps(lines, state, names);
+    emitCreatedHooks(lines, state, names);
+    emitRegularHooks(lines, state, names);
     emitSwDefinePublic(lines, state);
 }
 
-function emitSupportedInjectProps(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSupportedInjectProps(lines: string[], state: CompositionScriptState): void {
     const { supportedInjectProps } = state;
 
     supportedInjectProps.forEach(({ localName, sourceKey, defaultValueText, treatDefaultAsFactory }) => {
@@ -48,35 +47,35 @@ function emitSupportedInjectProps(lines: ScriptLine[], state: CompositionScriptS
     if (supportedInjectProps.length > 0) lines.push('');
 }
 
-function emitSupportedDataProps(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSupportedDataProps(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, supportedDataProps } = state;
 
     supportedDataProps.forEach(({ name, valueText }) => {
-        const rewrittenValue = rewriteThisInBody(valueText, ctx, 'expression');
-        lines.push(identTemplate`const ${name} = ref(${rewrittenValue});`);
+        const rewrittenValue = rewriteThisInBody(valueText, ctx, names, 'expression');
+        lines.push(`const ${name} = ref(${rewrittenValue});`);
     });
     if (supportedDataProps.length > 0) lines.push('');
 }
 
-function emitSupportedComputedProps(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSupportedComputedProps(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, supportedComputedProps } = state;
 
     supportedComputedProps.forEach((prop) => {
         if (prop.kind === 'getter') {
-            const body = rewriteThisInBody(prop.bodyText, ctx);
-            lines.push(identTemplate`const ${prop.name} = computed(() => {\n${body}\n});`);
+            const body = rewriteThisInBody(prop.bodyText, ctx, names);
+            lines.push(`const ${prop.name} = computed(() => {\n${body}\n});`);
         } else {
-            const getterBody = rewriteThisInBody(prop.getterBodyText, ctx);
-            const setterBody = rewriteThisInBody(prop.setterBodyText, ctx);
+            const getterBody = rewriteThisInBody(prop.getterBodyText, ctx, names);
+            const setterBody = rewriteThisInBody(prop.setterBodyText, ctx, names);
             lines.push(
-                identTemplate`const ${prop.name} = computed({\nget: () => {\n${getterBody}\n},\nset: (${prop.setterParam}) => {\n${setterBody}\n},\n});`,
+                `const ${prop.name} = computed({\nget: () => {\n${getterBody}\n},\nset: (${prop.setterParam}) => {\n${setterBody}\n},\n});`,
             );
         }
     });
     if (supportedComputedProps.length > 0) lines.push('');
 }
 
-function emitSupportedMethodProps(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSupportedMethodProps(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, supportedMethodProps } = state;
 
     supportedMethodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
@@ -85,18 +84,18 @@ function emitSupportedMethodProps(lines: ScriptLine[], state: CompositionScriptS
             // as debounce(). Preserve the wrapper expression instead of
             // flattening it into a plain arrow method.
             const normalizedRawText = rawText.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
-            const rewritten = rewriteThisInBody(normalizedRawText, ctx, 'expression');
-            lines.push(identTemplate`const ${name} = ${rewritten};`);
+            const rewritten = rewriteThisInBody(normalizedRawText, ctx, names, 'expression');
+            lines.push(`const ${name} = ${rewritten};`);
         } else {
             const asyncKw = isAsync ? 'async ' : '';
-            const body = rewriteThisInBody(bodyText, ctx);
-            lines.push(identTemplate`const ${name} = ${asyncKw}(${paramsText}) => {\n${body}\n};`);
+            const body = rewriteThisInBody(bodyText, ctx, names);
+            lines.push(`const ${name} = ${asyncKw}(${paramsText}) => {\n${body}\n};`);
         }
     });
     if (supportedMethodProps.length > 0) lines.push('');
 }
 
-function emitUnsupportedWatchEntries(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitUnsupportedWatchEntries(lines: string[], state: CompositionScriptState): void {
     const { unsupportedWatchEntries } = state;
 
     unsupportedWatchEntries.forEach((entry) => {
@@ -105,11 +104,11 @@ function emitUnsupportedWatchEntries(lines: ScriptLine[], state: CompositionScri
     if (unsupportedWatchEntries.length > 0) lines.push('');
 }
 
-function emitSupportedWatchProps(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSupportedWatchProps(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, injectNames, propNames, supportedWatchProps } = state;
 
     supportedWatchProps.forEach(({ name, paramsText, bodyText, handlerName, isAsync, deep, immediate }) => {
-        const source = buildWatchSource(name, propNames, injectNames);
+        const source = buildWatchSource(name, propNames, injectNames, names);
         const hasOptions = deep || immediate;
         const optionsParts = [
             deep ? 'deep: true' : '',
@@ -118,21 +117,21 @@ function emitSupportedWatchProps(lines: ScriptLine[], state: CompositionScriptSt
 
         if (handlerName) {
             lines.push(
-                identTemplate`watch(() => ${source}, (...args) => ${handlerName}(...args)${hasOptions ? `, { ${optionsParts.join(', ')} }` : ''});`,
+                `watch(() => ${source}, (...args) => ${handlerName}(...args)${hasOptions ? `, { ${optionsParts.join(', ')} }` : ''});`,
             );
             return;
         }
 
-        const body = rewriteThisInBody(bodyText ?? '', ctx);
+        const body = rewriteThisInBody(bodyText ?? '', ctx, names);
         const asyncPrefix = isAsync ? 'async ' : '';
         const paramPart = paramsText ? `${asyncPrefix}(${paramsText}) => {` : `${asyncPrefix}() => {`;
         const closing = hasOptions ? `}, { ${optionsParts.join(', ')} });` : '});';
-        lines.push(identTemplate`watch(() => ${source}, ${paramPart}\n${body}\n${closing}`);
+        lines.push(`watch(() => ${source}, ${paramPart}\n${body}\n${closing}`);
     });
     if (supportedWatchProps.length > 0) lines.push('');
 }
 
-function emitCreatedHooks(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitCreatedHooks(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, lifecycleHooks } = state;
     const createdHooks = lifecycleHooks.filter((h) => h.compositionName === null);
 
@@ -144,13 +143,13 @@ function emitCreatedHooks(lines: ScriptLine[], state: CompositionScriptState): v
     // setup preserves its pre-mount timing; async created() stays
     // fire-and-forget so setup itself does not become async.
     for (const hook of createdHooks) {
-        const body = rewriteThisInBody(hook.bodyText.trim(), ctx);
+        const body = rewriteThisInBody(hook.bodyText.trim(), ctx, names);
         if (hook.isAsync) {
-            lines.push(identTemplate`void (async () => {\n${body}\n})();`);
+            lines.push(`void (async () => {\n${body}\n})();`);
         } else if (hasTopLevelReturn(hook.bodyText)) {
             // A guard clause like `if (…) { return; }` is only legal inside a
             // function, and the setup body is module-level code.
-            lines.push(identTemplate`(() => {\n${body}\n})();`);
+            lines.push(`(() => {\n${body}\n})();`);
         } else {
             lines.push(body);
         }
@@ -158,18 +157,18 @@ function emitCreatedHooks(lines: ScriptLine[], state: CompositionScriptState): v
     lines.push('');
 }
 
-function emitRegularHooks(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitRegularHooks(lines: string[], state: CompositionScriptState, names: ResolvedIdentifiers): void {
     const { ctx, regularHooks } = state;
 
     for (const { compositionName, bodyText, isAsync } of regularHooks) {
-        const body = rewriteThisInBody(bodyText, ctx);
+        const body = rewriteThisInBody(bodyText, ctx, names);
         const asyncPrefix = isAsync ? 'async ' : '';
-        lines.push(identTemplate`${compositionName}(${asyncPrefix}() => {\n${body}\n});`);
+        lines.push(`${compositionName}(${asyncPrefix}() => {\n${body}\n});`);
     }
     if (regularHooks.length > 0) lines.push('');
 }
 
-function emitSwDefinePublic(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSwDefinePublic(lines: string[], state: CompositionScriptState): void {
     const { publicNames } = state;
 
     // Base mode is auto-private: every top-level binding stays component state,

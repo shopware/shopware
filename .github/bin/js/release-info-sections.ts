@@ -28,7 +28,7 @@ const RELEASE_INFO_PATTERN = /^RELEASE_INFO-\d+\.\d+\.md$/;
 const VERSION_HEADING_PATTERN = /^# (\d+\.\d+\.\d+\.\d+)\b/;
 
 /** Fenced code blocks may quote `# ...` lines that must not open a section. */
-const FENCE_PATTERN = /^ {0,3}(?:```|~~~)/;
+const FENCE_PATTERN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
 
 const HUNK_HEADER_PATTERN = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/;
 
@@ -68,12 +68,22 @@ export function addedLineNumbers(patch: string): number[] {
 export function sectionByLine(content: string): (string | null)[] {
     const sections: (string | null)[] = [];
     let current: string | null = null;
-    let inFence = false;
+    let fence: string | null = null;
 
     for (const line of content.split('\n')) {
-        if (FENCE_PATTERN.test(line)) {
-            inFence = !inFence;
-        } else if (!inFence) {
+        const marker = FENCE_PATTERN.exec(line);
+        if (fence !== null) {
+            // CommonMark: only a bare fence of the same character and at least the
+            // opening length closes a block — a ```js line inside it is content.
+            // Toggling on every marker misread the whole file once a fence was
+            // left unclosed, which is exactly when parsing must stay right.
+            if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && marker[2].trim() === '') {
+                fence = null;
+            }
+        } else if (marker && !(marker[1][0] === '`' && marker[2].includes('`'))) {
+            // A backtick fence's info string may not contain backticks.
+            fence = marker[1];
+        } else {
             current = VERSION_HEADING_PATTERN.exec(line)?.[1] ?? current;
         }
         sections.push(current);

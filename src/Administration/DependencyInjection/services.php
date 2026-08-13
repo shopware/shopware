@@ -4,8 +4,11 @@ namespace Shopware\Administration\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
+use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
+use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Controller\AdminProductStreamController;
@@ -71,6 +74,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('kernel'),
         ])
+        ->tag('console.command');
+
+    $services->set(CheckExtensionsCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(SetupExtensionToolingCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(GenerateEntitySchemaTypesCommand::class)
         ->tag('console.command');
 
     $services->set(AdminExtensionApiController::class)

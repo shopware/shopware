@@ -222,10 +222,10 @@ function emitMethodProps(state: CompositionScriptState, names: ResolvedIdentifie
     return supportedMethodProps.map(({ name, paramsText, bodyText, isAsync, rawText }) => {
         if (rawText !== undefined) {
             // Property-assignment methods often wrap callbacks in helpers such
-            // as debounce(). Preserve the wrapper expression instead of
-            // flattening it into a plain arrow method.
-            const normalizedRawText = rawText.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
-            const rewritten = rewriteThisInBody(normalizedRawText, ctx, names, 'expression');
+            // as debounce(). The wrapper expression is preserved instead of
+            // being flattened into a plain arrow method; `extract-methods.ts`
+            // has already turned the inner `function`s into arrows.
+            const rewritten = rewriteThisInBody(rawText, ctx, names, 'expression');
 
             return `const ${name} = ${rewritten};`;
         }

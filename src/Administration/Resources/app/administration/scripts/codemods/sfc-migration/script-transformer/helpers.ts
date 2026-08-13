@@ -103,6 +103,21 @@ export function getWatchRootName(name: string): string {
     return parseWatchPath(name)?.root ?? name;
 }
 
+/**
+ * Rewrites the `function` expressions inside a property-assignment method value
+ * into arrows: `debounce(function onSave() { … })` becomes
+ * `debounce(() => { … })`. The wrapper call itself is preserved — flattening it
+ * would drop the debounce — and `this` inside is rewritten separately.
+ *
+ * Applied at extraction, so the shape checks and the emitter read the same text.
+ * That matters for a *named* function expression: its name is a binding inside
+ * itself, so `debounce(function onSave() { this.onSave(); })` looks like a
+ * shadowed rewrite target until the name is gone, which it is here.
+ */
+export function normalizeMethodValueFunctions(rawText: string): string {
+    return rawText.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
+}
+
 export function serializeMethodLikeFunction(method: MethodDeclaration): string {
     const asyncPrefix = method.isAsync() ? 'async ' : '';
     const paramsText = method

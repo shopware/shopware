@@ -570,6 +570,25 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.publicNames).toContain(expected.split(' ')[1]);
         });
 
+        // The wrapper's inner `function` becomes an arrow, so its name is gone
+        // from the emitted code and the same-named method it calls is not
+        // shadowed. Detection reads the normalised text for that reason.
+        it('migrates a debounce wrapper whose inner function is named after the method it calls', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    onSave(value) { return value; },
+                    onSaveDebounce: debounce(function onSave() {
+                        this.onSave(1);
+                    }, 300),
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const onSaveDebounce = debounce(() => {');
+            expect(result.script).toContain('onSave(1);');
+        });
+
         // The twig import is dropped on the way out and `--delete-originals`
         // removes the file, so its binding is not available whatever it is named.
         it.each([

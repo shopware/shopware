@@ -1,5 +1,6 @@
 import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
+import { normalizeMethodValueFunctions } from './helpers';
 import type { ExtractMethodPropsResult, MethodProp } from './types';
 
 export function extractMethodProps(
@@ -69,7 +70,9 @@ export function extractMethodProps(
                 continue;
             }
 
-            const initializerText = initializer.getText();
+            // Normalised here, not in the emitter, so the shape checks read the
+            // same text that will be written.
+            const initializerText = normalizeMethodValueFunctions(initializer.getText());
             result.push({
                 name,
                 paramsText: '',

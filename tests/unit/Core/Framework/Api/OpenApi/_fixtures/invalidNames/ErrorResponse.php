@@ -10,11 +10,13 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
+#[JsonStreamable]
 final class ErrorResponse extends AbstractResponse
 {
     public function __construct(

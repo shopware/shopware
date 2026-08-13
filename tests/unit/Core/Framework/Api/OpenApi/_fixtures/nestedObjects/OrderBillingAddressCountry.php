@@ -10,12 +10,14 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Country details
  *
  * @codeCoverageIgnore
  */
+#[JsonStreamable]
 final class OrderBillingAddressCountry extends AbstractRequest
 {
     public function __construct(

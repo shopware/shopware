@@ -20,15 +20,20 @@ import type { ComputedProp } from './types';
  * not one of the supported helpers or its arguments are not literals.
  * An empty array is a successful expansion of a helper called without
  * properties — it contributes no computed entry, exactly like the helper.
+ *
+ * `trustedHelperNames` is what makes the name mean the helper: it holds only the
+ * names this module provably bound from `Shopware.Component.getComponentHelper()`,
+ * `pinia`, or `map-errors.service`. Without it a `mapState` imported from `vuex`
+ * — whose getters read `this.$store` — would be ported with Pinia semantics.
  */
-export function expandComputedSpread(spread: SpreadAssignment): ComputedProp[] | null {
+export function expandComputedSpread(spread: SpreadAssignment, trustedHelperNames: Set<string>): ComputedProp[] | null {
     const call = spread.getExpression().asKind(SyntaxKind.CallExpression);
-    // Only a bare identifier callee is matched. The helpers are always
-    // destructured into a module local first, and matching on the trailing name
-    // of an arbitrary expression would claim unrelated functions.
+    // Only a bare, unconditionally called identifier is matched: the helpers are
+    // destructured into a module local first, and `helper?.(…)` may not be a call
+    // at all.
     const callee = call?.getExpression().asKind(SyntaxKind.Identifier)?.getText();
 
-    if (!call || !callee) {
+    if (!call || !callee || call.getQuestionDotTokenNode() || !trustedHelperNames.has(callee)) {
         return null;
     }
 
@@ -88,11 +93,13 @@ function expandPropertyErrors(call: CallExpression, callee: string, shape: 'enti
  * re-evaluated per getter, exactly as Pinia does.
  */
 function expandMapState(call: CallExpression, callee: string): ComputedProp[] | null {
+    const keysArgument = call.getArguments()[1];
     const storeExpression = readStoreExpression(call.getArguments()[0]);
-    const keys = readStringLiteralArray(call.getArguments()[1]);
+    const keys = keysArgument === undefined ? null : readStringLiteralArray(keysArgument);
 
     // The object form (`mapState(store, { alias: 'key' })`) renames keys and is
-    // not covered here.
+    // not covered here. A missing second argument is not an empty list either:
+    // Pinia runs `Object.keys(keysOrMapper)` on it and throws.
     if (storeExpression === null || keys === null) {
         return null;
     }
@@ -105,6 +112,13 @@ function expandMapState(call: CallExpression, callee: string): ComputedProp[] | 
     }));
 }
 
+/**
+ * Pinia calls the first argument as `useStore(this.$pinia)`, so only the two
+ * shapes that ignore or accept that argument can be re-emitted as a plain
+ * expression. A parameterised arrow (`(state) => state.swProductDetail`) cannot:
+ * its body reads a name that only exists inside the arrow, and copying the body
+ * out would emit an unbound identifier that compiles and then throws.
+ */
 function readStoreExpression(argument: TsNode | undefined): string | null {
     if (!argument) {
         return null;
@@ -116,13 +130,7 @@ function readStoreExpression(argument: TsNode | undefined): string | null {
         const body = arrow.getBody();
 
         // A block-bodied arrow can run statements before returning the store.
-        return Node.isBlock(body) ? null : body.getText();
-    }
-
-    // Example: `mapState('swFlow', […])`
-    const storeId = readStringLiteral(argument);
-    if (storeId !== null) {
-        return `Shopware.Store.get(${quoteJsString(storeId)})`;
+        return arrow.getParameters().length > 0 || Node.isBlock(body) ? null : body.getText();
     }
 
     // Example: `mapState(useShopwareServicesStore, […])`
@@ -135,7 +143,11 @@ function readStringLiteral(argument: TsNode | undefined): string | null {
     return argument?.asKind(SyntaxKind.StringLiteral)?.getLiteralValue() ?? null;
 }
 
-/** A missing argument reads as the helper's own `[]` default. */
+/**
+ * A missing argument reads as `[]`, which is the `properties: K[] = []` default
+ * of the two error helpers. `mapState` has no such default — its caller checks
+ * for the missing argument before calling this.
+ */
 function readStringLiteralArray(argument: TsNode | undefined): string[] | null {
     if (!argument) {
         return [];

@@ -5,7 +5,10 @@ import { extractInlineFunctionHandler } from './extract-function-handler';
 import { isSimpleParameter } from './helpers';
 import type { ComputedProp, ExtractComputedPropsResult } from './types';
 
-export function extractComputedProps(optionsObj: ObjectLiteralExpression): ExtractComputedPropsResult {
+export function extractComputedProps(
+    optionsObj: ObjectLiteralExpression,
+    trustedHelperNames: Set<string>,
+): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
     if (!computedProp) return { computedProps: [], unsupportedEntries: [] };
     // Shorthand or non-property `computed` cannot be read as an object literal.
@@ -27,7 +30,7 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
     for (const prop of computedObj.getProperties()) {
         // Example: `{ computed: { ...mapPropertyErrors('product', ['name']) } }`
         if (prop.isKind(SyntaxKind.SpreadAssignment)) {
-            const expanded = expandComputedSpread(prop.asKindOrThrow(SyntaxKind.SpreadAssignment));
+            const expanded = expandComputedSpread(prop.asKindOrThrow(SyntaxKind.SpreadAssignment), trustedHelperNames);
 
             if (expanded === null) {
                 unsupportedEntries.push(`${prop.getText()}: unsupported computed entry`);

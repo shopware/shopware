@@ -239,6 +239,34 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script provide-component: converts provide() into provide(key, value) calls matches the complete converted script snapshot 1`] = `
+"const emit = defineEmits(['item-register']);
+
+import { ref, computed, provide } from 'vue';
+
+const items = ref([]);
+const scopeName = ref('sw-provider-card');
+
+const itemCount = computed(() => {
+return items.value.length;
+});
+
+const registerCardItem = (item) => {
+items.value.push(item);
+emit('item-register', item);
+};
+
+provide('registerCardItem', registerCardItem);
+provide('card-scope', scopeName.value);
+
+swDefinePublic({
+    items,
+    scopeName,
+    itemCount,
+    registerCardItem,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
 "const emit = defineEmits(['save']);
 

@@ -14,6 +14,7 @@ import { extractDataProps } from './extract-data';
 import { extractInjectProps } from './extract-inject';
 import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
+import { extractProvideEntries } from './extract-provide';
 import { extractWatchProps } from './extract-watch';
 import { isDefined, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
 import {
@@ -30,9 +31,11 @@ import type {
     ComputedProp,
     DataProp,
     EmitsDefinition,
+    ExtractProvideResult,
     InjectProp,
     LifecycleHook,
     MethodProp,
+    ProvideEntry,
     RewriteContext,
     UsedComposables,
     WatchProp,
@@ -54,6 +57,7 @@ export interface CompositionScriptState {
     supportedMethodProps: MethodProp[];
     supportedWatchProps: WatchProp[];
     unsupportedWatchEntries: string[];
+    provideEntries: ProvideEntry[];
     lifecycleHooks: LifecycleHook[];
     regularHooks: LifecycleHook[];
     usedComposables: UsedComposables;
@@ -155,7 +159,11 @@ export function collectCompositionScriptState(
         (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'lifecycle hook', reason),
     );
 
-    const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks);
+    const { provideEntries, requiresManualMigration: provideRequiresManualMigration } = collectProvideEntries(
+        optionsObj,
+        ctx,
+    );
+    const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks, provideEntries);
 
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const templateRefNames = collectThisRefNames(allSnippets);
@@ -171,10 +179,17 @@ export function collectCompositionScriptState(
             : collectEmittedEventNames(allSnippets);
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
-    const vueImports = collectVueImports(supportedMembers, templateRefNames, usedComposables, regularHooks, allSnippets);
+    const vueImports = collectVueImports(
+        supportedMembers,
+        templateRefNames,
+        usedComposables,
+        regularHooks,
+        allSnippets,
+        provideEntries,
+    );
     const publicNames = collectPublicNames(supportedMembers);
     collectPropShadowingReasons(templateRefNames, propNames, manualMigrationReasons, todoComments);
-    const manualFollowUps = collectManualFollowUps(optionsObj);
+    const manualFollowUps = collectManualFollowUps(optionsObj, provideRequiresManualMigration);
 
     manualMigrationReasons.push(...manualFollowUps.manualMigrationReasons);
     todoComments.push(...manualFollowUps.todoComments);
@@ -218,6 +233,7 @@ export function collectCompositionScriptState(
         supportedMethodProps,
         supportedWatchProps,
         unsupportedWatchEntries,
+        provideEntries,
         lifecycleHooks,
         regularHooks,
         usedComposables,
@@ -447,14 +463,31 @@ function buildMemberContext(
     };
 }
 
-function collectManualFollowUps(optionsObj: ObjectLiteralExpression): ManualMigrationCollection {
+/**
+ * A provided value that still depends on the instance cannot be rewritten, and a
+ * `provide` migrated in part would silently change what descendants receive. So
+ * one unrewritable value falls the whole option back to the manual TODO.
+ */
+function collectProvideEntries(optionsObj: ObjectLiteralExpression, ctx: RewriteContext): ExtractProvideResult {
+    const result = extractProvideEntries(optionsObj);
+    const hasUnsupportedValue = result.provideEntries.some(
+        ({ valueText }) => findUnsupportedThisUsage({ text: valueText, kind: 'expression' }, ctx) !== null,
+    );
+
+    return hasUnsupportedValue ? { provideEntries: [], requiresManualMigration: true } : result;
+}
+
+function collectManualFollowUps(
+    optionsObj: ObjectLiteralExpression,
+    provideRequiresManualMigration: boolean,
+): ManualMigrationCollection {
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
 
     // These options can affect runtime registration or lifecycle order. The
     // generated setup code is still useful, but a successful-looking migration
     // would be misleading without explicit manual follow-up markers.
-    if (optionsObj.getProperty('provide')) {
+    if (provideRequiresManualMigration) {
         manualMigrationReasons.push('provide option requires manual migration');
         todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');
     }
@@ -786,6 +819,7 @@ function collectSupportedWatchProps(
 function collectSetupSnippets(
     supportedMembers: SupportedCompositionMembers,
     lifecycleHooks: LifecycleHook[],
+    provideEntries: ProvideEntry[],
 ): CodeSnippet[] {
     const { supportedDataProps, supportedComputedProps, supportedMethodProps, supportedWatchProps } = supportedMembers;
 
@@ -808,6 +842,7 @@ function collectSetupSnippets(
             kind: p.rawText === undefined ? ('body' as const) : ('expression' as const),
         })),
         ...lifecycleHooks.map((h) => ({ text: h.bodyText, kind: 'body' as const })),
+        ...provideEntries.map((entry) => ({ text: entry.valueText, kind: 'expression' as const })),
     ].filter(isDefined);
 }
 
@@ -817,6 +852,7 @@ function collectVueImports(
     usedComposables: UsedComposables,
     regularHooks: LifecycleHook[],
     allSnippets: CodeSnippet[],
+    provideEntries: ProvideEntry[],
 ): string[] {
     const { injectNames, supportedComputedProps, supportedDataProps, supportedInjectProps, supportedWatchProps } =
         supportedMembers;
@@ -825,6 +861,7 @@ function collectVueImports(
     if (supportedDataProps.length > 0 || templateRefNames.length > 0) vueImports.push('ref');
     if (supportedComputedProps.length > 0) vueImports.push('computed');
     if (supportedInjectProps.length > 0) vueImports.push('inject');
+    if (provideEntries.length > 0) vueImports.push('provide');
     if (supportedWatchProps.length > 0) vueImports.push('watch');
     if (supportedWatchProps.some(({ name }) => injectNames.has(name))) vueImports.push('unref');
     if (usedComposables.needsNextTick) vueImports.push('nextTick');

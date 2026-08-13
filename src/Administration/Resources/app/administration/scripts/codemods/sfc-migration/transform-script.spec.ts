@@ -322,6 +322,33 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('provide-component: converts provide() into provide(key, value) calls', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('provide-component.index.js'));
+        });
+
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('provides the migrated method and the migrated data value', () => {
+            expect(result.script).toContain("provide('registerCardItem', registerCardItem);");
+            expect(result.script).toContain("provide('card-scope', scopeName.value);");
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('mixin-component: detects mixins as a blocker', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -1350,6 +1377,139 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         expect(result.script).toContain('TODO: verify local component registrations in `components:`');
         expect(result.script).toContain('TODO: migrate `directives` manually');
         expect(result.script).toContain('TODO: `beforeCreate` was dropped');
+    });
+
+    // -------------------------------------------------------------------------
+    describe('provide option', () => {
+        const providingMethodComponent = `Shopware.Component.register('sw-test', {
+            provide() {
+                return {
+                    registerSidebarItem: this.registerSidebarItem,
+                };
+            },
+            data() {
+                return { items: [] };
+            },
+            methods: {
+                registerSidebarItem(item) {
+                    this.items.push(item);
+                },
+            },
+        });`;
+
+        it('migrates a provide() method into provide(key, value) calls', () => {
+            const result = transformScript(providingMethodComponent);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain("provide('registerSidebarItem', registerSidebarItem);");
+            expect(result.script).toMatch(/import\s*\{[^}]*\bprovide\b[^}]*\}\s*from\s*'vue'/);
+            expect(result.script).not.toContain('TODO: migrate `provide`');
+        });
+
+        it('migrates a provide object literal with identifier and string-literal keys', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide: {
+                    'card-scope': 'sw-card',
+                    cardLimit: 42,
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain("provide('card-scope', 'sw-card');");
+            expect(result.script).toContain("provide('cardLimit', 42);");
+        });
+
+        it('keeps provided keys out of the public override API', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide: {
+                    cardScope: 'sw-card',
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.publicNames).toEqual([]);
+            expect(result.script).toContain('swDefinePublic({});');
+        });
+
+        it('emits the provide calls after the methods and before the watchers and lifecycle hooks', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide() {
+                    return { registerItem: this.registerItem };
+                },
+                data() {
+                    return { count: 0 };
+                },
+                watch: {
+                    count() {
+                        this.registerItem(this.count);
+                    },
+                },
+                mounted() {
+                    this.registerItem(1);
+                },
+                methods: {
+                    registerItem(item) {
+                        this.count = item;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+            const provideIndex = result.script.indexOf("provide('registerItem'");
+
+            expect(result.status).toBe('fully-migrated');
+            // The methods are `const` declarations, so providing one earlier would
+            // read it inside its temporal dead zone.
+            expect(result.script.indexOf('const registerItem =')).toBeLessThan(provideIndex);
+            expect(provideIndex).toBeLessThan(result.script.indexOf('watch(() =>'));
+            expect(provideIndex).toBeLessThan(result.script.indexOf('onMounted('));
+        });
+
+        it('falls back to the manual TODO for computed provide keys', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide() {
+                    return { [dynamicKey]: 'sw-card' };
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('provide option requires manual migration');
+            expect(result.script).toContain('TODO: migrate `provide` manually');
+            expect(result.script).not.toContain("provide('");
+        });
+
+        it('falls back to the manual TODO when a provided value uses unresolved this access', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide() {
+                    return {
+                        notify: this.createNotificationSuccess,
+                        cardScope: 'sw-card',
+                    };
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('provide option requires manual migration');
+            // A partially migrated provide would change what descendants receive.
+            expect(result.script).not.toContain("provide('cardScope'");
+        });
+
+        it('falls back to the manual TODO when provide() does more than return the object', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                provide() {
+                    const scope = 'sw-card';
+
+                    return { cardScope: scope };
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('provide option requires manual migration');
+            expect(result.script).not.toContain("provide('cardScope'");
+        });
     });
 
     // -------------------------------------------------------------------------

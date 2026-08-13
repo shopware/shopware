@@ -92,6 +92,19 @@ export interface ExtractMethodPropsResult {
     unsupportedEntries: string[];
 }
 
+export interface ProvideEntry {
+    /** Injection key without quotes — the emitter quotes it. */
+    key: string;
+    /** Exact source text of the provided value, e.g. `this.registerSidebarItem` */
+    valueText: string;
+}
+
+export interface ExtractProvideResult {
+    provideEntries: ProvideEntry[];
+    /** true when a `provide` option exists whose shape cannot be translated. */
+    requiresManualMigration: boolean;
+}
+
 export interface LifecycleHook {
     hookName: string;
     /** null means "run directly in setup" (i.e. created) */

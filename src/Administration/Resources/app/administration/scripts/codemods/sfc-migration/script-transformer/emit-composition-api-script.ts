@@ -37,6 +37,7 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
         emitDataProps(state, names),
         emitComputedProps(state, names),
         emitMethodProps(state, names),
+        emitProvideEntries(state, names),
         emitUnsupportedWatchEntries(state),
         emitWatchProps(state, names),
         emitCreatedHooks(state, names),
@@ -199,6 +200,20 @@ function emitMethodProps(state: CompositionScriptState, names: ResolvedIdentifie
 
         return `const ${name} = ${asyncKw}(${paramsText}) => {\n${body}\n};`;
     });
+}
+
+/**
+ * Emitted after the methods: the generated methods are `const` declarations, so
+ * providing one earlier would read it inside its temporal dead zone. This also
+ * keeps the Options API timing, where `provide()` runs after data, computed, and
+ * methods and before `created`, evaluating each value exactly once.
+ */
+function emitProvideEntries(state: CompositionScriptState, names: ResolvedIdentifiers): string[] {
+    const { ctx, provideEntries } = state;
+
+    return provideEntries.map(
+        ({ key, valueText }) => `provide(${quoteJsString(key)}, ${rewriteThisInBody(valueText, ctx, names, 'expression')});`,
+    );
 }
 
 function emitUnsupportedWatchEntries(state: CompositionScriptState): string[] {

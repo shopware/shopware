@@ -108,8 +108,13 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
+        $currentSecret = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT `app_secret` FROM `app` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($appId)]
+        );
+        static::assertIsString($currentSecret);
         static::assertEquals(
-            hash_hmac('sha256', $payload, 's3cr3t'),
+            hash_hmac('sha256', $payload, $currentSecret),
             $request->getHeaderLine('shopware-shop-signature')
         );
 

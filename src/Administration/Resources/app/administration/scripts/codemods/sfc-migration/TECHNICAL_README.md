@@ -426,6 +426,23 @@ reports why. Two reasons are distinguished, because they need different fixes:
 | --- | --- |
 | `dropped member '<name>'` | The component declares `<name>`, but the codemod dropped it earlier. Migrate that member first. |
 | `unknown this property '<name>'` | The codemod saw no declaration of `<name>` it could parse: a mixin, a plugin, a global helper, or an option entry whose shape an extractor rejected (e.g. a `...mapPropertyErrors(…)` computed spread, which never becomes a declared member name). |
+| `rewrite target '<name>' is shadowed by a local binding` | The rewrite would emit a bare `<name>` (or `props`) at a place where a parameter or local of that name is in scope, so the generated code would read the local instead of the setup binding. Rename the local, then migrate again. |
+
+`this.<name>` becomes a bare identifier, and a bare identifier resolves in the
+scope it is written in — not in the setup scope the generated binding lives in.
+`async runAction(action) { this.action = … }` is the shape that makes this
+concrete: the rewrite would assign to the parameter. `collectLocalBindingScopes`
+in `ast.ts` therefore models the snippet's own scopes — parameters, `let`/`const`
+per block, `var` per function, function and class declarations, catch variables —
+and the member is dropped when a binding of the rewritten name covers the access.
+Scopes are modelled rather than approximated, so a same-named local in a sibling
+function costs nothing. A member's own parameter list is not part of its body
+text, so extractors pass it alongside the snippet and it is written into the
+parse wrapper.
+
+The bindings `resolve-identifiers.ts` names (`emit`, `router`, `route`, `slots`,
+`attrs`, `t`, `te`) are exempt: they are picked around every binding the module
+declares, parameters included, so nothing in the component can shadow them.
 
 Drops cascade: `composition-script-state.ts` filters inject, data, computed, and
 methods to a fixpoint, so a member referencing one that was dropped in an earlier

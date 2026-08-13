@@ -2125,6 +2125,80 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('this.createNotificationSuccess');
         });
 
+        // The rewrite turns `this.action` into a bare `action`, which resolves in
+        // the scope of the access — so the parameter would swallow the assignment.
+        it('drops a member whose rewrite target is shadowed by its own parameter', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { action: null }; },
+                methods: {
+                    runAction(action) {
+                        this.action = action;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, "methods: runAction uses rewrite target 'action' is shadowed by a local binding");
+            expect(result.script).not.toContain('action.value = action');
+        });
+
+        it('drops a member whose rewrite target is shadowed by a const in a nested function', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { total: 0 }; },
+                methods: {
+                    recalculate(items) {
+                        items.forEach(() => {
+                            const total = 1;
+
+                            this.total = total;
+                        });
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, "methods: recalculate uses rewrite target 'total' is shadowed by a local binding");
+        });
+
+        // A binding only shadows the accesses inside its own scope, so a member
+        // that never reads through it still migrates.
+        it('keeps a member whose same-named local sits in a sibling scope', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { total: 0 }; },
+                methods: {
+                    recalculate(items) {
+                        items.forEach(() => {
+                            const total = 1;
+
+                            window.console.log(total);
+                        });
+
+                        this.total = 1;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('total.value = 1;');
+        });
+
+        // `this.<prop>` is rewritten through the `props` object, so a local named
+        // `props` captures the access just like a member-named local does.
+        it('drops a member whose props access is shadowed by a local named props', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                props: { label: { type: String, required: true } },
+                methods: {
+                    format(props) {
+                        return \`\${props.prefix}\${this.label}\`;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expectManualFallback(result, "methods: format uses rewrite target 'props' is shadowed by a local binding");
+        });
+
         it('marks bare this usage as unsupported instead of leaving setup with the wrong this binding', () => {
             const js = `Shopware.Component.register('sw-test', {
                 methods: {

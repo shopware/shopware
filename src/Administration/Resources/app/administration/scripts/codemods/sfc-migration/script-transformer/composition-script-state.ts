@@ -368,7 +368,7 @@ function collectSupportedCompositionMembers(
                         ? [{ text: prop.bodyText, kind: 'body' }]
                         : [
                               { text: prop.getterBodyText, kind: 'body' },
-                              { text: prop.setterBodyText, kind: 'body' },
+                              { text: prop.setterBodyText, kind: 'body', paramsText: prop.setterParam },
                           ];
                 const unsupportedThis = findUnsupportedSnippet(snippets, ctx);
 
@@ -378,9 +378,15 @@ function collectSupportedCompositionMembers(
         );
         const filteredMethods = filterSupported(
             members.supportedMethodProps,
-            ({ name, bodyText, rawText }) => {
+            ({ name, paramsText, bodyText, rawText }) => {
                 const unsupportedThis = findUnsupportedSnippet(
-                    [{ text: rawText ?? bodyText, kind: rawText === undefined ? 'body' : 'expression' }],
+                    [
+                        {
+                            text: rawText ?? bodyText,
+                            kind: rawText === undefined ? 'body' : 'expression',
+                            paramsText,
+                        },
+                    ],
                     ctx,
                 );
 
@@ -427,13 +433,13 @@ function collectSupportedCompositionMembers(
             methodNames,
             injectNames,
         ),
-        ({ name, bodyText }) => {
+        ({ name, paramsText, bodyText }) => {
             // A watcher that only names a handler has no body of its own to check.
             if (!bodyText) {
                 return null;
             }
 
-            const unsupportedThis = findUnsupportedSnippet([{ text: bodyText, kind: 'body' }], watchCtx);
+            const unsupportedThis = findUnsupportedSnippet([{ text: bodyText, kind: 'body', paramsText }], watchCtx);
 
             return unsupportedThis === null ? null : `${name}: watcher uses ${unsupportedThis}`;
         },
@@ -933,13 +939,16 @@ function collectSetupSnippets(
                 ? [{ text: p.bodyText, kind: 'body' as const }]
                 : [
                       { text: p.getterBodyText, kind: 'body' as const },
-                      { text: p.setterBodyText, kind: 'body' as const },
+                      { text: p.setterBodyText, kind: 'body' as const, paramsText: p.setterParam },
                   ],
         ),
-        ...supportedWatchProps.map((p) => (p.bodyText ? { text: p.bodyText, kind: 'body' as const } : undefined)),
+        ...supportedWatchProps.map((p) =>
+            p.bodyText ? { text: p.bodyText, kind: 'body' as const, paramsText: p.paramsText } : undefined,
+        ),
         ...supportedMethodProps.map((p) => ({
             text: p.bodyText,
             kind: p.rawText === undefined ? ('body' as const) : ('expression' as const),
+            paramsText: p.paramsText,
         })),
         ...lifecycleHooks.map((h) => ({ text: h.bodyText, kind: 'body' as const })),
         ...provideEntries.map((entry) => ({ text: entry.valueText, kind: 'expression' as const })),

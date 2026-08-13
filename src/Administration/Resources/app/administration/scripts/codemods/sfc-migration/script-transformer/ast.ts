@@ -1,5 +1,5 @@
 import type { BindingName, CallExpression, PropertyAccessExpression, SourceFile } from 'ts-morph';
-import { Node, Project, ScriptKind, SyntaxKind } from 'ts-morph';
+import { Node, Project, ScriptKind, SyntaxKind, VariableDeclarationKind } from 'ts-morph';
 import { UNKNOWN_COMPONENT_NAME } from '../types';
 import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './types';
 
@@ -7,12 +7,18 @@ import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './t
  * Parses snippets that are not complete JavaScript programs. The wrapper gives
  * ts-morph valid syntax while snippetStart/snippetEnd keep offsets translatable
  * back to the original method body or expression text.
+ *
+ * `paramsText` is the parameter list of the member the body belongs to. It is
+ * written into the wrapper — and therefore outside the snippet range — so the
+ * parameters exist as bindings for scope analysis without becoming part of the
+ * code that is scanned or rewritten.
  */
 export function createWrappedSnippetSource(
     text: string,
     kind: RewriteSnippetKind,
+    paramsText = '',
 ): { sourceFile: SourceFile; snippetStart: number; snippetEnd: number } {
-    const prefix = kind === 'body' ? 'function __rewrite__() {\n' : 'const __rewrite__ = (';
+    const prefix = kind === 'body' ? `function __rewrite__(${paramsText}) {\n` : 'const __rewrite__ = (';
     const suffix = kind === 'body' ? '\n}' : ');';
 
     return {
@@ -20,6 +26,78 @@ export function createWrappedSnippetSource(
         snippetStart: prefix.length,
         snippetEnd: prefix.length + text.length,
     };
+}
+
+export interface LocalBindingScope {
+    name: string;
+    /** Source range of the scope node the binding is visible in. */
+    start: number;
+    end: number;
+}
+
+/**
+ * Every parameter, variable, function, and class binding the parsed snippet
+ * declares, paired with the source range it is visible in. A `this.<name>`
+ * rewrite that produces a bare identifier is only safe where no binding of that
+ * name covers the access — otherwise the generated code would read the local
+ * one.
+ *
+ * Scopes are modelled exactly rather than approximated by "anywhere in the
+ * snippet": a same-named binding in a sibling function does not shadow anything
+ * and must not cost the member its migration.
+ */
+export function collectLocalBindingScopes(sourceFile: SourceFile): LocalBindingScope[] {
+    const scopes: LocalBindingScope[] = [];
+    const add = (nameNode: BindingName, scope: Node | undefined): void => {
+        if (!scope) {
+            return;
+        }
+
+        const names = new Set<string>();
+        addBindingNames(nameNode, names);
+        names.forEach((name) => scopes.push({ name, start: scope.getStart(), end: scope.getEnd() }));
+    };
+
+    for (const node of sourceFile.getDescendants()) {
+        if (Node.isParameterDeclaration(node)) {
+            add(node.getNameNode(), node.getParent());
+        } else if (Node.isVariableDeclaration(node)) {
+            // `var` is function-scoped and hoists out of any block it sits in.
+            const isFunctionScoped = node.getVariableStatement()?.getDeclarationKind() === VariableDeclarationKind.Var;
+
+            add(node.getNameNode(), findEnclosingScope(node, isFunctionScoped));
+        } else if (Node.isFunctionDeclaration(node) || Node.isClassDeclaration(node)) {
+            const nameNode = node.getNameNode();
+
+            if (nameNode) {
+                add(nameNode, findEnclosingScope(node, false));
+            }
+        }
+    }
+
+    return scopes;
+}
+
+function findEnclosingScope(node: Node, isFunctionScoped: boolean): Node | undefined {
+    return node.getFirstAncestor((ancestor) =>
+        isFunctionScoped ? isFunctionScopeBoundary(ancestor) : isBlockScopeBoundary(ancestor),
+    );
+}
+
+function isFunctionScopeBoundary(node: Node): boolean {
+    return isFunctionLike(node) || Node.isSourceFile(node);
+}
+
+function isBlockScopeBoundary(node: Node): boolean {
+    return (
+        Node.isBlock(node) ||
+        Node.isSourceFile(node) ||
+        Node.isCaseBlock(node) ||
+        Node.isForStatement(node) ||
+        Node.isForInStatement(node) ||
+        Node.isForOfStatement(node) ||
+        Node.isCatchClause(node)
+    );
 }
 
 export function isNodeInsideSnippet(node: Node, snippetStart: number, snippetEnd: number): boolean {
@@ -68,7 +146,11 @@ export function getThisRefName(node: PropertyAccessExpression): string | null {
 }
 
 export function getSnippetPropertyAccesses(snippet: CodeSnippet): PropertyAccessExpression[] {
-    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(
+        snippet.text,
+        snippet.kind,
+        snippet.paramsText,
+    );
 
     return (
         sourceFile
@@ -79,7 +161,11 @@ export function getSnippetPropertyAccesses(snippet: CodeSnippet): PropertyAccess
 }
 
 export function getSnippetCallExpressions(snippet: CodeSnippet): CallExpression[] {
-    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(
+        snippet.text,
+        snippet.kind,
+        snippet.paramsText,
+    );
 
     return (
         sourceFile

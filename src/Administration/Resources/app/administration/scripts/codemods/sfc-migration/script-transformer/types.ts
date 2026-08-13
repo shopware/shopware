@@ -125,6 +125,12 @@ export type RewriteSnippetKind = 'body' | 'expression';
 export interface CodeSnippet {
     text: string;
     kind: RewriteSnippetKind;
+    /**
+     * Parameter list of the member this body belongs to. Extractors keep it out
+     * of `text`, but it declares bindings the body can read, so the shadow guard
+     * in `rewrite-this.ts` needs it to see them.
+     */
+    paramsText?: string;
 }
 
 export interface RewriteContext {

@@ -208,6 +208,11 @@ After running the codemod, search for `TODO` comments in the generated files:
        bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
        setup phase. If the method runs after setup completes, store the element in a template ref instead.
 
+- **`rewrite target '<name>' is shadowed by a local binding`** — the member reads `this.<name>` (or a
+  prop, which is rewritten through `props`) at a place where a parameter or local of that name is in
+  scope, so the rewritten bare identifier would read the local instead of the setup binding. The
+  member is dropped rather than mis-rewritten: rename the local binding and migrate again.
+
 - **`dropped member '<name>'`** — the reported member or hook was dropped because a member it uses
   was dropped first. Migrate the named member by hand and re-run the codemod; the reference usually
   converts on its own afterwards. `unknown this property '<name>'` means the opposite: the codemod
@@ -285,5 +290,6 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |
 | `this.$store`                 | Inserts TODO comment                        | Migrate Vuex access to a composable                     |
 | A member named like a generated import (`ref`, `computed`, `watch`, `onMounted`, `useRouter`, …) | Drops the member with a TODO comment | Rename the member, then migrate again |
+| A `this.<member>` access shadowed by a local of the rewritten name | Drops the member with a TODO comment | Rename the local binding, then migrate again |
 | `this.$parent` / `this.$root` | Inserts TODO comment                        | Refactor to avoid parent traversal                      |
 | Watch path with an undeclared root or a non-identifier segment | Leaves a TODO comment and skips the watcher | Write watcher manually                 |

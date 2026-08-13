@@ -2,7 +2,9 @@ import type { Node as TsNode, PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import type { ResolvedIdentifiers } from './resolve-identifiers';
 import type { CodeSnippet, RewriteContext, RewriteSnippetKind, UsedComposables, WatchProp } from './types';
+import type { LocalBindingScope } from './ast';
 import {
+    collectLocalBindingScopes,
     createWrappedSnippetSource,
     getDirectThisPropertyName,
     getSnippetCallExpressions,
@@ -216,7 +218,11 @@ export function findDataInitializerMethodCall(valueText: string, methodNames: Se
  * and record the reason instead of emitting non-equivalent code.
  */
 export function findUnsupportedThisUsage(snippet: CodeSnippet, ctx: RewriteContext): string | null {
-    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(
+        snippet.text,
+        snippet.kind,
+        snippet.paramsText,
+    );
     const inSnippet = (node: TsNode): boolean => isNodeInsideSnippet(node, snippetStart, snippetEnd);
 
     const dynamicAccess = sourceFile
@@ -240,7 +246,14 @@ export function findUnsupportedThisUsage(snippet: CodeSnippet, ctx: RewriteConte
         return Node.isVariableDeclaration(parent) && Node.isIdentifier(parent.getNameNode()) ? 'this alias' : 'bare this';
     }
 
-    for (const propertyAccess of getSnippetPropertyAccesses(snippet)) {
+    const bindingScopes = collectLocalBindingScopes(sourceFile);
+
+    for (const propertyAccess of sourceFile.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression).filter(inSnippet)) {
+        const shadowedRoot = findShadowedRewriteRoot(propertyAccess, ctx, bindingScopes);
+        if (shadowedRoot) {
+            return `rewrite target '${shadowedRoot}' is shadowed by a local binding`;
+        }
+
         if (getThisRefName(propertyAccess)) {
             continue;
         }
@@ -261,6 +274,66 @@ export function findUnsupportedThisUsage(snippet: CodeSnippet, ctx: RewriteConte
     }
 
     return null;
+}
+
+/**
+ * The bare identifier a `this.<name>` rewrite would root its replacement in, or
+ * null when the replacement is not rooted in one — a TODO placeholder, or a
+ * binding `resolve-identifiers.ts` names. Those generated names are picked
+ * around every binding the module declares, parameters and locals included, so
+ * they cannot be shadowed and are deliberately absent here.
+ */
+function getRewriteRootName(node: PropertyAccessExpression, ctx: RewriteContext): string | null {
+    const refName = getThisRefName(node);
+
+    if (refName) {
+        return refName;
+    }
+
+    const name = getDirectThisPropertyName(node);
+
+    if (!name) {
+        return null;
+    }
+
+    if (name === '$nextTick') {
+        return 'nextTick';
+    }
+
+    if (name === '$props' || ctx.propNames.has(name)) {
+        return 'props';
+    }
+
+    if (ctx.dataNames.has(name) || ctx.computedNames.has(name) || ctx.methodNames.has(name) || ctx.injectNames.has(name)) {
+        return name;
+    }
+
+    return null;
+}
+
+/**
+ * The rewrite replaces `this.<name>` with a bare identifier, which resolves in
+ * the scope the access sits in — not in the setup scope the generated binding
+ * lives in. A local of the same name therefore captures the rewritten access and
+ * turns `this.action = …` inside `runAction(action)` into an assignment to the
+ * parameter. Callers drop the member instead.
+ */
+function findShadowedRewriteRoot(
+    node: PropertyAccessExpression,
+    ctx: RewriteContext,
+    bindingScopes: LocalBindingScope[],
+): string | null {
+    const rootName = getRewriteRootName(node, ctx);
+
+    if (!rootName) {
+        return null;
+    }
+
+    const start = node.getStart();
+    const end = node.getEnd();
+    const isShadowed = bindingScopes.some((scope) => scope.name === rootName && scope.start <= start && scope.end >= end);
+
+    return isShadowed ? rootName : null;
 }
 
 /** true when the `this` keyword is the object of a `this.<name>` access. */

@@ -7,10 +7,6 @@ import 'src/app/component/wizard/sw-wizard-dot-navigation';
 import useTheme from 'src/app/composables/use-theme';
 import swNewUi2026Modal from '../index';
 
-// jsdom knows no pointer capture; only real browsers need it to route the moves of a
-// pointer that left the handle back to it.
-window.HTMLElement.prototype.setPointerCapture = () => {};
-
 /**
  * Before NEW_NAVIGATION_RELEASE_DATE, so it marks a shop or user that ran the old navigation.
  *

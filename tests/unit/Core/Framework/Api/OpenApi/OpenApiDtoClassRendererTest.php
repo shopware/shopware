@@ -83,7 +83,7 @@ class OpenApiDtoClassRendererTest extends TestCase
                     'get' => [
                         'operationId' => 'readNewsletterRecipient',
                         'responses' => [
-                            '200' => [
+                            '201' => [
                                 'content' => [
                                     'application/json' => [
                                         'schema' => [
@@ -119,6 +119,8 @@ class OpenApiDtoClassRendererTest extends TestCase
 
         static::assertStringContainsString('use Shopware\\Core\\Framework\\Api\\Response\\AbstractResponse;', $response);
         static::assertStringContainsString('final class ReadNewsletterRecipientResponse extends AbstractResponse', $response);
+        static::assertStringContainsString('use Symfony\\Component\\HttpFoundation\\Response;', $response);
+        static::assertStringContainsString('parent::__construct(statusCode: Response::HTTP_CREATED);', $response);
         static::assertStringContainsString('#[Assert\Choice(choices: [0.5, 10.5, 20.5])]', $response);
         static::assertStringContainsString('public float $priority,', $response);
         static::assertStringNotContainsString('public NewsletterStatus $status,', $response);

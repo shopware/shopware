@@ -2,8 +2,6 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
-<!-- size-allowance: lookup - one bullet per symbol, consulted one at a time -->
-
 ## Navigation
 
 - Specification model — [docs/specification-model.md](docs/specification-model.md)

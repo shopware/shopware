@@ -2,7 +2,7 @@
 
 The merge that writes one specification's wiring onto an element, its two modes, and the three mutation operations that drive it.
 
-`BindingApplicator` owns the merge that applies one specification's wiring onto an element. It rebuilds the element (keeping its id, component, slots, context definitions, and style — never mutating it, so the mutation immutability invariant holds), in one of two modes:
+`BindingApplicator` owns the merge that applies one specification's wiring onto an element. It rebuilds the element via the `ContentElement` constructor (keeping its id, component, slots, context definitions, and style — never mutating the input, so the mutation immutability invariant holds), in one of two modes:
 
 - **`apply()` (overwrite)** — each `resolves` entry becomes a concrete `DataRequirement`, merged into the element's existing data requirements and **overwriting** the same keys; re-applying a specification over an already-bound key replaces its wiring. Every wired key's attribution is recorded into the element's `attributedSpecifications` map (also merged, overwriting), so a client can later ask "which specification wired this key". Used for explicit application: `bind-element`, and an `insert-element` request's explicit `bindingSpecificationId`.
 - **`applyFillOnly()` (fill-only)** — a `resolves` entry is wired only into a key the element carries no data requirement for yet, and only those wired keys receive attribution; carried or already-bound wiring, and its attribution, is left untouched. The same existing-wins idiom `Layout/LayoutDefaultSeeder` uses for property seeding. Used for a type's auto-applied default (see [default-specification.md](default-specification.md)).

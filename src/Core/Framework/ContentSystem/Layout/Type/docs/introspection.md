@@ -1,6 +1,6 @@
 # Element Type Introspection
 
-The Admin API introspection endpoint for the registered element types, and the shape of each entry it returns.
+The Admin API introspection endpoint for the registered element types, and the shape of each entry it returns. It is a `GET`, returns JSON, requires Admin API auth, and is served by `Framework/Api/Controller/InfoController`.
 
 `GET /api/_info/content-system-element-types.json`
 

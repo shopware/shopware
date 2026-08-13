@@ -1,6 +1,6 @@
 # Data Loader Introspection
 
-The Admin API read surface a client uses to discover which data sources a `dataRequirements` entry may use, and the shape it returns.
+The Admin API read surface a client uses to discover which data sources a `dataRequirements` entry may use, and the shape it returns. It is a `GET`, returns JSON, requires Admin API auth, and is served by `Framework/Api/Controller/InfoController`.
 
 `GET /api/_info/content-system-data-loaders.json`
 

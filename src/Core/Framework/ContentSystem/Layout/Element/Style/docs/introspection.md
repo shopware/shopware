@@ -13,7 +13,7 @@ The two read surfaces a declaration feeds, and the Admin API endpoint that serve
 
 `GET /api/_info/content-system-style-options.json`
 
-The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Backed by the style option registry (`Layout/Element/Style/Registry`), serialized via `StyleOptionSpecification::toSchema()`. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
+The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Backed by the style option registry (`Layout/Element/Style/Registry`), serialized via `StyleOptionSpecification::toSchema()`. It is a `GET`, returns JSON, requires Admin API auth, and is served by `Framework/Api/Controller/InfoController`. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
 
 Response:
 

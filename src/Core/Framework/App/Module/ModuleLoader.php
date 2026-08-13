@@ -75,6 +75,7 @@ class ModuleLoader
 
         $appModules = [];
         $isAllowedForAllApps = $context->isAllowed('app.all');
+        $secrets = $this->secretResolver->resolveMany(array_column($features, 'appName'));
 
         foreach ($apps as $app) {
             if (!$isAllowedForAllApps && !$context->isAllowed('app.' . $app->getName())) {
@@ -84,7 +85,7 @@ class ModuleLoader
             $feature = $features[$app->getId()];
 
             // sources are signed with the app secret; without one they cannot be called, so the app is skipped
-            $secret = $this->secretResolver->resolve($feature->appName);
+            $secret = $secrets[$feature->appName] ?? null;
             if ($secret === null) {
                 continue;
             }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,5 +29,23 @@ readonly class AppSecretResolver
         $secret = $this->connection->fetchOne('SELECT `app_secret` FROM `app` WHERE `name` = :name', ['name' => $appName]);
 
         return \is_string($secret) ? $secret : null;
+    }
+
+    /**
+     * @param list<string> $appNames
+     *
+     * @return array<string, string>
+     */
+    public function resolveMany(array $appNames): array
+    {
+        if ($appNames === []) {
+            return [];
+        }
+
+        return $this->connection->fetchAllKeyValue(
+            'SELECT `name`, `app_secret` FROM `app` WHERE `name` IN (:names) AND `app_secret` IS NOT NULL',
+            ['names' => $appNames],
+            ['names' => ArrayParameterType::STRING]
+        );
     }
 }

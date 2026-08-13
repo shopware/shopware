@@ -192,7 +192,7 @@ class ModuleLoaderTest extends TestCase
         $querySigner->expects($this->never())->method('signUriFor');
 
         $secretResolver = static::createStub(AppSecretResolver::class);
-        $secretResolver->method('resolve')->willReturn(null);
+        $secretResolver->method('resolveMany')->willReturn([]);
 
         $moduleLoader = new ModuleLoader(
             new StaticEntityRepository([new AppCollection([$app])], new AppDefinition()),
@@ -243,7 +243,9 @@ class ModuleLoaderTest extends TestCase
     private function secretResolver(): AppSecretResolver
     {
         $secretResolver = static::createStub(AppSecretResolver::class);
-        $secretResolver->method('resolve')->willReturn('s3cr3t');
+        $secretResolver->method('resolveMany')->willReturnCallback(
+            static fn (array $appNames): array => array_fill_keys($appNames, 's3cr3t')
+        );
 
         return $secretResolver;
     }

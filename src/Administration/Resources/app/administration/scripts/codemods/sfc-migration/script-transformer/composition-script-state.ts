@@ -651,8 +651,9 @@ function resolveComponentNameValue(
     if (initializer?.isKind(SyntaxKind.StringLiteral)) {
         // Native setup infers the component name from the `.vue` filename, and the
         // file is written under the registered name, so an equal literal only
-        // repeats what Vue already knows. A differing literal is meaningful — it
-        // renames the component away from its override target — and is kept.
+        // repeats what Vue already knows. A differing literal cannot change the
+        // override target (the filename owns that), but it still sets Vue's own
+        // component name — devtools, recursive self-reference — and is kept.
         if (initializer.getLiteralValue() === registeredName) {
             return { isDynamic: false };
         }

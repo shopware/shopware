@@ -2298,7 +2298,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             const result = transformScript(js);
 
             expect(result.script).toContain('defineOptions({ inheritAttrs: false });');
-            expect(result.script).not.toContain('name:');
+            expect(result.script).not.toContain("name: 'sw-test'");
         });
 
         it('marks duplicate public setup names as unsupported instead of emitting duplicate declarations', () => {

@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(documentV2ServiceOverrides = {}) {
+async function createWrapper(documentV2ApiServiceOverrides = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-invoice', { sync: true }), {
         global: {
             stubs: {
@@ -12,21 +12,19 @@ async function createWrapper(documentV2ServiceOverrides = {}) {
                 'mt-select': true,
             },
             provide: {
-                documentV2Service: {
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: {
-                                    formats: [
-                                        'zugferd_xml',
-                                        'pdf',
-                                        'html',
-                                    ],
-                                },
+                        documentTypes: {
+                            invoice: {
+                                formats: [
+                                    'zugferd_xml',
+                                    'pdf',
+                                    'html',
+                                ],
                             },
                         },
                     }),
-                    ...documentV2ServiceOverrides,
+                    ...documentV2ApiServiceOverrides,
                 },
             },
         },

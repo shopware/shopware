@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
+async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
             stubs: {
@@ -17,15 +17,13 @@ async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
                         };
                     },
                 },
-                documentV2Service: {
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: { formats: ['pdf'] },
-                            },
+                        documentTypes: {
+                            invoice: { formats: ['pdf'] },
                         },
                     }),
-                    ...documentV2ServiceOverrides,
+                    ...documentV2ApiServiceOverrides,
                 },
             },
         },

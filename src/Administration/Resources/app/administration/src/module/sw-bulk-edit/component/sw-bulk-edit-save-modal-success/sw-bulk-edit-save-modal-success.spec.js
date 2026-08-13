@@ -45,7 +45,7 @@ async function createWrapper(
                             return Promise.resolve();
                         },
                     },
-                    documentV2Service: {
+                    documentV2ApiService: {
                         getDocumentArchive: () => {
                             return Promise.resolve();
                         },
@@ -424,12 +424,10 @@ describe('sw-bulk-edit-save-modal-success', () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         window.URL.createObjectURL = jest.fn();
 
-        wrapper.vm.documentV2Service.getDocumentArchive = jest.fn(() =>
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest.fn(() =>
             Promise.resolve({
-                headers: {
-                    'content-disposition': 'filename=documents.zip',
-                },
-                data: 'archive content',
+                file: 'archive content',
+                fileName: 'documents.zip',
             }),
         );
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
@@ -445,21 +443,21 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         await wrapper.vm.downloadDocument('invoice');
 
-        expect(wrapper.vm.documentV2Service.getDocumentArchive).toHaveBeenCalledWith([
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith([
             'documentId1',
             'documentId2',
         ]);
         expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 
-        wrapper.vm.documentV2Service.getDocumentArchive.mockRestore();
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
 
     it('should call createNotificationError when the v2 archive download fails', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper.vm.createNotificationError = jest.fn();
-        wrapper.vm.documentV2Service.getDocumentArchive = jest
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest
             .fn()
             .mockImplementation(() => Promise.reject(new Error('error occured')));
 
@@ -471,10 +469,10 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         await wrapper.vm.downloadDocument('invoice');
 
-        expect(wrapper.vm.documentV2Service.getDocumentArchive).toHaveBeenCalled();
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalled();
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
-        wrapper.vm.documentV2Service.getDocumentArchive.mockRestore();
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
     });
 

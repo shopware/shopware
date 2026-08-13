@@ -20,7 +20,7 @@ export default {
 
     inject: {
         feature: {},
-        documentV2Service: {
+        documentV2ApiService: {
             default: null,
         },
     },
@@ -68,12 +68,12 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK') || !this.documentV2Service) {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK') || !this.documentV2ApiService) {
                 return;
             }
 
-            this.documentV2Service.getAvailableTypes().then((response) => {
-                this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+            this.documentV2ApiService.getAvailableTypes().then((response) => {
+                this.supportedDocumentTypes = response.documentTypes ?? {};
             });
         },
 

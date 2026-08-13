@@ -9,7 +9,7 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[JsonStreamable]
-final class Cart extends AbstractRequest
+final class Cart extends AbstractResponse
 {
     public function __construct(
         #[Assert\NotBlank]

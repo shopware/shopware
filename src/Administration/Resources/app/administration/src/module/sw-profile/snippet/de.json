@@ -145,6 +145,14 @@
         },
         "cms_page": {
           "name": "Name"
+        },
+        "flow": {
+          "name": "Name",
+          "description": "Beschreibung"
+        },
+        "rule": {
+          "name": "Name",
+          "description": "Beschreibung"
         }
       }
     },

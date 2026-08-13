@@ -3,6 +3,7 @@
  */
 
 import './index';
+import { searchRankingPoint } from '../../app/service/search-ranking.service';
 
 jest.mock('./acl', () => jest.fn());
 
@@ -41,6 +42,17 @@ describe('src/module/sw-settings-rule/index.js', () => {
             title: 'sw-settings-rule.general.mainMenuItemGeneral',
             description: 'sw-settings-rule.general.descriptionTextModule',
             color: 'var(--color-red-300)',
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+                description: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
             icon: 'regular-rule',
             favicon: 'icon-module-settings.png',
             entity: 'rule',

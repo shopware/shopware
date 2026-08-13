@@ -154,6 +154,10 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
+            if ($e instanceof WebhookException && $e->getErrorCode() === WebhookException::CURL_NOT_AVAILABLE) {
+                throw $e;
+            }
+
             if ($e instanceof BadResponseException && $message->getAppId()) {
                 throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);
             }
@@ -173,7 +177,7 @@ final class WebhookEventMessageHandler
         }
 
         if (!$this->canUseCurl()) {
-            throw new \RuntimeException('Webhook delivery requires cURL support.');
+            throw WebhookException::curlNotAvailable();
         }
 
         // Guzzle redirects are disabled so every redirect target can be validated and pinned before following it.

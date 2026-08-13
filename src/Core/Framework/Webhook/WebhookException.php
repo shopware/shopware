@@ -16,6 +16,7 @@ class WebhookException extends HttpException
     public const TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED';
     public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
+    public const CURL_NOT_AVAILABLE = 'FRAMEWORK__WEBHOOK_CURL_NOT_AVAILABLE';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -63,6 +64,15 @@ class WebhookException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MAXIMUM_REDIRECTS_EXCEEDED,
             'Maximum redirects exceeded.'
+        );
+    }
+
+    public static function curlNotAvailable(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CURL_NOT_AVAILABLE,
+            'Webhook delivery requires cURL support.'
         );
     }
 

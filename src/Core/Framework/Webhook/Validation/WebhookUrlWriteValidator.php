@@ -31,8 +31,12 @@ final readonly class WebhookUrlWriteValidator implements EventSubscriberInterfac
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommandsForEntity(WebhookDefinition::ENTITY_NAME) as $command) {
+        foreach ($event->getCommands() as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            if ($command->getEntityName() !== WebhookDefinition::ENTITY_NAME) {
                 continue;
             }
 

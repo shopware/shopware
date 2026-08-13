@@ -124,6 +124,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
         static::assertCount(2, $history);
+        static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
+        static::assertIsArray($history[0]['options']);
+        static::assertIsArray($history[0]['options']['curl']);
         static::assertSame('http://test.com/redirect', (string) $history[1]['request']->getUri());
         static::assertFalse($history[0]['options']['allow_redirects']);
         static::assertSame(['test.com:80:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
@@ -182,6 +185,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
         static::assertCount(2, $history);
+        static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
+        static::assertIsArray($history[1]['options']);
+        static::assertIsArray($history[1]['options']['curl']);
         static::assertSame('http://redirect.test.com:8080/target', (string) $history[1]['request']->getUri());
         static::assertSame('POST', $history[1]['request']->getMethod());
         static::assertSame(['test.com:80:93.184.216.34', 'redirect.test.com:8080:93.184.216.34'], $history[1]['options']['curl'][\CURLOPT_RESOLVE]);
@@ -215,7 +221,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             static::fail('Expected webhook delivery to fail.');
         } catch (WebhookException $exception) {
             static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
-            static::assertSame(WebhookException::REDIRECT_TARGET_NOT_ALLOWED, $exception->getPrevious()?->getErrorCode());
+            static::assertInstanceOf(WebhookException::class, $exception->getPrevious());
+            static::assertSame(WebhookException::REDIRECT_TARGET_NOT_ALLOWED, $exception->getPrevious()->getErrorCode());
         }
 
         static::assertSame(1, $this->getRequestCount());
@@ -237,8 +244,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             $webhookEventMessageHandler($webhookEventMessage);
             static::fail('Expected webhook delivery to fail.');
         } catch (WebhookException $exception) {
-            static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
-            static::assertSame('Webhook delivery requires cURL support.', $exception->getPrevious()?->getMessage());
+            static::assertSame(WebhookException::CURL_NOT_AVAILABLE, $exception->getErrorCode());
         }
 
         static::assertSame(0, $this->getRequestCount());
@@ -256,11 +262,13 @@ class WebhookEventMessageHandlerTest extends TestCase
             static::fail('Expected webhook delivery to fail.');
         } catch (WebhookException $exception) {
             static::assertSame(WebhookException::WEBHOOK_FAILED, $exception->getErrorCode());
-            static::assertSame(WebhookException::MAXIMUM_REDIRECTS_EXCEEDED, $exception->getPrevious()?->getErrorCode());
+            static::assertInstanceOf(WebhookException::class, $exception->getPrevious());
+            static::assertSame(WebhookException::MAXIMUM_REDIRECTS_EXCEEDED, $exception->getPrevious()->getErrorCode());
         }
 
         static::assertSame(6, $this->getRequestCount());
         $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
         static::assertSame('GET', $history[1]['request']->getMethod());
         static::assertSame('', $history[1]['request']->getBody()->getContents());
     }
@@ -503,7 +511,7 @@ class WebhookEventMessageHandlerTest extends TestCase
     private function createWebhookEventMessage(array $headers = []): WebhookEventMessage
     {
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], null, Uuid::randomHex(), '6.4', 'http://test.com', null, null, null, $headers);
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], null, Uuid::randomHex(), '6.4', 'http://test.com', null, Defaults::LANGUAGE_SYSTEM, 'en-GB', $headers);
 
         static::getContainer()->get('webhook_event_log.repository')->create([[
             'id' => $webhookEventId,

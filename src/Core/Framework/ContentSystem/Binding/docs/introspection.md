@@ -6,7 +6,7 @@ The specifications for each type are folded into the `bindingSpecifications` key
 
 ## Binding specifications
 
-The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](../../ADMINISTRATION.md#element-types), keyed by their source-qualified id (`source:id`) and filtered to that entry's type. Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions; a client derives the specifications applicable to an element from `bindingSpecifications[element.component]`.
+The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](../../Layout/Type/docs/introspection.md), keyed by their source-qualified id (`source:id`) and filtered to that entry's type. Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions; a client derives the specifications applicable to an element from `bindingSpecifications[element.component]`.
 
 A type entry's `bindingSpecifications` fold:
 

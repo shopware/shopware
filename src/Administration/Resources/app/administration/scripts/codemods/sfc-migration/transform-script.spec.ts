@@ -527,6 +527,31 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('next(2);');
         });
 
+        // The last entry written for a key wins whatever shape it has, so a
+        // getter after a method means there is no method guard at all.
+        it('lets a non-method entry after a method suppress the guard', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                beforeRouteLeave(to, from, next) { next('first'); },
+                get beforeRouteLeave() { return null; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toEqual(['beforeRouteLeave: route guard must be defined as a method to be migrated']);
+            expect(result.script).not.toContain('onBeforeRouteLeave');
+        });
+
+        it('lets a method after a non-method entry win', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                get beforeRouteLeave() { return null; },
+                beforeRouteLeave(to, from, next) { next('second'); },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain("next('second');");
+        });
+
         // A quoted or bracketed key names the same option, so it is migrated
         // rather than dropped — these were silently lost before.
         it.each([
@@ -609,6 +634,87 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain(expected);
             expect(result.publicNames).toContain(expected.split(' ')[1]);
+        });
+
+        // Dropping a function's name unbinds a self-recursive call, and an arrow
+        // has no `arguments` — both would emit a ReferenceError at
+        // fully-migrated, so the wrapper is reported instead of converted.
+        it.each([
+            [
+                'refers to its own name',
+                'factCached: memoize(function fact(n) { return n < 2 ? 1 : n * fact(n - 1); })',
+                'methods: factCached: wrapper function refers to its own name and must be migrated manually',
+            ],
+            [
+                "uses 'arguments'",
+                'f: debounce(function onSave() { return handle(arguments); }, 5)',
+                "methods: f: wrapper function uses 'arguments' and must be migrated manually",
+            ],
+        ])('reports a wrapper function that %s', (_case, methodSource, reason) => {
+            const result = transformScript(`Shopware.Component.register('sw-test', {
+                methods: { ${methodSource} },
+            });`);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain(reason);
+        });
+
+        // The conversion replaces the function header only, on AST ranges — it is
+        // not a regex over the source, which used to rewrite matching text inside
+        // string literals too.
+        it('leaves a function signature inside a string literal alone', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    f: debounce(function () { return warn('function (x) { ... }'); }, 5),
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain("warn('function (x) { ... }')");
+        });
+
+        it.each([
+            [
+                'an anonymous wrapper',
+                'f: debounce(function () { return 1; }, 5)',
+                'const f = debounce(() => { return 1; }, 5);',
+            ],
+            [
+                'an async wrapper',
+                'f: debounce(async function () { return 1; }, 5)',
+                'const f = debounce(async () => { return 1; }, 5);',
+            ],
+            [
+                'a doubly wrapped function',
+                'f: once(debounce(function inner() { return 1; }, 5))',
+                'const f = once(debounce(() => { return 1; }, 5));',
+            ],
+            [
+                'destructured and rest parameters',
+                'f: debounce(function ({ a, b = 2 }, ...rest) { return a + b + rest.length; }, 5)',
+                'const f = debounce(({ a, b = 2 }, ...rest) => { return a + b + rest.length; }, 5);',
+            ],
+        ])('converts %s', (_case, methodSource, expected) => {
+            const result = transformScript(`Shopware.Component.register('sw-test', {
+                methods: { ${methodSource} },
+            });`);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain(expected);
+        });
+
+        // A generator cannot be an arrow at all, so it is emitted as written.
+        it('leaves a generator wrapper un-normalised', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    f: wrap(function* gen() { yield 1; }),
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const f = wrap(function* gen() { yield 1; });');
         });
 
         // The wrapper's inner `function` becomes an arrow, so its name is gone
@@ -3851,6 +3957,55 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             const result = transformScript(js);
 
             expectManualFallback(result, optionName);
+        });
+
+        // `getProperty(name)` does not find a quoted key, and these options are
+        // only ever reported from that one lookup — so a missed one vanished from
+        // the output with no TODO, and `--delete-originals` deleted its source.
+        it.each([
+            [
+                'errorCaptured',
+                "'errorCaptured'(e) { return false; }",
+                'errorCaptured: option is not supported by the SFC migration and requires manual migration',
+            ],
+            [
+                'beforeRouteEnter',
+                "'beforeRouteEnter'(to, from, next) { next(); }",
+                'beforeRouteEnter: option is not supported by the SFC migration and requires manual migration',
+            ],
+            [
+                'metaInfo',
+                "'metaInfo'() { return { title: 'Title' }; }",
+                'metaInfo: option is not supported by the SFC migration and requires manual migration',
+            ],
+            [
+                'components',
+                "'components': {}",
+                'components option requires manual verification',
+            ],
+            [
+                'beforeCreate',
+                "'beforeCreate'() {}",
+                'beforeCreate hook requires manual migration',
+            ],
+        ])('reports a quoted %s option instead of dropping it silently', (_name, optionSource, reason) => {
+            const result = transformScript(`Shopware.Component.register('sw-test', {
+                ${optionSource},
+            });`);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain(reason);
+        });
+
+        // A component that slipped this blocker would migrate without the half
+        // of it that lives in the mixin.
+        it('detects a quoted mixins option as a blocker', () => {
+            const result = transformScript(`Shopware.Component.register('sw-test', {
+                'mixins': [Mixin.getByName('notification')],
+            });`);
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('mixins');
         });
 
         it.each([

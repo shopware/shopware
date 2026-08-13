@@ -59,7 +59,7 @@ export function findRootElementAnchor(body: string): number | null {
     let index = 0;
 
     for (;;) {
-        index = skipIgnorable(body, index);
+        index = skipWhitespace(body, index);
 
         // Text before the first element means the component is multi-root in a
         // way the scan cannot reason about, and a closing tag here means the
@@ -163,7 +163,7 @@ function findElementEnd(body: string, tagName: string, openingTagStart: number, 
  * plus whitespace and comments — follow. Anything else is a second root node.
  */
 function isFollowedOnlyByBlockClosings(body: string, start: number): boolean {
-    let index = skipIgnorable(body, start);
+    let index = skipWhitespace(body, start);
 
     while (index < body.length) {
         const closingTag = BLOCK_CLOSING_TAG_RE.exec(body.slice(index));
@@ -172,7 +172,7 @@ function isFollowedOnlyByBlockClosings(body: string, start: number): boolean {
             return false;
         }
 
-        index = skipIgnorable(body, index + closingTag[0].length);
+        index = skipWhitespace(body, index + closingTag[0].length);
     }
 
     return true;
@@ -183,26 +183,20 @@ function isPlainHtmlTag(tagName: string): boolean {
     return !tagName.includes('-') && tagName === tagName.toLowerCase() && !NON_DOM_TAGS.has(tagName);
 }
 
-function skipIgnorable(body: string, start: number): number {
+/**
+ * Only whitespace is skipped at the root level — a comment is not ignorable
+ * there. Vue keeps comment nodes in a development build, so an element with a
+ * comment beside it is a second root node in exactly the builds a developer
+ * debugs `$el` in, and `$el` is the Fragment anchor rather than the element.
+ */
+function skipWhitespace(body: string, start: number): number {
     let index = start;
 
-    for (;;) {
-        while (index < body.length && /\s/u.test(body[index])) {
-            index += 1;
-        }
-
-        if (!body.startsWith('<!--', index)) {
-            return index;
-        }
-
-        const commentEnd = body.indexOf('-->', index);
-
-        if (commentEnd === -1) {
-            return body.length;
-        }
-
-        index = commentEnd + '-->'.length;
+    while (index < body.length && /\s/u.test(body[index])) {
+        index += 1;
     }
+
+    return index;
 }
 
 /** Index of the `>` closing the tag that starts at `start`, quotes respected. */

@@ -472,11 +472,6 @@ describe('scripts/codemods/sfc-migration/transform-template root element anchor'
             '<div ref="rootEl">',
         ],
         [
-            'an element behind a leading comment',
-            '{# leading #}\n<div class="sw-item">text</div>',
-            '<div ref="rootEl" class="sw-item">',
-        ],
-        [
             'an element whose attributes contain an angle bracket',
             '<div :class="{ small: width < 10 }" class="sw-item">text</div>',
             '<div ref="rootEl" :class="{ small: width < 10 }"',
@@ -552,6 +547,17 @@ describe('scripts/codemods/sfc-migration/transform-template root element anchor'
         [
             'text after the first element',
             '{% block sw_item %}\n<div class="one"></div>\ntrailing text\n{% endblock %}',
+        ],
+        // Vue keeps comment nodes in a development build, so an element with a
+        // comment beside it is a Fragment there — the case a developer debugging
+        // `$el` actually sees.
+        [
+            'a leading comment beside the root element',
+            '{# leading #}\n<div class="sw-item">text</div>',
+        ],
+        [
+            'a trailing comment beside the root element',
+            '<div class="sw-item">text</div>\n{# trailing #}',
         ],
         [
             'a void root element followed by a sibling',

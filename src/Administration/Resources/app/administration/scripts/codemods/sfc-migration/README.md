@@ -103,6 +103,11 @@ identifier the module never binds keeps the `method value must be an inline func
 because nothing in the generated block would declare it; so does a `let` or `var`, which could be
 reassigned between the moment the Options API captured the value and the moment setup reads it.
 
+A method value that wraps a function (`debounce(function onSave() { … }, 300)`) keeps the wrapper and
+has the inner `function` re-emitted as an arrow. Two shapes cannot be: one that calls itself by name
+(the name would be unbound) and one that reads `arguments` (an arrow has none). Both keep a `TODO`
+naming the reason. Generators are emitted exactly as written.
+
 `this.$el` becomes a real template ref whenever the template offers an element to put it on. The
 codemod inserts `ref="rootEl"` on the first element inside the root `<sw-block>`, declares
 `const rootEl = ref(null);` with the other template refs, and rewrites `this.$el` to `rootEl.value` —
@@ -112,9 +117,10 @@ usage site the codemod migrates (`mounted`, `updated`, methods) runs after that.
 
 The element has to provably be the one `$el` pointed at, so the placeholder stays for a component-tag
 root (its `$el` is the child's root element), a `v-if`/`v-for` root (it may not render), an element
-that already carries a `ref`, a `<template>` root, a template with a **second root node** (the
-component renders a Fragment, whose `$el` is an empty anchor text node rather than any element), and
-anything else the scan cannot read. The ref is
+that already carries a `ref`, a `<template>` root, a template with a **second root node** — a sibling
+element, trailing text, or a comment beside the element, all of which make the component a Fragment
+whose `$el` is an empty anchor text node rather than any element — and anything else the scan cannot
+read. A comment counts because Vue keeps comment nodes in every development build. The ref is
 never placed on `<sw-block>` itself: the build transform owns its attributes and rejects an authored
 one, and the block renders a Fragment anyway — which is exactly why
 `getCurrentInstance()?.proxy?.$el` is only a placeholder after migration.

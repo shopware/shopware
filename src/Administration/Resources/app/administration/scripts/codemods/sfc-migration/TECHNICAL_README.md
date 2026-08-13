@@ -272,6 +272,13 @@ inside the SFC.
 | `Shopware.Component.extend()` | Blocker. The parent's options live in another file. |
 | Unsupported `inject` shape | Blocker. `this.<injectName>` stays unresolvable. |
 
+Whether an option is *present* is never asked with `optionsObj.getProperty(name)`:
+that does not find a quoted or bracketed key, and an option only reported from
+one such lookup would vanish from the output with no TODO — after which
+`--delete-originals` deletes the source it vanished from. `readOptionName` in
+`helpers.ts` reads the name whichever way it is written, and every presence check
+goes through it or through `classifyRootProperty`, which does the same.
+
 Every blocker is reported the same way: `transformScript()` returns
 `not-migratable` with an empty script. There is no partial Options API output —
 a `.vue` file without `<script setup>` is rejected by the build, so there is
@@ -524,6 +531,26 @@ and `const`s before the registration) in front of the setup body. So when
 `collectModuleBindingNames` knows the name, the entry is emitted as
 `const getKey = get;` and joins `swDefinePublic` like any other method.
 
+A property-assignment method whose value wraps a function
+(`debounce(function onSave() { … }, 300)`) keeps the wrapper call and has the
+inner `function` re-emitted as an arrow. That conversion is an AST edit, not a
+regex over the source: only the header — everything up to the body's `{` — is
+replaced, which leaves nested wrappers convertible and never touches text inside
+a string literal. It is applied at extraction so the shape checks and the emitter
+read the same text; a named wrapper otherwise looks like a shadowed rewrite
+target until its name is gone.
+
+Two wrapper shapes cannot become arrows and are reported instead of converted,
+because an arrow would compile and then throw:
+
+| Shape | Why |
+| --- | --- |
+| The function refers to its own name (`memoize(function fact(n) { … fact(n - 1) … })`) | Dropping the name unbinds the recursive call. |
+| The function reads `arguments` | An arrow has none, and neither does the module scope it lands in. |
+
+A generator is left exactly as written — it cannot be an arrow at all — and needs
+neither check.
+
 Any other bare identifier keeps the fallback: nothing in the generated block
 would declare it, so re-declaring the alias would emit a reference to something
 that does not exist. `let` and `var` are excluded as well — the Options API
@@ -534,7 +561,11 @@ The Twig import is excluded from the binding set for the
 same reason — it is dropped on the way out, and `--delete-originals` removes the
 file. Both that exclusion and the drop itself key on the `.twig` module
 specifier, not on the local name: `import tpl from './x.html.twig'` is the same
-import under a different convention.
+import under a different convention. The test is `endsWith('.twig')`, so a second
+`.twig` import that is not the template would be dropped as well, and a bundler
+suffix (`./x.twig?raw`) would not be recognised. Neither occurs in the
+Administration; both would need the import to be matched against the component's
+own template path instead.
 
 ## Root Template Ref For `$el`
 
@@ -575,7 +606,7 @@ placeholder, the TODO, and the `⚠` warning — for:
 | `<template>`, `<slot>`, `<component>`, `<transition>`, `<teleport>`, `<suspense>` | Compiler constructs, not DOM elements. |
 | `v-if` / `v-else-if` / `v-else` / `v-for` on the element | It may not be rendered at all, so the ref would be `null`. |
 | An element that already carries `ref`, `:ref`, or `v-bind:ref` | A second `ref` attribute is not valid. |
-| A second root node — a sibling element, trailing text, or a second root block | The component renders a Fragment, whose `$el` is the empty start-anchor text node, not the first element. `querySelector` was already broken there, but `event.target !== this.$el` would flip from always-true to sometimes-false. |
+| A second root node — a sibling element, trailing text, a second root block, or a comment beside the element | The component renders a Fragment, whose `$el` is the empty start-anchor text node, not the first element. `querySelector` was already broken there, but `event.target !== this.$el` would flip from always-true to sometimes-false. A comment counts: `@vue/compiler-dom` keeps comment nodes whenever `comments` is on, which is every development build — verified by compiling `<!-- c --><div/>` both ways. |
 | `<sw-block-parent/>`, text, or anything unparsable first | Nothing the scan can prove is the old `$el`. |
 
 Semantics: like `$el`, the ref is `null` before mount. Every site the codemod
@@ -865,8 +896,11 @@ hooks and before `swDefinePublic({ … })`. The composables register the guard o
 the matching route record when setup runs, so the slot only has to be past every
 `const` a guard body reads. Source order between the two guards is preserved,
 because guards of one component run in registration order. A repeated guard
-option is one guard, not two — an object literal keeps the last method written
-for a key — so it is deduped last-wins before emission.
+option is one guard, not two — an object literal keeps the last entry written for
+a key — so the entries are collected per name first and only the survivor is
+classified. That matters across shapes as well: a `get beforeRouteLeave()` after
+a `beforeRouteLeave()` method means there is no method guard at all, and emitting
+the shadowed method would register a guard the component never had.
 
 ### Two behaviour changes the swap carries
 
@@ -883,7 +917,8 @@ was dead code before migration and becomes live after it — which is usually wh
 the author meant, but it is a behaviour change and worth reviewing.
 
 **Relative order flips during a partial migration.** In `navigate()`
-(`dist/vue-router.mjs:3388`) every option-based guard runs before any
+(`dist/vue-router.mjs:3386`, which calls `extractComponentsGuards` at :3390)
+every option-based guard runs before any
 `record.leaveGuards`. So while some components on a route are migrated and
 others are not, a migrated guard runs after every un-migrated one, regardless of
 component nesting. Within one fully migrated route the order is the registration

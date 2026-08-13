@@ -123,6 +123,11 @@ A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced th
 `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
 
 They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
+### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
+
+The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, followed by the admin analyzers from `elasticsearch.administration.analysis.analyzer`.
+The custom analyzers are sent to OpenSearch as inline `_analyze` requests, with their tokenizer, char filters and filters resolved from the matching `elasticsearch.analysis.tokenizer`, `.char_filter` and `.filter` sections, so the command does not require an existing index that has the analyzer installed. The chains reflect `SHOPWARE_ES_DIMENSION_NORMALIZE`, so the reported tokens match the ones the live index produces. Analyzers that are not of type `custom` cannot be expressed as an inline `_analyze` body and are listed as not testable instead.
+By default only the custom analyzers are printed; pass `--all` (`-a`) to additionally run the built-in default and language analyzers (`standard`, `whitespace`, ..., `english`, `german`, ...) for comparison.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -1800,12 +1805,6 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
-
-### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
-
-The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, followed by the admin analyzers from `elasticsearch.administration.analysis.analyzer`.
-The custom analyzers are sent to OpenSearch as inline `_analyze` requests, with their tokenizer, char filters and filters resolved from the matching `elasticsearch.analysis.tokenizer`, `.char_filter` and `.filter` sections, so the command does not require an existing index that has the analyzer installed. The chains reflect `SHOPWARE_ES_DIMENSION_NORMALIZE`, so the reported tokens match the ones the live index produces. Analyzers that are not of type `custom` cannot be expressed as an inline `_analyze` body and are listed as not testable instead.
-By default only the custom analyzers are printed; pass `--all` (`-a`) to additionally run the built-in default and language analyzers (`standard`, `whitespace`, ..., `english`, `german`, ...) for comparison.
 
 ### Backward compatible invalid locales
 

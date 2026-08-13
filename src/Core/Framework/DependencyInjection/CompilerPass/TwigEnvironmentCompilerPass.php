@@ -17,9 +17,6 @@ class TwigEnvironmentCompilerPass implements CompilerPassInterface
         $twigEnvironment->setPublic(true);
         $twigEnvironment->setClass(TwigEnvironment::class);
 
-        // The `twig` service is always initialized when templates are rendered, so tagging it with
-        // `kernel.reset` ensures the static CachedEscaperRuntime escape cache is cleared between requests
-        // in long running environments (RoadRunner, FrankenPHP, Swoole).
         $twigEnvironment->addTag('kernel.reset', ['method' => 'reset']);
 
         // The twig extension directly compiles the config into the service, there is no other way to get it @see \Symfony\Bundle\TwigBundle\DependencyInjection\TwigExtension::load

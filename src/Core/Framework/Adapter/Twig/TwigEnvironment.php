@@ -47,10 +47,12 @@ class TwigEnvironment extends Environment implements ResetInterface
     }
 
     /**
-     * Resets the {@see CachedEscaperRuntime} escape cache between requests in long running environments
-     * (RoadRunner, FrankenPHP, Swoole). This service (the `twig` service) is always initialized when
-     * templates are rendered, so Symfony's `ServicesResetter` reliably invokes this method via the
-     * `kernel.reset` tag, preventing unbounded growth of the static escape cache.
+     * Resets CachedEscaperRuntime static caches between requests.
+     *
+     * This is essential for long runner environments (RoadRunner, FrankenPHP, Swoole)
+     * where the same PHP process handles multiple requests. Without reset,
+     * the escape filter cache in CachedEscaperRuntime would grow unbounded,
+     * causing memory leaks.
      */
     public function reset(): void
     {

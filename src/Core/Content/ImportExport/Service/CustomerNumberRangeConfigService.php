@@ -6,12 +6,13 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-final class CustomerNumberRangeConfigService
+final class CustomerNumberRangeConfigService implements ResetInterface
 {
     private const GLOBAL_CACHE_KEY = 'global';
 

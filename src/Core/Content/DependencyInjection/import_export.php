@@ -106,7 +106,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerNumberRangeConfigService::class)
         ->args([
             service(Connection::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ImportExportService::class)
         ->args([

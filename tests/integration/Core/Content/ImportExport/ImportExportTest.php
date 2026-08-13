@@ -39,6 +39,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
@@ -1472,6 +1473,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'id' => $customerNumberRange->getId(),
             'pattern' => 'SWDEMO{n}',
         ]], $context);
+        static::getContainer()->get(CustomerNumberRangeConfigService::class)->reset();
 
         $progress = $this->import(
             $context,

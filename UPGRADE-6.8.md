@@ -9,6 +9,7 @@
 App-declared admin modules are now persisted through the generic app feature storage.
 
 The methods `AppEntity::getModules()`, `getMainModule()` and their setters are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes these fields. Extensions must not use these accessors to read an app's modules.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

@@ -150,6 +150,7 @@ class AppManagerTest extends TestCase
         static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
 
         $this->assertDefaultActionButtons();
+        $this->assertDefaultModuleFeature($appEntity->getId());
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
@@ -425,6 +426,7 @@ class AppManagerTest extends TestCase
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
+        $this->assertDefaultModuleFeature($appEntity->getId());
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId(), false);
@@ -584,6 +586,7 @@ class AppManagerTest extends TestCase
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
+        $this->assertDefaultModuleFeature($appEntity->getId());
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
@@ -663,6 +666,7 @@ class AppManagerTest extends TestCase
         $this->assertDefaultActionButtons();
         $app1 = $apps->first();
         static::assertNotNull($app1);
+        $this->assertDefaultModuleFeature($app1->getId());
         $this->assertDefaultPrivileges($app1->getAclRoleId());
         $this->assertDefaultWebhooks($app1->getId());
         $this->assertDefaultTemplate($app1->getId());
@@ -801,6 +805,26 @@ class AppManagerTest extends TestCase
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertFalse($appEntity->isConfigurable());
+    }
+
+    public function testUpdateRemovesModuleFeatureIfItIsNotPresentInTheManifest(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
+        $this->assertDefaultModuleFeature($app->getId());
+
+        $minimal = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+        $this->appManager->update($minimal, new AppUpdateParameters(), $this->loadApp($app->getId()), $this->context);
+
+        $features = $this->connection->fetchAllAssociative(
+            'SELECT `type` FROM `app_feature` WHERE `app_id` = :appId AND `type` = :type',
+            ['appId' => Uuid::fromHexToBytes($app->getId()), 'type' => 'module']
+        );
+
+        static::assertSame([], $features);
     }
 
     public function testDelete(): void
@@ -1136,6 +1160,41 @@ class AppManagerTest extends TestCase
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);
+    }
+
+    private function assertDefaultModuleFeature(string $appId): void
+    {
+        $payload = $this->connection->fetchOne(
+            'SELECT `payload` FROM `app_feature` WHERE `app_id` = :appId AND `type` = :type AND `name` = :name',
+            ['appId' => Uuid::fromHexToBytes($appId), 'type' => 'module', 'name' => 'admin']
+        );
+
+        static::assertIsString($payload);
+
+        static::assertEquals([
+            'modules' => [
+                [
+                    'name' => 'first-module',
+                    'label' => [
+                        'en-GB' => 'My first own module',
+                        'de-DE' => 'Mein erstes eigenes Modul',
+                    ],
+                    'parent' => 'sw-test-structure-module',
+                    'source' => 'https://test.com',
+                    'position' => 10,
+                ], [
+                    'name' => 'structure-module',
+                    'label' => [
+                        'en-GB' => 'My menu entry for modules',
+                        'de-DE' => 'Mein Menüeintrag für Module',
+                    ],
+                    'parent' => 'sw-catalogue',
+                    'source' => null,
+                    'position' => 50,
+                ],
+            ],
+            'mainModule' => ['source' => 'https://main-module'],
+        ], json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     private function assertDefaultPrivileges(string $roleId): void

@@ -181,6 +181,36 @@ class ModuleLoaderTest extends TestCase
         static::assertSame([], $moduleLoader->loadModules(Context::createDefaultContext($source)));
     }
 
+    public function testLoadModulesSkipsAppsWithoutASecret(): void
+    {
+        $app = AppFixture::createAppEntity('SecretlessApp');
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+
+        $querySigner = $this->createMock(QuerySigner::class);
+        $querySigner->expects($this->never())->method('signUriFor');
+
+        $secretResolver = static::createStub(AppSecretResolver::class);
+        $secretResolver->method('resolve')->willReturn(null);
+
+        $moduleLoader = new ModuleLoader(
+            new StaticEntityRepository([new AppCollection([$app])], new AppDefinition()),
+            $shopIdProvider,
+            $querySigner,
+            $this->storageWithFeature($this->feature(
+                $app,
+                modules: [
+                    new Module('some-module', new TranslatedString(['en-GB' => 'some module']), 'sw-catalogue', 'https://module.app.com', 10),
+                ],
+                mainModule: new MainModule('https://main.app.com'),
+            )),
+            $secretResolver,
+        );
+
+        static::assertSame([], $moduleLoader->loadModules(Context::createDefaultContext()));
+    }
+
     /**
      * @param list<Module> $modules
      *

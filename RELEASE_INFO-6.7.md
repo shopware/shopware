@@ -82,6 +82,10 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ## Core
 
+### Plugins can customize version cleanup
+
+Plugins can subscribe to the new `CleanupVersionEvent` to protect version records from scheduled cleanup. The event provides the cleanup cutoff through `getCleanupTime()`, allowing plugins to apply retention rules consistently with the scheduled cleanup task.
+
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).

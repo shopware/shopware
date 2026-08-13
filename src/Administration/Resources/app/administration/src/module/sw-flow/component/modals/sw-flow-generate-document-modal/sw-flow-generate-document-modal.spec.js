@@ -58,8 +58,7 @@ async function createWrapper() {
                         getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
                     },
                     documentV2ApiService: {
-                        getAvailableTypes: () =>
-                            Promise.resolve({ documentTypes: supportedDocumentTypesMock }),
+                        getAvailableTypes: () => Promise.resolve({ documentTypes: supportedDocumentTypesMock }),
                     },
                 },
                 data() {

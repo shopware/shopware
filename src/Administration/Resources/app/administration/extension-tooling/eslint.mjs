@@ -259,13 +259,18 @@ export function shopwareAdminExtension(options = {}) {
             },
         },
         // TypeScript's project service cannot type-check `.vue` SFCs — it does
-        // not run the Vue language plugin — so every type-aware rule resolves
-        // the script to `any` and floods correct components with false
-        // `no-unsafe-*` reports. `vue-tsc` is the real type-checker for `.vue`
-        // (the check runs it separately); ESLint keeps only its syntactic,
-        // template, deprecation, and native-setup rules there. Same reasoning as
-        // the spec-files block. Placed last so it overrides the type-aware rules
-        // the earlier `.vue` blocks turned on.
+        // not run the Vue language plugin — so on a `.vue` it resolves the
+        // script to `any`. That makes every type-aware rule useless there: the
+        // `no-unsafe-*` family floods correct components with false positives,
+        // and `@typescript-eslint/no-deprecated` cannot resolve a symbol to read
+        // its `@deprecated` tag in the first place. They cannot be kept on
+        // selectively either — with the type program off (needed to stop the
+        // flood) any surviving type-aware rule throws "requires type
+        // information". `vue-tsc` is the real type-checker for `.vue` (the check
+        // runs it separately); the AST-based template rules (e.g.
+        // sw-deprecation-rules for deprecated components) stay on via the blocks
+        // above. Same reasoning as the spec-files block; placed last so it
+        // overrides the type-aware rules the earlier `.vue` blocks turned on.
         {
             ...tseslint.configs.disableTypeChecked,
             name: 'shopware/admin-extension/vue-untyped',
@@ -273,11 +278,17 @@ export function shopwareAdminExtension(options = {}) {
         },
         {
             // The parser does not link `{{ }}` template interpolations back to
-            // the `<script setup>` bindings they read, so no-unused-vars reports
-            // a false positive for any binding used only in an interpolation
-            // (bindings used in a directive or attribute are linked and stay
-            // covered). vue-tsc and the editor track template usage correctly,
-            // so a genuinely unused setup binding still surfaces there.
+            // the `<script setup>` bindings they read (directive and attribute
+            // usage is linked; interpolation is not — not even with
+            // vue/script-setup-uses-vars), so no-unused-vars false-positives on
+            // any binding used only in an interpolation — most of them. Nothing
+            // separates that from a genuinely unused binding, so the rule is off
+            // for `.vue`. This does drop unused-binding coverage there: the
+            // editor (Volar) still greys unused setup bindings, but the tooling's
+            // own check does not flag them, and vue-tsc cannot stand in because
+            // the injected host type surface forbids enabling its
+            // `noUnusedLocals`. Restoring it properly needs the same SFC type
+            // support the type-aware rules await.
             name: 'shopware/admin-extension/vue-template-usage',
             files: scope(vueFilePatterns),
             rules: {

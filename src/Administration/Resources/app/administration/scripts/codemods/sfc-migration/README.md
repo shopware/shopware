@@ -129,14 +129,21 @@ out as explicit named entries, each with a comment naming the spread it came fro
   (`camelCase('<entity>.<prop>.error')`), with the service's own body ported literally. The getter
   reads `this.<entity>`, so an entity the component does not declare drops the entry with a reason
   rather than reading nothing.
-- `...mapState(store, ['a', 'b'])` — one getter per key, `return <store>.<key>;`. The store comes
-  from an expression-bodied arrow (`() => Store.get('x')` → `Store.get('x')`), a string literal
-  (`'x'` → `Shopware.Store.get('x')`), or an identifier (`useX` → `useX()`).
+- `...mapState(store, ['a', 'b'])` — one getter per key, `return <store>.<key>;`. Pinia calls the
+  first argument as `useStore(this.$pinia)`, so the two shapes that survive being written out as a
+  plain expression are a **parameterless** expression-bodied arrow (`() => Store.get('x')` →
+  `Store.get('x')`) and an identifier (`useX` → `useX()`).
 
-Everything else keeps the `TODO`: `mapPageErrors` (its argument is a cross-module config object),
-the `mapState` object form (it renames keys), a block-bodied arrow (it can run statements before
-returning the store), non-literal arguments, an unknown helper, and a helper reached through a
-member expression rather than a plain identifier.
+The name alone is not enough: a spread is only expanded when the module provably bound that name from
+`Shopware.Component.getComponentHelper()` (directly or through a global alias of `Shopware.Component`),
+from `pinia`, or from `map-errors.service`. A `mapState` imported from `vuex` reads `this.$store` and
+is left alone, as is any same-named helper of your own.
+
+Everything else keeps the `TODO`: `mapPageErrors` (its argument is a cross-module config object), the
+`mapState` object form (it renames keys), a block-bodied or parameterised arrow, a `mapState` without
+a key list (Pinia throws on it — it has no `[]` default, unlike the two error helpers), non-literal
+arguments, an optional call (`helper?.(…)`), an unknown helper, and a helper reached through a member
+expression rather than a plain identifier.
 
 `defineProps` and `defineEmits` are hoisted above every module-level local, so a definition naming
 one cannot be emitted into the macro. Most of those names are only a shorthand for a global, though,
@@ -153,9 +160,10 @@ const { types } = utils; //             →  types.isObject  →  Shopware.Utils
 The alias declarations themselves stay in the generated block for the rest of the setup body. What
 keeps the blocker: `let`/`var` (reassignable between declaration and read), array destructuring or a
 destructuring default, an initializer that is not global-rooted (an array literal, a local factory),
-and a shorthand entry (`{ Criteria }`) — a path cannot be written in shorthand position. A name a
-local binding inside the definition shadows is not a reference to the alias at all: it is neither
-expanded nor blocking.
+a root the module declares itself (`const Shopware = …` shadows the global), and a shorthand entry
+(`{ Criteria }`) — a path cannot be written in shorthand position. A name a local binding inside the
+definition shadows — including a named function or class expression, which binds its own name — is
+not a reference to the alias at all: it is neither expanded nor blocking.
 
 `provide` is converted when its keys are static: a `provide()` method — also as a `function` value —
 whose body is exactly one `return` of an object literal, or a plain `provide: { … }` object, in both

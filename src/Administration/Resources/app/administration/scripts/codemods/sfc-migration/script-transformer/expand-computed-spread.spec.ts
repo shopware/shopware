@@ -18,7 +18,13 @@ function extractComputed(computedSource: string): ComputedProp[] {
         throw new Error('fixture did not parse into a component registration');
     }
 
-    return extractComputedProps(optionsObject).computedProps;
+    return extractComputedProps(
+        optionsObject,
+        new Set([
+            'mapPropertyErrors',
+            'mapCollectionPropertyErrors',
+        ]),
+    ).computedProps;
 }
 
 /**

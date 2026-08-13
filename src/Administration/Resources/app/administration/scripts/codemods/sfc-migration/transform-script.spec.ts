@@ -685,8 +685,13 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
     // -------------------------------------------------------------------------
     describe('computed spread shapes', () => {
-        function transformComputedSpread(spreadSource: string): ReturnType<typeof transformScript> {
-            return transformScript(`Shopware.Component.register('sw-test', {
+        const HELPER_SOURCE =
+            'const { mapPropertyErrors, mapCollectionPropertyErrors, mapState, mapPageErrors } = Shopware.Component.getComponentHelper();';
+
+        function transformComputedSpread(spreadSource: string, moduleSource = HELPER_SOURCE) {
+            return transformScript(`${moduleSource}
+
+            Shopware.Component.register('sw-test', {
                 data() { return { product: null }; },
                 computed: {
                     ${spreadSource},
@@ -695,11 +700,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         }
 
         it.each([
-            [
-                'a store id string literal',
-                "...mapState('swProductDetail', ['loading'])",
-                "return Shopware.Store.get('swProductDetail').loading;",
-            ],
             [
                 'a store composable identifier',
                 "...mapState(useProductDetailStore, ['loading'])",
@@ -732,6 +732,19 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
                 'a block-bodied mapState arrow, which can run statements first',
                 "...mapState(() => { return Shopware.Store.get('swProductDetail'); }, ['loading'])",
             ],
+            // Pinia calls the argument as `useStore(this.$pinia)`, so the arrow's
+            // own parameter exists nowhere outside it — copying the body out
+            // would emit an unbound identifier that compiles and then throws.
+            [
+                'a parameterised mapState arrow',
+                "...mapState((state) => state.swProductDetail, ['loading'])",
+            ],
+            // Pinia runs `Object.keys(keysOrMapper)` on the second argument and
+            // throws when it is missing; it has no `[]` default.
+            [
+                'a mapState call without a key list',
+                '...mapState(useProductDetailStore)',
+            ],
             [
                 'a non-literal property list',
                 '...mapPropertyErrors(entityName, propertyNames)',
@@ -744,11 +757,77 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
                 'a helper reached through a member expression',
                 "...helpers.mapPropertyErrors('product', ['name'])",
             ],
+            [
+                'an optionally called helper, which may not be a call at all',
+                "...mapPropertyErrors?.('product', ['name'])",
+            ],
         ])('keeps the manual TODO for %s', (_case, spreadSource) => {
             const result = transformComputedSpread(spreadSource);
 
             expect(result.status).toBe('partially-migrated');
             expect(result.blockers.join('\n')).toContain('unsupported computed entry');
+        });
+
+        // The name alone does not make it the helper: a same-named function from
+        // somewhere else has different semantics, and porting it would be a
+        // silent behaviour change.
+        it.each([
+            [
+                'imported from vuex, whose getters read this.$store',
+                "import { mapState } from 'vuex';",
+                "...mapState('swProductDetail', ['product'])",
+            ],
+            [
+                'imported from a project-local module',
+                "import { mapPropertyErrors } from './my-own-helpers';",
+                "...mapPropertyErrors('product', ['name'])",
+            ],
+            [
+                'never bound by the module at all',
+                '',
+                "...mapPropertyErrors('product', ['name'])",
+            ],
+            [
+                'renamed while destructuring, so the local name no longer names the helper',
+                'const { mapPageErrors: mapState } = Shopware.Component.getComponentHelper();',
+                "...mapState(useProductDetailStore, ['loading'])",
+            ],
+        ])('keeps the manual TODO for a helper %s', (_case, moduleSource, spreadSource) => {
+            const result = transformComputedSpread(spreadSource, moduleSource);
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers.join('\n')).toContain('unsupported computed entry');
+        });
+
+        it.each([
+            [
+                'destructured from Shopware.Component.getComponentHelper()',
+                'const { mapPropertyErrors } = Shopware.Component.getComponentHelper();',
+            ],
+            // 38 of the 86 call sites reach the helper through a global alias.
+            [
+                'destructured through a global alias of Shopware.Component',
+                'const { Component } = Shopware;\nconst { mapPropertyErrors } = Component.getComponentHelper();',
+            ],
+            [
+                'imported from the map-errors service',
+                "import { mapPropertyErrors } from 'src/app/service/map-errors.service';",
+            ],
+        ])('expands a helper %s', (_case, moduleSource) => {
+            const result = transformComputedSpread("...mapPropertyErrors('product', ['name'])", moduleSource);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('const productNameError = computed(() => {');
+        });
+
+        it('expands mapState imported from pinia', () => {
+            const result = transformComputedSpread(
+                "...mapState(useProductDetailStore, ['loading'])",
+                "import { mapState } from 'pinia';",
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain('return useProductDetailStore().loading;');
         });
 
         // The helper itself returns an empty object for a missing list, so the
@@ -2259,7 +2338,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     // not declare drops the entry with the reason instead of expanding into a
     // getter that reads nothing.
     it('drops an expanded error entry whose entity is not a migrated member', () => {
-        const js = `Shopware.Component.register('sw-test', {
+        const js = `const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
+        Shopware.Component.register('sw-test', {
             template,
             computed: {
                 ...mapPropertyErrors('product', ['name']),
@@ -3816,6 +3897,57 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             const result = transformScript(js);
 
             expectManualFallback(result, 'props');
+        });
+
+        // A named function expression binds its own name inside itself, so the
+        // body reads the function — not the alias. Expanding it would emit
+        // `function Shopware.Data.Criteria()`, which does not even parse.
+        it.each([
+            [
+                'a named function expression',
+                'default: function Criteria() { return Criteria; }',
+            ],
+            [
+                'a named class expression',
+                'default: () => class Criteria { static of() { return Criteria; } }',
+            ],
+        ])('leaves a global alias name that %s binds untouched', (_case, defaultSource) => {
+            const js = `const { Criteria } = Shopware.Data;
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    criteria: { type: Object, required: false, ${defaultSource} },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).not.toContain('Shopware.Data.Criteria');
+        });
+
+        // Writing the path back out would read the module's own binding, not the
+        // global it shadows.
+        it.each([
+            [
+                'Shopware',
+                'const Shopware = globalThis.shopwareApp;\nconst { Criteria } = Shopware.Data;',
+            ],
+            [
+                'window',
+                'const window = globalThis.fakeWindow;\nconst { Criteria } = window.Data;',
+            ],
+        ])('keeps the backoff when the module declares the global root %s itself', (_case, moduleSource) => {
+            const js = `${moduleSource}
+
+            Shopware.Component.register('sw-test', {
+                props: {
+                    criteria: { type: Criteria, required: false, default: null },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).not.toBe('fully-migrated');
+            expect(result.blockers.join('\n')).toContain('props: definition references a module-local declaration');
         });
 
         // A local of the same name is not a reference to the module-level alias,

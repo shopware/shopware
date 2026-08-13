@@ -595,20 +595,58 @@ The generated getter reads `this.<entity>`, deliberately: the normal rewrite
 resolves it, and drops the entry with a reason when the entity is not a migrated
 member. That is the honest outcome, not a getter that silently reads nothing.
 
-`mapState` is Pinia's. Its store argument is resolved from an expression-bodied
-arrow (`() => Store.get('x')` → `Store.get('x')`), a string literal
-(`'x'` → `Shopware.Store.get('x')`), or an identifier (`useX` → `useX()`), and
-re-evaluated per getter exactly as Pinia does.
+`mapState` is Pinia's, and Pinia always calls the first argument as
+`useStore(this.$pinia)` (`node_modules/pinia/dist/pinia.cjs`). Only two shapes
+therefore survive being written out as a plain expression: a **parameterless**
+expression-bodied arrow (`() => Store.get('x')` → `Store.get('x')`) and an
+identifier (`useX` → `useX()`). The expression is re-evaluated per getter,
+exactly as Pinia does. A string first argument is *not* supported — Pinia would
+call it and throw, so there is no correct expansion to emit.
+
+### Provenance
+
+The callee name alone does not identify the helper. `collectTrustedHelperNames`
+in `ast.ts` collects the names this module provably bound from one of three
+sources, and a spread whose callee is not in that set keeps its TODO:
+
+| Source | Example |
+| --- | --- |
+| `Shopware.Component.getComponentHelper()` | `const { mapState } = Shopware.Component.getComponentHelper();` |
+| the same through a global alias | `const { Component } = Shopware;` then `Component.getComponentHelper()` |
+| a named import from `pinia` | `import { mapState } from 'pinia';` |
+| a named import from `map-errors.service` | `import { mapPropertyErrors } from 'src/app/service/map-errors.service';` |
+
+`import { mapState } from 'vuex'` is deliberately excluded — its getters read
+`this.$store`, so porting it with Pinia semantics would be a silent behaviour
+change. A renamed binding is excluded too: after
+`const { mapPageErrors: mapState } = …` the local name no longer says which
+helper it is. In-repo everything goes through the component helper, but the
+codemod also runs over plugin code, where a same-named local helper is plausible.
 
 Not expanded, and therefore unchanged manual TODOs: `mapPageErrors` (a
 cross-module config object), the `mapState` object form (it renames keys), a
-block-bodied arrow (it can run statements before returning the store),
-non-literal arguments, an unknown helper, and a callee that is not a plain
-identifier — matching on the trailing name of an arbitrary expression would
-claim unrelated functions.
+block-bodied or parameterised arrow, a `mapState` without a key list (Pinia runs
+`Object.keys` on it and throws — only the two error helpers default to `[]`),
+non-literal arguments, an optional call (`helper?.(…)` may not be a call at all),
+an untrusted or unknown helper, and a callee that is not a plain identifier.
 
 Every generated entry carries a comment naming the spread it came from, because
 it has no counterpart in the source file.
+
+### Accepted noise: dead alias declarations
+
+Expanding a spread or a props alias can leave its module-level declaration
+without readers — `const { Criteria } = Shopware.Data;` and
+`const { mapPropertyErrors } = Shopware.Component.getComponentHelper();` survive
+into the generated block unused. They are **not** pruned, deliberately: proving a
+binding unreferenced across the whole generated block is cheap, but removing one
+element of a destructuring pattern whose siblings are still used is surgery on
+code the codemod otherwise copies verbatim, and the declaration may have side
+effects. Unused module-level bindings already occur without any expansion (the
+registration call that used `const { Component } = Shopware;` is itself dropped),
+so this is an existing property of the copied module code rather than something
+the expansions introduce. They are private setup state, cost nothing at runtime,
+and are the first thing a reviewer deletes.
 
 ## Props And Emits: Global Alias Expansion
 
@@ -646,7 +684,8 @@ What is deliberately not mapped:
 | An initializer that is not global-rooted | There is no path to write; the backoff is correct. |
 | `a?.b` in the initializer | Cannot be re-emitted as `a.b`. |
 | A shorthand entry (`{ Criteria }`) | `{ Shopware.Data.Criteria }` is not valid syntax, so the entry keeps the backoff. |
-| A name a binding inside the definition shadows | Not a reference to the alias — neither expanded nor blocking. |
+| A name a binding inside the definition shadows | Not a reference to the alias — neither expanded nor blocking. Includes a named function or class expression, which binds its own name inside itself. |
+| A root the module declares itself (`const Shopware = …`) | Writing the path back out would read that binding, not the global, so the root is dropped from the alias map entirely. |
 
 The alias declarations stay in the copied module-level code; only the hoisted
 macros are made independent of them.

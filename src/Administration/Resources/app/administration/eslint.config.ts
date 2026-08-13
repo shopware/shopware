@@ -218,7 +218,6 @@ export default [
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             'build/vue-setup-transform/**/*.d.ts',
-            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.

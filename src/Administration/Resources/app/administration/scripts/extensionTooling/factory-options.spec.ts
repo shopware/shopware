@@ -16,6 +16,7 @@ import { pathToFileURL } from 'url';
 interface BlockSummary {
     name?: string;
     rules?: Record<string, string>;
+    globals?: string[];
 }
 
 const factoryUrl = pathToFileURL(path.resolve(__dirname, '../../extension-tooling/eslint.mjs')).href;
@@ -42,6 +43,7 @@ const summarize = (config) =>
                   Object.entries(block.rules).map(([rule, entry]) => [rule, Array.isArray(entry) ? entry[0] : entry]),
               )
             : undefined,
+        globals: block.languageOptions?.globals ? Object.keys(block.languageOptions.globals) : undefined,
     }));
 const result = Object.fromEntries(
     Object.entries(variants).map(([key, options]) => [
@@ -95,6 +97,23 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-deprecated-components',
             ),
         ).toBe('error');
+    });
+
+    it('bakes native-setup support into every extension config by default', () => {
+        const nativeSetup = variants.defaults.find((block) => block.name === 'shopware/admin-extension/native-setup');
+
+        expect(nativeSetup).toBeDefined();
+        expect(nativeSetup?.rules?.['sw-core-rules/valid-shopware-setup']).toBe('error');
+        expect(nativeSetup?.rules?.['sw-core-rules/native-setup-filename']).toBe('error');
+        expect(nativeSetup?.globals).toEqual(
+            expect.arrayContaining([
+                'swDefinePublic',
+                'swDefineOverride',
+                'useSwPreviousState',
+                'useSwProps',
+                'useSwContext',
+            ]),
+        );
     });
 
     it("omits the spec-files block entirely for specFiles: 'typed'", () => {

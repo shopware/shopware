@@ -12,6 +12,7 @@ import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swPluginRules from 'eslint-plugin-plugin-rules';
+import swCoreRules from 'eslint-plugin-sw-core-rules';
 import { legacyTwigConfig, defaultTwigFiles } from './legacy-twig.mjs';
 
 const javascriptFilePatterns = [
@@ -187,6 +188,31 @@ export function shopwareAdminExtension(options = {}) {
                     4,
                     { baseIndent: 1 },
                 ],
+            },
+        },
+        {
+            name: 'shopware/admin-extension/native-setup',
+            files: scope(vueFilePatterns),
+            languageOptions: {
+                // Compile-time macros the Shopware setup transform removes: they
+                // are never real runtime values, so they are declared globals to
+                // keep no-undef from flagging them.
+                globals: {
+                    swDefinePublic: 'readonly',
+                    swDefineOverride: 'readonly',
+                    useSwPreviousState: 'readonly',
+                    useSwProps: 'readonly',
+                    useSwContext: 'readonly',
+                },
+            },
+            plugins: {
+                'sw-core-rules': swCoreRules,
+            },
+            rules: {
+                // Native-setup correctness guards. vue/no-dupe-keys — the third
+                // native-setup guard — is already error via vue/essential.
+                'sw-core-rules/valid-shopware-setup': 'error',
+                'sw-core-rules/native-setup-filename': 'error',
             },
         },
         {

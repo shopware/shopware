@@ -12,10 +12,8 @@
     defaultArPlacement = config('core.media.defaultARPlacement'),
 %}
 
-{% set spatialBaseViewerOptions = {
+{% set componentOptions = {
     modelUrl: media.url,
-    lightIntensity: config('core.media.defaultLightIntensity'),
-    sliderPosition: 0,
 } %}
 
 {% set arViewerBaseOptions = {
@@ -64,6 +62,7 @@
 {% if not previewMode %}
     {% set defaultAttributes = defaultAttributes|merge({
         'data-component': 'Sw:Media:Spatial',
+        'data-component-options': componentOptions|json_encode,
     }) %}
 {% endif %}
 
@@ -75,11 +74,7 @@
         />
         <span class="sw-media-spatial__badge badge bg-secondary">3D</span>
     {% else %}
-        <canvas 
-            data-spatial-base-viewer="true" 
-            data-spatial-base-viewer-options='{{ spatialBaseViewerOptions|json_encode }}'
-            class="sw-media-spatial__canvas">
-        </canvas>
+        <canvas class="sw-media-spatial__canvas"></canvas>
 
         {% if media.config.spatial.arReady ?? enableAugmentedReality %}           
            {% set arViewerOptions = arViewerBaseOptions|merge({

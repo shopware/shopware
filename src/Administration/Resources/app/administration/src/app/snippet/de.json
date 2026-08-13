@@ -1805,20 +1805,20 @@
   "sw-new-ui-2026-modal": {
     "title": "Ein neuer Look für Deine Administration",
     "nextButton": "Weiter",
-    "finishButton": "Verstanden",
+    "finishButton": "Fertig",
     "pages": {
       "adminNavigation": {
         "headline": "Eine klarere, übersichtlichere Navigation",
         "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
       },
       "darkMode": {
-        "headline": "Dunkle Darstellung",
+        "headline": "Dunkles Erscheinungsbild",
         "badge": "Experimentell",
-        "description": "Die Administration bietet jetzt eine dunkle Darstellung der Benutzeroberfläche – für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
+        "description": "Die Administration bietet jetzt ein dunkles Erscheinungsbild der Benutzeroberfläche, für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
         "profileSettingsLink": "Deinen Profileinstellungen",
-        "themeSelectLabel": "Darstellung",
+        "themeSelectLabel": "Erscheinungsbild",
         "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
-        "themeSaveError": "Die Darstellung konnte nicht gespeichert werden."
+        "themeSaveError": "Das Erscheinungsbild konnte nicht gespeichert werden."
       }
     }
   }

@@ -10,10 +10,12 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
+#[JsonStreamable]
 final class SimpleProduct extends AbstractRequest
 {
     public function __construct(

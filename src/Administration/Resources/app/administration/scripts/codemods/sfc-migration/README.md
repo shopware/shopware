@@ -94,17 +94,24 @@ because a partially migrated `provide` would change what descendants receive:
 - a value whose `this` usage cannot be rewritten
 
 `expose` becomes a `defineExpose({ … })` call at the end of the setup block. A `<script setup>`
-component is closed by default, so the explicit list is what keeps the public surface the Options API
-`expose` declared for a parent's template ref. Only the array-of-string-literals form is converted,
-and every listed name must be a migrated `data`, `computed`, `methods`, or `inject` member —
-otherwise the whole option keeps the manual `TODO` naming the entry, because exposing a subset would
-silently shrink that surface. `expose: []` is dropped without a `TODO`: it closes the instance
-completely in the Options API, which is what script setup already does.
+component is closed by default, so the explicit list is what reopens the surface a parent reaches
+through its template ref. Only the array-of-string-literals form is converted, and every listed name
+must be a migrated `data`, `computed`, `methods`, or `inject` member — otherwise the whole option
+keeps the manual `TODO` naming the entry, because exposing a subset would silently shrink that
+surface. A name listed twice is emitted once. `expose: []` is dropped without a `TODO`: it closes the
+instance completely in the Options API, which is what script setup already does.
+
+One caveat is a property of the base lowering, not of this codemod: it renames every author binding
+to `__swSetupAuthor_<name>` and leaves the `defineExpose` argument pointing at that alias, while the
+template reads the override-resolved binding. So a parent's template ref always reaches the **base**
+implementation of an exposed member — a plugin override of it is not visible through that ref.
 
 A dotted `watch` key is a property path, not a member name: Vue walks the segments and stops as soon
-as an intermediate value is missing. The generated getter reproduces that with optional chaining on
+as an intermediate value is falsy. The generated getter reproduces that with optional chaining on
 every step below the root — `'item.price.net'` becomes `watch(() => props.item?.price?.net, …)` — and
-the root segment resolves like any other watch target (prop, data, computed, or inject). Paths with
+the root segment resolves like any other watch target (prop, data, computed, or inject). Optional
+chaining stops on `null`/`undefined` only, so the two differ for a falsy non-nullish intermediate
+(`0`, `''`, `false`): Vue yields that value, the generated getter reads a property off it. Paths with
 a segment that is not an identifier (brackets, spaces, reserved words) and paths whose root is not a
 declared member keep the manual `TODO`.
 

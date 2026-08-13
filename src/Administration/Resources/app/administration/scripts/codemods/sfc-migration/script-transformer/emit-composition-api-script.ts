@@ -321,8 +321,15 @@ function emitSwDefinePublic(state: CompositionScriptState): string[] {
  * block is the only slot that is always past every binding the object reads.
  *
  * A `<script setup>` component is closed by default, so without this list a
- * parent's template ref would find nothing. The Options API `expose` declared
- * exactly this set, and repeating it keeps that surface unchanged.
+ * parent's template ref would find nothing. The names are the ones the Options
+ * API `expose` listed, but the surface is not identical: the base lowering
+ * renames every author binding to `__swSetupAuthor_<name>` and leaves the macro
+ * argument pointing at that alias, while the template reads the
+ * override-resolved binding re-declared in the generated footer. So the object a
+ * parent reaches through its template ref carries the base implementation, and a
+ * plugin override of an exposed member is not visible there — a platform
+ * property of the lowering, not of this codemod (see
+ * `build/vue-setup-transform/index.spec/base-macro-constraints.spec.ts`).
  */
 function emitDefineExpose(state: CompositionScriptState): string[] {
     const { exposeNames } = state;
@@ -333,9 +340,11 @@ function emitDefineExpose(state: CompositionScriptState): string[] {
         return [];
     }
 
+    // A repeated name in the Options API list is a no-op there, but the same key
+    // twice in an object literal is a lint error, so the list is deduped.
     return [
         'defineExpose({',
-        ...exposeNames.map((n) => `    ${n},`),
+        ...[...new Set(exposeNames)].map((n) => `    ${n},`),
         '});',
     ];
 }

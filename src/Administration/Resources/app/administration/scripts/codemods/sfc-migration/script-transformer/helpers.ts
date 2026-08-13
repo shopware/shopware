@@ -86,8 +86,7 @@ export interface WatchPath {
  * identifiers.
  *
  * Returns null for a path with a segment that cannot be written as a property
- * access — everything Vue's own `bailRE` (`/[^\w.$]/`) rejects, plus reserved
- * words — so those keep the manual fallback.
+ * access — brackets, spaces, reserved words — so those keep the manual fallback.
  */
 export function parseWatchPath(name: string): WatchPath | null {
     if (!name.includes('.')) {

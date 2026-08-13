@@ -509,6 +509,7 @@ override API.
 | Input | Result |
 | --- | --- |
 | `expose: ['focus', 'isOpen']` | `defineExpose({ focus, isOpen });` |
+| `expose: ['focus', 'focus']` | `defineExpose({ focus });` — a duplicate key would be a lint error. |
 | `expose: []` | Nothing — no call, no TODO. |
 | An entry that is not a migrated member | TODO comment for the whole option, naming the entry. |
 | A computed list, or an entry that is not a string literal | TODO comment for the whole option. |
@@ -528,11 +529,16 @@ always past the bindings the object reads. The two lists are independent: a
 member is listed in `swDefinePublic` because it was migrated, and in
 `defineExpose` because the component asked for it.
 
-One nuance of the base lowering: the transform renames every author binding to
-`__swSetupAuthor_<name>` and re-declares the original names from the override
-wrapper in a generated footer, so `defineExpose` hands out the author's own
-binding, not the override-wrapped one. For the `ref`/`computed` objects the
-codemod emits, that is the same object either way.
+One nuance of the base lowering limits what `defineExpose` can promise: the
+transform renames every author binding to `__swSetupAuthor_<name>` and
+re-declares the original names from the override wrapper in a generated footer.
+The macro argument keeps pointing at the author alias — see
+`build/vue-setup-transform/index.spec/base-macro-constraints.spec.ts` — while the
+template reads the override-resolved binding. So the object a parent reaches
+through its template ref carries the **base** implementation of every exposed
+member, and a plugin that overrides one of them is not visible there. That is a
+property of the lowering, not something the codemod can fix; the Options API
+surface is therefore reproduced by name, not by override behavior.
 
 ## Watch And Lifecycle Conversion
 
@@ -547,15 +553,14 @@ Watchers are generated only when the source is clear:
 | Path (`'item.price.net'`) | `() => props.item?.price?.net` — the root resolves as above, every step below it is optional. |
 
 A watch key containing a dot is a property path in the Options API, never a
-member of that literal name: Vue applies it with `createPathGetter`, which splits
-the key on `.` and walks the segments, stopping as soon as an intermediate value
-is missing. The optional chaining below the root reproduces that stop, so the
-generated getter yields `undefined` exactly where the Options API watcher did.
-Only the nullish case is reproduced literally — Vue's walk also stops on a falsy
-intermediate value such as `0` and then yields that value, where the generated
-getter reads through it. Reaching a property off a number or an empty string is
-not a shape real components watch, and matching it would cost a repeated
-`a && a.b && a.b.c` chain in every generated getter.
+member of that literal name: Vue applies it with `createPathGetter`, whose loop
+condition is `i < segments.length && cur`, so the walk stops on any **falsy**
+intermediate value and yields it. The optional chaining below the root stops on a
+nullish one, which covers the case that actually occurs, but the two diverge for
+a falsy non-nullish intermediate (`0`, `''`, `false`): Vue yields that value, the
+generated getter reads a property off it. Reaching a property off a number or an
+empty string is not a shape real components watch, and matching it exactly would
+cost a repeated `a && a.b && a.b.c` chain in every generated getter.
 
 A `$route` path is the one root that does not reuse the snapshot getter. The
 snapshot exists because the route object keeps its identity across navigations,
@@ -565,10 +570,10 @@ equivalent and readable.
 
 Unsupported watcher shapes become TODO comments and make the result
 `partially-migrated`. Examples are paths whose root is not a declared member
-(`'settings.count'` without a `settings` member), paths with a segment that is
-not an identifier (`'items[0].label'` — the same shapes Vue's own `bailRE`
-rejects, plus reserved words), undeclared targets, missing string-handler
-methods, and non-literal `deep` or `immediate` options.
+(`'settings.count'` without a `settings` member), paths with a segment that
+cannot be written as a property access (`'items[0].label'`, spaces, reserved
+words), undeclared targets, missing string-handler methods, and non-literal
+`deep` or `immediate` options.
 
 Lifecycle hooks are mapped like this:
 

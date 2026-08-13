@@ -24,8 +24,10 @@ export function buildWatchSource(
     const { root, propertyPath } = parseWatchPath(name) ?? { root: name, propertyPath: [] };
     const rootSource = buildWatchRootSource(root, propertyPath.length > 0, propNames, injectNames, names);
 
-    // Vue's path getter stops walking as soon as an intermediate value is
-    // missing, so every step below the root is optional.
+    // Vue's path getter stops the walk on any falsy intermediate value, `?.`
+    // only on a nullish one. The two agree everywhere except on a falsy
+    // non-nullish intermediate (`0`, `''`, `false`), which is not a shape real
+    // components watch a property off.
     return propertyPath.reduce((source, segment) => `${source}?.${segment}`, rootSource);
 }
 

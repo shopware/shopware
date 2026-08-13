@@ -2736,6 +2736,27 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('defineExpose');
         });
 
+        // A name repeated in the Options API list is a no-op there, but the same
+        // key twice in the generated object literal is a lint error.
+        it('emits a repeated expose entry once', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                expose: ['focus', 'focus'],
+                methods: {
+                    focus() { return true; },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain(
+                [
+                    'defineExpose({',
+                    '    focus,',
+                    '});',
+                ].join('\n'),
+            );
+        });
+
         it.each([
             [
                 'a name that was never declared',

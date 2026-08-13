@@ -1,8 +1,8 @@
 # Administration Integration
 
-Admin API introspection over the content system's registered building blocks: which element types may be placed in a layout, which data loaders a `dataRequirements` entry may use, which entity types a layout can be assigned to, and which universal style options and binding specifications exist. These are the `GET /api/_info/content-system-*.json` endpoints the Administration (and admin API clients such as AI-assisted layout generators) read before assembling a layout.
+Admin API introspection over the content system's registered building blocks: which element types may be placed in a layout, which data loaders a `dataRequirements` entry may use, which entity types a layout can be assigned to, and which universal style options exist. These are the `GET /api/_info/content-system-*.json` endpoints the Administration (and admin API clients such as AI-assisted layout generators) read before assembling a layout.
 
-**Scope:** the Admin API introspection endpoints only. The preview, resolve-and-diagnose, mutation, and persisted mutation endpoints — their request/response contract and error model — are indexed in [Api/README.md](Api/README.md). Store API rendering routes (`/store-api/content*`) are covered in [USAGE.md](USAGE.md) and [SalesChannel/README.md](SalesChannel/README.md). Registering new building blocks (element types, data loaders, specification sources) is covered in [EXTENSION.md](EXTENSION.md).
+**Scope:** the Admin API introspection endpoints only. The preview, resolve-and-diagnose, mutation, and persisted mutation endpoints — their request/response contract and error model — are indexed in [Api/README.md](Api/README.md). Store API rendering routes (`/store-api/content*`) are covered in [USAGE.md](USAGE.md) and [SalesChannel/README.md](SalesChannel/README.md). Registering new building blocks (element types, data loaders, specification sources) is covered in [EXTENSION.md](EXTENSION.md). The `bindingSpecifications` fold each type entry carries is documented in [Binding/README.md](Binding/README.md).
 
 ## Introspection Endpoints
 
@@ -49,7 +49,7 @@ Response:
 }
 ```
 
-`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data. Each entry additionally carries the folded `styleOptions` and `bindingSpecifications` catalogs, omitted from the example above for brevity — see [Style options](#style-options) and [Binding specifications](#binding-specifications).
+`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data. Each entry additionally carries the folded `styleOptions` and `bindingSpecifications` catalogs, omitted from the example above for brevity — see [Style options](#style-options) and [Binding specifications](Binding/docs/introspection.md).
 
 Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 
@@ -135,32 +135,3 @@ Response:
 `range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` is advisory only — an introspection/Admin pre-fill hint, never seeded into stored element JSON or applied at serve time. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
 
 Full field-level schema: [content-system-style-options.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-style-options.json).
-
-### Binding specifications
-
-The registered binding specifications — declared wirings of one element type's reference properties to data loaders, plus defaults for its primitive properties — folded into the `bindingSpecifications` key on each entry of [`content-system-element-types.json`](#element-types), keyed by their source-qualified id (`source:id`) and filtered to that entry's type. Backed by the binding specification registry (`Binding/Registry`), serialized via `BindingSpecification::toSchema()`. These are the ids a client passes back as `bindingSpecificationId` to the bind-element and insert-element actions; a client derives the specifications applicable to an element from `bindingSpecifications[element.component]`.
-
-A type entry's `bindingSpecifications` fold:
-
-```json
-{
-  "bindingSpecifications": {
-    "core:Sw:Media:Image": {
-      "id": "Sw:Media:Image",
-      "type": "Sw:Media:Image",
-      "label": "Image",
-      "default": true,
-      "resolves": {
-        "media": { "loader": "entity", "config": { "entity": "media", "property": "mediaId" } }
-      },
-      "inputs": []
-    }
-  }
-}
-```
-
-`source` follows the same convention as element types and style options (`core`, `bundle:<name>`, `plugin:<name>`, `app:<name>`). `resolves` is keyed by the reference property it wires; `inputs` is keyed by the primitive property it seeds a default into (an entry without a `default` key means the property is left to the caller). Both encode as `[]` when the specification declares none. Every `inputs` entry always carries a `required` flag — derived by the server from the specification's wiring, never authorable — marking a property that is read through a required config key of a wiring whose reference property is itself required.
-
-`default: true` marks a type's synthesized default — the specification a `media`-style `resolvedBy` reference property produces automatically, with an id equal to the type name itself (`id === type`). It is derived, never authored: no `bindings:` entry can set it, and an authored entry's id can never equal the type name (reserved for the default). At most one specification per type is ever `default`. `InsertElement` and `ReplaceElement` fill-apply a type's default at scaffold/replace time with no client action — see [Api/docs/mutation.md](Api/docs/mutation.md) ("Automatic default application").
-
-Full field-level schema: [content-system-element-types.json](../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).

@@ -24,4 +24,4 @@ Example: A product page with title, price, and images all showing the same produ
 
 ## Subdirectories
 
-- **Distribution/** - Distribution strategy value objects (Broadcast, Indexed, Keyed, Sliced, Iterator)
+- **[Distribution/](Distribution/README.md)** - Distribution strategy value objects (Broadcast, Indexed, Keyed, Sliced, Iterator)

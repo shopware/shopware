@@ -99,5 +99,6 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 - [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
 - [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored
 - [docs/data-flow.md](docs/data-flow.md) - A diagram of the rendering pipeline's data flow
+- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
 
 `Helper/` and `Schema/` carry no documentation surface of their own.

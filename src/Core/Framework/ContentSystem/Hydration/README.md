@@ -15,5 +15,5 @@ Data loading MUST complete before context resolution because providers may expos
 
 ## Subdirectories
 
-- **DataLoader/** - Data fetching (`AbstractContentDataLoader` implementations)
-- **DataContext/** - Context distribution (`DataContextResolver`)
+- **[DataLoader/](DataLoader/README.md)** - Data fetching (`AbstractContentDataLoader` implementations)
+- **[DataContext/](DataContext/README.md)** - Context distribution (`DataContextResolver`)

@@ -1,4 +1,6 @@
-@README.md
+> Conceptual overview and design rationale live in [README.md](README.md), same
+> directory. The references and constraints below cover most code changes; read
+> the README when you need the mental model.
 
 ## Source Code References
 
@@ -24,5 +26,5 @@
 - `layout` is decoded via the shared `Api/DraftLayoutDecoder` (which delegates to `ContentElementFieldSerializer::decodeElement()` per element) — do NOT re-model `ContentElement` in the DTO
 - Preview: no persistence, no caching — empty `RenderingCacheContext`, `RenderingMode::FULL`. Diagnose: no persistence, no rendering — it resolves and reports against the draft tree only
 - A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in `content-system-element-types.json` (`bindingSpecifications[element.component]`) — a per-element-type catalog lookup, not a resolution against an element's actual wiring or ancestry
-- OpenAPI: every content-system route carries an `AdminApi/paths/` entry: the introspection GET routes (`content-system-{element,data-loader,entity}-types.json`, `content-system-style-options.json`) plus the preview, diagnose, draft-mutation, and persisted-mutation POST `_action` routes (`content-system-preview.json`, `content-system-diagnose.json`, `content-system-layout-mutation.json`, `content-system-layout-persisted-mutation.json`). The path files carry the request/response schemas; the full human contract (error model, examples) lives in `../ADMINISTRATION.md`
-- Full request/response contract: `../ADMINISTRATION.md`
+- OpenAPI: every content-system route carries an `AdminApi/paths/` entry: the introspection GET routes (`content-system-{element,data-loader,entity}-types.json`, `content-system-style-options.json`) plus the preview, diagnose, draft-mutation, and persisted-mutation POST `_action` routes (`content-system-preview.json`, `content-system-diagnose.json`, `content-system-layout-mutation.json`, `content-system-layout-persisted-mutation.json`). The path files carry the request/response schemas; the full human contract (error model, examples) is indexed in [README.md](README.md#endpoint-reference)
+- Full request/response contract: [README.md](README.md#endpoint-reference)

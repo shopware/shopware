@@ -10,15 +10,10 @@ Context resolution and distribution. Providers expose data as context, consumers
 
 ## Distribution
 
-Context distributes ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`).
+`ContextResolutionVisitor` distributes context ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`).
 
-Five strategies (in `Layout/Element/Context/Distribution/`):
-- **Broadcast** — Same data to all consumers
-- **Indexed** — Position-based (consumer N gets data[N])
-- **Keyed** — Consumer's `data_key` matches keys in provider data
-- **Sliced** — Collection chunked across consumers
-- **Iterator** — Round-robin distribution
+The five strategies it dispatches on are declared in `Layout/Element/Context/Distribution/`: Broadcast, Indexed, Keyed, Sliced, Iterator. What each one means, and the context-flow rules bounding how far a distributed context reaches, are owned by [Layout/Element/Context/docs/distribution-strategies.md](../../Layout/Element/Context/docs/distribution-strategies.md).
 
 ## Path Resolution
 
-Consumers request nested properties via dot notation (e.g., `product.cover`). Requires Struct objects at every intermediate step. `required: true` throws `ContentSystemException::contextPathNotResolvable()`.
+`ContextPathResolver` resolves a consumer's dot-notation path (e.g. `product.cover`) against the distributed context, requiring Struct objects at every intermediate step; a `required: true` path that fails throws `ContentSystemException::contextPathNotResolvable()`. The path syntax and the `required` semantics are owned by [Layout/Element/Context/docs/path-resolution.md](../../Layout/Element/Context/docs/path-resolution.md).

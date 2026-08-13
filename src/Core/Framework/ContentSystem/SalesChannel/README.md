@@ -9,7 +9,7 @@ Store API entry point. A single `ContentRoute` class serves all formats and cont
 
 ## Endpoints
 
-All endpoints use HTTP GET with cache enabled. Full and decomposed accept `?elementId` for partial rendering.
+All endpoints use HTTP GET with cache enabled. `?elementId` partial rendering is gated per section, not per format: every main-section format accepts it, and header and footer accept it in no format, because their specification sources never resolve a target element. See [Partial Rendering](../Output/README.md#partial-rendering).
 
 **Main section:** `/store-api/content/{path}`, `/store-api/content-decomposed/{path}`, `/store-api/content-skeleton/{path}`, `/store-api/content-data/{path}`
 

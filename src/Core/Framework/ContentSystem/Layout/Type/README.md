@@ -2,56 +2,16 @@
 
 Element type system. Declarative type definitions for content elements — what types exist, what properties they have, what slots they provide. Types are defined via YAML files and discovered from core, bundles, plugins, and apps.
 
-## Type Spec as Output Schema
+## Guides
 
-The type specification's `properties` describe what a **hydrated** element looks like in the API response — not what is stored in the database. This is the central design relationship between the type system and the element system.
-
-A type property with a FQCN type (e.g., `SalesChannelProductEntity`) is not stored in the database as a property value. It appears in the element's `properties` map only after hydration, when a data loader or context provider fills it.
-
-A type property with a primitive type (e.g., `string`, `boolean`) is stored in the database as a static property value set at design time.
-
-Both end up in the same `properties` map after hydration. The type spec does not distinguish between them because the API consumer (storefront, admin, headless client) sees a single unified property bag.
-
-### Key-Based Linkage
-
-The property key is the connecting identifier across all systems:
-
-- Type spec: `properties.product` — "this element has a property called `product`"
-- Element storage: `dataRequirements.product` — "load `product` via this data loader"
-- Element storage: `acceptsContext.product` — "receive `product` from a parent"
-- Hydrator: `$element->setProperty('product', $data)` — "store loaded data under key `product`"
-- API output: `properties.product` — serialized SalesChannelProductEntity
-
-The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`). These are different concerns with different structures, connected by the shared property key.
-
-**Alias and path variations:** The direct key match is the common case. Two exceptions:
-- Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `acceptsContext.product` with `propertyAlias: "item"` stores data under `properties.item`).
-- Path-based consumers (e.g., `acceptsContext: product.cover`) receive a resolved sub-property from the parent's `product` context, stored under the consumer key or its property alias.
-
-### Type-to-Loader Bridge
-
-`ContentSystemDataLoaderMap` connects type spec FQCNs to data loader capabilities:
-
-- Forward: given a loader source (e.g., `"entity"`), what types can it produce?
-- Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
-
-`ContentSystemDataLoaderMapResolver` assembles and memoizes this bridge lazily on its first runtime lookup; `ContentSystemDataLoaderCompilerPass` builds no map — at compile time it only validates each tagged loader: the `@extends` annotation (`extendsDescriptor()`), the source name, and the declared `configSpecification()` (failure conditions in `Hydration/DataLoader/AGENTS.md`). Currently consumed by the Schema API endpoint; designed to also serve future layout validation.
-
-## Architecture
-
-1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentSystemElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). `ContentSystemElementTypeSpecification::toSchema()` serializes the spec into the `ElementTypeSchema` array shape (`name`, `label`, `description`, `source`, `icon`, `category`, `copilot`, `properties`, `slots`) served by `GET /api/_info/content-system-element-types.json`. DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
-
-2. **Loading** (Loader/) — Both loaders extend `AbstractContentSystemElementTypeLoader` (shared `load()` contract). `YamlTypeLoader` scans directories for `*.yaml` and `*.yml` files, resolves names via `ElementTypeNameResolver` (path-based), deserializes via `ElementTypeSpecificationSerializer`, validates via Symfony Validator, and deduplicates within the same source. `DatabaseTypeLoader` loads active app types from the `app_content_system_element_type` table (prod only; returns empty in dev where apps load from filesystem via the compiler pass). `ElementTypeSourceDirectory` carries source/path/prefix per directory; `ResolvedElementTypeSpecificationDto` bridges loading and specification creation.
-
-3. **Registry** (Registry/) — Uses the Shopware decoration pattern. `AbstractContentSystemElementTypeRegistry` defines the contract; `ContentSystemElementTypeRegistry` is the stateless aggregator (leaf) that iterates `AbstractContentSystemElementTypeLoader` instances (tagged `content_system.type_loader`); `CachedContentSystemElementTypeRegistry` decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
-
-4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects the discovered directory set into both YamlTypeLoader (for element-type definitions) and the binding system's YamlBindingSpecificationLoader (which scans the same files for their inline `bindings:` sections) — no YAML parsing at compile time. Each loader receives its own directory-VO definition instances.
-
-5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation). App activation state is not denormalized onto the type rows — `DatabaseTypeLoader` joins `app` and filters `WHERE app.active = 1`, so deactivating an app drops its types from that query with no extra write, though the cached registry keeps serving them until its next invalidation (the persister on a later app install/update).
+- [docs/output-schema.md](docs/output-schema.md) - Why the type spec describes hydrated output, and the property key that links it to elements and loaders.
+- [docs/architecture.md](docs/architecture.md) - Value objects, loaders, registry, compiler pass, and app integration.
+- [docs/custom-types.md](docs/custom-types.md) - The plugin- and app-facing authoring guide.
+- [docs/introspection.md](docs/introspection.md) - The Admin API endpoint clients read to discover the registered types.
 
 ## Inline `bindings:` Sections
 
-A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline. The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. A reference property's `resolvedBy` key (`Definitions/media/image.yaml` has one) is a separate, simpler mechanism that needs no `bindings:` section at all — see `../../Binding/README.md`.
+A type YAML file may carry a top-level `bindings:` key declaring binding specifications for its type inline. The key is reserved for the binding system and invisible to this pipeline: `ElementTypeSpecificationSerializer::denormalize()` reads only `meta`, `properties`, and `slots`, and `Binding/Loader/YamlBindingSpecificationLoader` scans the same type directories for the inline sections independently. Inline bindings depend on the serializer staying lenient about unknown top-level keys; do not add strict top-level key validation here. A reference property's `resolvedBy` key (`Definitions/media/image.yaml` has one) is a separate, simpler mechanism that needs no `bindings:` section at all — see [Binding/README.md](../../Binding/README.md).
 
 ## Subdirectories
 

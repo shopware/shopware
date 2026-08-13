@@ -2,6 +2,10 @@
 
 ContentElement tree structure. Elements nest via named slots, traverse via visitor pattern, declare data requirements and context definitions.
 
+## Guides
+
+- [docs/authoring-elements.md](docs/authoring-elements.md) - The JSON shape of an element as a layout author writes it: fields, slots, and nesting.
+
 ## Key Class
 
 - `ContentElement` - Tree aggregate root: `id`, `component`, `properties`, `slots` (`array<string, SlotContent>`), `dataRequirements`, `contextDefinitions`
@@ -32,8 +36,8 @@ Internally, `ContentElement` stores properties in two maps (`structProperties` f
 
 ## Subdirectories
 
-- **Context/** - ContextProvider, ContextConsumer, ContextDefinitions
+- **[Context/](Context/README.md)** - ContextProvider, ContextConsumer, ContextDefinitions
 - **DataRequirement/** - DataRequirement structure
 - **Slot/** - SlotContent container
-- **Style/** - Universal per-breakpoint style options (alignment, span, spacing, display) settable on every element
+- **[Style/](Style/README.md)** - Universal per-breakpoint style options (alignment, span, spacing, display) settable on every element
 - **Visitor/** - ElementVisitor interface and implementations

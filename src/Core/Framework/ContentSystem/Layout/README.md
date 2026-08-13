@@ -6,9 +6,8 @@ Content layout tree structure and processing. Layouts are reusable templates con
 
 1. **Element Structure** (Element/) — ContentElement tree with slots, visitor pattern for traversal
 2. **DAL Definitions** (Entity/, Field/) — Database schema and custom field serializers
-3. **Loading** (Loader/) — ContentLayoutEntity retrieval from repository
-4. **Scaffolding** (Scaffolding/) — Layout wrapping utilities (virtual root wrapper)
-5. **Default Seeding** (`LayoutDefaultSeeder`) seeds element-type primitive defaults into the stored tree at the DAL write boundary, invoked from the `Field/` layout serializer's `normalize` hook
+3. **Scaffolding** (Scaffolding/) — Layout wrapping utilities (virtual root wrapper)
+4. **Default Seeding** (`LayoutDefaultSeeder`) seeds element-type primitive defaults into the stored tree at the DAL write boundary, invoked from the `Field/` layout serializer's `normalize` hook
 
 ## Default Seeding
 
@@ -20,9 +19,8 @@ ContentLayoutEntity can contain multiple root elements. Each root is an independ
 
 ## Subdirectories
 
-- **Element/** - ContentElement tree structure, visitor pattern, context and data requirement definitions
+- **[Element/](Element/README.md)** - ContentElement tree structure, visitor pattern, context and data requirement definitions
 - **Entity/** - DAL definitions (ContentLayoutDefinition)
-- **Field/** - Custom DAL field types and serializers (infrastructure)
-- **Loader/** - ContentLayoutEntity loading from repository
+- **[Field/](Field/README.md)** - Custom DAL field types and serializers (infrastructure)
 - **Scaffolding/** - Layout wrapping utilities (VirtualRootWrapper)
-- **Type/** - Element type system: declarative type definitions, YAML loading, registry, app integration
+- **[Type/](Type/README.md)** - Element type system: declarative type definitions, YAML loading, registry, app integration

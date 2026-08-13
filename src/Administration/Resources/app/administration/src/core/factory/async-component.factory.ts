@@ -782,6 +782,19 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         };
     }
 
+    // A composition override that targets an Options API base is applied by injecting a setup() that
+    // runs the override pipeline and returns only the replaced keys (Vue's setupState resolves ahead of
+    // data/computed, so exactly those keys are shadowed). Resolved through the Shopware global so core
+    // does not import the app-layer runtime; returns null unless an override targets this component, so
+    // components without one are left completely untouched.
+    if (!skipTemplate && typeof config?.setup !== 'function') {
+        const overrideSetup = Shopware?.Component?.createOptionsBaseOverrideSetup?.(componentName);
+
+        if (overrideSetup) {
+            config.setup = overrideSetup as ComponentConfig['setup'];
+        }
+    }
+
     /**
      * if config has a render function it will ignore template
      */

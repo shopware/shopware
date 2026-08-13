@@ -338,6 +338,28 @@ Behavior for late-applied overrides:
 
 ---
 
+## Composition Overrides on Options API Base Components
+
+**Location:** `options-base-override.ts`
+
+The Options API Shim above handles the case where an *Options API override* targets a *Composition API base*. This section is the mirror image: a **Composition API override** (`overrideComponentSetup(...)`, or a native `.override.vue` file) that targets a base component **still written in the Options API**.
+
+Normally an override is only applied by `createExtendableSetup`, which Options API components never call — so without this mechanism a composition override targeting an Options base would silently do nothing.
+
+### How it works
+
+At build time the component factory checks whether any composition override is registered for the component. If so — and only then — it injects a generated `setup()` that runs the override pipeline and returns **only the keys the overrides replace**. Vue resolves `setupState` ahead of `data`/`computed`, so those keys are shadowed for both the template and the component's own `this.<key>` reads, while everything else in the Options component runs untouched. Components with no targeting override get no injected `setup()` at all.
+
+The base is **not converted or rewritten** — only the specifically overridden keys are shadowed, keeping the blast radius to exactly what the override changes.
+
+### `previousState`
+
+Override callbacks receive `previousState` with the base's **original** values: `data` fields are read from the live instance data (which `setupState` never shadows), other keys from the public proxy. Read it **inside a `computed`/`watch`** (e.g. `computed(() => previousState.headline.value + ' Pro')`) — not synchronously in the override body, because Options `data`/`computed` are initialised after `setup()` runs. A synchronous read logs a development warning.
+
+### Limitation: replacing a written field with a computed
+
+If an override replaces a key with a **computed** (readonly) and the Options base **writes** that field internally (`this.headline = …`), those writes no longer take effect — a computed cannot be written. This logs a development warning. Replace with a writable `ref` if the base needs to keep writing the field.
+
 ## Known Limitations
 
 1. **Dot-notation watch paths** — `watch: { 'a.b.c': handler }` is not supported by the shim. The watcher is silently skipped with a console warning. Migrate to a computed + simple watch.

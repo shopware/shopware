@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -37,6 +38,7 @@ class CategoryUrlGeneratorTest extends TestCase
         $this->urlGenerator = new CategoryUrlGenerator($this->entityRouteResolver);
         $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnArgument(0);
         $this->salesChannel = new SalesChannelEntity();
+        $this->salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $this->salesChannel->setNavigationCategoryId(Uuid::randomHex());
     }
 

@@ -57,7 +57,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([]);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
@@ -73,7 +73,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)
@@ -124,7 +124,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)

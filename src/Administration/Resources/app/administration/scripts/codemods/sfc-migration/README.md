@@ -56,7 +56,7 @@ my-component/
 | `props`                                   | `defineProps(…)`                               |
 | `emits` array/object form                 | `defineEmits(…)`                               |
 | `inheritAttrs: false`                     | `defineOptions({ inheritAttrs: false })`       |
-| `name`                                    | `defineOptions({ name })`                      |
+| `name` differing from the registered name | `defineOptions({ name })`                      |
 | `data()` / `data: () => ({ … })`          | `ref(…)` in `<script setup>`                   |
 | `computed`                                | `computed(…)` in `<script setup>`              |
 | `inject` array/object form                | `inject(…)` in `<script setup>`                |
@@ -81,8 +81,9 @@ reachable for overrides through the `_private` group.
 
 The override target name is no longer passed to a wrapper: it comes from the `.vue` filename. The
 codemod therefore names the file after the registered component name and falls back to the component
-directory name only when the registration has no literal name (`defineOptions({ name })` is still
-emitted when the source declared a `name` option). With `--delete-originals`, originals are kept and
+directory name only when the registration has no literal name. Because the filename already carries
+the name, a `name` option repeating the registered name is dropped; a `name` option that differs is
+still emitted as `defineOptions({ name })`. With `--delete-originals`, originals are kept and
 a warning is printed when the registered component name differs from the directory name, because the
 generated entry point would import the wrong file.
 

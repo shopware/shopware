@@ -2267,6 +2267,40 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('defineOptions({ name: componentDisplayName })');
         });
 
+        it('omits a name option that only repeats the registered name', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                name: 'sw-test',
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).not.toContain('defineOptions');
+        });
+
+        it('keeps a name option that differs from the registered name', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                name: 'sw-other-name',
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.script).toContain(`defineOptions({ name: 'sw-other-name' });`);
+        });
+
+        it('keeps emitting inheritAttrs when the redundant name option is dropped', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                name: 'sw-test',
+                inheritAttrs: false,
+                data() { return { title: 'Title' }; },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.script).toContain('defineOptions({ inheritAttrs: false });');
+            expect(result.script).not.toContain('name:');
+        });
+
         it('marks duplicate public setup names as unsupported instead of emitting duplicate declarations', () => {
             const js = `Shopware.Component.register('sw-test', {
                 data() {

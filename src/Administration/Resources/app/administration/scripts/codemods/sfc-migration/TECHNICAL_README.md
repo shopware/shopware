@@ -312,8 +312,10 @@ This keeps "understand the old component" separate from "print the new code".
    `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
 
-`defineOptions` is only emitted for a `name` or `inheritAttrs: false` option, and
-`defineProps` only when the component really declares props — an empty
+`defineOptions` is only emitted for an `inheritAttrs: false` option or a `name`
+option that differs from the registered name — native setup infers the name from
+the `.vue` filename, so a `name` repeating it would say nothing. `defineProps` is
+emitted only when the component really declares props — an empty
 `defineProps({})` would just add an unused `props` binding.
 
 The generated setup state looks like this:

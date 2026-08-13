@@ -172,7 +172,10 @@ export function collectCompositionScriptState(
 
     manualMigrationReasons.push(...unsupportedWatchEntries.map((entry) => `watch: ${sanitizeTodoCommentText(entry)}`));
 
-    const { componentNameValue, isDynamic: hasDynamicName } = resolveComponentNameValue(optionsObj);
+    const { componentNameValue, isDynamic: hasDynamicName } = resolveComponentNameValue(
+        optionsObj,
+        registration.componentName,
+    );
     if (hasDynamicName) {
         pushManualMigration(
             manualMigrationReasons,
@@ -630,7 +633,10 @@ function collectPlaceholderApiReasons(snippets: CodeSnippet[], reasons: string[]
     }
 }
 
-function resolveComponentNameValue(optionsObj: ObjectLiteralExpression): {
+function resolveComponentNameValue(
+    optionsObj: ObjectLiteralExpression,
+    registeredName: string,
+): {
     componentNameValue?: string;
     isDynamic: boolean;
 } {
@@ -643,6 +649,14 @@ function resolveComponentNameValue(optionsObj: ObjectLiteralExpression): {
     // Only string-literal names can be emitted into defineOptions; dynamic
     // expressions would produce an invalid or non-equivalent option.
     if (initializer?.isKind(SyntaxKind.StringLiteral)) {
+        // Native setup infers the component name from the `.vue` filename, and the
+        // file is written under the registered name, so an equal literal only
+        // repeats what Vue already knows. A differing literal is meaningful — it
+        // renames the component away from its override target — and is kept.
+        if (initializer.getLiteralValue() === registeredName) {
+            return { isDynamic: false };
+        }
+
         return { componentNameValue: initializer.getText(), isDynamic: false };
     }
 

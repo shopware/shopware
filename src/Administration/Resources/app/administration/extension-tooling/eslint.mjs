@@ -268,6 +268,6 @@ export function shopwareAdminExtension(options = {}) {
     return config;
 }
 
-export { legacyTwigConfig, pluginVue, swDeprecationRules, swPluginRules, tseslint };
+export { legacyTwigConfig, pluginVue, swCoreRules, swDeprecationRules, swPluginRules, tseslint };
 
 export default shopwareAdminExtension;

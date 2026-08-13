@@ -87,6 +87,31 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertFalse($result['expired']);
     }
 
+    public function testSaveAlignsPayloadCustomerIdWhenItDiffersFromArgument(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $payloadCustomerId = $this->createCustomer();
+        $customerId = $this->createCustomer();
+
+        $this->contextPersister->save(
+            $token,
+            [SalesChannelContextService::CUSTOMER_ID => $payloadCustomerId],
+            TestDefaults::SALES_CHANNEL,
+            $customerId
+        );
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT payload, customer_id FROM sales_channel_api_context WHERE token = :token',
+            ['token' => $token]
+        );
+
+        static::assertIsArray($row);
+        $stored = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($customerId, $stored[SalesChannelContextService::CUSTOMER_ID]);
+        static::assertSame($customerId, Uuid::fromBytesToHex($row['customer_id']));
+    }
+
     public function testReplaceInsertsCustomerIdIntoPayload(): void
     {
         $token = Random::getAlphanumericString(32);

@@ -2,6 +2,10 @@
 
 Event-driven pipeline transformations for the content hydration lifecycle. Listeners modify `$event->elements` (the only mutable property) before and after data loading.
 
+## Guides
+
+- [docs/custom-listeners.md](docs/custom-listeners.md) - The plugin-facing guide to writing a hydration-lifecycle listener.
+
 ## Execution Order
 
 **PreHydration** (before data loading):

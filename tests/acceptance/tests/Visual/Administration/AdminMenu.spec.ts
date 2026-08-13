@@ -12,7 +12,7 @@ test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, Admi
         await AdminDashboard.adminMenuUserChevron.click();
 
         await setViewport(AdminDashboard.page, {
-            contentHeight: 1796,
+            contentHeight: 1880,
         });
         await hideElements(AdminDashboard.page, [AdminDashboard.adminMenuUserIcon]);
         await replaceElements(AdminDashboard.page, [AdminDashboard.adminMenuUserName]);

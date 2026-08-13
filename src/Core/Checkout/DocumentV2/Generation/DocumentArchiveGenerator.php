@@ -96,9 +96,7 @@ final class DocumentArchiveGenerator
     }
 
     /**
-     * TODO: Maybe use the same filename generation which will be used in the create modal PR
-     * Prefixes every entry with order number, document type and document number so files from
-     * different documents never collide in the same archive.
+     * Prefixes every file with the order number, since the file name itself is already unique
      */
     private function createEntryName(DocumentEntity $document, DocumentFileEntity $documentFile, MediaEntity $media): string
     {
@@ -109,12 +107,9 @@ final class DocumentArchiveGenerator
         }
 
         $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
-        $documentNumber = $document->getConfig()['documentNumber'] ?? $document->getId();
-        $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'document';
+        $fileName = $media->getFileName() ?? $document->getId();
 
-        $fileName = \sprintf('%s_%s_%s_%s', $orderNumber, $technicalName, $documentNumber, $documentFile->getDocumentFormat());
-
-        return \sprintf('%s.%s', $fileName, $fileExtension);
+        return \sprintf('%s_%s.%s', $orderNumber, $fileName, $fileExtension);
     }
 
     private function createArchiveName(DocumentCollection $documents): string

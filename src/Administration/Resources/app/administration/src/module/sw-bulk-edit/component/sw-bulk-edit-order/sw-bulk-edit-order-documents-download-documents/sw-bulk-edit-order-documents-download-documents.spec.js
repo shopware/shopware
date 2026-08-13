@@ -3,6 +3,14 @@
  */
 import { mount } from '@vue/test-utils';
 
+const documentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+    },
+];
+
 async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
@@ -13,7 +21,7 @@ async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve([...documentTypesFixtures]),
                         };
                     },
                 },
@@ -88,9 +96,9 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice',
+                id: 'invoice-id',
                 technicalName: 'invoice',
-                translated: { name: 'invoice' },
+                translated: { name: 'Invoice' },
                 selected: false,
             },
         ]);

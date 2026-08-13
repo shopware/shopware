@@ -65,15 +65,15 @@ export default {
         async createdComponent() {
             try {
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
-                    const availableTypesResponse = await this.documentV2ApiService.getAvailableTypes();
+                    const [availableTypesResponse, documentTypeCollection] = await Promise.all([
+                        this.documentV2ApiService.getAvailableTypes(),
+                        this.documentTypeRepository.search(this.documentTypeCriteria),
+                    ]);
                     const supportedDocumentTypes = availableTypesResponse.documentTypes ?? {};
 
-                    // TODO: map technicalName to name
-                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => ({
-                        id: technicalName,
-                        technicalName,
-                        name: technicalName,
-                    }));
+                    this.documentTypes = documentTypeCollection.filter(
+                        (documentType) => documentType.technicalName in supportedDocumentTypes,
+                    );
                 } else {
                     this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);
                 }

@@ -1,5 +1,6 @@
 import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
+// Exercises the shared add-to-cart task in the checkout flow.
 test(
     'Registered shop customer buys a product.',
     {

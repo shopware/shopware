@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -204,16 +203,18 @@ class ServiceLifecycleTest extends TestCase
             ->with('/app-root/manifest.xml')
             ->willReturn($this->createManifest());
 
+        $exception = AppException::validationFailed('MyCoolService', new ErrorCollection([
+            new NotHookableError(['hook: tax.written']),
+        ]));
+
         $this->appManager->expects($this->once())
             ->method('install')
-            ->willThrowException(new AppValidationException('MyCoolService', new ErrorCollection([
-                new NotHookableError(['hook: tax.written']),
-            ])));
+            ->willThrowException($exception);
 
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with(static::stringContains('Cannot install service "MyCoolService" because of error: "The app "MyCoolService" is invalid:'));
+            ->with(\sprintf('Cannot install service "MyCoolService" because of error: "%s"', $exception->getMessage()));
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
@@ -505,18 +506,20 @@ class ServiceLifecycleTest extends TestCase
             ->with('/app-root/manifest.xml')
             ->willReturn($this->createManifest());
 
+        $exception = AppException::validationFailed('MyCoolService', new ErrorCollection([
+            new NotHookableError(['hook: tax.written']),
+        ]));
+
         $this->appManager->expects($this->once())
             ->method('update')
-            ->willThrowException(new AppValidationException('MyCoolService', new ErrorCollection([
-                new NotHookableError(['hook: tax.written']),
-            ])));
+            ->willThrowException($exception);
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         $this->logger
             ->expects($this->once())
             ->method('debug')
-            ->with(static::stringContains('Cannot update service "MyCoolService" because of error: "The app "MyCoolService" is invalid:'));
+            ->with(\sprintf('Cannot update service "MyCoolService" because of error: "%s"', $exception->getMessage()));
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }

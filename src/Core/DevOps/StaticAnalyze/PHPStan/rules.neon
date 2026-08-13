@@ -21,6 +21,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoQueryInLoopRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoIndirectQueryInLoopRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnsafeRequestHasSessionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoConstraintViolationGetMessageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoLegacySqlHashFunctionRule
@@ -76,3 +77,11 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\LoopContextVisitor
         tags:
             - phpstan.parser.richParserNodeVisitor
+
+    - # shared by NoQueryInLoopRule and QueryInLoopCollector
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\QueryCallDetector
+
+    - # feeds NoIndirectQueryInLoopRule, which needs to know what other methods do
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\QueryInLoopCollector
+        tags:
+            - phpstan.collector

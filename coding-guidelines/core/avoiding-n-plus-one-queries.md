@@ -5,8 +5,16 @@ database round-trips grows with the number of processed records. It is the singl
 indexers, subscribers and import/export code, because it is invisible in a test with three fixtures and only shows
 up on a shop with 100,000 products.
 
-The `Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoQueryInLoopRule` PHPStan rule reports queries that are
-executed inside a loop body under the `shopware.queryInLoop` identifier.
+Two PHPStan rules report it:
+
+* `NoQueryInLoopRule` reports a query written inside a loop body, under the `shopware.queryInLoop` identifier.
+* `NoIndirectQueryInLoopRule` reports a loop that calls a method of the same class which queries, under the
+  `shopware.indirectQueryInLoop` identifier. Moving the query into a helper does not make the loop cheaper, so the
+  rule follows the delegation, however many steps away the query is.
+
+Neither rule looks at migrations, demodata generators or the data abstraction layer itself: a migration runs once and
+cannot be changed after it ran, demodata only ever builds a development shop, and the DAL is the layer that does the
+batching.
 
 ## Load data for all records before the loop
 
@@ -61,7 +69,10 @@ report:
 * loops with a statically fixed iteration count, e.g. `foreach (['de-DE', 'en-GB'] as $locale)` or
   `for ($i = 0; $i < 3; ++$i)`.
 
-It also does not report queries that a loop reaches at most once, however many records it processes:
+`NoIndirectQueryInLoopRule` additionally does not report a call that leads back to its own caller, because the
+recursion follows the shape of the data — a category tree, a nested struct — and not the number of records.
+
+Neither rule reports queries that a loop reaches at most once, however many records it processes:
 
 * a query memoised by a null check, e.g. `if ($snippetSets === null) { $snippetSets = $this->connection->fetchAllAssociative(…); }`,
 * a query in a block that ends in `throw` or `return`, because that block leaves the loop — for example the cleanup

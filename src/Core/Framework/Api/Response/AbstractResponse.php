@@ -8,15 +8,16 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractResponse
 {
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array<string, array<string, mixed>>|null
      */
-    private array $extensions = [];
+    public ?array $extensions = null;
 
     /**
      * @param array<string, mixed> $extension
      */
     public function addExtension(string $name, array $extension): void
     {
+        $this->extensions ??= [];
         $this->extensions[$name] = $extension;
     }
 
@@ -48,7 +49,7 @@ abstract class AbstractResponse
      */
     public function getExtensions(): array
     {
-        return $this->extensions;
+        return $this->extensions ?? [];
     }
 
     /**
@@ -56,11 +57,14 @@ abstract class AbstractResponse
      */
     public function setExtensions(array $extensions): void
     {
-        $this->extensions = $extensions;
+        $this->extensions = $extensions === [] ? null : $extensions;
     }
 
     public function removeExtension(string $name): void
     {
         unset($this->extensions[$name]);
+        if ($this->extensions === []) {
+            $this->extensions = null;
+        }
     }
 }

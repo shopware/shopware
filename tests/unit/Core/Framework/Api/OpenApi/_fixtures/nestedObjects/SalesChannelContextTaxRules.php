@@ -10,11 +10,13 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
+#[JsonStreamable]
 final class SalesChannelContextTaxRules extends AbstractRequest
 {
     public function __construct(

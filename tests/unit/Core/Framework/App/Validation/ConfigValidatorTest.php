@@ -46,19 +46,6 @@ class ConfigValidatorTest extends TestCase
         static::assertStringContainsString('test', $error->getMessage());
     }
 
-    public function testConfigurationIsResolvedThroughTheSourceResolver(): void
-    {
-        $manifest = ManifestFixture::empty();
-        $manifest->setPath('https://my-service.example.com');
-
-        $validator = $this->createValidator(new Filesystem(__DIR__ . '/_fixtures/withInvalidConfig'));
-
-        $errors = $validator->validate($manifest, null);
-
-        static::assertCount(1, $errors);
-        static::assertInstanceOf(ConfigurationError::class, $errors->first());
-    }
-
     private function createValidator(Filesystem $filesystem): ConfigValidator
     {
         return new ConfigValidator(

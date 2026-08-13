@@ -5,10 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\AbstractManifestValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -25,10 +23,13 @@ class ManifestValidatorTest extends TestCase
 {
     public function testValidateReportsEveryError(): void
     {
-        $validator = new ManifestValidator([
-            new StaticValidator(new IncompatibleAppError('test')),
-            new StaticValidator(new AppNameError('test')),
-        ]);
+        $incompatible = static::createStub(AbstractManifestValidator::class);
+        $incompatible->method('validate')->willReturn(new ErrorCollection([new IncompatibleAppError('test')]));
+
+        $badName = static::createStub(AbstractManifestValidator::class);
+        $badName->method('validate')->willReturn(new ErrorCollection([new AppNameError('test')]));
+
+        $validator = new ManifestValidator([$incompatible, $badName]);
 
         try {
             $validator->validate(ManifestFixture::empty(), Context::createDefaultContext());
@@ -41,8 +42,13 @@ class ManifestValidatorTest extends TestCase
 
     public function testThrowOnFirstErrorStopsAtTheFirstFailureAndKeepsItsErrorCode(): void
     {
-        $later = new StaticValidator();
-        $validator = new ManifestValidator([new StaticValidator(new IncompatibleAppError('test')), $later]);
+        $incompatible = static::createStub(AbstractManifestValidator::class);
+        $incompatible->method('validate')->willReturn(new ErrorCollection([new IncompatibleAppError('test')]));
+
+        $later = $this->createMock(AbstractManifestValidator::class);
+        $later->expects($this->never())->method('validate');
+
+        $validator = new ManifestValidator([$incompatible, $later]);
 
         try {
             $validator->throwOnFirstError(ManifestFixture::empty(), Context::createDefaultContext());
@@ -51,35 +57,16 @@ class ManifestValidatorTest extends TestCase
             static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
             static::assertSame(['name' => 'test'], $e->getParameters());
         }
-
-        static::assertSame(0, $later->calls);
     }
 
     public function testThrowOnFirstErrorPassesAValidManifest(): void
     {
         $this->expectNotToPerformAssertions();
 
-        (new ManifestValidator([new StaticValidator()]))
+        $valid = static::createStub(AbstractManifestValidator::class);
+        $valid->method('validate')->willReturn(new ErrorCollection());
+
+        (new ManifestValidator([$valid]))
             ->throwOnFirstError(ManifestFixture::empty(), Context::createDefaultContext());
-    }
-}
-
-/**
- * @internal
- */
-#[Package('framework')]
-class StaticValidator extends AbstractManifestValidator
-{
-    public int $calls = 0;
-
-    public function __construct(private readonly ?Error $error = null)
-    {
-    }
-
-    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
-    {
-        ++$this->calls;
-
-        return new ErrorCollection($this->error ? [$this->error] : []);
     }
 }

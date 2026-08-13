@@ -123,6 +123,8 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
+        wrapper.vm.changeSelection(true, 'category.indexer');
+
         await button.trigger('click');
         await flushPromises();
 

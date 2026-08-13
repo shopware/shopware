@@ -22,7 +22,7 @@
 - `Storefront/ContentSystem/HeaderContentLayout/` - Domain-aware header assignments
 - `Storefront/ContentSystem/FooterContentLayout/` - Domain-aware footer assignments
 
-Their `*Entity` classes extend `AbstractContentLayoutAssignmentEntity`, but their `*Definition` classes extend `EntityDefinition` directly (NOT `AbstractContentLayoutAssignableDefinition`); see `Storefront/ContentSystem/AGENTS.md`.
+Their `*Entity` classes extend `AbstractContentLayoutAssignmentEntity`, but their `*Definition` classes extend `EntityDefinition` directly (NOT `AbstractContentLayoutAssignableDefinition`); see [Storefront ContentSystem](../../../../../Storefront/ContentSystem/AGENTS.md).
 
 ## Constraints
 

@@ -130,7 +130,7 @@ Two additions:
 * `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation. Aliased indices are kept. The command fails when admin Elasticsearch is disabled.
 * A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when Elasticsearch or admin Elasticsearch is enabled.
 
-An index that is currently being built has no alias either, so the scheduled task needs two more conditions: it skips every index listed in `elasticsearch_index_task` or `admin_elasticsearch_index_task`, and it only deletes indices created longer ago than `elasticsearch.index_cleanup_minimum_age` (86400 seconds by default, `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE`). Raise that value when a full indexing run can take longer than the threshold. An index whose creation date cannot be read is never deleted by the task.
+An index that is currently being built has no alias either, so the scheduled task needs two more conditions: it skips every index listed in `elasticsearch_index_task` or `admin_elasticsearch_index_task`, and it only deletes indices created longer ago than `elasticsearch.index_cleanup_minimum_age` (one week by default, `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE` in seconds). The default is deliberately generous because deleting an index cannot be undone; lower it when outdated indices take up too much disk, and raise it when a full indexing run can take longer than a week. An index whose creation date cannot be read is never deleted by the task.
 
 `es:index:cleanup` itself is unchanged.
 

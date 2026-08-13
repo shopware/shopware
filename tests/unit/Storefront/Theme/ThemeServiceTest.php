@@ -145,6 +145,23 @@ class ThemeServiceTest extends TestCase
         static::assertTrue($assigned);
     }
 
+    public function testAssignThemeRecordsThePendingTheme(): void
+    {
+        // the pending theme is the source for both the supersede check and the admin indicator
+        $themeId = Uuid::randomHex();
+
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->expects($this->once())->method('set')->with(
+            ThemeService::CONFIG_KEY_PENDING_THEME,
+            $themeId,
+            TestDefaults::SALES_CHANNEL,
+            false,
+        );
+
+        $this->getThemeService(systemConfig: $systemConfig)
+            ->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+    }
+
     public function testAssignThemeSkipCompile(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -179,6 +196,92 @@ class ThemeServiceTest extends TestCase
         );
 
         $assigned = $themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context, true);
+
+        static::assertTrue($assigned);
+    }
+
+    public function testAssignThemeDefersAssignmentWhenRequestedAndAsyncCompilationIsEnabled(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        // async on + deferral requested: nothing happens synchronously, only a compile
+        // message carrying the assign flag is queued.
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $themeSalesChannelRepository = $this->createMock(EntityRepository::class);
+        $themeSalesChannelRepository->expects($this->never())->method('upsert');
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
+
+        $dispatchedMessage = null;
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->expects($this->once())->method('dispatch')
+            ->willReturnCallback(static function (object $message) use (&$dispatchedMessage): Envelope {
+                $dispatchedMessage = $message;
+
+                return new Envelope($message);
+            });
+
+        $themeService = $this->getThemeService(
+            themeSalesChannelRepository: $themeSalesChannelRepository,
+            themeCompiler: $themeCompiler,
+            eventDispatcher: $eventDispatcher,
+            messageBus: $messageBus,
+        );
+
+        $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+        $assigned = $themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+
+        static::assertTrue($assigned);
+        static::assertInstanceOf(CompileThemeMessage::class, $dispatchedMessage);
+        static::assertTrue($dispatchedMessage->isAssign());
+        static::assertSame($themeId, $dispatchedMessage->getThemeId());
+        static::assertSame(TestDefaults::SALES_CHANNEL, $dispatchedMessage->getSalesChannelId());
+    }
+
+    public function testAssignThemeStaysSynchronousWithoutDeferralEvenWhenAsyncEnabled(): void
+    {
+        // BC guard: without deferral the relation is upserted synchronously even when async
+        // is enabled, since callers like extension removal rely on it taking effect at once.
+        $themeId = Uuid::randomHex();
+
+        $this->systemConfigMock->method('get')->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('transactional')->willReturnCallback(static function (callable $callback): void {
+            $callback();
+        });
+
+        $themeSalesChannelRepository = $this->createMock(EntityRepository::class);
+        $themeSalesChannelRepository->expects($this->once())->method('upsert')->with(
+            [[
+                'themeId' => $themeId,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            ]],
+            $this->context
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
+            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL, $this->context)
+        );
+
+        // the compile itself is still queued (async is on); only the assignment stays synchronous
+        $messageBus = static::createStub(MessageBus::class);
+        $messageBus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
+
+        $themeService = $this->getThemeService(
+            themeSalesChannelRepository: $themeSalesChannelRepository,
+            eventDispatcher: $eventDispatcher,
+            connection: $connection,
+            messageBus: $messageBus,
+        );
+
+        $assigned = $themeService->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
 
         static::assertTrue($assigned);
     }

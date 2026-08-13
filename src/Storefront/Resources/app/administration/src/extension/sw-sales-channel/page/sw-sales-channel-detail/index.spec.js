@@ -25,14 +25,15 @@ describe('sw-sales-channel-detail extension', () => {
         expect(criteria.addAssociation).toHaveBeenCalledWith('themes');
     });
 
-    it('assigns theme when sales channel theme changes', async () => {
+    it('assigns theme via the deferred API and reverts the draft association so the entity save does not re-write the mapping', async () => {
         const overrideConfig = getOverrideConfig();
         const themeService = { assignTheme: jest.fn(() => Promise.resolve()) };
+        const origin = { extensions: { themes: [{ id: 'old-theme-id' }] } };
         const vm = {
             themeService,
             salesChannel: {
                 id: 'sales-channel-id',
-                getOrigin: () => ({ extensions: { themes: [{ id: 'old-theme-id' }] } }),
+                getOrigin: () => origin,
                 extensions: { themes: [{ id: 'new-theme-id' }] },
             },
             createNotificationError: jest.fn(),
@@ -41,6 +42,8 @@ describe('sw-sales-channel-detail extension', () => {
         await overrideConfig.methods.assignSalesChannelTheme.call(vm);
 
         expect(themeService.assignTheme).toHaveBeenCalledWith('new-theme-id', 'sales-channel-id');
+        // the draft association is reverted to origin, so saving the sales channel writes no mapping
+        expect(vm.salesChannel.extensions.themes).toEqual(origin.extensions.themes);
     });
 
     it('does not assign theme when nothing changed', async () => {
@@ -61,14 +64,15 @@ describe('sw-sales-channel-detail extension', () => {
         expect(themeService.assignTheme).not.toHaveBeenCalled();
     });
 
-    it('notifies when theme assignment fails', async () => {
+    it('notifies and still reverts the draft association when theme assignment fails', async () => {
         const overrideConfig = getOverrideConfig();
         const themeService = { assignTheme: jest.fn(() => Promise.reject(new Error('fail'))) };
+        const origin = { extensions: { themes: [{ id: 'old-theme-id' }] } };
         const vm = {
             themeService,
             salesChannel: {
                 id: 'sales-channel-id',
-                getOrigin: () => ({ extensions: { themes: [{ id: 'old-theme-id' }] } }),
+                getOrigin: () => origin,
                 extensions: { themes: [{ id: 'new-theme-id' }] },
             },
             createNotificationError: jest.fn(),
@@ -80,6 +84,8 @@ describe('sw-sales-channel-detail extension', () => {
         expect(vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-theme-manager.general.messageSaveError',
         });
+        // even on failure the mapping must not be written via the entity save
+        expect(vm.salesChannel.extensions.themes).toEqual(origin.extensions.themes);
     });
 
     it('onSave calls assignment and super handler', async () => {

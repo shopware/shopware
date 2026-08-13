@@ -41,6 +41,8 @@ Component.override('sw-sales-channel-detail', {
                 this.createNotificationError({
                     message: this.$t('sw-theme-manager.general.messageSaveError'),
                 });
+            } finally {
+                this.salesChannel.extensions.themes = [...(this.salesChannel.getOrigin().extensions?.themes ?? [])];
             }
         },
     },

@@ -36,6 +36,19 @@ class ThemeService implements ResetInterface
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
     public const STATE_NO_QUEUE = 'state-no-queue';
 
+    /**
+     * Context state opting a theme assignment into being applied only after the (background)
+     * compilation finished, so the storefront keeps serving the current theme during a switch.
+     */
+    public const STATE_DEFER_ASSIGNMENT = 'theme-defer-assignment';
+
+    /**
+     * System config key (per sales channel) holding the most recently requested theme of a
+     * deferred switch, so a background compilation finishing out of order can detect it was
+     * superseded and must not reactivate an older theme choice.
+     */
+    public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
+
     private bool $notified = false;
 
     /**
@@ -237,6 +250,18 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
+        // Record the latest requested theme so a compile finishing out of order can detect it was
+        // superseded and not apply a stale switch. Non-silent so background workers see the update.
+        $this->configService->set(self::CONFIG_KEY_PENDING_THEME, $themeId, $salesChannelId, false);
+
+        // Opt-in via STATE_DEFER_ASSIGNMENT: the handler applies the assignment only after
+        // compiling, so the storefront keeps serving the current theme. Other callers stay sync.
+        if (!$skipCompile && $context->hasState(self::STATE_DEFER_ASSIGNMENT) && $this->isAsyncCompilation($context)) {
+            $this->handleAsync($salesChannelId, $themeId, true, $context, true);
+
+            return true;
+        }
+
         RetryableTransaction::transactional($this->connection, function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
             if (!$skipCompile) {
                 $this->compileTheme($salesChannelId, $themeId, $context);
@@ -430,14 +455,16 @@ class ThemeService implements ResetInterface
         string $salesChannelId,
         string $themeId,
         bool $withAssets,
-        Context $context
+        Context $context,
+        bool $assign = false
     ): void {
         $this->messageBus->dispatch(
             new CompileThemeMessage(
                 $salesChannelId,
                 $themeId,
                 $withAssets,
-                $context
+                $context,
+                $assign
             )
         );
 

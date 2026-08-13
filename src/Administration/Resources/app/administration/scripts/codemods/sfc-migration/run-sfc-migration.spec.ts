@@ -1,7 +1,7 @@
 import fs, { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path, { join } from 'node:path';
-import { findTwigFile, getCliUsage, normaliseJsContent, parseCliOptions, runMigration } from './run-sfc-migration';
+import { getCliUsage, normaliseJsContent, parseCliOptions, runMigration, selectTwigFile } from './run-sfc-migration';
 
 const FIXTURES_DIR = path.join(__dirname, '__fixtures__');
 
@@ -97,7 +97,7 @@ describe('parseCliOptions', () => {
     });
 });
 
-describe('findTwigFile', () => {
+describe('selectTwigFile', () => {
     let tmpDir: string;
 
     beforeEach(() => {
@@ -110,32 +110,26 @@ describe('findTwigFile', () => {
 
     it('returns the twig file path when a .html.twig file exists', () => {
         writeFileSync(join(tmpDir, 'my-component.html.twig'), '<div/>', 'utf-8');
-        const result = findTwigFile(tmpDir, 'my-component');
-        expect(result).toBe(join(tmpDir, 'my-component.html.twig'));
+        expect(selectTwigFile(tmpDir, 'my-component').path).toBe(join(tmpDir, 'my-component.html.twig'));
     });
 
     it('prefers the twig file that matches the component name', () => {
         writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
         writeFileSync(join(tmpDir, 'sw-foo.html.twig'), '<div>component</div>', 'utf-8');
 
-        const result = findTwigFile(tmpDir, 'sw-foo');
-
-        expect(result).toBe(join(tmpDir, 'sw-foo.html.twig'));
+        expect(selectTwigFile(tmpDir, 'sw-foo').path).toBe(join(tmpDir, 'sw-foo.html.twig'));
     });
 
     it('returns null when two .html.twig files are present that do not match the component name', () => {
         writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
         writeFileSync(join(tmpDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
 
-        const result = findTwigFile(tmpDir, 'sw-foo');
-
-        expect(result).toBeNull();
+        expect(selectTwigFile(tmpDir, 'sw-foo').path).toBeNull();
     });
 
     it('returns null when no .html.twig file is present', () => {
         writeFileSync(join(tmpDir, 'index.js'), 'export default {}', 'utf-8');
-        const result = findTwigFile(tmpDir, 'missing-component');
-        expect(result).toBeNull();
+        expect(selectTwigFile(tmpDir, 'missing-component').path).toBeNull();
     });
 });
 

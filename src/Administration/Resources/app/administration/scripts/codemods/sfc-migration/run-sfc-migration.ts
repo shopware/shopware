@@ -26,6 +26,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync 
 import { dirname, join, relative, resolve } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import getUsage from 'command-line-usage';
+import type { OptionDefinition, Section } from 'command-line-usage';
 import { globSync } from 'glob';
 import type { MergeResult } from './generate-sfc';
 import { mergeComponentFiles } from './generate-sfc';
@@ -58,15 +59,6 @@ export interface RunResult {
     writtenPaths: string[];
 }
 
-interface CliOptionDefinition {
-    name: string;
-    alias?: string;
-    type: StringConstructor | BooleanConstructor;
-    defaultOption?: boolean;
-    typeLabel?: string;
-    description: string;
-}
-
 interface RawCliOptions {
     help?: boolean;
     dryRun?: boolean;
@@ -91,7 +83,7 @@ interface MigrationContext {
     vuePath: string;
 }
 
-const cliOptionDefinitions: CliOptionDefinition[] = [
+const cliOptionDefinitions: OptionDefinition[] = [
     {
         name: 'help',
         alias: 'h',
@@ -127,7 +119,7 @@ const cliOptionDefinitions: CliOptionDefinition[] = [
     },
 ];
 
-const cliUsageSections = [
+const cliUsageSections: Section[] = [
     {
         header: 'SFC Migration Codemod',
         content: 'Generates .vue SFCs from Options API components.',
@@ -161,7 +153,7 @@ export function parseCliOptions(argv: string[]): CliOptions {
     };
 }
 
-function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
+export function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
     const candidates = readdirSync(dir)
         .filter((entry) => entry.endsWith('.html.twig'))
         .sort();
@@ -176,10 +168,6 @@ function selectTwigFile(dir: string, componentName: string): { path: string | nu
     }
 
     return { path: null, candidates };
-}
-
-export function findTwigFile(dir: string, componentName: string): string | null {
-    return selectTwigFile(dir, componentName).path;
 }
 
 /**
@@ -251,8 +239,8 @@ function replaceOriginalsWithEntryPoint(indexPath: string, twigPath: string, com
     rmSync(twigPath);
 }
 
-function reportSkippedTwig(indexPath: string, twigCandidates: string[], stats: RunStats, report: string[]): void {
-    stats.skipped++;
+function reportSkippedTwig(indexPath: string, twigCandidates: string[], run: RunResult): void {
+    run.stats.skipped++;
     const displayIndexPath = formatReportPath(indexPath);
 
     const skipMessage =
@@ -260,30 +248,28 @@ function reportSkippedTwig(indexPath: string, twigCandidates: string[], stats: R
             ? `SKIP (ambiguous twig)  ${displayIndexPath} [${twigCandidates.join(', ')}]`
             : `SKIP (no twig)  ${displayIndexPath}`;
 
-    report.push(skipMessage);
+    run.report.push(skipMessage);
 }
 
 function writeMigrationOutput(
     context: MigrationContext,
     result: MergeResult,
     options: Required<RunOptions>,
-    stats: RunStats,
-    report: string[],
-    writtenPaths: string[],
+    run: RunResult,
 ): boolean {
     if (options.dryRun) {
         return true;
     }
 
     if (!options.force && existsSync(context.vuePath)) {
-        stats.skippedExisting++;
-        report.push(`SKIP (already exists)  ${formatReportPath(context.vuePath)}`);
+        run.stats.skippedExisting++;
+        run.report.push(`SKIP (already exists)  ${formatReportPath(context.vuePath)}`);
 
         return false;
     }
 
     writeFileSync(context.vuePath, result.sfc, 'utf-8');
-    writtenPaths.push(context.vuePath);
+    run.writtenPaths.push(context.vuePath);
 
     // Partially migrated SFCs are review artifacts until their blockers are
     // resolved. Keep the original entry point active so mixins/extends backoff
@@ -297,7 +283,7 @@ function writeMigrationOutput(
     // is written under that name instead, so the directory-based entry point
     // would import the wrong file — keep the originals for manual review.
     if (result.componentName !== context.componentName) {
-        report.push(
+        run.report.push(
             `   ⚠  kept originals because the registered component name '${result.componentName}' differs from directory '${context.componentName}'`,
         );
 
@@ -305,9 +291,9 @@ function writeMigrationOutput(
     }
 
     replaceOriginalsWithEntryPoint(context.indexPath, context.twigPath, context.componentName);
-    stats.deletedOriginals++;
-    report.push(`  replaced entrypoint  ${formatReportPath(context.indexPath)}`);
-    report.push(`  deleted original     ${formatReportPath(context.twigPath)}`);
+    run.stats.deletedOriginals++;
+    run.report.push(`  replaced entrypoint  ${formatReportPath(context.indexPath)}`);
+    run.report.push(`  deleted original     ${formatReportPath(context.twigPath)}`);
 
     return true;
 }
@@ -316,10 +302,10 @@ function getDryRunPrefix(options: Required<RunOptions>): string {
     return options.dryRun ? '[DRY RUN] Would write: ' : '';
 }
 
-function reportWarnings(warnings: string[], stats: RunStats, report: string[]): void {
+function reportWarnings(warnings: string[], run: RunResult): void {
     for (const warning of warnings) {
-        stats.elWarnings++;
-        report.push(`   ⚠  ${warning}`);
+        run.stats.elWarnings++;
+        run.report.push(`   ⚠  ${warning}`);
     }
 }
 
@@ -327,15 +313,14 @@ function reportFullyMigrated(
     context: MigrationContext,
     result: MergeResult,
     options: Required<RunOptions>,
-    stats: RunStats,
-    report: string[],
+    run: RunResult,
 ): void {
-    stats.fullyMigrated++;
-    report.push(`✓  fully-migrated        ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`);
-    reportWarnings(result.warnings, stats, report);
+    run.stats.fullyMigrated++;
+    run.report.push(`✓  fully-migrated        ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`);
+    reportWarnings(result.warnings, run);
 }
 
-function reportExtendsBlocker(blockers: string[], stats: RunStats, report: string[]): void {
+function reportExtendsBlocker(blockers: string[], run: RunResult): void {
     const extendsBlocker = blockers.find((blocker) => blocker.startsWith('extends'));
 
     if (!extendsBlocker) {
@@ -345,61 +330,58 @@ function reportExtendsBlocker(blockers: string[], stats: RunStats, report: strin
     const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
     const parentName = parentMatch ? parentMatch[1] : 'unknown';
 
-    stats.extendsComponents++;
-    report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
+    run.stats.extendsComponents++;
+    run.report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
 }
 
 function reportPartiallyMigrated(
     context: MigrationContext,
     result: MergeResult,
     options: Required<RunOptions>,
-    stats: RunStats,
-    report: string[],
+    run: RunResult,
 ): void {
-    stats.partiallyMigrated++;
-    report.push(
+    run.stats.partiallyMigrated++;
+    run.report.push(
         `~  partially-migrated  [${result.blockers.join(', ')}]  ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`,
     );
-    reportWarnings(result.warnings, stats, report);
+    reportWarnings(result.warnings, run);
     if (options.deleteOriginals && !options.dryRun) {
-        report.push(
+        run.report.push(
             '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
         );
     }
-    reportExtendsBlocker(result.blockers, stats, report);
+    reportExtendsBlocker(result.blockers, run);
 }
 
-function reportNotMigratable(context: MigrationContext, result: MergeResult, stats: RunStats, report: string[]): void {
-    stats.notMigratable++;
-    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${formatReportPath(context.indexPath)}`);
-    reportExtendsBlocker(result.blockers, stats, report);
+function reportNotMigratable(context: MigrationContext, result: MergeResult, run: RunResult): void {
+    run.stats.notMigratable++;
+    run.report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${formatReportPath(context.indexPath)}`);
+    reportExtendsBlocker(result.blockers, run);
 }
 
 function handleMigrationResult(
     context: MigrationContext,
     result: MergeResult,
     options: Required<RunOptions>,
-    stats: RunStats,
-    report: string[],
-    writtenPaths: string[],
+    run: RunResult,
 ): void {
     if (result.status === 'not-migratable') {
-        reportNotMigratable(context, result, stats, report);
+        reportNotMigratable(context, result, run);
 
         return;
     }
 
-    if (!writeMigrationOutput(context, result, options, stats, report, writtenPaths)) {
+    if (!writeMigrationOutput(context, result, options, run)) {
         return;
     }
 
     if (result.status === 'fully-migrated') {
-        reportFullyMigrated(context, result, options, stats, report);
+        reportFullyMigrated(context, result, options, run);
 
         return;
     }
 
-    reportPartiallyMigrated(context, result, options, stats, report);
+    reportPartiallyMigrated(context, result, options, run);
 }
 
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
@@ -419,19 +401,21 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
-    const stats: RunStats = {
-        fullyMigrated: 0,
-        partiallyMigrated: 0,
-        notMigratable: 0,
-        skipped: 0,
-        skippedExisting: 0,
-        deletedOriginals: 0,
-        elWarnings: 0,
-        extendsComponents: 0,
-        errors: 0,
+    const run: RunResult = {
+        stats: {
+            fullyMigrated: 0,
+            partiallyMigrated: 0,
+            notMigratable: 0,
+            skipped: 0,
+            skippedExisting: 0,
+            deletedOriginals: 0,
+            elWarnings: 0,
+            extendsComponents: 0,
+            errors: 0,
+        },
+        report: [],
+        writtenPaths: [],
     };
-    const report: string[] = [];
-    const writtenPaths: string[] = [];
 
     for (const indexPath of indexFiles) {
         try {
@@ -442,7 +426,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
             const { path: twigPath, candidates: twigCandidates } = selectTwigFile(dir, componentName);
 
             if (!twigPath) {
-                reportSkippedTwig(indexPath, twigCandidates, stats, report);
+                reportSkippedTwig(indexPath, twigCandidates, run);
                 continue;
             }
 
@@ -456,14 +440,14 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 vuePath: join(dir, `${resolveVueFileName(result.componentName, componentName)}.vue`),
             };
 
-            handleMigrationResult(context, result, runOptions, stats, report, writtenPaths);
+            handleMigrationResult(context, result, runOptions, run);
         } catch (err) {
-            stats.errors = (stats.errors ?? 0) + 1;
-            report.push(`ERROR  ${formatReportPath(indexPath)}: ${err instanceof Error ? err.message : String(err)}`);
+            run.stats.errors++;
+            run.report.push(`ERROR  ${formatReportPath(indexPath)}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
-    return { stats, report, writtenPaths };
+    return run;
 }
 
 /**

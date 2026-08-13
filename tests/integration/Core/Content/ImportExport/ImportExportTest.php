@@ -1451,6 +1451,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'name' => 'Sales-Channel-Name',
         ]);
 
+        $numberRangeRepository = self::getContainer()->get('number_range.repository');
+        $numberRangeRepository->update([[
+            'id' => $customerNumberRangeId,
+            'pattern' => 'SWDEMO{n}',
+        ]], $context);
+
         $progress = $this->import(
             $context,
             CustomerDefinition::ENTITY_NAME,

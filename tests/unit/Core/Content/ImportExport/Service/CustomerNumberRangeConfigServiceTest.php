@@ -163,7 +163,7 @@ class CustomerNumberRangeConfigServiceTest extends TestCase
         );
         static::assertSame(
             '00000000000000000000000000000002',
-            $service->getPatternConfig(Uuid::randomHex())['id'] ?? null,
+            $service->getPatternConfig(Uuid::randomHex())['id'],
         );
     }
 

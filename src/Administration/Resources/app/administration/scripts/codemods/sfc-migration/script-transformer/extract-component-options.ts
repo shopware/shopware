@@ -156,7 +156,12 @@ function isDeclarationIdentifier(identifier: TsNode): boolean {
         return parent.getNameNode().getStart() === identifier.getStart();
     }
 
-    if (Node.isFunctionDeclaration(parent) || Node.isClassDeclaration(parent)) {
+    if (
+        Node.isFunctionDeclaration(parent) ||
+        Node.isClassDeclaration(parent) ||
+        Node.isFunctionExpression(parent) ||
+        Node.isClassExpression(parent)
+    ) {
         return parent.getNameNode()?.getStart() === identifier.getStart();
     }
 

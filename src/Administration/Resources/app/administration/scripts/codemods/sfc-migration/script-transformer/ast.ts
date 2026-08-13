@@ -77,6 +77,15 @@ export function collectLocalBindingScopes(rootNode: Node): LocalBindingScope[] {
             if (nameNode) {
                 add(nameNode, findEnclosingScope(node, rootNode, false));
             }
+        } else if (Node.isFunctionExpression(node) || Node.isClassExpression(node)) {
+            const nameNode = node.getNameNode();
+
+            // A named function or class expression binds its own name inside
+            // itself — `function Criteria() { return Criteria; }` reads the
+            // function, not any outer binding of that name.
+            if (nameNode) {
+                add(nameNode, node);
+            }
         }
     }
 
@@ -305,6 +314,84 @@ export function collectModuleBindingNames(sourceFile: SourceFile, registration: 
     return names;
 }
 
+/** Modules that export the helpers `expand-computed-spread.ts` knows how to port. */
+const HELPER_MODULE_SPECIFIER_RE = /^pinia$|(^|\/)map-errors\.service(\.[jt]s)?$/u;
+
+/**
+ * The names in this module that provably are the Shopware/Pinia computed-spread
+ * helpers, so `expand-computed-spread.ts` can port them without claiming a
+ * same-named function from somewhere else. Three provenances count:
+ *
+ * - `const { mapState } = Shopware.Component.getComponentHelper();`, including
+ *   through a global alias (`const { Component } = Shopware;` first),
+ * - a named import from `pinia`,
+ * - a named import from `map-errors.service`.
+ *
+ * A renamed binding is deliberately not collected: the local name would no
+ * longer say which helper it is, and `...mapPageErrors: mapState` would then be
+ * ported with the wrong semantics. `import { mapState } from 'vuex'` is not
+ * collected either — its getters read `this.$store`, not a Pinia store.
+ */
+export function collectTrustedHelperNames(
+    sourceFile: SourceFile,
+    registration: ComponentRegistration,
+    globalAliases: Map<string, string>,
+): Set<string> {
+    const registerPos = registration.call.getStart();
+    const names = new Set<string>();
+
+    for (const importDeclaration of sourceFile.getImportDeclarations()) {
+        if (
+            importDeclaration.getStart() >= registerPos ||
+            !HELPER_MODULE_SPECIFIER_RE.test(importDeclaration.getModuleSpecifierValue())
+        ) {
+            continue;
+        }
+
+        importDeclaration.getNamedImports().forEach((namedImport) => {
+            if (!namedImport.getAliasNode()) {
+                names.add(namedImport.getName());
+            }
+        });
+    }
+
+    for (const stmt of sourceFile.getStatements()) {
+        if (stmt.getStart() >= registerPos) break;
+
+        if (!stmt.isKind(SyntaxKind.VariableStatement)) {
+            continue;
+        }
+
+        for (const declaration of stmt.asKindOrThrow(SyntaxKind.VariableStatement).getDeclarations()) {
+            const pattern = declaration.getNameNode().asKind(SyntaxKind.ObjectBindingPattern);
+
+            if (!pattern || !isComponentHelperCall(declaration.getInitializer(), globalAliases)) {
+                continue;
+            }
+
+            pattern.getElements().forEach((element) => {
+                if (!element.getPropertyNameNode() && !element.getDotDotDotToken()) {
+                    names.add(element.getName());
+                }
+            });
+        }
+    }
+
+    return names;
+}
+
+/** true for `Shopware.Component.getComponentHelper()` and aliases of it. */
+function isComponentHelperCall(initializer: Node | undefined, globalAliases: Map<string, string>): boolean {
+    const call = initializer?.asKind(SyntaxKind.CallExpression);
+    const callee = call?.getExpression().asKind(SyntaxKind.PropertyAccessExpression);
+
+    if (!callee || callee.getName() !== 'getComponentHelper') {
+        return false;
+    }
+
+    return resolveGlobalPath(callee.getExpression(), globalAliases) !== null;
+}
+
 /**
  * Objects that exist before any module code runs, so a property path rooted in
  * one of them can be written wherever the alias was readable — including inside
@@ -328,11 +415,15 @@ const GLOBAL_ALIAS_ROOTS = new Set([
  *
  * `let`/`var` are excluded because they can be reassigned between the
  * declaration and the read, and array destructuring is excluded because reading
- * by index is not a property path.
+ * by index is not a property path. A module that declares `Shopware`, `window`,
+ * or `document` itself is excluded from that root entirely: writing the name
+ * back out would then read the module's binding, not the global.
  */
 export function collectGlobalAliasPaths(sourceFile: SourceFile, registration: ComponentRegistration): Map<string, string> {
     const registerPos = registration.call.getStart();
     const aliases = new Map<string, string>();
+    const moduleLocalNames = collectModuleLocalNames(sourceFile, registration);
+    const roots = new Set([...GLOBAL_ALIAS_ROOTS].filter((root) => !moduleLocalNames.has(root)));
 
     for (const stmt of sourceFile.getStatements()) {
         if (stmt.getStart() >= registerPos) break;
@@ -347,7 +438,7 @@ export function collectGlobalAliasPaths(sourceFile: SourceFile, registration: Co
         }
 
         for (const declaration of declarationList.getDeclarations()) {
-            const path = resolveGlobalPath(declaration.getInitializer(), aliases);
+            const path = resolveGlobalPath(declaration.getInitializer(), aliases, roots);
 
             if (path) {
                 addGlobalAliasBindings(declaration.getNameNode(), path, aliases);
@@ -389,7 +480,11 @@ function addGlobalAliasBindings(nameNode: BindingName, path: string, aliases: Ma
     }
 }
 
-function resolveGlobalPath(node: Node | undefined, aliases: Map<string, string>): string | null {
+function resolveGlobalPath(
+    node: Node | undefined,
+    aliases: Map<string, string>,
+    roots: Set<string> = GLOBAL_ALIAS_ROOTS,
+): string | null {
     if (!node) {
         return null;
     }
@@ -397,7 +492,7 @@ function resolveGlobalPath(node: Node | undefined, aliases: Map<string, string>)
     if (Node.isIdentifier(node)) {
         const name = node.getText();
 
-        return GLOBAL_ALIAS_ROOTS.has(name) ? name : (aliases.get(name) ?? null);
+        return roots.has(name) ? name : (aliases.get(name) ?? null);
     }
 
     // `a?.b` cannot be re-emitted as `a.b`, so an optional chain is not a path.
@@ -405,7 +500,7 @@ function resolveGlobalPath(node: Node | undefined, aliases: Map<string, string>)
         return null;
     }
 
-    const base = resolveGlobalPath(node.getExpression(), aliases);
+    const base = resolveGlobalPath(node.getExpression(), aliases, roots);
 
     return base === null ? null : `${base}.${node.getName()}`;
 }

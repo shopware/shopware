@@ -5,6 +5,7 @@ import {
     collectModuleBindingNames,
     collectModuleLocalNames,
     collectModuleVueImportNames,
+    collectTrustedHelperNames,
     extractModuleLevelCode,
 } from './ast';
 import { extractComputedProps } from './extract-computed';
@@ -159,6 +160,7 @@ export function collectCompositionScriptState(
         optionsObj,
         propsText,
         collectModuleBindingNames(sourceFile, registration),
+        collectTrustedHelperNames(sourceFile, registration, globalAliases),
     );
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
     todoComments.push(...supportedMembers.todoComments);
@@ -326,10 +328,14 @@ function collectSupportedCompositionMembers(
     optionsObj: ObjectLiteralExpression,
     propsText: string | null,
     moduleBindingNames: Set<string>,
+    trustedHelperNames: Set<string>,
 ): SupportedCompositionMembers {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
-    const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
+    const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(
+        optionsObj,
+        trustedHelperNames,
+    );
     const { watchProps, unsupportedEntries } = extractWatchProps(optionsObj);
     const unsupportedWatchEntries = [...unsupportedEntries];
     const { methodProps, unsupportedEntries: unsupportedMethodEntries } = extractMethodProps(optionsObj, moduleBindingNames);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoQueryInLoopRule;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\QueryCallDetector;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -67,6 +68,11 @@ class NoQueryInLoopRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/NoQueryInLoopRule/QueryInLoopInTestClass.php'], []);
     }
 
+    public function testExcludedNamespacesAreNotReported(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoQueryInLoopRule/QueryInLoopInMigration.php'], []);
+    }
+
     public static function getAdditionalConfigFiles(): array
     {
         return [
@@ -79,6 +85,6 @@ class NoQueryInLoopRuleTest extends RuleTestCase
      */
     protected function getRule(): Rule
     {
-        return new NoQueryInLoopRule();
+        return new NoQueryInLoopRule(new QueryCallDetector());
     }
 }

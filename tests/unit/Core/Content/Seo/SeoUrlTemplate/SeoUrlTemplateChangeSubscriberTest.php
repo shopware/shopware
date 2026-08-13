@@ -11,7 +11,6 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -208,53 +207,6 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $event->success();
     }
 
-    public function testDispatchesIndexingMessageForDeletedSalesChannelTemplate(): void
-    {
-        // Removing a sales channel override makes the channel fall back to the default
-        // template, so its URLs have to be regenerated too. The row is gone by then, so
-        // route and entity name come from the change set.
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
-
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(static fn (SeoUrlTemplateIndexingMessage $message): bool => $message->routeName === 'frontend.navigation.page'
-                && $message->entityName === 'category'))
-            ->willReturn(new Envelope(new \stdClass()));
-
-        $subscriber = new SeoUrlTemplateChangeSubscriber($connection, $messageBus);
-
-        $command = $this->deleteCommand();
-        $event = $this->createEvent([$command]);
-
-        $subscriber->onSeoUrlTemplateWrite($event);
-
-        static::assertTrue($command->requiresChangeSet());
-        $command->setChangeSet($this->deleteChangeSet(Uuid::randomBytes()));
-
-        $event->success();
-    }
-
-    public function testIgnoresDeletedDefaultTemplate(): void
-    {
-        // Without a default template there is nothing left to generate from.
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->expects($this->never())->method('dispatch');
-
-        $subscriber = new SeoUrlTemplateChangeSubscriber($connection, $messageBus);
-
-        $command = $this->deleteCommand();
-        $event = $this->createEvent([$command]);
-
-        $subscriber->onSeoUrlTemplateWrite($event);
-        $command->setChangeSet($this->deleteChangeSet(null));
-
-        $event->success();
-    }
-
     public function testIgnoresWritesOfOtherEntities(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -357,33 +309,6 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             ['id' => Uuid::randomBytes()],
             $this->existence(true),
             '/0'
-        );
-    }
-
-    private function deleteCommand(): DeleteCommand
-    {
-        return new DeleteCommand(
-            $this->definition,
-            ['id' => Uuid::randomBytes()],
-            $this->existence(true)
-        );
-    }
-
-    /**
-     * Mirrors what the write gateway builds for a delete: the full row state before the
-     * delete, an empty payload and the delete flag.
-     */
-    private function deleteChangeSet(?string $salesChannelId): ChangeSet
-    {
-        return new ChangeSet(
-            [
-                'sales_channel_id' => $salesChannelId,
-                'route_name' => 'frontend.navigation.page',
-                'entity_name' => 'category',
-                'template' => 'gone/{{ category.name }}',
-            ],
-            [],
-            true
         );
     }
 

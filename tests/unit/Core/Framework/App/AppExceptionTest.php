@@ -32,6 +32,13 @@ class AppExceptionTest extends TestCase
         static::assertSame(AppException::CANNOT_DELETE_COMPOSER_MANAGED, $e->getErrorCode());
     }
 
+    public function testNotCompatible(): void
+    {
+        $e = AppException::notCompatible('IncompatibleApp');
+
+        static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
+    }
+
     public function testNotFound(): void
     {
         $e = AppException::notFound('NonExistingApp');

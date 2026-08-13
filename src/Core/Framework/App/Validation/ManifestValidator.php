@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
@@ -33,7 +32,7 @@ class ManifestValidator
             return;
         }
 
-        throw new AppValidationException($manifest->getMetadata()->getName(), $errors);
+        throw AppException::validationFailed($manifest->getMetadata()->getName(), $errors);
     }
 
     public function throwOnFirstError(Manifest $manifest, Context $context): void

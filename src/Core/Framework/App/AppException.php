@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -90,6 +92,21 @@ class AppException extends HttpException
             'App {{ name }} is managed by Composer and cannot be deleted',
             ['name' => $pluginName]
         );
+    }
+
+    public static function notCompatible(string $pluginName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NOT_COMPATIBLE,
+            'App {{ name }} is not compatible with this Shopware version',
+            ['name' => $pluginName]
+        );
+    }
+
+    public static function validationFailed(string $appName, ErrorCollection $errors): AppValidationException
+    {
+        return new AppValidationException($appName, $errors);
     }
 
     /**

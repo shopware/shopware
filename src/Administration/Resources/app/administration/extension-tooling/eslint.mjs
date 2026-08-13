@@ -13,7 +13,7 @@ import tseslint from 'typescript-eslint';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swPluginRules from 'eslint-plugin-plugin-rules';
 import swCoreRules from 'eslint-plugin-sw-core-rules';
-import { legacyTwigConfig, defaultTwigFiles } from './legacy-twig.mjs';
+import { legacyTwigConfig, defaultTwigFiles, resolveVueParser } from './legacy-twig.mjs';
 
 const javascriptFilePatterns = [
     '**/*.js',
@@ -52,8 +52,7 @@ const NO_ADMIN_INTERNALS_RULE = [
     },
 ];
 const typedRules = Object.assign({}, ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}));
-const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
-const vueParser = vueParserSetup.languageOptions.parser;
+const vueParser = resolveVueParser();
 
 /**
  * Creates the shared flat config for Administration extensions.

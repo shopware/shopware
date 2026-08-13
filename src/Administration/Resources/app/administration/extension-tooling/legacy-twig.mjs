@@ -9,8 +9,28 @@
 import pluginVue from 'eslint-plugin-vue';
 import twigVue from 'eslint-plugin-twig-vue';
 
-const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
-const vueParser = vueParserSetup.languageOptions.parser;
+/**
+ * Borrows the parser eslint-plugin-vue configures in its own internal
+ * `vue/base/setup-for-vue` config. That name is private layout, not a
+ * documented entry point, so a major eslint-plugin-vue bump can rename it away.
+ * Throw with the reason instead of dereferencing `undefined` and surfacing a
+ * bare TypeError in the editor.
+ */
+export function resolveVueParser() {
+    const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
+
+    if (!vueParserSetup) {
+        throw new Error(
+            'eslint-plugin-vue no longer exposes the internal "vue/base/setup-for-vue" config the Administration ' +
+                'extension tooling borrows its Vue parser from. A major eslint-plugin-vue bump likely renamed it — ' +
+                'update the lookup in extension-tooling/legacy-twig.mjs.',
+        );
+    }
+
+    return vueParserSetup.languageOptions.parser;
+}
+
+const vueParser = resolveVueParser();
 
 export const defaultTwigFiles = [
     '**/*.html.twig',

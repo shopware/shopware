@@ -79,6 +79,7 @@ interface SupportedCompositionMembers {
     computedNames: Set<string>;
     methodNames: Set<string>;
     injectNames: Set<string>;
+    declaredMemberNames: Set<string>;
     manualMigrationReasons: string[];
     todoComments: string[];
 }
@@ -133,9 +134,17 @@ export function collectCompositionScriptState(
         computedNames,
         methodNames,
         injectNames,
+        declaredMemberNames,
     } = supportedMembers;
 
-    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
+    const ctx: RewriteContext = {
+        propNames,
+        dataNames,
+        computedNames,
+        methodNames,
+        injectNames,
+        declaredMemberNames,
+    };
     lifecycleHooks = filterSupported(
         lifecycleHooks,
         ({ hookName, bodyText }) => {
@@ -235,6 +244,15 @@ function collectSupportedCompositionMembers(
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
 
+    // Collected before any filtering, so a `this.<name>` reference to a member
+    // that is dropped below can be reported as the cascade it is.
+    const declaredMemberNames = new Set([
+        ...injectProps.map((p) => p.localName),
+        ...dataProps.map((p) => p.name),
+        ...computedProps.map((p) => p.name),
+        ...methodProps.map((p) => p.name),
+    ]);
+
     const supportedInjectProps = collectSupportedNamedProps(
         injectProps,
         ({ localName }) => localName,
@@ -295,7 +313,7 @@ function collectSupportedCompositionMembers(
     };
 
     for (;;) {
-        const ctx = buildMemberContext(members, propNames);
+        const ctx = buildMemberContext(members, propNames, declaredMemberNames);
         const filteredData = filterSupported(
             members.supportedDataProps,
             ({ name, valueText }) => {
@@ -369,7 +387,7 @@ function collectSupportedCompositionMembers(
     const computedNames = new Set(members.supportedComputedProps.map((p) => p.name));
     const methodNames = new Set(members.supportedMethodProps.map((p) => p.name));
 
-    const watchCtx = buildMemberContext(members, propNames);
+    const watchCtx = buildMemberContext(members, propNames, declaredMemberNames);
     const supportedWatchProps = filterSupported(
         collectSupportedWatchProps(
             watchProps,
@@ -408,18 +426,24 @@ function collectSupportedCompositionMembers(
         computedNames,
         methodNames,
         injectNames,
+        declaredMemberNames,
         manualMigrationReasons,
         todoComments,
     };
 }
 
-function buildMemberContext(members: SupportedPublicMembers, propNames: Set<string>): RewriteContext {
+function buildMemberContext(
+    members: SupportedPublicMembers,
+    propNames: Set<string>,
+    declaredMemberNames: Set<string>,
+): RewriteContext {
     return {
         propNames,
         dataNames: new Set(members.supportedDataProps.map((p) => p.name)),
         computedNames: new Set(members.supportedComputedProps.map((p) => p.name)),
         methodNames: new Set(members.supportedMethodProps.map((p) => p.name)),
         injectNames: new Set(members.supportedInjectProps.map((p) => p.localName)),
+        declaredMemberNames,
     };
 }
 

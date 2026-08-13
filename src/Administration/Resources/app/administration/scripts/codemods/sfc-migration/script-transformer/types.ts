@@ -114,6 +114,13 @@ export interface RewriteContext {
     methodNames: Set<string>;
     /** inject() keys — accessed as plain identifiers in Composition API */
     injectNames: Set<string>;
+    /**
+     * Every inject/data/computed/method name the component declared, including
+     * the ones the codemod dropped. A `this.<name>` hit that is declared here but
+     * not supported above was dropped, which `findUnsupportedThisUsage` reports
+     * as such instead of calling the name unknown.
+     */
+    declaredMemberNames: Set<string>;
 }
 
 export interface UsedComposables {

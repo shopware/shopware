@@ -222,6 +222,13 @@ export function findUnsupportedThisUsage(snippet: CodeSnippet, ctx: RewriteConte
             continue;
         }
 
+        // The component declared this name, so it is not unknown — it was
+        // dropped earlier. Reporting it as unknown would point at the reference
+        // instead of at the member that actually needs the manual migration.
+        if (ctx.declaredMemberNames.has(name)) {
+            return `dropped member '${name}'`;
+        }
+
         return `unknown this property '${name}'`;
     }
 

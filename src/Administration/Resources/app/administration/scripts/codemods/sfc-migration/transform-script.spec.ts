@@ -2523,6 +2523,54 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('this.unknownApi');
         });
 
+        it('reports a hook calling a dropped method as a dropped member, not as an unknown property', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                mounted() {
+                    this.mountedComponent();
+                },
+                methods: {
+                    mountedComponent() {
+                        return this.unknownApi;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toContain("mounted: lifecycle hook uses dropped member 'mountedComponent'");
+            expect(result.blockers).toContain("methods: mountedComponent uses unknown this property 'unknownApi'");
+        });
+
+        it('reports a computed property reading a dropped data entry as a dropped member', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() {
+                    return { label: this.unknownApi };
+                },
+                computed: {
+                    upperLabel() {
+                        return this.label.toUpperCase();
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toContain("computed: upperLabel uses dropped member 'label'");
+            expect(result.blockers).toContain("data: label initializer uses unknown this property 'unknownApi'");
+        });
+
+        it('keeps the unknown-property message for a name the component never declared', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                methods: {
+                    notify() {
+                        this.createNotificationSuccess({ message: 'Saved' });
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.blockers).toContain("methods: notify uses unknown this property 'createNotificationSuccess'");
+            expect(result.blockers.join('\n')).not.toContain('dropped member');
+        });
+
         it('marks props that reference a destructured module-local declaration as unsupported', () => {
             const js = `const { propConfig } = Shopware.Utils;
 

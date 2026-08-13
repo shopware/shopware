@@ -1463,8 +1463,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $numberRangeCriteria->addFilter(new EqualsFilter('global', true));
 
         $customerNumberRange = $numberRangeRepository
-            ->search($numberRangeCriteria, $context)
-            ->first();
+            ->search($numberRangeCriteria, $context)->getEntities()->first();
 
         static::assertNotNull($customerNumberRange);
         static::assertInstanceOf(NumberRangeEntity::class, $customerNumberRange);

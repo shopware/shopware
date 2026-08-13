@@ -30,6 +30,11 @@ final class CustomerNumberRangeConfigService
         return $this->getPatternConfig($salesChannelId)['id'] ?? null;
     }
 
+    public function reset(): void
+    {
+        $this->cache = [];
+    }
+
     /**
      * @return array{id: string, pattern:string}|null
      */

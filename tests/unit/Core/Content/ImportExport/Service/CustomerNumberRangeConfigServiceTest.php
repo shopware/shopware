@@ -84,6 +84,28 @@ class CustomerNumberRangeConfigServiceTest extends TestCase
         );
     }
 
+    public function testResetClearsPatternConfigCache(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))->method('createQueryBuilder')->willReturnCallback(
+            function (): QueryBuilder {
+                $result = static::createStub(Result::class);
+                $result->method('fetchAssociative')->willReturn([
+                    'id' => Uuid::fromHexToBytes('00000000000000000000000000000001'),
+                    'pattern' => 'CUSTOMER-{n}',
+                ]);
+
+                return $this->createQueryBuilderStub($result);
+            }
+        );
+        $salesChannelId = Uuid::randomHex();
+        $service = new CustomerNumberRangeConfigService($connection);
+
+        $service->getPatternConfig($salesChannelId);
+        $service->reset();
+        $service->getPatternConfig($salesChannelId);
+    }
+
     public function testBindsSalesChannelIdAsBinaryUuid(): void
     {
         $salesChannelId = Uuid::randomHex();

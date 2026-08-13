@@ -166,6 +166,8 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         foreach ($highestIncrements as $configurationId => $increment) {
             $this->updateNumberRangeMinimum($configurationId, $increment);
         }
+
+        $this->numberPatternConfigService->reset();
     }
 
     /**

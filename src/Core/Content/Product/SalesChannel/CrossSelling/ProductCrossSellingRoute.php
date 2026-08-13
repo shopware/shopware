@@ -90,6 +90,13 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         foreach ($crossSellings as $crossSelling) {
             $clone = clone $criteria;
+
+            // CrossSellingElement is typed against ProductCollection, a field selection would hydrate
+            // PartialEntity instances into a generic EntityCollection instead. Dropping it up front also
+            // keeps the criteria events from handing a subscriber a selection it cannot work with, e.g.
+            // Criteria::excludeFields() rejects a criteria that still carries one.
+            $clone->resetFields();
+
             if ($this->useProductStream($crossSelling)) {
                 $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
             } else {
@@ -180,8 +187,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        // CrossSellingElement is typed against ProductCollection, a field selection would hydrate
-        // PartialEntity instances into a generic EntityCollection instead
+        // drop a field selection that a subscriber added, see the reason in load()
         $criteria->resetFields();
 
         $products = $this->listingLoader->load($criteria, $context)->getEntities();
@@ -230,8 +236,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        // CrossSellingElement is typed against ProductCollection, a field selection would hydrate
-        // PartialEntity instances into a generic EntityCollection instead
+        // drop a field selection that a subscriber added, see the reason in load()
         $criteria->resetFields();
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();

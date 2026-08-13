@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -228,6 +230,66 @@ class ProductCrossSellingRouteTest extends TestCase
         static::assertNotNull($element);
         static::assertSame([$crossSellingProductId], array_values($element->getProducts()->getIds()));
         static::assertSame(1, $element->getTotal());
+    }
+
+    public function testLoadDropsThePartialFieldSelectionBeforeTheCriteriaEvents(): void
+    {
+        $productId = Uuid::randomHex();
+        $crossSellingProductId = Uuid::randomHex();
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId(Uuid::randomHex());
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $listingLoader = $this->createMock(ProductListingLoader::class);
+        $listingLoader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static fn (Criteria $criteria): EntitySearchResult => self::searchProducts($criteria, $crossSellingProductId));
+
+        // excludeFields() is the documented way to drop heavy columns, but it rejects a criteria that
+        // still carries an addFields() selection, so the subscriber must not see one
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            ProductCrossSellingStreamCriteriaEvent::class,
+            static function (ProductCrossSellingStreamCriteriaEvent $event): void {
+                $event->getCriteria()->excludeFields(['description']);
+            }
+        );
+
+        $route = new ProductCrossSellingRoute(
+            $this->crossSellingRepository,
+            $eventDispatcher,
+            $this->productStreamBuilder,
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(SystemConfigService::class),
+            $listingLoader,
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            $this->cacheTagCollector
+        );
+
+        $element = $route
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), (new Criteria())->addFields(['id', 'name']))
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$crossSellingProductId], array_values($element->getProducts()->getIds()));
     }
 
     public function testLoadByIdsIgnoresPartialFieldSelection(): void

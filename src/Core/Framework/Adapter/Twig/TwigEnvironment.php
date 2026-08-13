@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\LoaderInterface;
@@ -16,7 +17,7 @@ use Twig\TemplateWrapper;
  * @internal
  */
 #[Package('framework')]
-class TwigEnvironment extends Environment
+class TwigEnvironment extends Environment implements ResetInterface
 {
     private ?\DateTimeZone $configuredTimezone = null;
 
@@ -43,6 +44,17 @@ class TwigEnvironment extends Environment
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
             '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ]);
+    }
+
+    /**
+     * Resets the {@see CachedEscaperRuntime} escape cache between requests in long running environments
+     * (RoadRunner, FrankenPHP, Swoole). This service (the `twig` service) is always initialized when
+     * templates are rendered, so Symfony's `ServicesResetter` reliably invokes this method via the
+     * `kernel.reset` tag, preventing unbounded growth of the static escape cache.
+     */
+    public function reset(): void
+    {
+        CachedEscaperRuntime::resetEscapeCache();
     }
 
     /**

@@ -38,106 +38,23 @@ class ShopSettingsRoute extends AbstractShopSettingsRoute
         $salesChannelId = $context->getSalesChannelId();
 
         $settings = new ShopSettings(
-            general: $this->loadGeneralSettings($salesChannelId),
-            loginRegistration: $this->loadLoginRegistrationSettings($salesChannelId),
-            cart: $this->loadCartSettings($salesChannelId),
-            listing: $this->loadListingSettings($salesChannelId),
-            newsletter: $this->loadNewsletterSettings($salesChannelId),
+            general: ShopGeneralSettings::fromConfig($this->loadDomain('core.basicInformation', $salesChannelId)),
+            loginRegistration: ShopLoginRegistrationSettings::fromConfig($this->loadDomain('core.loginRegistration', $salesChannelId)),
+            cart: ShopCartSettings::fromConfig($this->loadDomain('core.cart', $salesChannelId)),
+            listing: ShopListingSettings::fromConfig($this->loadDomain('core.listing', $salesChannelId)),
+            newsletter: ShopNewsletterSettings::fromConfig($this->loadDomain('core.newsletter', $salesChannelId)),
         );
 
         return new ShopSettingsRouteResponse($settings);
     }
 
-    private function loadGeneralSettings(string $salesChannelId): ShopGeneralSettings
+    /**
+     * @return array<string, mixed>
+     */
+    private function loadDomain(string $domain, string $salesChannelId): array
     {
-        $domain = 'core.basicInformation.';
+        $config = $this->systemConfigService->get($domain, $salesChannelId);
 
-        return new ShopGeneralSettings(
-            shopName: $this->systemConfigService->getString($domain . 'shopName', $salesChannelId),
-            metaAuthor: $this->systemConfigService->getString($domain . 'metaAuthor', $salesChannelId),
-            metaRobots: $this->systemConfigService->getString($domain . 'metaRobots', $salesChannelId),
-            familyFriendly: $this->systemConfigService->getBool($domain . 'familyFriendly', $salesChannelId),
-            firstNameFieldRequired: $this->systemConfigService->getBool($domain . 'firstNameFieldRequired', $salesChannelId),
-            lastNameFieldRequired: $this->systemConfigService->getBool($domain . 'lastNameFieldRequired', $salesChannelId),
-            phoneNumberFieldRequired: $this->systemConfigService->getBool($domain . 'phoneNumberFieldRequired', $salesChannelId),
-            showRevocationButton: $this->systemConfigService->getBool($domain . 'showRevocationButton', $salesChannelId),
-        );
-    }
-
-    private function loadLoginRegistrationSettings(string $salesChannelId): ShopLoginRegistrationSettings
-    {
-        $domain = 'core.loginRegistration.';
-
-        return new ShopLoginRegistrationSettings(
-            passwordMinLength: $this->systemConfigService->getInt($domain . 'passwordMinLength', $salesChannelId),
-            createCustomerAccountDefault: $this->systemConfigService->getBool($domain . 'createCustomerAccountDefault', $salesChannelId),
-            showSalutation: $this->systemConfigService->getBool($domain . 'showSalutation', $salesChannelId),
-            showTitleField: $this->systemConfigService->getBool($domain . 'showTitleField', $salesChannelId),
-            requireEmailConfirmation: $this->systemConfigService->getBool($domain . 'requireEmailConfirmation', $salesChannelId),
-            requirePasswordConfirmation: $this->systemConfigService->getBool($domain . 'requirePasswordConfirmation', $salesChannelId),
-            doubleOptInRegistration: $this->systemConfigService->getBool($domain . 'doubleOptInRegistration', $salesChannelId),
-            doubleOptInGuestOrder: $this->systemConfigService->getBool($domain . 'doubleOptInGuestOrder', $salesChannelId),
-            showPhoneNumberField: $this->systemConfigService->getBool($domain . 'showPhoneNumberField', $salesChannelId),
-            phoneNumberFieldRequired: $this->systemConfigService->getBool($domain . 'phoneNumberFieldRequired', $salesChannelId),
-            showBirthdayField: $this->systemConfigService->getBool($domain . 'showBirthdayField', $salesChannelId),
-            birthdayFieldRequired: $this->systemConfigService->getBool($domain . 'birthdayFieldRequired', $salesChannelId),
-            showAccountTypeSelection: $this->systemConfigService->getBool($domain . 'showAccountTypeSelection', $salesChannelId),
-            showAdditionalAddressField1: $this->systemConfigService->getBool($domain . 'showAdditionalAddressField1', $salesChannelId),
-            additionalAddressField1Required: $this->systemConfigService->getBool($domain . 'additionalAddressField1Required', $salesChannelId),
-            showAdditionalAddressField2: $this->systemConfigService->getBool($domain . 'showAdditionalAddressField2', $salesChannelId),
-            additionalAddressField2Required: $this->systemConfigService->getBool($domain . 'additionalAddressField2Required', $salesChannelId),
-            addressInputFieldArrangement: $this->systemConfigService->getString($domain . 'addressInputFieldArrangement', $salesChannelId),
-            allowCustomerDeletion: $this->systemConfigService->getBool($domain . 'allowCustomerDeletion', $salesChannelId),
-            requireDataProtectionCheckbox: $this->systemConfigService->getBool($domain . 'requireDataProtectionCheckbox', $salesChannelId),
-        );
-    }
-
-    private function loadCartSettings(string $salesChannelId): ShopCartSettings
-    {
-        $domain = 'core.cart.';
-
-        return new ShopCartSettings(
-            maxQuantity: $this->systemConfigService->getInt($domain . 'maxQuantity', $salesChannelId),
-            lineItemAddLimit: $this->systemConfigService->getInt($domain . 'lineItemAddLimit', $salesChannelId),
-            showDeliveryTime: $this->systemConfigService->getBool($domain . 'showDeliveryTime', $salesChannelId),
-            showSubtotal: $this->systemConfigService->getBool($domain . 'showSubtotal', $salesChannelId),
-            columnTaxInsteadUnitPrice: $this->systemConfigService->getBool($domain . 'columnTaxInsteadUnitPrice', $salesChannelId),
-            showCustomerComment: $this->systemConfigService->getBool($domain . 'showCustomerComment', $salesChannelId),
-            showTosCheckbox: $this->systemConfigService->getBool($domain . 'showTosCheckbox', $salesChannelId),
-            openOffcanvasAfterAddToCart: $this->systemConfigService->getBool($domain . 'openOffcanvasAfterAddToCart', $salesChannelId),
-            wishlistEnabled: $this->systemConfigService->getBool($domain . 'wishlistEnabled', $salesChannelId),
-            logoutGuestAfterCheckout: $this->systemConfigService->getBool($domain . 'logoutGuestAfterCheckout', $salesChannelId),
-            enableOrderRefunds: $this->systemConfigService->getBool($domain . 'enableOrderRefunds', $salesChannelId),
-        );
-    }
-
-    private function loadListingSettings(string $salesChannelId): ShopListingSettings
-    {
-        $domain = 'core.listing.';
-
-        return new ShopListingSettings(
-            productsPerPage: $this->systemConfigService->getInt($domain . 'productsPerPage', $salesChannelId),
-            allowBuyInListing: $this->systemConfigService->getBool($domain . 'allowBuyInListing', $salesChannelId),
-            showReview: $this->systemConfigService->getBool($domain . 'showReview', $salesChannelId),
-            reviewsPerPage: $this->systemConfigService->getInt($domain . 'reviewsPerPage', $salesChannelId),
-            disableEmptyFilterOptions: $this->systemConfigService->getBool($domain . 'disableEmptyFilterOptions', $salesChannelId),
-            markAsNew: $this->systemConfigService->getInt($domain . 'markAsNew', $salesChannelId),
-            hideCloseoutProductsWhenOutOfStock: $this->systemConfigService->getBool($domain . 'hideCloseoutProductsWhenOutOfStock', $salesChannelId),
-            showVariantOptionInSearchSuggestionResult: $this->systemConfigService->getBool($domain . 'showVariantOptionInSearchSuggestionResult', $salesChannelId),
-            findBestVariant: $this->systemConfigService->getBool($domain . 'findBestVariant', $salesChannelId),
-            autoplayVideoInListing: $this->systemConfigService->getBool($domain . 'autoplayVideoInListing', $salesChannelId),
-            beforeListPriceSnippetKey: $this->systemConfigService->getString($domain . 'beforeListPriceSnippetKey', $salesChannelId),
-            afterListPriceSnippetKey: $this->systemConfigService->getString($domain . 'afterListPriceSnippetKey', $salesChannelId),
-        );
-    }
-
-    private function loadNewsletterSettings(string $salesChannelId): ShopNewsletterSettings
-    {
-        $domain = 'core.newsletter.';
-
-        return new ShopNewsletterSettings(
-            doubleOptIn: $this->systemConfigService->getBool($domain . 'doubleOptIn', $salesChannelId),
-            doubleOptInRegistered: $this->systemConfigService->getBool($domain . 'doubleOptInRegistered', $salesChannelId),
-        );
+        return \is_array($config) ? $config : [];
     }
 }

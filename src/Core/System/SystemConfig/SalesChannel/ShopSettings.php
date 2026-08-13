@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 final class ShopSettings extends Struct
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public readonly ShopGeneralSettings $general,
         public readonly ShopLoginRegistrationSettings $loginRegistration,

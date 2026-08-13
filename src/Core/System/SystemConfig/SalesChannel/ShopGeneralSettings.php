@@ -13,6 +13,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 final class ShopGeneralSettings extends Struct
 {
+    use ConfigCastTrait;
+
+    /**
+     * @internal
+     */
     public function __construct(
         public readonly string $shopName,
         public readonly string $metaAuthor,
@@ -23,6 +28,25 @@ final class ShopGeneralSettings extends Struct
         public readonly bool $phoneNumberFieldRequired,
         public readonly bool $showRevocationButton,
     ) {
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<string, mixed> $config The values of the core.basicInformation config domain
+     */
+    public static function fromConfig(array $config): self
+    {
+        return new self(
+            shopName: self::stringValue($config, 'shopName'),
+            metaAuthor: self::stringValue($config, 'metaAuthor'),
+            metaRobots: self::stringValue($config, 'metaRobots'),
+            familyFriendly: self::boolValue($config, 'familyFriendly'),
+            firstNameFieldRequired: self::boolValue($config, 'firstNameFieldRequired'),
+            lastNameFieldRequired: self::boolValue($config, 'lastNameFieldRequired'),
+            phoneNumberFieldRequired: self::boolValue($config, 'phoneNumberFieldRequired'),
+            showRevocationButton: self::boolValue($config, 'showRevocationButton'),
+        );
     }
 
     public function getApiAlias(): string

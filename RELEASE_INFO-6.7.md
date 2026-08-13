@@ -274,6 +274,7 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
+
 ### Static analysis reports N+1 queries
 
 `shopware/phpstan-extension` gained two rules for this. `NoIndirectQueryInLoopRule` reports a loop that calls a method of the same class which queries, under the `shopware.indirectQueryInLoop` identifier — moving a query into a helper does not make the loop cheaper, so the rule follows the delegation. It does not report a call that leads back to its own caller, because that recursion follows the shape of the data rather than the number of records.

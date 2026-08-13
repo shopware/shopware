@@ -122,7 +122,9 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
         static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
 
-        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        $history = $historyCollector->getHistory();
         static::assertCount(2, $history);
         static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
         static::assertIsArray($history[0]['options']);
@@ -183,7 +185,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        $history = $historyCollector->getHistory();
         static::assertCount(2, $history);
         static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
         static::assertIsArray($history[1]['options']);
@@ -267,7 +271,9 @@ class WebhookEventMessageHandlerTest extends TestCase
         }
 
         static::assertSame(6, $this->getRequestCount());
-        $history = static::getContainer()->get(GuzzleHistoryCollector::class)->getHistory();
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        $history = $historyCollector->getHistory();
         static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
         static::assertSame('GET', $history[1]['request']->getMethod());
         static::assertSame('', $history[1]['request']->getBody()->getContents());

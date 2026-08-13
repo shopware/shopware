@@ -1,25 +1,6 @@
-# Extending the ContentSystem
+# Service Tags and Types
 
-Plugins extend the ContentSystem through six mechanisms.
-
-## Table of Contents
-
-1. [Extension Model](#extension-model)
-2. [Service Tags](#service-tag-reference)
-3. [Type Reference](#type-reference)
-
-## Extension Model
-
-| Extension Point           | Purpose                                                                |
-|---------------------------|------------------------------------------------------------------------|
-| **Element Types**         | New content components with declared properties and slots — authored per [Layout/Type/docs/custom-types.md](Layout/Type/docs/custom-types.md), not covered here |
-| **Style Options**         | New universal per-breakpoint presentation attributes for every element — authored per [Layout/Element/Style/docs/custom-options.md](Layout/Element/Style/docs/custom-options.md), not covered here |
-| **Binding Specifications** | Pre-validated data wirings for an element type, applied in one action — authored per [Binding/README.md](Binding/README.md), not covered here |
-| **Specification Sources** | New URL patterns, entity types — authored per [Adapter/docs/custom-sources.md](Adapter/docs/custom-sources.md), not covered here |
-| **Data Loaders**          | External APIs, calculations, aggregated data (with cache control) — authored per [Hydration/DataLoader/docs/custom-loaders.md](Hydration/DataLoader/docs/custom-loaders.md), not covered here |
-| **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags — authored per [Event/Listener/docs/custom-listeners.md](Event/Listener/docs/custom-listeners.md), not covered here |
-
----
+The DI tags a plugin registers its content system services under, and the classes an extension developer encounters while writing them.
 
 ## Service Tag Reference
 
@@ -32,8 +13,6 @@ Plugins extend the ContentSystem through six mechanisms.
 | `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
 Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`
-
----
 
 ## Type Reference
 

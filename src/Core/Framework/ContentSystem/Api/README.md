@@ -33,4 +33,4 @@ Admin API controllers for the content system. Store API rendering lives in `Sale
 - [docs/persisted-mutation.md](docs/persisted-mutation.md) - The nine persisted mutation actions, their request envelope, and their committed response.
 - [docs/persisted-mutation-errors.md](docs/persisted-mutation-errors.md) - The failure conditions specific to the persisted mutation actions.
 
-The introspection endpoints that feed these are documented in [../ADMINISTRATION.md](../ADMINISTRATION.md).
+The introspection endpoints that feed these are documented with the systems they describe: element types in [../Layout/Type/docs/introspection.md](../Layout/Type/docs/introspection.md), style options in [../Layout/Element/Style/docs/introspection.md](../Layout/Element/Style/docs/introspection.md), data loaders in [../Hydration/DataLoader/docs/introspection.md](../Hydration/DataLoader/docs/introspection.md), and assignable entity types in [../Adapter/docs/introspection.md](../Adapter/docs/introspection.md).

@@ -7,7 +7,7 @@ Default placeholders available in entity-based rendering:
 - `{{categoryId}}` - Category UUID (category endpoint)
 - `{{landingPageId}}` - Landing page UUID (landing-page endpoint)
 
-Use these in element properties and data requirements. See [Example: Product Detail Page](../../USAGE.md#example-product-detail-page) for usage.
+Use these in element properties and data requirements. See [Product Detail Page Example](../../docs/product-detail-page.md) for usage.
 
 ## Additional Parameters
 

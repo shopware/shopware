@@ -67,7 +67,7 @@
     }
 
     &__filename_infix_fields {
-        > :nth-last-child(-n+3) {
+        > :nth-last-child(-n+2) {
             margin-bottom: 0;
 
             .mt-field {

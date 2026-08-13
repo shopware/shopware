@@ -684,7 +684,7 @@ export default {
             this.isLoadingPreview = true;
 
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
-                this.documentV2ApiService
+                return this.documentV2ApiService
                     .previewDocument(
                         this.order.id,
                         this.currentDocumentType.technicalName,
@@ -708,8 +708,6 @@ export default {
                     .finally(() => {
                         this.isLoadingPreview = false;
                     });
-
-                return;
             }
 
             return this.documentService

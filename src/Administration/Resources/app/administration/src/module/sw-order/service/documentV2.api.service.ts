@@ -213,10 +213,7 @@ export default class DocumentV2ApiService extends ApiService {
 }
 
 Application.addServiceProvider('documentV2ApiService', () => {
-    return new DocumentV2ApiService(
-        Application.getContainer('init').httpClient,
-        Shopware.Service('loginService'),
-    );
+    return new DocumentV2ApiService(Application.getContainer('init').httpClient, Shopware.Service('loginService'));
 });
 
 /**

@@ -9,7 +9,6 @@ import FormSerializeUtil from 'src/utility/form/form-serialize.util';
  * @package checkout
  */
 export default class AddToCartPlugin extends Plugin {
-
     static options = {
         redirectSelector: '[name="redirectTo"]',
         redirectParamSelector: '[data-redirect-parameters="true"]',
@@ -27,12 +26,16 @@ export default class AddToCartPlugin extends Plugin {
         this._getForm();
 
         if (!this._form) {
-            throw new Error(`No form found for the plugin: ${this.constructor.name}`);
+            throw new Error(
+                `No form found for the plugin: ${this.constructor.name}`,
+            );
         }
 
         this._prepareFormRedirect();
 
         this._registerEvents();
+
+        this.el.setAttribute('data-add-to-cart-ready', 'true');
     }
 
     /**
@@ -44,8 +47,12 @@ export default class AddToCartPlugin extends Plugin {
      */
     _prepareFormRedirect() {
         try {
-            const redirectInput = this._form.querySelector(this.options.redirectSelector);
-            const redirectParamInput = this._form.querySelector(this.options.redirectParamSelector);
+            const redirectInput = this._form.querySelector(
+                this.options.redirectSelector,
+            );
+            const redirectParamInput = this._form.querySelector(
+                this.options.redirectParamSelector,
+            );
 
             redirectInput.value = this.options.redirectTo;
             redirectParamInput.disabled = true;
@@ -70,8 +77,14 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
-        this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
-        this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
+        this._form.addEventListener(
+            'QuantitySelector/StockAdjusted',
+            this._handleStockAdjusted.bind(this),
+        );
+        this._form.addEventListener(
+            'QuantitySelector/OutOfStock',
+            this._handleOutOfStock.bind(this),
+        );
     }
 
     /**
@@ -122,24 +135,28 @@ export default class AddToCartPlugin extends Plugin {
         fetch(requestUrl, {
             method: 'POST',
             body: formData,
-        }).then((response) => {
-            if (!response.ok) {
-                throw new Error('Add to cart failed');
-            }
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Add to cart failed');
+                }
 
-            // Update the cart widget to show the new item count
-            window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
-                instance.fetch();
+                // Update the cart widget to show the new item count
+                window.PluginManager.getPluginInstances('CartWidget')?.forEach(
+                    (instance) => {
+                        instance.fetch();
+                    },
+                );
+
+                // Show success message
+                this._showSuccessAlert();
+
+                this.$emitter.publish('addToCartWithoutOffcanvas');
+            })
+            .catch(() => {
+                // Fall back to offcanvas behaviour on error to show any cart errors
+                this._openOffCanvasCarts(requestUrl, formData);
             });
-
-            // Show success message
-            this._showSuccessAlert();
-
-            this.$emitter.publish('addToCartWithoutOffcanvas');
-        }).catch(() => {
-            // Fall back to offcanvas behaviour on error to show any cart errors
-            this._openOffCanvasCarts(requestUrl, formData);
-        });
     }
 
     /**
@@ -148,13 +165,16 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _showSuccessAlert() {
-        const template = document.querySelector(this.options.alertTemplateSelector);
+        const template = document.querySelector(
+            this.options.alertTemplateSelector,
+        );
 
         if (!template || !this._form) {
             return;
         }
 
-        const existingAlert = this._form.parentElement.querySelector('.add-to-cart-alert');
+        const existingAlert =
+            this._form.parentElement.querySelector('.add-to-cart-alert');
         if (existingAlert) {
             existingAlert.remove();
         }
@@ -165,7 +185,9 @@ export default class AddToCartPlugin extends Plugin {
         this._form.insertAdjacentElement('afterend', alert);
 
         setTimeout(() => {
-            alert.addEventListener('transitionend', () => alert.remove(), { once: true });
+            alert.addEventListener('transitionend', () => alert.remove(), {
+                once: true,
+            });
             alert.classList.remove('show');
         }, this.options.alertDismissDelay);
     }
@@ -177,7 +199,8 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _openOffCanvasCarts(requestUrl, formData) {
-        const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
+        const offCanvasCartInstances =
+            window.PluginManager.getPluginInstances('OffCanvasCart');
         offCanvasCartInstances.forEach((instance) => {
             this._openOffCanvasCart(instance, requestUrl, formData);
         });
@@ -218,7 +241,9 @@ export default class AddToCartPlugin extends Plugin {
     _handleOutOfStock() {
         this._showStockAlert(this.options.outOfStockText || '');
 
-        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+        const buyButton = this._form.querySelector(
+            this.options.buyButtonSelector,
+        );
         if (buyButton) {
             buyButton.disabled = true;
         }
@@ -231,13 +256,17 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _showStockAlert(text) {
-        const template = this._form.querySelector(this.options.stockAlertTemplateSelector);
+        const template = this._form.querySelector(
+            this.options.stockAlertTemplateSelector,
+        );
 
         if (!template) {
             return;
         }
 
-        const existingAlert = template.parentElement.querySelector(`.${this.options.stockAlertClass}`);
+        const existingAlert = template.parentElement.querySelector(
+            `.${this.options.stockAlertClass}`,
+        );
         if (existingAlert) {
             existingAlert.remove();
         }

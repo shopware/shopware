@@ -14,7 +14,6 @@ const mockCartWidgetInstance = {
  * @package checkout
  */
 describe('AddToCartPlugin tests', () => {
-
     let pluginInstance;
 
     beforeEach(() => {
@@ -63,6 +62,9 @@ describe('AddToCartPlugin tests', () => {
 
     test('should init plugin', () => {
         expect(typeof pluginInstance).toBe('object');
+        expect(pluginInstance.el.getAttribute('data-add-to-cart-ready')).toBe(
+            'true',
+        );
     });
 
     test('should fire events and open offcanvas when submitting form with offcanvas enabled', () => {
@@ -71,8 +73,15 @@ describe('AddToCartPlugin tests', () => {
         const button = document.querySelector('button');
         button.click();
 
-        expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(1, 'beforeFormSubmit', expect.any(FormData));
-        expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(2, 'openOffCanvasCart');
+        expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(
+            1,
+            'beforeFormSubmit',
+            expect.any(FormData),
+        );
+        expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(
+            2,
+            'openOffCanvasCart',
+        );
     });
 
     test('should add to cart without offcanvas when offcanvas is disabled', async () => {
@@ -89,8 +98,13 @@ describe('AddToCartPlugin tests', () => {
             body: expect.any(FormData),
         });
         expect(mockCartWidgetInstance.fetch).toHaveBeenCalled();
-        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith('beforeFormSubmit', expect.any(FormData));
-        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith('addToCartWithoutOffcanvas');
+        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith(
+            'beforeFormSubmit',
+            expect.any(FormData),
+        );
+        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith(
+            'addToCartWithoutOffcanvas',
+        );
     });
 
     test('should show success alert when adding to cart without offcanvas', async () => {
@@ -153,7 +167,10 @@ describe('AddToCartPlugin tests', () => {
         window.openOffcanvasAfterAddToCart = '0';
         global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
 
-        const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
+        const openOffCanvasSpy = jest.spyOn(
+            pluginInstance,
+            '_openOffCanvasCarts',
+        );
 
         const button = document.querySelector('button');
         button.click();
@@ -167,9 +184,14 @@ describe('AddToCartPlugin tests', () => {
 
     test('should fall back to offcanvas when fetch throws network error', async () => {
         window.openOffcanvasAfterAddToCart = '0';
-        global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+        global.fetch = jest.fn(() =>
+            Promise.reject(new Error('Network error')),
+        );
 
-        const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
+        const openOffCanvasSpy = jest.spyOn(
+            pluginInstance,
+            '_openOffCanvasCarts',
+        );
 
         const button = document.querySelector('button');
         button.click();
@@ -219,7 +241,9 @@ describe('AddToCartPlugin tests', () => {
             </form>
         `;
 
-        pluginInstance = new AddToCartPlugin(document.querySelector('[data-add-to-cart]'));
+        pluginInstance = new AddToCartPlugin(
+            document.querySelector('[data-add-to-cart]'),
+        );
 
         expect(typeof pluginInstance).toBe('object');
     });
@@ -241,60 +265,101 @@ describe('AddToCartPlugin tests', () => {
 
     test('shows stock-adjusted alert on QuantitySelector/StockAdjusted event', () => {
         const form = document.querySelector('form');
-        form.insertAdjacentHTML('beforeend', `
+        form.insertAdjacentHTML(
+            'beforeend',
+            `
             <template class="js-quantity-stock-adjusted-template">
                 <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
-        `);
-        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
+        `,
+        );
+        pluginInstance.options.stockAdjustedText =
+            'Your quantity has been updated to %quantity%.';
 
-        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
+        form.dispatchEvent(
+            new CustomEvent('QuantitySelector/StockAdjusted', {
+                detail: { quantity: 3 },
+            }),
+        );
 
         const alert = document.querySelector('.quantity-stock-adjusted-alert');
         expect(alert).not.toBeNull();
-        expect(alert.querySelector('.alert-content-container').textContent).toBe('Your quantity has been updated to 3.');
+        expect(
+            alert.querySelector('.alert-content-container').textContent,
+        ).toBe('Your quantity has been updated to 3.');
     });
 
     test('shows out-of-stock alert and disables buy button on QuantitySelector/OutOfStock event', () => {
         const form = document.querySelector('form');
-        form.insertAdjacentHTML('beforeend', `
+        form.insertAdjacentHTML(
+            'beforeend',
+            `
             <template class="js-quantity-stock-adjusted-template">
                 <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
-        `);
-        pluginInstance.options.outOfStockText = 'The product is no longer available.';
+        `,
+        );
+        pluginInstance.options.outOfStockText =
+            'The product is no longer available.';
 
         form.dispatchEvent(new CustomEvent('QuantitySelector/OutOfStock'));
 
         const alert = document.querySelector('.quantity-stock-adjusted-alert');
         expect(alert).not.toBeNull();
-        expect(alert.querySelector('.alert-content-container').textContent).toBe('The product is no longer available.');
-        expect(form.querySelector('button[type="submit"].btn-buy').disabled).toBe(true);
+        expect(
+            alert.querySelector('.alert-content-container').textContent,
+        ).toBe('The product is no longer available.');
+        expect(
+            form.querySelector('button[type="submit"].btn-buy').disabled,
+        ).toBe(true);
     });
 
     test('replaces existing stock alert when new event fires', () => {
         const form = document.querySelector('form');
-        form.insertAdjacentHTML('beforeend', `
+        form.insertAdjacentHTML(
+            'beforeend',
+            `
             <template class="js-quantity-stock-adjusted-template">
                 <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
-        `);
-        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
+        `,
+        );
+        pluginInstance.options.stockAdjustedText =
+            'Your quantity has been updated to %quantity%.';
 
-        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 5 } }));
-        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
+        form.dispatchEvent(
+            new CustomEvent('QuantitySelector/StockAdjusted', {
+                detail: { quantity: 5 },
+            }),
+        );
+        form.dispatchEvent(
+            new CustomEvent('QuantitySelector/StockAdjusted', {
+                detail: { quantity: 3 },
+            }),
+        );
 
-        const alerts = document.querySelectorAll('.quantity-stock-adjusted-alert');
+        const alerts = document.querySelectorAll(
+            '.quantity-stock-adjusted-alert',
+        );
         expect(alerts.length).toBe(1);
-        expect(alerts[0].querySelector('.alert-content-container').textContent).toBe('Your quantity has been updated to 3.');
+        expect(
+            alerts[0].querySelector('.alert-content-container').textContent,
+        ).toBe('Your quantity has been updated to 3.');
     });
 
     test('does not show stock alert when stock template is missing', () => {
         const form = document.querySelector('form');
-        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
+        pluginInstance.options.stockAdjustedText =
+            'Your quantity has been updated to %quantity%.';
 
-        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
+        form.dispatchEvent(
+            new CustomEvent('QuantitySelector/StockAdjusted', {
+                detail: { quantity: 3 },
+            }),
+        );
 
-        expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
+        expect(
+            document.querySelector('.quantity-stock-adjusted-alert'),
+        ).toBeNull();
     });
 });

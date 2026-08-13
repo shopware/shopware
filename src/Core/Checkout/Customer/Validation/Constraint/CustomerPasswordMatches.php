@@ -36,7 +36,7 @@ class CustomerPasswordMatches extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param ?array{salesChannelContext: SalesChannelContext} $options
+     * @param array{salesChannelContext?: SalesChannelContext, context?: SalesChannelContext}|null $options
      *
      * The `$message` property will be natively typed via constructor property promotion in v6.8.0.
      *

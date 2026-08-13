@@ -45,9 +45,9 @@ UPDATE those (comment with the new run, adjust test lists) instead of filing
 a new set. Only file fresh issues for a first-of-its-kind run.
 
 Scheduled runs also file/update an automated issue tree
-(`[nightly] Nightly (Major) PHPUnit failures`, via
+(`[nightly] Nightly (Major) test failures`, via
 `.github/workflows/report-phpunit-failures.yml`): a parent overview plus one
-domain-labeled sub-issue per domain, grouped by `#[Package]` marker only, with
+domain-labeled sub-issue per domain, grouped by `#[Package]` (PHPUnit) or `@sw-package` (Jest) marker only, with
 no clustering and no routing overrides applied. Use it as the starting
 inventory for Steps 1–3 and UPDATE those sub-issues (comment, re-route,
 close duplicates) instead of filing a parallel set.

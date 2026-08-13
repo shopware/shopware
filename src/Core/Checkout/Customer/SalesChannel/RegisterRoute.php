@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -90,6 +91,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly DoubleOptInService $doubleOptInService,
+        private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -197,6 +199,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $this->customerRepository->create([$customer], $writeContext);
+        $this->customerNewsletterSalesChannelsUpdater->update([$customer['id']], true);
 
         $criteria = new Criteria([$customer['id']]);
 

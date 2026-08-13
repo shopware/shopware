@@ -6,9 +6,14 @@ name: Check milestone label
 #
 # merge_group is the gate that matters: GitHub retargets a stacked PR to trunk without
 # emitting a pull_request event, so the PR-level run can be green from before it.
+#
+# pull_request_target, not pull_request: a fork PR's GITHUB_TOKEN is read-only on
+# pull_request no matter the permissions block, so posting the status 403'd on the
+# pull requests this most needs to run on (#18741). Safe here because the job never
+# checks out or executes the PR head, only the base ref and PR metadata via the API.
 
 on:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened

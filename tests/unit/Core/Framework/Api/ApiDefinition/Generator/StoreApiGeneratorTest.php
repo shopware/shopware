@@ -24,6 +24,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Plu
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SEOUrlDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -138,11 +139,72 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
         $entities = $schema['components']['schemas'];
-        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayNotHasKey('Simple', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
-    public function testOnlyPhpGeneratedSchemaRetainsJsonApiComponent(): void
+    public function testStoreApiLoadsJsonApiBaseSchemasFromJson(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+        $entities = $schema['components']['schemas'];
+
+        foreach ([
+            'success',
+            'failure',
+            'info',
+            'meta',
+            'data',
+            'resource',
+            'relationshipLinks',
+            'links',
+            'link',
+            'attributes',
+            'relationships',
+            'relationship',
+            'relationshipToOne',
+            'relationshipToMany',
+            'linkage',
+            'pagination',
+            'jsonapi',
+            'error',
+        ] as $schemaName) {
+            static::assertArrayHasKey($schemaName, $entities);
+        }
+
+        static::assertSame(
+            ['$ref' => '#/components/schemas/relationship'],
+            $entities['relationships']['additionalProperties']
+        );
+        static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($entities['relationship']['properties']));
+        static::assertSame(1, $entities['relationship']['minProperties']);
+        static::assertFalse($entities['relationship']['additionalProperties']);
+        static::assertArrayNotHasKey('anyOf', $entities['relationship']);
+    }
+
+    public function testStoreApiDoesNotAddUnusedGeneratedComponents(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+        $components = $schema['components'];
+
+        static::assertArrayNotHasKey('contentType', $components['parameters'] ?? []);
+        static::assertArrayNotHasKey('accept', $components['parameters'] ?? []);
+        static::assertArrayHasKey('swLanguageId', $components['parameters'] ?? []);
+
+        static::assertArrayNotHasKey(204, $components['responses'] ?? []);
+        static::assertArrayHasKey('ApiKey', $components['securitySchemes'] ?? []);
+    }
+
+    public function testUnreferencedPhpGeneratedStoreApiSchemaIsNotEmitted(): void
     {
         $definitionRegistry = new StaticDefinitionInstanceRegistry(
             [SalesChannelSimpleDefinition::class],
@@ -156,7 +218,7 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
 
-        static::assertArrayHasKey('SimpleJsonApi', $schema['components']['schemas']);
+        static::assertArrayNotHasKey('SimpleJsonApi', $schema['components']['schemas'] ?? []);
     }
 
     public function testJsonOwnedSchemaDoesNotContainJsonApiComponent(): void
@@ -208,6 +270,16 @@ class StoreApiGeneratorTest extends TestCase
         static::assertCount(1, $entities['Simple']['required']);
         static::assertContains('apiAlias', $entities['Simple']['required']);
         static::assertNotContains('requiredField', $entities['Simple']['required']);
+    }
+
+    public function testUndefinedRequiredPropertiesAreRemovedFromJsonSchemas(): void
+    {
+        $schema = $this->generateSchema($this->generator, null);
+
+        $invalidRequiredSchema = $schema['components']['schemas']['SchemaWithInvalidRequiredProperty'];
+
+        static::assertSame(['existing'], $invalidRequiredSchema['required']);
+        static::assertSame(['existingNested'], $invalidRequiredSchema['properties']['nested']['required']);
     }
 
     public function testGroupsParametersParsing(): void
@@ -841,13 +913,31 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
     }
 
-    public function testPhpSchemaIsKeptWhenNoJsonSchemaExists(): void
+    public function testSchemaIsGeneratedWhenNoDefinitionContributesAPhpSchema(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [DefinitionWithJsonOverride::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = ErrorHandler::call(fn (): array => $this->generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        ));
+
+        static::assertArrayHasKey('JsonOverrideEntity', $schema['components']['schemas']);
+        static::assertArrayHasKey('jsonOnlyField', $schema['components']['schemas']['JsonOverrideEntity']['properties']);
+    }
+
+    public function testPhpSchemaIsSkippedWhenNoJsonPathReferencesIt(): void
     {
         $schema = $this->generateSchema($this->generator, null);
 
         $entities = $schema['components']['schemas'];
-        static::assertArrayHasKey('Simple', $entities);
-        static::assertArrayHasKey('stringField', $entities['Simple']['properties']);
+        static::assertArrayNotHasKey('Simple', $entities);
     }
 
     public function testJsonSchemaOverridesPhpSchemaInCustomBundle(): void

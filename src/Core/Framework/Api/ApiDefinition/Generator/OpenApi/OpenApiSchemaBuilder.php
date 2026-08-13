@@ -99,9 +99,12 @@ EOF,
 
     private function enrichComponents(Components $components, string $api): void
     {
-        $components->merge(array_values($this->getDefaultSchemas()));
+        if ($api !== DefinitionService::STORE_API) {
+            $components->merge(array_values($this->getDefaultSchemas()));
+        }
+
         $components->merge(array_values($this->createSecurityScheme($api)));
-        $components->merge(array_values($this->createDefaultResponses()));
+        $components->merge(array_values($this->createDefaultResponses($api)));
     }
 
     /**
@@ -260,23 +263,25 @@ EOF,
                 'schema' => 'relationships',
                 'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
                 'type' => 'object',
-                'anyOf' => [
-                    ['required' => ['data']],
-                    ['required' => ['meta']],
-                    ['required' => ['links']],
-                    [
-                        'type' => 'object',
-                        'properties' => [
-                            'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
-                            'data' => [
-                                'description' => 'Member, whose value represents "resource linkage".',
-                                'oneOf' => [
-                                    ['$ref' => '#/components/schemas/relationshipToOne'],
-                                    ['$ref' => '#/components/schemas/relationshipToMany'],
-                                ],
-                            ],
+                'additionalProperties' => [
+                    '$ref' => '#/components/schemas/relationship',
+                ],
+            ]),
+            'relationship' => new Schema([
+                'schema' => 'relationship',
+                'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
+                'type' => 'object',
+                'minProperties' => 1,
+                'properties' => [
+                    'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
+                    'data' => [
+                        'description' => 'Member, whose value represents "resource linkage".',
+                        'oneOf' => [
+                            ['$ref' => '#/components/schemas/relationshipToOne'],
+                            ['$ref' => '#/components/schemas/relationshipToMany'],
                         ],
                     ],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
                 'additionalProperties' => false,
             ]),
@@ -427,16 +432,21 @@ EOF,
     /**
      * @return OpenApiResponse[]
      */
-    private function createDefaultResponses(): array
+    private function createDefaultResponses(string $api): array
     {
-        return [
+        $responses = [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
             Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
             Response::HTTP_TOO_MANY_REQUESTS => $this->createErrorResponse(Response::HTTP_TOO_MANY_REQUESTS, 'Too Many Requests', 'Rate limit exceeded. Please wait before retrying.'),
-            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
+
+        if ($api !== DefinitionService::STORE_API) {
+            $responses[Response::HTTP_NO_CONTENT] = new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]);
+        }
+
+        return $responses;
     }
 
     private function createErrorResponse(int $statusCode, string $title, string $description): OpenApiResponse

@@ -75,6 +75,9 @@ class MailActionControllerTest extends TestCase
             ->with($mailPayload, $context, ['order' => ['id' => 'order-id']], $mailTemplate)
             ->willReturn($this->createEmail());
 
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
+
         $response = $this->createController()->send($data, $context);
 
         static::assertGreaterThan(0, $this->decodeResponse($response)['size']);
@@ -100,6 +103,9 @@ class MailActionControllerTest extends TestCase
             ->method('send')
             ->with($mailPayload, $context, [], null)
             ->willReturn(null);
+
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
 
         $response = $this->createController()->send($data, $context);
 
@@ -135,6 +141,13 @@ class MailActionControllerTest extends TestCase
             ->with('html', $templateData, $context)
             ->willReturn('rendered');
 
+        $this->mailTemplateService->expects($this->never())
+            ->method('loadTemplate');
+        $this->mailTemplateSendService->expects($this->never())
+            ->method('send');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
+
         $response = $this->createController()->build($data, $context);
 
         static::assertSame('"rendered"', $response->getContent());
@@ -149,6 +162,12 @@ class MailActionControllerTest extends TestCase
             ->method('disableTestMode');
         $this->stringTemplateRenderer->expects($this->never())
             ->method('render');
+        $this->mailTemplateService->expects($this->never())
+            ->method('loadTemplate');
+        $this->mailTemplateSendService->expects($this->never())
+            ->method('send');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
 
         $this->expectExceptionObject(MailTemplateException::invalidMailTemplateContent());
 
@@ -172,6 +191,13 @@ class MailActionControllerTest extends TestCase
             ->method('simulate')
             ->with($simulateRequest, $context)
             ->willReturn($result);
+
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
+        $this->mailTemplateSendService->expects($this->never())
+            ->method('send');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
 
         $response = $this->createController()->simulate($simulateRequest, $context);
 
@@ -200,6 +226,13 @@ class MailActionControllerTest extends TestCase
             ->with($previewRequest, $context)
             ->willReturn($result);
 
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
+        $this->mailTemplateSendService->expects($this->never())
+            ->method('send');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
+
         $response = $this->createController()->preview($previewRequest, $context);
 
         static::assertSame(
@@ -223,6 +256,13 @@ class MailActionControllerTest extends TestCase
             ->with($request, $context)
             ->willReturn($this->createEmail());
 
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
+        $this->mailTemplateService->expects($this->never())
+            ->method('loadTemplate');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
+
         $response = $this->createController()->getDataAndSend($request, $context);
 
         static::assertGreaterThan(0, $this->decodeResponse($response)['size']);
@@ -240,6 +280,13 @@ class MailActionControllerTest extends TestCase
             ->method('getAvailableVariables')
             ->with('checkout.customer.before.login', $context, 'customer')
             ->willReturn([['fieldName' => 'email', 'hasChildren' => false]]);
+
+        $this->stringTemplateRenderer->expects($this->never())
+            ->method('render');
+        $this->mailTemplateSendService->expects($this->never())
+            ->method('send');
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
 
         $response = $this->createController()->availableVariables($request, $context);
 

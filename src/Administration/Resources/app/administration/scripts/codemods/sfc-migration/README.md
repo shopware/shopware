@@ -73,16 +73,22 @@ my-component/
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
 
-`provide` is converted when its keys are static: a `provide()` method — also as a `function` or
-arrow value — whose body is exactly one `return` of an object literal, or a plain `provide: { … }`
-object, in both cases with identifier or string-literal keys. The generated `provide(key, value)`
-calls are emitted after the migrated methods, so a provided method is already declared; that also
-matches the Options API, which evaluates `provide()` after `data`, `computed`, and `methods` and
-before `created`. Provided keys are not part of the public override API, so they are not listed in
-`swDefinePublic({ … })`. Every other shape — computed keys, shorthand or spread entries, accessors,
-statements before the `return`, or a value whose `this` usage cannot be rewritten — keeps the manual
-`TODO` for the whole option, because a partially migrated `provide` would change what descendants
-receive.
+`provide` is converted when its keys are static: a `provide()` method — also as a `function` value —
+whose body is exactly one `return` of an object literal, or a plain `provide: { … }` object, in both
+cases with identifier or string-literal keys. The generated `provide(key, value)` calls are emitted
+after the watchers and before the `created` body, which is where the Options API evaluates
+`provide()`. Provided keys are not part of the public override API, so they are not listed in
+`swDefinePublic({ … })`.
+
+Every other shape keeps the manual `TODO` — naming the key and the reason — for the whole option,
+because a partially migrated `provide` would change what descendants receive:
+
+- an **arrow** value (`provide: () => ({ … })`), because Vue applies the option with
+  `provideOptions.call(instance)` and an arrow ignores that, so its `this` is not the component
+- an **async** or **generator** `provide()`, which in the Options API provides the own keys of the
+  returned promise or generator object, not the listed ones
+- computed keys, shorthand or spread entries, accessors, statements before the `return`
+- a value whose `this` usage cannot be rewritten
 
 Every converted `inject`, `data`, `computed`, and `methods` name is additionally listed in a
 `swDefinePublic({ … })` marker at the end of the setup block — that is the public override API a
@@ -173,8 +179,9 @@ After running the codemod, search for `TODO` comments in the generated files:
 
 - **`dropped member '<name>'`** — the reported member or hook was dropped because a member it uses
   was dropped first. Migrate the named member by hand and re-run the codemod; the reference usually
-  converts on its own afterwards. `unknown this property '<name>'` means the opposite: the component
-  never declared that name (it comes from a mixin, a plugin, or a global helper).
+  converts on its own afterwards. `unknown this property '<name>'` means the opposite: the codemod
+  saw no declaration it could parse — a mixin, a plugin, a global helper, or an option entry whose
+  shape it does not support (a `...mapPropertyErrors(…)` computed spread, for example).
 
 - **Mixins and `Shopware.Component.extend()`** — must be manually inlined
 - **Render functions** — must be rewritten as templates by hand
@@ -240,7 +247,7 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 
 | Feature                       | Behavior                                    | How to fix                                              |
 | ----------------------------- | ------------------------------------------- | ------------------------------------------------------- |
-| `provide` with dynamic keys   | Drops the whole option with a TODO comment  | Add `provide(key, value)` calls manually in setup       |
+| `provide` (unsupported shape) | Drops the whole option with a TODO comment  | Add `provide(key, value)` calls manually in setup       |
 | `components`                  | Drops silently                              | Verify components are globally registered; remove if so |
 | `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |

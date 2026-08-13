@@ -101,8 +101,8 @@ export interface ProvideEntry {
 
 export interface ExtractProvideResult {
     provideEntries: ProvideEntry[];
-    /** true when a `provide` option exists whose shape cannot be translated. */
-    requiresManualMigration: boolean;
+    /** Why a present `provide` option cannot be translated, or null when it can. */
+    unsupportedReason: string | null;
 }
 
 export interface LifecycleHook {

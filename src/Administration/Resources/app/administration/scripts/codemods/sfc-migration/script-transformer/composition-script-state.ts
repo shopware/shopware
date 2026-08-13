@@ -159,10 +159,7 @@ export function collectCompositionScriptState(
         (reason) => pushManualMigration(manualMigrationReasons, todoComments, 'lifecycle hook', reason),
     );
 
-    const { provideEntries, requiresManualMigration: provideRequiresManualMigration } = collectProvideEntries(
-        optionsObj,
-        ctx,
-    );
+    const { provideEntries, unsupportedReason: provideUnsupportedReason } = collectProvideEntries(optionsObj, ctx);
     const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks, provideEntries);
 
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
@@ -189,7 +186,7 @@ export function collectCompositionScriptState(
     );
     const publicNames = collectPublicNames(supportedMembers);
     collectPropShadowingReasons(templateRefNames, propNames, manualMigrationReasons, todoComments);
-    const manualFollowUps = collectManualFollowUps(optionsObj, provideRequiresManualMigration);
+    const manualFollowUps = collectManualFollowUps(optionsObj, provideUnsupportedReason);
 
     manualMigrationReasons.push(...manualFollowUps.manualMigrationReasons);
     todoComments.push(...manualFollowUps.todoComments);
@@ -466,20 +463,26 @@ function buildMemberContext(
 /**
  * A provided value that still depends on the instance cannot be rewritten, and a
  * `provide` migrated in part would silently change what descendants receive. So
- * one unrewritable value falls the whole option back to the manual TODO.
+ * one unrewritable value falls the whole option back to the manual TODO, naming
+ * the key that could not be translated.
  */
 function collectProvideEntries(optionsObj: ObjectLiteralExpression, ctx: RewriteContext): ExtractProvideResult {
     const result = extractProvideEntries(optionsObj);
-    const hasUnsupportedValue = result.provideEntries.some(
-        ({ valueText }) => findUnsupportedThisUsage({ text: valueText, kind: 'expression' }, ctx) !== null,
-    );
 
-    return hasUnsupportedValue ? { provideEntries: [], requiresManualMigration: true } : result;
+    for (const { key, valueText } of result.provideEntries) {
+        const unsupportedThis = findUnsupportedThisUsage({ text: valueText, kind: 'expression' }, ctx);
+
+        if (unsupportedThis) {
+            return { provideEntries: [], unsupportedReason: `${key} value uses ${unsupportedThis}` };
+        }
+    }
+
+    return result;
 }
 
 function collectManualFollowUps(
     optionsObj: ObjectLiteralExpression,
-    provideRequiresManualMigration: boolean,
+    provideUnsupportedReason: string | null,
 ): ManualMigrationCollection {
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
@@ -487,9 +490,8 @@ function collectManualFollowUps(
     // These options can affect runtime registration or lifecycle order. The
     // generated setup code is still useful, but a successful-looking migration
     // would be misleading without explicit manual follow-up markers.
-    if (provideRequiresManualMigration) {
-        manualMigrationReasons.push('provide option requires manual migration');
-        todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');
+    if (provideUnsupportedReason) {
+        pushManualMigration(manualMigrationReasons, todoComments, 'provide', `provide: ${provideUnsupportedReason}`);
     }
     if (optionsObj.getProperty('components')) {
         manualMigrationReasons.push('components option requires manual verification');

@@ -37,9 +37,9 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
         emitDataProps(state, names),
         emitComputedProps(state, names),
         emitMethodProps(state, names),
-        emitProvideEntries(state, names),
         emitUnsupportedWatchEntries(state),
         emitWatchProps(state, names),
+        emitProvideEntries(state, names),
         emitCreatedHooks(state, names),
         emitRegularHooks(state, names),
         emitSwDefinePublic(state),
@@ -203,10 +203,11 @@ function emitMethodProps(state: CompositionScriptState, names: ResolvedIdentifie
 }
 
 /**
- * Emitted after the methods: the generated methods are `const` declarations, so
- * providing one earlier would read it inside its temporal dead zone. This also
- * keeps the Options API timing, where `provide()` runs after data, computed, and
- * methods and before `created`, evaluating each value exactly once.
+ * Emitted after the watchers and before `created`, which is where the Options
+ * API evaluates `provide()`: `applyOptions` runs the watch options first and the
+ * `created` hook after, so an `immediate` watcher must already have run when the
+ * provided values are read. The slot is also past every `const` a provided value
+ * can reference, so nothing is read inside its temporal dead zone.
  */
 function emitProvideEntries(state: CompositionScriptState, names: ResolvedIdentifiers): string[] {
     const { ctx, provideEntries } = state;

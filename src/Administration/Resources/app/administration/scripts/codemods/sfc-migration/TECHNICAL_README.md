@@ -309,15 +309,15 @@ This keeps "understand the old component" separate from "print the new code".
 4. Imports required by the converted code.
 5. Composable declarations such as `const router = useRouter()`.
 6. Template refs generated from `this.$refs`.
-7. The migrated setup body: `inject`, `data`, `computed`, methods, `provide`
-   calls, watchers, `created`, other lifecycle hooks.
+7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
+   `provide` calls, `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
 
-The `provide()` calls sit between the methods and the watchers on purpose. The
-migrated methods are `const` declarations, so providing one from an earlier line
-would read it inside its temporal dead zone. The slot also matches the Options
-API, where `provide()` runs after `data`, `computed`, and `methods` and before
-`created`, evaluating each value exactly once.
+The `provide()` calls sit between the watchers and `created` on purpose: that is
+where Vue's `applyOptions` evaluates the `provide` option — after the watch
+options, before the `created` hook — so an `immediate` watcher has already run
+when a provided value is read. The slot is also past every `const` a provided
+value can reference, so nothing is read inside its temporal dead zone.
 
 `defineOptions` is only emitted for an `inheritAttrs: false` option or a `name`
 option that differs from the registered name — native setup infers the name from
@@ -417,7 +417,7 @@ reports why. Two reasons are distinguished, because they need different fixes:
 | Reason | Meaning |
 | --- | --- |
 | `dropped member '<name>'` | The component declares `<name>`, but the codemod dropped it earlier. Migrate that member first. |
-| `unknown this property '<name>'` | The component never declares `<name>`; it comes from a mixin, a plugin, or a global helper. |
+| `unknown this property '<name>'` | The codemod saw no declaration of `<name>` it could parse: a mixin, a plugin, a global helper, or an option entry whose shape an extractor rejected (e.g. a `...mapPropertyErrors(…)` computed spread, which never becomes a declared member name). |
 
 Drops cascade: `composition-script-state.ts` filters inject, data, computed, and
 methods to a fixpoint, so a member referencing one that was dropped in an earlier
@@ -432,14 +432,24 @@ are static:
 
 | Input | Result |
 | --- | --- |
-| `provide() { return { … }; }`, also as a `function` or arrow value | One `provide(key, value)` call per entry. |
+| `provide() { return { … }; }`, also as a `function` value | One `provide(key, value)` call per entry. |
 | `provide: { … }` | Same. |
+| `provide: () => ({ … })` | TODO comment for the whole option. |
+| `async provide()` / `*provide()` | TODO comment for the whole option. |
 | Computed keys, shorthand or spread entries, accessors | TODO comment for the whole option. |
 | Statements before the `return` | TODO comment for the whole option. |
 | A value whose `this` usage cannot be rewritten | TODO comment for the whole option. |
 
+Arrow values are rejected because Vue applies the option with
+`provideOptions.call(publicThis)`; an arrow ignores the receiver, so its `this`
+is not the component instance and rewriting it would change what is provided. An
+async or generator `provide()` is rejected because the Options API provides the
+own keys of the returned promise or generator object, which are not the listed
+keys.
+
 The fallback is deliberately all-or-nothing: a `provide` migrated in part would
-silently change what descendants inject. Provided keys are not added to
+silently change what descendants inject. The TODO carries the reason, including
+the key that could not be translated. Provided keys are not added to
 `swDefinePublic({ … })` either — they are an injection contract, not the public
 override API.
 

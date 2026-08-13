@@ -123,9 +123,9 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice',
+                id: 'invoice-id',
                 technicalName: 'invoice',
-                translated: { name: 'invoice' },
+                translated: { name: 'Invoice' },
                 selected: false,
             },
         ]);

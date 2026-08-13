@@ -8,6 +8,12 @@ import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service'
 
 const { ACTION } = Shopware.Constants.FLOW;
 
+Shopware.Application.addServiceProvider('documentV2Service', () => {
+    return {
+        getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+    };
+});
+
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();
     const data = {
@@ -467,7 +473,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
 
         expect(description).toBe(
             'translated <span class="sw-flow-sequence-action__file-formats">' +
-                '(sw-flow.modals.document.fileFormats.pdf, sw-flow.modals.document.fileFormats.zugferdXml)</span>',
+                '(sw-order.components.createDocumentModal.fileFormats.pdf, ' +
+                'sw-order.components.createDocumentModal.fileFormats.zugferd_xml)</span>',
         );
         expect(sequence.config).toEqual({
             documentType: 'mail',

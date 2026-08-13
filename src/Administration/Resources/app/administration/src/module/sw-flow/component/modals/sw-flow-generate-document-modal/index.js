@@ -1,5 +1,4 @@
 import template from './sw-flow-generate-document-modal.html.twig';
-import { translateDocumentFileFormat } from '../../../constant/document-file-format.constant';
 
 const { Component, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -16,6 +15,7 @@ export default {
     inject: [
         'repositoryFactory',
         'documentV2Service',
+        'documentV2ApiService',
     ],
 
     emits: [
@@ -72,7 +72,7 @@ export default {
             return formats.map((format) => {
                 return {
                     value: format,
-                    label: translateDocumentFileFormat(format, this.$t),
+                    label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
                 };
             });
         },
@@ -136,8 +136,8 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2Service.getAvailableTypes();
-                this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+                const response = await this.documentV2ApiService.getAvailableTypes();
+                this.supportedDocumentTypes = response.documentTypes ?? {};
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

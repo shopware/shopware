@@ -1,6 +1,5 @@
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
-import { translateDocumentFileFormat } from '../../../constant/document-file-format.constant';
 
 const {
     Component,
@@ -24,6 +23,7 @@ export default {
         'repositoryFactory',
         'validationApiService',
         'documentV2Service',
+        'documentV2ApiService',
     ],
 
     emits: [
@@ -98,7 +98,7 @@ export default {
             return formats.map((format) => {
                 return {
                     value: format,
-                    label: translateDocumentFileFormat(format, this.$t),
+                    label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
                 };
             });
         },
@@ -364,8 +364,8 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2Service.getAvailableTypes();
-                this.supportedDocumentTypes = response.data?.documentTypes ?? {};
+                const response = await this.documentV2ApiService.getAvailableTypes();
+                this.supportedDocumentTypes = response.documentTypes ?? {};
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

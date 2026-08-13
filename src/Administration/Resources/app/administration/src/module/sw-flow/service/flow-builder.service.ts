@@ -1,5 +1,4 @@
 import type { I18n } from 'vue-i18n';
-import { translateDocumentFileFormat } from '../constant/document-file-format.constant';
 
 const { Utils, EntityDefinition } = Shopware;
 const { capitalizeString, camelCase, snakeCase } = Shopware.Utils.string;
@@ -649,7 +648,9 @@ export default class FlowBuilderService {
             const documentTypeName =
                 data.documentTypes.find((item) => item.technicalName === config.documentType)?.translated?.name ?? '';
 
-            const fileFormatLabels = config.fileFormats.map((format) => translateDocumentFileFormat(format, translator.$t));
+            const fileFormatLabels = config.fileFormats.map((format) =>
+                translator.$t(Shopware.Service('documentV2Service').getFileFormatSnippet(format)),
+            );
 
             if (!fileFormatLabels.length) {
                 return documentTypeName;

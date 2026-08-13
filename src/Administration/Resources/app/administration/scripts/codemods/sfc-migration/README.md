@@ -60,6 +60,7 @@ my-component/
 | `data()` / `data: () => ({ … })`          | `ref(…)` in `<script setup>`                   |
 | `computed`                                | `computed(…)` in `<script setup>`              |
 | `inject` array/object form                | `inject(…)` in `<script setup>`                |
+| `provide` object / method form            | `provide(key, value)` in `<script setup>`      |
 | `watch` method/object/string-handler form | `watch(…)` in `<script setup>`                 |
 | `methods`                                 | plain functions in `<script setup>`            |
 | `created`                                 | runs directly in setup (equivalent behaviour)  |
@@ -71,6 +72,17 @@ my-component/
 | `this.$tc` / `this.$t`                    | `useI18n().tc` / `.t`                          |
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+`provide` is converted when its keys are static: a `provide()` method — also as a `function` or
+arrow value — whose body is exactly one `return` of an object literal, or a plain `provide: { … }`
+object, in both cases with identifier or string-literal keys. The generated `provide(key, value)`
+calls are emitted after the migrated methods, so a provided method is already declared; that also
+matches the Options API, which evaluates `provide()` after `data`, `computed`, and `methods` and
+before `created`. Provided keys are not part of the public override API, so they are not listed in
+`swDefinePublic({ … })`. Every other shape — computed keys, shorthand or spread entries, accessors,
+statements before the `return`, or a value whose `this` usage cannot be rewritten — keeps the manual
+`TODO` for the whole option, because a partially migrated `provide` would change what descendants
+receive.
 
 Every converted `inject`, `data`, `computed`, and `methods` name is additionally listed in a
 `swDefinePublic({ … })` marker at the end of the setup block — that is the public override API a
@@ -159,6 +171,11 @@ After running the codemod, search for `TODO` comments in the generated files:
        bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
        setup phase. If the method runs after setup completes, store the element in a template ref instead.
 
+- **`dropped member '<name>'`** — the reported member or hook was dropped because a member it uses
+  was dropped first. Migrate the named member by hand and re-run the codemod; the reference usually
+  converts on its own afterwards. `unknown this property '<name>'` means the opposite: the component
+  never declared that name (it comes from a mixin, a plugin, or a global helper).
+
 - **Mixins and `Shopware.Component.extend()`** — must be manually inlined
 - **Render functions** — must be rewritten as templates by hand
 
@@ -223,7 +240,7 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 
 | Feature                       | Behavior                                    | How to fix                                              |
 | ----------------------------- | ------------------------------------------- | ------------------------------------------------------- |
-| `provide`                     | Drops with TODO comment                     | Add `provide(key, value)` calls manually in setup       |
+| `provide` with dynamic keys   | Drops the whole option with a TODO comment  | Add `provide(key, value)` calls manually in setup       |
 | `components`                  | Drops silently                              | Verify components are globally registered; remove if so |
 | `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
 | `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |

@@ -291,6 +291,7 @@ This keeps "understand the old component" separate from "print the new code".
 | --- | --- |
 | `extract-component-options.ts` | `props`, `emits`, `inheritAttrs`, `name`, blockers, prop names. |
 | `extract-inject.ts` | `inject` array/object syntax, aliases, defaults, factory defaults. |
+| `extract-provide.ts` | `provide` object and method form with static keys. |
 | `extract-data.ts` | `data()` return values into future `ref(...)` declarations. |
 | `extract-computed.ts` | Computed getters and getter/setter objects. |
 | `extract-methods.ts` | Methods and property-assignment methods like debounce wrappers. |
@@ -308,9 +309,15 @@ This keeps "understand the old component" separate from "print the new code".
 4. Imports required by the converted code.
 5. Composable declarations such as `const router = useRouter()`.
 6. Template refs generated from `this.$refs`.
-7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
-   `created`, other lifecycle hooks.
+7. The migrated setup body: `inject`, `data`, `computed`, methods, `provide`
+   calls, watchers, `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
+
+The `provide()` calls sit between the methods and the watchers on purpose. The
+migrated methods are `const` declarations, so providing one from an earlier line
+would read it inside its temporal dead zone. The slot also matches the Options
+API, where `provide()` runs after `data`, `computed`, and `methods` and before
+`created`, evaluating each value exactly once.
 
 `defineOptions` is only emitted for an `inheritAttrs: false` option or a `name`
 option that differs from the registered name — native setup infers the name from
@@ -403,6 +410,38 @@ Risky cases get TODO output instead of pretending the migration is complete:
 
 The rewrite only changes AST property-access nodes. It does not rewrite text in
 strings or comments.
+
+A `this.<name>` the rewrite cannot resolve drops the member containing it and
+reports why. Two reasons are distinguished, because they need different fixes:
+
+| Reason | Meaning |
+| --- | --- |
+| `dropped member '<name>'` | The component declares `<name>`, but the codemod dropped it earlier. Migrate that member first. |
+| `unknown this property '<name>'` | The component never declares `<name>`; it comes from a mixin, a plugin, or a global helper. |
+
+Drops cascade: `composition-script-state.ts` filters inject, data, computed, and
+methods to a fixpoint, so a member referencing one that was dropped in an earlier
+round is dropped in the next one. The rewrite context carries every declared
+member name, including the dropped ones, which is what lets each round tell a
+cascade apart from a genuinely unknown property.
+
+## Provide Conversion
+
+`provide` becomes `provide(key, value)` calls, but only while the provided keys
+are static:
+
+| Input | Result |
+| --- | --- |
+| `provide() { return { … }; }`, also as a `function` or arrow value | One `provide(key, value)` call per entry. |
+| `provide: { … }` | Same. |
+| Computed keys, shorthand or spread entries, accessors | TODO comment for the whole option. |
+| Statements before the `return` | TODO comment for the whole option. |
+| A value whose `this` usage cannot be rewritten | TODO comment for the whole option. |
+
+The fallback is deliberately all-or-nothing: a `provide` migrated in part would
+silently change what descendants inject. Provided keys are not added to
+`swDefinePublic({ … })` either — they are an injection contract, not the public
+override API.
 
 ## Watch And Lifecycle Conversion
 

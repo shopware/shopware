@@ -9,7 +9,7 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Request\AbstractRequest;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
@@ -18,7 +18,7 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
  * @codeCoverageIgnore
  */
 #[JsonStreamable]
-final class SalesChannelContextCurrentCustomerGroup extends AbstractRequest
+final class SalesChannelContextCurrentCustomerGroup extends AbstractDto
 {
     public function __construct(
         /**

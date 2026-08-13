@@ -300,6 +300,7 @@
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
       "messageSaveWarning": "Keine Änderung vorgenommen.",
       "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
+      "messageParentProductNotFound": "Das Hauptprodukt konnte nicht geladen werden. Vererbte Werte sind möglicherweise unvollständig.",
       "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme."
     },
     "mediaForm": {

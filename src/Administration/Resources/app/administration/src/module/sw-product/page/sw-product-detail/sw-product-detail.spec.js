@@ -1320,4 +1320,37 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         expect(store.parentProduct).toEqual({});
     });
+
+    it('should release the loading state when the parent product cannot be loaded', async () => {
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-456') {
+                    return Promise.reject(new Error('parent product is not reachable'));
+                }
+
+                return Promise.resolve({ variation: [] });
+            },
+        );
+        await flushPromises();
+
+        const store = Shopware.Store.get('swProductDetail');
+        wrapper.vm.createNotificationError = jest.fn();
+
+        store.product = { id: 'variant-123', parentId: 'parent-456' };
+        store.parentProduct = {};
+
+        await wrapper.vm.loadParentProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-product.detail.messageParentProductNotFound',
+        });
+        // the detail page must not stay in a loading state, otherwise all
+        // inheritance aware fields stay hidden until the page is reloaded
+        expect(store.loading.parentProduct).toBe(false);
+        expect(store.isLoading).toBe(false);
+    });
 });

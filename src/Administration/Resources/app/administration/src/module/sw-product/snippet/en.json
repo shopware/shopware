@@ -300,6 +300,7 @@
       "messageUploadSuccess": "{count} of {total} files saved.",
       "messageSaveWarning": "No changes detected.",
       "messageProductNotFound": "The product could not be found. It may have been deleted.",
+      "messageParentProductNotFound": "The main product could not be loaded. Inherited values may be incomplete.",
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {

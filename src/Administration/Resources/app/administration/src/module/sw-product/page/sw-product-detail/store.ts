@@ -134,23 +134,14 @@ const swProductDetail = Shopware.Store.register({
         },
 
         productTaxRate(state): EntitySchema.tax | object {
-            if (!state.taxes) {
+            // a child product without its own tax rate inherits the one of its parent
+            const taxId = state.product.taxId ?? state.parentProduct.taxId;
+
+            if (!state.taxes || !taxId) {
                 return {};
             }
 
-            return (
-                state.taxes.find((tax) => {
-                    if (!state.product.taxId) {
-                        if (!state.parentProduct.taxId) {
-                            return {};
-                        }
-
-                        return tax.id === state.parentProduct.taxId;
-                    }
-
-                    return tax.id === state.product.taxId;
-                }) ?? {}
-            );
+            return state.taxes.find((tax) => tax.id === taxId) ?? {};
         },
 
         isChild(state): boolean {

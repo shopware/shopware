@@ -949,7 +949,14 @@ export default {
 
                     Shopware.Store.get('swProductDetail').parentProduct = parent;
                 })
-                .then(() => {
+                .catch(() => {
+                    // Without releasing the loading state the whole detail page stays in a
+                    // loading state forever, which hides the inheritance aware fields.
+                    this.createNotificationError({
+                        message: this.$t('sw-product.detail.messageParentProductNotFound'),
+                    });
+                })
+                .finally(() => {
                     Shopware.Store.get('swProductDetail').setLoading([
                         'parentProduct',
                         false,

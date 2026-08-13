@@ -24,7 +24,9 @@ class CleanupVersionEvent extends Event
 
     public function addProtectedVersionId(string $versionId): void
     {
-        $this->protectedVersionIds[$versionId] = $versionId;
+        if (!\in_array($versionId, $this->protectedVersionIds, true)) {
+            $this->protectedVersionIds[] = $versionId;
+        }
     }
 
     /**
@@ -32,6 +34,6 @@ class CleanupVersionEvent extends Event
      */
     public function getProtectedVersionIds(): array
     {
-        return array_values($this->protectedVersionIds);
+        return $this->protectedVersionIds;
     }
 }

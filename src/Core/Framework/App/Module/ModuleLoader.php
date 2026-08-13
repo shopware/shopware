@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Module;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Feature\AppFeature;
@@ -84,11 +85,7 @@ class ModuleLoader
 
             $feature = $features[$app->getId()];
 
-            // sources are signed with the app secret; without one they cannot be called, so the app is skipped
             $secret = $secrets[$feature->appName] ?? null;
-            if ($secret === null) {
-                continue;
-            }
 
             $modules = $this->formatModules($feature, $secret, $context);
             $mainModule = $this->formatMainModule($feature, $secret, $context);
@@ -113,7 +110,7 @@ class ModuleLoader
      *
      * @return list<array{name: string, label: array<string, string>, parent: string|null, source: string|null, position: int}>
      */
-    private function formatModules(AppFeature $feature, string $secret, Context $context): array
+    private function formatModules(AppFeature $feature, ?string $secret, Context $context): array
     {
         $modules = [];
 
@@ -135,7 +132,7 @@ class ModuleLoader
      *
      * @return array{source: string}|null
      */
-    private function formatMainModule(AppFeature $feature, string $secret, Context $context): ?array
+    private function formatMainModule(AppFeature $feature, ?string $secret, Context $context): ?array
     {
         if ($feature->config->mainModule === null) {
             return null;
@@ -171,8 +168,12 @@ class ModuleLoader
     /**
      * @param AppFeature<ModuleConfig> $feature
      */
-    private function sign(string $source, AppFeature $feature, string $secret, Context $context): string
+    private function sign(string $source, AppFeature $feature, ?string $secret, Context $context): string
     {
+        if ($secret === null) {
+            throw AppException::appSecretMissing($feature->appName);
+        }
+
         return (string) $this->querySigner->signUriFor($source, $feature->appName, $feature->appVersion, $secret, $context);
     }
 }

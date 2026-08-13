@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Feature\AppFeature;
@@ -181,7 +182,36 @@ class ModuleLoaderTest extends TestCase
         static::assertSame([], $moduleLoader->loadModules(Context::createDefaultContext($source)));
     }
 
-    public function testLoadModulesSkipsAppsWithoutASecret(): void
+    public function testLoadModulesThrowsWhenASourceMustBeSignedWithoutASecret(): void
+    {
+        $app = AppFixture::createAppEntity('SecretlessApp');
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->expects($this->once())->method('getShopId')->willReturn(ShopId::v2('shop-id'));
+
+        $secretResolver = static::createStub(AppSecretResolver::class);
+        $secretResolver->method('resolveMany')->willReturn([]);
+
+        $moduleLoader = new ModuleLoader(
+            new StaticEntityRepository([new AppCollection([$app])], new AppDefinition()),
+            $shopIdProvider,
+            static::createStub(QuerySigner::class),
+            $this->storageWithFeature($this->feature(
+                $app,
+                modules: [
+                    new Module('some-module', new TranslatedString(['en-GB' => 'some module']), 'sw-catalogue', 'https://module.app.com', 10),
+                ],
+                mainModule: new MainModule('https://main.app.com'),
+            )),
+            $secretResolver,
+        );
+
+        $this->expectExceptionObject(AppException::appSecretMissing('SecretlessApp'));
+
+        $moduleLoader->loadModules(Context::createDefaultContext());
+    }
+
+    public function testLoadModulesDoesNotNeedASecretWhenNoSourceIsSigned(): void
     {
         $app = AppFixture::createAppEntity('SecretlessApp');
 
@@ -198,17 +228,28 @@ class ModuleLoaderTest extends TestCase
             new StaticEntityRepository([new AppCollection([$app])], new AppDefinition()),
             $shopIdProvider,
             $querySigner,
-            $this->storageWithFeature($this->feature(
-                $app,
-                modules: [
-                    new Module('some-module', new TranslatedString(['en-GB' => 'some module']), 'sw-catalogue', 'https://module.app.com', 10),
-                ],
-                mainModule: new MainModule('https://main.app.com'),
-            )),
+            $this->storageWithFeature($this->feature($app, modules: [
+                new Module('structure-module', new TranslatedString(['en-GB' => 'structure module']), 'sw-catalogue', null, 10),
+            ])),
             $secretResolver,
         );
 
-        static::assertSame([], $moduleLoader->loadModules(Context::createDefaultContext()));
+        static::assertSame([
+            [
+                'name' => 'SecretlessApp',
+                'label' => [],
+                'modules' => [
+                    [
+                        'name' => 'structure-module',
+                        'label' => ['en-GB' => 'structure module'],
+                        'parent' => 'sw-catalogue',
+                        'source' => null,
+                        'position' => 10,
+                    ],
+                ],
+                'mainModule' => null,
+            ],
+        ], $moduleLoader->loadModules(Context::createDefaultContext()));
     }
 
     /**

@@ -266,6 +266,12 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Seller country in the basic information settings
+
+`Settings > Basic information` offers a new "Shop owner's country" select above the shop owner's address, stored per sales channel as `core.basicInformation.sellerCountryId` and readable via `SystemConfigService::get('core.basicInformation.sellerCountryId', $salesChannelId)`.
+
+The value records the merchant's own country of establishment for upcoming tax handling. Nothing evaluates it yet, so setting or leaving it empty does not change tax calculation, document rendering, or storefront output.
+
 ## Administration
 
 ### System config forms show validation errors for the selected sales channel scope

@@ -174,6 +174,14 @@ It does this:
    output that transform accepts.
 7. Returns the final SFC with `<template>` first and script second.
 
+The returned SFC is valid but unformatted. Emitters produce correct code and never
+manage layout, so there is no indentation logic in the script transformer at all —
+`run-sfc-migration.ts` formats every file it writes with the workspace prettier
+config. Formatting lives in the CLI because prettier and
+`prettier-plugin-multiline-arrays` load parts of themselves through dynamic
+`import()`, which Jest's CommonJS environment rejects; keeping it there leaves the
+whole transformation layer synchronous and unit-testable.
+
 Generated `<sw-block>` elements carry only their `name`. The data binding and the
 default slot scope of `<sw-block>` are owned by the base transform, which adds
 `:data="$dataScope"` itself and rejects an authored one — so neither the template

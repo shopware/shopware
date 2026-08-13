@@ -53,41 +53,41 @@ const description = ref('A card with extensible blocks');
 const count = ref(props.initialCount);
 
 const canEdit = computed(() => {
-    return !props.readOnly && acl.can('product.editor');
+return !props.readOnly && acl.can('product.editor');
 });
 const label = computed({
-    get: () => {
-        return title.value;
-    },
-    set: (val) => {
-        title.value = val;
-    },
+get: () => {
+return title.value;
+},
+set: (val) => {
+title.value = val;
+},
 });
 
 const onAction = () => {
-    count.value += 1;
-    emit('action', count.value);
+count.value += 1;
+emit('action', count.value);
 };
 const onReset = () => {
-    count.value = props.initialCount;
-    title.value = 'Block Card';
-    cardWrapper.value.focus();
-    emit('reset');
+count.value = props.initialCount;
+title.value = 'Block Card';
+cardWrapper.value.focus();
+emit('reset');
 };
 
 watch(() => count.value, (newVal) => {
-    if (newVal > 10) {
-        title.value = 'Limit reached';
-    }
+if (newVal > 10) {
+    title.value = 'Limit reached';
+}
 });
 watch(() => props.readOnly, (newVal) => {
-    if (newVal) {
-        title.value = 'Read-only mode';
-    }
+if (newVal) {
+    title.value = 'Read-only mode';
+}
 });
 
 onMounted(() => {
-    count.value = props.initialCount;
+count.value = props.initialCount;
 });
 
 swDefinePublic({
@@ -124,12 +124,12 @@ const title = ref('Default Title');
 const isLoading = ref(false);
 
 const description = computed(() => {
-    return \`This is: \${title.value}\`;
+return \`This is: \${title.value}\`;
 });
 
 const onSave = () => {
-    isLoading.value = true;
-    emit('save', title.value);
+isLoading.value = true;
+emit('save', title.value);
 };
 
 swDefinePublic({

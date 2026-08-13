@@ -26,41 +26,41 @@ const description = ref('A card with extensible blocks');
 const count = ref(props.initialCount);
 
 const canEdit = computed(() => {
-    return !props.readOnly && acl.can('product.editor');
+return !props.readOnly && acl.can('product.editor');
 });
 const label = computed({
-    get: () => {
-        return title.value;
-    },
-    set: (val) => {
-        title.value = val;
-    },
+get: () => {
+return title.value;
+},
+set: (val) => {
+title.value = val;
+},
 });
 
 const onAction = () => {
-    count.value += 1;
-    emit('action', count.value);
+count.value += 1;
+emit('action', count.value);
 };
 const onReset = () => {
-    count.value = props.initialCount;
-    title.value = 'Block Card';
-    cardWrapper.value.focus();
-    emit('reset');
+count.value = props.initialCount;
+title.value = 'Block Card';
+cardWrapper.value.focus();
+emit('reset');
 };
 
 watch(() => count.value, (newVal) => {
-    if (newVal > 10) {
-        title.value = 'Limit reached';
-    }
+if (newVal > 10) {
+    title.value = 'Limit reached';
+}
 });
 watch(() => props.readOnly, (newVal) => {
-    if (newVal) {
-        title.value = 'Read-only mode';
-    }
+if (newVal) {
+    title.value = 'Read-only mode';
+}
 });
 
 onMounted(() => {
-    count.value = props.initialCount;
+count.value = props.initialCount;
 });
 
 swDefinePublic({
@@ -89,27 +89,27 @@ const { t } = useI18n();
 const value = ref('');
 
 const currentRoute = computed(() => {
-    return route.name;
+return route.name;
 });
 const hasSlot = computed(() => {
-    return !!slots.default;
+return !!slots.default;
 });
 const label = computed(() => {
-    return t('sw.composables.label', 2);
+return t('sw.composables.label', 2);
 });
 
 const goBack = () => {
-    router.back();
+router.back();
 };
 const update = async () => {
-    value.value = 'new';
-    await nextTick();
+value.value = 'new';
+await nextTick();
 };
 const getTitle = () => {
-    return t('sw.composables.title');
+return t('sw.composables.title');
 };
 const getAttrsClass = () => {
-    return attrs.class ?? '';
+return attrs.class ?? '';
 };
 
 swDefinePublic({
@@ -141,20 +141,20 @@ const shortcutService = inject('shortcutService');
 const initialized = ref(false);
 
 const reset = () => {
-    initialized.value = false;
+initialized.value = false;
 };
 
 shortcutService.stopEventListener();
 emit('ready');
 
 onMounted(() => {
-    initialized.value = true;
+initialized.value = true;
 });
 onBeforeUnmount(() => {
-    shortcutService.startEventListener();
+shortcutService.startEventListener();
 });
 onUnmounted(() => {
-    initialized.value = false;
+initialized.value = false;
 });
 
 swDefinePublic({
@@ -172,11 +172,11 @@ import { ref } from 'vue';
 const query = ref('');
 
 const onInput = (value) => {
-    query.value = value;
-    searchDebounce();
+query.value = value;
+searchDebounce();
 };
 const doSearch = () => {
-    query.value = query.value.trim();
+query.value = query.value.trim();
 };
 const searchDebounce = debounce(() => {
             doSearch();
@@ -198,7 +198,7 @@ import { ref } from 'vue';
 const count = ref(0);
 
 const increment = () => {
-    count.value += 1;
+count.value += 1;
 };
 
 swDefinePublic({
@@ -227,10 +227,10 @@ const props = defineProps({
 import { computed } from 'vue';
 
 const clonedItems = computed(() => {
-    return cloneDeep(props.items);
+return cloneDeep(props.items);
 });
 const nameColor = computed(() => {
-    return COLORS[props.name.length % COLORS.length];
+return COLORS[props.name.length % COLORS.length];
 });
 
 swDefinePublic({
@@ -250,12 +250,12 @@ const title = ref('Default Title');
 const isLoading = ref(false);
 
 const description = computed(() => {
-    return \`This is: \${title.value}\`;
+return \`This is: \${title.value}\`;
 });
 
 const onSave = () => {
-    isLoading.value = true;
-    emit('save', title.value);
+isLoading.value = true;
+emit('save', title.value);
 };
 
 swDefinePublic({

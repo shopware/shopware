@@ -1,8 +1,6 @@
 import type { MethodDeclaration, ParameterDeclaration, PropertyAssignment, ShorthandPropertyAssignment } from 'ts-morph';
 import { Node } from 'ts-morph';
 import { quoteJsString } from '../string-literals';
-import { indentIdentifierTemplate, isIdentifierTemplate } from './identifier-template';
-import type { ScriptSnippet } from './identifier-template';
 
 const RESERVED_IDENTIFIERS = new Set([
     'await',
@@ -100,17 +98,4 @@ export function getPropertyName(prop: PropertyAssignment | MethodDeclaration | S
     }
 
     return prop.getName();
-}
-
-export function indentBlock(block: ScriptSnippet, spaces: number): ScriptSnippet {
-    if (isIdentifierTemplate(block)) {
-        return indentIdentifierTemplate(block, spaces);
-    }
-
-    const pad = ' '.repeat(spaces);
-
-    return block
-        .split('\n')
-        .map((line) => (line.trim() === '' ? '' : pad + line))
-        .join('\n');
 }

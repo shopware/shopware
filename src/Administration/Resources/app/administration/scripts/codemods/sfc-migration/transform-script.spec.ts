@@ -29,7 +29,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.blockers).toEqual([]);
         });
 
-
         it('emits no extension wrapper — the native setup transform generates it', () => {
             expect(result.script).not.toContain('createExtendableSetup');
             expect(result.script).not.toContain('composition-extension-system');
@@ -89,7 +88,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
-
 
         it('emits defineProps with the correct prop names', () => {
             expect(result.script).toContain('const props = defineProps(');
@@ -376,7 +374,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.blockers).toEqual([]);
         });
 
-
         it('rewrites this.$router → router and imports useRouter from vue-router', () => {
             expect(result.script).toContain('router.back()');
             expect(result.script).not.toMatch(/\bthis\.\$router\b/);
@@ -450,7 +447,6 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
-
 
         it('emits defineOptions({ inheritAttrs: false }) at the top of the script', () => {
             expect(result.script).toContain('defineOptions({ inheritAttrs: false })');

@@ -1,7 +1,7 @@
 import { quoteJsString } from '../string-literals';
 import { hasTopLevelReturn } from './ast';
 import type { CompositionScriptState } from './composition-script-state';
-import { indentBlock, sanitizeTodoCommentText } from './helpers';
+import { sanitizeTodoCommentText } from './helpers';
 import { identTemplate } from './identifier-template';
 import type { ScriptLine } from './identifier-template';
 import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
@@ -10,6 +10,10 @@ import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
  * Emits the setup body as native `<script setup>` code. The build-time transform
  * in `build/vue-setup-transform` lowers it into the extension runtime, so no
  * `createExtendableSetup()` wrapper is written here.
+ *
+ * Emitters only produce valid code, never layout: `generate-sfc.ts` runs the
+ * assembled SFC through prettier, so indentation inside a line does not matter.
+ * Blank lines do — prettier keeps them, and they are what groups the output.
  *
  * See `technical-docs/03-extensibility/07-native-setup-authoring.md`.
  */
@@ -60,20 +64,13 @@ function emitSupportedComputedProps(lines: ScriptLine[], state: CompositionScrip
     supportedComputedProps.forEach((prop) => {
         if (prop.kind === 'getter') {
             const body = rewriteThisInBody(prop.bodyText, ctx);
-            lines.push(`const ${prop.name} = computed(() => {`);
-            lines.push(indentBlock(body, 4));
-            lines.push(`});`);
+            lines.push(identTemplate`const ${prop.name} = computed(() => {\n${body}\n});`);
         } else {
             const getterBody = rewriteThisInBody(prop.getterBodyText, ctx);
             const setterBody = rewriteThisInBody(prop.setterBodyText, ctx);
-            lines.push(`const ${prop.name} = computed({`);
-            lines.push(`    get: () => {`);
-            lines.push(indentBlock(getterBody, 8));
-            lines.push(`    },`);
-            lines.push(`    set: (${prop.setterParam}) => {`);
-            lines.push(indentBlock(setterBody, 8));
-            lines.push(`    },`);
-            lines.push(`});`);
+            lines.push(
+                identTemplate`const ${prop.name} = computed({\nget: () => {\n${getterBody}\n},\nset: (${prop.setterParam}) => {\n${setterBody}\n},\n});`,
+            );
         }
     });
     if (supportedComputedProps.length > 0) lines.push('');
@@ -93,9 +90,7 @@ function emitSupportedMethodProps(lines: ScriptLine[], state: CompositionScriptS
         } else {
             const asyncKw = isAsync ? 'async ' : '';
             const body = rewriteThisInBody(bodyText, ctx);
-            lines.push(`const ${name} = ${asyncKw}(${paramsText}) => {`);
-            lines.push(indentBlock(body, 4));
-            lines.push(`};`);
+            lines.push(identTemplate`const ${name} = ${asyncKw}(${paramsText}) => {\n${body}\n};`);
         }
     });
     if (supportedMethodProps.length > 0) lines.push('');
@@ -131,9 +126,8 @@ function emitSupportedWatchProps(lines: ScriptLine[], state: CompositionScriptSt
         const body = rewriteThisInBody(bodyText ?? '', ctx);
         const asyncPrefix = isAsync ? 'async ' : '';
         const paramPart = paramsText ? `${asyncPrefix}(${paramsText}) => {` : `${asyncPrefix}() => {`;
-        lines.push(identTemplate`watch(() => ${source}, ${paramPart}`);
-        lines.push(indentBlock(body, 4));
-        lines.push(hasOptions ? `}, { ${optionsParts.join(', ')} });` : `});`);
+        const closing = hasOptions ? `}, { ${optionsParts.join(', ')} });` : '});';
+        lines.push(identTemplate`watch(() => ${source}, ${paramPart}\n${body}\n${closing}`);
     });
     if (supportedWatchProps.length > 0) lines.push('');
 }
@@ -152,18 +146,13 @@ function emitCreatedHooks(lines: ScriptLine[], state: CompositionScriptState): v
     for (const hook of createdHooks) {
         const body = rewriteThisInBody(hook.bodyText.trim(), ctx);
         if (hook.isAsync) {
-            lines.push('void (async () => {');
-            lines.push(indentBlock(body, 4));
-            lines.push('})();');
+            lines.push(identTemplate`void (async () => {\n${body}\n})();`);
         } else if (hasTopLevelReturn(hook.bodyText)) {
             // A guard clause like `if (…) { return; }` is only legal inside a
             // function, and the setup body is module-level code.
-            lines.push('(() => {');
-            lines.push(indentBlock(body, 4));
-            lines.push('})();');
+            lines.push(identTemplate`(() => {\n${body}\n})();`);
         } else {
-            // Zero indentation still normalizes whitespace-only lines.
-            lines.push(indentBlock(body, 0));
+            lines.push(body);
         }
     }
     lines.push('');
@@ -175,9 +164,7 @@ function emitRegularHooks(lines: ScriptLine[], state: CompositionScriptState): v
     for (const { compositionName, bodyText, isAsync } of regularHooks) {
         const body = rewriteThisInBody(bodyText, ctx);
         const asyncPrefix = isAsync ? 'async ' : '';
-        lines.push(`${compositionName}(${asyncPrefix}() => {`);
-        lines.push(indentBlock(body, 4));
-        lines.push(`});`);
+        lines.push(identTemplate`${compositionName}(${asyncPrefix}() => {\n${body}\n});`);
     }
     if (regularHooks.length > 0) lines.push('');
 }

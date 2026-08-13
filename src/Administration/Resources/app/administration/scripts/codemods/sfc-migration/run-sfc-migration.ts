@@ -54,6 +54,8 @@ export interface RunStats {
 export interface RunResult {
     stats: RunStats;
     report: string[];
+    /** Absolute paths of the `.vue` files written, so the CLI can format them. */
+    writtenPaths: string[];
 }
 
 interface CliOptionDefinition {
@@ -272,6 +274,7 @@ function writeMigrationOutput(
     options: Required<RunOptions>,
     stats: RunStats,
     report: string[],
+    writtenPaths: string[],
 ): boolean {
     if (options.dryRun) {
         return true;
@@ -285,6 +288,7 @@ function writeMigrationOutput(
     }
 
     writeFileSync(context.vuePath, result.sfc, 'utf-8');
+    writtenPaths.push(context.vuePath);
 
     // Partially migrated SFCs are review artifacts until their blockers are
     // resolved. Keep the original entry point active so mixins/extends backoff
@@ -382,6 +386,7 @@ function handleMigrationResult(
     options: Required<RunOptions>,
     stats: RunStats,
     report: string[],
+    writtenPaths: string[],
 ): void {
     if (result.status === 'not-migratable') {
         reportNotMigratable(context, result, stats, report);
@@ -389,7 +394,7 @@ function handleMigrationResult(
         return;
     }
 
-    if (!writeMigrationOutput(context, result, options, stats, report)) {
+    if (!writeMigrationOutput(context, result, options, stats, report, writtenPaths)) {
         return;
     }
 
@@ -431,6 +436,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
         errors: 0,
     };
     const report: string[] = [];
+    const writtenPaths: string[] = [];
 
     for (const indexPath of indexFiles) {
         try {
@@ -455,18 +461,47 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 vuePath: join(dir, `${resolveVueFileName(result.componentName, componentName)}.vue`),
             };
 
-            handleMigrationResult(context, result, runOptions, stats, report);
+            handleMigrationResult(context, result, runOptions, stats, report, writtenPaths);
         } catch (err) {
             stats.errors = (stats.errors ?? 0) + 1;
             report.push(`ERROR  ${formatReportPath(indexPath)}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
-    return { stats, report };
+    return { stats, report, writtenPaths };
 }
 
-// Only execute when invoked directly as a script, not when imported by tests.
-if (process.argv[1] === __filename) {
+/**
+ * Formats every written `.vue` file with the Administration prettier config, so
+ * the emitters never have to manage layout and the generated files are
+ * committable as-is.
+ *
+ * This lives in the CLI and not in `mergeComponentFiles()` on purpose: prettier
+ * and `prettier-plugin-multiline-arrays` load parts of themselves through dynamic
+ * `import()`, which Jest's CommonJS test environment rejects. Keeping it here
+ * leaves the whole transformation layer synchronous and testable, and applies the
+ * real workspace config — the same formatting `composer format:admin:fix` would.
+ */
+async function formatWrittenFiles(writtenPaths: string[]): Promise<void> {
+    if (writtenPaths.length === 0) {
+        return;
+    }
+
+    const prettier = await import('prettier');
+    // Resolved from this file, not from the written one: the target may sit
+    // outside the Administration workspace (a plugin directory), and prettier
+    // searches upwards from the path it is given — it would silently fall back to
+    // its own defaults and produce 2-space, double-quoted output.
+    const config = await prettier.resolveConfig(__filename);
+
+    for (const filePath of writtenPaths) {
+        const source = readFileSync(filePath, 'utf-8');
+
+        writeFileSync(filePath, await prettier.format(source, { ...config, parser: 'vue' }), 'utf-8');
+    }
+}
+
+async function runCli(): Promise<void> {
     let cliOptions: CliOptions;
 
     try {
@@ -492,11 +527,13 @@ if (process.argv[1] === __filename) {
     }
 
     try {
-        const { stats, report } = runMigration(cliOptions.targetDir, {
+        const { stats, report, writtenPaths } = runMigration(cliOptions.targetDir, {
             dryRun: cliOptions.dryRun,
             force: cliOptions.force,
             deleteOriginals: cliOptions.deleteOriginals,
         });
+
+        await formatWrittenFiles(writtenPaths);
 
         console.log(report.join('\n'));
         console.log(`
@@ -526,4 +563,9 @@ Errors:               ${stats.errors}
         console.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
         process.exit(1);
     }
+}
+
+// Only execute when invoked directly as a script, not when imported by tests.
+if (process.argv[1] === __filename) {
+    void runCli();
 }

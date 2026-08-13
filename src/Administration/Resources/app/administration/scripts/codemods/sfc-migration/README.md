@@ -117,6 +117,11 @@ if (result.status === 'fully-migrated') {
 // result.blockers — list of detected blockers (e.g. ['mixins', 'extends (parent: sw-button)'])
 ```
 
+`result.sfc` is valid but unformatted: the emitters produce correct code and leave
+layout to prettier. The CLI formats every file it writes with the Administration
+prettier config, so programmatic callers should either do the same or run
+`composer format:admin:fix` on the generated files.
+
 ## ⚠ Destructive Operations
 
 `--delete-originals` is **irreversible**. It replaces `index.js` with a generated

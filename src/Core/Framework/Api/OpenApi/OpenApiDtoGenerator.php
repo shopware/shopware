@@ -148,9 +148,9 @@ final class OpenApiDtoGenerator
         // namespace instead of being duplicated next to every operation that references them.
         $componentsWithNamespace = $this->componentsWithNamespace($components);
 
-        /** @var array<string, array{definition: OpenApiDtoDefinition, namespace: string}> $placements */
+        /** @var array<string, array{definition: OpenApiDtoDefinition, namespace: string}> $placements keyed by FQCN */
         $placements = [];
-        // map of class name => namespace, used to render cross-namespace `use` imports
+        // map of FQCN => namespace, used to render cross-namespace `use` imports
         $externalNamespaces = [];
 
         // 1. Shared components -> their own declared namespace.
@@ -164,7 +164,7 @@ final class OpenApiDtoGenerator
         // 2. Operation DTOs (request/response) and their referenced components co-located next to
         //    the operation, unless a component already claimed its own namespace above.
         foreach ($this->groupTaggedOperationsByNamespace($spec) as $namespace => $paths) {
-            $definitions = $this->schemaParser->parse(['paths' => $paths, 'components' => $components], includeComponentSchemas: false);
+            $definitions = $this->schemaParser->parse(['paths' => $paths, 'components' => $components], includeComponentSchemas: false, namespace: $namespace);
             foreach ($definitions as $definition) {
                 if (isset($externalNamespaces[$definition->name])) {
                     continue;
@@ -177,11 +177,16 @@ final class OpenApiDtoGenerator
         $files = [];
         foreach ($placements as $placement) {
             $contents = $this->classRenderer->renderClass($placement['definition'], $placement['namespace'], $externalNamespaces);
-            $path = $this->namespaceToDirectory($placement['namespace']) . '/' . $placement['definition']->name . '.php';
+            $path = $this->namespaceToDirectory($placement['namespace']) . '/' . $this->shortClassName($placement['definition']->name) . '.php';
             $files[] = new OpenApiDtoGeneratedFile($path, $contents);
         }
 
         return $files;
+    }
+
+    private function shortClassName(string $fqcn): string
+    {
+        return (string) substr($fqcn, (int) strrpos($fqcn, '\\') + 1);
     }
 
     /**

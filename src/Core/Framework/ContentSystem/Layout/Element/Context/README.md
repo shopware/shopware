@@ -2,6 +2,10 @@
 
 Context provider and consumer definitions for content elements.
 
+Use context when multiple elements need the same data. Load it once at the parent, share it with all children.
+
+Example: A product page with title, price, and images all showing the same product. Load it once at the page level instead of three separate loads.
+
 ## Key Classes
 
 - `ContextProvider` - Defines what context an element exposes to descendants
@@ -9,14 +13,14 @@ Context provider and consumer definitions for content elements.
 - `ContextDefinitions` - Container holding providers and consumers for an element
 - `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning
 
-## Redistribution
+## Configuration Reference
 
-`ContextConsumer::$redistribute` auto-generates a broadcast provider when `true` — expanded at runtime by `RedistributeExpansionSubscriber`, not persisted.
-
-## Aliases
-
-- **Consumer Alias** (`$consumerAlias`): Transforms key when redistributing. Requires `redistribute: true`
-- **Property Alias** (`$propertyAlias`): Renames storage key. No dots allowed, unique per element. Independent of redistribute
+- [docs/providers.md](docs/providers.md) - The `providesContext` entry: keys, types, distribution, and `consumerAlias`
+- [docs/consumers.md](docs/consumers.md) - The `acceptsContext` entry: keys, types, `required`, and `propertyAlias`
+- [docs/path-resolution.md](docs/path-resolution.md) - Dot-notation access to nested properties of a provided entity
+- [docs/distribution-strategies.md](docs/distribution-strategies.md) - The five distribution strategies and the ancestor-to-descendant flow rules
+- [docs/redistribution.md](docs/redistribution.md) - Passing received context through a container with `redistribute: true`
+- [docs/worked-example.md](docs/worked-example.md) - One provider feeding three consumer children end to end
 
 ## Subdirectories
 

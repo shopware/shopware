@@ -79,6 +79,20 @@ my-component/
 | `this.$device`                            | `const device = getCurrentInstance()?.proxy?.$device` |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
 
+`this.$el` becomes a real template ref whenever the template offers an element to put it on. The
+codemod inserts `ref="rootEl"` on the first element inside the root `<sw-block>`, declares
+`const rootEl = ref(null);` with the other template refs, and rewrites `this.$el` to `rootEl.value` —
+DOM calls, `addEventListener`, and `event.target !== this.$el` comparisons alike. That component then
+needs no `$el` follow-up at all. Like `$el`, the ref is `null` until the component is mounted; every
+usage site the codemod migrates (`mounted`, `updated`, methods) runs after that.
+
+The element has to provably be the one `$el` pointed at, so the placeholder stays for a component-tag
+root (its `$el` is the child's root element), a `v-if`/`v-for` root (it may not render), an element
+that already carries a `ref`, a `<template>` root, and anything else the scan cannot read. The ref is
+never placed on `<sw-block>` itself: the build transform owns its attributes and rejects an authored
+one, and the block renders a Fragment anyway — which is exactly why
+`getCurrentInstance()?.proxy?.$el` is only a placeholder after migration.
+
 `this.$device` becomes a binding captured once at the top of the setup block. The device-helper
 plugin installs `$device` as a global property and closes over its `DeviceHelper` singleton inside
 `install()`, so there is nothing to import — but the singleton is the same object for every component
@@ -238,24 +252,27 @@ Before using `--delete-originals`:
 
 After running the codemod, search for `TODO` comments in the generated files:
 
-- **`this.$el`** — no direct equivalent; replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`.
-  The migration summary prints a `⚠` warning line for every component containing this pattern.
-  Two cases arise:
-    1. **Root element access in setup / lifecycle hooks** — prefer a template ref on the root element:
-        ```html
-        <template>
+- **`this.$el`** — only reported when the template had no element the generated root ref could be
+  placed on (a component-tag root, a conditional root, an element that already has a `ref`). It is
+  then replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el` and the migration summary
+  prints a `⚠` warning line. That placeholder is a bridge, not an equivalent: the migrated root is
+  `<sw-block>`, which renders a Fragment, so `proxy.$el` resolves to the fragment's text anchor —
+  and `getCurrentInstance()` is `null` outside the synchronous setup phase. Add a real ref by hand:
+
+    ```html
+    <template>
+        <sw-block name="sw_item">
             <div ref="rootEl">…</div>
-        </template>
-        ```
-        ```ts
-        const rootEl = ref<HTMLElement | null>(null);
-        onMounted(() => {
-            rootEl.value?.focus();
-        });
-        ```
-    2. **Dynamic DOM access inside methods** — `getCurrentInstance()?.proxy?.$el` is a valid transitional
-       bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
-       setup phase. If the method runs after setup completes, store the element in a template ref instead.
+        </sw-block>
+    </template>
+    ```
+
+    ```ts
+    const rootEl = ref(null);
+    onMounted(() => {
+        rootEl.value?.focus();
+    });
+    ```
 
 - **`rewrite target '<name>' is shadowed by a local binding`** — the member reads `this.<name>` (or a
   prop, which is rewritten through `props`) at a place where a parameter or local of that name is in

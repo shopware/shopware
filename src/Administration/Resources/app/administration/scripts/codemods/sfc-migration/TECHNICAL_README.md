@@ -166,9 +166,11 @@ It does this:
 1. Runs `transformTemplate(twigContent)`.
 2. If template transformation fails with `TemplateTransformError`, returns
    `not-migratable`.
-3. Runs `transformScript(...)`.
+3. Runs `transformScript(...)`, telling it whether the template can host a
+   generated root template ref.
 4. If script transformation is `not-migratable`, returns an empty SFC.
-5. Wraps the generated script in `<script setup>`.
+5. Writes the `ref="…"` attribute when the script asked for one, and wraps the
+   generated script in `<script setup>`.
 6. Validates the assembled SFC by running it through the real build-time
    transform from `build/vue-setup-transform`, so success is only reported for
    output that transform accepts.
@@ -310,7 +312,7 @@ This keeps "understand the old component" separate from "print the new code".
 3. Vue compiler macros: `defineOptions`, `defineProps`, `defineEmits`.
 4. Imports required by the converted code.
 5. Composable declarations such as `const router = useRouter()`.
-6. Template refs generated from `this.$refs`.
+6. Template refs: the generated root ref for `$el`, then the ones from `this.$refs`.
 7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
    `provide` calls, `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
@@ -418,7 +420,7 @@ Risky cases get TODO output instead of pretending the migration is complete:
 
 | Old code | Generated handling |
 | --- | --- |
-| `this.$el` | `/* TODO: $el */ getCurrentInstance()?.proxy?.$el` |
+| `this.$el`, with no element to host a ref | `/* TODO: $el */ getCurrentInstance()?.proxy?.$el` |
 | `this.$store` | Throwing TODO expression, so it cannot ship unnoticed. |
 | `this.$parent`, `this.$root`, `$options`, `$forceUpdate` | TODO placeholders. |
 
@@ -502,6 +504,50 @@ SFC against the real build-time transform before returning it, so these come bac
 as `not-migratable` with a `native setup transform: …` blocker and nothing is
 written to disk. Only the reason is poor — it points at the generated duplicate
 instead of at the member that needs the manual rename.
+
+## Root Template Ref For `$el`
+
+Main files: `template-transformer/find-root-element-anchor.ts`, `generate-sfc.ts`
+
+`getCurrentInstance()?.proxy?.$el` is not merely inelegant after migration, it is
+wrong: the generated root is `<sw-block>`, which lowers into a Fragment, so
+`proxy.$el` resolves to the fragment's text anchor rather than to the element the
+Options API code meant. When the template offers a suitable element, the codemod
+emits a real template ref instead and the component needs no `$el` follow-up.
+
+The ref never goes on `<sw-block>` — the base transform owns its attributes and
+hard-rejects an authored one (only the static `name` is allowed, see
+`build/vue-setup-transform/template-analyzer/sw-block-bindings.ts`). It goes on
+the first real element inside the root block, which is what `$el` resolved to
+before migration. The lowering re-declares every binding, so a private
+`const rootEl = ref(null)` reaches the compiled template.
+
+Both sides have to agree on one name, and neither owns it alone: the template
+knows whether an element exists, the script knows whether `$el` is used and which
+names are free. `mergeComponentFiles` is where they meet:
+
+1. `transformTemplate` returns the template plus `rootElementRefInsertAt` — the
+   offset behind the anchor element's tag name, or null.
+2. `transformScript` is called with `canHostRootElementRef` and, if it reads
+   `$el`, resolves a name through `resolve-identifiers.ts` (`rootEl`, `$el`,
+   `rootElement`, …), declares it with the template refs, rewrites `this.$el` to
+   `<name>.value`, and reports the name as `rootElementRefName`.
+3. `mergeComponentFiles` splices ` ref="<name>"` in at the offset.
+
+`findRootElementAnchor` scans the transformed template, skipping whitespace,
+comments, and nested `<sw-block>` elements. It returns null — keeping the
+placeholder, the TODO, and the `⚠` warning — for:
+
+| Shape | Why |
+| --- | --- |
+| A component tag (a dash or an uppercase letter in the name) | Its `$el` is the child component's root element, not this one's. |
+| `<template>`, `<slot>`, `<component>`, `<transition>`, `<teleport>`, `<suspense>` | Compiler constructs, not DOM elements. |
+| `v-if` / `v-else-if` / `v-else` / `v-for` on the element | It may not be rendered at all, so the ref would be `null`. |
+| An element that already carries `ref`, `:ref`, or `v-bind:ref` | A second `ref` attribute is not valid. |
+| `<sw-block-parent/>`, text, or anything unparsable first | Nothing the scan can prove is the old `$el`. |
+
+Semantics: like `$el`, the ref is `null` before mount. Every site the codemod
+rewrites (`mounted`, `updated`, methods) runs after that.
 
 ## Computed Spread Expansion
 
@@ -714,7 +760,8 @@ timing does not map cleanly to generated setup code.
 | `TECHNICAL_README.md` | Technical explanation of the implementation. |
 | `run-sfc-migration.ts` | CLI, scanning, writing, reporting. |
 | `generate-sfc.ts` | Merges template and script transformation results, then validates the SFC against the real build-time transform. |
-| `transform-template.ts` | Converts supported Twig syntax. |
+| `transform-template.ts` | Converts supported Twig syntax and locates the root-ref anchor. |
+| `template-transformer/find-root-element-anchor.ts` | Decides which element may carry the generated root template ref. |
 | `transform-script.ts` | Script transformation decision tree. |
 | `types.ts` | Shared status types. |
 | `string-literals.ts` | Safe JS string quoting helper. |

@@ -388,6 +388,38 @@ swDefinePublic({
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script root-el-component: replaces $el with a generated root template ref matches the complete converted script snapshot 1`] = `
+"import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+const rootEl = ref(null);
+
+const isActive = ref(false);
+
+const handleKeyDown = (event) => {
+if (event.target !== rootEl.value) {
+                return;
+            }
+
+            isActive.value = true;
+};
+const scrollIntoView = () => {
+rootEl.value.scrollIntoView({ behavior: 'smooth' });
+};
+
+onMounted(() => {
+rootEl.value.addEventListener('keydown', handleKeyDown);
+});
+onBeforeUnmount(() => {
+rootEl.value.removeEventListener('keydown', handleKeyDown);
+});
+
+swDefinePublic({
+    isActive,
+    handleKeyDown,
+    scrollIntoView,
+});"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
 "const emit = defineEmits(['save']);
 

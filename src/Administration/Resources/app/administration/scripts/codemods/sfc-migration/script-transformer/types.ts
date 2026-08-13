@@ -10,6 +10,11 @@ export interface TransformScriptResult {
     publicNames: string[];
     /** Component name from the registration call (`unknown-component` when non-literal). */
     componentName: string;
+    /**
+     * Name of the generated root template ref that replaced `this.$el`, or null.
+     * The caller writes the matching `ref="…"` attribute into the template.
+     */
+    rootElementRefName: string | null;
 }
 
 export interface DataProp {
@@ -152,6 +157,12 @@ export interface RewriteContext {
      * as such instead of calling the name unknown.
      */
     declaredMemberNames: Set<string>;
+    /**
+     * Generated root template ref that `this.$el` is rewritten to, or null when
+     * the component keeps the `$el` placeholder. Only the rewrite reads this —
+     * `$el` is a supported property either way.
+     */
+    rootElementRefName: string | null;
 }
 
 export interface UsedComposables {

@@ -447,10 +447,13 @@ function buildThisReplacement(
             // valid for the component's whole lifetime.
             return names.device;
         case '$el':
-            // There is no setup-safe equivalent for root DOM access; this is a
-            // transitional bridge. collectPlaceholderApiReasons keeps the
+            // A generated root template ref is a real equivalent. Without one —
+            // the template offered no element to put it on — this stays a
+            // transitional bridge, and collectPlaceholderApiReasons keeps the
             // migration partial so the placeholder is reviewed after generation.
-            return '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
+            return ctx.rootElementRefName
+                ? `${ctx.rootElementRefName}.value`
+                : '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
         case '$store':
             // Vuex access needs a store-specific Pinia/composable migration.
             // Throwing prevents generated code from silently shipping with a

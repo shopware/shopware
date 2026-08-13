@@ -262,23 +262,73 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('instance-api-component: warnings field reports $el usage', () => {
+    describe('root-el-component: $el becomes a ref on the first element inside the root block', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
             result = mergeComponentFiles(
-                readFixture('instance-api-component.html.twig'),
-                readFixture('instance-api-component.index.js'),
+                readFixture('root-el-component.html.twig'),
+                readFixture('root-el-component.index.js'),
             );
         });
 
+        // The two transforms have to agree on the name: the template writes the
+        // attribute, the script declares the binding and reads it.
+        it('writes the ref attribute the generated binding reads', () => {
+            expect(result.sfc).toContain('<div ref="rootEl"');
+            expect(result.sfc).toContain('const rootEl = ref(null);');
+        });
+
+        it('reports no $el warning and no manual follow-up', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.warnings).toEqual([]);
+            expect(result.sfc).not.toContain('TODO: $el');
+        });
+
+        // <sw-block> hard-rejects an authored attribute, so the ref must never
+        // land on it.
+        it('leaves the surrounding sw-block untouched', () => {
+            expect(result.sfc).toContain('<sw-block name="sw_root_el_item">');
+        });
+    });
+
+    describe('instance-api-component: a block-less plain root element hosts the ref too', () => {
+        it('writes the ref on the root element', () => {
+            const result = mergeComponentFiles(
+                readFixture('instance-api-component.html.twig'),
+                readFixture('instance-api-component.index.js'),
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.sfc).toContain('<div ref="rootEl" class="sw-instance-api">');
+            expect(result.sfc).toContain('rootEl.value.querySelector');
+        });
+    });
+
+    describe('component-root-el-component: warnings field reports $el usage', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                readFixture('component-root-el-component.html.twig'),
+                readFixture('component-root-el-component.index.js'),
+            );
+        });
+
+        // A component root's `$el` is the child's root element, not this
+        // component's, so a ref there would point somewhere else.
         it('reports status partially-migrated because $el has no setup equivalent', () => {
             expect(result.status).toBe('partially-migrated');
+            expect(result.sfc).toContain('/* TODO: $el */');
         });
 
         it('populates warnings with a $el message', () => {
             expect(result.warnings).toHaveLength(1);
             expect(result.warnings[0]).toContain('$el usage detected');
+        });
+
+        it('writes no ref attribute', () => {
+            expect(result.sfc).not.toContain('ref=');
         });
     });
 

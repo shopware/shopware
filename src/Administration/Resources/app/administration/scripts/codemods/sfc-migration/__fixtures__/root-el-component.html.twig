@@ -1,0 +1,9 @@
+{% block sw_root_el_item %}
+    <div
+        class="sw-root-el-item"
+        :class="{ 'is--active': isActive }"
+        tabindex="0"
+    >
+        <slot></slot>
+    </div>
+{% endblock %}

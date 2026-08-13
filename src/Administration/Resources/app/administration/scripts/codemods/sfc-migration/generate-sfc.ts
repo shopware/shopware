@@ -1,4 +1,5 @@
 import { ShopwareSetupTransformError, validateShopwareSetupSfc } from '../../../build/vue-setup-transform';
+import type { TransformTemplateResult } from './transform-template';
 import { TemplateTransformError, transformTemplate } from './transform-template';
 import { transformScript } from './transform-script';
 import type { MigrationStatus } from './types';
@@ -40,10 +41,10 @@ export interface MergeResult {
  * The `<template>` section always precedes `<script setup>` in the output.
  */
 export function mergeComponentFiles(twigContent: string, jsContent: string): MergeResult {
-    let templateSection: string;
+    let templateResult: TransformTemplateResult;
 
     try {
-        ({ template: templateSection } = transformTemplate(twigContent));
+        templateResult = transformTemplate(twigContent);
     } catch (err) {
         if (err instanceof TemplateTransformError) {
             return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [], componentName: '' };
@@ -52,7 +53,12 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         throw err;
     }
 
-    const scriptResult = transformScript(jsContent);
+    // The two transforms have to agree on one name: the template offers an
+    // element for the root ref, the script decides whether `$el` needs one and
+    // picks a name that collides with nothing it declares.
+    const scriptResult = transformScript(jsContent, {
+        canHostRootElementRef: templateResult.rootElementRefInsertAt !== null,
+    });
     const { blockers, componentName } = scriptResult;
 
     if (scriptResult.status === 'not-migratable') {
@@ -60,7 +66,7 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
     }
 
     const sfc = [
-        templateSection,
+        applyRootElementRef(templateResult, scriptResult.rootElementRefName),
         '',
         `<script setup>\n${scriptResult.script}\n</script>`,
     ].join('\n');
@@ -91,6 +97,19 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
 // ---------------------------------------------------------------------------
 // Internals
 // ---------------------------------------------------------------------------
+
+/**
+ * Writes the `ref="…"` the script's `$el` rewrite reads. The offset points right
+ * behind the tag name of the element the template transformer picked, so the
+ * attribute lands first in that element's attribute list.
+ */
+function applyRootElementRef({ template, rootElementRefInsertAt }: TransformTemplateResult, refName: string | null): string {
+    if (refName === null || rootElementRefInsertAt === null) {
+        return template;
+    }
+
+    return `${template.slice(0, rootElementRefInsertAt)} ref="${refName}"${template.slice(rootElementRefInsertAt)}`;
+}
 
 /**
  * Runs the generated SFC through the same transform the build, ESLint, and Volar

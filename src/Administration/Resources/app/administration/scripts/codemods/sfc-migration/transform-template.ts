@@ -1,3 +1,4 @@
+import { findRootElementAnchor } from './template-transformer/find-root-element-anchor';
 import {
     CrossBlockConditionTransformError,
     normalizeCrossBlockConditionals,
@@ -45,6 +46,20 @@ function hasTwigSyntaxInComment(twigContent: string): boolean {
     return Array.from(twigContent.matchAll(TWIG_COMMENT_RE)).some((match) => TWIG_SYNTAX_RE.test(match[1] ?? ''));
 }
 
+const TEMPLATE_OPEN = '<template>\n';
+
+export interface TransformTemplateResult {
+    template: string;
+    /**
+     * Offset in `template` where a ` ref="…"` attribute may be inserted so the
+     * script can replace `this.$el` with a real template ref, or null when the
+     * template has no element that provably is the old `$el`. The caller decides
+     * whether to use it — only a script that reads `$el` needs the ref, and only
+     * it knows a name that collides with nothing.
+     */
+    rootElementRefInsertAt: number | null;
+}
+
 /**
  * Converts a `.html.twig` file's content into a Vue `<template>` block.
  *
@@ -55,7 +70,7 @@ function hasTwigSyntaxInComment(twigContent: string): boolean {
  * - Accompanying eslint-disable-next-line comments are removed
  * - Plain HTML / Vue expressions pass through unchanged
  */
-export function transformTemplate(twigContent: string): { template: string } {
+export function transformTemplate(twigContent: string): TransformTemplateResult {
     const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
     const BLOCK_END_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/g;
     const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
@@ -124,6 +139,10 @@ export function transformTemplate(twigContent: string): { template: string } {
         }
     }
 
-    const transformed = `<template>\n${body}\n</template>`;
-    return { template: transformed };
+    const anchor = findRootElementAnchor(body);
+
+    return {
+        template: `${TEMPLATE_OPEN}${body}\n</template>`,
+        rootElementRefInsertAt: anchor === null ? null : TEMPLATE_OPEN.length + anchor,
+    };
 }

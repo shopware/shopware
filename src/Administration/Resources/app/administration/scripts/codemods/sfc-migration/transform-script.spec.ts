@@ -869,7 +869,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('instance-api-component: keeps $el as a placeholder and requires manual follow-up', () => {
+    describe('instance-api-component: keeps $el as a placeholder when no element can host a ref', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
@@ -885,6 +885,66 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
             expect(result.script).not.toMatch(/\bthis\.\$el\b/);
             expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('names no root element ref for the caller to write into the template', () => {
+            expect(result.rootElementRefName).toBeNull();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('root-el-component: replaces $el with a generated root template ref', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('root-el-component.index.js'), { canHostRootElementRef: true });
+        });
+
+        // A real ref is equivalent to what `$el` resolved to, so nothing about
+        // this component needs a manual follow-up any more.
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
+            expect(result.script).not.toContain('TODO');
+        });
+
+        it('declares the ref and reports its name back to the caller', () => {
+            expect(result.rootElementRefName).toBe('rootEl');
+            expect(result.script).toContain('const rootEl = ref(null);');
+        });
+
+        it('rewrites every $el usage — hooks, comparisons, and DOM calls alike', () => {
+            expect(result.script).toContain('rootEl.value.addEventListener(');
+            expect(result.script).toContain('rootEl.value.removeEventListener(');
+            expect(result.script).toContain('if (event.target !== rootEl.value) {');
+            expect(result.script).toContain('rootEl.value.scrollIntoView(');
+        });
+
+        it('needs no instance handle any more', () => {
+            expect(result.script).not.toContain('getCurrentInstance');
+        });
+
+        // The ref is a private setup binding, not part of the Options API surface.
+        it('keeps the root ref out of the public override API', () => {
+            expect(result.publicNames).not.toContain('rootEl');
+        });
+
+        it('renames the ref when the component already declares rootEl', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                data() { return { rootEl: null }; },
+                methods: {
+                    focus() { this.$el.focus(); },
+                },
+            });`;
+            const renamed = transformScript(js, { canHostRootElementRef: true });
+
+            expect(renamed.rootElementRefName).toBe('$el');
+            expect(renamed.script).toContain('const $el = ref(null);');
+            expect(renamed.script).toContain('$el.value.focus();');
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
         });
     });
 

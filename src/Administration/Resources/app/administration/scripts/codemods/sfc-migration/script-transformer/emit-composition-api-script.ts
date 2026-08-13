@@ -13,15 +13,15 @@ import { quoteJsString } from '../string-literals';
 import { hasTopLevelReturn } from './ast';
 import type { CompositionScriptState } from './composition-script-state';
 import { sanitizeTodoCommentText } from './helpers';
-import { resolveIdentifierNames } from './resolve-identifiers';
 import type { ResolvedIdentifiers } from './resolve-identifiers';
 import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
 import type { UsedComposables } from './types';
 
 export function emitCompositionApiScript(state: CompositionScriptState): string {
-    // Every name the component already uses is known before the first line is
-    // emitted, so the names of the generated bindings are resolved once here.
-    const names = resolveIdentifierNames(collectTakenNames(state));
+    // Resolved while the state was collected: `transform-script.ts` has to report
+    // the root template ref name back to the template transformer, so the names
+    // cannot be picked here for the first time.
+    const { names } = state;
 
     // Each emitter returns one section; sections that emitted something are
     // separated by exactly one blank line, which is what groups the generated
@@ -154,7 +154,15 @@ function destructuringEntry(member: string, localName: string): string {
 }
 
 function emitTemplateRefs(state: CompositionScriptState): string[] {
-    return state.templateRefNames.map((refName) => `const ${refName} = ref(null);`);
+    const { rootElementRefName, templateRefNames } = state;
+    // The root ref is not a `$refs` name the component wrote; the template
+    // transformer puts the matching `ref="…"` on the element for it.
+    const rootElementRef = rootElementRefName ? [`const ${rootElementRefName} = ref(null);`] : [];
+
+    return [
+        ...rootElementRef,
+        ...templateRefNames.map((refName) => `const ${refName} = ref(null);`),
+    ];
 }
 
 function emitInjectProps(state: CompositionScriptState): string[] {
@@ -356,17 +364,4 @@ function emitDefineExpose(state: CompositionScriptState): string[] {
         ...[...new Set(exposeNames)].map((n) => `    ${n},`),
         '});',
     ];
-}
-
-function collectTakenNames(state: CompositionScriptState): Set<string> {
-    // Declared prop names count as taken: the extension runtime strips them from
-    // the returned setup state, so a generated binding that shadows a prop would
-    // be dropped and leave the template reading `undefined`.
-    return new Set([
-        ...state.existingBindingNames,
-        ...state.publicNames,
-        ...state.templateRefNames,
-        ...state.propNames,
-        'props',
-    ]);
 }

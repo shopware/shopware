@@ -10,10 +10,26 @@ export type { TransformScriptResult } from './script-transformer/types';
 export type { MigrationStatus } from './types';
 
 function notMigratable(blockers: string[], componentName: string): TransformScriptResult {
-    return { script: '', status: 'not-migratable', blockers, publicNames: [], componentName };
+    return {
+        script: '',
+        status: 'not-migratable',
+        blockers,
+        publicNames: [],
+        componentName,
+        rootElementRefName: null,
+    };
 }
 
-export function transformScript(jsContent: string): TransformScriptResult {
+export interface TransformScriptOptions {
+    /**
+     * true when the template has an element the generated root ref can be placed
+     * on. Only then can `this.$el` be rewritten into a real template ref; the
+     * name the transform picked comes back as `rootElementRefName`.
+     */
+    canHostRootElementRef?: boolean;
+}
+
+export function transformScript(jsContent: string, options: TransformScriptOptions = {}): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
     const registration = findComponentRegistration(sourceFile);
     const optionsObj = registration?.optionsObject;
@@ -42,7 +58,9 @@ export function transformScript(jsContent: string): TransformScriptResult {
         );
     }
 
-    const state = collectCompositionScriptState(optionsObj, registration, sourceFile);
+    const state = collectCompositionScriptState(optionsObj, registration, sourceFile, {
+        canHostRootElementRef: options.canHostRootElementRef,
+    });
     const script = emitCompositionApiScript(state);
     const manualMigrationReasons = [...new Set(state.manualMigrationReasons)];
 
@@ -52,5 +70,6 @@ export function transformScript(jsContent: string): TransformScriptResult {
         blockers: manualMigrationReasons,
         publicNames: state.publicNames,
         componentName,
+        rootElementRefName: state.rootElementRefName,
     };
 }

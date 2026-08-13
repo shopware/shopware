@@ -24,6 +24,8 @@ import { extractProvideEntries } from './extract-provide';
 import { extractWatchProps } from './extract-watch';
 import type { WatchPath } from './helpers';
 import { getWatchRootName, isDefined, isSafeIdentifier, parseWatchPath, sanitizeTodoCommentText } from './helpers';
+import type { ResolvedIdentifiers } from './resolve-identifiers';
+import { resolveIdentifierNames } from './resolve-identifiers';
 import {
     collectEmittedEventNames,
     collectThisRefNames,
@@ -78,6 +80,19 @@ export interface CompositionScriptState {
     injectNames: Set<string>;
     manualMigrationReasons: string[];
     existingBindingNames: Set<string>;
+    /** Names of the generated bindings, resolved around everything the component declares. */
+    names: ResolvedIdentifiers;
+    /**
+     * Name of the generated root template ref that replaces `this.$el`, or null
+     * when the component keeps the `$el` placeholder. The template transformer
+     * writes the matching `ref="…"` attribute.
+     */
+    rootElementRefName: string | null;
+}
+
+export interface CollectCompositionScriptStateOptions {
+    /** true when the template has an element the root ref can be placed on. */
+    canHostRootElementRef?: boolean;
 }
 
 interface SupportedCompositionMembers {
@@ -107,6 +122,7 @@ export function collectCompositionScriptState(
     optionsObj: ObjectLiteralExpression,
     registration: ComponentRegistration,
     sourceFile: SourceFile,
+    { canHostRootElementRef = false }: CollectCompositionScriptStateOptions = {},
 ): CompositionScriptState {
     let lifecycleHooks = extractLifecycleHooks(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
@@ -161,6 +177,9 @@ export function collectCompositionScriptState(
         methodNames,
         injectNames,
         declaredMemberNames,
+        // Filled in below, once the template's answer and the resolved names are
+        // both known; `$el` is supported either way, so detection does not read it.
+        rootElementRefName: null,
     };
     lifecycleHooks = filterSupported(
         lifecycleHooks,
@@ -181,7 +200,6 @@ export function collectCompositionScriptState(
     if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
         manualMigrationReasons.push('$store usage requires manual migration to the appropriate Pinia store or composable');
     }
-    collectPlaceholderApiReasons(allSnippets, manualMigrationReasons, todoComments);
 
     const effectiveEmitsKeys =
         emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
@@ -189,6 +207,17 @@ export function collectCompositionScriptState(
             : collectEmittedEventNames(allSnippets);
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
+    const publicNames = collectPublicNames(supportedMembers);
+    const existingBindingNames = collectExistingBindingNames(sourceFile);
+    const names = resolveIdentifierNames(collectTakenNames(existingBindingNames, publicNames, templateRefNames, propNames));
+
+    // `$el` becomes a real template ref whenever the template offers an element
+    // to put it on; otherwise it keeps the placeholder and its manual follow-up.
+    const rootElementRefName = canHostRootElementRef && hasDirectThisPropertyUsage(allSnippets, '$el') ? names.rootEl : null;
+    ctx.rootElementRefName = rootElementRefName;
+
+    collectPlaceholderApiReasons(allSnippets, manualMigrationReasons, todoComments, rootElementRefName !== null);
+
     const moduleVueImportNames = collectModuleVueImportNames(sourceFile, registration);
     const vueImports = collectVueImports(
         supportedMembers,
@@ -197,11 +226,11 @@ export function collectCompositionScriptState(
         regularHooks,
         allSnippets,
         provideEntries,
+        rootElementRefName,
         // A module that already imports the name from `vue` brings the very same
         // binding into the generated block, so importing it again would only
         // declare it twice.
     ).filter((name) => !moduleVueImportNames.has(name));
-    const publicNames = collectPublicNames(supportedMembers);
     const { exposeNames, unsupportedReason: exposeUnsupportedReason } = collectExposeNames(optionsObj, publicNames);
 
     if (exposeUnsupportedReason) {
@@ -264,7 +293,9 @@ export function collectCompositionScriptState(
         propNames,
         injectNames,
         manualMigrationReasons,
-        existingBindingNames: collectExistingBindingNames(sourceFile),
+        existingBindingNames,
+        names,
+        rootElementRefName,
     };
 }
 
@@ -487,6 +518,8 @@ function buildMemberContext(
         methodNames: new Set(members.supportedMethodProps.map((p) => p.name)),
         injectNames: new Set(members.supportedInjectProps.map((p) => p.localName)),
         declaredMemberNames,
+        // Only used when rewriting, and these contexts only ever filter.
+        rootElementRefName: null,
     };
 }
 
@@ -726,10 +759,21 @@ const PLACEHOLDER_INSTANCE_APIS = [
 
 /**
  * These instance APIs are rewritten to transitional placeholders that change
- * runtime behavior, so their usage keeps the migration partial.
+ * runtime behavior, so their usage keeps the migration partial. `$el` is the one
+ * that can be resolved for real: when the template hosts a generated root ref,
+ * the rewrite is equivalent and nothing is reported.
  */
-function collectPlaceholderApiReasons(snippets: CodeSnippet[], reasons: string[], todoComments: string[]): void {
-    for (const api of PLACEHOLDER_INSTANCE_APIS) {
+function collectPlaceholderApiReasons(
+    snippets: CodeSnippet[],
+    reasons: string[],
+    todoComments: string[],
+    hasRootElementRef: boolean,
+): void {
+    const placeholders = hasRootElementRef
+        ? PLACEHOLDER_INSTANCE_APIS.filter((api) => api !== '$el')
+        : PLACEHOLDER_INSTANCE_APIS;
+
+    for (const api of placeholders) {
         if (hasDirectThisPropertyUsage(snippets, api)) {
             pushManualMigration(
                 reasons,
@@ -970,12 +1014,13 @@ function collectVueImports(
     regularHooks: LifecycleHook[],
     allSnippets: CodeSnippet[],
     provideEntries: ProvideEntry[],
+    rootElementRefName: string | null,
 ): string[] {
     const { injectNames, supportedComputedProps, supportedDataProps, supportedInjectProps, supportedWatchProps } =
         supportedMembers;
     const vueImports: string[] = [];
 
-    if (supportedDataProps.length > 0 || templateRefNames.length > 0) vueImports.push('ref');
+    if (supportedDataProps.length > 0 || templateRefNames.length > 0 || rootElementRefName) vueImports.push('ref');
     if (supportedComputedProps.length > 0) vueImports.push('computed');
     if (supportedInjectProps.length > 0) vueImports.push('inject');
     if (provideEntries.length > 0) vueImports.push('provide');
@@ -984,13 +1029,32 @@ function collectVueImports(
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');
-    if (hasDirectThisPropertyUsage(allSnippets, '$el') || usedComposables.needsDevice) {
+    // A `$el` resolved into a root template ref needs no instance handle.
+    if ((rootElementRefName === null && hasDirectThisPropertyUsage(allSnippets, '$el')) || usedComposables.needsDevice) {
         vueImports.push('getCurrentInstance');
     }
 
     vueImports.push(...new Set(regularHooks.map((h) => h.compositionName as string)));
 
     return vueImports;
+}
+
+function collectTakenNames(
+    existingBindingNames: Set<string>,
+    publicNames: string[],
+    templateRefNames: string[],
+    propNames: Set<string>,
+): Set<string> {
+    // Declared prop names count as taken: the extension runtime strips them from
+    // the returned setup state, so a generated binding that shadows a prop would
+    // be dropped and leave the template reading `undefined`.
+    return new Set([
+        ...existingBindingNames,
+        ...publicNames,
+        ...templateRefNames,
+        ...propNames,
+        'props',
+    ]);
 }
 
 function collectPublicNames(supportedMembers: SupportedCompositionMembers): string[] {

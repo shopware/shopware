@@ -933,11 +933,13 @@ describe('runMigration — $el warning', () => {
 
     beforeEach(() => {
         tmpDir = createTempDir();
+        // A component root cannot host the generated ref, so this component keeps
+        // the `$el` placeholder — which is what the warning reports.
         makeComponent(
             tmpDir,
-            'sw-instance-api',
-            readFixture('instance-api-component.index.js'),
-            readFixture('instance-api-component.html.twig'),
+            'sw-component-root-el',
+            readFixture('component-root-el-component.index.js'),
+            readFixture('component-root-el-component.html.twig'),
         );
     });
 

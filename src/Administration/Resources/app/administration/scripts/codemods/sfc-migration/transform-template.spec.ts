@@ -443,3 +443,88 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         ).toThrow('Cross-block v-else/v-else-if without previous v-if block is not supported by the SFC migration codemod.');
     });
 });
+
+describe('scripts/codemods/sfc-migration/transform-template root element anchor', () => {
+    function insertRef(twigContent: string): string | null {
+        const { template, rootElementRefInsertAt } = transformTemplate(twigContent);
+
+        if (rootElementRefInsertAt === null) {
+            return null;
+        }
+
+        return `${template.slice(0, rootElementRefInsertAt)} ref="rootEl"${template.slice(rootElementRefInsertAt)}`;
+    }
+
+    it.each([
+        [
+            'the first element inside the root block',
+            '{% block sw_item %}\n<div class="sw-item">text</div>\n{% endblock %}',
+            '<div ref="rootEl" class="sw-item">',
+        ],
+        [
+            'a root element without any block',
+            '<section class="sw-item">text</section>',
+            '<section ref="rootEl" class="sw-item">',
+        ],
+        [
+            'the innermost of nested blocks',
+            '{% block sw_outer %}{% block sw_inner %}\n<div>text</div>\n{% endblock %}{% endblock %}',
+            '<div ref="rootEl">',
+        ],
+        [
+            'an element behind a leading comment',
+            '{# leading #}\n<div class="sw-item">text</div>',
+            '<div ref="rootEl" class="sw-item">',
+        ],
+        [
+            'an element whose attributes contain an angle bracket',
+            '<div :class="{ small: width < 10 }" class="sw-item">text</div>',
+            '<div ref="rootEl" :class="{ small: width < 10 }"',
+        ],
+    ])('offers %s as the anchor', (_case, twigContent, expected) => {
+        expect(insertRef(twigContent)).toContain(expected);
+    });
+
+    // Each of these would put the ref somewhere `$el` never pointed, so the
+    // script keeps its placeholder instead.
+    it.each([
+        [
+            'a component root, whose $el is the child root',
+            '{% block sw_item %}\n<sw-card>text</sw-card>\n{% endblock %}',
+        ],
+        [
+            'an uppercase component tag',
+            '<SwCard>text</SwCard>',
+        ],
+        [
+            'a conditional root, which may not render at all',
+            '{% block sw_item %}\n<div v-if="isVisible">text</div>\n{% endblock %}',
+        ],
+        [
+            'a repeated root',
+            '<div v-for="item in items" :key="item.id">text</div>',
+        ],
+        [
+            'an element that already carries a ref',
+            '<div ref="existing">text</div>',
+        ],
+        [
+            'an element that already carries a bound ref',
+            '<div :ref="dynamicName">text</div>',
+        ],
+        [
+            'a <template> root, which is not a DOM element',
+            '<template #default><div>text</div></template>',
+        ],
+        [
+            'a block that starts with parent()',
+            '{% block sw_item %}\n{{ parent() }}\n<div>text</div>\n{% endblock %}',
+        ],
+        [
+            'text before the first element',
+            '{% block sw_item %}\nplain text\n<div>text</div>\n{% endblock %}',
+        ],
+    ])('offers no anchor for %s', (_case, twigContent) => {
+        expect(transformTemplate(twigContent).rootElementRefInsertAt).toBeNull();
+    });
+});

@@ -49,6 +49,11 @@ const IDENTIFIER_CANDIDATES = {
         '$device',
         'deviceHelper',
     ],
+    rootEl: [
+        'rootEl',
+        '$el',
+        'rootElement',
+    ],
 } as const;
 
 export type ResolvedIdentifiers = Record<keyof typeof IDENTIFIER_CANDIDATES, string>;

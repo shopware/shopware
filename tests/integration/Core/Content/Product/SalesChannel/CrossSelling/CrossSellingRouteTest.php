@@ -538,11 +538,6 @@ class CrossSellingRouteTest extends TestCase
             'productStreamId' => $streamId,
         ]];
 
-        $this->productRepository->create(
-            [$parentData, $this->getProductData($otherProductId, $manufacturerId, $taxId)],
-            $this->salesChannelContext->getContext()
-        );
-
         // dynamic product group which contains the whole variant family and one unrelated product
         static::getContainer()->get('product_stream.repository')->create([
             [
@@ -557,6 +552,11 @@ class CrossSellingRouteTest extends TestCase
                 ],
             ],
         ], $this->salesChannelContext->getContext());
+
+        $this->productRepository->create(
+            [$parentData, $this->getProductData($otherProductId, $manufacturerId, $taxId)],
+            $this->salesChannelContext->getContext()
+        );
 
         $this->salesChannelContext->getContext()->setConsiderInheritance(true);
 

@@ -123,20 +123,16 @@ When updating an Elasticsearch/OpenSearch mapping references an analyzer/normali
 
 ### Outdated Elasticsearch indices are removed automatically
 
-Indices that no longer serve an alias were only removable by hand, and `es:index:cleanup` never covered the admin search indices at all — it builds its search pattern from the storefront index prefix (`sw_<entity>_*`), which never matches an admin index (`sw-admin-<name>_<timestamp>`), and it talks to the storefront client rather than the admin one. Admin indices are normally cleaned up when the alias is swapped at the end of an indexing run, so leftovers came from runs that were aborted before that point and then stayed until `es:admin:reset` deleted every admin index, including the live ones.
+An index that no longer serves an alias could only be removed by hand, and `es:index:cleanup` never covered the admin search indices: it builds its pattern from the storefront index prefix (`sw_<entity>_*`), which never matches an admin index (`sw-admin-<name>_<timestamp>`), and it uses the storefront client instead of the admin one. Removing a leftover admin index therefore meant running `es:admin:reset`, which deletes every admin index including the live ones.
 
-Two additions close this:
+Two additions:
 
-* `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation, leaving the aliased indices in place. It fails when admin Elasticsearch is disabled.
-* A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when either Elasticsearch or admin Elasticsearch is enabled.
+* `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation. Aliased indices are kept. The command fails when admin Elasticsearch is disabled.
+* A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when Elasticsearch or admin Elasticsearch is enabled.
 
-The scheduled task applies two guards the interactive commands do not need, because an index that is currently being built also has no alias: it skips indices that an entry in `elasticsearch_index_task` or `admin_elasticsearch_index_task` still writes to, and it only deletes indices older than `elasticsearch.index_cleanup_minimum_age` (default 86400 seconds, override with `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE`). Raise the value if a full indexing run can take longer than the threshold. Indices whose creation date cannot be read are never deleted by the task.
+An index that is currently being built has no alias either, so the scheduled task needs two more conditions: it skips every index listed in `elasticsearch_index_task` or `admin_elasticsearch_index_task`, and it only deletes indices created longer ago than `elasticsearch.index_cleanup_minimum_age` (86400 seconds by default, `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE`). Raise that value when a full indexing run can take longer than the threshold. An index whose creation date cannot be read is never deleted by the task.
 
-`es:index:cleanup` is unchanged and still deletes every storefront index without an alias after confirmation, regardless of age.
-
-### Admin index alias swap no longer stops at the first missing alias
-
-`AdminSearchRegistry` swapped aliases in a loop that returned instead of continuing when an alias did not exist yet. Every entity after that one kept its previous index and left the newly built index behind without an alias. Each entity's alias is now swapped independently.
+`es:index:cleanup` itself is unchanged.
 
 ### Built-in translation system configurable via `shopware.translation`
 

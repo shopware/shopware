@@ -11,8 +11,7 @@ use Twig\Environment;
 use Twig\Runtime\EscaperRuntime;
 
 /**
- * Drives the real `services_resetter` (not `reset()` directly), so it fails unless the reset actually
- * runs on the initialized `twig` service between requests. Regression guard for issue #19272.
+ * Drives the real `services_resetter` (not `reset()` directly), so it fails unless the reset actually runs.
  *
  * @internal
  */

@@ -29,7 +29,7 @@ const STATUS_DESCRIPTION_LIMIT = 140;
  * Read-only git access. Abstracting it keeps the verification logic free of subprocess calls, so it
  * can be unit-tested against an in-memory fake instead of a real repository.
  */
-export interface GitReader {
+export type GitReader = {
     /** Content of `path` at `ref`, or an empty string when the ref or file does not exist. */
     showFile(ref: string, path: string): string;
     /** True when `ref` resolves to a commit (i.e. it has been fetched). */
@@ -42,25 +42,25 @@ export interface GitReader {
     isAncestor(commit: string, ref: string): boolean;
     /** Paths changed by `commit`. */
     changedFiles(commit: string): string[];
-}
+};
 
-export interface MissingEntry {
+export type MissingEntry = {
     heading: string;
     sha: string;
-}
+};
 
-export interface WarningEntry {
+export type WarningEntry = {
     heading: string;
     sha: string;
     note: string;
-}
+};
 
-export interface VerificationResult {
+export type VerificationResult = {
     total: number;
     confirmed: number;
     missing: MissingEntry[];
     warnings: WarningEntry[];
-}
+};
 
 function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -276,58 +276,12 @@ export function resolveVersionPrefix(input: string | undefined, refName: string 
 }
 
 /** {@link GitReader} backed by the git binary. Commands are argument lists, so there is no shell. */
-export class ProcessGitReader implements GitReader {
-    private readonly cwd?: string;
+export function createProcessGitReader(cwd?: string): GitReader {
+    const output = (args: string[]): string => {
+        return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    };
 
-    constructor(cwd?: string) {
-        this.cwd = cwd;
-    }
-
-    showFile(ref: string, path: string): string {
-        return this.outputOrEmpty(['show', `${ref}:${path}`]);
-    }
-
-    refExists(ref: string): boolean {
-        return this.succeeds(['rev-parse', '--verify', '--quiet', ref]);
-    }
-
-    resolveCommit(ref: string): string {
-        return this.output(['rev-parse', '--verify', ref]).trim();
-    }
-
-    findIntroducingCommit(ref: string, needle: string, path: string): string {
-        return this.output(['log', ref, '--format=%H', '--max-count=1', '-S', needle, '--', path]).trim();
-    }
-
-    isAncestor(commit: string, ref: string): boolean {
-        return this.succeeds(['merge-base', '--is-ancestor', commit, ref]);
-    }
-
-    changedFiles(commit: string): string[] {
-        return this.output(['diff-tree', '--no-commit-id', '-r', '--name-only', commit])
-            .split('\n')
-            .map((line) => line.trim())
-            .filter((line) => line !== '');
-    }
-
-    private output(args: string[]): string {
-        return execFileSync('git', args, { cwd: this.cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-    }
-
-    private outputOrEmpty(args: string[]): string {
-        try {
-            return this.output(args);
-        } catch (error) {
-            if (!this.isExpectedShowFileMiss(error)) {
-                throw error;
-            }
-
-            // Missing refs/files are an expected "not present" result for RELEASE_INFO comparisons.
-            return '';
-        }
-    }
-
-    private isExpectedShowFileMiss(error: unknown): boolean {
+    const isExpectedShowFileMiss = (error: unknown): boolean => {
         if (typeof error !== 'object' || error === null || !('status' in error)) {
             return false;
         }
@@ -343,17 +297,42 @@ export class ProcessGitReader implements GitReader {
         return message.includes('does not exist in')
             || message.includes('exists on disk, but not in')
             || message.includes('invalid object name');
-    }
+    };
 
-    private succeeds(args: string[]): boolean {
+    const outputOrEmpty = (args: string[]): string => {
         try {
-            execFileSync('git', args, { cwd: this.cwd, stdio: 'ignore' });
+            return output(args);
+        } catch (error) {
+            if (!isExpectedShowFileMiss(error)) {
+                throw error;
+            }
+
+            // Missing refs/files are an expected "not present" result for RELEASE_INFO comparisons.
+            return '';
+        }
+    };
+
+    const succeeds = (args: string[]): boolean => {
+        try {
+            execFileSync('git', args, { cwd, stdio: 'ignore' });
 
             return true;
         } catch {
             return false;
         }
-    }
+    };
+
+    return {
+        showFile: (ref, path) => outputOrEmpty(['show', `${ref}:${path}`]),
+        refExists: (ref) => succeeds(['rev-parse', '--verify', '--quiet', ref]),
+        resolveCommit: (ref) => output(['rev-parse', '--verify', ref]).trim(),
+        findIntroducingCommit: (ref, needle, path) => output(['log', ref, '--format=%H', '--max-count=1', '-S', needle, '--', path]).trim(),
+        isAncestor: (commit, ref) => succeeds(['merge-base', '--is-ancestor', commit, ref]),
+        changedFiles: (commit) => output(['diff-tree', '--no-commit-id', '-r', '--name-only', commit])
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line !== ''),
+    };
 }
 
 type Repo = { owner: string; repo: string };
@@ -405,7 +384,7 @@ function truncate(text: string): string {
  * `git` reader is injectable so the orchestration can be tested without a real repository; in the
  * workflow it defaults to the git binary in the checked-out repository.
  */
-export async function checkReleaseContent(toolkit: Toolkit, git: GitReader = new ProcessGitReader()): Promise<void> {
+export async function checkReleaseContent(toolkit: Toolkit, git: GitReader = createProcessGitReader()): Promise<void> {
     const { github, core, context } = toolkit;
 
     const versionPrefix = resolveVersionPrefix(process.env.VERSION_PREFIX, process.env.GITHUB_REF_NAME);

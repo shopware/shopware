@@ -14,7 +14,7 @@ import {
     NOTE_COMMIT_WITHOUT_TEXT,
     NOTE_DOCS_ONLY,
     NOTE_TEXT_WITHOUT_COMMIT,
-    ProcessGitReader,
+    createProcessGitReader,
     resolveVersionPrefix,
     STATUS_CONTEXT,
     type Toolkit,
@@ -35,49 +35,28 @@ type FakeData = {
     changed?: Record<string, string[]>;
 };
 
-class FakeGitReader implements GitReader {
-    private readonly data: FakeData;
-
-    constructor(data: FakeData) {
-        this.data = data;
-    }
-
-    showFile(ref: string, path: string): string {
-        return this.data.files?.[`${ref}:${path}`] ?? '';
-    }
-
-    refExists(ref: string): boolean {
-        return (this.data.existingRefs ?? []).includes(ref);
-    }
-
-    resolveCommit(ref: string): string {
-        return this.data.resolvedRefs?.[ref] ?? '';
-    }
-
-    findIntroducingCommit(_ref: string, needle: string): string {
-        return this.data.introducing?.[needle] ?? '';
-    }
-
-    isAncestor(commit: string): boolean {
-        return (this.data.ancestors ?? []).includes(commit);
-    }
-
-    changedFiles(commit: string): string[] {
-        return this.data.changed?.[commit] ?? [];
-    }
+function createFakeGitReader(data: FakeData): GitReader {
+    return {
+        showFile: (ref, path) => data.files?.[`${ref}:${path}`] ?? '',
+        refExists: (ref) => (data.existingRefs ?? []).includes(ref),
+        resolveCommit: (ref) => data.resolvedRefs?.[ref] ?? '',
+        findIntroducingCommit: (_ref, needle) => data.introducing?.[needle] ?? '',
+        isAncestor: (commit) => (data.ancestors ?? []).includes(commit),
+        changedFiles: (commit) => data.changed?.[commit] ?? [],
+    };
 }
 
 function releaseInfo(...headings: string[]): string {
     return `# 6.7.11.0\n\n${headings.map((heading) => `${heading}\nsome description\n`).join('\n')}`;
 }
 
-function verify(git: FakeGitReader) {
+function verify(git: GitReader) {
     return verifyReleaseContent(git, { versionPrefix: VERSION, trunkRef: TRUNK, branchRef: BRANCH, releaseInfoFile: FILE });
 }
 
 test('a heading with a reachable feature commit is confirmed', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
         introducing: { '### Feature A': 'aaaa1111' },
         ancestors: ['aaaa1111'],
@@ -91,7 +70,7 @@ test('a heading with a reachable feature commit is confirmed', () => {
 });
 
 test('a heading absent from the branch with an unreachable commit is missing', () => {
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
         introducing: { '### Feature A': 'aaaa1111' },
         changed: { aaaa1111: [FILE, 'src/Feature.php'] },
@@ -103,7 +82,7 @@ test('a heading absent from the branch with an unreachable commit is missing', (
 
 test('a heading present but with an unreachable commit is warned', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
         introducing: { '### Feature A': 'aaaa1111' },
         changed: { aaaa1111: [FILE, 'src/Feature.php'] },
@@ -114,7 +93,7 @@ test('a heading present but with an unreachable commit is warned', () => {
 });
 
 test('a reachable commit whose heading is missing from the branch is warned', () => {
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
         introducing: { '### Feature A': 'aaaa1111' },
         ancestors: ['aaaa1111'],
@@ -126,7 +105,7 @@ test('a reachable commit whose heading is missing from the branch is warned', ()
 
 test('a docs-only introducing commit is warned', () => {
     const content = releaseInfo('### Feature A');
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
         introducing: { '### Feature A': 'aaaa1111' },
         ancestors: ['aaaa1111'],
@@ -138,7 +117,7 @@ test('a docs-only introducing commit is warned', () => {
 });
 
 test('no headings on trunk yields nothing to verify', () => {
-    const result = verify(new FakeGitReader({ files: { [`${TRUNK}:${FILE}`]: '# 6.7.11.0\n\nno feature headings here\n' } }));
+    const result = verify(createFakeGitReader({ files: { [`${TRUNK}:${FILE}`]: '# 6.7.11.0\n\nno feature headings here\n' } }));
 
     assert.equal(result.total, 0);
     assert.deepEqual(result.missing, []);
@@ -147,7 +126,7 @@ test('no headings on trunk yields nothing to verify', () => {
 
 test('entries are sorted by the introducing commit', () => {
     const content = releaseInfo('### Feature Z', '### Feature A');
-    const result = verify(new FakeGitReader({
+    const result = verify(createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: releaseInfo() },
         introducing: { '### Feature Z': 'zzzz9999', '### Feature A': 'aaaa1111' },
         changed: { zzzz9999: [FILE, 'src/Z.php'], aaaa1111: [FILE, 'src/A.php'] },
@@ -254,7 +233,7 @@ test('resolveVersionPrefix prefers the explicit input, else derives it from the 
 
 test('checkReleaseContent posts a success status and stays quiet on findings', async () => {
     const content = releaseInfo('### Feature A');
-    const git = new FakeGitReader({
+    const git = createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: content, [`${BRANCH}:${FILE}`]: content },
         existingRefs: [TRUNK, BRANCH],
         resolvedRefs: { [BRANCH]: 'branchsha' },
@@ -280,7 +259,7 @@ test('checkReleaseContent posts a success status and stays quiet on findings', a
 });
 
 test('checkReleaseContent posts a failure status when an entry is missing', async () => {
-    const git = new FakeGitReader({
+    const git = createFakeGitReader({
         files: { [`${TRUNK}:${FILE}`]: releaseInfo('### Feature A'), [`${BRANCH}:${FILE}`]: releaseInfo() },
         existingRefs: [TRUNK, BRANCH],
         resolvedRefs: { [BRANCH]: 'branchsha' },
@@ -303,7 +282,7 @@ test('checkReleaseContent posts a failure status when an entry is missing', asyn
 });
 
 test('checkReleaseContent throws when a required ref is not fetched', async () => {
-    const git = new FakeGitReader({ existingRefs: [] });
+    const git = createFakeGitReader({ existingRefs: [] });
     const toolkit = {
         github: { rest: { repos: { createCommitStatus: async () => {} } } },
         core: { info: () => {}, summary: { addRaw: () => ({ write: async () => {} }) } },
@@ -316,7 +295,7 @@ test('checkReleaseContent throws when a required ref is not fetched', async () =
 });
 
 test('checkReleaseContent throws when the release branch cannot be resolved', async () => {
-    const git = new FakeGitReader({ existingRefs: [TRUNK, BRANCH] });
+    const git = createFakeGitReader({ existingRefs: [TRUNK, BRANCH] });
     const toolkit = {
         github: { rest: { repos: { createCommitStatus: async () => {} } } },
         core: { info: () => {}, summary: { addRaw: () => ({ write: async () => {} }) } },
@@ -369,7 +348,7 @@ after(() => {
     rmSync(repository, { recursive: true, force: true });
 });
 
-test('ProcessGitReader reads refs, files, commits and changes from a real repository', () => {
+test('createProcessGitReader reads refs, files, commits and changes from a real repository', () => {
     writeFileSync(join(repository, FILE), '# 6.7.11.0\n\n### Feature A\n');
     const firstCommit = commit('add release info');
 
@@ -381,7 +360,7 @@ test('ProcessGitReader reads refs, files, commits and changes from a real reposi
     // A release branch that stops at the first commit, so the second commit is not reachable from it.
     runGit(['branch', 'release', firstCommit]);
 
-    const reader = new ProcessGitReader(repository);
+    const reader = createProcessGitReader(repository);
 
     assert.equal(reader.refExists('main'), true);
     assert.equal(reader.refExists('does-not-exist'), false);

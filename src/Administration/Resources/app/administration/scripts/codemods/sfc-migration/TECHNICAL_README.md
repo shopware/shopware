@@ -280,8 +280,8 @@ nothing useful to write.
 The full script conversion has two phases:
 
 1. `composition-script-state.ts` extracts and classifies all Options API parts.
-2. `emit-composition-api-script.ts` prints the new `<script setup>` code, calling
-   `emit-native-setup.ts` for the setup body and its `swDefinePublic({ … })` marker.
+2. `emit-composition-api-script.ts` prints the new `<script setup>` code, including
+   the setup body and its `swDefinePublic({ … })` marker.
 
 This keeps "understand the old component" separate from "print the new code".
 
@@ -308,8 +308,8 @@ This keeps "understand the old component" separate from "print the new code".
 4. Imports required by the converted code.
 5. Composable declarations such as `const router = useRouter()`.
 6. Template refs generated from `this.$refs`.
-7. The migrated setup body, printed by `emit-native-setup.ts`: `inject`, `data`,
-   `computed`, methods, watchers, `created`, other lifecycle hooks.
+7. The migrated setup body: `inject`, `data`, `computed`, methods, watchers,
+   `created`, other lifecycle hooks.
 8. The `swDefinePublic({ … })` marker.
 
 `defineOptions` is only emitted for a `name` or `inheritAttrs: false` option, and
@@ -449,8 +449,7 @@ timing does not map cleanly to generated setup code.
 | `string-literals.ts` | Safe JS string quoting helper. |
 | `script-transformer/ast.ts` | AST helpers and component registration detection. |
 | `script-transformer/composition-script-state.ts` | Collects all data needed to print setup code. |
-| `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`: macros, imports, composables, template refs. |
-| `script-transformer/emit-native-setup.ts` | Emits the migrated setup body and the `swDefinePublic({ … })` marker (replaces the former `emit-create-extendable-setup.ts`). |
+| `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`: macros, imports, composables, template refs, the migrated setup body, and the `swDefinePublic({ … })` marker. |
 | `script-transformer/rewrite-this.ts` | Rewrites known `this.*` references. |
 | `script-transformer/resolve-identifiers.ts` | Picks the names of the generated bindings (`emit`, `slots`, `t`, …) so they never collide with the component's own. |
 | `script-transformer/extract-*.ts` | Focused extractors for Options API sections. |

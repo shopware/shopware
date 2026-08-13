@@ -35,7 +35,7 @@ final class OpenApiDtoClassRenderer
     }
 
     /**
-     * @param array<string, string> $externalNamespaces map of class name => namespace for DTOs
+     * @param array<string, string> $externalNamespaces map of FQCN => namespace for DTOs
      *                                                  that live in a different namespace and must be imported
      */
     public function renderClass(OpenApiDtoDefinition $definition, string $namespace, array $externalNamespaces = []): string
@@ -81,7 +81,7 @@ final class OpenApiDtoClassRenderer
         $lines[] = '#[JsonStreamable]';
 
         $baseClass = $this->baseClass($definition);
-        $classDeclaration = 'final class ' . $definition->name . ' extends ' . $this->shortClassName($baseClass);
+        $classDeclaration = 'final class ' . $this->shortClassName($definition->name) . ' extends ' . $this->shortClassName($baseClass);
         $lines[] = $classDeclaration;
         $lines[] = '{';
         $lines[] = '    public function __construct(';
@@ -117,7 +117,7 @@ final class OpenApiDtoClassRenderer
         if ($definition->package !== null) {
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
-        $lines[] = 'enum ' . $definition->name . ': ' . ($definition->enumType ?? 'string');
+        $lines[] = 'enum ' . $this->shortClassName($definition->name) . ': ' . ($definition->enumType ?? 'string');
         $lines[] = '{';
         foreach ($definition->enumValues as $value) {
             $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
@@ -404,7 +404,7 @@ final class OpenApiDtoClassRenderer
     }
 
     /**
-     * @param array<string, string> $externalNamespaces
+     * @param array<string, string> $externalNamespaces map of FQCN => namespace
      *
      * @return list<string>
      */
@@ -443,7 +443,7 @@ final class OpenApiDtoClassRenderer
                         continue;
                     }
 
-                    $targetNamespace = $externalNamespaces[$singleType] ?? null;
+                    $targetNamespace = $this->externalNamespaceForType($singleType, $current, $externalNamespaces);
                     if ($targetNamespace === null) {
                         continue;
                     }
@@ -459,6 +459,35 @@ final class OpenApiDtoClassRenderer
         }
 
         return array_keys($imports);
+    }
+
+    /**
+     * @param array<string, string> $externalNamespaces map of FQCN => namespace
+     */
+    private function externalNamespaceForType(string $type, string $currentNamespace, array $externalNamespaces): ?string
+    {
+        $matches = [];
+        foreach ($externalNamespaces as $fqcn => $namespace) {
+            if ((string) substr($fqcn, (int) strrpos($fqcn, '\\') + 1) !== $type) {
+                continue;
+            }
+
+            if (trim($namespace, '\\') === $currentNamespace) {
+                continue;
+            }
+
+            $matches[$fqcn] = $namespace;
+        }
+
+        if (\count($matches) > 1) {
+            throw FrameworkException::invalidArgumentException(\sprintf(
+                'DTO type "%s" is ambiguous. Matching classes: %s.',
+                $type,
+                implode(', ', array_keys($matches)),
+            ));
+        }
+
+        return $matches === [] ? null : (string) array_values($matches)[0];
     }
 
     private function responseStatusConstant(int $statusCode): string
@@ -498,8 +527,6 @@ final class OpenApiDtoClassRenderer
     }
 
     /**
-     * @param OpenApiDtoDefinition $definition
-     *
      * @return class-string<AbstractDto>
      */
     private function baseClass(OpenApiDtoDefinition $definition): string

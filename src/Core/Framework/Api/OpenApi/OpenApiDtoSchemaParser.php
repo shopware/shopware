@@ -47,7 +47,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return list<OpenApiDtoDefinition>
      */
-    public function parse(array $schema, bool $includeComponentSchemas = true): array
+    public function parse(array $schema, bool $includeComponentSchemas = true, ?string $namespace = null): array
     {
         $registry = $this->schemaRegistry($schema);
         $componentTypes = $this->componentRootTypes($schema);
@@ -56,11 +56,13 @@ final class OpenApiDtoSchemaParser
             ? $this->parseComponentSchemas($schema, $registry, $componentTypes)
             : $this->parseReferencedComponentSchemas($schema, $registry, $componentTypes);
 
-        return $this->deduplicate([
+        $definitions = $this->deduplicate([
             ...$componentDefinitions,
             ...$this->parseRequestBodies($schema, $registry),
             ...$this->parseResponseBodies($schema, $registry),
         ]);
+
+        return $namespace === null ? $definitions : $this->qualifyDefinitions($definitions, $namespace);
     }
 
     /**
@@ -72,7 +74,7 @@ final class OpenApiDtoSchemaParser
      *
      * @return list<OpenApiDtoDefinition>
      */
-    public function parseComponents(array $schema, array $schemaNames): array
+    public function parseComponents(array $schema, array $schemaNames, ?string $namespace = null): array
     {
         $registry = $this->schemaRegistry($schema);
         $componentTypes = $this->componentRootTypes($schema);
@@ -84,13 +86,36 @@ final class OpenApiDtoSchemaParser
                 continue;
             }
 
-            $definitions = [
-                ...$definitions,
-                ...$this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested),
-            ];
+            $componentDefinitions = $this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested);
+            $componentNamespace = $namespace ?? $this->stringOrNull($schemaData[OpenApiDtoGenerator::NAMESPACE_EXTENSION] ?? null);
+            $definitions = [...$definitions, ...($componentNamespace === null ? $componentDefinitions : $this->qualifyDefinitions($componentDefinitions, $componentNamespace))];
         }
 
         return $this->deduplicate($definitions);
+    }
+
+    /**
+     * @param list<OpenApiDtoDefinition> $definitions
+     *
+     * @return list<OpenApiDtoDefinition>
+     */
+    private function qualifyDefinitions(array $definitions, string $namespace): array
+    {
+        $namespace = trim($namespace, '\\');
+
+        return array_map(
+            fn (OpenApiDtoDefinition $definition): OpenApiDtoDefinition => new OpenApiDtoDefinition(
+                name: $namespace . '\\' . ltrim($definition->name, '\\'),
+                properties: $definition->properties,
+                description: $definition->description,
+                package: $definition->package,
+                enumValues: $definition->enumValues,
+                enumType: $definition->enumType,
+                responseStatusCode: $definition->responseStatusCode,
+                type: $definition->type,
+            ),
+            $definitions,
+        );
     }
 
     /**

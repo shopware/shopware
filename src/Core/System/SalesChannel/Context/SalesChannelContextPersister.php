@@ -46,7 +46,7 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        if ($customerId !== null) {
+        if ($customerId !== null && !isset($parameters[SalesChannelContextService::CUSTOMER_ID])) {
             $parameters[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }
 

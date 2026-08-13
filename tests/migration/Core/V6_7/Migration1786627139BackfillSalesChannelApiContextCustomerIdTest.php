@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,31 +37,60 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
 
     public function testBackfillsMissingCustomerIdAndKeepsExistingPayloadValue(): void
     {
-        $customerIds = $this->connection->fetchFirstColumn('SELECT `id` FROM `customer` LIMIT 2');
-        static::assertCount(2, $customerIds);
-
+        $emptyArrayCustomerId = $this->createCustomer();
+        $existingCustomerId = $this->createCustomer();
         $emptyArrayToken = Uuid::randomHex();
         $existingToken = Uuid::randomHex();
         $keptCustomerId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-        $this->connection->executeStatement(
-            'DELETE FROM `sales_channel_api_context` WHERE `customer_id` IN (:ids)',
-            ['ids' => $customerIds],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        $this->insertContext($emptyArrayToken, $customerIds[0], '[]');
-        $this->insertContext($existingToken, $customerIds[1], json_encode(['customerId' => $keptCustomerId], \JSON_THROW_ON_ERROR));
+        $this->insertContext($emptyArrayToken, $emptyArrayCustomerId, '[]');
+        $this->insertContext($existingToken, $existingCustomerId, json_encode(['customerId' => $keptCustomerId], \JSON_THROW_ON_ERROR));
 
         $migration = new Migration1786627139BackfillSalesChannelApiContextCustomerId();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         $emptyArrayPayload = $this->fetchPayload($emptyArrayToken);
-        static::assertSame(Uuid::fromBytesToHex($customerIds[0]), $emptyArrayPayload['customerId']);
+        static::assertSame($emptyArrayCustomerId, $emptyArrayPayload['customerId']);
 
         $existingPayload = $this->fetchPayload($existingToken);
         static::assertSame($keptCustomerId, $existingPayload['customerId']);
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        $salutationId = Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT `id` FROM `salutation` LIMIT 1'));
+        $countryId = Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT `id` FROM `country` LIMIT 1'));
+
+        KernelLifecycleManager::getKernel()->getContainer()->get('customer.repository')->create([
+            [
+                'id' => $customerId,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $salutationId,
+                    'countryId' => $countryId,
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => $customerId . '@example.com',
+                'password' => TestDefaults::HASHED_PASSWORD,
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'guest' => false,
+                'salutationId' => $salutationId,
+                'customerNumber' => $customerId,
+            ],
+        ], Context::createDefaultContext());
+
+        return $customerId;
     }
 
     private function insertContext(string $token, string $customerId, string $payload): void
@@ -70,7 +99,7 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
             'token' => $token,
             'payload' => $payload,
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'customer_id' => $customerId,
+            'customer_id' => Uuid::fromHexToBytes($customerId),
             'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

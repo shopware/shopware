@@ -82,13 +82,15 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
+        $rootProductId = $crossSellings->count() > 0
+            ? $this->fetchRootProductId($productId, $context)
+            : $productId;
+
         $elements = new CrossSellingElementCollection();
-        $rootProductId = null;
 
         foreach ($crossSellings as $crossSelling) {
             $clone = clone $criteria;
             if ($this->useProductStream($crossSelling)) {
-                $rootProductId ??= $this->fetchRootProductId($productId, $context);
                 $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
             } else {
                 $element = $this->loadByIds($crossSelling, $context, $clone);
